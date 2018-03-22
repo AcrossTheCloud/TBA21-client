@@ -21,10 +21,9 @@ phases:
     commands:
       npm run build
       # - command
-  #post_build:
-    #commands:
-      # - command
-      # - command
+  post_build:
+    commands:
+      - aws s3 sync build s3://tba21.acrossthecloud.net
 artifacts:
   files:
     - '**/*'
