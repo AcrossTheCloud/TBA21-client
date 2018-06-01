@@ -19,7 +19,8 @@ phases:
       # - command
   build:
     commands:
-      npm run build
+      - npm run build
+      - cat /root/.npm/_logs/*
       # - command
   post_build:
     commands:
