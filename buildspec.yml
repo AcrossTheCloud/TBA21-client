@@ -20,10 +20,10 @@ phases:
   build:
     commands:
       - npm run build
-      - cat /root/.npm/_logs/*
       # - command
   post_build:
     commands:
+      - cat /root/.npm/_logs/*
       - aws s3 sync build $TARGET_S3_BUCKET
 artifacts:
   files:
