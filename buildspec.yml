@@ -28,6 +28,7 @@ artifacts:
   files:
     - '**/*'
   base-directory: build
-#cache:
-  #paths:
-    # - paths
+cache:
+  paths:
+    - '/root/.npm/**/*'
+    - 'node_modules/**/*'
