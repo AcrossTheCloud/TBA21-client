@@ -39,7 +39,7 @@ export class EntryForm extends React.Component<{}, {}> {
               id="inputDescription"
               type="text"
               value={data.description.value}
-              onChange={(e:any) => data.description.onChange(e.target.value)}
+              onChange={(e) => data.description.onChange(e.target.value)}
             />
           </Col>
         </FormGroup>
