@@ -18,7 +18,7 @@
   },
   "scripts": {
     "start": "react-scripts-ts start",
-    "build": "cp -r node_modules/bootstrap/dist/css/* src/css/bootstrap && react-scripts-ts build",
+    "build": "react-scripts-ts build",
     "test": "CI=TRUE react-scripts-ts test --env=jsdom",
     "eject": "react-scripts-ts eject"
   },
