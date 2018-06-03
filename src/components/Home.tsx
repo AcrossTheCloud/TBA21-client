@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { NavLink } from 'reactstrap';
 import './Home.css';
 
 const logo = require('./logo.svg');
@@ -11,7 +12,10 @@ export const Home: React.StatelessComponent<{}> = () => {
           <h1 className="Home-title">Welcome to React</h1>
         </header>
         <p className="Home-intro">
-          To get started, edit <code>src/Home.tsx</code> and save to reload.
+          <NavLink
+            href="/view">
+            Open the archive
+          </NavLink>
         </p>
       </div>
     );
