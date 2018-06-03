@@ -7,10 +7,11 @@ import { Home, EntryForm } from './components';
 export const AppRouter: React.StatelessComponent<{}> = () => {
   return (
     <BrowserRouter>
-      <Route path="/" component={App} >
+      <div>
+        <Route path="/" component={App} />
         <Route exact path="/" component={Home} />
-        <Route path="/entry" component={EntryForm} />
-      </Route>
+        <Route exact path="/entry" component={EntryForm} />
+      </div>
     </BrowserRouter>
   );
 };
