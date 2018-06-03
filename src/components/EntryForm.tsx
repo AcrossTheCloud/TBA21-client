@@ -1,18 +1,51 @@
 import * as React from 'react';
-import './EntryForm.css';
+import { observer } from 'mobx-react';
+import { FormState, FieldState } from 'formstate';
+import { Form, FormGroup, Label, Input, Col } from 'reactstrap';
 
-const logo = require('./logo.svg');
+class EntryFormState {
+  // Create a field
+  description = new FieldState('').validators((val) => !val && 'description required');
 
-export const EntryForm: React.StatelessComponent<{}> = () => {
+  // Compose fields into a form
+  form = new FormState({
+    description: this.description
+  });
+
+  onSubmit = async () => {
+    //  Validate all fields
+    const res = await this.form.validate();
+    // If any errors you would know
+    if (res.hasError) {
+      // fixme
+      return;
+    }
+    // Yay .. all good. Do what you want with it
+    // fixme
+  }
+}
+
+@observer
+export class EntryForm extends React.Component<{}, {}> {
+  data = new EntryFormState();
+  render() {
+    const data = this.data;
     return (
-      <div className="EntryForm">
-        <header className="EntryForm-header">
-          <img src={logo} className="EntryForm-logo" alt="logo" />
-          <h1 className="EntryForm-title">Welcome to React</h1>
-        </header>
-        <p className="EntryForm-intro">
-          To get started, edit <code>src/EntryForm.tsx</code> and save to reload.
-        </p>
-      </div>
+      <Form onSubmit={data.onSubmit}>
+        <FormGroup>
+          <Label for="inputDescription" sm={2}>Description</Label>
+          <Col sm={10}>
+            <Input
+              id="inputDescription"
+              type="text"
+              value={data.description.value}
+              onChange={(e:any) => data.description.onChange(e.target.value)}
+            />
+          </Col>
+        </FormGroup>
+        <p>{data.description.error}</p>
+        <p>{data.form.error}</p>
+      </Form>
     );
-};
+  }
+}
