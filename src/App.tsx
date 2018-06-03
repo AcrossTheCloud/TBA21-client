@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Header } from './components';
+import Header from './components/Header';
 
 export const App: React.StatelessComponent<{}> = (props) => {
   return (
