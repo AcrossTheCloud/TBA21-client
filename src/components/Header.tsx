@@ -41,7 +41,7 @@ export default class Header extends React.Component<NavProps, {dropdownOpen: Boo
       return (
         <div>
           <Navbar color="light" light expand="md">
-            <NavbarBrand href="/">reactstrap</NavbarBrand>
+            <NavbarBrand href="/">TBA21 OceanArchive</NavbarBrand>
             <NavbarToggler onClick={this.toggle} />
             <Collapse dropdownOpen={this.state.dropdownOpen} navbar>
               <Nav className="ml-auto" navbar>
