@@ -9,11 +9,7 @@ import {
   NavbarBrand,
   Nav,
   NavItem,
-  NavLink,
-  UncontrolledDropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem } from 'reactstrap';
+  NavLink } from 'reactstrap';
 
 export default class Header extends React.Component<NavProps, {dropdownOpen: Boolean}> {
 
@@ -51,23 +47,6 @@ export default class Header extends React.Component<NavProps, {dropdownOpen: Boo
                 <NavItem>
                   <NavLink href="/entry">Metadata Entry</NavLink>
                 </NavItem>
-                <UncontrolledDropdown nav inNavbar>
-                  <DropdownToggle nav caret>
-                    Options
-                  </DropdownToggle>
-                  <DropdownMenu right>
-                    <DropdownItem>
-                      Action 1 (TBC)
-                    </DropdownItem>
-                    <DropdownItem>
-                      Action 2 (TBC)
-                    </DropdownItem>
-                    <DropdownItem divider />
-                    <DropdownItem>
-                      Logout (TBC)
-                    </DropdownItem>
-                  </DropdownMenu>
-                </UncontrolledDropdown>
               </Nav>
             </Collapse>
           </Navbar>
