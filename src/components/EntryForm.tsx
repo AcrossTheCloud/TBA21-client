@@ -49,7 +49,7 @@ class EntryFormState {
   description = new FieldState('').validators((val) => !val && 'description required');
   ocean = new FieldState('Pacific').validators((val) => oceans.indexOf(val) < 0 && 'valid ocean requured');
   url = new FieldState('').validators((val) => regexWeburl.test(val) && 'valid URL required');
-  artist = new FieldState('').validators((val) => {return false;});
+  artist = new FieldState('').validators((val) => { return false; });
 
   // Compose fields into a form
   form = new FormState({
