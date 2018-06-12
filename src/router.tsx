@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Route } from 'react-router';
 import { BrowserRouter } from 'react-router-dom';
 import { App } from './App';
-import { Home, EntryForm, ArchiveTable } from './components';
+import { EntryForm, ArchiveTable } from './components';
 
 export const AppRouter: React.StatelessComponent<{}> = () => {
   return (
