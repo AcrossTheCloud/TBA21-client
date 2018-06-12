@@ -1,33 +1,45 @@
 import * as React from 'react';
 import { Table } from 'reactstrap';
-import * as $ from 'jquery';
+import { OceanObject, TableRow  } from './TableRow';
 
-interface OceanObject {
-  Items: Array<any>; // tslint:disable-line: no-any
+interface OceanObjectResults {
+  Items: Array<OceanObject>;
+  Count: number;
+  ScannedCount: number;
 }
 
-export class ArchiveTable extends React.Component<{}, {}> {
+export class ArchiveTable extends React.Component<{}, OceanObjectResults> {
 
-  getDataFromServer(ocean: String) {
+  state: OceanObjectResults = {Items: [{ocean: '', timestamp: 1, itemId: '', position: [0, 0], description: '', url: '', artist: ''}], Count: 1, ScannedCount: 1};
 
-    $.getJSON('https://4xgacg5y8f.execute-api.eu-central-1.amazonaws.com/prod/items?ocean=' + ocean)
-    .done(function(data: OceanObject) {
-      $('#itemsTable').html('');
-      $('#itemsTable').append('<table><thead><tr><th>#</th><th>ocean</th><th>description</th><th>artefact URL</th></tr></thead>');
-      $.each((data as any).Items as any[], function(i: number, item: any) { // tslint:disable-line: no-any
-        $('#itemsTable').append('<tr><td>' + item.itemId + '</td><td>' + item.description + '</td><td><a href="' + item.url + '">' + item.url + '</a></td></tr>');
-      });
-      $('#itemsTable').append('</table>');
+  componentDidMount() {
+    fetch('https://4xgacg5y8f.execute-api.eu-central-1.amazonaws.com/prod/items')
+    .then((result: any) =>  { // tslint:disable-line:no-any
+      return result.json();
+    }).then((data) => {
+      this.setState(data);
     });
   }
 
-  componentDidMount() {
-    this.getDataFromServer('Pacific');
-  }
-
   render() {
+
     return (
-      <Table striped id="itemsTable" />
+      <Table striped bordered hover size="sm">
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Artist</th>
+            <th>Link</th>
+            <th>Map</th>
+          </tr>
+        </thead>
+        <tbody>
+          {(this.state.Items).map(item => {
+            console.log(item); // tslint:disable-line:no-console
+            return <TableRow key={item.itemId} {...item} />;
+          })}
+        </tbody>
+      </Table>
     );
   }
 }

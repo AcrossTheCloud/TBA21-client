@@ -1,0 +1,53 @@
+import * as React from 'react';
+import { StaticMap } from 'react-map-gl';
+import * as MapboxGL from 'mapbox-gl';
+import { Link } from 'react-router-dom';
+
+interface MyMapProps {
+  lng: number;
+  lat: number;
+}
+
+class MyRowMap extends React.Component<MyMapProps, {}> {
+
+  map: MapboxGL.Map;
+
+  render() {
+    return (
+      <div>
+        <StaticMap
+          mapboxApiAccessToken="pk.eyJ1IjoiYWNyb3NzdGhlY2xvdWQiLCJhIjoiY2ppNnQzNG9nMDRiMDNscDh6Zm1mb3dzNyJ9.nFFwx_YtN04_zs-8uvZKZQ"
+          width={200}
+          height={200}
+          longitude={this.props.lng}
+          latitude={this.props.lat}
+          zoom={8}
+        />
+      </div>
+    );
+  }
+
+}
+
+export interface OceanObject {
+  ocean: string;
+  timestamp: number;
+  itemId: string;
+  position: number[];
+  description: string;
+  url: string;
+  artist: string;
+}
+
+export class TableRow extends React.Component<OceanObject, {}> {
+  render() {
+    return (
+      <tr>
+        <td>{this.props.description}</td>
+        <td>{this.props.artist}</td>
+        <td><Link to={this.props.url} target="_blank">link</Link></td>
+        <td><MyRowMap lng={this.props.position[0]} lat={this.props.position[1]} /></td>
+      </tr>
+    );
+  }
+}
