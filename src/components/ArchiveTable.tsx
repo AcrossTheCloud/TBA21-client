@@ -13,7 +13,7 @@ export class ArchiveTable extends React.Component<{}, OceanObjectResults> {
   state: OceanObjectResults = {Items: [{ocean: '', timestamp: 1, itemId: '', position: [0, 0], description: '', url: '', artist: ''}], Count: 1, ScannedCount: 1};
 
   componentDidMount() {
-    fetch('https://4xgacg5y8f.execute-api.eu-central-1.amazonaws.com/prod/items')
+    fetch('https://4984s3d656.execute-api.eu-central-1.amazonaws.com/prod/items')
     .then((result: any) =>  { // tslint:disable-line:no-any
       return result.json();
     }).then((data) => {
