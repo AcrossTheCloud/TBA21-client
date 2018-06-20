@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { StaticMap } from 'react-map-gl';
 import * as MapboxGL from 'mapbox-gl';
-import { Link } from 'react-router-dom';
+import { MultiMedia } from './MultiMedia';
 
 interface MyMapProps {
   lng: number;
@@ -45,7 +45,7 @@ export class TableRow extends React.Component<OceanObject, {}> {
       <tr>
         <td>{this.props.description}</td>
         <td>{this.props.artist}</td>
-        <td><Link to={this.props.url} target="_blank">link</Link></td>
+        <td vertical-align="top"><MultiMedia url={this.props.url} /></td>
         <td><MyRowMap lng={this.props.position[0]} lat={this.props.position[1]} /></td>
       </tr>
     );
