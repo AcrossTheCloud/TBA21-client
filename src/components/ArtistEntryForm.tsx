@@ -110,19 +110,13 @@ const valposition = function (lngLat: number[]): boolean {
 
 class EntryFormState {
   // Create a field
-  description = new FieldState('').validators((val: string) => !val && 'description required');
-  ocean = new FieldState('Pacific').validators((val: string) => oceans.indexOf(val) < 0 && 'valid ocean requured');
-  url = new FieldState('').validators((val: string) => !regexWeburl.test(val) && 'valid URL required');
-  artist = new FieldState('').validators((val: string) => { return false; });
-  position = new FieldState([150.86914, -34.41921]).validators((val: number[]) => !valposition(val) && 'valid position required');
+  name = new FieldState('').validators((val: string) => !val && 'name required');
+  biography = new FieldState('').validators((val: string) => !val && 'biography required');
 
   // Compose fields into a form
   form = new FormState({
-    description: this.description,
-    ocean: this.ocean,
-    url: this.url,
-    position: this.position,
-    artist: this.artist
+    name: this.name,
+    biography: this.biography
   });
 
   onSubmit = async (e: any) => { // tslint:disable-line:no-any
@@ -135,15 +129,12 @@ class EntryFormState {
     }
     // Yay .. all good. Do what you want with it
     let body = JSON.stringify({
-      description: this.form.$.description.$,
-      ocean: this.form.$.ocean.$,
-      url: this.form.$.url.$,
-      position: this.form.$.position.$,
-      artist: this.form.$.artist.$
+      name: this.form.$.name.$,
+      biography: this.form.$.biography.$
     });
 
     try {
-      let response = await fetch('https://tba21.acrossthecloud.net/item', {
+      let response = await fetch('https://tba21-api.acrossthecloud.net/artist', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: body
