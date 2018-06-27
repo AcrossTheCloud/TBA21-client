@@ -126,7 +126,7 @@ class EntryFormState {
   });
 
   onSubmit = async (e: any) => { // tslint:disable-line:no-any
-    e.preventDefault(); 
+    e.preventDefault();
     //  Validate all fields
     let res = await this.form.validate();
     // If any errors you would know
@@ -143,7 +143,7 @@ class EntryFormState {
     });
 
     try {
-      let response = await fetch('https://4984s3d656.execute-api.eu-central-1.amazonaws.com/prod/item', {
+      let response = await fetch('https://tba21.acrossthecloud.net/item', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: body
