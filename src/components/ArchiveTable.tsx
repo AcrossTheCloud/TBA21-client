@@ -2,6 +2,8 @@ import * as React from 'react';
 import { Table } from 'reactstrap';
 import { OceanObject, TableRow  } from './TableRow';
 
+import 'mapbox-gl/dist/mapbox-gl.css';
+
 interface OceanObjectResults {
   Items: Array<OceanObject>;
   Count: number;
