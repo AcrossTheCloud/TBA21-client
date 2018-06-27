@@ -19,6 +19,7 @@
     "react-router": "^4.3.1",
     "react-router-dom": "^4.3.1",
     "react-scripts-ts": "2.16.0",
+    "react-select": "^1.2.1",
     "reactstrap": "^6.1.0",
     "redux": "^4.0.0"
   },
@@ -33,12 +34,13 @@
     "@types/jest": "^23.1.2",
     "@types/jquery": "^3.3.4",
     "@types/mapbox-gl": "^0.45.1",
-    "@types/node": "^10.3.6",
-    "@types/react": "^16.4.2",
+    "@types/node": "^10.5.0",
+    "@types/react": "^16.4.3",
     "@types/react-dom": "^16.0.6",
     "@types/react-map-gl": "^3.2.2",
     "@types/react-router": "^4.0.27",
     "@types/react-router-dom": "^4.2.7",
+    "@types/react-select": "^1.2.7",
     "@types/reactstrap": "^6.0.0",
     "enzyme": "^3.3.0",
     "typescript": "^2.9.2"

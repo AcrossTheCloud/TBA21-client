@@ -7,10 +7,17 @@ import {
     InteractiveMap,
     MapEvent
 } from 'react-map-gl';
-
 import * as MapboxGL from 'mapbox-gl';
+import { Async } from 'react-select';
 
-import 'mapbox-gl/dist/mapbox-gl.css';
+const getOptions = (input: string) => {
+  return fetch(`https://tba21-acrossthecloud.net/artists?name=${input}`)
+    .then((response) => {
+      return response.json();
+    }).then((json) => {
+      return { options: json.Items.map( (x: any) => { return {value: x.artistId, label: x.name}; } ) }; // tslint:disable-line: no-any
+    });
+};
 
 interface MyMapState {
   viewport: Viewport;
@@ -108,7 +115,7 @@ const valposition = function (lngLat: number[]): boolean {
   return (-180 <= lng) && (lng <= 180) && (-90 <= lat) && (lat <= 90);
 };
 
-class EntryFormState {
+class ItemEntryFormState {
   // Create a field
   description = new FieldState('').validators((val: string) => !val && 'description required');
   ocean = new FieldState('Pacific').validators((val: string) => oceans.indexOf(val) < 0 && 'valid ocean requured');
@@ -158,9 +165,9 @@ class EntryFormState {
 }
 
 @observer
-export class EntryForm extends React.Component<{}, {}> {
+export class ItemEntryForm extends React.Component<{}, {}> {
 
-  data = new EntryFormState();
+  data = new ItemEntryFormState();
 
   setposition = (e: MapEvent) => {
     this.data.position.onChange(e.lngLat);
@@ -188,6 +195,12 @@ export class EntryForm extends React.Component<{}, {}> {
             onChange={(e) => data.description.onChange(e.target.value)}
           />
         </FormGroup>
+        <Async
+          name="form-field-name"
+          value="one"
+          loadOptions={getOptions}
+        />
+
         <FormGroup>
           <Label for="ocean">Select an ocean</Label>
           <Input type="select" name="ocean" id="ocean" onChange={(e) => data.ocean.onChange(e.target.value)}>

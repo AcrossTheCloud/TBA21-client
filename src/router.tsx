@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Route } from 'react-router';
 import { BrowserRouter } from 'react-router-dom';
 import { App } from './App';
-import { Home, ItemEntryForm, ArchiveTable } from './components';
+import { Home, ItemEntryForm, ArtistEntryForm, ArchiveTable } from './components';
 
 export const AppRouter: React.StatelessComponent<{}> = () => {
   return (
@@ -11,7 +11,8 @@ export const AppRouter: React.StatelessComponent<{}> = () => {
         <Route path="/" component={App} />
         <Route exact path="/" component={Home} />
         <Route exact path="/view" component={ArchiveTable} />
-        <Route exact path="/entry" component={ItemEntryForm} />
+        <Route exact path="/itemEntry" component={ItemEntryForm} />
+        <Route exact path="/artistEntry" component={ArtistEntryForm} />
       </div>
     </BrowserRouter>
   );
