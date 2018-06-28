@@ -9,12 +9,14 @@ import {
 } from 'react-map-gl';
 import * as MapboxGL from 'mapbox-gl';
 import { Async } from 'react-select';
+import 'react-select/dist/react-select.css';
 
 const getOptions = (input: string) => {
-  return fetch(`https://tba21-acrossthecloud.net/artists?name=${input}`)
+  return fetch(`https://tba21-api.acrossthecloud.net/artists?name=${input}`)
     .then((response) => {
       return response.json();
     }).then((json) => {
+      console.log(json); // tslint:disable-line: no-console
       return { options: json.Items.map( (x: any) => { return {value: x.artistId, label: x.name}; } ) }; // tslint:disable-line: no-any
     });
 };
@@ -120,7 +122,7 @@ class ItemEntryFormState {
   description = new FieldState('').validators((val: string) => !val && 'description required');
   ocean = new FieldState('Pacific').validators((val: string) => oceans.indexOf(val) < 0 && 'valid ocean requured');
   url = new FieldState('').validators((val: string) => !regexWeburl.test(val) && 'valid URL required');
-  artist = new FieldState('').validators((val: string) => { return false; });
+  artist = new FieldState({label: '', value: ''}).validators((val: object) => { return false; });
   position = new FieldState([150.86914, -34.41921]).validators((val: number[]) => !valposition(val) && 'valid position required');
 
   // Compose fields into a form
@@ -197,8 +199,14 @@ export class ItemEntryForm extends React.Component<{}, {}> {
         </FormGroup>
         <Async
           name="form-field-name"
-          value="one"
+          value={data.artist.value}
+          multi={false}
+          autosize={false}
+          style={{'width': 'auto'}}
+          placeholder="Artist..."
+          ignoreCase={false}
           loadOptions={getOptions}
+          onChange={(e) => { data.artist.onChange({label: (e as object)['label'], value: (e as object)['value']}); }} // tslint:disable-line: no-string-literal
         />
 
         <FormGroup>
@@ -214,15 +222,6 @@ export class ItemEntryForm extends React.Component<{}, {}> {
         <FormGroup>
           <Label for="url">Url</Label>
           <Input type="url" name="url" id="url" placeholder="url placeholder" onChange={(e) => data.url.onChange(e.target.value)}/>
-        </FormGroup>
-        <FormGroup>
-          <Label for="artist">Artist</Label>
-          <Input
-            id="artist"
-            type="text"
-            value={data.artist.value}
-            onChange={(e) => data.artist.onChange(e.target.value)}
-          />
         </FormGroup>
         <Button>Submit</Button>
         <p>{data.form.error}</p>

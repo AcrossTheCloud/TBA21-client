@@ -36,7 +36,8 @@ export interface OceanObject {
   position: number[];
   description: string;
   url: string;
-  artist: string;
+  artistId: string;
+  artistName: string;
 }
 
 export class TableRow extends React.Component<OceanObject, {}> {
@@ -44,7 +45,7 @@ export class TableRow extends React.Component<OceanObject, {}> {
     return (
       <tr>
         <td>{this.props.description}</td>
-        <td>{this.props.artist}</td>
+        <td>{this.props.artistName}</td>
         <td vertical-align="top"><MultiMedia url={this.props.url} /></td>
         <td><MyRowMap lng={this.props.position[0]} lat={this.props.position[1]} /></td>
       </tr>
