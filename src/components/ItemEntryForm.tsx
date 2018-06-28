@@ -45,7 +45,7 @@ class MyMap extends React.Component<MyMapProps, MyMapState> {
 
     constructor (props: any) { // tslint:disable-line: no-any
       super(props);
-      this.props = props;
+      // this.props = props;
     }
 
     render() {
