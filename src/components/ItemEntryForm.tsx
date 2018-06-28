@@ -148,7 +148,7 @@ class ItemEntryFormState {
       ocean: this.form.$.ocean.$,
       url: this.form.$.url.$,
       position: this.form.$.position.$,
-      artist: this.form.$.artist.$
+      artistId: this.form.$.artist.$.value
     });
 
     try {
