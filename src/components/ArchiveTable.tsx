@@ -12,7 +12,7 @@ interface OceanObjectResults {
 
 export class ArchiveTable extends React.Component<{}, OceanObjectResults> {
 
-  state: OceanObjectResults = {Items: [{ocean: '', timestamp: 1, itemId: '', position: [0, 0], description: '', url: '', artistId: '', artistName: ''}], Count: 1, ScannedCount: 1};
+  state: OceanObjectResults = {Items: [{ocean: '', timestamp: 1, itemId: '', position: [0, 0], description: '', url: '', artistId: '', artistName: '', tags: []}], Count: 1, ScannedCount: 1};
 
   componentDidMount() {
     fetch('https://tba21-api.acrossthecloud.net/items')
@@ -34,6 +34,7 @@ export class ArchiveTable extends React.Component<{}, OceanObjectResults> {
           <tr>
             <th>Description</th>
             <th>Artist</th>
+            <th>Tags</th>
             <th>Artifact</th>
             <th>Map</th>
           </tr>
