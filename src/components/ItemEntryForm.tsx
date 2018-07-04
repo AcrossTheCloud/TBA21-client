@@ -9,7 +9,17 @@ import {
 } from 'react-map-gl';
 import * as MapboxGL from 'mapbox-gl';
 import { Async } from 'react-select';
+import { WithContext as ReactTags } from 'react-tag-input';
+
 import 'react-select/dist/react-select.css';
+import './ItemEntryForm.css';
+
+// set up delimiters for tag entry
+const KeyCodes = {
+  comma: 188,
+  enter: 13,
+};
+const delimiters = [KeyCodes.comma, KeyCodes.enter];
 
 const getOptions = (input: string) => {
   return fetch(`https://tba21-api.acrossthecloud.net/artists?name=${input}`)
@@ -45,30 +55,30 @@ class MyMap extends React.Component<MyMapProps, MyMapState> {
 
   _onViewportChange = (viewport: Viewport) => this.setState({viewport});
 
-    constructor (props: any) { // tslint:disable-line: no-any
-      super(props);
-      // this.props = props;
-    }
+  constructor (props: any) { // tslint:disable-line: no-any
+    super(props);
+    // this.props = props;
+  }
 
-    render() {
-        return (
-            <div>
-                <InteractiveMap
-                    {...this.state.viewport}
-                    mapboxApiAccessToken="pk.eyJ1IjoiYWNyb3NzdGhlY2xvdWQiLCJhIjoiY2ppNnQzNG9nMDRiMDNscDh6Zm1mb3dzNyJ9.nFFwx_YtN04_zs-8uvZKZQ"
-                    height={400}
-                    width={400}
-                    ref={this.setRefInteractive}
-                    onViewportChange={this._onViewportChange}
-                    onClick={this.props.onClick}
-                />
-            </div>
-        );
-    }
+  render() {
+      return (
+          <div>
+              <InteractiveMap
+                  {...this.state.viewport}
+                  mapboxApiAccessToken="pk.eyJ1IjoiYWNyb3NzdGhlY2xvdWQiLCJhIjoiY2ppNnQzNG9nMDRiMDNscDh6Zm1mb3dzNyJ9.nFFwx_YtN04_zs-8uvZKZQ"
+                  height={400}
+                  width={400}
+                  ref={this.setRefInteractive}
+                  onViewportChange={this._onViewportChange}
+                  onClick={this.props.onClick}
+              />
+          </div>
+      );
+  }
 
-    private readonly setRefInteractive = (el: InteractiveMap) => {
-        this.map = el.getMap();
-    }
+  private readonly setRefInteractive = (el: InteractiveMap) => {
+      this.map = el.getMap();
+  }
 
 }
 
@@ -117,6 +127,16 @@ const valposition = function (lngLat: number[]): boolean {
   return (-180 <= lng) && (lng <= 180) && (-90 <= lat) && (lat <= 90);
 };
 
+interface Tag {
+  id: string;
+  text: string;
+}
+
+interface TagState {
+  tags: Tag[];
+  suggestions: Tag[];
+}
+
 class ItemEntryFormState {
   // Create a field
   description = new FieldState('').validators((val: string) => !val && 'description required');
@@ -124,6 +144,7 @@ class ItemEntryFormState {
   url = new FieldState('').validators((val: string) => !regexWeburl.test(val) && 'valid URL required');
   artist = new FieldState({label: '', value: ''}).validators((val: object) => { return false; });
   position = new FieldState([150.86914, -34.41921]).validators((val: number[]) => !valposition(val) && 'valid position required');
+  tags = new FieldState([]).validators((val: Tag[]) => !(val.length > 0) && 'at least one tag required');
 
   // Compose fields into a form
   form = new FormState({
@@ -131,7 +152,8 @@ class ItemEntryFormState {
     ocean: this.ocean,
     url: this.url,
     position: this.position,
-    artist: this.artist
+    artist: this.artist,
+    tags: this.tags
   });
 
   onSubmit = async (e: any) => { // tslint:disable-line:no-any
@@ -148,7 +170,10 @@ class ItemEntryFormState {
       ocean: this.form.$.ocean.$,
       url: this.form.$.url.$,
       position: this.form.$.position.$,
-      artistId: this.form.$.artist.$.value
+      artistId: this.form.$.artist.$.value,
+      tags: this.form.$.tags.$.map((item: Tag) => {
+        return item.text;
+      })
     });
 
     try {
@@ -163,13 +188,64 @@ class ItemEntryFormState {
       alert(err);
     }
   }
-
 }
 
 @observer
-export class ItemEntryForm extends React.Component<{}, {}> {
+export class ItemEntryForm extends React.Component<{}, TagState> {
+
+  readonly state = {
+      tags: [],
+      suggestions: [] // todo, pre-populate from existing tags using API
+  };
 
   data = new ItemEntryFormState();
+
+  constructor (props: any) { // tslint:disable-line: no-any
+    super(props);
+    this.handleDelete = this.handleDelete.bind(this);
+    this.handleAddition = this.handleAddition.bind(this);
+    this.handleDrag = this.handleDrag.bind(this);
+  }
+
+  handleDelete(i: number) {
+      const { tags } = this.state;
+      this.setState({
+       tags: tags.filter((tag, index) => index !== i),
+      });
+      this.data.tags.onChange(this.state.tags);
+  }
+
+  handleAddition(tag: Tag) {
+      this.setState(state => ({ tags: [...state.tags, tag] }));
+  }
+
+  handleDrag(tag: Tag, currPos: number, newPos: number) {
+      const tags: Tag[] = [...this.state.tags];
+      const newTags = tags.slice();
+
+      newTags.splice(currPos, 1);
+      newTags.splice(newPos, 0, tag);
+
+      // re-render
+      this.setState({ tags: newTags });
+  }
+
+  componentDidMount() {
+    fetch('https://tba21-api.acrossthecloud.net/tags')
+    .then((result: any) =>  { // tslint:disable-line:no-any
+      return result.json();
+    }).then((data) => {
+      return data;
+    })
+    .then((data) => {
+      console.log(data); // tslint:disable-line:no-console
+      this.setState({ suggestions: data.map((item: string) => ({id: item, text: item})) });
+    });
+  }
+
+  componentDidUpdate() {
+    this.data.tags.onChange(this.state.tags);
+  }
 
   setposition = (e: MapEvent) => {
     this.data.position.onChange(e.lngLat);
@@ -186,6 +262,16 @@ export class ItemEntryForm extends React.Component<{}, {}> {
           <Input
             value={data.position.value.toString()}
             readOnly={true}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ReactTags
+            tags={this.state.tags}
+            suggestions={this.state.suggestions}
+            handleDelete={this.handleDelete}
+            handleAddition={this.handleAddition}
+            handleDrag={this.handleDrag}
+            delimiters={delimiters}
           />
         </FormGroup>
         <FormGroup>
