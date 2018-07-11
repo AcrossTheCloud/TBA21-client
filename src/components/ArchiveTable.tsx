@@ -33,7 +33,7 @@ export class ArchiveTable extends React.Component<{}, OceanObjectResults> {
         <thead>
           <tr>
             <th>Description</th>
-            <th>Artist</th>
+            <th>Creator</th>
             <th>Tags</th>
             <th>Artifact</th>
             <th>Map</th>

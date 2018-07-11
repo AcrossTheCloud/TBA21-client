@@ -1,5 +1,5 @@
 export * from './ItemEntryForm';
-export * from './ArtistEntryForm';
+export * from './CreatorEntryForm';
 export * from './Header';
 export * from './Home';
 export * from './ArchiveTable';

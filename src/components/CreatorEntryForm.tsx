@@ -3,7 +3,7 @@ import { observer } from 'mobx-react';
 import { FormState, FieldState } from 'formstate';
 import { Form, FormGroup, Label, Input, Button, Container } from 'reactstrap';
 
-class ArtistEntryFormState {
+class CreatorEntryFormState {
   // Create a field
   name = new FieldState('').validators((val: string) => !val && 'name required');
   biography = new FieldState('').validators((val: string) => !val && 'biography required');
@@ -44,9 +44,9 @@ class ArtistEntryFormState {
 }
 
 @observer
-export class ArtistEntryForm extends React.Component<{}, {}> {
+export class CreatorEntryForm extends React.Component<{}, {}> {
 
-  data = new ArtistEntryFormState();
+  data = new CreatorEntryFormState();
 
   render() {
     const data = this.data;
@@ -54,7 +54,7 @@ export class ArtistEntryForm extends React.Component<{}, {}> {
       <Container>
       <Form onSubmit={(e) => data.onSubmit(e)}>
         <FormGroup>
-          <Label for="inputName">Artist Name</Label>
+          <Label for="inputName">Creator Name</Label>
           <Input
             id="inputName"
             type="text"
@@ -63,7 +63,7 @@ export class ArtistEntryForm extends React.Component<{}, {}> {
           />
         </FormGroup>
         <FormGroup>
-          <Label for="inputBiography">Artist Biography</Label>
+          <Label for="inputBiography">Creator Biography</Label>
           <Input
             id="inputBiography"
             type="textarea"
