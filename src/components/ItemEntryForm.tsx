@@ -27,17 +27,7 @@ const getPersonOptions = (input: string) => {
       return response.json();
     }).then((json) => {
       console.log(json); // tslint:disable-line: no-console
-      return { options: json.Items.map( (x: any) => { return {value: x.personId, label: x.personName, role: ''}; } ) }; // tslint:disable-line: no-any
-    });
-};
-
-const getRoleOptions = (input: string) => {
-  return fetch(`https://c8rat70v4a.execute-api.ap-southeast-2.amazonaws.com/dev/roles`)
-    .then((response) => {
-      return response.json();
-    }).then((json) => {
-      console.log(json); // tslint:disable-line: no-console
-      return { options: json.Items.map( (x: string ) => { return {role: x as string }; } ) };
+      return { options: json.Items.map( (x: any) => { return {value: x.personId, label: x.name}; } ) }; // tslint:disable-line: no-any
     });
 };
 
@@ -143,15 +133,15 @@ interface Tag {
 }
 
 interface Person {
-  personName: string;
-  personId: string;
-  role: string;
+  label: string;
+  value: string;
 }
 
 interface State {
   tags: Tag[];
   tagSuggestions: Tag[];
   people: Person[];
+  roles: Array<Array<Tag>>;
   roleSuggestions: Tag[];
 }
 
@@ -160,9 +150,10 @@ class ItemEntryFormState {
   description = new FieldState('').validators((val: string) => !val && 'description required');
   ocean = new FieldState('Pacific').validators((val: string) => oceans.indexOf(val) < 0 && 'valid ocean requured');
   url = new FieldState('').validators((val: string) => !regexWeburl.test(val) && 'valid URL required');
-  people = new FieldState([{ personId: '', personName: '', role: '' }]).validators((val: object) => { return false; });
+  people = new FieldState([{label: '', value: ''}]).validators((val: Person[]) => !(val.length > 0) && 'at least one person required');
   position = new FieldState([150.86914, -34.41921]).validators((val: number[]) => !valposition(val) && 'valid position required');
   tags = new FieldState([]).validators((val: Tag[]) => !(val.length > 0) && 'at least one tag required');
+  roles = new FieldState([[]]).validators((val: Tag[][]) => !(val.length > 0) && 'at least one role required');
 
   // Compose fields into a form
   form = new FormState({
@@ -171,7 +162,8 @@ class ItemEntryFormState {
     url: this.url,
     position: this.position,
     people: this.people,
-    tags: this.tags
+    tags: this.tags,
+    roles: this.roles
   });
 
   onSubmit = async (e: any) => { // tslint:disable-line:no-any
@@ -183,22 +175,30 @@ class ItemEntryFormState {
       return;
     }
     // Yay .. all good. Do what you want with it
-    let body = JSON.stringify({
+    let body = {
       description: this.form.$.description.$,
       ocean: this.form.$.ocean.$,
       url: this.form.$.url.$,
       position: this.form.$.position.$,
-      people: this.form.$.people.$,
+      people: this.form.$.people.$.map((person) => ({
+        personId: person.label,
+        name: person.value,
+        roles: []
+      })),
       tags: this.form.$.tags.$.map((item: Tag) => {
         return item.text;
       })
-    });
+    };
+
+    for (let pidx = 0; pidx < body.people.length; pidx++) {
+      body.people[pidx].roles = this.form.$.roles.$[pidx];
+    }
 
     try {
       let response = await fetch('https://c8rat70v4a.execute-api.ap-southeast-2.amazonaws.com/dev/item', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: body
+        body: JSON.stringify(body)
       });
       await response.status;
       location.reload();
@@ -215,6 +215,7 @@ export class ItemEntryForm extends React.Component<{}, State> {
       tags: [],
       tagSuggestions: [],
       people: [],
+      roles: [],
       roleSuggestions: []
   };
 
@@ -226,12 +227,23 @@ export class ItemEntryForm extends React.Component<{}, State> {
     this.handleTagAddition = this.handleTagAddition.bind(this);
     this.handleTagDrag = this.handleTagDrag.bind(this);
 
-/*
     this.handleRoleDelete = this.handleRoleDelete.bind(this);
     this.handleRoleAddition = this.handleRoleAddition.bind(this);
     this.handleRoleDrag = this.handleRoleDrag.bind(this);
-    */
 
+  }
+
+  handlePersonNameChange = (idx: number) => (evt: any) => { // tslint:disable-line:no-any
+    const newPeople = this.state.people.map((person: Person, sidx: number) => {
+      if (idx !== sidx) {
+        return person;
+      }
+      return { ...person, label: evt.label, value: evt.value };
+    });
+
+    console.log(newPeople); // tslint:disable-line:no-console
+
+    this.setState({ people: newPeople });
   }
 
   handleTagDelete(i: number) {
@@ -257,30 +269,32 @@ export class ItemEntryForm extends React.Component<{}, State> {
       this.setState({ tags: newTags });
   }
 
-/* fixme
-  handleRoleDelete(i: number, idx: number) {
-      const { tags } = this.state;
-      this.setState({
-       tags: tags.filter((tag, index) => index !== i),
-      });
-      this.data.tags.onChange(this.state.tags);
+  handleRoleDelete = (idx: number) => (i: number) => {
+    const roles = (this.state.roles as Tag[][]);
+    roles[idx] = roles[idx].filter((role, index) => index !== i);
+    this.setState({
+      roles: roles
+    });
   }
 
-  handleRoleAddition(tag: Tag) {
-    this.setState(state => ({ tags: [...state.tags, tag]}));
+  handleRoleAddition = (idx: number) => (role: Tag) => {
+    const roles = (this.state.roles as Tag[][]);
+    roles[idx] = [...roles[idx], role];
+    this.setState({
+      roles: roles
+    });
   }
 
-  handleRoleDrag(tag: Tag, currPos: number, newPos: number) {
-      const tags: Tag[] = [...this.state.tags];
-      const newTags = tags.slice();
+  handleRoleDrag = (idx: number) => (role: Tag, currPos: number, newPos: number) => {
+    const roles = (this.state.roles as Tag[][]);
+    roles[idx] = roles[idx].slice();
 
-      newTags.splice(currPos, 1);
-      newTags.splice(newPos, 0, tag);
-
-      // re-render
-      this.setState({ tags: newTags });
+    roles[idx].splice(currPos, 1);
+    roles[idx].splice(newPos, 0, role);
+    this.setState({
+      roles: roles
+    });
   }
-  */
 
   componentDidMount() {
     fetch('https://c8rat70v4a.execute-api.ap-southeast-2.amazonaws.com/dev/tags')
@@ -308,6 +322,8 @@ export class ItemEntryForm extends React.Component<{}, State> {
 
   componentDidUpdate() {
     this.data.tags.onChange(this.state.tags);
+    this.data.people.onChange(this.state.people);
+    this.data.roles.onChange(this.state.roles);
   }
 
   setposition = (e: MapEvent) => {
@@ -315,8 +331,13 @@ export class ItemEntryForm extends React.Component<{}, State> {
   }
 
   handleAddPerson = () => {
+    console.log((this.state.people as Person[]).concat([{label: '', value: ''} ])); // tslint:disable-line: no-console
+    console.log((this.state.roles as Tag[][]).push([{id: '', text: ''}])); // tslint:disable-line: no-console
+    const newRoles = this.state.roles as Tag[][];
+    newRoles.push([]);
     this.setState({
-      people: (this.state.people as Person[]).concat([{personId: '', personName: '', role: ''}])
+      people: (this.state.people as Person[]).concat([{label: '', value: ''}]),
+      roles: newRoles
     });
   }
 
@@ -353,32 +374,29 @@ export class ItemEntryForm extends React.Component<{}, State> {
           />
         </FormGroup>
         {this.state.people.map((person: Person, idx: number) => (
-          <div>
+           <div key={idx}>
             <Async
               name="form-field-name"
-              value={person.personName}
+              value={{label: person.label, value: person.value}} // tslint:disable-line: no-console
               multi={false}
               autosize={false}
               style={{'width': 'auto'}}
               placeholder="Person..."
               ignoreCase={false}
               loadOptions={getPersonOptions}
-              onChange={(e) => { data.people[idx].onChange({personId: (e as object)['label'], personName: (e as object)['value'], role: ''}); }} // tslint:disable-line: no-string-literal
+              onChange={this.handlePersonNameChange(idx)} // tslint:disable-line: no-string-literal
             />
-            <Async
-              name="form-field-role"
-              value={person.role}
-              multi={false}
-              autosize={false}
-              style={{'width': 'auto'}}
-              placeholder="Role..."
-              ignoreCase={false}
-              loadOptions={getRoleOptions}
-              onChange={(e) => { data.people[idx].onChange({personId: data.people[idx].personId, personName: data.people[idx].personName, role: (e as object)['role']}); }} // tslint:disable-line: no-string-literal
+            <ReactTags
+              tags={this.state.roles[idx]}
+              suggestions={this.state.roleSuggestions}
+              handleDelete={this.handleRoleDelete(idx)}
+              handleAddition={this.handleRoleAddition(idx)}
+              handleDrag={this.handleRoleDrag(idx)}
+              delimiters={delimiters}
             />
           </div>
         ))}
-        <button type="button" onClick={this.handleAddPerson} className="small">Add Person</button>
+        <Button onClick={this.handleAddPerson}>Add Person</Button>
         <FormGroup>
           <Label for="ocean">Select an ocean</Label>
           <Input type="select" name="ocean" id="ocean" onChange={(e) => data.ocean.onChange(e.target.value)}>
