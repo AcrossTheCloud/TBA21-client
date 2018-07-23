@@ -29,6 +29,12 @@ class MyRowMap extends React.Component<MyMapProps, {}> {
 
 }
 
+interface Person {
+  personId: string;
+  personName: string;
+  role: string;
+}
+
 export interface OceanObject {
   ocean: string;
   timestamp: number;
@@ -36,17 +42,24 @@ export interface OceanObject {
   position: number[];
   description: string;
   url: string;
-  artistId: string;
-  artistName: string;
+  people: Array<Person>;
   tags: Array<string>;
 }
+
+const renderPeople = function (people: Array<Person>) {
+  return people.reduce(
+    (accumulator: string, currentPerson: Person) => {
+      return (accumulator + currentPerson.personName + ': ' + currentPerson.role + ', ').slice(0, -2);
+    },
+    '');
+};
 
 export class TableRow extends React.Component<OceanObject, {}> {
   render() {
     return (
       <tr>
         <td>{this.props.description}</td>
-        <td>{this.props.artistName}</td>
+        <td>{renderPeople(this.props.people)}</td>
         <td>{this.props.tags ? this.props.tags.toString() : ''}</td>
         <td vertical-align="top"><MultiMedia url={this.props.url} /></td>
         <td><MyRowMap lng={this.props.position[0]} lat={this.props.position[1]} /></td>

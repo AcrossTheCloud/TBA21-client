@@ -21,13 +21,23 @@ const KeyCodes = {
 };
 const delimiters = [KeyCodes.comma, KeyCodes.enter];
 
-const getOptions = (input: string) => {
-  return fetch(`https://tba21-api.acrossthecloud.net/artists?name=${input}`)
+const getPersonOptions = (input: string) => {
+  return fetch(`https://c8rat70v4a.execute-api.ap-southeast-2.amazonaws.com/dev/people?name=${input}`)
     .then((response) => {
       return response.json();
     }).then((json) => {
       console.log(json); // tslint:disable-line: no-console
-      return { options: json.Items.map( (x: any) => { return {value: x.artistId, label: x.name}; } ) }; // tslint:disable-line: no-any
+      return { options: json.Items.map( (x: any) => { return {value: x.personId, label: x.personName, role: ''}; } ) }; // tslint:disable-line: no-any
+    });
+};
+
+const getRoleOptions = (input: string) => {
+  return fetch(`https://c8rat70v4a.execute-api.ap-southeast-2.amazonaws.com/dev/roles`)
+    .then((response) => {
+      return response.json();
+    }).then((json) => {
+      console.log(json); // tslint:disable-line: no-console
+      return { options: json.Items.map( (x: string ) => { return {role: x as string }; } ) };
     });
 };
 
@@ -132,9 +142,17 @@ interface Tag {
   text: string;
 }
 
-interface TagState {
+interface Person {
+  personName: string;
+  personId: string;
+  role: string;
+}
+
+interface State {
   tags: Tag[];
-  suggestions: Tag[];
+  tagSuggestions: Tag[];
+  people: Person[];
+  roleSuggestions: Tag[];
 }
 
 class ItemEntryFormState {
@@ -142,7 +160,7 @@ class ItemEntryFormState {
   description = new FieldState('').validators((val: string) => !val && 'description required');
   ocean = new FieldState('Pacific').validators((val: string) => oceans.indexOf(val) < 0 && 'valid ocean requured');
   url = new FieldState('').validators((val: string) => !regexWeburl.test(val) && 'valid URL required');
-  artist = new FieldState({label: '', value: ''}).validators((val: object) => { return false; });
+  people = new FieldState([{ personId: '', personName: '', role: '' }]).validators((val: object) => { return false; });
   position = new FieldState([150.86914, -34.41921]).validators((val: number[]) => !valposition(val) && 'valid position required');
   tags = new FieldState([]).validators((val: Tag[]) => !(val.length > 0) && 'at least one tag required');
 
@@ -152,7 +170,7 @@ class ItemEntryFormState {
     ocean: this.ocean,
     url: this.url,
     position: this.position,
-    artist: this.artist,
+    people: this.people,
     tags: this.tags
   });
 
@@ -170,14 +188,14 @@ class ItemEntryFormState {
       ocean: this.form.$.ocean.$,
       url: this.form.$.url.$,
       position: this.form.$.position.$,
-      artistId: this.form.$.artist.$.value,
+      people: this.form.$.people.$,
       tags: this.form.$.tags.$.map((item: Tag) => {
         return item.text;
       })
     });
 
     try {
-      let response = await fetch('https://tba21-api.acrossthecloud.net/item', {
+      let response = await fetch('https://c8rat70v4a.execute-api.ap-southeast-2.amazonaws.com/dev/item', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: body
@@ -191,23 +209,32 @@ class ItemEntryFormState {
 }
 
 @observer
-export class ItemEntryForm extends React.Component<{}, TagState> {
+export class ItemEntryForm extends React.Component<{}, State> {
 
   readonly state = {
       tags: [],
-      suggestions: [] // todo, pre-populate from existing tags using API
+      tagSuggestions: [],
+      people: [],
+      roleSuggestions: []
   };
 
   data = new ItemEntryFormState();
 
   constructor (props: any) { // tslint:disable-line: no-any
     super(props);
-    this.handleDelete = this.handleDelete.bind(this);
-    this.handleAddition = this.handleAddition.bind(this);
-    this.handleDrag = this.handleDrag.bind(this);
+    this.handleTagDelete = this.handleTagDelete.bind(this);
+    this.handleTagAddition = this.handleTagAddition.bind(this);
+    this.handleTagDrag = this.handleTagDrag.bind(this);
+
+/*
+    this.handleRoleDelete = this.handleRoleDelete.bind(this);
+    this.handleRoleAddition = this.handleRoleAddition.bind(this);
+    this.handleRoleDrag = this.handleRoleDrag.bind(this);
+    */
+
   }
 
-  handleDelete(i: number) {
+  handleTagDelete(i: number) {
       const { tags } = this.state;
       this.setState({
        tags: tags.filter((tag, index) => index !== i),
@@ -215,11 +242,11 @@ export class ItemEntryForm extends React.Component<{}, TagState> {
       this.data.tags.onChange(this.state.tags);
   }
 
-  handleAddition(tag: Tag) {
-      this.setState(state => ({ tags: [...state.tags, tag] }));
+  handleTagAddition(tag: Tag) {
+    this.setState(state => ({ tags: [...state.tags, tag]}));
   }
 
-  handleDrag(tag: Tag, currPos: number, newPos: number) {
+  handleTagDrag(tag: Tag, currPos: number, newPos: number) {
       const tags: Tag[] = [...this.state.tags];
       const newTags = tags.slice();
 
@@ -230,8 +257,33 @@ export class ItemEntryForm extends React.Component<{}, TagState> {
       this.setState({ tags: newTags });
   }
 
+/* fixme
+  handleRoleDelete(i: number, idx: number) {
+      const { tags } = this.state;
+      this.setState({
+       tags: tags.filter((tag, index) => index !== i),
+      });
+      this.data.tags.onChange(this.state.tags);
+  }
+
+  handleRoleAddition(tag: Tag) {
+    this.setState(state => ({ tags: [...state.tags, tag]}));
+  }
+
+  handleRoleDrag(tag: Tag, currPos: number, newPos: number) {
+      const tags: Tag[] = [...this.state.tags];
+      const newTags = tags.slice();
+
+      newTags.splice(currPos, 1);
+      newTags.splice(newPos, 0, tag);
+
+      // re-render
+      this.setState({ tags: newTags });
+  }
+  */
+
   componentDidMount() {
-    fetch('https://tba21-api.acrossthecloud.net/tags')
+    fetch('https://c8rat70v4a.execute-api.ap-southeast-2.amazonaws.com/dev/tags')
     .then((result: any) =>  { // tslint:disable-line:no-any
       return result.json();
     }).then((data) => {
@@ -239,7 +291,18 @@ export class ItemEntryForm extends React.Component<{}, TagState> {
     })
     .then((data) => {
       console.log(data); // tslint:disable-line:no-console
-      this.setState({ suggestions: data.map((item: string) => ({id: item, text: item})) });
+      this.setState({ tagSuggestions: data.map((item: string) => ({id: item, text: item})) });
+    });
+
+    fetch('https://c8rat70v4a.execute-api.ap-southeast-2.amazonaws.com/dev/roles')
+    .then((result: any) =>  { // tslint:disable-line:no-any
+      return result.json();
+    }).then((data) => {
+      return data;
+    })
+    .then((data) => {
+      console.log(data); // tslint:disable-line:no-console
+      this.setState({ roleSuggestions: data.map((item: string) => ({id: item, text: item})) });
     });
   }
 
@@ -249,6 +312,12 @@ export class ItemEntryForm extends React.Component<{}, TagState> {
 
   setposition = (e: MapEvent) => {
     this.data.position.onChange(e.lngLat);
+  }
+
+  handleAddPerson = () => {
+    this.setState({
+      people: (this.state.people as Person[]).concat([{personId: '', personName: '', role: ''}])
+    });
   }
 
   render() {
@@ -267,10 +336,10 @@ export class ItemEntryForm extends React.Component<{}, TagState> {
         <FormGroup>
           <ReactTags
             tags={this.state.tags}
-            suggestions={this.state.suggestions}
-            handleDelete={this.handleDelete}
-            handleAddition={this.handleAddition}
-            handleDrag={this.handleDrag}
+            suggestions={this.state.tagSuggestions}
+            handleDelete={this.handleTagDelete}
+            handleAddition={this.handleTagAddition}
+            handleDrag={this.handleTagDrag}
             delimiters={delimiters}
           />
         </FormGroup>
@@ -283,18 +352,33 @@ export class ItemEntryForm extends React.Component<{}, TagState> {
             onChange={(e) => data.description.onChange(e.target.value)}
           />
         </FormGroup>
-        <Async
-          name="form-field-name"
-          value={data.artist.value}
-          multi={false}
-          autosize={false}
-          style={{'width': 'auto'}}
-          placeholder="Artist..."
-          ignoreCase={false}
-          loadOptions={getOptions}
-          onChange={(e) => { data.artist.onChange({label: (e as object)['label'], value: (e as object)['value']}); }} // tslint:disable-line: no-string-literal
-        />
-
+        {this.state.people.map((person: Person, idx: number) => (
+          <div>
+            <Async
+              name="form-field-name"
+              value={person.personName}
+              multi={false}
+              autosize={false}
+              style={{'width': 'auto'}}
+              placeholder="Person..."
+              ignoreCase={false}
+              loadOptions={getPersonOptions}
+              onChange={(e) => { data.people[idx].onChange({personId: (e as object)['label'], personName: (e as object)['value'], role: ''}); }} // tslint:disable-line: no-string-literal
+            />
+            <Async
+              name="form-field-role"
+              value={person.role}
+              multi={false}
+              autosize={false}
+              style={{'width': 'auto'}}
+              placeholder="Role..."
+              ignoreCase={false}
+              loadOptions={getRoleOptions}
+              onChange={(e) => { data.people[idx].onChange({personId: data.people[idx].personId, personName: data.people[idx].personName, role: (e as object)['role']}); }} // tslint:disable-line: no-string-literal
+            />
+          </div>
+        ))}
+        <button type="button" onClick={this.handleAddPerson} className="small">Add Person</button>
         <FormGroup>
           <Label for="ocean">Select an ocean</Label>
           <Input type="select" name="ocean" id="ocean" onChange={(e) => data.ocean.onChange(e.target.value)}>
