@@ -29,7 +29,7 @@ class PersonEntryFormState {
     });
 
     try {
-      let response = await fetch('https://c8rat70v4a.execute-api.ap-southeast-2.amazonaws.com/dev/person', {
+      let response = await fetch('https://tba21-api.acrossthecloud.net/person', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: body

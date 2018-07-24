@@ -22,7 +22,7 @@ const KeyCodes = {
 const delimiters = [KeyCodes.comma, KeyCodes.enter];
 
 const getPersonOptions = (input: string) => {
-  return fetch(`https://c8rat70v4a.execute-api.ap-southeast-2.amazonaws.com/dev/people?name=${input}`)
+  return fetch(`https://tba21-api.acrossthecloud.net/people?name=${input}`)
     .then((response) => {
       return response.json();
     }).then((json) => {
@@ -194,7 +194,7 @@ class ItemEntryFormState {
     }
 
     try {
-      let response = await fetch('https://c8rat70v4a.execute-api.ap-southeast-2.amazonaws.com/dev/item', {
+      let response = await fetch('https://tba21-api.acrossthecloud.net/item', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(body)
@@ -296,7 +296,7 @@ export class ItemEntryForm extends React.Component<{}, State> {
   }
 
   componentDidMount() {
-    fetch('https://c8rat70v4a.execute-api.ap-southeast-2.amazonaws.com/dev/tags')
+    fetch('https://tba21-api.acrossthecloud.net/tags')
     .then((result: any) =>  { // tslint:disable-line:no-any
       return result.json();
     }).then((data) => {
@@ -307,7 +307,7 @@ export class ItemEntryForm extends React.Component<{}, State> {
       this.setState({ tagSuggestions: data.map((item: string) => ({id: item, text: item})) });
     });
 
-    fetch('https://c8rat70v4a.execute-api.ap-southeast-2.amazonaws.com/dev/roles')
+    fetch('https://tba21-api.acrossthecloud.net/roles')
     .then((result: any) =>  { // tslint:disable-line:no-any
       return result.json();
     }).then((data) => {

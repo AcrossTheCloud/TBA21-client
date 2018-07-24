@@ -21,7 +21,7 @@ export class ArchiveTable extends React.Component<{}, OceanObjectResults> {
    Count: 1, ScannedCount: 1};
 
   componentDidMount() {
-    fetch('https://c8rat70v4a.execute-api.ap-southeast-2.amazonaws.com/dev/items')
+    fetch('https://tba21-api.acrossthecloud.net/items')
     .then((result: any) =>  { // tslint:disable-line:no-any
       return result.json();
     }).then((data) => {
