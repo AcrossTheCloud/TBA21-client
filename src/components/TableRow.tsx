@@ -49,9 +49,9 @@ export interface OceanObject {
 const renderPeople = function (people: Array<Person>) {
   return people.reduce(
     (accumulator: string, currentPerson: Person) => {
-      return (accumulator + currentPerson.personName + ': ' + currentPerson.roles.toString().replace(',', ', ') + '; ').slice(0, -2);
+      return (accumulator + currentPerson.personName + ': ' + currentPerson.roles.toString().replace(',', ', ') + '; ');
     },
-    '');
+    '').slice(0, -2);
 };
 
 export class TableRow extends React.Component<OceanObject, {}> {
