@@ -400,9 +400,7 @@ export class ItemEntryForm extends React.Component<{}, State> {
               handleDrag={this.handleRoleDrag(idx)}
               delimiters={delimiters}
             />
-            <Button
-              onClick={this.handleRemovePerson(idx)}
-            />
+            <Button onClick={this.handleRemovePerson(idx)}>-</Button>
           </div>
         ))}
         <Button onClick={this.handleAddPerson}>Add Person</Button>
