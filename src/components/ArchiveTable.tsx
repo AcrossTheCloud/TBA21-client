@@ -14,7 +14,7 @@ interface OceanObjectResults {
 
 export class ArchiveTable extends React.Component<{}, OceanObjectResults> {
 
-  state: OceanObjectResults = {searchTerm: '', Items: [{ocean: '', timestamp: 1, itemId: '', position: [0, 0], description: '', url: '', people: [{personId: '', personName: '', role: ''}], tags: []}], Count: 1, ScannedCount: 1};
+  state: OceanObjectResults = {searchTerm: '', Items: [{ocean: '', timestamp: 1, itemId: '', position: [0, 0], description: '', url: '', people: [{personId: '', personName: '', roles: ['']}], tags: []}], Count: 1, ScannedCount: 1};
 
   componentDidMount() {
     fetch('https://c8rat70v4a.execute-api.ap-southeast-2.amazonaws.com/dev/items')
@@ -38,7 +38,7 @@ export class ArchiveTable extends React.Component<{}, OceanObjectResults> {
           return true;
         } else if (item.tags.toString().toLowerCase().includes(term)) {
           return true;
-        } else if (item.people.map(person => person.personName + person.role).toString().toLowerCase().includes(term)) {
+        } else if (item.people.map(person => person.personName + person.roles.toString()).toString().toLowerCase().includes(term)) {
           return true;
         } else {
           return false;

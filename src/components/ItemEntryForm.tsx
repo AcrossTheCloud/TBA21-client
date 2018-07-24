@@ -181,9 +181,8 @@ class ItemEntryFormState {
       url: this.form.$.url.$,
       position: this.form.$.position.$,
       people: this.form.$.people.$.map((person) => ({
-        personId: person.label,
-        name: person.value,
-        roles: []
+        personId: person.value,
+        roles: new Array<string>()
       })),
       tags: this.form.$.tags.$.map((item: Tag) => {
         return item.text;
@@ -191,7 +190,7 @@ class ItemEntryFormState {
     };
 
     for (let pidx = 0; pidx < body.people.length; pidx++) {
-      body.people[pidx].roles = this.form.$.roles.$[pidx];
+      body.people[pidx].roles = (this.form.$.roles.$[pidx] as Tag[]).map(item => item.text);
     }
 
     try {
@@ -216,7 +215,7 @@ export class ItemEntryForm extends React.Component<{}, State> {
       tagSuggestions: [],
       people: [],
       roles: [],
-      roleSuggestions: []
+      roleSuggestions: [{id: 'x', text: 'x'}]
   };
 
   data = new ItemEntryFormState();
@@ -332,12 +331,19 @@ export class ItemEntryForm extends React.Component<{}, State> {
 
   handleAddPerson = () => {
     console.log((this.state.people as Person[]).concat([{label: '', value: ''} ])); // tslint:disable-line: no-console
-    console.log((this.state.roles as Tag[][]).push([{id: '', text: ''}])); // tslint:disable-line: no-console
     const newRoles = this.state.roles as Tag[][];
     newRoles.push([]);
     this.setState({
       people: (this.state.people as Person[]).concat([{label: '', value: ''}]),
       roles: newRoles
+    });
+    console.log(this.state.roleSuggestions); // tslint:disable-line: no-console
+  }
+
+  handleRemovePerson = (idx: number) => () => {
+    this.setState({
+      people: this.state.people.filter((s, sidx) => idx !== sidx),
+      roles: this.state.roles.filter((s, sidx) => idx !== sidx)
     });
   }
 
@@ -393,6 +399,9 @@ export class ItemEntryForm extends React.Component<{}, State> {
               handleAddition={this.handleRoleAddition(idx)}
               handleDrag={this.handleRoleDrag(idx)}
               delimiters={delimiters}
+            />
+            <Button
+              onClick={this.handleRemovePerson(idx)}
             />
           </div>
         ))}

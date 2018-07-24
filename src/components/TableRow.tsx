@@ -32,7 +32,7 @@ class MyRowMap extends React.Component<MyMapProps, {}> {
 interface Person {
   personId: string;
   personName: string;
-  role: string;
+  roles: string[];
 }
 
 export interface OceanObject {
@@ -49,7 +49,7 @@ export interface OceanObject {
 const renderPeople = function (people: Array<Person>) {
   return people.reduce(
     (accumulator: string, currentPerson: Person) => {
-      return (accumulator + currentPerson.personName + ': ' + currentPerson.role + ', ').slice(0, -2);
+      return (accumulator + currentPerson.personName + ': ' + currentPerson.roles.toString().replace(',', ', ') + '; ').slice(0, -2);
     },
     '');
 };
