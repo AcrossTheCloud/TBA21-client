@@ -395,6 +395,7 @@ export class ItemEntryForm extends React.Component<{}, State> {
             <ReactTags
               tags={this.state.roles[idx]}
               suggestions={this.state.roleSuggestions}
+              placeholder="Add new role..."
               handleDelete={this.handleRoleDelete(idx)}
               handleAddition={this.handleRoleAddition(idx)}
               handleDrag={this.handleRoleDrag(idx)}
