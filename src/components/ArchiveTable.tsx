@@ -7,6 +7,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 
 interface OceanObjectResults {
   Items: Array<OceanObject>;
+  SearchedItems: Array<OceanObject>;
   Count: number;
   ScannedCount: number;
   searchTerm: string;
@@ -14,7 +15,10 @@ interface OceanObjectResults {
 
 export class ArchiveTable extends React.Component<{}, OceanObjectResults> {
 
-  state: OceanObjectResults = {searchTerm: '', Items: [{ocean: '', timestamp: 1, itemId: '', position: [0, 0], description: '', url: '', people: [{personId: '', personName: '', roles: ['']}], tags: []}], Count: 1, ScannedCount: 1};
+  state: OceanObjectResults = {searchTerm: '',
+   Items: [{ocean: '', timestamp: 1, itemId: '', position: [0, 0], description: '', url: '', people: [{personId: '', personName: '', roles: ['']}], tags: []}],
+   SearchedItems: [{ocean: '', timestamp: 1, itemId: '', position: [0, 0], description: '', url: '', people: [{personId: '', personName: '', roles: ['']}], tags: []}],
+   Count: 1, ScannedCount: 1};
 
   componentDidMount() {
     fetch('https://c8rat70v4a.execute-api.ap-southeast-2.amazonaws.com/dev/items')
@@ -25,12 +29,13 @@ export class ArchiveTable extends React.Component<{}, OceanObjectResults> {
     })
     .then((data) => {
       this.setState(data);
+      this.setState({SearchedItems: this.state.Items});
     });
   }
 
   search(term: string) {
     this.setState({searchTerm: term});
-    this.setState({Items: this.state.Items.filter(
+    this.setState({SearchedItems: this.state.Items.filter(
       item => {
         if (item.ocean.toLowerCase().includes(term)) {
           return true;
@@ -57,9 +62,10 @@ export class ArchiveTable extends React.Component<{}, OceanObjectResults> {
             <Input
               id="inputSearch"
               type="text"
-              value={this.state.searchTerm}
               onKeyPress={event => {
                 if (event.key === 'Enter') {
+                  event.preventDefault(); // Let's stop this event.
+                  event.stopPropagation();
                   this.search((event.target as HTMLInputElement).value);
                 }
               }}
@@ -77,7 +83,7 @@ export class ArchiveTable extends React.Component<{}, OceanObjectResults> {
             </tr>
           </thead>
           <tbody>
-            {(this.state.Items).map(item => {
+            {(this.state.SearchedItems).map(item => {
               console.log(item); // tslint:disable-line:no-console
               return <TableRow key={item.itemId} {...item} />;
             })}
