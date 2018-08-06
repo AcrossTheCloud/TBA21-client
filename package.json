@@ -20,17 +20,10 @@
     "react-router-dom": "^4.3.1",
     "react-scripts-ts": "2.16.0",
     "react-select": "^1.2.1",
+    "react-sigma": "^1.2.30",
     "react-tag-input": "^5.1.0",
     "reactstrap": "^6.1.0",
-    "redux": "^4.0.0"
-  },
-  "scripts": {
-    "start": "react-scripts-ts start",
-    "build": "react-scripts-ts build",
-    "test": "CI=TRUE react-scripts-ts test --env=jsdom",
-    "eject": "react-scripts-ts eject"
-  },
-  "devDependencies": {
+    "redux": "^4.0.0",
     "@types/enzyme": "^3.1.11",
     "@types/jest": "^23.1.2",
     "@types/jquery": "^3.3.4",
@@ -43,7 +36,15 @@
     "@types/react-router-dom": "^4.2.7",
     "@types/react-select": "^1.2.7",
     "@types/react-tag-input": "^5.0.0",
-    "@types/reactstrap": "^6.0.0",
+    "@types/reactstrap": "^6.0.0"
+  },
+  "scripts": {
+    "start": "react-scripts-ts start",
+    "build": "react-scripts-ts build",
+    "test": "CI=TRUE react-scripts-ts test --env=jsdom",
+    "eject": "react-scripts-ts eject"
+  },
+  "devDependencies": {
     "enzyme": "^3.3.0",
     "typescript": "^2.9.2"
   }

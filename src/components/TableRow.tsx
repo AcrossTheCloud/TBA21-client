@@ -29,7 +29,7 @@ class MyRowMap extends React.Component<MyMapProps, {}> {
 
 }
 
-interface Person {
+export interface Person {
   personId: string;
   personName: string;
   roles: string[];
