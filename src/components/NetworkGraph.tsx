@@ -7,14 +7,20 @@ export class NetworkGraph extends React.Component<{}, {}> {
   render() {
     return (
         <div>
-        <Sigma renderer="canvas" style={{maxWidth: 'inherit', height: '400px'}} settings={{labelThreshold: 0, drawEdges: true, drawEdgeLabels: true}}>
-
-          <EdgeShapes default="tapered"/>
-          <NodeShapes default="star"/>
-          <LoadJSON path="https://tba21-api.acrossthecloud.net/itemsGraph" settings={{ drawEdges: true, drawEdgeLabels: true}}>
-
+        <Sigma
+          renderer="canvas"
+          style={{maxWidth: 'inherit', height: '400px'}}
+          settings={{
+            labelThreshold: 0,
+            drawEdges: true,
+            drawEdgeLabels: true
+          }}
+        >
+          <EdgeShapes default="curvedArrow"/>
+          <NodeShapes default="circle"/>
+          <LoadJSON path="https://tba21-api.acrossthecloud.net/itemsGraph">
           <RandomizeNodePositions>
-            <ForceAtlas2 iterationsPerRender={1000} timeout={500}/>
+            <ForceAtlas2 worker barnesHutOptimize barnesHutTheta={0.6} iterationsPerRender={100} linLogMode timeout={1000}/>
             <RelativeSize initialSize={10}/>
           </RandomizeNodePositions>
           </LoadJSON>

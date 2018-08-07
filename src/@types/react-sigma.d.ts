@@ -25,6 +25,7 @@ declare module 'react-sigma' {
       settings?: any;
       renderer?: string;
       style?: any;
+      onOverEdge?(event: any): any;
   }
 
   export class Sigma extends React.Component<ReactSigmaProps> { }
