@@ -40,7 +40,7 @@ export default class Header extends React.Component<{}, {isOpen: boolean}> {
                 <NavLink href="/itemEntry">Item Metadata Entry</NavLink>
               </NavItem>
               <NavItem>
-                <NavLink href="/itemEntry">Item Metadata Entry</NavLink>
+                <NavLink href="/PersonEntry">Person Metadata Entry</NavLink>
               </NavItem>
               <NavItem>
                 <NavLink href="/view">View Items</NavLink>
