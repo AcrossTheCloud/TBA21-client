@@ -10,15 +10,41 @@ import {
 
 import { Auth } from 'aws-amplify';
 
-export default class Header extends React.Component<{isAuthenticated: boolean, history: Array<any>}, {isOpen: boolean}> { // tslint:disable-line: no-any
+export default class Header extends React.Component<{history: any}, {isAuthenticated: boolean, isOpen: boolean}> { // tslint:disable-line: no-any
 
-  state: {isOpen: false};
+  state: {isOpen: false, isAuthenticated: false};
+
+  async componentDidMount() {
+    try {
+      if (await Auth.currentSession()) {
+        this.setState({ isAuthenticated: true });
+      }
+    } catch (e) {
+      if (e !== 'No current user') {
+        this.setState({ isAuthenticated: false });
+      }
+    }
+
+  }
 
   constructor(props: any) { // tslint:disable-line: no-any
     super(props);
 
+    this.props.history.listen(async (location: any) => { // tslint:disable-line: no-any
+      try {
+        if (await Auth.currentSession()) {
+          this.setState({ isAuthenticated: true });
+        }
+      } catch (e) {
+        if (e !== 'No current user') {
+          this.setState({ isAuthenticated: false });
+        }
+      }
+    });
+
     this.toggle = this.toggle.bind(this);
     this.state = {
+      isAuthenticated: false,
       isOpen: false
     };
   }
@@ -59,9 +85,9 @@ export default class Header extends React.Component<{isAuthenticated: boolean, h
               <NavItem>
                 <NavLink href="/viewGraph">View Items and People Graph</NavLink>
               </NavItem>
-              { this.props.isAuthenticated ?
+              { this.state.isAuthenticated ?
                 <NavItem>
-                  <NavLink href="/" onClick={this.logout}>Logout</NavLink>
+                  <NavLink href="/" onClick={() => { this.logout(); }}>Logout</NavLink>
                 </NavItem>
                 :
                 <NavItem>

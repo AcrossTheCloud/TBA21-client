@@ -33,7 +33,7 @@ export class Login extends React.Component<{history: any}, {}> { // tslint:disab
   render() {
     return (
       <div className="Login">
-        <form onSubmit={this.handleSubmit}>
+        <form onSubmit={(e) => { this.handleSubmit(e); }}>
           <FormGroup id="email">
             <Label>Email</Label>
             <Input

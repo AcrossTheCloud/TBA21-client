@@ -96,7 +96,6 @@ export class SignUp extends React.Component<{history: any}, {}> { // tslint:disa
         </FormGroup>
         <LoaderButton
           block
-          bsSize="large"
           disabled={!this.validateConfirmationForm()}
           type="submit"
           isLoading={this.state.isLoading}
@@ -137,7 +136,6 @@ export class SignUp extends React.Component<{history: any}, {}> { // tslint:disa
         </FormGroup>
         <LoaderButton
           block
-          bsSize="large"
           disabled={!this.validateForm()}
           type="submit"
           isLoading={this.state.isLoading}
