@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { observer } from 'mobx-react';
 import { FormState, FieldState } from 'formstate';
+import { API } from 'aws-amplify';
 import { Form, FormGroup, Label, Input, Button, Container } from 'reactstrap';
 
 class PersonEntryFormState {
@@ -29,11 +30,12 @@ class PersonEntryFormState {
     });
 
     try {
-      let response = await fetch('https://tba21-api.acrossthecloud.net/person', {
-        method: 'POST',
+      let response = await API.post('tba21', 'person', {
         headers: {'Content-Type': 'application/json'},
         body: body
       });
+      await response.status;
+      location.reload();
       await response.status;
       location.reload();
     } catch (err) {
