@@ -8,7 +8,9 @@ import {
   NavItem,
   NavLink } from 'reactstrap';
 
-export default class Header extends React.Component<{}, {isOpen: boolean}> {
+import { Auth } from 'aws-amplify';
+
+export default class Header extends React.Component<{isAuthenticated: boolean, history: Array<any>}, {isOpen: boolean}> { // tslint:disable-line: no-any
 
   state: {isOpen: false};
 
@@ -24,6 +26,15 @@ export default class Header extends React.Component<{}, {isOpen: boolean}> {
     this.setState({
       isOpen: !this.state.isOpen
     });
+  }
+
+  async logout() {
+    try {
+      await Auth.signOut();
+      this.props.history.push('/');
+    } catch (e) {
+      alert(e.message);
+    }
   }
   render() {
     return (
@@ -48,6 +59,15 @@ export default class Header extends React.Component<{}, {isOpen: boolean}> {
               <NavItem>
                 <NavLink href="/viewGraph">View Items and People Graph</NavLink>
               </NavItem>
+              { this.props.isAuthenticated ?
+                <NavItem>
+                  <NavLink href="/" onClick={this.logout}>Logout</NavLink>
+                </NavItem>
+                :
+                <NavItem>
+                  <NavLink href="/login">Login</NavLink>
+                </NavItem>
+              }
             </Nav>
           </Collapse>
         </Navbar>

@@ -10,6 +10,7 @@ import {
 import * as MapboxGL from 'mapbox-gl';
 import { Async } from 'react-select';
 import { WithContext as ReactTags } from 'react-tag-input';
+import { API } from 'aws-amplify';
 
 import 'react-select/dist/react-select.css';
 import './ItemEntryForm.css';
@@ -194,8 +195,7 @@ class ItemEntryFormState {
     }
 
     try {
-      let response = await fetch('https://tba21-api.acrossthecloud.net/item', {
-        method: 'POST',
+      let response = await API.post('APINAME', '/item', {
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(body)
       });
