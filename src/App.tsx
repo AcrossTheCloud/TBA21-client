@@ -1,10 +1,10 @@
 import * as React from 'react';
 import Header from './components/Header';
 
-export const App: React.StatelessComponent<{}> = (props) => {
+export const App: React.StatelessComponent<{history: any}> = (props) => { // tslint:disable-line: no-any
   return (
     <div className="container-fluid">
-      <Header />
+      <Header history={props.history} />
     </div>
   );
 };
