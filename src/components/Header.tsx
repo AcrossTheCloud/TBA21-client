@@ -73,12 +73,18 @@ export default class Header extends React.Component<{history: any}, {isAuthentic
               <NavItem>
                 <NavLink href="/">Home</NavLink>
               </NavItem>
-              <NavItem>
-                <NavLink href="/itemEntry">Item Metadata Entry</NavLink>
-              </NavItem>
-              <NavItem>
-                <NavLink href="/PersonEntry">Person Metadata Entry</NavLink>
-              </NavItem>
+              { this.state.isAuthenticated ?
+                <NavItem>
+                  <NavLink href="/itemEntry">Item Metadata Entry</NavLink>
+                </NavItem>
+                : ''
+              }
+              { this.state.isAuthenticated ?
+                <NavItem>
+                  <NavLink href="/PersonEntry">Person Metadata Entry</NavLink>
+                </NavItem>
+                : ''
+              }
               <NavItem>
                 <NavLink href="/view">View Items</NavLink>
               </NavItem>

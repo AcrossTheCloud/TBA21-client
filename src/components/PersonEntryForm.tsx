@@ -24,10 +24,10 @@ class PersonEntryFormState {
       return;
     }
     // Yay .. all good. Do what you want with it
-    let body = JSON.stringify({
+    let body = {
       name: this.form.$.name.$,
       biography: this.form.$.biography.$
-    });
+    };
 
     try {
       let response = await API.post('tba21', 'person', {

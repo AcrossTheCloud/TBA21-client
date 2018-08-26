@@ -197,7 +197,7 @@ class ItemEntryFormState {
     try {
       let response = await API.post('tba21', 'item', {
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(body)
+        body: body
       });
       await response.status;
       location.reload();
