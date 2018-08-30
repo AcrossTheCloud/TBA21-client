@@ -23,12 +23,10 @@ const KeyCodes = {
 const delimiters = [KeyCodes.comma, KeyCodes.enter];
 
 const getPersonOptions = (input: string) => {
-  return fetch(`https://tba21-api.acrossthecloud.net/people?name=${input}`)
-    .then((response) => {
-      return response.json();
-    }).then((json) => {
-      console.log(json); // tslint:disable-line: no-console
-      return { options: json.Items.map( (x: any) => { return {value: x.personId, label: x.name}; } ) }; // tslint:disable-line: no-any
+  return API.get('tba21', 'people', { queryStringParameters: { name: input}})
+    .then((response: any) => { // tslint:disable-line: no-any
+      return { options: response.Items.map( (x: any) => { return {value: x.personId, label: x.name}; } ) }; // tslint:disable-line: no-any
+    }).catch((e: any ) => { // tslint:disable-line: no-any
     });
 };
 
@@ -296,27 +294,17 @@ export class ItemEntryForm extends React.Component<{}, State> {
   }
 
   componentDidMount() {
-    fetch('https://tba21-api.acrossthecloud.net/tags')
-    .then((result: any) =>  { // tslint:disable-line:no-any
-      return result.json();
-    }).then((data) => {
-      return data;
-    })
-    .then((data) => {
-      console.log(data); // tslint:disable-line:no-console
-      this.setState({ tagSuggestions: data.map((item: string) => ({id: item, text: item})) });
-    });
+    API.get('tba21', 'tags', {})
+      .then((data: any) => { // tslint:disable-line: no-any
+        this.setState({ tagSuggestions: data.map((item: string) => ({id: item, text: item})) });
+      }).catch((e: any ) => { // tslint:disable-line: no-any
+      });
 
-    fetch('https://tba21-api.acrossthecloud.net/roles')
-    .then((result: any) =>  { // tslint:disable-line:no-any
-      return result.json();
-    }).then((data) => {
-      return data;
-    })
-    .then((data) => {
-      console.log(data); // tslint:disable-line:no-console
-      this.setState({ roleSuggestions: data.map((item: string) => ({id: item, text: item})) });
-    });
+    API.get('tba21', 'roles', {})
+      .then((data: any) => { // tslint:disable-line: no-any
+        this.setState({ roleSuggestions: data.map((item: string) => ({id: item, text: item})) });
+      }).catch((e: any ) => { // tslint:disable-line: no-any
+      });
   }
 
   componentDidUpdate() {
