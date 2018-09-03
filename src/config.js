@@ -1,7 +1,7 @@
 export default {
   s3: {
     REGION: "ap-southeast-2",
-    BUCKET: "tba21-dev-uploads"
+    BUCKET: "tba21-content"
   },
   apiGateway: {
     REGION: "ap-southeast-2",
