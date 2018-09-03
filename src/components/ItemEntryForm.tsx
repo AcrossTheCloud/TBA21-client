@@ -239,7 +239,12 @@ export class ItemEntryForm extends React.Component<{}, State> {
   getImageTags = (key: string) => () => {
     API.get('tba21', 'imageTags', {'queryStringParameters': {'key': 'public/' + key}})
       .then((data: any) => { // tslint:disable-line: no-any
-        this.setState({ tagSuggestions: this.state.tagSuggestions, ...data.Items.map((item: any) => ({id: item.Name, text: item.Name})) }); // tslint:disable-line: no-any
+        // tslint:disable-next-line: no-any
+        console.log(data.Item.labels.map((item: any) => ({id: item.Name, text: item.Name}))); // tslint:disable-line:no-console tslint:disable-line:no-any
+        this.setState({ tagSuggestions: this.state.tagSuggestions.concat(data.Item.labels.map((item: any) => ({id: item.Name.toLowerCase(), text: item.Name.toLowerCase()}))) }); // tslint:disable-line: no-any
+        if (data.Items.labels.length > 0 ) {
+          alert('image tags available');
+        }
       }).catch((e: any ) => { // tslint:disable-line: no-any
       });
   }
