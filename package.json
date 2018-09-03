@@ -43,8 +43,8 @@
     "redux": "^4.0.0"
   },
   "scripts": {
-    "start": "react-scripts-ts start",
-    "build": "react-scripts-ts build",
+    "start": "src/link_config.sh && react-scripts-ts start",
+    "build": "src/link_config.sh && react-scripts-ts build",
     "test": "CI=TRUE react-scripts-ts test --env=jsdom",
     "eject": "react-scripts-ts eject"
   },
