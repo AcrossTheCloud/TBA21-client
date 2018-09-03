@@ -236,10 +236,10 @@ export class ItemEntryForm extends React.Component<{}, State> {
 
   }
 
-  getImageTags = (key: string) => {
+  getImageTags = (key: string) => () => {
     API.get('tba21', 'imageTags', {'queryStringParameters': {'key': 'public/' + key}})
       .then((data: any) => { // tslint:disable-line: no-any
-        this.setState({ tagSuggestions: this.state.tagSuggestions, ...data.Items.map((item: string) => ({id: item, text: item})) });
+        this.setState({ tagSuggestions: this.state.tagSuggestions, ...data.Items.map((item: any) => ({id: item.Name, text: item.Name})) }); // tslint:disable-line: no-any
       }).catch((e: any ) => { // tslint:disable-line: no-any
       });
   }
@@ -267,7 +267,7 @@ export class ItemEntryForm extends React.Component<{}, State> {
 
     if (stored) {
       console.log(stored); // tslint:disable-line: no-console
-      setTimeout(this.getImageTags(stored['key']), 3000); // tslint:disable-line: no-string-literal
+      setTimeout(this.getImageTags(stored['key']), 3500); // tslint:disable-line: no-string-literal
       return config.other.BASE_CONTENT_URL + 'public/' + stored['key']; // tslint:disable-line: no-string-literal
     } else {
       return '';
