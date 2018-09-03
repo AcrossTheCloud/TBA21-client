@@ -11,9 +11,15 @@ import * as MapboxGL from 'mapbox-gl';
 import { Async } from 'react-select';
 import { WithContext as ReactTags } from 'react-tag-input';
 import { API } from 'aws-amplify';
+import config from '../config.js';
 
 import 'react-select/dist/react-select.css';
 import './ItemEntryForm.css';
+
+import { Storage } from 'aws-amplify';
+import { v1 as uuid } from 'uuid';
+
+Storage.configure({ level: 'public' });
 
 // set up delimiters for tag entry
 const KeyCodes = {
@@ -230,6 +236,14 @@ export class ItemEntryForm extends React.Component<{}, State> {
 
   }
 
+  getImageTags = (key: string) => {
+    API.get('tba21', 'imageTags', {'queryStringParameters': {'key': 'public/' + key}})
+      .then((data: any) => { // tslint:disable-line: no-any
+        this.setState({ tagSuggestions: this.state.tagSuggestions, ...data.Items.map((item: string) => ({id: item, text: item})) });
+      }).catch((e: any ) => { // tslint:disable-line: no-any
+      });
+  }
+
   handlePersonNameChange = (idx: number) => (evt: any) => { // tslint:disable-line:no-any
     const newPeople = this.state.people.map((person: Person, sidx: number) => {
       if (idx !== sidx) {
@@ -241,6 +255,23 @@ export class ItemEntryForm extends React.Component<{}, State> {
     console.log(newPeople); // tslint:disable-line:no-console
 
     this.setState({ people: newPeople });
+  }
+
+  handleFileUpload = async (event: any) => { // tslint:disable-line:no-any
+
+    let filename = uuid() + `-${event.target.files[0].name}`;
+
+    let stored = event.target.files[0] ? await Storage.put(filename, event.target.files[0], {
+      contentType: event.target.files[0].type
+    }) : null;
+
+    if (stored) {
+      console.log(stored); // tslint:disable-line: no-console
+      setTimeout(this.getImageTags(stored['key']), 3000); // tslint:disable-line: no-string-literal
+      return config.other.BASE_CONTENT_URL + stored['key']; // tslint:disable-line: no-string-literal
+    } else {
+      return '';
+    }
   }
 
   handleTagDelete(i: number) {
@@ -349,6 +380,10 @@ export class ItemEntryForm extends React.Component<{}, State> {
           />
         </FormGroup>
         <FormGroup>
+          <Label for="attachment">Attachment</Label>
+          <Input type="file" name="attachment" id="attachment" onChange={(e) => this.handleFileUpload(e).then((url) => data.url.onChange(url))}/>
+        </FormGroup>
+        <FormGroup>
           <ReactTags
             tags={this.state.tags}
             suggestions={this.state.tagSuggestions}
@@ -402,10 +437,6 @@ export class ItemEntryForm extends React.Component<{}, State> {
             <option>Southern</option>
             <option>Arctic</option>
           </Input>
-        </FormGroup>
-        <FormGroup>
-          <Label for="url">Url</Label>
-          <Input type="url" name="url" id="url" placeholder="url placeholder" onChange={(e) => data.url.onChange(e.target.value)}/>
         </FormGroup>
         <Button>Submit</Button>
         <p>{data.form.error}</p>
