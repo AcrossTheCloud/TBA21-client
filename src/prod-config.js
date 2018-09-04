@@ -1,6 +1,6 @@
 export default {
   s3: {
-    REGION: "eu-central-1",
+    REGION: "eu-west-1",
     BUCKET: "tba21-content"
   },
   apiGateway: {
