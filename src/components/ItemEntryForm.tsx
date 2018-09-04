@@ -11,9 +11,15 @@ import * as MapboxGL from 'mapbox-gl';
 import { Async } from 'react-select';
 import { WithContext as ReactTags } from 'react-tag-input';
 import { API } from 'aws-amplify';
+import config from '../config.js';
 
 import 'react-select/dist/react-select.css';
 import './ItemEntryForm.css';
+
+import { Storage } from 'aws-amplify';
+import { v1 as uuid } from 'uuid';
+
+Storage.configure({ level: 'public' });
 
 // set up delimiters for tag entry
 const KeyCodes = {
@@ -23,12 +29,10 @@ const KeyCodes = {
 const delimiters = [KeyCodes.comma, KeyCodes.enter];
 
 const getPersonOptions = (input: string) => {
-  return fetch(`https://tba21-api.acrossthecloud.net/people?name=${input}`)
-    .then((response) => {
-      return response.json();
-    }).then((json) => {
-      console.log(json); // tslint:disable-line: no-console
-      return { options: json.Items.map( (x: any) => { return {value: x.personId, label: x.name}; } ) }; // tslint:disable-line: no-any
+  return API.get('tba21', 'people', { queryStringParameters: { name: input}})
+    .then((response: any) => { // tslint:disable-line: no-any
+      return { options: response.Items.map( (x: any) => { return {value: x.personId, label: x.name}; } ) }; // tslint:disable-line: no-any
+    }).catch((e: any ) => { // tslint:disable-line: no-any
     });
 };
 
@@ -232,6 +236,16 @@ export class ItemEntryForm extends React.Component<{}, State> {
 
   }
 
+  getImageTags = (key: string) => () => {
+    API.get('tba21', 'imageTags', {'queryStringParameters': {'key': 'public/' + key}})
+      .then((data: any) => { // tslint:disable-line: no-any
+        // tslint:disable-next-line: no-any
+        console.log(data.Item.labels.map((item: any) => ({id: item.Name, text: item.Name}))); // tslint:disable-line:no-console tslint:disable-line:no-any
+        this.setState({ tags: this.state.tags.concat(data.Item.labels.map((item: any) => ({id: item.Name.toLowerCase(), text: item.Name.toLowerCase()}))) }); // tslint:disable-line: no-any
+      }).catch((e: any ) => { // tslint:disable-line: no-any
+      });
+  }
+
   handlePersonNameChange = (idx: number) => (evt: any) => { // tslint:disable-line:no-any
     const newPeople = this.state.people.map((person: Person, sidx: number) => {
       if (idx !== sidx) {
@@ -243,6 +257,23 @@ export class ItemEntryForm extends React.Component<{}, State> {
     console.log(newPeople); // tslint:disable-line:no-console
 
     this.setState({ people: newPeople });
+  }
+
+  handleFileUpload = async (event: any) => { // tslint:disable-line:no-any
+
+    let filename = uuid() + `-${event.target.files[0].name}`;
+
+    let stored = event.target.files[0] ? await Storage.put(filename, event.target.files[0], {
+      contentType: event.target.files[0].type
+    }) : null;
+
+    if (stored) {
+      console.log(stored); // tslint:disable-line: no-console
+      setTimeout(this.getImageTags(stored['key']), 3500); // tslint:disable-line: no-string-literal
+      return config.other.BASE_CONTENT_URL + 'public/' + stored['key']; // tslint:disable-line: no-string-literal
+    } else {
+      return '';
+    }
   }
 
   handleTagDelete(i: number) {
@@ -296,27 +327,17 @@ export class ItemEntryForm extends React.Component<{}, State> {
   }
 
   componentDidMount() {
-    fetch('https://tba21-api.acrossthecloud.net/tags')
-    .then((result: any) =>  { // tslint:disable-line:no-any
-      return result.json();
-    }).then((data) => {
-      return data;
-    })
-    .then((data) => {
-      console.log(data); // tslint:disable-line:no-console
-      this.setState({ tagSuggestions: data.map((item: string) => ({id: item, text: item})) });
-    });
+    API.get('tba21', 'tags', {})
+      .then((data: any) => { // tslint:disable-line: no-any
+        this.setState({ tagSuggestions: data.map((item: string) => ({id: item, text: item})) });
+      }).catch((e: any ) => { // tslint:disable-line: no-any
+      });
 
-    fetch('https://tba21-api.acrossthecloud.net/roles')
-    .then((result: any) =>  { // tslint:disable-line:no-any
-      return result.json();
-    }).then((data) => {
-      return data;
-    })
-    .then((data) => {
-      console.log(data); // tslint:disable-line:no-console
-      this.setState({ roleSuggestions: data.map((item: string) => ({id: item, text: item})) });
-    });
+    API.get('tba21', 'roles', {})
+      .then((data: any) => { // tslint:disable-line: no-any
+        this.setState({ roleSuggestions: data.map((item: string) => ({id: item, text: item})) });
+      }).catch((e: any ) => { // tslint:disable-line: no-any
+      });
   }
 
   componentDidUpdate() {
@@ -359,6 +380,10 @@ export class ItemEntryForm extends React.Component<{}, State> {
             value={data.position.value.toString()}
             readOnly={true}
           />
+        </FormGroup>
+        <FormGroup>
+          <Label for="attachment">Attachment</Label>
+          <Input type="file" name="attachment" id="attachment" onChange={(e) => this.handleFileUpload(e).then((url) => data.url.onChange(url))}/>
         </FormGroup>
         <FormGroup>
           <ReactTags
@@ -414,10 +439,6 @@ export class ItemEntryForm extends React.Component<{}, State> {
             <option>Southern</option>
             <option>Arctic</option>
           </Input>
-        </FormGroup>
-        <FormGroup>
-          <Label for="url">Url</Label>
-          <Input type="url" name="url" id="url" placeholder="url placeholder" onChange={(e) => data.url.onChange(e.target.value)}/>
         </FormGroup>
         <Button>Submit</Button>
         <p>{data.form.error}</p>

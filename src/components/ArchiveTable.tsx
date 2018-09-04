@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Table } from 'reactstrap';
 import { OceanObject, TableRow  } from './TableRow';
 import { Form, FormGroup, Label, Input } from 'reactstrap';
+import { API } from 'aws-amplify';
 
 import 'mapbox-gl/dist/mapbox-gl.css';
 
@@ -21,16 +22,13 @@ export class ArchiveTable extends React.Component<{}, OceanObjectResults> {
    Count: 1, ScannedCount: 1};
 
   componentDidMount() {
-    fetch('https://tba21-api.acrossthecloud.net/items')
-    .then((result: any) =>  { // tslint:disable-line:no-any
-      return result.json();
-    }).then((data) => {
-      return data;
-    })
-    .then((data) => {
-      this.setState(data);
-      this.setState({SearchedItems: this.state.Items});
-    });
+    API.get('tba21', 'items', {})
+      .then((data: any) => { // tslint:disable-line: no-any
+        this.setState(data);
+        this.setState({SearchedItems: this.state.Items});
+      }).catch((e: any ) => { // tslint:disable-line: no-any
+      });
+
   }
 
   search(term: string) {
