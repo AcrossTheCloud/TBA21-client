@@ -45,8 +45,8 @@
     "uuid": "^3.3.2"
   },
   "scripts": {
-    "start": "src/link_config.sh && react-scripts-ts start",
-    "build": "src/link_config.sh && react-scripts-ts build",
+    "start": "bash src/link_config.sh && react-scripts-ts start",
+    "build": "bash src/link_config.sh && react-scripts-ts build",
     "test": "CI=TRUE react-scripts-ts test --env=jsdom",
     "eject": "react-scripts-ts eject"
   },
