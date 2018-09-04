@@ -7,9 +7,9 @@ cd -P -- "$(dirname -- "$0")"
 rm config.js
 
 # symlink correct version
-if [ $ENV="dev" ];
+if [ "$ENV" = "dev" ]
 then
-  ln -s dev-config.js config.js;
+  ln -s dev-config.js config.js
 else
-  ln -s prod-config.js config.js;
-fi;
+  ln -s prod-config.js config.js
+fi
