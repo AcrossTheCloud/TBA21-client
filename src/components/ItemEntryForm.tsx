@@ -269,7 +269,7 @@ export class ItemEntryForm extends React.Component<{}, State> {
 
     if (stored) {
       console.log(stored); // tslint:disable-line: no-console
-      setTimeout(this.getImageTags(stored['key']), 3500); // tslint:disable-line: no-string-literal
+      setTimeout(this.getImageTags(stored['key']), 4500); // tslint:disable-line: no-string-literal
       return config.other.BASE_CONTENT_URL + 'public/' + stored['key']; // tslint:disable-line: no-string-literal
     } else {
       return '';
