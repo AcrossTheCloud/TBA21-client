@@ -4,7 +4,7 @@ export default {
     BUCKET: "tba21-content"
   },
   apiGateway: {
-    REGION: "ap-southeast-2",
+    REGION: "eu-central-1",
     URL: "https://tba21-api.acrossthecloud.net/"
   },
   cognito: {
