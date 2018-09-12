@@ -177,6 +177,7 @@ class ItemEntryFormState {
     let res = await this.form.validate();
     // If any errors you would know
     if (res.hasError) {
+      alert(this.form.error);
       return;
     }
     // Yay .. all good. Do what you want with it
@@ -441,7 +442,6 @@ export class ItemEntryForm extends React.Component<{}, State> {
           </Input>
         </FormGroup>
         <Button>Submit</Button>
-        <p>{data.form.error}</p>
       </Form>
       </Container>
     );
