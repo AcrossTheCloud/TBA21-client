@@ -155,7 +155,7 @@ class ItemEntryFormState {
   description = new FieldState('').validators((val: string) => !val && 'description required');
   ocean = new FieldState('Pacific').validators((val: string) => oceans.indexOf(val) < 0 && 'valid ocean requured');
   url = new FieldState('').validators((val: string) => !regexWeburl.test(val) && 'valid URL required');
-  people = new FieldState([{label: '', value: ''}]).validators((val: Person[]) => !(val.length > 0) && 'at least one person required');
+  people = new FieldState([{label: '', value: ''}]).validators((val: Person[]) => !(val.length > 0 && val.reduce((accumulator, item) => accumulator && item.hasOwnProperty('value') && item.value !== '', true)) && 'at least one person required');
   position = new FieldState([150.86914, -34.41921]).validators((val: number[]) => !valposition(val) && 'valid position required');
   tags = new FieldState([]).validators((val: Tag[]) => !(val.length > 0) && 'at least one tag required');
   roles = new FieldState([[]]).validators((val: Tag[][]) => !(val.length > 0) && 'at least one role required');
@@ -177,6 +177,7 @@ class ItemEntryFormState {
     let res = await this.form.validate();
     // If any errors you would know
     if (res.hasError) {
+      alert(this.form.error);
       return;
     }
     // Yay .. all good. Do what you want with it
@@ -441,7 +442,6 @@ export class ItemEntryForm extends React.Component<{}, State> {
           </Input>
         </FormGroup>
         <Button>Submit</Button>
-        <p>{data.form.error}</p>
       </Form>
       </Container>
     );
