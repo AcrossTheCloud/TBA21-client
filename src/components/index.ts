@@ -6,3 +6,4 @@ export * from './Login';
 export * from './SignUp';
 export * from './ArchiveTable';
 export * from './NetworkGraph';
+export * from './ResetPassword';

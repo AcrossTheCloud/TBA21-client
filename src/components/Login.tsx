@@ -64,6 +64,12 @@ export class Login extends React.Component<{history: any}, {}> { // tslint:disab
           >
             Signup
           </Button>
+          <Button
+            block
+            onClick={() => { this.props.history.push('/resetPassword'); }}
+          >
+            Reset password
+          </Button>
         </form>
 
       </div>
