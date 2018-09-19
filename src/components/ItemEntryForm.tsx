@@ -148,6 +148,7 @@ interface State {
   people: Person[];
   roles: Array<Array<Tag>>;
   roleSuggestions: Tag[];
+  privacy: boolean;
 }
 
 class ItemEntryFormState {
@@ -159,6 +160,7 @@ class ItemEntryFormState {
   position = new FieldState([150.86914, -34.41921]).validators((val: number[]) => !valposition(val) && 'valid position required');
   tags = new FieldState([]).validators((val: Tag[]) => !(val.length > 0) && 'at least one tag required');
   roles = new FieldState([[]]).validators((val: Tag[][]) => !(val.length > 0) && 'at least one role required');
+  privacy = new FieldState(false).validators((val: boolean) => !(val || !val) && 'privacy must be set');
 
   // Compose fields into a form
   form = new FormState({
@@ -168,7 +170,8 @@ class ItemEntryFormState {
     position: this.position,
     people: this.people,
     tags: this.tags,
-    roles: this.roles
+    roles: this.roles,
+    privacy: this.privacy
   });
 
   onSubmit = async (e: any) => { // tslint:disable-line:no-any
@@ -190,6 +193,7 @@ class ItemEntryFormState {
         personId: person.value,
         roles: new Array<string>()
       })),
+      privacy: this.form.$.privacy.$,
       tags: this.form.$.tags.$.map((item: Tag) => {
         return item.text;
       })
@@ -220,7 +224,8 @@ export class ItemEntryForm extends React.Component<{}, State> {
       tagSuggestions: [],
       people: [],
       roles: [],
-      roleSuggestions: [{id: 'x', text: 'x'}]
+      roleSuggestions: [{id: 'x', text: 'x'}],
+      privacy: false
   };
 
   data = new ItemEntryFormState();
@@ -440,6 +445,12 @@ export class ItemEntryForm extends React.Component<{}, State> {
             <option>Southern</option>
             <option>Arctic</option>
           </Input>
+        </FormGroup>
+        <FormGroup check>
+          <Label check>
+            <Input type="checkbox" id="privacy" onChange={(e) => data.privacy.onChange(e.target.checked)}/>
+            Private item?
+          </Label>
         </FormGroup>
         <Button>Submit</Button>
       </Form>
