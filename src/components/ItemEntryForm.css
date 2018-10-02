@@ -88,3 +88,21 @@ div.ReactTags__suggestions ul li.ReactTags__activeSuggestion {
     background: #b7cfe0;
     cursor: pointer;
 }
+
+ul.previewItems {
+    padding: 0;
+}
+ul.previewItems li{
+    display: inline-block;
+    width: 20%;
+    min-width: 165px;
+    vertical-align: top;
+    margin: .7em;
+}
+
+ul.previewItems li img{
+    width: 100%;
+}
+ul li{
+    list-style: none;
+}

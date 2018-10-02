@@ -2,11 +2,9 @@ import * as React from 'react';
 import { observer } from 'mobx-react';
 import { FormState, FieldState } from 'formstate';
 import { Form, FormGroup, Label, Input, Button, Container } from 'reactstrap';
-import {
-    Viewport,
-    InteractiveMap,
-    MapEvent
-} from 'react-map-gl';
+import Dropzone from 'react-dropzone';
+// import FileReader from 'filereader';
+import { Viewport, InteractiveMap, MapEvent } from 'react-map-gl';
 import * as MapboxGL from 'mapbox-gl';
 import { Async } from 'react-select';
 import { WithContext as ReactTags } from 'react-tag-input';
@@ -142,6 +140,13 @@ interface Person {
   value: string;
 }
 
+interface NewFile {
+    name: string;
+    preview: string;
+    size: number;
+    type: string;
+}
+
 interface State {
   tags: Tag[];
   tagSuggestions: Tag[];
@@ -149,6 +154,8 @@ interface State {
   roles: Array<Array<Tag>>;
   roleSuggestions: Tag[];
   privacy: boolean;
+  files: NewFile[];
+  rejectedFiles: NewFile[];
 }
 
 class ItemEntryFormState {
@@ -225,7 +232,9 @@ export class ItemEntryForm extends React.Component<{}, State> {
       people: [],
       roles: [],
       roleSuggestions: [{id: 'x', text: 'x'}],
-      privacy: false
+      privacy: false,
+      files: Array<NewFile>(),
+      rejectedFiles: Array<NewFile>()
   };
 
   data = new ItemEntryFormState();
@@ -240,6 +249,7 @@ export class ItemEntryForm extends React.Component<{}, State> {
     this.handleRoleAddition = this.handleRoleAddition.bind(this);
     this.handleRoleDrag = this.handleRoleDrag.bind(this);
 
+    this.onDrop = this.onDrop.bind(this);
   }
 
   getImageTags = (key: string) => () => {
@@ -280,6 +290,28 @@ export class ItemEntryForm extends React.Component<{}, State> {
     } else {
       return '';
     }
+  }
+
+  onDrop = async (acceptedFiles: Array<any>, rejectedFiles: any) => {  // tslint:disable-line:no-any
+      console.log('on dropped --- ', acceptedFiles, );  // tslint:disable-line:no-console
+      // const newFiles = []
+      acceptedFiles.forEach((file) => {  // tslint:disable-line:no-any
+          console.log('acceptedFiles.forEach --- ', file);  // tslint:disable-line:no-console
+          const reader = new FileReader();
+          reader.onload = () => {
+              const fileAsBinaryString = reader.result;
+              console.log(' reader loaded ', fileAsBinaryString); // tslint:disable-line:no-console
+              // show preview or something
+          };
+          reader.onabort = () => console.log('file reading was aborted'); // tslint:disable-line:no-console
+          reader.onerror = () => console.log('file reading has failed'); // tslint:disable-line:no-console
+          // reader.readAsBinaryString(file); /// uncomment to read file
+      });
+
+      this.setState({
+          files: acceptedFiles,
+          rejectedFiles
+      });
   }
 
   handleTagDelete(i: number) {
@@ -373,9 +405,51 @@ export class ItemEntryForm extends React.Component<{}, State> {
       roles: this.state.roles.filter((s, sidx) => idx !== sidx)
     });
   }
+  whatType(item: string) {
+      return item.indexOf('image') > -1 ? 'image' : item;
+  }
+  previewItems() {
+      return this.state.files.map(f => {
+        var itemDisplay;
+        let fileType = this.whatType(f.type);
+        switch (fileType) {
+            case 'application/pdf':
+                itemDisplay = <object data={f.preview}/>;
+                break;
+            case 'image':
+                itemDisplay = <img src={f.preview}/>;
+                break;
+            default:
+                break;
+        }
 
+        return <li key={f.name}> {itemDisplay} <label> {f.name} <span>{this.humanFileSize(f.size, true)} </span> </label></li>;
+      });
+  }
+
+  humanFileSize(bytes: number, si: boolean) {
+        var thresh = si ? 1000 : 1024;
+        if (Math.abs(bytes) < thresh) {
+            return bytes + ' B';
+        }
+        var units = si ? ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'] : ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
+        var u = -1;
+        do {
+            bytes /= thresh;
+            ++u;
+        } while (Math.abs(bytes) >= thresh && u < units.length - 1);
+        return bytes.toFixed(1) + ' ' + units[u];
+    }
+
+  renderRejectedFiles() {
+      var tmpList = this.state.rejectedFiles.map(f => {
+          return <li key={f.name}> {f.type} file: {f.name} - {f.size} bytes </li>;
+      });
+      return <aside> <h2> Rejected Files </h2> <ul> {tmpList} </ul> </aside>;
+  }
   render() {
     const data = this.data;
+
     return (
       <Container>
       <MyMap onClick={(e) => this.setposition(e)}/>
@@ -391,6 +465,18 @@ export class ItemEntryForm extends React.Component<{}, State> {
           <Label for="attachment">Attachment</Label>
           <Input type="file" name="attachment" id="attachment" onChange={(e) => this.handleFileUpload(e).then((url) => data.url.onChange(url))}/>
         </FormGroup>
+        <FormGroup className="dropzone">
+            <Dropzone accept="image/jpeg, image/png, image/svg+xml, application/pdf, audio/*, text/*, video/*" onDrop={(accepted, rejected) => {this.onDrop(accepted, rejected); }}>
+                <p> Try dropping some files here, or click to select files to upload. </p>
+            </Dropzone>
+        </FormGroup>
+        <aside>
+            <h2> Dropped files </h2>
+            <ul className="previewItems">
+                {this.state.files.length > 0 ? this.previewItems() : 'No files yet'}
+            </ul>
+            {this.state.rejectedFiles.length > 0 ? this.renderRejectedFiles() : 'All files are accepted'}
+        </aside>
         <FormGroup>
           <ReactTags
             tags={this.state.tags}
