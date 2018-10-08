@@ -285,9 +285,11 @@ export class ItemEntryForm extends React.Component<{}, State> {
       contentType: file.type
     }) : null;
 
-    if (stored && file.type.includes('image')) {
+    if (stored) {
       console.log(stored); // tslint:disable-line: no-console
-      setTimeout(this.getImageTags(stored['key']), 4500); // tslint:disable-line: no-string-literal
+      if  (file.type.includes('image')) {
+        setTimeout(this.getImageTags(stored['key']), 4500); // tslint:disable-line: no-string-literal
+      }
       return config.other.BASE_CONTENT_URL + 'public/' + stored['key']; // tslint:disable-line: no-string-literal
     } else {
       return '';
@@ -296,7 +298,7 @@ export class ItemEntryForm extends React.Component<{}, State> {
 
   onDrop = async (acceptedFiles: Array<any>, rejectedFiles: any) => {  // tslint:disable-line:no-any
       console.log('on dropped --- ', acceptedFiles, );  // tslint:disable-line:no-console
-      const newUrls: string[] = this.state.urls;
+      let newUrls: string[] = this.state.urls;
       acceptedFiles.forEach(async (file) => {  // tslint:disable-line:no-any
           console.log('acceptedFiles.forEach --- ', file);  // tslint:disable-line:no-console
           const newUrl = await this.handleFileUpload(file);
