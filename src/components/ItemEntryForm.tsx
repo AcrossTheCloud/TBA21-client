@@ -320,7 +320,7 @@ export class ItemEntryForm extends React.Component<{}, State> {
       this.setState({
           urls: newUrls,
           files: acceptedFiles,
-          rejectedFiles
+          rejectedFiles: rejectedFiles
       });
   }
 
