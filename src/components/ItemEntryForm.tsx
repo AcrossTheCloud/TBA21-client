@@ -299,9 +299,10 @@ export class ItemEntryForm extends React.Component<{}, State> {
   onDrop = async (acceptedFiles: Array<any>, rejectedFiles: any) => {  // tslint:disable-line:no-any
       console.log('on dropped --- ', acceptedFiles, );  // tslint:disable-line:no-console
       let newUrls: string[] = this.state.urls;
-      acceptedFiles.forEach(async (file) => {  // tslint:disable-line:no-any
+      for (const file of acceptedFiles) {  // tslint:disable-line:no-any
           console.log('acceptedFiles.forEach --- ', file);  // tslint:disable-line:no-console
           const newUrl = await this.handleFileUpload(file);
+          console.log(newUrl); // tslint:disable-line:no-console
           newUrls.push(newUrl);
 
           const reader = new FileReader();
@@ -313,7 +314,8 @@ export class ItemEntryForm extends React.Component<{}, State> {
           reader.onabort = () => console.log('file reading was aborted'); // tslint:disable-line:no-console
           reader.onerror = () => console.log('file reading has failed'); // tslint:disable-line:no-console
           // reader.readAsBinaryString(file); /// uncomment to read file
-      });
+      }
+      console.log(newUrls); // tslint:disable-line:no-console
 
       this.setState({
           urls: newUrls,
