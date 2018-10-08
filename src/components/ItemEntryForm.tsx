@@ -154,6 +154,7 @@ interface State {
   roles: Array<Array<Tag>>;
   roleSuggestions: Tag[];
   privacy: boolean;
+  urls: string[];
   files: NewFile[];
   rejectedFiles: NewFile[];
 }
@@ -161,8 +162,8 @@ interface State {
 class ItemEntryFormState {
   // Create a field
   description = new FieldState('').validators((val: string) => !val && 'description required');
-  ocean = new FieldState('Pacific').validators((val: string) => oceans.indexOf(val) < 0 && 'valid ocean requured');
-  url = new FieldState('').validators((val: string) => !regexWeburl.test(val) && 'valid URL required');
+  ocean = new FieldState('Pacific').validators((val: string) => oceans.indexOf(val) < 0 && 'valid ocean required');
+  urls = new FieldState([]).validators((val: string[]) => !val.reduce((accumulator, item) => { return accumulator && !regexWeburl.test(item); }, true)  && 'valid URL required');
   people = new FieldState([{label: '', value: ''}]).validators((val: Person[]) => !(val.length > 0 && val.reduce((accumulator, item) => accumulator && item.hasOwnProperty('value') && item.value !== '', true)) && 'at least one person required');
   position = new FieldState([150.86914, -34.41921]).validators((val: number[]) => !valposition(val) && 'valid position required');
   tags = new FieldState([]).validators((val: Tag[]) => !(val.length > 0) && 'at least one tag required');
@@ -173,7 +174,7 @@ class ItemEntryFormState {
   form = new FormState({
     description: this.description,
     ocean: this.ocean,
-    url: this.url,
+    urls: this.urls,
     position: this.position,
     people: this.people,
     tags: this.tags,
@@ -194,7 +195,7 @@ class ItemEntryFormState {
     let body = {
       description: this.form.$.description.$,
       ocean: this.form.$.ocean.$,
-      url: this.form.$.url.$,
+      urls: this.form.$.urls.$,
       position: this.form.$.position.$,
       people: this.form.$.people.$.map((person) => ({
         personId: person.value,
@@ -233,6 +234,7 @@ export class ItemEntryForm extends React.Component<{}, State> {
       roles: [],
       roleSuggestions: [{id: 'x', text: 'x'}],
       privacy: false,
+      urls: [],
       files: Array<NewFile>(),
       rejectedFiles: Array<NewFile>()
   };
@@ -275,15 +277,15 @@ export class ItemEntryForm extends React.Component<{}, State> {
     this.setState({ people: newPeople });
   }
 
-  handleFileUpload = async (event: any) => { // tslint:disable-line:no-any
+  handleFileUpload = async (file: any) => { // tslint:disable-line:no-any
 
-    let filename = uuid() + `-${event.target.files[0].name}`;
+    let filename = uuid() + `-${file.name}`;
 
-    let stored = event.target.files[0] ? await Storage.put(filename, event.target.files[0], {
-      contentType: event.target.files[0].type
+    let stored = file ? await Storage.put(filename, file, {
+      contentType: file.type
     }) : null;
 
-    if (stored) {
+    if (stored && file.type.includes('image')) {
       console.log(stored); // tslint:disable-line: no-console
       setTimeout(this.getImageTags(stored['key']), 4500); // tslint:disable-line: no-string-literal
       return config.other.BASE_CONTENT_URL + 'public/' + stored['key']; // tslint:disable-line: no-string-literal
@@ -294,9 +296,12 @@ export class ItemEntryForm extends React.Component<{}, State> {
 
   onDrop = async (acceptedFiles: Array<any>, rejectedFiles: any) => {  // tslint:disable-line:no-any
       console.log('on dropped --- ', acceptedFiles, );  // tslint:disable-line:no-console
-      // const newFiles = []
-      acceptedFiles.forEach((file) => {  // tslint:disable-line:no-any
+      const newUrls: string[] = this.state.urls;
+      acceptedFiles.forEach(async (file) => {  // tslint:disable-line:no-any
           console.log('acceptedFiles.forEach --- ', file);  // tslint:disable-line:no-console
+          const newUrl = await this.handleFileUpload(file);
+          newUrls.push(newUrl);
+
           const reader = new FileReader();
           reader.onload = () => {
               const fileAsBinaryString = reader.result;
@@ -309,6 +314,7 @@ export class ItemEntryForm extends React.Component<{}, State> {
       });
 
       this.setState({
+          urls: newUrls,
           files: acceptedFiles,
           rejectedFiles
       });
@@ -461,14 +467,10 @@ export class ItemEntryForm extends React.Component<{}, State> {
             readOnly={true}
           />
         </FormGroup>
-        <FormGroup>
-          <Label for="attachment">Attachment</Label>
-          <Input type="file" name="attachment" id="attachment" onChange={(e) => this.handleFileUpload(e).then((url) => data.url.onChange(url))}/>
-        </FormGroup>
         <FormGroup className="dropzone">
-            <Dropzone accept="image/jpeg, image/png, image/svg+xml, application/pdf, audio/*, text/*, video/*" onDrop={(accepted, rejected) => {this.onDrop(accepted, rejected); }}>
-                <p> Try dropping some files here, or click to select files to upload. </p>
-            </Dropzone>
+          <Dropzone accept="image/jpeg, image/png, image/svg+xml, application/pdf, audio/*, text/*, video/*" onDrop={(accepted, rejected) => {this.onDrop(accepted, rejected); }}>
+            Try dropping some files here, or click to select files to upload
+          </Dropzone>
         </FormGroup>
         <aside>
             <h2> Dropped files </h2>

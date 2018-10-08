@@ -35,13 +35,17 @@ export interface Person {
   roles: string[];
 }
 
+interface Urls {
+  urls: string[];
+}
+
 export interface OceanObject {
   ocean: string;
   timestamp: number;
   itemId: string;
   position: number[];
   description: string;
-  url: string;
+  urls: Array<string>;
   people: Array<Person>;
   tags: Array<string>;
 }
@@ -54,6 +58,15 @@ const renderPeople = function (people: Array<Person>) {
     '').slice(0, -2);
 };
 
+class Items extends React.Component<Urls, {}> {
+  render() {
+    console.log(this.props); // tslint:disable-line: no-console
+    return (
+      this.props.urls.map((item: string) => {return (<MultiMedia url={item} key={item} />); })
+    );
+  }
+}
+
 export class TableRow extends React.Component<OceanObject, {}> {
   render() {
     return (
@@ -61,7 +74,7 @@ export class TableRow extends React.Component<OceanObject, {}> {
         <td>{this.props.description}</td>
         <td>{renderPeople(this.props.people)}</td>
         <td>{this.props.tags ? this.props.tags.toString() : ''}</td>
-        <td vertical-align="top"><MultiMedia url={this.props.url} /></td>
+        <td vertical-align="top"><Items urls={this.props.urls} /></td>
         <td><MyRowMap lng={this.props.position[0]} lat={this.props.position[1]} /></td>
       </tr>
     );
