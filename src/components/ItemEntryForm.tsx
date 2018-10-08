@@ -322,6 +322,7 @@ export class ItemEntryForm extends React.Component<{}, State> {
           files: acceptedFiles,
           rejectedFiles: rejectedFiles
       });
+      this.data.urls.onChange(this.state.urls);
   }
 
   handleTagDelete(i: number) {
