@@ -17,8 +17,8 @@ interface OceanObjectResults {
 export class ArchiveTable extends React.Component<{}, OceanObjectResults> {
 
   state: OceanObjectResults = {searchTerm: '',
-   Items: [{ocean: '', timestamp: 1, itemId: '', position: [0, 0], description: '', url: '', people: [{personId: '', personName: '', roles: ['']}], tags: []}],
-   SearchedItems: [{ocean: '', timestamp: 1, itemId: '', position: [0, 0], description: '', url: '', people: [{personId: '', personName: '', roles: ['']}], tags: []}],
+   Items: [{ocean: '', timestamp: 1, itemId: '', position: [0, 0], description: '', urls: [''], people: [{personId: '', personName: '', roles: ['']}], tags: []}],
+   SearchedItems: [{ocean: '', timestamp: 1, itemId: '', position: [0, 0], description: '', urls: [''], people: [{personId: '', personName: '', roles: ['']}], tags: []}],
    Count: 1, ScannedCount: 1};
 
   componentDidMount() {
