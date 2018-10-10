@@ -163,7 +163,7 @@ class ItemEntryFormState {
   // Create a field
   description = new FieldState('').validators((val: string) => !val && 'description required');
   ocean = new FieldState('Pacific').validators((val: string) => oceans.indexOf(val) < 0 && 'valid ocean required');
-  urls = new FieldState([]).validators((val: string[]) => !val.reduce((accumulator, item) => { return accumulator && !regexWeburl.test(item); }, true)  && 'valid URL required');
+  urls = new FieldState([]).validators((val: string[]) => !(val.length > 0)  && 'valid URL required');
   people = new FieldState([{label: '', value: ''}]).validators((val: Person[]) => !(val.length > 0 && val.reduce((accumulator, item) => accumulator && item.hasOwnProperty('value') && item.value !== '', true)) && 'at least one person required');
   position = new FieldState([150.86914, -34.41921]).validators((val: number[]) => !valposition(val) && 'valid position required');
   tags = new FieldState([]).validators((val: Tag[]) => !(val.length > 0) && 'at least one tag required');
