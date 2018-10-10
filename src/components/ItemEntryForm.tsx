@@ -85,6 +85,7 @@ class MyMap extends React.Component<MyMapProps, MyMapState> {
 
 }
 
+/*
 let regexWeburl = new RegExp(
   '^' +
   // protocol identifier
@@ -122,6 +123,7 @@ let regexWeburl = new RegExp(
   '$',
   'i'
 );
+*/
 
 const oceans: String[] = [ 'Pacific', 'Atlantic', 'Indian', 'Southern', 'Arctic' ];
 
