@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StaticMap } from 'react-map-gl';
+import { StaticMap, Marker } from 'react-map-gl';
 import * as MapboxGL from 'mapbox-gl';
 import { MultiMedia } from './MultiMedia';
 
@@ -22,7 +22,11 @@ class MyRowMap extends React.Component<MyMapProps, {}> {
           longitude={this.props.lng}
           latitude={this.props.lat}
           zoom={6}
-        />
+        >
+          <Marker longitude={this.props.lng} latitude={this.props.lat}>
+            <div>here be dragons</div>
+          </Marker>
+        </StaticMap>
       </div>
     );
   }
