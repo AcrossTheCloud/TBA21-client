@@ -23,7 +23,6 @@ class MyRowMap extends React.Component<MyMapProps, {}> {
           latitude={this.props.lat}
           zoom={6}
         />
-        <Marker longitude={this.props.long} latitude={this.props.lat} />
       </div>
     );
   }
