@@ -1,7 +1,9 @@
 import * as React from 'react';
-import { StaticMap } from 'react-map-gl';
+import { StaticMap, Marker } from 'react-map-gl';
 import * as MapboxGL from 'mapbox-gl';
 import { MultiMedia } from './MultiMedia';
+
+import { FaStar } from 'react-icons/fa';
 
 interface MyMapProps {
   lng: number;
@@ -22,7 +24,13 @@ class MyRowMap extends React.Component<MyMapProps, {}> {
           longitude={this.props.lng}
           latitude={this.props.lat}
           zoom={6}
-        />
+        >
+          <Marker longitude={this.props.lng} latitude={this.props.lat}>
+          <div style={{color: '#00f'}}>
+            <FaStar size={24} />
+         </div>
+          </Marker>
+        </StaticMap>
       </div>
     );
   }
