@@ -4,14 +4,13 @@ import { FormState, FieldState } from 'formstate';
 import { Form, FormGroup, Label, Input, Button, Container } from 'reactstrap';
 import Dropzone from 'react-dropzone';
 // import FileReader from 'filereader';
-import { Viewport, InteractiveMap, MapEvent } from 'react-map-gl';
+import { ViewState, InteractiveMap, PointerEvent } from 'react-map-gl';
 import * as MapboxGL from 'mapbox-gl';
 import { Async } from 'react-select';
 import { WithContext as ReactTags } from 'react-tag-input';
 import { API } from 'aws-amplify';
 import config from '../config.js';
 
-import 'react-select/dist/react-select.css';
 import './ItemEntryForm.css';
 
 import { Storage } from 'aws-amplify';
@@ -35,11 +34,11 @@ const getPersonOptions = (input: string) => {
 };
 
 interface MyMapState {
-  viewport: Viewport;
+  viewstate: ViewState;
 }
 
 interface MyMapProps {
-  onClick: (e: MapEvent) => void; // tslint:disable-line: no-any
+  onClick: (e: PointerEvent) => void; 
 }
 
 class MyMap extends React.Component<MyMapProps, MyMapState> {
@@ -47,16 +46,15 @@ class MyMap extends React.Component<MyMapProps, MyMapState> {
   map: MapboxGL.Map;
 
   state: MyMapState = {
-      viewport: {
+      viewstate: {
           bearing: 0,
-          isDragging: false,
           longitude: 150.86914,
           latitude: -34.41921,
           zoom: 3,
       }
   };
 
-  _onViewportChange = (viewport: Viewport) => this.setState({viewport});
+  _onViewportChange = (viewstate: ViewState) => this.setState({viewstate});
 
   constructor (props: any) { // tslint:disable-line: no-any
     super(props);
@@ -67,7 +65,7 @@ class MyMap extends React.Component<MyMapProps, MyMapState> {
       return (
           <div>
               <InteractiveMap
-                  {...this.state.viewport}
+                  {...this.state.viewstate}
                   mapboxApiAccessToken="pk.eyJ1IjoiYWNyb3NzdGhlY2xvdWQiLCJhIjoiY2ppNnQzNG9nMDRiMDNscDh6Zm1mb3dzNyJ9.nFFwx_YtN04_zs-8uvZKZQ"
                   height={400}
                   width={400}
@@ -397,7 +395,7 @@ export class ItemEntryForm extends React.Component<{}, State> {
     this.data.roles.onChange(this.state.roles);
   }
 
-  setposition = (e: MapEvent) => {
+  setposition = (e: PointerEvent) => {
     this.data.position.onChange(e.lngLat);
   }
 
