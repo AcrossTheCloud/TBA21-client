@@ -4,7 +4,7 @@
     "outDir": "build/dist",
     "module": "esnext",
     "target": "es5",
-    "lib": ["es6", "dom"],
+    "lib": ["es6", "dom", "esnext.asynciterable"],
     "sourceMap": true,
     "allowJs": true,
     "experimentalDecorators": true,
@@ -14,7 +14,7 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
-    "noImplicitAny": true,
+    "noImplicitAny": false,
     "strictNullChecks": true,
     "suppressImplicitAnyIndexErrors": true,
     "noUnusedLocals": true
