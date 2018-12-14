@@ -27,8 +27,7 @@ export class ArchiveTable extends React.Component<{}, OceanObjectResults> {
         this.setState(data);
         this.setState({SearchedItems: this.state.Items});
       }).catch((e: any ) => { // tslint:disable-line: no-any
-      });
-
+    });
   }
 
   search(term: string) {
