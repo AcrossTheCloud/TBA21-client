@@ -28,7 +28,7 @@ export class NetworkGraph extends React.Component<{}, Graph> {
         <div>
         {this.state.nodes.length > 0 ? (
           <Sigma
-            renderer="canvas"
+            renderer="webgl"
             style={{maxWidth: 'inherit', height: '400px'}}
             settings={{
               labelThreshold: 0,
