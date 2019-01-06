@@ -1,6 +1,5 @@
 import * as React from 'react';
 import ReactPlayer from 'react-player';
-import { Link } from 'react-router-dom';
 
 import './MultiMedia.css';
 
@@ -21,7 +20,7 @@ export class MultiMedia extends React.Component<MultiMediaProps, {}> {
       );
     } else {
       return (
-        <Link to={this.props.url} target="_blank">link</Link>
+        <a href={this.props.url} target="_blank">link</a>
       );
     }
   }
