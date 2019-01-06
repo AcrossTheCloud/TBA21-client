@@ -1,19 +1,19 @@
 export default {
   s3: {
-    REGION: "eu-west-1",
-    BUCKET: "tba21-content"
+    REGION: "eu-central-1",
+    BUCKET: "demo.oceanarchive.io"
   },
   apiGateway: {
     REGION: "eu-central-1",
-    URL: "https://tba21-api.acrossthecloud.net/"
+    URL: "https://demo-api.oceanarchive.io/"
   },
   cognito: {
     REGION: "eu-central-1",
-    USER_POOL_ID: "eu-central-1_lzb10Xjgw",
-    APP_CLIENT_ID: "2f4knvhebo7heebm6r01qod268",
-    IDENTITY_POOL_ID: "eu-central-1:77339dad-9dd5-4f20-89e8-ca44b049332c"
+    USER_POOL_ID: "eu-central-1_MClQ7jNon",
+    APP_CLIENT_ID: "2lrll2fm15mhbhjgmss7snk8v6",
+    IDENTITY_POOL_ID: "eu-central-1:87c9ec1d-7fa8-4c74-b907-c31bdec2b879"
   },
   other: {
-    BASE_CONTENT_URL: 'https://tba21-content.acrossthecloud.net/'
+    BASE_CONTENT_URL: 'https://demo-content.oceanarchive.io/'
   }
 };
