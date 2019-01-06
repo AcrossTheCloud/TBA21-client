@@ -7,6 +7,21 @@ The serverless API can be found [here](https://github.com/AcrossTheCloud/TBA21-A
 Below you will find some information on how to perform common tasks.<br>
 You can find the most recent version of this guide [here](https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/README.md).
 
+## Running the project
+After having installed node modules with
+```shell
+npm install
+```
+then run 
+```shell
+npm run build
+```
+to build or 
+```shell
+npm run start
+```
+to build and then start a local server running to access the client side code. Environment variable `ENV` is used to specify which user pool and API server to talk to, i.e. `ENV=dev npm run start` to start up a server for client side code that then talks to the (cloud) dev API server and user pool. If not set then the client code will talk to the prod API server and pool.
+
 ## Table of Contents
 
 - [Updating to New Releases](#updating-to-new-releases)
