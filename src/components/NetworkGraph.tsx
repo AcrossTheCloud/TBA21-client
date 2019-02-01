@@ -18,7 +18,7 @@ export class NetworkGraph extends React.Component<{}, {}> {
         >
           <EdgeShapes default="curvedArrow"/>
           <NodeShapes default="circle"/>
-          <LoadJSON path="https://tba21-api.acrossthecloud.net/itemsGraph">
+          <LoadJSON path="https://demo-api.oceanarchive.io/itemsGraph">
           <RandomizeNodePositions>
             <ForceAtlas2 worker barnesHutOptimize barnesHutTheta={0.6} iterationsPerRender={100} linLogMode timeout={1000}/>
             <RelativeSize initialSize={10}/>
