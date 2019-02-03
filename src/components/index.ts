@@ -7,3 +7,4 @@ export * from './SignUp';
 export * from './ArchiveTable';
 export * from './NetworkGraph';
 export * from './ResetPassword';
+export { MapView } from './map/map';

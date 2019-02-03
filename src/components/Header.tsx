@@ -85,9 +85,14 @@ export default class Header extends React.Component<{history: any}, {isAuthentic
                 </NavItem>
                 : ''
               }
+
               <NavItem>
                 <NavLink href="/view">View Items</NavLink>
               </NavItem>
+              <NavItem>
+                <NavLink href="/map">Map View</NavLink>
+              </NavItem>
+
               <NavItem>
                 <NavLink href="/viewGraph">View Items and People Graph</NavLink>
               </NavItem>
