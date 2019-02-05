@@ -32,7 +32,6 @@
     "react-telephone-input": "^4.73.3",
     "reactstrap": "^6.5.0",
     "redux": "^4.0.1",
-    "remove": "^0.1.5",
     "uuid": "^3.3.2"
   },
   "scripts": {
@@ -52,7 +51,6 @@
     "@types/react-dom": "^16.0.11",
     "@types/react-dropzone": "^4.2.2",
     "@types/react-icons": "^2.2.6",
-    "@types/react-leaflet": "^1.1.6",
     "@types/react-map-gl": "^4.0.0",
     "@types/react-redux": "^6.0.11",
     "@types/react-router": "^4.4.2",
@@ -62,7 +60,7 @@
     "@types/reactstrap": "^6.4.3",
     "@types/uuid": "^3.4.4",
     "enzyme": "^3.8.0",
-    "typescript": "^3.3.1"
+    "typescript": "^3.2.2"
   },
   "browserslist": [
     ">0.2%",

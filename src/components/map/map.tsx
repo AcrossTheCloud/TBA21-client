@@ -1,9 +1,8 @@
 import * as React from 'react';
 import { Container } from 'reactstrap';
-
-import 'leaflet/dist/leaflet.css';
-
 import { Map, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import { getMapIcon } from './icons';
 
 interface State {
     lat: number;
@@ -16,13 +15,18 @@ type MarkerData = {
     key: string,
     position: any,  // tslint:disable-line: no-any // this is a LatLngExpression ...... [number,number]
     content: string,
+    icon?: any, // tslint:disable-line: no-any // Optional Leaflet icon
 };
 
-const PopupMarker = ({ content, position }: MarkerData) => (
-    <Marker position={position}>
-        <Popup>{content}</Popup>
-    </Marker>
-);
+const PopupMarker = ({ content, position, icon }: MarkerData) => {
+    icon = getMapIcon(icon);
+
+    return (
+        <Marker position={position} icon={icon}>
+            <Popup>{content}</Popup>
+        </Marker>
+    );
+};
 
 const MarkerList = ({ markers }: { markers: Array<MarkerData> }) => {
     const items = markers.map(({ key, ...props }) => (
@@ -43,9 +47,9 @@ export class MapView extends React.Component<{}, State> {
         lng: 150.8755489, // Default position (Wollongong)
         zoom: 13,
         markers: [
-            { key: 'marker1', position: [-34.4282514, 150.8755489], content: 'My first popup' },
-            { key: 'marker2', position: [-34.4282514, 150.8755485], content: 'My second popup' },
-            { key: 'marker3', position: [-34.4282514, 150.8755482], content: 'My third popup' },
+            { key: 'woolies', position: [-34.4270106, 150.896254], content: 'Woolworths Wollongong!' },
+            { key: 'apopup', position: [-34.4282514, 150.8755485], content: 'Another popup' },
+            { key: 'uni', position: [-34.3959849, 150.8707482], content: 'Uni' },
         ],
     };
 
