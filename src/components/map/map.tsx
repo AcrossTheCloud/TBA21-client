@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { Container } from 'reactstrap';
 import { Map, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { getMapIcon } from './icons';
@@ -61,7 +60,7 @@ export class MapView extends React.Component<{}, State> {
         const position: [number, number] = [this.state.lat, this.state.lng];
 
         return (
-            <Container>
+            <div className={'MapWrapper'}>
                 <Map center={position} zoom={this.state.zoom} style={MapStyle}>
                     <TileLayer
                         attribution={'&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'}
@@ -70,7 +69,7 @@ export class MapView extends React.Component<{}, State> {
 
                     <MarkerList markers={this.state.markers} />
                 </Map>
-            </Container>
+            </div>
         );
     }
 }
