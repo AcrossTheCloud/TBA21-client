@@ -51,6 +51,7 @@
     "@types/react-dom": "^16.0.11",
     "@types/react-dropzone": "^4.2.2",
     "@types/react-icons": "^2.2.6",
+    "@types/react-leaflet": "^1.1.6",
     "@types/react-map-gl": "^4.0.0",
     "@types/react-redux": "^6.0.11",
     "@types/react-router": "^4.4.2",
