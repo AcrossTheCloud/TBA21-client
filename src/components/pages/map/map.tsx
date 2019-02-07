@@ -36,6 +36,11 @@ const MarkerList = ({ markers }: { markers: Array<MarkerData> }) => {
     return <React.Fragment>{items}</React.Fragment>;
 };
 
+const MapStyle = {
+    width: '100%',
+    height: '100%'
+};
+
 export class MapView extends React.Component<{}, State> {
 
     state = {
@@ -58,7 +63,7 @@ export class MapView extends React.Component<{}, State> {
 
         return (
             <div className={'mapWrapper'}>
-                <Map center={position} zoom={this.state.zoom}>
+                <Map center={position} zoom={this.state.zoom} style={MapStyle}>
                     <TileLayer
                         attribution={'&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'}
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
