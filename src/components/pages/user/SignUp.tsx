@@ -5,8 +5,8 @@ import {
   Label
 } from 'reactstrap';
 import { Auth } from 'aws-amplify';
-import LoaderButton from './LoaderButton.js';
-import './SignUp.css';
+import LoaderButton from '../../utils/LoaderButton';
+import '../../../styles/pages/user/signup.scss';
 
 export class SignUp extends React.Component<{history: any}, {}> { // tslint:disable-line: no-any
 
@@ -108,7 +108,7 @@ export class SignUp extends React.Component<{history: any}, {}> { // tslint:disa
 
   renderForm() {
     return (
-      <form onSubmit={this.handleSubmit}>
+      <form onSubmit={this.handleSubmit} className={'small'}>
         <FormGroup id="email">
           <Label>Email</Label>
           <Input
@@ -148,7 +148,7 @@ export class SignUp extends React.Component<{history: any}, {}> { // tslint:disa
 
   render() {
     return (
-      <div className="Signup">
+      <div className={'signUp'}>
         {this.state.newUser === null
           ? this.renderForm()
           : this.renderConfirmationForm()}

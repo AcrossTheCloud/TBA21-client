@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Button, FormGroup, Input, Label } from 'reactstrap';
 import { Auth } from 'aws-amplify';
-import './Login.css';
+import '../../../styles/pages/user/login.scss';
 
 export class Login extends React.Component<{history: any}, {}> { // tslint:disable-line: no-any
 
@@ -32,8 +32,8 @@ export class Login extends React.Component<{history: any}, {}> { // tslint:disab
 
   render() {
     return (
-      <div className="Login">
-        <form onSubmit={(e) => { this.handleSubmit(e); }}>
+      <div className={'login'}>
+        <form onSubmit={(e) => { this.handleSubmit(e); }} className={'small'}>
           <FormGroup id="email">
             <Label>Email</Label>
             <Input

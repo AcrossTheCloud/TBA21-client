@@ -1,0 +1,6 @@
+@import "../../base/variables";
+
+.mapWrapper {
+  height: calc(100vh - #{$header_height});
+  width: 100%;
+}

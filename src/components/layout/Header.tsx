@@ -64,7 +64,7 @@ export default class Header extends React.Component<{history: any}, {isAuthentic
   }
   render() {
     return (
-      <div>
+      <div className={'navigation'}>
         <Navbar color="light" light expand="md">
           <NavbarBrand href="/">TBA21</NavbarBrand>
           <NavbarToggler onClick={this.toggle} />

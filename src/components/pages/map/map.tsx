@@ -1,3 +1,5 @@
+import '../../../styles/pages/map/map.scss';
+
 import * as React from 'react';
 import { Map, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -34,11 +36,6 @@ const MarkerList = ({ markers }: { markers: Array<MarkerData> }) => {
     return <React.Fragment>{items}</React.Fragment>;
 };
 
-const MapStyle = {
-    width: '100%',
-    height: '80vh'
-};
-
 export class MapView extends React.Component<{}, State> {
 
     state = {
@@ -60,8 +57,8 @@ export class MapView extends React.Component<{}, State> {
         const position: [number, number] = [this.state.lat, this.state.lng];
 
         return (
-            <div className={'MapWrapper'}>
-                <Map center={position} zoom={this.state.zoom} style={MapStyle}>
+            <div className={'mapWrapper'}>
+                <Map center={position} zoom={this.state.zoom}>
                     <TileLayer
                         attribution={'&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'}
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

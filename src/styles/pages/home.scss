@@ -1,0 +1,15 @@
+#home {
+  text-align: center;
+    h1 {
+      &.title {
+        font-size: 1.5em;
+      }
+    }
+
+  p {
+    &.intro {
+      font-size: large;
+    }
+  }
+
+}

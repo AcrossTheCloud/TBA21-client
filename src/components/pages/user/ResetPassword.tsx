@@ -5,8 +5,8 @@ import {
   Label
 } from 'reactstrap';
 import { Auth } from 'aws-amplify';
-import LoaderButton from './LoaderButton.js';
-import './ResetPassword.css';
+import LoaderButton from '../../utils/LoaderButton';
+import '../../../styles/pages/user/resetPassword.scss';
 
 export class ResetPassword extends React.Component<{history: any}, {}> { // tslint:disable-line: no-any
 
@@ -76,7 +76,7 @@ export class ResetPassword extends React.Component<{history: any}, {}> { // tsli
 
   renderNewPasswordForm() {
     return (
-      <form onSubmit={this.handleNewPasswordSubmit}>
+      <form onSubmit={this.handleNewPasswordSubmit} className={'small'}>
         <FormGroup id="password">
           <Label>Password</Label>
           <Input
@@ -141,7 +141,7 @@ export class ResetPassword extends React.Component<{history: any}, {}> { // tsli
 
   render() {
     return (
-      <div className="Signup">
+      <div className={'resetPassword'}>
         {this.state.reset === null
           ? this.renderResetForm()
           : this.renderNewPasswordForm()}

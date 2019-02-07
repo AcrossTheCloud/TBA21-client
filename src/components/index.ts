@@ -1,10 +1,17 @@
-export * from './ItemEntryForm';
-export * from './PersonEntryForm';
-export * from './Header';
-export * from './Home';
-export * from './Login';
-export * from './SignUp';
-export * from './ArchiveTable';
-export * from './NetworkGraph';
-export * from './ResetPassword';
-export { MapView } from './map/map';
+// START LAYOUT
+export * from './layout/Header';
+// END LAYOUT
+
+export * from './pages/Home';
+export * from './pages/ItemEntryForm';
+export * from './pages/PersonEntryForm';
+
+// START USER
+export * from './pages/user/Login';
+export * from './pages/user/SignUp';
+export * from './pages/user/ResetPassword';
+// END USER
+
+export * from './pages/ArchiveTable';
+export * from './pages/NetworkGraph';
+export { MapView } from './pages/map/map';

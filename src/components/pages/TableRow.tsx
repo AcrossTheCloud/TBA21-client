@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { StaticMap, Marker } from 'react-map-gl';
 import * as MapboxGL from 'mapbox-gl';
-import { MultiMedia } from './MultiMedia';
+import { MultiMedia } from '../utils/MultiMedia';
 
 import { FaStar } from 'react-icons/fa';
 

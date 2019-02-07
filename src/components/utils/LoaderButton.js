@@ -1,7 +1,5 @@
-import * as React from 'react';
 import { Button } from 'reactstrap';
 import { MdRefresh } from 'react-icons/md';
-import './LoaderButton.css';
 
 export default ({
   isLoading,
@@ -12,7 +10,7 @@ export default ({
   ...props
 }) =>
   <Button
-    className={`LoaderButton ${className}`}
+    className={`loaderButton ${className}`}
     disabled={disabled || isLoading}
     {...props}
   >
