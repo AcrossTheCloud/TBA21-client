@@ -1,7 +1,7 @@
 export default {
   s3: {
     REGION: "eu-central-1",
-    BUCKET: "oceanarchive-demo"
+    BUCKET: "oceanarchive-demo-dev"
   },
   apiGateway: {
     REGION: "eu-central-1",
