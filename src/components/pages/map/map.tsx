@@ -50,8 +50,8 @@ export class MapView extends React.Component<{}, State> {
 
     state = {
         lat: -34.4282514,
-        lng: 150.8755489, // Default position (Wollongong)
-        zoom: 13,
+        lng: 152, // Default position (Wollongong-ish)
+        zoom: 7,
         markers: [],
         sideBarState: 'closed',
         sideBarContent: <div/>,
