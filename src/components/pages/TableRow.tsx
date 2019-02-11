@@ -58,7 +58,7 @@ export interface OceanObject {
   tags: Array<string>;
 }
 
-const renderPeople = function (people: Array<Person>) {
+export const renderPeople = function (people: Array<Person>) {
   return people.reduce(
     (accumulator: string, currentPerson: Person) => {
       return (accumulator + currentPerson.personName + ': ' + currentPerson.roles.toString().replace(',', ', ') + '; ');
@@ -66,7 +66,7 @@ const renderPeople = function (people: Array<Person>) {
     '').slice(0, -2);
 };
 
-class Items extends React.Component<Urls, {}> {
+export class Items extends React.Component<Urls, {}> {
   render() {
     console.log(this.props); // tslint:disable-line: no-console
     return (
