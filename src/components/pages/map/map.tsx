@@ -7,6 +7,7 @@ import { API } from 'aws-amplify';
 
 import { createMapIcon, getMapIcon } from './icons';
 import { OceanObject, renderPeople, Items } from '../TableRow';
+import { LocationEvent } from 'leaflet';
 
 interface State {
     lat: number;
@@ -48,6 +49,8 @@ const MapMarkerPopUpContentTemplate = (item: MarkerContent) => {
 
 export class MapView extends React.Component<{}, State> {
 
+    map;
+
     state = {
         lat: -34.4282514,
         lng: 150.8755489, // Default position (Wollongong)
@@ -65,7 +68,8 @@ export class MapView extends React.Component<{}, State> {
         this.handleMarkerSideBarClick = this.handleMarkerSideBarClick.bind(this);
     }
 
-    componentDidMount(): void {
+    componentDidMount() {
+        this.locateUser();
         this.getData();
     }
 
@@ -75,6 +79,21 @@ export class MapView extends React.Component<{}, State> {
 
     closeSideBar() {
         this.setState({sideBarState: 'closed'});
+    }
+
+    /**
+     * Use leaflet's locate method to locate the use and set the view to that location.
+     */
+    locateUser = () => {
+        this.map.leafletElement.locate()
+            .on('locationfound', (location: LocationEvent) => {
+                this.map.leafletElement.flyTo(location.latlng, 15);
+            })
+            .on('locationerror', () => {
+                // Fly to a default location if the user declines our request to get their GPS location or if we had trouble getting said location.
+                // Ideally the map would already be in this location anyway.
+                this.map.leafletElement.flyTo([this.state.lat, this.state.lng], 10);
+            });
     }
 
     getData() {
@@ -222,7 +241,12 @@ export class MapView extends React.Component<{}, State> {
                     </div>
                 </div>
 
-                <Map center={position} zoom={this.state.zoom} style={MapStyle}>
+                <Map
+                    center={position}
+                    zoom={this.state.zoom}
+                    style={MapStyle}
+                    ref={map => this.map = map}
+                >
                     <TileLayer
                         url={tileLayer}
                     />
