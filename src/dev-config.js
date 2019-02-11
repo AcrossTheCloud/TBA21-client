@@ -1,19 +1,19 @@
 export default {
   s3: {
-    REGION: "ap-southeast-2",
-    BUCKET: "tba21-content-dev"
+    REGION: "eu-central-1",
+    BUCKET: "oceanarchive-demo"
   },
   apiGateway: {
-    REGION: "ap-southeast-2",
-    URL: "https://c8rat70v4a.execute-api.ap-southeast-2.amazonaws.com/dev/"
+    REGION: "eu-central-1",
+    URL: "https://demo-dev-api.oceanarchive.io"
   },
   cognito: {
-    REGION: "ap-southeast-2",
-    USER_POOL_ID: "ap-southeast-2_0HC4ds3BG",
-    APP_CLIENT_ID: "7evr9uegdj8i30vmlh2enfv9t7",
-    IDENTITY_POOL_ID: "ap-southeast-2:580ddd7d-a1b0-426a-a5ff-cd5e4f885d30"
+    REGION: "eu-central-1",
+    USER_POOL_ID: "eu-central-1_bnvWk6I6I",
+    APP_CLIENT_ID: "1cs7jkedr6joup35sq0mniveqg",
+    IDENTITY_POOL_ID: "eu-central-1:fc8e6f8d-e49f-4344-bf06-bae75dcebe53"
   },
   other: {
-    BASE_CONTENT_URL: 'https://tba21-content-dev.acrossthecloud.net/'
+    BASE_CONTENT_URL: "https://demo-dev-content.oceanarchive.io/"
   }
 };
