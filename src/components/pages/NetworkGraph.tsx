@@ -20,7 +20,33 @@ export class NetworkGraph extends React.Component<{}, Graph> {
   componentDidMount() {
     API.get('tba21', 'itemsGraph', {})
       .then((data: Graph) => {
-        this.setState(data);
+
+        let displayGraph: Graph = {
+          nodes: [],
+          edges: []
+        };
+
+        let noMoreLabel = [] as boolean[];
+
+        displayGraph.nodes = data.nodes;
+        data.edges.forEach(e1 => {
+          let ind = displayGraph.edges.findIndex((e2) => (e1.source === e2.source && e1.target === e2.target));
+          if (ind === -1) {
+            displayGraph.edges.push(e1);
+          } else {
+            if (!noMoreLabel[ind]) {
+              if (displayGraph.edges[ind].label.length < 20) {
+                displayGraph.edges[ind].label += ', ' + e1.label;
+              } else {
+                displayGraph.edges[ind].label += ' and more.';
+                noMoreLabel[ind] = true;
+              }
+            }
+
+          }
+
+        });
+        this.setState(displayGraph);
       }).catch((e: any) => { // tslint:disable-line: no-any
     });
   }
@@ -36,7 +62,9 @@ export class NetworkGraph extends React.Component<{}, Graph> {
               labelThreshold: 0,
               drawEdges: true,
               drawEdgeLabels: true,
-              clone: false
+              clone: false,
+              labelSize: 'fixed',
+              enableEdgeHovering: true
             }}
             graph={this.state}
           >
