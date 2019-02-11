@@ -12,9 +12,9 @@ export let MapIcons: Icons = {};
 const defaultIcons: Icons = {
     'jellyFish': {
         iconUrl: './assets/markers/jelly.svg',
-        iconSize:     [30, 38],
-        iconAnchor:   [15, 38],
-        popupAnchor:  [-3, -38]
+        iconSize:     [30, 38], // size of the icon
+        iconAnchor:   [15, 38], // point of the icon which will correspond to marker's location [iconWidth/2, iconHeight]
+        popupAnchor:  [-3, -38] // point from which the popup should open relative to the iconAnchor
     }
 };
 
