@@ -5,7 +5,7 @@ export default {
   },
   apiGateway: {
     REGION: "eu-central-1",
-    URL: "https://demo-dev-api.oceanarchive.io"
+    URL: "https://demo-dev-api.oceanarchive.io/"
   },
   cognito: {
     REGION: "eu-central-1",
