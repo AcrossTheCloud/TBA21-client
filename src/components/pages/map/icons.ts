@@ -1,5 +1,4 @@
 import * as L from 'leaflet';
-import { IconOptions } from 'leaflet';
 
 interface Icons {
     [name: string]: any; // tslint:disable-line: no-any
@@ -48,7 +47,7 @@ export function getMapIcon(iconName: string) {// tslint:disable-line: no-any
  * @param iconOptions
  * @return a Leaflet Icon Object to be assigned to a Marker.
  */
-export function createMapIcon(iconName: string, iconOptions: IconOptions) {
+export function createMapIcon(iconName: string, iconOptions: L.IconOptions) {
     const iconExists = iconName in MapIcons;
     if (!iconExists) {
         MapIcons[iconName] = new L.Icon(iconOptions);

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Button, FormGroup, Input, Label } from 'reactstrap';
 import { Auth } from 'aws-amplify';
-import '../../../styles/pages/user/login.scss';
+import 'styles/pages/user/login.scss';
 
 export class Login extends React.Component<{history: any}, {}> { // tslint:disable-line: no-any
 

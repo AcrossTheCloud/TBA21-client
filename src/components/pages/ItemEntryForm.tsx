@@ -9,11 +9,11 @@ import * as MapboxGL from 'mapbox-gl';
 import { Async } from 'react-select';
 import { WithContext as ReactTags } from 'react-tag-input';
 import { API } from 'aws-amplify';
-import config from '../../prod-config.js';
+import config from 'src/prod-config.js';
 
-import '../../styles/components/_dropzone.scss';
-import '../../styles/components/_reactTags.scss';
-import '../../styles/pages/itemEntryForm.scss';
+import 'styles/components/_dropzone.scss';
+import 'styles/components/_reactTags.scss';
+import 'styles/pages/itemEntryForm.scss';
 
 import { Storage } from 'aws-amplify';
 import { v1 as uuid } from 'uuid';

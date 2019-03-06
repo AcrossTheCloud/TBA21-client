@@ -5,8 +5,8 @@ import {
   Label
 } from 'reactstrap';
 import { Auth } from 'aws-amplify';
-import LoaderButton from '../../utils/LoaderButton';
-import '../../../styles/pages/user/resetPassword.scss';
+import LoaderButton from 'src/components/utils/LoaderButton';
+import 'styles/pages/user/resetPassword.scss';
 
 export class ResetPassword extends React.Component<{history: any}, {}> { // tslint:disable-line: no-any
 

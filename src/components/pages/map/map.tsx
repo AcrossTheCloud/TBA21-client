@@ -1,4 +1,4 @@
-import '../../../styles/pages/map/map.scss';
+import 'styles/pages/map/map.scss';
 
 import * as React from 'react';
 import { Map, Marker, Popup, TileLayer } from 'react-leaflet';
@@ -6,7 +6,7 @@ import 'leaflet/dist/leaflet.css';
 import { API } from 'aws-amplify';
 
 import { createMapIcon, getMapIcon } from './icons';
-import { OceanObject, renderPeople, Items } from '../TableRow';
+import { OceanObject, renderPeople, Items } from 'src/components/pages/TableRow';
 
 interface State {
     lat: number;

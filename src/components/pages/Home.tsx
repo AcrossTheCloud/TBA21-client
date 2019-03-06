@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { NavLink } from 'reactstrap';
-import '../../styles/pages/home.scss';
+import 'styles/pages/home.scss';
 
 const logo = require('../../images/tba_logo.png');
 

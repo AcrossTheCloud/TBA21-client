@@ -8,13 +8,14 @@ import {
   Home,
   ItemEntryForm,
   PersonEntryForm,
-  ArchiveTable,
   NetworkGraph,
   Login,
   SignUp,
   ResetPassword,
   MapView
-} from './components';
+} from './components/';
+
+import ViewItems from './components/pages/ViewItems';
 
 export const AppRouter: React.StatelessComponent<{}> = () => {
   return (
@@ -22,7 +23,7 @@ export const AppRouter: React.StatelessComponent<{}> = () => {
       <div>
         <Route path="/" render={(props) => <App {... {isAuthenticated: false, history: props.history}}/>} />
         <Route exact path="/" component={Home} />
-        <Route exact path="/view" component={ArchiveTable} />
+        <Route exact path="/view" component={ViewItems} />
         <Route exact path="/map" component={MapView} />
         <Route exact path="/login" render={(props) => <Login {... {isAuthenticated: false, history: props.history}} />} />
         <Route exact path="/signup" render={(props) => <SignUp {... {isAuthenticated: false, history: props.history}} />} />

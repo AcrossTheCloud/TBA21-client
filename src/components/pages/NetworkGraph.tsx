@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Sigma, RelativeSize, RandomizeNodePositions, ForceAtlas2, EdgeShapes, NodeShapes, Graph } from 'react-sigma';
 import { API } from 'aws-amplify';
 
-import '../../styles/pages/networkGraph.scss';
+import 'styles/pages/networkGraph.scss';
 
 // let myGraph =
 export class NetworkGraph extends React.Component<{}, Graph> {

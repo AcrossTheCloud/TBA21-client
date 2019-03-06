@@ -28,10 +28,12 @@
     "react-scripts-ts": "^4.0.8",
     "react-select": "^1.2.1",
     "react-sigma": "^1.2.30",
+    "react-slick": "^0.23.2",
     "react-tag-input": "^6.1.0",
     "react-telephone-input": "^4.73.3",
     "reactstrap": "^6.5.0",
     "redux": "^4.0.1",
+    "slick-carousel": "^1.8.1",
     "uuid": "^3.3.2"
   },
   "scripts": {
