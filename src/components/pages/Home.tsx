@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { NavLink } from 'reactstrap';
+import { Link } from 'react-router-dom';
+
 import 'styles/pages/home.scss';
 
 const logo = require('../../images/tba_logo.png');
@@ -12,9 +13,9 @@ export const Home: React.StatelessComponent<{}> = () => {
           <h1 className="title">Welcome to OceanArchive</h1>
         </header>
         <p className="intro">
-          <NavLink href="/view">
+          <Link to="/view">
             Open the archive
-          </NavLink>
+          </Link>
         </p>
       </div>
     );

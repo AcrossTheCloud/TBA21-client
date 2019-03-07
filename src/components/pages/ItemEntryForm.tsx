@@ -64,23 +64,18 @@ class MyMap extends React.Component<MyMapProps, MyMapState> {
   }
 
   render() {
-      return (
-          <div>
-              <InteractiveMap
-                  {...this.state.viewstate}
-                  mapboxApiAccessToken="pk.eyJ1IjoiYWNyb3NzdGhlY2xvdWQiLCJhIjoiY2ppNnQzNG9nMDRiMDNscDh6Zm1mb3dzNyJ9.nFFwx_YtN04_zs-8uvZKZQ"
-                  height={400}
-                  width={400}
-                  ref={this.setRefInteractive}
-                  onViewportChange={this._onViewportChange}
-                  onClick={this.props.onClick}
-              />
-          </div>
-      );
-  }
-
-  private readonly setRefInteractive = (el: InteractiveMap) => {
-      this.map = el.getMap();
+    return (
+      <div>
+        <InteractiveMap
+          {...this.state.viewstate}
+          mapboxApiAccessToken="pk.eyJ1IjoiYWNyb3NzdGhlY2xvdWQiLCJhIjoiY2ppNnQzNG9nMDRiMDNscDh6Zm1mb3dzNyJ9.nFFwx_YtN04_zs-8uvZKZQ"
+          height={400}
+          width={400}
+          onViewportChange={this._onViewportChange}
+          onClick={this.props.onClick}
+        />
+      </div>
+    );
   }
 
 }
@@ -143,10 +138,10 @@ interface Person {
 }
 
 interface NewFile {
-    name: string;
-    preview: string;
-    size: number;
-    type: string;
+  name: string;
+  preview: string;
+  size: number;
+  type: string;
 }
 
 interface State {

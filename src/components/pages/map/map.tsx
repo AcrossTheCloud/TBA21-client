@@ -7,30 +7,31 @@ import { API } from 'aws-amplify';
 
 import { createMapIcon, getMapIcon } from './icons';
 import { OceanObject, renderPeople, Items } from 'src/components/pages/TableRow';
+import { cancelablePromise, appendPendingPromise, removePendingPromise } from 'src/components/utils/cancelablePromise';
 
 interface State {
-    lat: number;
-    lng: number;
-    zoom: number;
-    markers: MarkerData[];
-    sideBarState: string;
-    sideBarContent?: JSX.Element;
+  lat: number;
+  lng: number;
+  zoom: number;
+  markers: MarkerData[];
+  sideBarState: string;
+  sideBarContent?: JSX.Element;
 }
 type MarkerData = {
-    key: string,
-    type?: string; // popUp or SideBar
-    position: any,  // tslint:disable-line: no-any // this is a LatLngExpression ...... [number,number]
-    content: string | JSX.Element,
-    icon?: any, // tslint:disable-line: no-any // Optional Leaflet icon
-    data: OceanObject
+  key: string,
+  type?: string; // popUp or SideBar
+  position: any,  // tslint:disable-line: no-any // this is a LatLngExpression ...... [number,number]
+  content: string | JSX.Element,
+  icon?: any, // tslint:disable-line: no-any // Optional Leaflet icon
+  data: OceanObject
 };
 type MarkerContent = {
-    description: string,
-    ocean: string
+  description: string,
+  ocean: string
 };
 const MapStyle = {
-    width: '100%',
-    height: '100%'
+  width: '100%',
+  height: '100%'
 };
 
 /**
@@ -38,198 +39,209 @@ const MapStyle = {
  * @param item Object
  */
 const MapMarkerPopUpContentTemplate = (item: MarkerContent) => {
-    return (
-        <div>
-            <div>{item.description}</div>
-            Ocean : {item.ocean};
-        </div>
-    );
+  return (
+    <div>
+      <div>{item.description}</div>
+      Ocean : {item.ocean};
+    </div>
+  );
 };
 
 export class MapView extends React.Component<{}, State> {
+  pendingPromises: any = []; // tslint:disable-line: no-any
 
-    state = {
-        lat: -34.4282514,
-        lng: 152, // Default position (Wollongong-ish)
-        zoom: 7,
-        markers: [],
-        sideBarState: 'closed',
-        sideBarContent: <div/>,
-    };
+  state = {
+    lat: -34.4282514,
+    lng: 152, // Default position (Wollongong-ish)
+    zoom: 7,
+    markers: [],
+    sideBarState: 'closed',
+    sideBarContent: <div/>,
+  };
 
-    constructor(props: any) { // tslint:disable-line: no-any
-        super(props);
+  constructor(props: any) { // tslint:disable-line: no-any
+    super(props);
 
-        this.openSideBar = this.openSideBar.bind(this);
-        this.closeSideBar = this.closeSideBar.bind(this);
-        this.handleMarkerSideBarClick = this.handleMarkerSideBarClick.bind(this);
-    }
+    this.openSideBar = this.openSideBar.bind(this);
+    this.closeSideBar = this.closeSideBar.bind(this);
+    this.handleMarkerSideBarClick = this.handleMarkerSideBarClick.bind(this);
+  }
 
-    componentDidMount(): void {
-        this.getData();
-    }
+  componentDidMount(): void {
+    this.getData();
+  }
 
-    openSideBar() {
-        this.setState({sideBarState: 'open'});
-    }
+  componentWillUnmount(): void {
+    this.pendingPromises.map(p => p.cancel());
+  }
 
-    closeSideBar() {
-        this.setState({sideBarState: 'closed'});
-    }
+  openSideBar() {
+    this.setState({sideBarState: 'open'});
+  }
 
-    getData() {
-        let responseMarkers: MarkerData[] = [];
+  closeSideBar() {
+    this.setState({sideBarState: 'closed'});
+  }
 
-        API.get('tba21', 'items', {})
-        .then((data: any) => { // tslint:disable-line: no-any
+  getData(): void {
+    let responseMarkers: MarkerData[] = [];
 
-            if (data.Items) {
-                // TESTING popUp onclick button
-                createMapIcon('iconicon', {
-                    // https://pixabay.com/en/clipart-fish-sign-icon-cartoon-3418130/
-                    iconUrl: './assets/markers/fish.png',
-                    iconSize:     [64, 43],
-                    iconAnchor:   [32, 43],
-                    popupAnchor:  [-3, -38]
-                });
-                data.Items[5].icon = 'iconicon';
-                data.Items[5].type = 'popUp';
+    const wrappedPromise = cancelablePromise(API.get('tba21', 'items', {}));
+    appendPendingPromise(this, wrappedPromise);
 
-                // TESTING popUp type icon
-                data.Items[6].type = 'popUp';
-                createMapIcon('testing', {
-                    // https://pixabay.com/en/whale-blue-gray-fountain-spray-311849/
-                    iconUrl: './assets/markers/whale.svg',
-                    iconSize:     [64, 43],
-                    iconAnchor:   [32, 43],
-                    popupAnchor:  [-3, -38]
-                });
-                data.Items[6].icon = 'testing';
-                // END TESTING
+    wrappedPromise.promise
+      .then((data: any) => { // tslint:disable-line: no-any
 
-                data.Items.forEach( (item, index) => {
-                    const
-                        lng = item.position[0],
-                        lat = item.position[1],
-                        contentTemplate = () => {
-                            if (item.type === 'popUp') {
-                                return MapMarkerPopUpContentTemplate(item);
-                            } else {
-                                return '';
-                            }
-                        };
+        if (data.Items) {
+          // TESTING popUp onclick button
+          createMapIcon('iconicon', {
+            // https://pixabay.com/en/clipart-fish-sign-icon-cartoon-3418130/
+            iconUrl: './assets/markers/fish.png',
+            iconSize: [64, 43],
+            iconAnchor: [32, 43],
+            popupAnchor: [-3, -38]
+          });
+          data.Items[5].icon = 'iconicon';
+          data.Items[5].type = 'popUp';
 
-                    let markerData: MarkerData = {
-                        key: index,
-                        position: [lat , lng],
-                        content: contentTemplate(),
-                        data: item
-                    };
+          // TESTING popUp type icon
+          data.Items[6].type = 'popUp';
+          createMapIcon('testing', {
+            // https://pixabay.com/en/whale-blue-gray-fountain-spray-311849/
+            iconUrl: './assets/markers/whale.svg',
+            iconSize: [64, 43],
+            iconAnchor: [32, 43],
+            popupAnchor: [-3, -38]
+          });
+          data.Items[6].icon = 'testing';
+          // END TESTING
 
-                    if (item.type && item.type.length > 0) {
-                        markerData.type = item.type;
-                    } else {
-                        // Set the default "type" to sidebar, this opens the sidebar with the data when the marker is clicked.
-                        markerData.type = 'sidebar';
-                    }
+          data.Items.forEach((item, index) => {
+            const
+              lng = item.position[0],
+              lat = item.position[1],
+              contentTemplate = () => {
+                if (item.type === 'popUp') {
+                  return MapMarkerPopUpContentTemplate(item);
+                } else {
+                  return '';
+                }
+              };
 
-                    if (item.icon && item.icon.length > 0) {
-                        markerData.icon = item.icon;
-                    }
+            let markerData: MarkerData = {
+              key: index,
+              position: [lat, lng],
+              content: contentTemplate(),
+              data: item
+            };
 
-                    responseMarkers.push(markerData);
-                });
-                this.setState({markers: responseMarkers});
-            }
-
-        })
-        .catch((e: any ) => { // tslint:disable-line: no-any
-        });
-    }
-
-    /**
-     *
-     * Formats an OceanObject into a human readable JSX and presents it nicely to the user.
-     *
-     * @param oceanObject OceanObject
-     */
-    handleMarkerSideBarClick(oceanObject: OceanObject) {
-        const content = (
-            <div className="oceanObject">
-                <div className="description text-capitalize">{oceanObject.description}</div>
-                <div className="tags small">
-                    Tags : {oceanObject.tags ? oceanObject.tags.toString() : ''}
-                </div>
-                <div className="urls"><Items urls={oceanObject.urls} /></div>
-                <div className="people">
-                    {renderPeople(oceanObject.people)}
-                </div>
-            </div>
-        );
-
-        this.setState({sideBarContent: content});
-
-        this.openSideBar();
-    }
-
-    /**
-     * Looks through our list of Markers and returns them to the Leaflet instance
-     * @param markers
-     * @constructor
-     */
-    MarkerList = (markers: any): JSX.Element => { // tslint:disable-line: no-any
-        let items: JSX.Element[] = [];
-
-        markers = markers.markers; // Why?
-
-        if (!markers || !Object.keys(markers).length) { return <React.Fragment/>; }
-
-        markers.forEach((marker, key) => {
-            const type = marker.type;
-            const icon = getMapIcon(marker.icon);
-
-            if (type === 'popUp') {
-                items.push(
-                    <Marker key={key} position={marker.position} icon={icon}>
-                        <Popup>{marker.content}</Popup>
-                    </Marker>
-                );
-            } else if (type === 'sidebar') {
-                items.push(<Marker key={key} position={marker.position} icon={icon} onClick={() => { this.handleMarkerSideBarClick(marker.data); }}/>);
+            if (item.type && item.type.length > 0) {
+              markerData.type = item.type;
             } else {
-                items.push(<Marker key={key} position={marker.position} icon={icon} />);
+              // Set the default "type" to sidebar, this opens the sidebar with the data when the marker is clicked.
+              markerData.type = 'sidebar';
             }
 
-        });
+            if (item.icon && item.icon.length > 0) {
+              markerData.icon = item.icon;
+            }
 
-        return <React.Fragment>{items}</React.Fragment>;
-    }
+            responseMarkers.push(markerData);
+          });
+          this.setState({markers: responseMarkers});
+        }
+      })
+      .then(() => {
+        removePendingPromise(this, wrappedPromise);
+      })
+      .catch((e: any) => { // tslint:disable-line: no-any
+        removePendingPromise(this, wrappedPromise);
+      });
+  }
 
-    render() {
-        const
-            position: [number, number] = [this.state.lat, this.state.lng],
-            mapID: string = 'mapbox.outdoors',
-            accessToken: string = 'pk.eyJ1IjoiYWNyb3NzdGhlY2xvdWQiLCJhIjoiY2ppNnQzNG9nMDRiMDNscDh6Zm1mb3dzNyJ9.nFFwx_YtN04_zs-8uvZKZQ',
-            tileLayer: string = 'https://api.tiles.mapbox.com/v4/' + mapID + '/{z}/{x}/{y}.png?access_token=' + accessToken;
+  /**
+   *
+   * Formats an OceanObject into a human readable JSX and presents it nicely to the user.
+   *
+   * @param oceanObject OceanObject
+   */
+  handleMarkerSideBarClick(oceanObject: OceanObject) {
+    const content = (
+      <div className="oceanObject">
+        <div className="description text-capitalize">{oceanObject.description}</div>
+        <div className="tags small">
+          Tags : {oceanObject.tags ? oceanObject.tags.toString() : ''}
+        </div>
+        <div className="urls"><Items urls={oceanObject.urls} /></div>
+        <div className="people">
+          {renderPeople(oceanObject.people)}
+        </div>
+      </div>
+    );
 
-        return (
-            <div className={'mapWrapper'}>
+    this.setState({sideBarContent: content});
 
-                <div id={'sidebar'} className={this.state.sideBarState}>
-                    <div className="closeButton" onClick={this.closeSideBar}>X</div>
-                    <div className="content">
-                        {this.state.sideBarContent}
-                    </div>
-                </div>
+    this.openSideBar();
+  }
 
-                <Map center={position} zoom={this.state.zoom} style={MapStyle}>
-                    <TileLayer
-                        url={tileLayer}
-                    />
+  /**
+   * Looks through our list of Markers and returns them to the Leaflet instance
+   * @param props
+   * @constructor
+   */
+  MarkerList = (props: any): JSX.Element => { // tslint:disable-line: no-any
+    let items: JSX.Element[] = [];
 
-                    <this.MarkerList markers={this.state.markers}/>
-                </Map>
-            </div>
+    const markers = props.markers;
+
+    if (!markers || !Object.keys(markers).length) { return <React.Fragment/>; }
+
+    markers.forEach((marker, key) => {
+      const type = marker.type;
+      const icon = getMapIcon(marker.icon);
+
+      if (type === 'popUp') {
+        items.push(
+          <Marker key={key} position={marker.position} icon={icon}>
+            <Popup>{marker.content}</Popup>
+          </Marker>
         );
-    }
+      } else if (type === 'sidebar') {
+        items.push(<Marker key={key} position={marker.position} icon={icon} onClick={() => { this.handleMarkerSideBarClick(marker.data); }}/>);
+      } else {
+        items.push(<Marker key={key} position={marker.position} icon={icon} />);
+      }
+
+    });
+
+    return <React.Fragment>{items}</React.Fragment>;
+  }
+
+  render() {
+    const
+      position: [number, number] = [this.state.lat, this.state.lng],
+      mapID: string = 'mapbox.outdoors',
+      accessToken: string = 'pk.eyJ1IjoiYWNyb3NzdGhlY2xvdWQiLCJhIjoiY2ppNnQzNG9nMDRiMDNscDh6Zm1mb3dzNyJ9.nFFwx_YtN04_zs-8uvZKZQ',
+      tileLayer: string = 'https://api.tiles.mapbox.com/v4/' + mapID + '/{z}/{x}/{y}.png?access_token=' + accessToken;
+
+    return (
+      <div className={'mapWrapper'}>
+
+        <div id={'sidebar'} className={this.state.sideBarState}>
+          <div className="closeButton" onClick={this.closeSideBar}>X</div>
+          <div className="content">
+            {this.state.sideBarContent}
+          </div>
+        </div>
+
+        <Map center={position} zoom={this.state.zoom} style={MapStyle}>
+          <TileLayer
+            url={tileLayer}
+          />
+
+          <this.MarkerList markers={this.state.markers}/>
+        </Map>
+      </div>
+    );
+  }
 }
