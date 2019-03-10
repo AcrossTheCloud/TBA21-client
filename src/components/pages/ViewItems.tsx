@@ -1,24 +1,25 @@
 import * as React from 'react';
-import { Container } from 'reactstrap';
+import { Alert, Container } from 'reactstrap';
 
 import { API } from 'aws-amplify';
 
 import { OceanObject } from './TableRow';
 
 import Slider from 'react-slick';
+import { MultiMedia } from 'src/components/utils/MultiMedia';
+import { cancelablePromise, appendPendingPromise, removePendingPromise } from 'src/components/utils/CancelablePromise';
+
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
-
 import 'styles/pages/ViewItems.scss';
-import { MultiMedia } from 'src/components/utils/MultiMedia';
 
-import { cancelablePromise, appendPendingPromise, removePendingPromise } from 'src/components/utils/cancelablePromise';
-
-interface OceanObjectResults {
+interface ViewItemsState {
   Items: Array<OceanObject>;
   sliderInitialized: boolean;
+  sliderError: boolean;
 }
 
+// Settings for the slider
 const sliderSettings = {
   centerMode: true,
   centerPadding: '10px',
@@ -53,9 +54,33 @@ const sliderSettings = {
   ]
 };
 
-const SlickSlider: any = (props: {items: Array<OceanObject>}) => { // tslint:disable-line: no-any
-  if (props && props.items && props.items.length) {
-    let results = props.items.map((item, index) => {
+/**
+ *
+ *
+ *
+ * @param {object} props Items {Array<ObjectOcean>} Array of OceanObject
+ * @param {object} props sliderInitialized {boolean} If the slider has been initialized or not
+ * @param {object} props sliderError {boolean} If the slider is in error state
+ * @constructor
+ */
+const SlickSlider: any = (props: ViewItemsState): JSX.Element => { // tslint:disable-line: no-any
+
+  // Loading icon / content
+  if (!props.sliderInitialized && !props.sliderError) {
+    return <React.Fragment>Loading...</React.Fragment>; // todo Replace with Bootstrap spinner
+  }
+
+  // Error message
+  if (props.sliderError) {
+    return <Alert color="danger">Error loading items.</Alert>;
+  }
+
+  if (!props || props.Items && !props.Items.length) {
+    // No content message if the list is empty.
+    return <React.Fragment><Alert color="danger">No items in this section</Alert></React.Fragment>;
+  } else {
+    // Map results, with HTML structure.
+    let results = props.Items.map((item, index) => {
       const multiMedia = (item.urls && item.urls[0]) ? <div className="image"><MultiMedia url={item.urls[0]} key={index + '_mm'} /></div> : '';
 
       return (
@@ -66,55 +91,66 @@ const SlickSlider: any = (props: {items: Array<OceanObject>}) => { // tslint:dis
       );
     });
 
-    const theSlider = (
+    // The slider and it's results
+    const theSlider: JSX.Element = (
       <Slider {...sliderSettings}>
         {results}
       </Slider>
     );
 
-    return results.length ? theSlider : 'There are no results.';
-  } else {
-    return <React.Fragment/>;
+    // If we don't have any results for some reason, show an error message.
+    // Otherwise show the slider.
+    return results.length ? theSlider : <Alert color="danger">There are no results.</Alert>;
   }
 };
 
-export default class ViewItems extends React.Component<{}, OceanObjectResults> {
+/**
+ *
+ * Show items from the Items API call in a slider type view
+ *
+ */
+export default class ViewItems extends React.Component<{}, ViewItemsState> {
   pendingPromises: any = []; // tslint:disable-line: no-any
 
-  state: OceanObjectResults = {
+  state: ViewItemsState = {
     Items: [],
-    sliderInitialized: false
+    sliderInitialized: false,
+    sliderError: false
   };
 
+  /**
+   * API call on did mount.
+   * Wrapping the API call in our CancelablePromise method to avoid updates to the DOM if you're no longer on the page.
+   */
   componentDidMount() {
     const wrappedPromise = cancelablePromise(API.get('tba21', 'items', {}));
-
     appendPendingPromise(this, wrappedPromise);
 
+    // Wrap the promise.
     wrappedPromise.promise
       .then((data: any) => { // tslint:disable-line: no-any
-        this.setState({Items : data.Items, sliderInitialized: true});
+        if (data === null) { return this.setState({sliderError: true}); }
+
+        this.setState({Items : data.Items, sliderInitialized: true, sliderError: false});
       })
       .then(() => {
         removePendingPromise(this, wrappedPromise);
       })
       .catch((e: any) => { // tslint:disable-line: no-any
         removePendingPromise(this, wrappedPromise);
+        this.setState({sliderError: true});
       });
   }
 
   componentWillUnmount(): void {
+    // Cancel all pending promises on this class.
     this.pendingPromises.map(p => p.cancel());
   }
 
-  // todo replace Loading with Bootstrap spinner
   render() {
     return (
       <Container>
-        {this.state.sliderInitialized ? (
-          <SlickSlider items={this.state.Items}/>
-        ) : <div>Loading...</div> }
-
+        <SlickSlider Items={this.state.Items} sliderInitialized={this.state.sliderInitialized} sliderError={this.state.sliderError}/>
       </Container>
     );
   }

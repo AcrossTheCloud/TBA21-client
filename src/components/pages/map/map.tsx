@@ -7,7 +7,7 @@ import { API } from 'aws-amplify';
 
 import { createMapIcon, getMapIcon } from './icons';
 import { OceanObject, renderPeople, Items } from 'src/components/pages/TableRow';
-import { cancelablePromise, appendPendingPromise, removePendingPromise } from 'src/components/utils/cancelablePromise';
+import { cancelablePromise, appendPendingPromise, removePendingPromise } from 'src/components/utils/CancelablePromise';
 
 interface State {
   lat: number;
