@@ -5,7 +5,7 @@ export default {
   },
   apiGateway: {
     REGION: "eu-central-1",
-    URL: "https://demo-api.oceanarchive.io/"
+    URL: "https://demo-api.ocean-archive.org/"
   },
   cognito: {
     REGION: "eu-central-1",
@@ -17,6 +17,6 @@ export default {
     FB: "370805207078211"
   },
   other: {
-    BASE_CONTENT_URL: 'https://demo-content.oceanarchive.io/'
+    BASE_CONTENT_URL: 'https://demo-content.ocean-archive.org/'
   }
 };

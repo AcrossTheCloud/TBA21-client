@@ -5,7 +5,7 @@ export default {
   },
   apiGateway: {
     REGION: "eu-central-1",
-    URL: "https://demo-dev-api.oceanarchive.io/"
+    URL: "https://demo-dev-api.ocean-archive.org/"
   },
   cognito: {
     REGION: "eu-central-1",
@@ -14,6 +14,6 @@ export default {
     IDENTITY_POOL_ID: "eu-central-1:fc8e6f8d-e49f-4344-bf06-bae75dcebe53"
   },
   other: {
-    BASE_CONTENT_URL: "https://demo-dev-content.oceanarchive.io/"
+    BASE_CONTENT_URL: "https://demo-dev-content.ocean-archive.org/"
   }
 };
