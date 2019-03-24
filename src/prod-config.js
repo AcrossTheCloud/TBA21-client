@@ -13,6 +13,9 @@ export default {
     APP_CLIENT_ID: "2lrll2fm15mhbhjgmss7snk8v6",
     IDENTITY_POOL_ID: "eu-central-1:87c9ec1d-7fa8-4c74-b907-c31bdec2b879"
   },
+  social: {
+    FB: "370805207078211"
+  },
   other: {
     BASE_CONTENT_URL: 'https://demo-content.ocean-archive.org/'
   }
