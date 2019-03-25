@@ -1,5 +1,13 @@
 @import "../components/slick";
 
+.item {
+  padding: 0 10px;
+  transform: scale(.8);
+  opacity: .5;
+  transition: all 300ms ease;
+}
+
+
 .slick-slider {
 
   .slick-track{
