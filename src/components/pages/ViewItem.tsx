@@ -9,6 +9,7 @@ import { MultiMedia } from 'src/components/utils/MultiMedia';
 import { getMapIcon } from './map/icons';
 import { Map, Marker, TileLayer } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+// import { Data } from 'aws-sdk/clients/swf';
 import * as moment from 'moment';
 
 interface Props {
