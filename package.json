@@ -14,6 +14,7 @@
     "mapbox-gl": "^0.52.0-beta.1",
     "mobx": "^5.7.0",
     "mobx-react": "^5.4.2",
+    "moment": "^2.24.0",
     "node-sass": "^4.11.0",
     "react": "^16.8.1",
     "react-dom": "^16.6.3",
@@ -37,8 +38,8 @@
     "uuid": "^3.3.2"
   },
   "scripts": {
-    "start": "bash src/link_config.sh && react-scripts-ts start",
-    "build": "bash src/link_config.sh && react-scripts-ts build",
+    "start": "react-scripts-ts start",
+    "build": "react-scripts-ts build",
     "test": "CI=TRUE react-scripts-ts test --env=jsdom",
     "eject": "react-scripts-ts eject"
   },

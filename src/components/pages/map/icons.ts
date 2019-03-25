@@ -10,7 +10,7 @@ export let MapIcons: Icons = {};
 // A list of our default icons
 const defaultIcons: Icons = {
     'jellyFish': {
-        iconUrl: './assets/markers/jelly.svg',
+        iconUrl: '/assets/markers/jelly.svg',
         iconSize:     [30, 38], // size of the icon
         iconAnchor:   [15, 38], // point of the icon which will correspond to marker's location [iconWidth/2, iconHeight]
         popupAnchor:  [-3, -38] // point from which the popup should open relative to the iconAnchor

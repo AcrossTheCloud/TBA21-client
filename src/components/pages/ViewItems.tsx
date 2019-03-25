@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 import { Alert, Container } from 'reactstrap';
 
 import { API } from 'aws-amplify';
@@ -82,12 +83,16 @@ const SlickSlider: any = (props: ViewItemsState): JSX.Element => { // tslint:dis
     // Map results, with HTML structure.
     let results = props.Items.map((item, index) => {
       const multiMedia = (item.urls && item.urls[0]) ? <div className="image"><MultiMedia url={item.urls[0]} key={index + '_mm'} /></div> : '';
-
+      
       return (
-        <div className="item" key={index}>
+        <Link 
+          to={`/view/${item.itemId}`}
+          className="item"
+          key={index}
+        >
           {multiMedia}
           <div className="description">{item.description}</div>
-        </div>
+        </Link>
       );
     });
 
