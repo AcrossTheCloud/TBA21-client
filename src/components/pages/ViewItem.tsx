@@ -116,7 +116,7 @@ const Item = (props) => {
   }
 };
 
-export default class ViewItem extends React.Component<Props, State> {
+export class ViewItem extends React.Component<Props, State> {
     pendingPromises: any = []; // tslint:disable-line: no-any
   
     constructor(props: any) { // tslint:disable-line: no-any

@@ -12,6 +12,10 @@ export * from './pages/user/SignUp';
 export * from './pages/user/ResetPassword';
 // END USER
 
-export * from './pages/ViewItems';
+// START ITEMS
+// export ViewItems from './pages/ViewItems';
+export { ViewItem } from './pages/ViewItem';
+// END ITEMS
+
 export * from './pages/NetworkGraph';
-export { MapView } from './pages/map/map';
+export * from './pages/map/map';
