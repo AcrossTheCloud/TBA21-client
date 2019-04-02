@@ -5,13 +5,13 @@ import { App } from './App';
 import history from './history';
 
 import ViewItems from './components/pages/ViewItems';
+import ViewItem from './components/pages/ViewItem';
 
 import { Provider } from 'react-redux';
 import store from './store';
 
 import {
   Home,
-  ViewItem,
   ItemEntryForm,
   PersonEntryForm,
   NetworkGraph,

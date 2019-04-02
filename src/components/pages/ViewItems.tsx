@@ -126,7 +126,7 @@ class ViewItems extends React.Component<Props, {}> { // tslint:disable-line: no-
 
   render() {
     return (
-      <Container>
+      <Container id="viewItems">
         <SlickSlider items={this.props.items} sliderInitialized={this.props.sliderInitialized} sliderError={this.props.sliderError}/>
       </Container>
     );

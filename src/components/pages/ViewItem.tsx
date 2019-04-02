@@ -1,24 +1,23 @@
 import * as React from 'react';
-import { API } from 'aws-amplify';
-
-import { OceanObject } from './TableRow';
-import { cancelablePromise, appendPendingPromise, removePendingPromise } from 'src/components/utils/CancelablePromise';
+import * as moment from 'moment';
+import { connect } from 'react-redux';
 import Alert from 'reactstrap/lib/Alert';
 
 import { MultiMedia } from 'src/components/utils/MultiMedia';
 import { getMapIcon } from './map/icons';
 import { Map, Marker, TileLayer } from 'react-leaflet';
+
+import { OceanObject } from './TableRow';
+import { fetchItem } from '../../actions/items/viewItem';
+import { State } from '../../reducers/items/viewItem';
+
 import 'leaflet/dist/leaflet.css';
-// import { Data } from 'aws-sdk/clients/swf';
-import * as moment from 'moment';
 
 interface Props {
+  fetchItem: Function;
   itemId: string;
-}
-
-interface State {
-  itemId: string | boolean;
-  itemInformation: OceanObject | boolean;
+  itemInformation: OceanObject;
+  hasError: boolean;
 }
 
 const MapStyle = {
@@ -27,9 +26,7 @@ const MapStyle = {
 };
 
 const Item = (props) => {
-  if (props.itemInformation) {
-    console.log('item', props.itemInformation);
-
+  if (Object.keys(props.itemInformation).length) {
     const ItemPeople = () => {
         let people: boolean | Array<JSX.Element> = false;
         if (props.itemInformation.people && props.itemInformation.people.length > 0) {
@@ -41,7 +38,7 @@ const Item = (props) => {
             );
           });
           return  <>People: {people}</>;
-        } else { return <></>; } 
+        } else { return <></>; }
      }; 
    
     const 
@@ -112,61 +109,51 @@ const Item = (props) => {
        </div>
     );
   } else {
-    return <Alert color="danger">Oops</Alert>;
+    return <Alert color="danger">We're having troubling finding the item you've requested.</Alert>;
   }
 };
 
-export class ViewItem extends React.Component<Props, State> {
-    pendingPromises: any = []; // tslint:disable-line: no-any
-  
-    constructor(props: any) { // tslint:disable-line: no-any
-      super(props);
+class ViewItem extends React.Component<Props, State> {
 
-      let itemId = false;
-      if (props.match && props.match.params && props.match.params.itemId) {
-        // api call
-        itemId = props.match.params.itemId;
-      }
+  matchedItemId: string = '';
 
-      this.state = {
-        itemId: itemId,
-        itemInformation: false
-      };
+  constructor(props: any) { // tslint:disable-line: no-any
+    super(props);
+
+    if (props.match && props.match.params && props.match.params.itemId) {
+      this.matchedItemId = props.match.params.itemId;
+    }
+  }
+
+  componentDidMount() {
+
+    if (this.props.itemId) {
+      this.props.fetchItem(this.props.itemId);
+    } else if (this.matchedItemId) {
+      this.props.fetchItem(this.matchedItemId);
+    }
+  }
+
+  render() {
+    if (this.props.hasError) {
+      return <Alert color="danger">Looks like we've had a bit of a hiccup.</Alert>;
     }
 
-    componentDidMount() {
-      if (this.state.itemId) {
-        const wrappedPromise = cancelablePromise(API.get('tba21', 'items', {
-          queryStringParameters : {
-            itemId: this.state.itemId
-          }
-        }));
-        appendPendingPromise(this, wrappedPromise);
-  
-        // Wrap the promise.
-        wrappedPromise.promise
-          .then((data: any) => { // tslint:disable-line: no-any
-            if (data) {
-              this.setState( {itemInformation: data} );
-            } else {
-              this.setState( {itemInformation: false} );
-            }
-          })
-          .then(() => {
-            removePendingPromise(this, wrappedPromise);
-          })
-          .catch((e: any) => { // tslint:disable-line: no-any
-            removePendingPromise(this, wrappedPromise);
-          });
-      } else {
-        this.setState( {itemInformation: false} );
-      }
- 
+    if (typeof this.props.itemInformation === 'undefined') {
+      return 'Loading...';
     }
 
-    render() {
-        return (
-          <Item itemInformation={this.state.itemInformation} />
-        );
-    }
+    return (
+      <Item itemInformation={this.props.itemInformation} />
+    );
+  }
 }
+
+const mapStateToProps = (state: { viewItem: State }) => { // tslint:disable-line: no-any
+  return {
+    itemId: state.viewItem.itemId,
+    itemInformation: state.viewItem.itemInformation
+  };
+};
+
+export default connect(mapStateToProps, { fetchItem })(ViewItem);
