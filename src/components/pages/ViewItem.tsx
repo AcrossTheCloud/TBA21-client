@@ -25,22 +25,15 @@ const MapStyle = {
   width: '800px'
 };
 
+/**
+ *
+ * React component, converts an OceanObject into a friendly display.
+ *
+ * @param props Object, itemInformation (OceanObject | boolean)
+ */
 const Item = (props) => {
   if (Object.keys(props.itemInformation).length) {
-    const ItemPeople = () => {
-        let people: boolean | Array<JSX.Element> = false;
-        if (props.itemInformation.people && props.itemInformation.people.length > 0) {
-          people = props.itemInformation.people.map( (person, index) => {
-            return (
-              <div className="person" key={index}>
-                {person.personName}
-              </div>
-            );
-          });
-          return  <>People: {people}</>;
-        } else { return <></>; }
-     }; 
-   
+    // Checks if the people array exists and returns a JSX element of all people.
     const 
       icon = getMapIcon('jellyFish'),
       mapID: string = 'mapbox.outdoors',
@@ -48,14 +41,33 @@ const Item = (props) => {
       tileLayer: string = 'https://api.tiles.mapbox.com/v4/' + mapID + '/{z}/{x}/{y}.png?access_token=' + accessToken;
     
     let multiMedia: boolean | Array<JSX.Element> = false;
+
+    // Checks if the people array exists and returns a JSX element of all people.
+    const ItemPeople = () => {
+      let people: boolean | Array<JSX.Element> = false;
+      if (props.itemInformation.people && props.itemInformation.people.length > 0) {
+        // Returns an Array of people
+        people = props.itemInformation.people.map( (person, index) => {
+          return (
+            <div className="person" key={index}>
+              {person.personName}
+            </div>
+          );
+        });
+        return  <>People: {people}</>;
+      } else { return <></>; }
+    };
+
     if (props.itemInformation.urls.length > 0) {
       multiMedia = props.itemInformation.urls.map((url, index) => {
           return <MultiMedia url={url} key={index}/>;
       }); 
     }
     
+    // Returns a JSX element of all tags.
     const ItemTags = () => {
       if (props.itemInformation.tags && props.itemInformation.tags.length > 0) {
+        // Returns an Array of tags
         const items: Array<JSX.Element> = props.itemInformation.tags.map( (tag, index) => {
            return (
           <div className="tag" key={index}>
@@ -68,6 +80,7 @@ const Item = (props) => {
       } else { return <></>; } 
     };
     
+    // Returns position text and a Leaflet Map with a Marker.
     const ItemMap = () => {
       if (props.itemInformation.position && props.itemInformation.position.length > 0) {
         const markerPosition: [number, number] = [props.itemInformation.position[1], props.itemInformation.position[0]];
@@ -84,6 +97,8 @@ const Item = (props) => {
         );
       } else { return <></>; }
     };
+
+    // Checks for a timestamp, converts it to human friendly text and returns the result.
     const ItemDate = () => {
       if (props.itemInformation.timestamp) {
         let timestamp = props.itemInformation.timestamp;
@@ -96,6 +111,7 @@ const Item = (props) => {
         );
       } else { return <></>; }
     };
+
     return (
       <div className="item" key={props.itemInformation.itemId}>
         {props.itemInformation.description ? <div>Description: {props.itemInformation.description}</div> : ''}
@@ -105,11 +121,23 @@ const Item = (props) => {
         {ItemTags()}
         {multiMedia ? multiMedia : ''}
         {ItemMap()}
-
-       </div>
+      </div>
     );
   } else {
-    return <Alert color="danger">We're having troubling finding the item you've requested.</Alert>;
+    return <></>;
+  }
+};
+
+/**
+ * Returns A bootstrap Alert if true.
+ *
+ * @param props Object, error (boolean)
+ */
+const ErrorMessage = (props) => {
+  if (props.error) {
+    return <Alert color="danger">Oops</Alert>;
+  } else {
+    return <></>;
   }
 };
 
@@ -137,7 +165,7 @@ class ViewItem extends React.Component<Props, State> {
 
   render() {
     if (this.props.hasError) {
-      return <Alert color="danger">Looks like we've had a bit of a hiccup.</Alert>;
+      return <ErrorMessage error="Looks like we've had a bit of a hiccup." />;
     }
 
     if (typeof this.props.itemInformation === 'undefined') {
