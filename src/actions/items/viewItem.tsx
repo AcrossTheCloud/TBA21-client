@@ -1,9 +1,16 @@
 import { API } from 'aws-amplify';
 
+// Defining our Actions for the reducers.
 export const FETCH_ITEM = 'FETCH_ITEM';
 export const FETCH_ITEM_ERROR = 'FETCH_ITEM_ERROR';
 
-export const fetchItem = (itemId) => dispatch => {
+/**
+ *
+ * API call to fetch item information based on the itemID and dispatch it through to Redux
+ *
+ * @param itemId {string}
+ */
+export const fetchItem = (itemId: string) => (dispatch) => {
   if (!itemId) {
     dispatch({
      type: FETCH_ITEM,
@@ -11,6 +18,7 @@ export const fetchItem = (itemId) => dispatch => {
    });
   }
 
+  // API call to get the items information or return an error.
   API.get('tba21', 'items', {
     queryStringParameters : {
       itemId: itemId
@@ -20,6 +28,7 @@ export const fetchItem = (itemId) => dispatch => {
     dispatch({
      type: FETCH_ITEM,
      itemInformation: data,
+     itemId: data.itemId,
     });
   })
   .catch((e: any) => { // tslint:disable-line: no-any
@@ -28,5 +37,3 @@ export const fetchItem = (itemId) => dispatch => {
      });
   });
 };
-
-// {'urls': ['https://demo-content.ocean-archive.org/public/811af4d0-4e92-11e9-bedd-dbae63ceb8d7-IMAGE_12_DEVIL_Mobile_1024x768.jpg'], 'ocean': 'Pacific', 'privacy': false, 'timestamp': 1553472719.577, 'people': [{'personId': 'e21907f0-4e8c-11e9-998b-75f2374a0006', 'roles': [], 'personName': 'Dan'}], 'itemId': '9bb0fc90-4e92-11e9-9a47-5fc6e33f9664', 'description': 'Tasmanian Devil', 'position': [146.39218863044425, -84.06537814299026], 'tags': ['devil']}

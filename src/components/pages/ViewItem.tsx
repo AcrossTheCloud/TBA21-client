@@ -120,17 +120,18 @@ class ViewItem extends React.Component<Props, State> {
   constructor(props: any) { // tslint:disable-line: no-any
     super(props);
 
+    // Get our itemId passed through from URL props
     if (props.match && props.match.params && props.match.params.itemId) {
       this.matchedItemId = props.match.params.itemId;
     }
   }
 
   componentDidMount() {
-
-    if (this.props.itemId) {
-      this.props.fetchItem(this.props.itemId);
-    } else if (this.matchedItemId) {
+    // If we have an id from the URL pass it through, otherwise use the one from Redux State
+    if (this.matchedItemId) {
       this.props.fetchItem(this.matchedItemId);
+    } else {
+      this.props.fetchItem(this.props.itemId);
     }
   }
 
@@ -149,11 +150,14 @@ class ViewItem extends React.Component<Props, State> {
   }
 }
 
+// State to props
 const mapStateToProps = (state: { viewItem: State }) => { // tslint:disable-line: no-any
   return {
+    hasError: state.viewItem.hasError,
     itemId: state.viewItem.itemId,
     itemInformation: state.viewItem.itemInformation
   };
 };
 
+// Connect our redux store State to Props, and pass through the fetchItem function.
 export default connect(mapStateToProps, { fetchItem })(ViewItem);

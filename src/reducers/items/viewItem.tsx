@@ -2,15 +2,24 @@ import { FETCH_ITEM, FETCH_ITEM_ERROR } from '../../actions/items/viewItem';
 import { OceanObject } from '../../components/pages/TableRow';
 
 export interface State {
-  itemId?: string | boolean;
   hasError: boolean;
+  itemId?: string | boolean;
   itemInformation?: OceanObject;
 }
+
 const initialState: State = {
   hasError: false
 };
 
-export default (state: State|null = initialState, action) => {
+/**
+ * Performs an action based on the action.type
+ *
+ * @param state {object} either empty or the previous state
+ * @param action {string} the action to perform
+ *
+ * @returns {object} the state with modified values
+ */
+export default (state: State = initialState, action) => {
   if (state === undefined) { state = initialState; }
 
   switch (action.type) {
@@ -18,7 +27,9 @@ export default (state: State|null = initialState, action) => {
       return {
         ...state,
         itemInformation: action.itemInformation,
+        itemId: action.itemId,
       };
+
     case FETCH_ITEM_ERROR:
       return {
         ...state,
@@ -26,7 +37,7 @@ export default (state: State|null = initialState, action) => {
       };
 
     default:
-      return initialState;
+      return state;
   }
 
 };
