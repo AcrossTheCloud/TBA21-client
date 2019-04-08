@@ -4,15 +4,16 @@ import { Router } from 'react-router-dom';
 import { App } from './App';
 import history from './history';
 
-import ViewItems from './components/pages/ViewItems';
-import ViewItem from './components/pages/ViewItem';
-
 import { Provider } from 'react-redux';
 import store from './store';
 
 import {
   Home,
+
+  ViewItems,
+  ViewItem,
   ItemEntryForm,
+
   PersonEntryForm,
   NetworkGraph,
   Login,

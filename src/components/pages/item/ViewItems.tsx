@@ -6,8 +6,8 @@ import { connect } from 'react-redux';
 import Slider from 'react-slick';
 import { MultiMedia } from 'src/components/utils/MultiMedia';
 
-import { fetchItems } from '../../actions/items/viewItems';
-import { State } from '../../reducers/items/viewItems';
+import { fetchItems } from '../../../actions/items/viewItems';
+import { State } from '../../../reducers/items/viewItems';
 
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';

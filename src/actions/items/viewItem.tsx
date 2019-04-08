@@ -10,7 +10,16 @@ export const FETCH_ITEM_ERROR = 'FETCH_ITEM_ERROR';
  *
  * @param itemId {string}
  */
-export const fetchItem = (itemId: string) => (dispatch) => {
+export const fetchItem = (itemId) => (dispatch, getState) => {
+
+  const prevState = getState();
+
+  // Detect if we have the same itemID and return the previous state.
+  // We do this here to stop another API call and you can easily get the prevState in the Action.
+  if (itemId === prevState.viewItem.itemId) {
+    return prevState.viewItem;
+  }
+
   if (!itemId) {
     dispatch({
      type: FETCH_ITEM,

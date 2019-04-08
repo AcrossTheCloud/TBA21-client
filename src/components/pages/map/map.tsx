@@ -1,24 +1,32 @@
-import 'styles/pages/map/map.scss';
-
 import * as React from 'react';
 import { Map, Marker, Popup, TileLayer } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import { API } from 'aws-amplify';
+import { connect } from 'react-redux';
 
 import { createMapIcon, getMapIcon } from './icons';
 import { OceanObject, renderPeople, Items } from 'src/components/pages/TableRow';
-import { cancelablePromise, appendPendingPromise, removePendingPromise } from 'src/components/utils/CancelablePromise';
+import { fetchMarkers, putModifiedMarkers } from 'src/actions/map/map';
+
+import 'leaflet/dist/leaflet.css';
+import 'styles/pages/map/map.scss';
+
+interface Props {
+  fetchMarkers: Function;
+  putModifiedMarkers: Function;
+  modifiedMarkers: MarkerData[];
+  markers: MarkerData[];
+  hasError: boolean;
+}
 
 interface State {
   lat: number;
   lng: number;
   zoom: number;
-  markers: MarkerData[];
   sideBarState: string;
   sideBarContent?: JSX.Element;
+  markers: MarkerData[];
 }
-type MarkerData = {
-  key: string,
+export type MarkerData = {
+  key: number,
   type?: string; // popUp or SideBar
   position: any,  // tslint:disable-line: no-any // this is a LatLngExpression ...... [number,number]
   content: string | JSX.Element,
@@ -47,16 +55,14 @@ const MapMarkerPopUpContentTemplate = (item: MarkerContent) => {
   );
 };
 
-export class MapView extends React.Component<{}, State> {
-  pendingPromises: any = []; // tslint:disable-line: no-any
-
+class MapView extends React.Component<Props, State> {
   state = {
     lat: -34.4282514,
     lng: 152, // Default position (Wollongong-ish)
     zoom: 7,
-    markers: [],
     sideBarState: 'closed',
     sideBarContent: <div/>,
+    markers: []
   };
 
   constructor(props: any) { // tslint:disable-line: no-any
@@ -68,11 +74,24 @@ export class MapView extends React.Component<{}, State> {
   }
 
   componentDidMount(): void {
-    this.getData();
+    const hasMarkers = (this.props.markers && this.props.markers.length);
+    const hasModifiedMarkers = (this.props.modifiedMarkers && this.props.modifiedMarkers.length);
+
+    if (!hasMarkers) {
+      this.props.fetchMarkers();
+    } else if (hasModifiedMarkers) {
+      this.setState({ markers: this.props.modifiedMarkers });
+    }
+
   }
 
-  componentWillUnmount(): void {
-    this.pendingPromises.map(p => p.cancel());
+  componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>): void {
+    const hasMarkers = (this.props.markers.length && this.props.markers.length);
+    const hasModifiedMarkers = (this.props.modifiedMarkers && this.props.modifiedMarkers.length);
+
+    if (hasMarkers && !hasModifiedMarkers) {
+      this.modifyMarkers(this.props.markers);
+    }
   }
 
   openSideBar() {
@@ -83,80 +102,67 @@ export class MapView extends React.Component<{}, State> {
     this.setState({sideBarState: 'closed'});
   }
 
-  getData(): void {
+  modifyMarkers = (data: any): void => { // tslint:disable-line: no-any
     let responseMarkers: MarkerData[] = [];
 
-    const wrappedPromise = cancelablePromise(API.get('tba21', 'items', {}));
-    appendPendingPromise(this, wrappedPromise);
+    // TESTING popUp onclick button
+    createMapIcon('iconicon', {
+      // https://pixabay.com/en/clipart-fish-sign-icon-cartoon-3418130/
+      iconUrl: './assets/markers/fish.png',
+      iconSize: [64, 43],
+      iconAnchor: [32, 43],
+      popupAnchor: [-3, -38]
+    });
+    data[5].icon = 'iconicon';
+    data[5].type = 'popUp';
 
-    wrappedPromise.promise
-      .then((data: any) => { // tslint:disable-line: no-any
+    // TESTING popUp type icon
+    data[6].type = 'popUp';
+    createMapIcon('testing', {
+      // https://pixabay.com/en/whale-blue-gray-fountain-spray-311849/
+      iconUrl: './assets/markers/whale.svg',
+      iconSize: [64, 43],
+      iconAnchor: [32, 43],
+      popupAnchor: [-3, -38]
+    });
+    data[6].icon = 'testing';
+    // END TESTING
 
-        if (data.Items) {
-          // TESTING popUp onclick button
-          createMapIcon('iconicon', {
-            // https://pixabay.com/en/clipart-fish-sign-icon-cartoon-3418130/
-            iconUrl: './assets/markers/fish.png',
-            iconSize: [64, 43],
-            iconAnchor: [32, 43],
-            popupAnchor: [-3, -38]
-          });
-          data.Items[5].icon = 'iconicon';
-          data.Items[5].type = 'popUp';
+    data.forEach((item, index: number) => {
+      const
+        lng = item.position[0],
+        lat = item.position[1],
+        contentTemplate = () => {
+          if (item.type === 'popUp') {
+            return MapMarkerPopUpContentTemplate(item);
+          } else {
+            return '';
+          }
+        };
 
-          // TESTING popUp type icon
-          data.Items[6].type = 'popUp';
-          createMapIcon('testing', {
-            // https://pixabay.com/en/whale-blue-gray-fountain-spray-311849/
-            iconUrl: './assets/markers/whale.svg',
-            iconSize: [64, 43],
-            iconAnchor: [32, 43],
-            popupAnchor: [-3, -38]
-          });
-          data.Items[6].icon = 'testing';
-          // END TESTING
+      let markerData: MarkerData = {
+        key: index,
+        position: [lat, lng],
+        content: contentTemplate(),
+        data: item
+      };
 
-          data.Items.forEach((item, index) => {
-            const
-              lng = item.position[0],
-              lat = item.position[1],
-              contentTemplate = () => {
-                if (item.type === 'popUp') {
-                  return MapMarkerPopUpContentTemplate(item);
-                } else {
-                  return '';
-                }
-              };
+      if (item.type && item.type.length > 0) {
+        markerData.type = item.type;
+      } else {
+        // Set the default "type" to sidebar, this opens the sidebar with the data when the marker is clicked.
+        markerData.type = 'sidebar';
+      }
 
-            let markerData: MarkerData = {
-              key: index,
-              position: [lat, lng],
-              content: contentTemplate(),
-              data: item
-            };
+      if (item.icon && item.icon.length > 0) {
+        markerData.icon = item.icon;
+      }
+      responseMarkers.push(markerData);
+    });
 
-            if (item.type && item.type.length > 0) {
-              markerData.type = item.type;
-            } else {
-              // Set the default "type" to sidebar, this opens the sidebar with the data when the marker is clicked.
-              markerData.type = 'sidebar';
-            }
+    this.setState({markers: responseMarkers});
 
-            if (item.icon && item.icon.length > 0) {
-              markerData.icon = item.icon;
-            }
-
-            responseMarkers.push(markerData);
-          });
-          this.setState({markers: responseMarkers});
-        }
-      })
-      .then(() => {
-        removePendingPromise(this, wrappedPromise);
-      })
-      .catch((e: any) => { // tslint:disable-line: no-any
-        removePendingPromise(this, wrappedPromise);
-      });
+    this.props.putModifiedMarkers(responseMarkers);
   }
 
   /**
@@ -245,3 +251,11 @@ export class MapView extends React.Component<{}, State> {
     );
   }
 }
+
+const mapStateToProps = (state: { map: Props }) => ({ // tslint:disable-line: no-any
+  markers: state.map.markers,
+  modifiedMarkers: state.map.modifiedMarkers,
+  hasError: state.map.hasError
+});
+
+export default connect(mapStateToProps, { fetchMarkers, putModifiedMarkers })(MapView);
