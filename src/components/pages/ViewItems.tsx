@@ -107,8 +107,8 @@ const SlickSlider: any = (props: State): JSX.Element => { // tslint:disable-line
 interface Props {
   fetchItems: Function;
   items: [];
-  sliderInitialized: false;
-  sliderError: false;
+  sliderInitialized: boolean;
+  sliderError: boolean;
 }
 
 /**
