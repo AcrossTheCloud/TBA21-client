@@ -1,25 +1,23 @@
 import * as React from 'react';
-import { API } from 'aws-amplify';
 import * as moment from 'moment';
+import { connect } from 'react-redux';
 import Alert from 'reactstrap/lib/Alert';
-import { Map, Marker, TileLayer } from 'react-leaflet';
-
-import { OceanObject } from './TableRow';
-import { cancelablePromise, appendPendingPromise, removePendingPromise } from 'src/components/utils/CancelablePromise';
 
 import { MultiMedia } from 'src/components/utils/MultiMedia';
 import { getMapIcon } from './map/icons';
+import { Map, Marker, TileLayer } from 'react-leaflet';
+
+import { OceanObject } from './TableRow';
+import { fetchItem } from '../../actions/items/viewItem';
+import { State } from '../../reducers/items/viewItem';
 
 import 'leaflet/dist/leaflet.css';
 
 interface Props {
+  fetchItem: Function;
   itemId: string;
-}
-
-interface State {
-  itemId: string | boolean;
-  itemInformation: OceanObject | boolean;
-  error: boolean;
+  itemInformation: OceanObject;
+  hasError: boolean;
 }
 
 const MapStyle = {
@@ -28,13 +26,14 @@ const MapStyle = {
 };
 
 /**
- * 
+ *
  * React component, converts an OceanObject into a friendly display.
- * 
- * @param props Object, itemInformation (OceanObject | boolean) 
+ *
+ * @param props Object, itemInformation (OceanObject | boolean)
  */
-const Item = (props) => { 
-  if (Object.keys(props.itemInformation).length > 0) {
+const Item = (props) => {
+  if (Object.keys(props.itemInformation).length) {
+    // Checks if the people array exists and returns a JSX element of all people.
     const 
       icon = getMapIcon('jellyFish'),
       mapID: string = 'mapbox.outdoors',
@@ -45,21 +44,20 @@ const Item = (props) => {
 
     // Checks if the people array exists and returns a JSX element of all people.
     const ItemPeople = () => {
-        let people: boolean | Array<JSX.Element> = false;
-        if (props.itemInformation.people && props.itemInformation.people.length > 0) {
-          // Returns an Array of people
-          people = props.itemInformation.people.map( (person, index) => {
-            return (
-              <div className="person" key={index}>
-                {person.personName}
-              </div>
-            );
-          });
-          return  <>People: {people}</>;
-        } else { return <></>; } 
-    }; 
-   
-    // returns Multimedia component
+      let people: boolean | Array<JSX.Element> = false;
+      if (props.itemInformation.people && props.itemInformation.people.length > 0) {
+        // Returns an Array of people
+        people = props.itemInformation.people.map( (person, index) => {
+          return (
+            <div className="person" key={index}>
+              {person.personName}
+            </div>
+          );
+        });
+        return  <>People: {people}</>;
+      } else { return <></>; }
+    };
+
     if (props.itemInformation.urls.length > 0) {
       multiMedia = props.itemInformation.urls.map((url, index) => {
           return <MultiMedia url={url} key={index}/>;
@@ -72,9 +70,9 @@ const Item = (props) => {
         // Returns an Array of tags
         const items: Array<JSX.Element> = props.itemInformation.tags.map( (tag, index) => {
            return (
-            <div className="tag" key={index}>
-              {tag}
-            </div>
+          <div className="tag" key={index}>
+             {tag}
+          </div>
           );
         }); 
 
@@ -108,7 +106,7 @@ const Item = (props) => {
         
         return (
           <div className="timestamp">
-            Time: {timestamp} 
+          Time: {timestamp} 
           </div>
         );
       } else { return <></>; }
@@ -132,7 +130,7 @@ const Item = (props) => {
 
 /**
  * Returns A bootstrap Alert if true.
- * 
+ *
  * @param props Object, error (boolean)
  */
 const ErrorMessage = (props) => {
@@ -143,65 +141,51 @@ const ErrorMessage = (props) => {
   }
 };
 
-export default class ViewItem extends React.Component<Props, State> {
-    pendingPromises: any = []; // tslint:disable-line: no-any
-  
-    constructor(props: any) { // tslint:disable-line: no-any
-      super(props);
+class ViewItem extends React.Component<Props, State> {
 
-      let itemId = false;
-      if (props.match && props.match.params && props.match.params.itemId) {
-        // api call
-        itemId = props.match.params.itemId;
-      }
+  matchedItemId: string = '';
 
-      this.state = {
-        itemId: itemId,
-        itemInformation: false,
-        error: false
-      };
+  constructor(props: any) { // tslint:disable-line: no-any
+    super(props);
+
+    // Get our itemId passed through from URL props
+    if (props.match && props.match.params && props.match.params.itemId) {
+      this.matchedItemId = props.match.params.itemId;
+    }
+  }
+
+  componentDidMount() {
+    // If we have an id from the URL pass it through, otherwise use the one from Redux State
+    if (this.matchedItemId) {
+      this.props.fetchItem(this.matchedItemId);
+    } else {
+      this.props.fetchItem(this.props.itemId);
+    }
+  }
+
+  render() {
+    if (this.props.hasError) {
+      return <ErrorMessage error="Looks like we've had a bit of a hiccup." />;
     }
 
-    componentDidMount() {
-      if (this.state.itemId) {
-
-        // Does an API call to find an item by itemId
-        const wrappedPromise = cancelablePromise(API.get('tba21', 'items', {
-          queryStringParameters : {
-            itemId: this.state.itemId
-          }
-        }));
-        appendPendingPromise(this, wrappedPromise);
-  
-        // Wrap the promise.
-        wrappedPromise.promise
-          .then((data: any) => { // tslint:disable-line: no-any
-            if (data) {
-              this.setState( {itemInformation: data} );
-            } else {
-              this.setState( {itemInformation: false} );
-              this.setState( {error: true} );
-            }
-          })
-          .then(() => {
-            removePendingPromise(this, wrappedPromise);
-          })
-          .catch((e: any) => { // tslint:disable-line: no-any
-            removePendingPromise(this, wrappedPromise);
-            this.setState( {error: true} );
-          });
-      } else {
-        this.setState( {itemInformation: false} );
-      }
- 
+    if (typeof this.props.itemInformation === 'undefined') {
+      return 'Loading...';
     }
 
-    render() {
-        return (
-          <>
-            <ErrorMessage error={this.state.error} />
-            <Item itemInformation={this.state.itemInformation} />
-          </>
-        );
-    }
+    return (
+      <Item itemInformation={this.props.itemInformation} />
+    );
+  }
 }
+
+// State to props
+const mapStateToProps = (state: { viewItem: State }) => { // tslint:disable-line: no-any
+  return {
+    hasError: state.viewItem.hasError,
+    itemId: state.viewItem.itemId,
+    itemInformation: state.viewItem.itemInformation
+  };
+};
+
+// Connect our redux store State to Props, and pass through the fetchItem function.
+export default connect(mapStateToProps, { fetchItem })(ViewItem);

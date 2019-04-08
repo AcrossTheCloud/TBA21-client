@@ -1,24 +1,17 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { Alert, Container } from 'reactstrap';
-
-import { API } from 'aws-amplify';
-
-import { OceanObject } from './TableRow';
+import { connect } from 'react-redux';
 
 import Slider from 'react-slick';
 import { MultiMedia } from 'src/components/utils/MultiMedia';
-import { cancelablePromise, appendPendingPromise, removePendingPromise } from 'src/components/utils/CancelablePromise';
+
+import { fetchItems } from '../../actions/items/viewItems';
+import { State } from '../../reducers/items/viewItems';
 
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import 'styles/pages/ViewItems.scss';
-
-interface ViewItemsState {
-  Items: Array<OceanObject>;
-  sliderInitialized: boolean;
-  sliderError: boolean;
-}
 
 // Settings for the slider
 const sliderSettings = {
@@ -64,7 +57,7 @@ const sliderSettings = {
  * @param {object} props sliderError {boolean} If the slider is in error state
  * @constructor
  */
-const SlickSlider: any = (props: ViewItemsState): JSX.Element => { // tslint:disable-line: no-any
+const SlickSlider: any = (props: State): JSX.Element => { // tslint:disable-line: no-any
 
   // Loading icon / content
   if (!props.sliderInitialized && !props.sliderError) {
@@ -76,22 +69,24 @@ const SlickSlider: any = (props: ViewItemsState): JSX.Element => { // tslint:dis
     return <Alert color="danger">Error loading items.</Alert>;
   }
 
-  if (!props || props.Items && !props.Items.length) {
+  if (!props || props.items && !props.items.length) {
     // No content message if the list is empty.
     return <React.Fragment><Alert color="danger">No items in this section</Alert></React.Fragment>;
   } else {
     // Map results, with HTML structure.
-    let results = props.Items.map((item, index) => {
+    let results = props.items.map((item, index) => {
       const multiMedia = (item.urls && item.urls[0]) ? <div className="image"><MultiMedia url={item.urls[0]} key={index + '_mm'} /></div> : '';
       
       return (
-        <Link 
+        <Link
           to={`/view/${item.itemId}`}
           className="item"
           key={index}
         >
-          {multiMedia}
-          <div className="description">{item.description}</div>
+          <>
+            {multiMedia}
+            <div className="description">{item.description}</div>
+          </>
         </Link>
       );
     });
@@ -109,54 +104,39 @@ const SlickSlider: any = (props: ViewItemsState): JSX.Element => { // tslint:dis
   }
 };
 
+interface Props {
+  fetchItems: Function;
+  items: [];
+  sliderInitialized: boolean;
+  sliderError: boolean;
+}
+
 /**
  *
  * Show items from the Items API call in a slider type view
  *
  */
-export default class ViewItems extends React.Component<{}, ViewItemsState> {
-  pendingPromises: any = []; // tslint:disable-line: no-any
+class ViewItems extends React.Component<Props, {}> { // tslint:disable-line: no-any
 
-  state: ViewItemsState = {
-    Items: [],
-    sliderInitialized: false,
-    sliderError: false
-  };
-
-  /**
-   * API call on did mount.
-   * Wrapping the API call in our CancelablePromise method to avoid updates to the DOM if you're no longer on the page.
-   */
-  componentDidMount() {
-    const wrappedPromise = cancelablePromise(API.get('tba21', 'items', {}));
-    appendPendingPromise(this, wrappedPromise);
-
-    // Wrap the promise.
-    wrappedPromise.promise
-      .then((data: any) => { // tslint:disable-line: no-any
-        if (data === null) { return this.setState({sliderError: true}); }
-
-        this.setState({Items : data.Items, sliderInitialized: true, sliderError: false});
-      })
-      .then(() => {
-        removePendingPromise(this, wrappedPromise);
-      })
-      .catch((e: any) => { // tslint:disable-line: no-any
-        removePendingPromise(this, wrappedPromise);
-        this.setState({sliderError: true});
-      });
-  }
-
-  componentWillUnmount(): void {
-    // Cancel all pending promises on this class.
-    this.pendingPromises.map(p => p.cancel());
+  componentDidMount(): void {
+    if (!this.props.items.length) {
+      this.props.fetchItems();
+    }
   }
 
   render() {
     return (
-      <Container>
-        <SlickSlider Items={this.state.Items} sliderInitialized={this.state.sliderInitialized} sliderError={this.state.sliderError}/>
+      <Container id="viewItems">
+        <SlickSlider items={this.props.items} sliderInitialized={this.props.sliderInitialized} sliderError={this.props.sliderError}/>
       </Container>
     );
   }
 }
+
+const mapStateToProps = (state: { viewItems: State }) => ({ // tslint:disable-line: no-any
+  items: state.viewItems.items,
+  sliderInitialized: state.viewItems.sliderInitialized,
+  sliderError: state.viewItems.sliderError
+});
+
+export default connect(mapStateToProps, { fetchItems })(ViewItems);
