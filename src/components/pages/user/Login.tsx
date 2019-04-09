@@ -2,22 +2,34 @@ import * as React from 'react';
 import { Button, FormGroup, Input, Label } from 'reactstrap';
 import { Auth } from 'aws-amplify';
 import 'styles/pages/user/login.scss';
+import FacebookButton from '../../utils/FacebookButton';
 
-export class Login extends React.Component<{history: any}, {}> { // tslint:disable-line: no-any
+interface Props {
+  history: any; // tslint:disable-line: no-any
+}
 
-  state: { email: '', password: ''};
+interface State {
+  email: string;
+  password: string;
+}
+
+export class Login extends React.Component<Props, State> {
 
   constructor(props: any) { // tslint:disable-line: no-any
     super(props);
 
     this.state = {
       email: '',
-      password: ''
+      password: '',
     };
   }
 
   validateForm() {
     return this.state.email.length > 0 && this.state.password.length > 0;
+  }
+
+  handleFbLogin = () => {
+    this.props.history.push('/');
   }
 
   async handleSubmit(event: any) { // tslint:disable-line: no-any
@@ -70,6 +82,9 @@ export class Login extends React.Component<{history: any}, {}> { // tslint:disab
           >
             Reset password
           </Button>
+          <FacebookButton
+            onLogin={this.handleFbLogin}
+          />
         </form>
 
       </div>

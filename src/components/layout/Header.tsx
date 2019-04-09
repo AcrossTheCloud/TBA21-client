@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { Link } from 'react-router-dom';
+import { Auth } from 'aws-amplify';
 import {
   Collapse,
   Navbar,
@@ -8,17 +10,16 @@ import {
   NavItem
 } from 'reactstrap';
 
-import { Link } from 'react-router-dom';
-
-import { Auth } from 'aws-amplify';
-
 export default class Header extends React.Component<{history: any}, {isAuthenticated: boolean, isOpen: boolean}> { // tslint:disable-line: no-any
-
   state: {isOpen: false, isAuthenticated: false};
 
   async componentDidMount() {
+    this.checkLoginStatus();
+  }
+
+  checkLoginStatus = async () => {
     try {
-      if (await Auth.currentSession()) {
+      if (await Auth.currentAuthenticatedUser()) {
         this.setState({ isAuthenticated: true });
       }
     } catch (e) {
@@ -26,22 +27,13 @@ export default class Header extends React.Component<{history: any}, {isAuthentic
         this.setState({ isAuthenticated: false });
       }
     }
-
   }
 
   constructor(props: any) { // tslint:disable-line: no-any
     super(props);
 
     this.props.history.listen(async (location: any) => { // tslint:disable-line: no-any
-      try {
-        if (await Auth.currentSession()) {
-          this.setState({ isAuthenticated: true });
-        }
-      } catch (e) {
-        if (e !== 'No current user') {
-          this.setState({ isAuthenticated: false });
-        }
-      }
+      this.checkLoginStatus();
     });
 
     this.toggle = this.toggle.bind(this);
