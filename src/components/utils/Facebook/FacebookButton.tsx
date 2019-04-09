@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Auth } from 'aws-amplify';
 import { Button } from 'reactstrap';
-import { waitForInit } from './Facebook';
+import { waitForInit } from './FacebookSDK';
 
 interface Props {
   onLogin: Function;
