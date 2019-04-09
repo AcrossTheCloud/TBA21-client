@@ -23,7 +23,6 @@ export const waitForInit = () => { // loading the fb dialog box
   const
     theWindow: any = window;  // tslint:disable-line: no-any
   let tryCounter: number = 0;
-
   return new Promise((res, _rej) => {
     const hasFbLoaded = () => {
       tryCounter ++;
@@ -33,7 +32,7 @@ export const waitForInit = () => { // loading the fb dialog box
         if (tryCounter < 15) {
           setTimeout(hasFbLoaded, 300);
         } else {
-            res(false);
+          res(false);
         }
       }
     };

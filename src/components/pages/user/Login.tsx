@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Button, FormGroup, Input, Label } from 'reactstrap';
 import { Auth } from 'aws-amplify';
 import 'styles/pages/user/login.scss';
+import { loadFacebookSDK } from '../../utils/Facebook';
 import FacebookButton from '../../utils/FacebookButton';
 
 interface Props {
@@ -22,6 +23,8 @@ export class Login extends React.Component<Props, State> {
       email: '',
       password: '',
     };
+    
+    loadFacebookSDK();
   }
 
   validateForm() {

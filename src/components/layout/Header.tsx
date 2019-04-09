@@ -10,17 +10,31 @@ import {
   NavItem
 } from 'reactstrap';
 
-export default class Header extends React.Component<{history: any}, {isAuthenticated: boolean, isOpen: boolean}> { // tslint:disable-line: no-any
-  state: {isOpen: false, isAuthenticated: false};
+interface State {
+  isAuthenticated: boolean;
+  authorisation?: string[];
+  isOpen: boolean;
+}
 
+export default class Header extends React.Component<{history: any}, State> { // tslint:disable-line: no-any
+  state: {
+    isOpen: false,
+    isAuthenticated: false
+  };
   async componentDidMount() {
     this.checkLoginStatus();
   }
 
   checkLoginStatus = async () => {
     try {
-      if (await Auth.currentAuthenticatedUser()) {
-        this.setState({ isAuthenticated: true });
+      const authenticatedUser = await Auth.currentAuthenticatedUser();
+
+      if (authenticatedUser) {
+        const
+          userGroup = ((((authenticatedUser || false).signInUserSession || false).idToken || false).payload || false)['cognito:groups'],
+          authorisation = userGroup ? { authorisation: userGroup, isAuthenticated: true } : { isAuthenticated: true };
+          
+        this.setState(authorisation);
       }
     } catch (e) {
       if (e !== 'No current user') {
