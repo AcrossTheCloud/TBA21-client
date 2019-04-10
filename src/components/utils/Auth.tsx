@@ -10,9 +10,13 @@ export const checkAuth = async () => {
 
     const
       userGroup = ((((authenticatedUser || false).signInUserSession || false).idToken || false).payload || false)['cognito:groups'],
-      authorisation = userGroup ? { authorisation: userGroup, isAuthenticated: true } : { isAuthenticated: true };
+      authList = {};
 
-    return authorisation;
+    userGroup.forEach( (group: string)  => {
+      authList[group] = true;
+    });
+
+    return Object.keys(authList).length ? { authorisation: authList, isAuthenticated: true } : { isAuthenticated: true };
   } catch (e) {
     return { isAuthenticated: false };
   }

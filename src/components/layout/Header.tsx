@@ -14,18 +14,21 @@ import { checkAuth } from '../utils/Auth';
 
 interface State {
   isAuthenticated: boolean;
-  authorisation?: string[];
+  authorisation?: any; // tslint:disable-line: no-any
   isOpen: boolean;
 }
 
 export default class Header extends React.Component<{history: any}, State> { // tslint:disable-line: no-any
+
+  isAdmin: boolean = false;
+
   async componentDidMount() {
     this.setState(await checkAuth());
+    this.isAdmin = this.state.authorisation && this.state.authorisation.hasOwnProperty('admin');
   }
 
   constructor(props: any) { // tslint:disable-line: no-any
     super(props);
-
     this.props.history.listen(async (location: any) => { // tslint:disable-line: no-any
       this.setState(await checkAuth());
     });
