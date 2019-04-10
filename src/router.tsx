@@ -27,7 +27,7 @@ export const AppRouter = () => {
     <Provider store={store}>
       <Router history={history}>
         <div>
-          <Route path="/" render={(props) => <App {... {isAuthenticated: false, history: props.history}}/>} />
+          <Route path="/" render={(props) => <App {... {history: props.history}}/>} />
           <Route exact path="/" component={Home} />
           <Route exact path="/view" component={ViewItems} />
           <Route path="/view/:itemId" component={ViewItem} />
