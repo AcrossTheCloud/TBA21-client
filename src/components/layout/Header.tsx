@@ -10,6 +10,8 @@ import {
   NavItem
 } from 'reactstrap';
 
+import { checkAuth } from '../utils/Auth';
+
 interface State {
   isAuthenticated: boolean;
   authorisation?: string[];
@@ -17,37 +19,15 @@ interface State {
 }
 
 export default class Header extends React.Component<{history: any}, State> { // tslint:disable-line: no-any
-  state: {
-    isOpen: false,
-    isAuthenticated: false
-  };
   async componentDidMount() {
-    this.checkLoginStatus();
-  }
-
-  checkLoginStatus = async () => {
-    try {
-      const authenticatedUser = await Auth.currentAuthenticatedUser();
-
-      if (authenticatedUser) {
-        const
-          userGroup = ((((authenticatedUser || false).signInUserSession || false).idToken || false).payload || false)['cognito:groups'],
-          authorisation = userGroup ? { authorisation: userGroup, isAuthenticated: true } : { isAuthenticated: true };
-          
-        this.setState(authorisation);
-      }
-    } catch (e) {
-      if (e !== 'No current user') {
-        this.setState({ isAuthenticated: false });
-      }
-    }
+    this.setState(await checkAuth());
   }
 
   constructor(props: any) { // tslint:disable-line: no-any
     super(props);
 
     this.props.history.listen(async (location: any) => { // tslint:disable-line: no-any
-      this.checkLoginStatus();
+      this.setState(await checkAuth());
     });
 
     this.toggle = this.toggle.bind(this);
