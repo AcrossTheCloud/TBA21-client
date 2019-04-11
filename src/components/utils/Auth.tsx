@@ -21,7 +21,10 @@ export const checkAuth = async () => {
 
     return Object.keys(authList).length ? { authorisation: authList, isAuthenticated: true } : { isAuthenticated: true };
   } catch (e) {
-    console.log('checkAuth -- ERROR -- ', e);
+    if (e !== 'not authenticated') {
+      console.log('checkAuth -- ERROR -- ', e);
+    }
+
     return { isAuthenticated: false };
   }
 };

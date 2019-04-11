@@ -14,11 +14,16 @@ import {
   ViewItem,
   ItemEntryForm,
 
-  PersonEntryForm,
-  NetworkGraph,
+  // START USER
+  Profile,
   Login,
   SignUp,
   ResetPassword,
+  // END USER
+
+  PersonEntryForm,
+  NetworkGraph,
+
   MapView
 } from './components/';
 
@@ -27,17 +32,18 @@ export const AppRouter = () => {
     <Provider store={store}>
       <Router history={history}>
         <div>
-          <Route path="/" render={(props) => <App {... {isAuthenticated: false, history: props.history}}/>} />
+          <Route path="/" render={(props) => <App {... {history: props.history}}/>} />
           <Route exact path="/" component={Home} />
           <Route exact path="/view" component={ViewItems} />
           <Route path="/view/:itemId" component={ViewItem} />
           <Route exact path="/map" component={MapView} />
-          <Route exact path="/login" render={(props) => <Login {... {isAuthenticated: false, history: props.history}} />} />
-          <Route exact path="/signup" render={(props) => <SignUp {... {isAuthenticated: false, history: props.history}} />} />
-          <Route exact path="/resetPassword" render={(props) => <ResetPassword {... {isAuthenticated: false, history: props.history}} />} />
+          <Route exact path="/login" render={(props) => <Login {... {history: props.history}} />} />
+          <Route exact path="/signup" render={(props) => <SignUp {... {history: props.history}} />} />
+          <Route exact path="/resetPassword" render={(props) => <ResetPassword {... {history: props.history}} />} />
           <Route exact path="/viewGraph" component={NetworkGraph} />
           <Route exact path="/itemEntry" component={ItemEntryForm} />
           <Route exact path="/PersonEntry" component={PersonEntryForm} />
+          <Route exact path="/Profile" render={(props) => <Profile {... {history: props.history}}/>} />
         </div>
       </Router>
     </Provider>

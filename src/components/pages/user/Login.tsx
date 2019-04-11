@@ -1,30 +1,53 @@
 import * as React from 'react';
 import { Button, FormGroup, Input, Label } from 'reactstrap';
 import { Auth } from 'aws-amplify';
-import 'styles/pages/user/login.scss';
+
 import { loadFacebookSDK } from '../../utils/Facebook/FacebookSDK';
 import FacebookButton from '../../utils/Facebook/FacebookButton';
+import { checkAuth } from '../../utils/Auth';
+
+import 'styles/pages/user/login.scss';
 
 interface Props {
   history: any; // tslint:disable-line: no-any
 }
 
 interface State {
+  isAuthenticated: boolean;
   email: string;
   password: string;
 }
 
 export class Login extends React.Component<Props, State> {
+  _isMounted = false;
 
-  constructor(props: any) { // tslint:disable-line: no-any
+  constructor(props: Props) {
     super(props);
 
     this.state = {
+      isAuthenticated: false,
       email: '',
       password: '',
     };
     
     loadFacebookSDK();
+  }
+
+  async componentDidMount(): Promise<void> {
+    this._isMounted = true;
+    if (this._isMounted) {
+
+      const {isAuthenticated} = await checkAuth();
+
+      // Redirect to home page if authenticated.
+      if (isAuthenticated) {
+        this.props.history.push(`/`);
+      }
+    }
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
   }
 
   validateForm() {

@@ -5,22 +5,28 @@ import {
   Label
 } from 'reactstrap';
 import { Auth } from 'aws-amplify';
+import { ISignUpResult } from 'amazon-cognito-identity-js';
 
 import LoaderButton from 'src/components/utils/LoaderButton';
 import 'styles/pages/user/signup.scss';
+import { checkAuth } from '../../utils/Auth';
 
-export class SignUp extends React.Component<{history: any}, {}> { // tslint:disable-line: no-any
+interface Props {
+  history: any; // tslint:disable-line: no-any
+}
 
-  state: {
-    isLoading: false,
-    email: '',
-    password: '',
-    confirmPassword: '',
-    confirmationCode: '',
-    newUser: null
-  };
+interface State {
+  isLoading: boolean;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  confirmationCode: string;
+  newUser: null | ISignUpResult;
+}
 
-  constructor(props: any) { // tslint:disable-line: no-any
+export class SignUp extends React.Component<Props, State> { // tslint:disable-line: no-any
+
+  constructor(props: Props) {
     super(props);
 
     this.state = {
@@ -31,6 +37,15 @@ export class SignUp extends React.Component<{history: any}, {}> { // tslint:disa
       confirmationCode: '',
       newUser: null
     };
+  }
+
+  async componentDidMount(): Promise<void> {
+    const { isAuthenticated } = await checkAuth();
+
+    // Redirect to home page if authenticated.
+    if (isAuthenticated) {
+      this.props.history.push(`/`);
+    }
   }
 
   validateForm() {

@@ -16,6 +16,7 @@ interface State {
 class FacebookButton extends React.Component<Props, State> {
 
   theWindow: any = window; // tslint:disable-line: no-any
+  _isMounted = false;
 
   constructor(props: any) { // tslint:disable-line: no-any
     super(props);
@@ -29,12 +30,20 @@ class FacebookButton extends React.Component<Props, State> {
   }
 
   async componentDidMount() {
-    const loadingSDK = await waitForInit();
+    this._isMounted = true;
+    if (this._isMounted ) {
+      const loadingSDK = await waitForInit();
 
-    if (loadingSDK) {
-      this.setState({ sdkLoaded: true, isLoading: false });
+      if (this._isMounted && loadingSDK) {
+        this.setState({ sdkLoaded: true, isLoading: false });
+      }
     }
   }
+
+  componentWillUnmount() {
+    this._isMounted = false;
+  }
+
   statusChangeCallback = (response: any) => { // tslint:disable-line: no-any
     if (response.status === 'connected') {
       this.handleResponse(response.authResponse);

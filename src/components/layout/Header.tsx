@@ -12,33 +12,43 @@ import {
 
 import { checkAuth } from '../utils/Auth';
 
+interface Props {
+  history: any; // tslint:disable-line: no-any
+}
+
 interface State {
   isAuthenticated: boolean;
   authorisation?: any; // tslint:disable-line: no-any
   isOpen: boolean;
 }
 
-export default class Header extends React.Component<{history: any}, State> { // tslint:disable-line: no-any
-
+export default class Header extends React.Component<Props, State> { // tslint:disable-line: no-any
   isAdmin: boolean = false;
 
-  async componentDidMount() {
-    this.setState(await checkAuth());
-    this.isAdmin = this.state.authorisation && this.state.authorisation.hasOwnProperty('admin');
-  }
-
-  constructor(props: any) { // tslint:disable-line: no-any
+  constructor(props: Props) { // tslint:disable-line: no-any
     super(props);
+
+    this.state = {
+      isAuthenticated: false,
+      isOpen: false
+    };
+
     this.props.history.listen(async (location: any) => { // tslint:disable-line: no-any
       this.setState(await checkAuth());
     });
 
     this.toggle = this.toggle.bind(this);
-    this.state = {
-      isAuthenticated: false,
-      isOpen: false
-    };
   }
+
+  async componentDidMount() {
+    const auth = await checkAuth();
+    this.setState(auth);
+
+    console.log(this.state);
+
+    this.isAdmin = this.state.authorisation && this.state.authorisation.hasOwnProperty('admin');
+  }
+
   toggle() {
     this.setState({
       isOpen: !this.state.isOpen
