@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Map, Marker, Popup, TileLayer } from 'react-leaflet';
 import { connect } from 'react-redux';
 
-import { createMapIcon, getMapIcon } from './icons';
+import { getMapIcon } from './icons';
 import { OceanObject, renderPeople, Items } from 'src/components/pages/TableRow';
 import { fetchMarkers, putModifiedMarkers } from 'src/actions/map/map';
 
@@ -106,26 +106,26 @@ class MapView extends React.Component<Props, State> {
     let responseMarkers: MarkerData[] = [];
 
     // TESTING popUp onclick button
-    createMapIcon('iconicon', {
-      // https://pixabay.com/en/clipart-fish-sign-icon-cartoon-3418130/
-      iconUrl: './assets/markers/fish.png',
-      iconSize: [64, 43],
-      iconAnchor: [32, 43],
-      popupAnchor: [-3, -38]
-    });
-    data[5].icon = 'iconicon';
-    data[5].type = 'popUp';
-
-    // TESTING popUp type icon
-    data[6].type = 'popUp';
-    createMapIcon('testing', {
-      // https://pixabay.com/en/whale-blue-gray-fountain-spray-311849/
-      iconUrl: './assets/markers/whale.svg',
-      iconSize: [64, 43],
-      iconAnchor: [32, 43],
-      popupAnchor: [-3, -38]
-    });
-    data[6].icon = 'testing';
+    // createMapIcon('iconicon', {
+    //   // https://pixabay.com/en/clipart-fish-sign-icon-cartoon-3418130/
+    //   iconUrl: './assets/markers/fish.png',
+    //   iconSize: [64, 43],
+    //   iconAnchor: [32, 43],
+    //   popupAnchor: [-3, -38]
+    // });
+    // data[5].icon = 'iconicon';
+    // data[5].type = 'popUp';
+    //
+    // // TESTING popUp type icon
+    // data[6].type = 'popUp';
+    // createMapIcon('testing', {
+    //   // https://pixabay.com/en/whale-blue-gray-fountain-spray-311849/
+    //   iconUrl: './assets/markers/whale.svg',
+    //   iconSize: [64, 43],
+    //   iconAnchor: [32, 43],
+    //   popupAnchor: [-3, -38]
+    // });
+    // data[6].icon = 'testing';
     // END TESTING
 
     data.forEach((item, index: number) => {
