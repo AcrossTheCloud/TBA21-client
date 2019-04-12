@@ -44,8 +44,6 @@ export default class Header extends React.Component<Props, State> { // tslint:di
     const auth = await checkAuth();
     this.setState(auth);
 
-    console.log(this.state);
-
     this.isAdmin = this.state.authorisation && this.state.authorisation.hasOwnProperty('admin');
   }
 
