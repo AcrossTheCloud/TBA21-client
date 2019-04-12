@@ -1,0 +1,11 @@
+#profile {
+  .overlay {
+    background: rgba(0, 0, 0, 0.8);
+    position: absolute;
+    height: calc(100vh * 2);
+    width: calc(100vw * 2);
+    left: -100vw;
+    top: -100vh;
+    z-index: 9999;
+  }
+}
