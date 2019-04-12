@@ -4,13 +4,14 @@ import { Alert, Button, Container, Form, FormGroup, Input, Label } from 'reactst
 
 import DeleteAccount from './DeleteAccount';
 import { checkAuth, logout } from '../../../utils/Auth';
-import { deleteAccount } from 'src/actions/user/profile';
+import { deleteAccount, dispatchError } from 'src/actions/user/profile';
 
 import 'src/styles/pages/user/profile/profile.scss';
 
 interface Props {
   hasError: boolean;
   deleteAccount: Function;
+  dispatchError: Function;
   accountDeleted: boolean;
   deletingAccount: boolean;
   history: any; // tslint:disable-line: no-any
@@ -40,15 +41,17 @@ class Profile extends React.Component<Props, State> {
   }
 
   async componentDidUpdate(): Promise<void> {
-    const hasLoggedOut: boolean = await logout();
-
-    if (this.props.accountDeleted && hasLoggedOut) {
-      this.props.history.push('/');
+    if (this.props.accountDeleted) {
+      try {
+        await logout();
+        this.props.history.push('/');
+      } catch (e) {
+        this.props.dispatchError();
+      }
     }
   }
 
   render() {
-
     if (this.props.hasError) {
       return (
         <Alert color="danger">An error has occurred.</Alert>
@@ -80,4 +83,4 @@ const mapStateToProps = (state: { profile: Props }) => ({
   deletingAccount: state.profile.deletingAccount
 });
 
-export default connect(mapStateToProps, { deleteAccount })(Profile);
+export default connect(mapStateToProps, { deleteAccount, dispatchError })(Profile);

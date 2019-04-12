@@ -13,13 +13,12 @@ export const DELETE_ACCOUNT_ERROR = 'DELETE_ACCOUNT_ERROR';
 /**
  * Dispatches to the DELETE_ACCOUNT_ERROR reducer action.type
  */
-const dispatchError = () => dispatch => {
-  console.log('err');
+export const dispatchError = () => dispatch => {
   dispatch({type: DELETE_ACCOUNT_ERROR});
 };
 
 /**
- *
+ * Deletes the users account from AWS Cognito
  */
 export const deleteAccount = () => async dispatch => {
 
@@ -54,10 +53,8 @@ export const deleteAccount = () => async dispatch => {
     // This call only allows the USER to delete themselves.
     cognitoIdentityServiceProvider.deleteUser(deleteUserParams, (err: AWSError, data: any) => { // tslint:disable-line: no-any
       if (err) {
-        console.log('errrr', err);
         dispatchError();
       } else {
-        console.log('data', data);
         dispatch({type: DELETED_ACCOUNT});
       }
     });
