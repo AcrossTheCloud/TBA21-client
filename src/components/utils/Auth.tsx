@@ -1,5 +1,7 @@
 import { Auth } from 'aws-amplify';
+import { CognitoUser } from 'amazon-cognito-identity-js';
 import { ICredentials } from 'aws-amplify/lib/Common/types/types';
+import { get } from 'lodash';
 
 /**
  * Log the user out using AWS Amplify
@@ -22,7 +24,7 @@ export const checkAuth = async () => {
   try {
     const
       authenticatedUser = await Auth.currentAuthenticatedUser(),
-      userGroup = ((((authenticatedUser || false).signInUserSession || false).idToken || false).payload || false)['cognito:groups'],
+      userGroup = get(authenticatedUser, 'signInUserSession.idToken.payload.cognito:groups'),
       authList = {};
 
     if (userGroup && userGroup.length) {
@@ -56,7 +58,7 @@ export const getCurrentCredentials = async () => {
  *
  * @returns {boolean} or {CognitoUser | any}
  */
-export const getCurrentAuthenticatedUser = async () => {
+export const getCurrentAuthenticatedUser = async (): Promise<CognitoUser | boolean> => {
   try {
     const credentials: any = await Auth.currentAuthenticatedUser(); // tslint:disable-line: no-any
     return credentials;
