@@ -1,42 +1,69 @@
 import * as CognitoIdentityServiceProvider from 'aws-sdk/clients/cognitoidentityserviceprovider';
-import { getCurrentAuthenticatedUser } from '../../components/utils/Auth';
-import { DeleteUserRequest } from 'aws-sdk/clients/cognitoidentityserviceprovider';
-
-import config from '../../config';
+import { Auth } from 'aws-amplify';
 import { AWSError } from 'aws-sdk';
+import { get } from 'lodash';
+
+import { getCurrentAuthenticatedUser } from '../../components/utils/Auth';
+import config from '../../config';
 
 // Actions
 export const OVERLAY = 'OVERLAY';
 export const DELETED_ACCOUNT = 'DELETED_ACCOUNT';
-export const DELETE_ACCOUNT_ERROR = 'DELETE_ACCOUNT_ERROR';
+export const PROFILE_ERROR = 'PROFILE_ERROR';
+export const PROFILE_SUCCESS = 'PROFILE_SUCCESS';
 
 /**
- * Dispatches to the DELETE_ACCOUNT_ERROR reducer action.type
+ * Dispatches to the PROFILE_ERROR reducer action.type
  */
-export const dispatchError = () => dispatch => {
-  dispatch({type: DELETE_ACCOUNT_ERROR});
+export const dispatchError = (message: string) => dispatch => {
+  console.log('dispatchError');
+  dispatch({type: PROFILE_ERROR, message: message});
+};
+
+/**
+ * Updates the users attributes in AWS Cognito
+ *
+ * @param attributes {Object: Name, Value}
+ */
+export const updateAttributes = (attributes: any) => async dispatch => { // tslint:disable-line: no-any
+  try {
+    const cognitoUser = await getCurrentAuthenticatedUser();
+
+    // Puts an overlay over the entire page.
+    dispatch({type: OVERLAY, overlay: true});
+
+    if (cognitoUser && typeof cognitoUser !== 'boolean') {
+      // Update attributes on the users local Cognito storage.
+      await Auth.updateUserAttributes(cognitoUser, attributes);
+      dispatch({type: PROFILE_SUCCESS, message: 'We\'ve updated your profile'});
+
+    } else {
+      throw new Error('Not authed');
+    }
+  } catch (e) {
+    console.log(e);
+
+    // Account with that email address already exists in Cognito.
+    if (e.code === 'AliasExistsException') {
+      dispatch({type: PROFILE_ERROR, message: 'An account with the given email already exists.', showForm: true});
+    } else {
+      dispatch({type: PROFILE_ERROR, message: 'We\'re having some difficulties at the moment.'});
+    }
+  }
 };
 
 /**
  * Deletes the users account from AWS Cognito
  */
 export const deleteAccount = () => async dispatch => {
-
   // Checks that the user is Authenticated and has an accessToken from aws-amplify
-  const authedUserDetails: any = await getCurrentAuthenticatedUser(); // tslint:disable-line: no-any
-  if (authedUserDetails && authedUserDetails.signInUserSession && authedUserDetails.signInUserSession.accessToken) {
-    const
-      accessTokenObject = authedUserDetails.signInUserSession.accessToken,
-      accessToken: string = accessTokenObject.jwtToken ? accessTokenObject.jwtToken : '';
+  const accessToken: string = get(await getCurrentAuthenticatedUser(), 'signInUserSession.accessToken.jwtToken');
 
-    // Puts an overlay over the entire page.
-    dispatch({type: OVERLAY});
+  // Puts an overlay over the entire page.
+  dispatch({type: OVERLAY, overlay: true});
 
-    // No accessToken? Have an error
-    if (accessToken.length < 1) {
-      dispatchError();
-    }
-
+  // No accessToken? Have an error
+  if (accessToken.length) {
     // Sets up CognitoIdentityServiceProvider with our correct region and API version
     const
       cognitoIdentityServiceProvider = new CognitoIdentityServiceProvider(
@@ -45,7 +72,7 @@ export const deleteAccount = () => async dispatch => {
           region: config.cognito.REGION
         }
       ),
-      deleteUserParams: DeleteUserRequest = {
+      deleteUserParams: CognitoIdentityServiceProvider.DeleteUserRequest = {
         AccessToken: accessToken,
       };
 
@@ -53,13 +80,32 @@ export const deleteAccount = () => async dispatch => {
     // This call only allows the USER to delete themselves.
     cognitoIdentityServiceProvider.deleteUser(deleteUserParams, (err: AWSError, data: any) => { // tslint:disable-line: no-any
       if (err) {
-        dispatchError();
+        dispatch({type: PROFILE_ERROR, message: 'We\'ve had trouble removing your account, please try again.'});
       } else {
         dispatch({type: DELETED_ACCOUNT});
       }
     });
-
   } else {
-    dispatchError();
+    dispatch({type: PROFILE_ERROR, message: 'You don\'t seem to be logged in.'});
   }
+};
+
+/**
+ * Updates the users Password.
+ *
+ * @param oldPassword {string}
+ * @param newPassword {string}
+ */
+export const changePassword = (oldPassword: string, newPassword: string) => async dispatch => {
+  const cognitoUser = await getCurrentAuthenticatedUser();
+
+  if (cognitoUser && typeof cognitoUser !== 'boolean') {
+    try {
+      await Auth.changePassword(cognitoUser, oldPassword, newPassword);
+      dispatch({type: PROFILE_SUCCESS, message: 'Your password has been changed.'});
+    } catch (e) {
+      const message = (e.message ? e.message : 'We\'re having some difficulties at the moment.');
+      dispatch({type: PROFILE_ERROR, message: message});
+    }
+   }
 };
