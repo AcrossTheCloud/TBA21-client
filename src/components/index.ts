@@ -13,6 +13,10 @@ export * from './pages/user/SignUp';
 export * from './pages/user/ResetPassword';
 // END USER
 
+// START ADMIN
+export * from './pages/admin/people/ManageUsers';
+// END ADMIN
+
 // START ITEMS
 export { default as ViewItems } from './pages/item/ViewItems';
 export { default as ViewItem } from './pages/item/ViewItem';

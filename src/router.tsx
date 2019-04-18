@@ -19,6 +19,7 @@ import {
   Login,
   SignUp,
   ResetPassword,
+  ManageUsers,
   // END USER
 
   PersonEntryForm,
@@ -44,6 +45,7 @@ export const AppRouter = () => {
           <Route exact path="/itemEntry" component={ItemEntryForm} />
           <Route exact path="/PersonEntry" component={PersonEntryForm} />
           <Route exact path="/Profile" render={(props) => <Profile {... {history: props.history}}/>} />
+          <Route exact path="/ManageUsers" component={ManageUsers} />
         </div>
       </Router>
     </Provider>
