@@ -23,8 +23,7 @@ export const logout = async () => {
 export const checkAuth = async () => {
   try {
     const
-      authenticatedUser = await Auth.currentAuthenticatedUser(),
-      userGroup = get(authenticatedUser, 'signInUserSession.idToken.payload.cognito:groups'),
+      userGroup = get(await Auth.currentAuthenticatedUser(), 'signInUserSession.idToken.payload.cognito:groups'),
       authList = {};
 
     if (userGroup && userGroup.length) {
@@ -56,11 +55,13 @@ export const getCurrentCredentials = async () => {
  *
  * Gets the currentAuthed user from AWS-Amplify, this returns tokens such as AccessToken
  *
+ * @param bypassCache {boolean}
+ *
  * @returns {boolean} or {CognitoUser | any}
  */
-export const getCurrentAuthenticatedUser = async (): Promise<CognitoUser | boolean> => {
+export const getCurrentAuthenticatedUser = async (bypassCache: boolean = false): Promise<CognitoUser | boolean> => {
   try {
-    const credentials: any = await Auth.currentAuthenticatedUser(); // tslint:disable-line: no-any
+    const credentials: any = await Auth.currentAuthenticatedUser({ bypassCache }); // tslint:disable-line: no-any
     return credentials;
   } catch (e) {
     return false;

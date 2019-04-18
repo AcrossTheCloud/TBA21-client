@@ -1,12 +1,12 @@
-import { OVERLAY, DELETED_ACCOUNT, DELETE_ACCOUNT_ERROR } from '../../actions/user/profile';
+import { OVERLAY, DELETED_ACCOUNT, PROFILE_ERROR, PROFILE_SUCCESS } from '../../actions/user/profile';
 
 interface State {
-  hasError: boolean;
+  errorMessage?: string | boolean;
+  successMessage?: string | boolean;
   accountDeleted: boolean;
   deletingAccount: boolean;
 }
 const initialState: State = {
-  hasError: false,
   accountDeleted: false,
   deletingAccount: false,
 };
@@ -21,15 +21,44 @@ export default (state: State|null = initialState, action) => {
         accountDeleted: true
       };
     case OVERLAY:
+      let overlayState = {
+        ...initialState,
+        overlay: action.overlay
+      };
+      // If there's an error message, pass it through.
+      if (typeof action.message !== 'undefined') {
+        Object.assign(overlayState, {errorMessage: action.message});
+      }
       return {
         ...initialState,
-        deletingAccount: true
+        overlay: action.overlay
       };
-    case DELETE_ACCOUNT_ERROR:
-      return {
+    case PROFILE_ERROR:
+      let profileErrorState = {
         ...initialState,
-        hasError: true,
       };
+
+      // If there's an error message, pass it through.
+      if (typeof action.message !== 'undefined') {
+        Object.assign(profileErrorState, {errorMessage: action.message});
+      } else {
+        Object.assign(profileErrorState, {errorMessage: true});
+      }
+
+      return profileErrorState;
+    case PROFILE_SUCCESS:
+      let profileSuccessState = {
+        ...initialState,
+      };
+
+      // If there's an error message, pass it through.
+      if (typeof action.message !== 'undefined') {
+        Object.assign(profileSuccessState, {successMessage: action.message});
+      } else {
+        Object.assign(profileSuccessState, {successMessage: true});
+      }
+
+      return profileSuccessState;
 
     default:
       return state;
