@@ -11,43 +11,52 @@ export const ERROR = 'ERROR';
 
 interface UserList {
   users: User[];
-  paginationToken: string;
+  paginationToken: string|null;
 }
 
-const listUsers = async (paginationToken?: string): Promise<UserList | null> => {
+/**
+ * Load list of users from AWS Cognito
+ * @param limit {number | null} Number of results to load
+ * @param paginationToken {string | null} String returned from AWS API Call
+ */
+const listUsers = async (limit: number, paginationToken?: string): Promise<UserList | null> => {
   const
     credentials = await getCurrentCredentials(),
     cognitoIdentityServiceProvider = new CognitoIdentityServiceProvider({
-    region: config.cognito.REGION,
-    credentials: {
-      accessKeyId: get(credentials, 'accessKeyId'),
-      sessionToken: get(credentials, 'sessionToken'),
-      secretAccessKey: get(credentials, 'data.Credentials.SecretKey'),
-    }
-  }),
+      region: config.cognito.REGION,
+      credentials: {
+        accessKeyId: get(credentials, 'accessKeyId'),
+        sessionToken: get(credentials, 'sessionToken'),
+        secretAccessKey: get(credentials, 'data.Credentials.SecretKey'),
+      }
+    }),
     params: CognitoIdentityServiceProvider.ListUsersRequest = {
       UserPoolId: config.cognito.USER_POOL_ID,
       Limit: 2
     };
 
-  let responsePaginationToken: string;
+  let responsePaginationToken: string|null;
 
   // If we've passed a paginationToken add it to the Params.
   if (paginationToken) {
     Object.assign(params, {PaginationToken: paginationToken});
   }
 
+  // Return a promise so we can Async/Await
   return new Promise( (resolve, reject) => {
     cognitoIdentityServiceProvider.listUsers(params, (error: any, data: any) => { // tslint:disable-line: no-any
-      if (error) {
-        reject(error);
-      }
+      if (error) { reject(error); }
 
       if (data && data.Users) {
+
+        // If we have a token return it, otherwise we assume we're at the end of the list os our users.
         if (has(data, 'PaginationToken')) {
           responsePaginationToken = data.PaginationToken;
+        } else {
+          responsePaginationToken = null;
         }
 
+        // Convert atrributes to a key: value pair instead of an Array of Objects
         const users: User[] = data.Users.map( (user: any) => { // tslint:disable-line: no-any
           let userAttributes: any = {}; // tslint:disable-line: no-any
 
@@ -73,7 +82,16 @@ const listUsers = async (paginationToken?: string): Promise<UserList | null> => 
   });
 };
 
-export const loadMore = (paginationToken?: string) => async dispatch => {
+/**
+ * Disptaches an array of users, pagination token and limit back to the Component
+ * @param limit {number | null} Number of results to load
+ * @param paginationToken {string | null} String returned from AWS API Call
+ */
+export const loadMore = (limit: number, paginationToken?: string|null) => async dispatch => {
+  // If we don't have any more results to load, do nothing.
+  if (paginationToken === null) { return; }
+
+  // Dispatch an error if we stumble upon one.
   const dispatchError = () => {
     dispatch({
        type: ERROR,

@@ -35,6 +35,14 @@ const columns = [
   text: 'User Email'
 }];
 
+const ErrorMessage = (props: {message: string | undefined}) => {
+  if (props.message === undefined) {
+    return <></>;
+  } else {
+    return <Alert color="danger">{props.message}</Alert>;
+  }
+};
+
 class ManageUsers extends React.Component<Props, {}> { // put in header
 
   async componentDidMount() {
@@ -46,35 +54,46 @@ class ManageUsers extends React.Component<Props, {}> { // put in header
 
     // List Users
     if (!this.props.users.length) {
-      this.props.loadMore();
+      this.props.loadMore(this.props.limit);
     }
   }
 
   render() {
-    if (this.props.errorMessage) {
-      return <Alert color="danger">{this.props.errorMessage}</Alert>;
-    } else {
-      return (
-        <>
-          <BootstrapTable keyField="username" data={this.props.users} columns={columns} />
+    return (
+      <Container className="ManageUsers">
+        <ErrorMessage message={this.props.errorMessage}/>
 
-          {
-            this.props.paginationToken ?
-              <Button  color="primary" size="lg" block onClick={() => this.props.loadMore(this.props.paginationToken)}>
-                Load More &nbsp; <FaSync />
-              </Button> :
-              <></>
-          }
-        </>
-      );
-    }
+        <BootstrapTable keyField="username" data={this.props.users} columns={columns} />
+
+        {
+          this.props.paginationToken ?
+            <Button  color="primary" size="lg" block onClick={() => this.props.loadMore(this.props.limit, this.props.paginationToken)}>
+              Load More &nbsp; <FaSync />
+            </Button> :
+            <></>
+        }
+        <FormGroup>
+          <Input type="select" name="limit" id="limit" value={this.props.limit} onChange={e => this.props.loadMore(e.target.value, this.props.paginationToken)}>
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+            <option>4</option>
+            <option>5</option>
+          </Input>
+          <Label for="search">Search Users</Label>
+          <Input type="text" name="search" id="search" placeholder="Search Users" />
+          <Button>Search</Button>
+        </FormGroup>
+      </Container>
+    );
   }
 }
 
 const mapStateToProps = (state: { manageUsers: Props }) => ({
   errorMessage: state.manageUsers.errorMessage,
   users: state.manageUsers.users,
-  paginationToken: state.manageUsers.paginationToken
+  paginationToken: state.manageUsers.paginationToken,
+  limit: state.manageUsers.limit
 });
 
 export default connect(mapStateToProps, { loadMore })(ManageUsers);

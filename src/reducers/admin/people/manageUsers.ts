@@ -5,9 +5,11 @@ export interface State {
   errorMessage?: string | undefined;
   users: User[];
   paginationToken?: string;
+  limit: number;
 }
 const initialState: State = {
-  users: []
+  users: [],
+  limit: 1
 };
 
 export default (state: State | undefined = initialState, action) => {
