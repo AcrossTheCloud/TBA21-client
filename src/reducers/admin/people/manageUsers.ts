@@ -31,6 +31,7 @@ export default (state: State | undefined = initialState, action) => {
       return {
         users: userList,
         paginationToken: action.paginationToken,
+        limit: action.limit,
         errorMessage: undefined,
       };
     case ERROR:

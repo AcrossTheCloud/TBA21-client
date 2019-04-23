@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { has } from 'lodash';
 import BootstrapTable from 'react-bootstrap-table-next';
-import { Alert, Button } from 'reactstrap';
+import { Container, Alert, Button, FormGroup, Input, Label } from 'reactstrap';
 import { connect } from 'react-redux';
 import { FaSync } from 'react-icons/fa';
 
@@ -14,7 +14,7 @@ export interface Props {
   errorMessage?: string | undefined;
   users: User[];
   paginationToken?: string;
-
+  limit: number;
   // Functions
   loadMore: Function;
 }

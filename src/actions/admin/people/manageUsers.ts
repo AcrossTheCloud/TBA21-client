@@ -32,7 +32,7 @@ const listUsers = async (limit: number, paginationToken?: string): Promise<UserL
     }),
     params: CognitoIdentityServiceProvider.ListUsersRequest = {
       UserPoolId: config.cognito.USER_POOL_ID,
-      Limit: 2
+      Limit: limit
     };
 
   let responsePaginationToken: string|null;
@@ -99,13 +99,15 @@ export const loadMore = (limit: number, paginationToken?: string|null) => async 
      });
   };
   try {
-    const response: UserList | null = await listUsers(paginationToken);
+
+    const response: UserList | null = await listUsers(limit, paginationToken);
 
     if (response && has(response, 'users')) {
       dispatch({
         type: LOAD_MORE,
         users: response.users,
-        paginationToken: response.paginationToken
+        paginationToken: response.paginationToken,
+        limit: limit
       });
     } else {
       dispatchError();
