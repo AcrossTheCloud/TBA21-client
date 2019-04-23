@@ -1,30 +1,31 @@
 import * as React from 'react';
-import { has, get } from 'lodash';
+import { has } from 'lodash';
 import BootstrapTable from 'react-bootstrap-table-next';
-import { Alert } from 'reactstrap';
-import * as CognitoIdentityServiceProvider from 'aws-sdk/clients/cognitoidentityserviceprovider';
-import config from '../../../../config';
-import { checkAuth, getCurrentCredentials } from '../../../utils/Auth';
+import { Alert, Button } from 'reactstrap';
+import { connect } from 'react-redux';
+import { FaSync } from 'react-icons/fa';
 
-// set interface
-interface State {
+import { checkAuth } from '../../../utils/Auth';
+import { loadMore } from '../../../../actions/admin/people/manageUsers';
+
+export interface Props {
+  history?: any; // tslint:disable-line: no-any
+
+  errorMessage?: string | undefined;
   users: User[];
-  errorMessage?: string;
-}
-interface Props {
-  history: any; // tslint:disable-line: no-any
+  paginationToken?: string;
+
+  // Functions
+  loadMore: Function;
 }
 
-interface User {
+export interface User {
   id: number;
   email: string;
   username: string;
 }
 
-const columns = [{
-  dataField: 'id',
-  hidden: true
-},
+const columns = [
 {
   dataField: 'username',
   hidden: true
@@ -34,70 +35,46 @@ const columns = [{
   text: 'User Email'
 }];
 
-export class ManageUsers extends React.Component<Props, State> { // put in header
-  constructor(props: Props) { // tslint:disable-line: no-any
-    super(props);
+class ManageUsers extends React.Component<Props, {}> { // put in header
 
-    this.state = {
-      users: []
-    };
-  }
   async componentDidMount() {
-    const
-      { authorisation, isAuthenticated } = await checkAuth(),
-      credentials = await getCurrentCredentials();
-
-    console.log(credentials);
+    const { authorisation, isAuthenticated } = await checkAuth();
 
     if (!isAuthenticated || authorisation && !has(authorisation, 'admin')) {
       this.props.history.push('/');
     }
-    const cognitoidentityserviceprovider = new CognitoIdentityServiceProvider({
-      region: config.cognito.REGION,
-      credentials: {
-        accessKeyId: get(credentials, 'accessKeyId'),
-        sessionToken: get(credentials, 'sessionToken'),
-        secretAccessKey: get(credentials, 'data.Credentials.SecretKey'),
-      }
-    });
 
-    const params: CognitoIdentityServiceProvider.ListUsersRequest = {
-      UserPoolId: config.cognito.USER_POOL_ID
-    };
-
-    cognitoidentityserviceprovider.listUsers(params, (err: any, data: any) => { // tslint:disable-line: no-any
-      // console.log(err, data);
-      if (err) {
-        this.setState({errorMessage: 'We\'re having difficulties right now, please try again.'});
-      }
-      if (data && data.Users) {
-        const users: User[] = data.Users.map( (user: any, index: number) => { // tslint:disable-line: no-any
-          let userAttributes: any = {}; // tslint:disable-line: no-any
-          user.Attributes.forEach( (attribute: {Name: string, Value: string}) => {
-            userAttributes[attribute.Name] = attribute.Value;
-          });
-
-          return {
-            id: index,
-            email: userAttributes.email,
-            username: user.Username
-          };
-        });
-
-        this.setState({users: users});
-
-        console.log(users);
-
-      }
-    });
-
+    // List Users
+    if (!this.props.users.length) {
+      this.props.loadMore();
+    }
   }
 
   render() {
-    if (this.state.errorMessage) {
-      return <Alert color="danger">{this.state.errorMessage}</Alert>;
+    if (this.props.errorMessage) {
+      return <Alert color="danger">{this.props.errorMessage}</Alert>;
     } else {
-      return <BootstrapTable keyField="id" data={this.state.users} columns={columns} />;
+      return (
+        <>
+          <BootstrapTable keyField="username" data={this.props.users} columns={columns} />
+
+          {
+            this.props.paginationToken ?
+              <Button  color="primary" size="lg" block onClick={() => this.props.loadMore(this.props.paginationToken)}>
+                Load More &nbsp; <FaSync />
+              </Button> :
+              <></>
+          }
+        </>
+      );
     }
   }
 }
+
+const mapStateToProps = (state: { manageUsers: Props }) => ({
+  errorMessage: state.manageUsers.errorMessage,
+  users: state.manageUsers.users,
+  paginationToken: state.manageUsers.paginationToken
+});
+
+export default connect(mapStateToProps, { loadMore })(ManageUsers);

@@ -14,7 +14,7 @@ export * from './pages/user/ResetPassword';
 // END USER
 
 // START ADMIN
-export * from './pages/admin/people/ManageUsers';
+export { default as ManageUsers } from './pages/admin/people/ManageUsers';
 // END ADMIN
 
 // START ITEMS
