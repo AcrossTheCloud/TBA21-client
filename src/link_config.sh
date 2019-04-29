@@ -11,5 +11,6 @@ if [ "$ENV" = "dev" ]
 then
   ln -s dev-config.js config.js
 else
+  echo "prod config"
   ln -s prod-config.js config.js
 fi
