@@ -9,7 +9,7 @@ import { User } from '../../../components/pages/admin/people/ManageUsers';
 export const LOAD_MORE = 'LOAD_MORE';
 export const ERROR = 'ERROR';
 
-interface UserList {
+export interface UserList {
   users: User[];
   paginationToken: string|undefined;
 }
@@ -18,8 +18,11 @@ interface UserList {
  * Load list of users from AWS Cognito
  * @param limit {number | null} Number of results to load
  * @param paginationToken {string | null} String returned from AWS API Call
+ * @param userQuery filters search results
+ * @param userQueryToggle toggles the search result filter
  */
-const listUsers = async (limit: number, paginationToken?: string): Promise<UserList | null> => {
+export const listUsers = async (limit: number = 10, paginationToken?: string, userQuery?: string, userQueryToggle?: string): Promise<UserList | null> => {
+
   const
     credentials = await getCurrentCredentials(),
     cognitoIdentityServiceProvider = new CognitoIdentityServiceProvider({
@@ -33,7 +36,10 @@ const listUsers = async (limit: number, paginationToken?: string): Promise<UserL
     params: CognitoIdentityServiceProvider.ListUsersRequest = {
       UserPoolId: config.cognito.USER_POOL_ID,
       Limit: limit
-    };
+};
+  if (userQuery) {
+        Object.assign (params, {Filter:  `${userQueryToggle} ^=  \'${userQuery}\'`} );
+    }
 
   let responsePaginationToken: string|null|undefined;
 
@@ -54,6 +60,7 @@ const listUsers = async (limit: number, paginationToken?: string): Promise<UserL
         }
 
     // Convert attributes to a key: value pair instead of an Array of Objects
+        // Convert attributes to a key: value pair instead of an Array of Objects
         const users: User[] = data.Users.map( (user: any) => { // tslint:disable-line: no-any
       let userAttributes: any = {}; // tslint:disable-line: no-any
 
