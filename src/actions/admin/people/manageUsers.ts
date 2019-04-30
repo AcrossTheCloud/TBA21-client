@@ -11,7 +11,7 @@ export const ERROR = 'ERROR';
 
 interface UserList {
   users: User[];
-  paginationToken: string|null;
+  paginationToken: string|undefined;
 }
 
 /**
@@ -35,7 +35,7 @@ const listUsers = async (limit: number, paginationToken?: string): Promise<UserL
       Limit: limit
     };
 
-  let responsePaginationToken: string|null;
+  let responsePaginationToken: string|undefined;
 
   // If we've passed a paginationToken add it to the Params.
   if (paginationToken) {
@@ -53,7 +53,7 @@ const listUsers = async (limit: number, paginationToken?: string): Promise<UserL
         if (has(data, 'PaginationToken')) {
           responsePaginationToken = data.PaginationToken;
         } else {
-          responsePaginationToken = null;
+          responsePaginationToken = undefined;
         }
 
         // Convert atrributes to a key: value pair instead of an Array of Objects

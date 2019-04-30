@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { has } from 'lodash';
 import BootstrapTable from 'react-bootstrap-table-next';
-import { Container, Alert, Button, FormGroup, Input, Label } from 'reactstrap';
+import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
+import { Container, Alert, Button, FormGroup, Input, Label, UncontrolledDropdown, DropdownMenu, DropdownItem, DropdownToggle } from 'reactstrap';
 import { connect } from 'react-redux';
 import { FaSync } from 'react-icons/fa';
 
@@ -63,7 +64,7 @@ class ManageUsers extends React.Component<Props, {}> { // put in header
       <Container className="ManageUsers">
         <ErrorMessage message={this.props.errorMessage}/>
 
-        <BootstrapTable keyField="username" data={this.props.users} columns={columns} />
+        <BootstrapTable bootstrap4 keyField="username" data={this.props.users} columns={columns} />
 
         {
           this.props.paginationToken ?
