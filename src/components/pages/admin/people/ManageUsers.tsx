@@ -34,13 +34,13 @@ const ErrorMessage = (props: {message: string | undefined}) => {
 };
 
 class ManageUsers extends React.Component<Props, {}> {
-  EditUsersRef;
+  editUsersRef;
   columns;
 
   constructor(props: Props) {
     super(props);
 
-    this.EditUsersRef = React.createRef();
+    this.editUsersRef = React.createRef();
 
     this.columns =
       [
@@ -57,7 +57,7 @@ class ManageUsers extends React.Component<Props, {}> {
           text: 'Edit User',
           events: {
             onClick: (e, column, columnIndex, row) => {
-              this.EditUsersRef.current.loadUserDetails(row.username);
+              this.editUsersRef.current.loadUserDetails(row.username);
             },
           }
         }
@@ -83,7 +83,7 @@ class ManageUsers extends React.Component<Props, {}> {
       <Container className="ManageUsers">
         <ErrorMessage message={this.props.errorMessage} />
 
-        <EditUser ref={this.EditUsersRef} />
+        <EditUser ref={this.editUsersRef} />
 
         <BootstrapTable keyField="username" data={this.props.users} columns={this.columns} />
 
