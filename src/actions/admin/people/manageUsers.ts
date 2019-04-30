@@ -9,17 +9,19 @@ import { User } from '../../../components/pages/admin/people/ManageUsers';
 export const LOAD_MORE = 'LOAD_MORE';
 export const ERROR = 'ERROR';
 
-interface UserList {
+export interface UserList {
   users: User[];
-  paginationToken: string|null|undefined;
+  paginationToken: string|undefined;
 }
 
 /**
  * Load list of users from AWS Cognito
  * @param limit {number | null} Number of results to load
  * @param paginationToken {string | null} String returned from AWS API Call
+ * @param userQuery filters search results
+ * @param userQueryOption toggles the search result filter
  */
-const listUsers = async (limit: number, paginationToken?: string): Promise<UserList | null> => {
+export const listUsers = async (limit: number = 15, paginationToken?: string, userQuery?: string, userQueryOption?: string): Promise<UserList | null> => {
   const
     credentials = await getCurrentCredentials(),
     cognitoIdentityServiceProvider = new CognitoIdentityServiceProvider({
@@ -35,7 +37,11 @@ const listUsers = async (limit: number, paginationToken?: string): Promise<UserL
       Limit: limit
     };
 
-  let responsePaginationToken: string|null|undefined;
+  if (userQuery) {
+    Object.assign (params, {Filter:  `${userQueryOption} ^=  \'${userQuery}\'`} );
+  }
+
+  let responsePaginationToken: string | undefined;
 
   // If we've passed a paginationToken add it to the Params.
   if (paginationToken) {
@@ -45,12 +51,11 @@ const listUsers = async (limit: number, paginationToken?: string): Promise<UserL
   const data = await cognitoIdentityServiceProvider.listUsers(params).promise();
 
   if (data && data.Users) {
-
     // If we have a token return it, otherwise we assume we're at the end of the list os our users.
     if (has(data, 'PaginationToken')) {
       responsePaginationToken = data.PaginationToken;
     } else {
-      responsePaginationToken = null;
+      responsePaginationToken = undefined;
     }
 
     // Convert attributes to a key: value pair instead of an Array of Objects
@@ -82,7 +87,7 @@ const listUsers = async (limit: number, paginationToken?: string): Promise<UserL
  * @param limit {number | null} Number of results to load
  * @param paginationToken {string | null} String returned from AWS API Call
  */
-export const loadMore = (limit: number, paginationToken?: string|null) => async dispatch => {
+export const loadMore = (limit: number, paginationToken?: string | null) => async dispatch => {
   // If we don't have any more results to load, do nothing.
   if (paginationToken === null) { return; }
 
@@ -94,7 +99,6 @@ export const loadMore = (limit: number, paginationToken?: string|null) => async 
      });
   };
   try {
-
     const response: UserList | null = await listUsers(limit, paginationToken);
 
     if (response && has(response, 'users')) {
