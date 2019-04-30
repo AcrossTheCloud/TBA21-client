@@ -7,6 +7,7 @@ import { FaSync } from 'react-icons/fa';
 
 import { checkAuth } from '../../../utils/Auth';
 import { loadMore } from '../../../../actions/admin/people/manageUsers';
+import EditUser from './editUser';
 
 export interface Props {
   history?: any; // tslint:disable-line: no-any
@@ -20,20 +21,9 @@ export interface Props {
 }
 
 export interface User {
-  id: number;
   email: string;
   username: string;
 }
-
-const columns = [
-{
-  dataField: 'username',
-  hidden: true
-},
-{
-  dataField: 'email',
-  text: 'User Email'
-}];
 
 const ErrorMessage = (props: {message: string | undefined}) => {
   if (props.message === undefined) {
@@ -43,7 +33,37 @@ const ErrorMessage = (props: {message: string | undefined}) => {
   }
 };
 
-class ManageUsers extends React.Component<Props, {}> { // put in header
+class ManageUsers extends React.Component<Props, {}> {
+  EditUsersRef;
+  columns;
+
+  constructor(props: Props) {
+    super(props);
+
+    this.EditUsersRef = React.createRef();
+
+    this.columns =
+      [
+        {
+          dataField: 'username',
+          hidden: true
+        },
+        {
+          dataField: 'email',
+          text: 'User Email'
+        },
+        {
+          dataField: 'edit',
+          text: 'Edit User',
+          events: {
+            onClick: (e, column, columnIndex, row) => {
+              this.EditUsersRef.current.loadUserDetails(row.username);
+            },
+          }
+        }
+      ]
+    ;
+  }
 
   async componentDidMount() {
     const { authorisation, isAuthenticated } = await checkAuth();
@@ -61,9 +81,11 @@ class ManageUsers extends React.Component<Props, {}> { // put in header
   render() {
     return (
       <Container className="ManageUsers">
-        <ErrorMessage message={this.props.errorMessage}/>
+        <ErrorMessage message={this.props.errorMessage} />
 
-        <BootstrapTable keyField="username" data={this.props.users} columns={columns} />
+        <EditUser ref={this.EditUsersRef} />
+
+        <BootstrapTable keyField="username" data={this.props.users} columns={this.columns} />
 
         {
           this.props.paginationToken ?
