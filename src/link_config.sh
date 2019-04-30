@@ -15,7 +15,7 @@ rm config.js
 
 
 # symlink correct version
-if [ "$ENV" = "dev" ] || [ ! -z "$envFileValue" ] && [ $envFileValue = "dev" ]
+if [ "$ENV" = "dev" ] || ([ ! -z "$envFileValue" ] && [ $envFileValue = "dev" ])
 then
   ln -s dev-config.js config.js
 else
