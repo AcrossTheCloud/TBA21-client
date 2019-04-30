@@ -35,19 +35,16 @@ const listUsers = async (limit: number, paginationToken?: string): Promise<UserL
       Limit: limit
     };
 
-  let responsePaginationToken: string|undefined;
+  let responsePaginationToken: string|null|undefined;
 
   // If we've passed a paginationToken add it to the Params.
   if (paginationToken) {
     Object.assign(params, {PaginationToken: paginationToken});
   }
 
-  // Return a promise so we can Async/Await
-  return new Promise( (resolve, reject) => {
-    cognitoIdentityServiceProvider.listUsers(params, (error: any, data: any) => { // tslint:disable-line: no-any
-      if (error) { reject(error); }
+  const data = await cognitoIdentityServiceProvider.listUsers(params).promise();
 
-      if (data && data.Users) {
+  if (data && data.Users) {
 
         // If we have a token return it, otherwise we assume we're at the end of the list os our users.
         if (has(data, 'PaginationToken')) {
@@ -56,30 +53,28 @@ const listUsers = async (limit: number, paginationToken?: string): Promise<UserL
           responsePaginationToken = undefined;
         }
 
-        // Convert atrributes to a key: value pair instead of an Array of Objects
+    // Convert attributes to a key: value pair instead of an Array of Objects
         const users: User[] = data.Users.map( (user: any) => { // tslint:disable-line: no-any
-          let userAttributes: any = {}; // tslint:disable-line: no-any
+      let userAttributes: any = {}; // tslint:disable-line: no-any
 
-          user.Attributes.forEach( (attribute: {Name: string, Value: string}) => {
-            userAttributes[attribute.Name] = attribute.Value;
-          });
+      user.Attributes.forEach( (attribute: {Name: string, Value: string}) => {
+        userAttributes[attribute.Name] = attribute.Value;
+      });
 
-          return {
-            id: user.Username,
-            email: userAttributes.email,
-            username: user.Username
-          };
-        });
-
-        resolve({
-          users: users,
-          paginationToken: responsePaginationToken
-        });
-      } else {
-        reject(null);
-      }
+      return {
+        username: user.Username,
+        email: userAttributes.email,
+        edit: 'Edit User'
+      };
     });
-  });
+
+        return {
+      users: users,
+      paginationToken: responsePaginationToken
+    };
+  } else {
+    return null;
+  }
 };
 
 /**

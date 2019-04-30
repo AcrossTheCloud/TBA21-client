@@ -4,7 +4,6 @@
   "private": true,
   "dependencies": {
     "ajv": "^6.6.1",
-    "aws": "0.0.3-2",
     "aws-amplify": "^1.1.13",
     "aws-amplify-react": "^2.1.7",
     "aws-sdk": "^2.437.0",
@@ -39,7 +38,6 @@
     "reactstrap": "^6.5.0",
     "redux": "^4.0.1",
     "redux-thunk": "^2.3.0",
-    "sdk": "^0.5.0",
     "slick-carousel": "^1.8.1",
     "uuid": "^3.3.2"
   },
