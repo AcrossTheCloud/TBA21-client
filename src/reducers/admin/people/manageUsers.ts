@@ -9,7 +9,7 @@ export interface State {
 }
 const initialState: State = {
   users: [],
-  limit: 1
+  limit: 15
 };
 
 export default (state: State | undefined = initialState, action) => {

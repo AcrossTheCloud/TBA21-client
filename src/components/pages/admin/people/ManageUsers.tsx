@@ -237,11 +237,11 @@ class ManageUsers extends React.Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: { manageUsers: Props }, defaultProps: { limit: 15 }) => ({
+const mapStateToProps = (state: { manageUsers: Props }) => ({
   errorMessage: state.manageUsers.errorMessage,
   users: state.manageUsers.users,
   paginationToken: state.manageUsers.paginationToken,
-  limit: state.manageUsers.limit ? state.manageUsers.limit : defaultProps.limit
+  limit: state.manageUsers.limit
 });
 
 export default connect(mapStateToProps, { loadMore })(ManageUsers);
