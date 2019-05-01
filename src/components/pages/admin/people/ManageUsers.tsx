@@ -17,7 +17,7 @@ import {
   DropdownToggle
 } from 'reactstrap';
 import { connect } from 'react-redux';
-import { FaSync } from 'react-icons/fa';
+import { FaSync, FaPenAlt } from 'react-icons/fa';
 
 import { checkAuth } from '../../../utils/Auth';
 import EditUser from './editUser';
@@ -84,12 +84,13 @@ class ManageUsers extends React.Component<Props, State> {
         text: 'User Email'
       },
       {
-        dataField: 'edit',
-        text: 'Edit User',
-        events: {
-          onClick: (e, column, columnIndex, row) => {
-            this.editUsersRef.current.loadUserDetails(row.username);
-          },
+        dataField: 'options',
+        text: 'Options',
+        isDummyField: true,
+        formatter: (cell, row, rowIndex) => {
+          return (
+            <FaPenAlt onClick={() => this.editUsersRef.current.loadUserDetails(row.username)}/>
+          );
         }
       }
     ];

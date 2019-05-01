@@ -68,8 +68,7 @@ export const listUsers = async (limit: number = 15, paginationToken?: string, us
 
       return {
         username: user.Username,
-        email: userAttributes.email,
-        edit: 'Edit User'
+        email: userAttributes.email
       };
     });
 
