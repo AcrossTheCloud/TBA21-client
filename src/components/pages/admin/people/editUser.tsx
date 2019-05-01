@@ -25,6 +25,7 @@ interface State {
   deleteUserModalIsOpen: boolean;
   groupsLoading: boolean;
 
+  successMessage?: string| undefined;
   errorMessage?: string | undefined;
   groupsError?: string | undefined;
 
@@ -317,6 +318,28 @@ export default class EditUser extends React.Component<{}, State> {
       });
     }
   }
+  /**
+   * Resets a user password
+   */
+  adminResetPassword = async (): Promise<void> => {
+    if (this.state.userId && this.userPoolId) {
+      try {
+        await this.cognitoIdentityServiceProvider.adminResetUserPassword(
+          {
+            Username: this.state.userId,
+            UserPoolId: this.userPoolId
+          }
+        ).promise();
+        this.setState({
+          successMessage: 'Password has been reset.'
+        });
+      } catch (e) {
+        this.setState({
+          errorMessage: 'Something went wrong, please try again later.'
+        });
+      }
+    }
+  }
 
   /**
    *
@@ -552,6 +575,7 @@ export default class EditUser extends React.Component<{}, State> {
         return (
           <>
             <Button color="danger" className="mr-auto" onClick={this.deleteUserModalToggle}>DELETE USER</Button>{' '}
+            <Button color="primary" onClick={this.adminResetPassword}>Reset Password</Button>
             <Button color="primary" onClick={this.submitChanges}>Change User</Button>{' '}
           </>
         );
@@ -563,9 +587,12 @@ export default class EditUser extends React.Component<{}, State> {
     return (
       <Modal isOpen={this.state.isOpen} toggle={this.toggle} size="lg" className="EditUser" backdrop={true}>
         <ModalHeader toggle={this.toggle}>Editing {this.state.userId}</ModalHeader>
+        <ModalHeader>Reset Password</ModalHeader>
+
         <ModalBody>
 
           {this.state.errorMessage ? <Alert color="danger">{this.state.errorMessage}</Alert> : <></>}
+          {this.state.successMessage ? <Alert color="success">{this.state.successMessage}</Alert> : <></>}
           {
             this.state.userId ?
               <Form onSubmit={e => { e.preventDefault(); }} autoComplete="off">
@@ -603,7 +630,6 @@ export default class EditUser extends React.Component<{}, State> {
               </Form>
             : <></>
           }
-
         </ModalBody>
         <ModalFooter>
           <Buttons />
