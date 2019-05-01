@@ -11,7 +11,7 @@ export const ERROR = 'ERROR';
 
 export interface UserList {
   users: User[];
-  paginationToken: string|undefined;
+  paginationToken: string | undefined;
 }
 
 /**
