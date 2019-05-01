@@ -200,7 +200,7 @@ class ManageUsers extends React.Component<Props, State> {
           <Label for="search">Search Users</Label>
           <InputGroup>
             <UncontrolledDropdown addonType="prepend" type="select" name="searchBy" id="searchBy">
-              <DropdownToggle caret>Search by {this.state.searchByLabel}</DropdownToggle>
+              <DropdownToggle caret>{this.state.searchByLabel}</DropdownToggle>
               <DropdownMenu>
                 <DropdownItem onClick={this.searchByOption} value="email">Email</DropdownItem>
                 <DropdownItem onClick={this.searchByOption} value="username">Username</DropdownItem>
