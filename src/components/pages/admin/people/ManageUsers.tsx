@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { has, get } from 'lodash';
+
+import { get } from 'lodash';
 import BootstrapTable from 'react-bootstrap-table-next';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import {
@@ -19,14 +20,11 @@ import {
 import { connect } from 'react-redux';
 import { FaSync, FaPenAlt } from 'react-icons/fa';
 
-import { checkAuth } from '../../../utils/Auth';
 import EditUser from './editUser';
 import { loadMore, UserList } from '../../../../actions/admin/people/manageUsers';
 import { listUsers } from '../../../../actions/admin/people/manageUsers';
 
 export interface Props {
-  history?: any; // tslint:disable-line: no-any
-
   errorMessage?: string | undefined;
   users: User[];
   paginationToken?: string;
@@ -97,13 +95,7 @@ class ManageUsers extends React.Component<Props, State> {
   }
 
   async componentDidMount() {
-    const { authorisation, isAuthenticated } = await checkAuth();
-
-    if (!isAuthenticated || authorisation && !has(authorisation, 'admin')) {
-      this.props.history.push('/');
-    }
-
-    // List Users
+    // Load initial set of Users if we don't have any already.
     if (!this.props.users.length) {
       this.props.loadMore(this.props.limit);
     }
