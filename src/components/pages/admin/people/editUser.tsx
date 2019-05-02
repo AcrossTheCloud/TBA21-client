@@ -1,6 +1,8 @@
 import * as React from 'react';
 import {
+  Row,
   Container,
+  Col,
   Modal,
   ModalHeader,
   ModalBody,
@@ -370,11 +372,11 @@ export default class EditUser extends React.Component<{}, State> {
         enabled = true;
       }
       return (
-        <FormGroup key={i}>
+        <Col xs="6" md="3" key={i}>
           <Label for={'group_' + i} check>
             <Input type="checkbox" onChange={e => this.groupInputOnChange(e, i)} className={'group_' + i} value={enabled ? 'on' : 'off'} defaultChecked={enabled} />{' '}{group.name}
           </Label>
-        </FormGroup>
+        </Col>
       );
     });
 
@@ -611,10 +613,10 @@ export default class EditUser extends React.Component<{}, State> {
                   <FormFeedback>You haven't entered a valid email address</FormFeedback>
                 </FormGroup>
 
-                <Container>
-                  <FormGroup name="groups">
+                <Container className="groups">
+                  <Row>
                     <this.GroupsDisplay />
-                  </FormGroup>
+                  </Row>
                 </Container>
 
                 {/* Delete user modal */}

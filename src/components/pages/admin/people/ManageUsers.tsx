@@ -24,6 +24,8 @@ import EditUser from './editUser';
 import { loadMore, UserList } from '../../../../actions/admin/people/manageUsers';
 import { listUsers } from '../../../../actions/admin/people/manageUsers';
 
+import 'src/styles/pages/admin/people/manageUsers.scss';
+
 export interface Props {
   errorMessage?: string | undefined;
   users: User[];
@@ -87,7 +89,9 @@ class ManageUsers extends React.Component<Props, State> {
         isDummyField: true,
         formatter: (cell, row, rowIndex) => {
           return (
-            <FaPenAlt onClick={() => this.editUsersRef.current.loadUserDetails(row.username)}/>
+            <span className="optionIcon">
+              <FaPenAlt onClick={() => this.editUsersRef.current.loadUserDetails(row.username)}/>
+            </span>
           );
         }
       }
@@ -167,7 +171,7 @@ class ManageUsers extends React.Component<Props, State> {
 
   render() {
     return (
-      <Container className="ManageUsers">
+      <Container id="manageUsers">
         <ErrorMessage message={this.props.errorMessage} />
 
         <EditUser ref={this.editUsersRef} />
@@ -224,7 +228,6 @@ class ManageUsers extends React.Component<Props, State> {
               : <></>
           }
         </FormGroup>
-
       </Container>
     );
   }
