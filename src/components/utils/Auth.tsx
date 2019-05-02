@@ -3,6 +3,14 @@ import { CognitoUser } from 'amazon-cognito-identity-js';
 import { ICredentials } from 'aws-amplify/lib/Common/types/types';
 import { get } from 'lodash';
 
+export interface AuthorisationList {
+  [key: string]: boolean;
+}
+export interface Authorisation {
+  isAuthenticated: boolean;
+  authorisation?: AuthorisationList;
+}
+
 /**
  * Log the user out using AWS Amplify
  */
@@ -20,19 +28,19 @@ export const logout = async () => {
  * Checks the authentication status of the user and the user group they belong to
  * @return Object, {authorisation {Array<string>}, isAuthenticated {boolean}}
  */
-export const checkAuth = async () => {
+export const checkAuth = async (): Promise<Authorisation> => {
   try {
     const
-      userGroup = get(await Auth.currentAuthenticatedUser(), 'signInUserSession.idToken.payload.cognito:groups'),
-      authList = {};
+      userGroups = get(await Auth.currentAuthenticatedUser(), 'signInUserSession.idToken.payload.cognito:groups'),
+      authorisation = {};
 
-    if (userGroup && userGroup.length) {
-      userGroup.forEach( (group: string)  => {
-        authList[group] = true;
+    if (userGroups && userGroups.length) {
+      userGroups.forEach( (group: string)  => {
+        authorisation[group] = true;
       });
     }
 
-    return Object.keys(authList).length ? { authorisation: authList, isAuthenticated: true } : { isAuthenticated: true };
+    return Object.keys(authorisation).length ? { authorisation: authorisation, isAuthenticated: true } : { isAuthenticated: true };
   } catch (e) {
     if (e !== 'not authenticated') {
       console.log('checkAuth -- ERROR -- ', e);
@@ -42,10 +50,9 @@ export const checkAuth = async () => {
   }
 };
 
-export const getCurrentCredentials = async () => {
+export const getCurrentCredentials = async (): Promise<ICredentials | boolean> => {
   try {
-    const credentials: ICredentials = await Auth.currentCredentials();
-    return credentials;
+    return await Auth.currentCredentials();
   } catch (e) {
     return false;
   }
@@ -61,8 +68,7 @@ export const getCurrentCredentials = async () => {
  */
 export const getCurrentAuthenticatedUser = async (bypassCache: boolean = false): Promise<CognitoUser | boolean> => {
   try {
-    const credentials: any = await Auth.currentAuthenticatedUser({ bypassCache }); // tslint:disable-line: no-any
-    return credentials;
+    return await Auth.currentAuthenticatedUser({ bypassCache });
   } catch (e) {
     return false;
   }
