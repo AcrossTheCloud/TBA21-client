@@ -37,8 +37,9 @@ class AdminResetPassword extends React.Component<{}, State> {
       isOpen: this.state.isOpen
     });
   }
-
-  // Resetting the password and error checking
+  /**
+   * Resetting the password and error checking
+   */
   resetPassword = async (): Promise <void> => {
     if (this.state.userId) {
       try {
@@ -63,8 +64,9 @@ class AdminResetPassword extends React.Component<{}, State> {
       });
     }
   }
-
-   // Toggles the open state for the resetPassword Modal
+  /**
+   *  Toggles the open state for the resetPassword Modal
+   */
   resetPasswordModalToggle = () => {
     this.setState(prevState => ({
       isOpen: !prevState.isOpen,
@@ -72,7 +74,9 @@ class AdminResetPassword extends React.Component<{}, State> {
       errorMessage: undefined
     }));
   }
-  // Get the user details
+  /**
+   *   Get the user details
+   */
   loadDetails(userId: string) {
     if (userId) {
       this.setState({ userId: userId, isOpen: true });
@@ -80,16 +84,14 @@ class AdminResetPassword extends React.Component<{}, State> {
       this.setState({ errorMessage: 'No user id', isOpen: true });
     }
   }
-  // Hide the button if there's a message
-  displayButton = () => {
+ /**
+  * Hide the button if there's a message
+  */
+  confirmButton = () => {
     if (this.state.errorMessage || this.state.successMessage) {
-      return (
-        <></>
-      );
+      return <></>;
     } else {
-        return (
-          <Button color="danger" onClick={this.resetPassword}>Yes, I'm sure</Button>
-        );
+        return <Button color="danger" onClick={this.resetPassword}>Yes, I'm sure</Button>;
       }
     }
 
@@ -103,7 +105,7 @@ class AdminResetPassword extends React.Component<{}, State> {
           Reset Password for {this.state.userId}?
         </ModalBody>
         <ModalFooter>
-          {this.displayButton()}
+          {this.confirmButton()}
           <Button color="secondary" onClick={this.resetPasswordModalToggle}>Cancel</Button>
         </ModalFooter>
       </Modal>
