@@ -102,11 +102,7 @@ class ManageUsers extends React.Component<Props, State> {
       }
     ];
   }
-  resetPassword = () => {
-    this.setState({
-      resetPasswordModalIsOpen: true
-                  });
-  }
+
   async componentDidMount() {
     // Load initial set of Users if we don't have any already.
     if (!this.props.users.length) {

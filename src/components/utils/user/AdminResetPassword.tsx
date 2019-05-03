@@ -9,8 +9,8 @@ import config from '../../../config';
 interface State {
   userId?: string;
   isOpen?: boolean;
-  successMessage?: string;
-  errorMessage?: string;
+  successMessage?: string | undefined;
+  errorMessage?: string | undefined;
 }
 class AdminResetPassword extends React.Component<{}, State> {
   cognitoIdentityServiceProvider;
@@ -67,7 +67,9 @@ class AdminResetPassword extends React.Component<{}, State> {
    */
   resetPasswordModalToggle = () => {
     this.setState(prevState => ({
-      isOpen: !prevState.isOpen
+      isOpen: !prevState.isOpen,
+      successMessage: undefined,
+      errorMessage: undefined
     }));
   }
 
@@ -75,9 +77,20 @@ class AdminResetPassword extends React.Component<{}, State> {
     if (userId) {
       this.setState({ userId: userId, isOpen: true });
     } else {
-      this.setState({ errorMessage: 'No user id' });
+      this.setState({ errorMessage: 'No user id', isOpen: true });
     }
   }
+  messageCheck = () => {
+    if (this.state.errorMessage || this.state.successMessage) {
+      return (
+        <></>
+      );
+    } else {
+        return (
+          <Button color="danger" onClick={this.resetPassword}>Yes, I'm sure</Button>
+        );
+      }
+    }
 
   render() {
     return (
@@ -89,7 +102,7 @@ class AdminResetPassword extends React.Component<{}, State> {
           Reset Password for {this.state.userId}?
         </ModalBody>
         <ModalFooter>
-          <Button color="danger" onClick={this.resetPassword}>Yes, I'm sure</Button>
+          {this.messageCheck()}
           <Button color="secondary" onClick={this.resetPasswordModalToggle}>Cancel</Button>
         </ModalFooter>
       </Modal>

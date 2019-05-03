@@ -553,11 +553,6 @@ export default class EditUser extends React.Component<{}, State> {
       ...closedState
     }));
   }
-  resetPasswordModalToggle = () => {
-    this.setState({
-        resetPasswordModalIsOpen: true
-    });
-  }
 
   render() {
     // Change and Delete buttons
