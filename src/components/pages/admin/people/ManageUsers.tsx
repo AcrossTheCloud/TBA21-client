@@ -1,5 +1,4 @@
 import * as React from 'react';
-
 import { get } from 'lodash';
 import BootstrapTable from 'react-bootstrap-table-next';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
@@ -15,14 +14,15 @@ import {
   UncontrolledDropdown,
   DropdownMenu,
   DropdownItem,
-  DropdownToggle
+  DropdownToggle,
 } from 'reactstrap';
 import { connect } from 'react-redux';
-import { FaSync, FaPenAlt } from 'react-icons/fa';
+import { FaSync, FaPenAlt, FaKey } from 'react-icons/fa';
 
 import EditUser from './editUser';
 import { loadMore, UserList } from '../../../../actions/admin/people/manageUsers';
 import { listUsers } from '../../../../actions/admin/people/manageUsers';
+import AdminResetPassword from '../../../utils/user/AdminResetPassword';
 
 import 'src/styles/pages/admin/people/manageUsers.scss';
 
@@ -41,6 +41,7 @@ interface State {
   searchBy: string;
   searchByLabel: string;
   searchPaginationToken: string | undefined;
+  resetPasswordModalIsOpen: boolean;
 }
 
 export interface User {
@@ -58,8 +59,9 @@ const ErrorMessage = (props: {message: string | undefined}) => {
 
 class ManageUsers extends React.Component<Props, State> {
   editUsersRef;
-  columns;
+  resetUserPasswordRef;
   searchInputRef;
+  columns;
 
   constructor(props: Props) {
     super(props);
@@ -68,11 +70,13 @@ class ManageUsers extends React.Component<Props, State> {
       searchErrorMessage: undefined,
       searchBy: 'email',
       searchByLabel: 'Email',
-      searchPaginationToken: undefined
+      searchPaginationToken: undefined,
+      resetPasswordModalIsOpen: false
     };
 
     this.searchInputRef = React.createRef();
     this.editUsersRef = React.createRef();
+    this.resetUserPasswordRef = React.createRef();
 
     this.columns = [
       {
@@ -91,13 +95,18 @@ class ManageUsers extends React.Component<Props, State> {
           return (
             <span className="optionIcon">
               <FaPenAlt onClick={() => this.editUsersRef.current.loadUserDetails(row.username)}/>
+              <FaKey onClick={() => this.resetUserPasswordRef.current.loadDetails(row.username)} />
             </span>
           );
         }
       }
     ];
   }
-
+  resetPassword = () => {
+    this.setState({
+      resetPasswordModalIsOpen: true
+                  });
+  }
   async componentDidMount() {
     // Load initial set of Users if we don't have any already.
     if (!this.props.users.length) {
@@ -228,6 +237,7 @@ class ManageUsers extends React.Component<Props, State> {
               : <></>
           }
         </FormGroup>
+        <AdminResetPassword ref={this.resetUserPasswordRef} />
       </Container>
     );
   }

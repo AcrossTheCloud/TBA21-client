@@ -21,10 +21,12 @@ import * as CognitoIdentityServiceProvider from 'aws-sdk/clients/cognitoidentity
 import config from '../../../../config';
 import * as emailHelper from '../../../utils/inputs/email';
 import { getCurrentCredentials } from '../../../utils/Auth';
+import AdminResetPassword from  '../../../utils/user/AdminResetPassword';
 
 interface State {
   isOpen: boolean;
   deleteUserModalIsOpen: boolean;
+  resetPasswordModalIsOpen: boolean;
   groupsLoading: boolean;
 
   successMessage?: string| undefined;
@@ -78,6 +80,7 @@ const initialState = {
 
 export default class EditUser extends React.Component<{}, State> {
   emailField;
+  resetUserPasswordRef;
   cognitoIdentityServiceProvider;
   userPoolId: string;
 
@@ -85,10 +88,12 @@ export default class EditUser extends React.Component<{}, State> {
     super(props);
 
     this.emailField = React.createRef();
+    this.resetUserPasswordRef = React.createRef();
 
     this.state = {
       isOpen: false,
       deleteUserModalIsOpen: false,
+      resetPasswordModalIsOpen: false,
       groupsLoading: false,
       cognitioGroups: [],
       userGroups: [],
@@ -297,6 +302,7 @@ export default class EditUser extends React.Component<{}, State> {
       deleteUserModalIsOpen: !prevState.deleteUserModalIsOpen
     }));
   }
+
   /**
    * Deletes the user and closes all modals.
    */
@@ -318,28 +324,6 @@ export default class EditUser extends React.Component<{}, State> {
         errorMessage: 'Had some trouble deleting this user. Please try again later.',
         deleteUserModalIsOpen: false
       });
-    }
-  }
-  /**
-   * Resets a user password
-   */
-  adminResetPassword = async (): Promise<void> => {
-    if (this.state.userId && this.userPoolId) {
-      try {
-        await this.cognitoIdentityServiceProvider.adminResetUserPassword(
-          {
-            Username: this.state.userId,
-            UserPoolId: this.userPoolId
-          }
-        ).promise();
-        this.setState({
-          successMessage: 'Password has been reset.'
-        });
-      } catch (e) {
-        this.setState({
-          errorMessage: 'Something went wrong, please try again later.'
-        });
-      }
     }
   }
 
@@ -569,6 +553,11 @@ export default class EditUser extends React.Component<{}, State> {
       ...closedState
     }));
   }
+  resetPasswordModalToggle = () => {
+    this.setState({
+        resetPasswordModalIsOpen: true
+    });
+  }
 
   render() {
     // Change and Delete buttons
@@ -577,7 +566,7 @@ export default class EditUser extends React.Component<{}, State> {
         return (
           <>
             <Button color="danger" className="mr-auto" onClick={this.deleteUserModalToggle}>DELETE USER</Button>{' '}
-            <Button color="primary" onClick={this.adminResetPassword}>Reset Password</Button>
+            <Button color="primary" onClick={() => this.resetUserPasswordRef.current.loadDetails(this.state.userId)}>Reset Password</Button>
             <Button color="primary" onClick={this.submitChanges}>Change User</Button>{' '}
           </>
         );
@@ -589,10 +578,8 @@ export default class EditUser extends React.Component<{}, State> {
     return (
       <Modal isOpen={this.state.isOpen} toggle={this.toggle} size="lg" className="EditUser" backdrop={true}>
         <ModalHeader toggle={this.toggle}>Editing {this.state.userId}</ModalHeader>
-        <ModalHeader>Reset Password</ModalHeader>
 
         <ModalBody>
-
           {this.state.errorMessage ? <Alert color="danger">{this.state.errorMessage}</Alert> : <></>}
           {this.state.successMessage ? <Alert color="success">{this.state.successMessage}</Alert> : <></>}
           {
@@ -628,7 +615,8 @@ export default class EditUser extends React.Component<{}, State> {
                     <Button color="secondary" onClick={this.deleteUserModalToggle}>Cancel</Button>
                   </ModalFooter>
                 </Modal>
-
+                {/* Reset password */}
+                <AdminResetPassword ref={this.resetUserPasswordRef} />
               </Form>
             : <></>
           }
