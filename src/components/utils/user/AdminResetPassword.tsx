@@ -38,6 +38,7 @@ class AdminResetPassword extends React.Component<{}, State> {
     });
   }
 
+  // Resetting the password and error checking
   resetPassword = async (): Promise <void> => {
     if (this.state.userId) {
       try {
@@ -62,9 +63,8 @@ class AdminResetPassword extends React.Component<{}, State> {
       });
     }
   }
-  /**
-   * Toggles the open state for the resetPassword Modal
-   */
+
+   // Toggles the open state for the resetPassword Modal
   resetPasswordModalToggle = () => {
     this.setState(prevState => ({
       isOpen: !prevState.isOpen,
@@ -72,7 +72,7 @@ class AdminResetPassword extends React.Component<{}, State> {
       errorMessage: undefined
     }));
   }
-
+  // Get the user details
   loadDetails(userId: string) {
     if (userId) {
       this.setState({ userId: userId, isOpen: true });
@@ -80,7 +80,8 @@ class AdminResetPassword extends React.Component<{}, State> {
       this.setState({ errorMessage: 'No user id', isOpen: true });
     }
   }
-  messageCheck = () => {
+  // Hide the button if there's a message
+  displayButton = () => {
     if (this.state.errorMessage || this.state.successMessage) {
       return (
         <></>
@@ -102,7 +103,7 @@ class AdminResetPassword extends React.Component<{}, State> {
           Reset Password for {this.state.userId}?
         </ModalBody>
         <ModalFooter>
-          {this.messageCheck()}
+          {this.displayButton()}
           <Button color="secondary" onClick={this.resetPasswordModalToggle}>Cancel</Button>
         </ModalFooter>
       </Modal>

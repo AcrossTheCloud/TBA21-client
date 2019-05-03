@@ -610,7 +610,7 @@ export default class EditUser extends React.Component<{}, State> {
                     <Button color="secondary" onClick={this.deleteUserModalToggle}>Cancel</Button>
                   </ModalFooter>
                 </Modal>
-                {/* Reset password */}
+                {/* Reset password */} 
                 <AdminResetPassword ref={this.resetUserPasswordRef} />
               </Form>
             : <></>
