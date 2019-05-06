@@ -48,11 +48,14 @@ export class ResetPassword extends React.Component<{history: any}, {}> { // tsli
 
     try {
       const reset = await Auth.forgotPassword(this.state.email);
-      this.setState({
-        reset
-      });
+      this.setState({ reset });
     } catch (e) {
+      console.log(e, e.code);
       alert(e.message);
+
+      if (e.code === 'InvalidParameterException') {
+        this.props.history.push('/confirm/' + this.state.email);
+      }
     }
 
     this.setState({ isLoading: false });

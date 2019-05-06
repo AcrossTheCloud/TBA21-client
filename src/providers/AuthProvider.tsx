@@ -37,19 +37,22 @@ export class AuthProvider extends React.Component<Props, State> {
   }
 
   login = async (email: string, password: string): Promise<void> => {
-    try {
-      if (email && password) {
+    if (email && password) {
+      try {
         await Auth.signIn(email, password);
 
         const auth: Authorisation = await checkAuth();
         this.setState({ ...auth });
 
         this.props.history.push('/');
-      } else {
-        return;
+      } catch (e) {
+        throw e;
       }
-    } catch (e) {
-      alert(e.message);
+    } else {
+      throw  {
+        code: 'UserLoginEmailPasswordException',
+        message: 'No email and/or password'
+      };
     }
   }
 
@@ -71,14 +74,12 @@ export class AuthProvider extends React.Component<Props, State> {
         {token, 'expires_at': expiresAt},
         user
       );
-
       const auth: Authorisation = await checkAuth();
       this.setState({ ...auth });
-
       this.props.history.push('/');
 
     } catch (e) {
-      console.log(e);
+      throw e.message;
     }
   }
 

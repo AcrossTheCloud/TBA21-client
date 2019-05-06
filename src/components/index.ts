@@ -11,6 +11,7 @@ export { default as Profile } from './pages/user/profile/Profile';
 export * from './pages/user/Login';
 export * from './pages/user/SignUp';
 export * from './pages/user/ResetPassword';
+export * from './pages/user/AccountConfirmation';
 // END USER
 
 // START ADMIN

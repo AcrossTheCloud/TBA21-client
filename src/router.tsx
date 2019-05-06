@@ -23,6 +23,7 @@ import {
   Login,
   SignUp,
   ResetPassword,
+  AccountConfirmation,
   // END USER
 
   PersonEntryForm,
@@ -67,6 +68,8 @@ export const AppRouter = () => {
             <Route exact path="/resetPassword" render={(props) => <ResetPassword {... {history: props.history}} />} />
             <Route exact path="/viewGraph" component={NetworkGraph} />
             <Route exact path="/Profile" render={(props) => <Profile {... {history: props.history}}/>} />
+
+            <Route exact path="/confirm/:email" component={AccountConfirmation} />
 
             <AdminRoute exact path="/ManageUsers" component={ManageUsers}/>
             <AdminRoute exact path="/itemEntry" component={ItemEntryForm} />
