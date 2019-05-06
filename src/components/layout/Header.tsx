@@ -11,7 +11,7 @@ import {
 } from 'reactstrap';
 
 import { checkAuth } from '../utils/Auth';
-import { AuthConsumer } from '../../Providers/AuthProvider';
+import { AuthConsumer } from '../../providers/AuthProvider';
 
 interface Props {
   history: any; // tslint:disable-line: no-any

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Button } from 'reactstrap';
 import { waitForInit } from './FacebookSDK';
-import { AuthConsumer } from '../../../Providers/AuthProvider';
+import { AuthConsumer } from '../../../providers/AuthProvider';
 
 interface State {
   isLoading: boolean;

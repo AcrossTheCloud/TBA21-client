@@ -4,7 +4,7 @@ import { Button, FormGroup, Input, Label } from 'reactstrap';
 import { loadFacebookSDK } from '../../utils/Facebook/FacebookSDK';
 import FacebookButton from '../../utils/Facebook/FacebookButton';
 
-import { AuthConsumer } from '../../../Providers/AuthProvider';
+import { AuthConsumer } from '../../../providers/AuthProvider';
 
 import 'styles/pages/user/login.scss';
 

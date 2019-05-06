@@ -31,7 +31,7 @@ import {
   MapView
 } from './components/';
 
-import { AuthConsumer, AuthProvider } from './Providers/AuthProvider';
+import { AuthConsumer, AuthProvider } from './providers/AuthProvider';
 
 /**
  *
