@@ -17,7 +17,8 @@ const authContextDefaultValues = {
   logout: () => { return; },
   facebookLogin: (data: { email: string; accessToken: string; expiresIn: number; }) => { return; },
 };
-const AuthContext = React.createContext(authContextDefaultValues);
+
+export const AuthContext = React.createContext(authContextDefaultValues);
 export const AuthConsumer = AuthContext.Consumer;
 export class AuthProvider extends React.Component<Props, State> {
   constructor(props: Props) {
