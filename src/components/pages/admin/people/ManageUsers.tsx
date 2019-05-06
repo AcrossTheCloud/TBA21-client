@@ -95,7 +95,7 @@ class ManageUsers extends React.Component<Props, State> {
           return (
             <span className="optionIcon">
               <FaPenAlt onClick={() => this.editUsersRef.current.loadUserDetails(row.username)}/>
-              <FaKey onClick={() => this.resetUserPasswordRef.current.loadDetails(row.username)} />
+              <FaKey onClick={() => this.resetUserPasswordRef.current.loadDetails(row.username, row.email)} />
             </span>
           );
         }

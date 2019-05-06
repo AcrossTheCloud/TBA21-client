@@ -8,6 +8,7 @@ import config from '../../../config';
 
 interface State {
   userId?: string;
+  userEmail?: string;
   isOpen?: boolean;
   successMessage?: string | undefined;
   errorMessage?: string | undefined;
@@ -77,9 +78,9 @@ class AdminResetPassword extends React.Component<{}, State> {
   /**
    *   Get the user details
    */
-  loadDetails(userId: string) {
+  loadDetails(userId: string, userEmail: string) {
     if (userId) {
-      this.setState({ userId: userId, isOpen: true });
+      this.setState({ userId: userId, userEmail: userEmail, isOpen: true });
     } else {
       this.setState({ errorMessage: 'No user id', isOpen: true });
     }
@@ -96,13 +97,21 @@ class AdminResetPassword extends React.Component<{}, State> {
     }
 
   render() {
+    const hasError = (this.state.successMessage || this.state.errorMessage);
+
     return (
       <Modal isOpen={this.state.isOpen} toggle={this.resetPasswordModalToggle}>
         <ModalHeader>Reset Password</ModalHeader>
         <ModalBody>
-          {this.state.successMessage ? <Alert color="success">{this.state.successMessage}</Alert> : <></>}
-          {this.state.errorMessage ? <Alert color="danger">{this.state.errorMessage}</Alert> : <></>}
-          Reset Password for {this.state.userId}?
+          {
+            hasError ?
+              <>
+                {this.state.successMessage ? <Alert color="success">{this.state.successMessage}</Alert> : <></>}
+                {this.state.errorMessage ? <Alert color="danger">{this.state.errorMessage}</Alert> : <></>}
+              </>
+            :
+              <>Reset Password for {this.state.userEmail ? this.state.userEmail : this.state.userId}?</>
+          }
         </ModalBody>
         <ModalFooter>
           {this.confirmButton()}

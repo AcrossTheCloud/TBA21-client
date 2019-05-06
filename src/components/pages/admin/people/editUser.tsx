@@ -561,7 +561,7 @@ export default class EditUser extends React.Component<{}, State> {
         return (
           <>
             <Button color="danger" className="mr-auto" onClick={this.deleteUserModalToggle}>DELETE USER</Button>{' '}
-            <Button color="primary" onClick={() => this.resetUserPasswordRef.current.loadDetails(this.state.userId)}>Reset Password</Button>
+            <Button color="primary" onClick={() => this.resetUserPasswordRef.current.loadDetails(this.state.userId, this.state.userEmail)}>Reset Password</Button>
             <Button color="primary" onClick={this.submitChanges}>Change User</Button>{' '}
           </>
         );
@@ -572,7 +572,7 @@ export default class EditUser extends React.Component<{}, State> {
 
     return (
       <Modal isOpen={this.state.isOpen} toggle={this.toggle} size="lg" className="EditUser" backdrop={true}>
-        <ModalHeader toggle={this.toggle}>Editing {this.state.userId}</ModalHeader>
+        <ModalHeader toggle={this.toggle}>Editing {this.state.userEmail ? this.state.userEmail : this.state.userId}</ModalHeader>
 
         <ModalBody>
           {this.state.errorMessage ? <Alert color="danger">{this.state.errorMessage}</Alert> : <></>}
