@@ -69,24 +69,24 @@ class ManageUsers extends React.Component<Props, State> {
 
     this.columns = [
       {
-        dataField: 'username',
-        hidden: true
-      },
-      {
-       dataField: 'enabled',
+       dataField: 'username',
        hidden: true
       },
       {
-      dataField: 'status',
-      hidden: true
+        dataField: 'enabled',
+       hidden: true
       },
       {
-      dataField: 'emailVerified',
-      hidden: true
+       dataField: 'status',
+        hidden: true
       },
       {
-        dataField: 'email',
-        text: 'User Email'
+       dataField: 'emailVerified',
+        hidden: true
+      },
+      {
+      dataField: 'email',
+      text: 'User Email'
       },
       {
         dataField: 'options',
@@ -106,7 +106,15 @@ class ManageUsers extends React.Component<Props, State> {
           }
         }
       }
+
     ];
+  }
+   rowStyle = (row) => {
+    if (row.enabled) {
+      return '';
+    } else {
+      return 'userDisabled';
+    }
   }
 
   async componentDidMount() {
@@ -130,6 +138,7 @@ class ManageUsers extends React.Component<Props, State> {
         {/* START MODALS */}
         <EditUser ref={this.editUsersRef} />
         <AdminResetPassword ref={this.resetUserPasswordRef} />
+        <ConfirmUser ref={this.confirmUserRef} />
         {/* END MODALS */}
 
         <div className="list">
@@ -169,6 +178,7 @@ class ManageUsers extends React.Component<Props, State> {
             keyField="username"
             data={this.state.isLoading ? [] : this.props.users}
             columns={this.columns}
+            rowClasses={this.rowStyle}
             onTableChange={() => <Spinner style={{ width: '10rem', height: '10rem' }} type="grow" />}
             noDataIndication={() => <Spinner style={{ width: '10rem', height: '10rem' }} type="grow" />}
           />
