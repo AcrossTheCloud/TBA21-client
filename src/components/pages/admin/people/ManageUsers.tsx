@@ -95,6 +95,7 @@ class ManageUsers extends React.Component<Props, State> {
               <span className="optionIcon">
                 <FaPenAlt onClick={() => this.editUsersRef.current.loadUserDetails(row.username)}/>
                 {row.emailVerified === 'true' ? <FaKey onClick={() => this.resetUserPasswordRef.current.loadDetails(row.username, row.email)} /> : <></>}
+
               </span>
             );
           } else {
@@ -134,7 +135,6 @@ class ManageUsers extends React.Component<Props, State> {
         {/* START MODALS */}
         <EditUser ref={this.editUsersRef} />
         <AdminResetPassword ref={this.resetUserPasswordRef} />
-        <ConfirmUser ref={this.confirmUserRef} />
         {/* END MODALS */}
 
         <div className="list">
