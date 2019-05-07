@@ -55,7 +55,7 @@ class ManageUsers extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      isLoading: true,
+      isLoading: !this.props.users.length,
       resetPasswordModalIsOpen: false
     };
 
