@@ -19,7 +19,7 @@ export default (state: State | undefined = initialState, action) => {
     case LOAD_MORE:
 
       let userList: User[] = [];
-      if (state.users.length) {
+      if (state.users.length && !action.refresh) {
         userList = [
           ...state.users,
           ...action.users

@@ -85,8 +85,9 @@ export const listUsers = async (limit: number = 15, paginationToken?: string, us
  * Disptaches an array of users, pagination token and limit back to the Component
  * @param limit {number | null} Number of results to load
  * @param paginationToken {string | null} String returned from AWS API Call
+ * @param refresh {boolean} If we should wipe the userlist.
  */
-export const loadMore = (limit: number, paginationToken?: string | null) => async dispatch => {
+export const loadMore = (limit: number, paginationToken?: string | null, refresh: boolean = false) => async dispatch => {
   // If we don't have any more results to load, do nothing.
   if (paginationToken === null) { return; }
 
@@ -105,7 +106,8 @@ export const loadMore = (limit: number, paginationToken?: string | null) => asyn
         type: LOAD_MORE,
         users: response.users,
         paginationToken: response.paginationToken,
-        limit: limit
+        limit: limit,
+        refresh: refresh
       });
     } else {
       dispatchError();
