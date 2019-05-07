@@ -11,13 +11,14 @@ import {
   Col,
 } from 'reactstrap';
 import { connect } from 'react-redux';
-import { FaSync, FaPenAlt, FaKey } from 'react-icons/fa';
+import { FaSync, FaPenAlt, FaKey, FaCheck } from 'react-icons/fa';
 
 import EditUser from './editUser';
 import { loadMore } from '../../../../actions/admin/people/manageUsers';
 import AdminResetPassword from '../../../utils/user/AdminResetPassword';
 
 import 'src/styles/pages/admin/people/manageUsers.scss';
+import { ConfirmUser } from '../../../utils/user/ConfirmUser';
 import { SearchUsers } from './SearchUsers';
 
 export interface Props {
@@ -50,6 +51,7 @@ const ErrorMessage = (props: {message: string | undefined}) => {
 class ManageUsers extends React.Component<Props, State> {
   editUsersRef;
   resetUserPasswordRef;
+  confirmUserRef;
   columns;
 
   constructor(props: Props) {
@@ -61,6 +63,7 @@ class ManageUsers extends React.Component<Props, State> {
 
     this.editUsersRef = React.createRef();
     this.resetUserPasswordRef = React.createRef();
+    this.confirmUserRef = React.createRef();
 
     this.columns = [
       {

@@ -9,7 +9,7 @@ import config from '../../../config';
 interface State {
   userId?: string;
   userEmail?: string;
-  isOpen?: boolean;
+  isOpen?: boolean | undefined;
   successMessage?: string | undefined;
   errorMessage?: string | undefined;
 }
@@ -46,9 +46,9 @@ class AdminResetPassword extends React.Component<{}, State> {
       try {
         await this.cognitoIdentityServiceProvider.adminResetUserPassword(
           {
-            Username: this.state.userId,
+          Username: this.state.userId,
             UserPoolId: config.cognito.USER_POOL_ID
-          }
+        }
         ).promise();
         this.setState({
           successMessage: 'Password has been reset.'
