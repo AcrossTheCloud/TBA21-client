@@ -36,6 +36,9 @@ interface State {
   userId?: string | undefined;
   userEmail?: string | undefined;
   changedUserEmail?: string | undefined;
+  emailVerified?: string | undefined;
+  status?: string | undefined;
+  enabled?: string | undefined;
 
   cognitioGroups: GroupData[];
   userGroups: GroupData[];
@@ -133,10 +136,11 @@ export default class EditUser extends React.Component<{}, State> {
       const userDetails = await this.cognitoIdentityServiceProvider.adminGetUser(
         {
           Username: userId,
-          UserPoolId: this.userPoolId
+          UserPoolId: this.userPoolId,
+
+          // get the goods
         }
       ).promise();
-
       // if it's the same userId we're more than likely reloading the details after changing
       // AWS takes awhile to update groups, so we timeout here.
       if (this.state.userId === userId) {
@@ -146,7 +150,6 @@ export default class EditUser extends React.Component<{}, State> {
         // Async load the users group groups.
         this.loadGroups(userId);
       }
-
       // Loop each attribute and add them to an a Key: Value pair so we can easily access them.
       let userAttributes: { [key: string]: string} = {}; // tslint:disable-line: no-any
       if (userDetails.UserAttributes) {
@@ -154,12 +157,14 @@ export default class EditUser extends React.Component<{}, State> {
           userAttributes[attribute.Name] = attribute.Value;
         });
       }
-
       this.setState({
         isOpen: true,
         userId: userId,
         userEmail: userAttributes.email,
-        groupsLoading: true
+        groupsLoading: true,
+        emailVerified: userAttributes.email_verified,
+        status: userDetails.UserStatus,
+        enabled: userDetails.Enabled
       });
     } catch (e) {
       this.setState({ ...initialState, isOpen: true, errorMessage: e.message });
@@ -561,7 +566,7 @@ export default class EditUser extends React.Component<{}, State> {
         return (
           <>
             <Button color="danger" className="mr-auto" onClick={this.deleteUserModalToggle}>DELETE USER</Button>{' '}
-            <Button color="primary" onClick={() => this.resetUserPasswordRef.current.loadDetails(this.state.userId, this.state.userEmail)}>Reset Password</Button>
+            {this.state.emailVerified === 'true' ? <Button color="primary" onClick={() => this.resetUserPasswordRef.current.loadDetails(this.state.userId, this.state.userEmail)}>Reset Password</Button> : <></>}
             <Button color="primary" onClick={this.submitChanges}>Change User</Button>{' '}
           </>
         );

@@ -68,7 +68,10 @@ export const listUsers = async (limit: number = 15, paginationToken?: string, us
 
       return {
         username: user.Username,
-        email: userAttributes.email
+        email: userAttributes.email,
+        enabled: user.Enabled,
+        status: user.UserStatus,
+        emailVerified: userAttributes.email_verified
       };
     });
 

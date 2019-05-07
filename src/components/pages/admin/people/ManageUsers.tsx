@@ -38,6 +38,8 @@ interface State {
 export interface User {
   email: string;
   username: string;
+  enabled: boolean;
+  status: string;
 }
 
 const ErrorMessage = (props: {message: string | undefined}) => {
@@ -58,7 +60,7 @@ class ManageUsers extends React.Component<Props, State> {
     super(props);
     this.state = {
       isLoading: !this.props.users.length,
-      resetPasswordModalIsOpen: false
+      resetPasswordModalIsOpen: false,
     };
 
     this.editUsersRef = React.createRef();
@@ -71,6 +73,18 @@ class ManageUsers extends React.Component<Props, State> {
         hidden: true
       },
       {
+       dataField: 'enabled',
+       hidden: true
+      },
+      {
+      dataField: 'status',
+      hidden: true
+      },
+      {
+      dataField: 'emailVerified',
+      hidden: true
+      },
+      {
         dataField: 'email',
         text: 'User Email'
       },
@@ -79,12 +93,17 @@ class ManageUsers extends React.Component<Props, State> {
         text: 'Options',
         isDummyField: true,
         formatter: (cell, row, rowIndex) => {
-          return (
-            <span className="optionIcon">
-              <FaPenAlt onClick={() => this.editUsersRef.current.loadUserDetails(row.username)}/>
-              <FaKey onClick={() => this.resetUserPasswordRef.current.loadDetails(row.username, row.email)} />
-            </span>
-          );
+          if (row.enabled) {
+            return (
+              <span className="optionIcon">
+                <FaPenAlt onClick={() => this.editUsersRef.current.loadUserDetails(row.username)}/>
+                {row.emailVerified === 'true' ? <FaKey onClick={() => this.resetUserPasswordRef.current.loadDetails(row.username, row.email)} /> : <></>}
+                {row.status === 'UNCONFIRMED' ? <FaCheck onClick={() => this.confirmUserRef.current.loadDetails(row.username, row.email)} /> : <></>}
+              </span>
+            );
+          } else {
+            return <></>;
+          }
         }
       }
     ];
