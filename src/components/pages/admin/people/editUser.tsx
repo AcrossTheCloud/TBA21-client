@@ -38,7 +38,7 @@ interface State {
   changedUserEmail?: string | undefined;
   emailVerified?: string | undefined;
   status?: string | undefined;
-  enabled?: string | undefined;
+  enabled?:   boolean | undefined;
 
   cognitioGroups: GroupData[];
   userGroups: GroupData[];
@@ -137,8 +137,6 @@ export default class EditUser extends React.Component<{}, State> {
         {
           Username: userId,
           UserPoolId: this.userPoolId,
-
-          // get the goods
         }
       ).promise();
       // if it's the same userId we're more than likely reloading the details after changing
@@ -176,7 +174,7 @@ export default class EditUser extends React.Component<{}, State> {
    * Once finished it reloads the modal with the details.
    */
   submitChanges = async () => {
-    if (typeof this.state.userId === 'undefined') {
+    if (!this.state.userId || typeof this.state.userId === 'undefined') {
       this.setState({
         errorMessage: 'Please close the window and re-open, looks like we\'ve lost the user\'s details.',
       });
@@ -565,9 +563,9 @@ export default class EditUser extends React.Component<{}, State> {
       if (this.state.userId) {
         return (
           <>
-            <Button color="danger" className="mr-auto" onClick={this.deleteUserModalToggle}>DELETE USER</Button>{' '}
-            {this.state.emailVerified === 'true' ? <Button color="primary" onClick={() => this.resetUserPasswordRef.current.loadDetails(this.state.userId, this.state.userEmail)}>Reset Password</Button> : <></>}
-            <Button color="primary" onClick={this.submitChanges}>Change User</Button>{' '}
+            <Button color="danger" className="mr-auto" onClick={this.deleteUserModalToggle} disabled={!this.state.enabled}>DELETE USER</Button>{' '}
+            {this.state.emailVerified === 'true' ? <Button color="primary" onClick={() => this.resetUserPasswordRef.current.loadDetails(this.state.userId, this.state.userEmail)} disabled={!this.state.enabled}>Reset Password</Button> : <></>}
+            <Button color="primary" onClick={this.submitChanges} disabled={!this.state.enabled}>Change User</Button>{' '}
           </>
         );
       } else {
@@ -596,6 +594,7 @@ export default class EditUser extends React.Component<{}, State> {
                     innerRef={e => this.emailField = e}
                     onChange={this.onChangeValidateEmail}
                     invalid={!this.state.validate.emailField}
+                    disabled={!this.state.enabled}
                   />
                   <FormFeedback>You haven't entered a valid email address</FormFeedback>
                 </FormGroup>

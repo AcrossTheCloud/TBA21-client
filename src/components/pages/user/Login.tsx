@@ -7,7 +7,7 @@ import FacebookButton from '../../utils/Facebook/FacebookButton';
 import { AuthContext } from '../../../providers/AuthProvider';
 
 import 'styles/pages/user/login.scss';
-import { AccountConfirmation } from './AccountConfirmation';
+import { AccountConfirmation } from '../admin/people/AccountConfirmation';
 
 interface Props {
   history: any; // tslint:disable-line: no-any

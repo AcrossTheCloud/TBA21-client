@@ -99,7 +99,7 @@ class ManageUsers extends React.Component<Props, State> {
               </span>
             );
           } else {
-            return <></>;
+            return <FaPenAlt onClick={() => this.editUsersRef.current.loadUserDetails(row.username)}/> ;
           }
         }
       }

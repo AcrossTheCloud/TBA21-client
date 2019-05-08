@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Auth } from 'aws-amplify';
 import { has, get } from 'lodash';
 import { Alert, FormGroup, Input, Label } from 'reactstrap';
-import LoaderButton from '../../utils/LoaderButton';
+import LoaderButton from '../../../utils/LoaderButton';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
 
 interface Props extends RouteComponentProps {

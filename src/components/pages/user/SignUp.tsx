@@ -10,7 +10,7 @@ import { ISignUpResult } from 'amazon-cognito-identity-js';
 import LoaderButton from 'src/components/utils/LoaderButton';
 import 'styles/pages/user/signup.scss';
 import { checkAuth } from '../../utils/Auth';
-import { AccountConfirmation } from './AccountConfirmation';
+import { AccountConfirmation } from '../admin/people/AccountConfirmation';
 
 interface Props {
   history: any; // tslint:disable-line: no-any
