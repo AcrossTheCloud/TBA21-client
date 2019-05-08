@@ -163,9 +163,9 @@ export default class EditUser extends React.Component<{}, State> {
         userId: userId,
         userEmail: userAttributes.email,
         groupsLoading: true,
-        emailVerified: userAttributes.email_verified === 'true',
-        status: userAttributes.UserStatus,
-        enabled: userAttributes.Enabled === 'true'
+        emailVerified: userDetails.email_verified === 'true',
+        status: userDetails.UserStatus,
+        enabled: userDetails.Enabled
       });
     } catch (e) {
       this.setState({ ...initialState, isOpen: true, errorMessage: e.message });

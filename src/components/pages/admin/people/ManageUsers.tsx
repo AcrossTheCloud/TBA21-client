@@ -66,41 +66,36 @@ class ManageUsers extends React.Component<Props, State> {
 
     this.columns = [
       {
-       dataField: 'username',
-       hidden: true
+        dataField: 'username',
+        hidden: true
       },
       {
         dataField: 'enabled',
-       hidden: true
-      },
-      {
-       dataField: 'status',
         hidden: true
       },
       {
-       dataField: 'emailVerified',
+        dataField: 'status',
         hidden: true
       },
       {
-      dataField: 'email',
-      text: 'User Email'
+        dataField: 'emailVerified',
+        hidden: true
+      },
+      {
+        dataField: 'email',
+        text: 'User Email'
       },
       {
         dataField: 'options',
         text: 'Options',
         isDummyField: true,
         formatter: (cell, row, rowIndex) => {
-          if (row.enabled) {
-            return (
-              <span className="optionIcon">
-                <FaPenAlt onClick={() => this.editUsersRef.current.loadUserDetails(row.username)}/>
-                {row.emailVerified === 'true' ? <FaKey onClick={() => this.resetUserPasswordRef.current.loadDetails(row.username, row.email)} /> : <></>}
-
-              </span>
-            );
-          } else {
-            return <FaPenAlt onClick={() => this.editUsersRef.current.loadUserDetails(row.username)}/> ;
-          }
+          return (
+            <span className="optionIcon">
+              <FaPenAlt onClick={() => this.editUsersRef.current.loadUserDetails(row.username)}/>
+              {row.enabled && row.emailVerified ? <FaKey onClick={() => this.resetUserPasswordRef.current.loadDetails(row.username, row.email)} /> : <></>}
+            </span>
+          );
         }
       }
 
