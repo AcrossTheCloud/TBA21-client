@@ -22,6 +22,7 @@ import config from '../../../../config';
 import * as emailHelper from '../../../utils/inputs/email';
 import { getCurrentCredentials } from '../../../utils/Auth';
 import AdminResetPassword from  '../../../utils/user/AdminResetPassword';
+import { ConfirmUser } from '../../../utils/user/ConfirmUser';
 
 interface State {
   isOpen: boolean;
@@ -84,6 +85,7 @@ const initialState = {
 export default class EditUser extends React.Component<{}, State> {
   emailField;
   resetUserPasswordRef;
+  confirmUserRef;
   cognitoIdentityServiceProvider;
   userPoolId: string;
 
@@ -92,6 +94,7 @@ export default class EditUser extends React.Component<{}, State> {
 
     this.emailField = React.createRef();
     this.resetUserPasswordRef = React.createRef();
+    this.confirmUserRef = React.createRef();
 
     this.state = {
       isOpen: false,
@@ -565,6 +568,7 @@ export default class EditUser extends React.Component<{}, State> {
           <>
             <Button color="danger" className="mr-auto" onClick={this.deleteUserModalToggle} disabled={!this.state.enabled}>DELETE USER</Button>{' '}
             {this.state.emailVerified === 'true' ? <Button color="primary" onClick={() => this.resetUserPasswordRef.current.loadDetails(this.state.userId, this.state.userEmail)} disabled={!this.state.enabled}>Reset Password</Button> : <></>}
+            {this.state.status === 'UNCONFIRMED' ? <Button color="primary" onClick={() => this.confirmUserRef.current.loadDetails(this.state.userId, this.state.userEmail)}>Confirm User</Button> : <></>}
             <Button color="primary" onClick={this.submitChanges} disabled={!this.state.enabled}>Change User</Button>{' '}
           </>
         );
@@ -615,6 +619,7 @@ export default class EditUser extends React.Component<{}, State> {
                   </ModalFooter>
                 </Modal>
                 <AdminResetPassword ref={this.resetUserPasswordRef} />
+                <ConfirmUser ref={this.confirmUserRef} />
               </Form>
             : <></>
           }
