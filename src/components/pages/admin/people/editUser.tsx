@@ -37,9 +37,9 @@ interface State {
   userId?: string | undefined;
   userEmail?: string | undefined;
   changedUserEmail?: string | undefined;
-  emailVerified?: string | undefined;
+  emailVerified?: boolean | undefined;
   status?: string | undefined;
-  enabled?:   boolean | undefined;
+  enabled?: boolean | undefined;
 
   cognitioGroups: GroupData[];
   userGroups: GroupData[];
@@ -163,9 +163,9 @@ export default class EditUser extends React.Component<{}, State> {
         userId: userId,
         userEmail: userAttributes.email,
         groupsLoading: true,
-        emailVerified: userAttributes.email_verified,
-        status: userDetails.UserStatus,
-        enabled: userDetails.Enabled
+        emailVerified: userAttributes.email_verified === 'true',
+        status: userAttributes.UserStatus,
+        enabled: userAttributes.Enabled === 'true'
       });
     } catch (e) {
       this.setState({ ...initialState, isOpen: true, errorMessage: e.message });
@@ -364,7 +364,7 @@ export default class EditUser extends React.Component<{}, State> {
       return (
         <Col xs="6" md="3" key={i}>
           <Label for={'group_' + i} check>
-            <Input type="checkbox" onChange={e => this.groupInputOnChange(e, i)} className={'group_' + i} value={enabled ? 'on' : 'off'} defaultChecked={enabled} />{' '}{group.name}
+            <Input type="checkbox" onChange={e => this.groupInputOnChange(e, i)} className={'group_' + i} value={enabled ? 'on' : 'off'} defaultChecked={enabled} disabled={!this.state.enabled} />{' '}{group.name}
           </Label>
         </Col>
       );
@@ -567,8 +567,7 @@ export default class EditUser extends React.Component<{}, State> {
         return (
           <>
             <Button color="danger" className="mr-auto" onClick={this.deleteUserModalToggle} disabled={!this.state.enabled}>DELETE USER</Button>{' '}
-            {this.state.emailVerified === 'true' ? <Button color="primary" onClick={() => this.resetUserPasswordRef.current.loadDetails(this.state.userId, this.state.userEmail)} disabled={!this.state.enabled}>Reset Password</Button> : <></>}
-            {this.state.status === 'UNCONFIRMED' ? <Button color="primary" onClick={() => this.confirmUserRef.current.loadDetails(this.state.userId, this.state.userEmail)}>Confirm User</Button> : <></>}
+            {this.state.emailVerified ? <Button color="primary" onClick={() => this.resetUserPasswordRef.current.loadDetails(this.state.userId, this.state.userEmail)} disabled={!this.state.enabled}>Reset Password</Button> : <></>}
             <Button color="primary" onClick={this.submitChanges} disabled={!this.state.enabled}>Change User</Button>{' '}
           </>
         );
@@ -584,6 +583,7 @@ export default class EditUser extends React.Component<{}, State> {
         <ModalBody>
           {this.state.errorMessage ? <Alert color="danger">{this.state.errorMessage}</Alert> : <></>}
           {this.state.successMessage ? <Alert color="success">{this.state.successMessage}</Alert> : <></>}
+          {!this.state.enabled ? <Alert color="danger">This user is disabled, please enable them before continuing</Alert> : <></>}
           {
             this.state.userId ?
               <Form onSubmit={e => { e.preventDefault(); }} autoComplete="off">
@@ -600,6 +600,8 @@ export default class EditUser extends React.Component<{}, State> {
                     invalid={!this.state.validate.emailField}
                     disabled={!this.state.enabled}
                   />
+                  {this.state.status === 'CONFIRMED' ? <Button color="primary" onClick={() => this.confirmUserRef.current.loadDetails(this.state.userId, this.state.userEmail)}>Confirm User</Button> : <></>}
+
                   <FormFeedback>You haven't entered a valid email address</FormFeedback>
                 </FormGroup>
 
