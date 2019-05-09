@@ -87,7 +87,7 @@ export default class EditUser extends React.Component<{}, State> {
   emailField;
   resetUserPasswordRef;
   confirmUserRef;
-  enableUserRef;
+  toggleUserRef;
   cognitoIdentityServiceProvider;
   userPoolId: string;
 
@@ -97,7 +97,7 @@ export default class EditUser extends React.Component<{}, State> {
     this.emailField = React.createRef();
     this.resetUserPasswordRef = React.createRef();
     this.confirmUserRef = React.createRef();
-    this.enableUserRef = React.createRef();
+    this.toggleUserRef = React.createRef();
 
     this.state = {
       isOpen: false,
@@ -161,6 +161,12 @@ export default class EditUser extends React.Component<{}, State> {
           userAttributes[attribute.Name] = attribute.Value;
         });
       }
+
+      // Disable the user if their status is unknown or COMPROMISED, because, who knows.
+      if (userDetails.UserStatus === 'UNKNOWN' || userDetails.UserStatus === 'COMPROMISED') {
+        userDetails.Enabled = false;
+      }
+
       this.setState({
         isOpen: true,
         userId: userId,
@@ -211,11 +217,10 @@ export default class EditUser extends React.Component<{}, State> {
     this.loadUserDetails(this.state.userId);
   }
 
-  openEnableUserModal = () => {
-    this.enableUserRef.current.loadDetails(this.state.userId, this.state.enabled, this.state.userEmail, this.onToggleUserChange);
-  }
-
-  onToggleUserChange = () => {
+  /**
+   * Forces the modal to refresh it's data after a user has been changed from another Component.
+   */
+  onChangeToggleModal = () => {
     if (!this.state.userId || typeof this.state.userId === 'undefined') {
       this.setState({
         errorMessage: 'Please close the window and re-open, looks like we\'ve lost the user\'s details.',
@@ -585,8 +590,7 @@ export default class EditUser extends React.Component<{}, State> {
       if (this.state.userId) {
         return (
           <>
-            <Button color="danger" className="mr-auto" onClick={this.deleteUserModalToggle} disabled={!this.state.enabled}>DELETE USER</Button>{' '}
-            {this.state.enabled ? <Button color="danger" className="mr-auto" onClick={this.openEnableUserModal}>DISABLE USER </Button> : <></>}
+            <Button color="danger" className="mr-auto" onClick={this.deleteUserModalToggle}>DELETE USER</Button>{' '}
             {this.state.emailVerified ? <Button color="primary" onClick={() => this.resetUserPasswordRef.current.loadDetails(this.state.userId, this.state.userEmail)} disabled={!this.state.enabled}>Reset Password</Button> : <></>}
             <Button color="primary" onClick={this.submitChanges} disabled={!this.state.enabled}>Change User</Button>{' '}
           </>
@@ -598,52 +602,66 @@ export default class EditUser extends React.Component<{}, State> {
 
     return (
       <Modal isOpen={this.state.isOpen} toggle={this.toggle} size="lg" className="EditUser" backdrop={true}>
-        <ModalHeader toggle={this.toggle}>Editing {this.state.userEmail ? this.state.userEmail : this.state.userId}</ModalHeader>
+        <ModalHeader toggle={this.toggle}>
+          Editing {this.state.userEmail ? this.state.userEmail : this.state.userId}
+        </ModalHeader>
 
         <ModalBody>
           {this.state.errorMessage ? <Alert color="danger">{this.state.errorMessage}</Alert> : <></>}
           {this.state.successMessage ? <Alert color="success">{this.state.successMessage}</Alert> : <></>}
-          {!this.state.enabled ? <Alert color="danger">This user is disabled, please enable them before continuing <Button color="secondary" onClick={this.openEnableUserModal}>Enable User</Button></Alert> : <></>}
+
+          {this.state.status === 'UNKNOWN ' ? <Alert color="warning">There's an issue with this user.</Alert> : <></>}
+          {this.state.enabled && this.state.status === 'RESET_REQUIRED' ? <Alert color="warning">You're unable to edit this users email address as they have not confirmed their password via a confirmation code.</Alert> : <></>}
+          {!this.state.enabled && this.state.status !== 'UNKNOWN ' ? <Alert color="danger">This user is disabled, please enable them before continuing <Button color="secondary" onClick={() => this.toggleUserRef.current.loadDetails(this.state.userId, this.state.enabled, this.state.userEmail, this.onChangeToggleModal)}>Enable User</Button></Alert> : <></>}
+
           {
             this.state.userId ?
-              <Form onSubmit={e => { e.preventDefault(); }} autoComplete="off">
-                <FormGroup name="userDetails">
-                  <Label for="email">Email Address</Label>
-                  <Input
-                    type="email"
-                    name="email"
-                    id="email"
-                    placeholder="Email"
-                    defaultValue={this.state.changedUserEmail ? this.state.changedUserEmail : this.state.userEmail}
-                    innerRef={e => this.emailField = e}
-                    onChange={this.onChangeValidateEmail}
-                    invalid={!this.state.validate.emailField}
-                    disabled={!this.state.enabled}
-                  />
-                  {this.state.status === 'CONFIRMED' ? <Button color="primary" onClick={() => this.confirmUserRef.current.loadDetails(this.state.userId, this.state.userEmail)}>Confirm User</Button> : <></>}
-
-                  <FormFeedback>You haven't entered a valid email address</FormFeedback>
-                </FormGroup>
+              <>
+                <Row className="userToggles">
+                  <Col>
+                    <div className="float-right">
+                      {this.state.enabled ? <Button color="danger" size="sm" className="mr-3" onClick={() => this.toggleUserRef.current.loadDetails(this.state.userId, this.state.enabled, this.state.userEmail, this.onChangeToggleModal)}>Disable User</Button> : <></>}{' '}
+                      {this.state.enabled && this.state.status === 'UNCONFIRMED' ? <Button size="sm" color="primary" onClick={() => this.confirmUserRef.current.loadDetails(this.state.userId, this.state.userEmail, this.onChangeToggleModal)}>Confirm User</Button> : <></>}
+                    </div>
+                  </Col>
+                </Row>
+                <Form onSubmit={e => { e.preventDefault(); }} autoComplete="off">
+                  <FormGroup name="userDetails">
+                    <Label for="email">Email Address</Label>
+                    <Input
+                      type="email"
+                      name="email"
+                      id="email"
+                      placeholder="Email"
+                      defaultValue={this.state.changedUserEmail ? this.state.changedUserEmail : this.state.userEmail}
+                      innerRef={e => this.emailField = e}
+                      onChange={this.onChangeValidateEmail}
+                      invalid={!this.state.validate.emailField}
+                      disabled={!this.state.enabled || this.state.status === 'RESET_REQUIRED'}
+                    />
+                    <FormFeedback>You haven't entered a valid email address</FormFeedback>
+                  </FormGroup>
+                </Form>
 
                 <Container className="groups">
-                  <Row>
-                    <this.GroupsDisplay />
-                  </Row>
-                </Container>
+                    <Row>
+                      <this.GroupsDisplay />
+                    </Row>
+                  </Container>
 
-                {/* Delete user modal */}
-                <Modal isOpen={this.state.deleteUserModalIsOpen} toggle={this.deleteUserModalToggle}>
-                  <ModalHeader>Delete User</ModalHeader>
-                  <ModalBody>Are you 100% sure you want to delete this user?</ModalBody>
-                  <ModalFooter>
-                    <Button color="danger" className="mr-auto" onClick={this.deleteUser}>I'm Sure</Button>{' '}
-                    <Button color="secondary" onClick={this.deleteUserModalToggle}>Cancel</Button>
-                  </ModalFooter>
-                </Modal>
-                <AdminResetPassword ref={this.resetUserPasswordRef} />
-                <ConfirmUser ref={this.confirmUserRef} />
-                <ToggleUserStatus ref={this.enableUserRef} />
-              </Form>
+                  {/* Delete user modal */}
+                  <Modal isOpen={this.state.deleteUserModalIsOpen} toggle={this.deleteUserModalToggle}>
+                    <ModalHeader>Delete User</ModalHeader>
+                    <ModalBody>Are you 100% sure you want to delete this user?</ModalBody>
+                    <ModalFooter>
+                      <Button color="danger" className="mr-auto" onClick={this.deleteUser}>I'm Sure</Button>{' '}
+                      <Button color="secondary" onClick={this.deleteUserModalToggle}>Cancel</Button>
+                    </ModalFooter>
+                  </Modal>
+                  <AdminResetPassword ref={this.resetUserPasswordRef} />
+                  <ConfirmUser ref={this.confirmUserRef} />
+                  <ToggleUserStatus ref={this.toggleUserRef} />
+              </>
             : <></>
           }
         </ModalBody>

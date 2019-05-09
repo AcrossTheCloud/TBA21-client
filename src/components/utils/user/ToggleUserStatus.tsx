@@ -1,15 +1,14 @@
 import * as React from 'react';
 import { get } from 'lodash';
 import * as CognitoIdentityServiceProvider from 'aws-sdk/clients/cognitoidentityserviceprovider';
-import config from '../../../config';
-
-import { getCurrentCredentials } from '../Auth';
 import { Alert, Button, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
+
+import config from '../../../config';
+import { getCurrentCredentials } from '../Auth';
 
 interface State {
   isOpen?: boolean;
   errorMessage?: string;
-  successMessage?: string;
   userId?: string;
   userEmail?: string;
   enabled?: boolean;
@@ -35,12 +34,9 @@ export class ToggleUserStatus extends React.Component<{}, State> {
        secretAccessKey: get(credentials, 'data.Credentials.SecretKey'),
      }
    });
-    this.setState({
-      isOpen: this.state.isOpen
-    });
   }
   /**
-   *   Get the user details
+   * Get the user details
    */
   loadDetails(userId: string, enabled: boolean, userEmail: string, callback: Function) {
     if (userId) {
@@ -52,11 +48,11 @@ export class ToggleUserStatus extends React.Component<{}, State> {
         callback: callback
       });
     } else {
-      this.setState({ errorMessage: 'No user id', isOpen: true });
+      this.setState({ errorMessage: `Something went wrong, please try again later.`, isOpen: true });
     }
   }
   /**
-   * enable the user
+   * Enable the user
    */
   enable = async (): Promise <void> => {
     try {
@@ -76,7 +72,7 @@ export class ToggleUserStatus extends React.Component<{}, State> {
     }
   }
   /**
-   * disable the user
+   * Disable the user.
    */
   disable = async (): Promise <void> => {
     try {
@@ -97,10 +93,10 @@ export class ToggleUserStatus extends React.Component<{}, State> {
       });
     }
   }
+
   toggleModal = () => {
     this.setState(prevState => ({
       isOpen: !prevState.isOpen,
-      successMessage: undefined,
       errorMessage: undefined
     }));
   }
@@ -108,7 +104,7 @@ export class ToggleUserStatus extends React.Component<{}, State> {
    * Hide the button if there's a message
    */
   buttons = () => {
-    if (this.state.errorMessage || this.state.successMessage) {
+    if (this.state.errorMessage) {
       return <></>;
     } else {
       return (
@@ -121,7 +117,7 @@ export class ToggleUserStatus extends React.Component<{}, State> {
   }
 
   render() {
-    const hasError = (this.state.successMessage || this.state.errorMessage);
+    const hasError = this.state.errorMessage;
 
     return (
       <Modal isOpen={this.state.isOpen} toggle={this.toggleModal}>
@@ -130,7 +126,6 @@ export class ToggleUserStatus extends React.Component<{}, State> {
           {
             hasError ?
               <>
-                {this.state.successMessage ? <Alert color="success">{this.state.successMessage}</Alert> : <></>}
                 {this.state.errorMessage ? <Alert color="danger">{this.state.errorMessage}</Alert> : <></>}
               </>
               :

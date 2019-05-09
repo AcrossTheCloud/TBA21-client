@@ -66,6 +66,11 @@ export const listUsers = async (limit: number = 15, paginationToken?: string, us
         userAttributes[attribute.Name] = attribute.Value;
       });
 
+      // Disable the user if their status is unknown or COMPROMISED, because, who knows.
+      if (user.UserStatus === 'UNKNOWN' || user.UserStatus === 'COMPROMISED') {
+        user.Enabled = false;
+      }
+
       return {
         username: user.Username,
         email: userAttributes.email,

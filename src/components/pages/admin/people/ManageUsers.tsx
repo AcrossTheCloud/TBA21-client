@@ -16,9 +16,9 @@ import { FaSync, FaPenAlt, FaKey } from 'react-icons/fa';
 import EditUser from './editUser';
 import { loadMore } from '../../../../actions/admin/people/manageUsers';
 import AdminResetPassword from '../../../utils/user/AdminResetPassword';
+import { SearchUsers } from './SearchUsers';
 
 import 'src/styles/pages/admin/people/manageUsers.scss';
-import { SearchUsers } from './SearchUsers';
 
 export interface Props {
   errorMessage?: string | undefined;
@@ -93,7 +93,7 @@ class ManageUsers extends React.Component<Props, State> {
           return (
             <span className="optionIcon">
               <FaPenAlt onClick={() => this.editUsersRef.current.loadUserDetails(row.username)}/>
-              {row.enabled && row.emailVerified ? <FaKey onClick={() => this.resetUserPasswordRef.current.loadDetails(row.username, row.email)} /> : <></>}
+              {row.enabled && row.emailVerified && row.status !== 'RESET_REQUIRED' ? <FaKey onClick={() => this.resetUserPasswordRef.current.loadDetails(row.username, row.email)} /> : <></>}
             </span>
           );
         }

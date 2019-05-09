@@ -9,7 +9,7 @@ interface State {
   userId?: string;
   userEmail?: string;
   isOpen?: boolean | undefined;
-  successMessage?: string | undefined;
+  callback?: Function;
   errorMessage?: string | undefined;
 }
 
@@ -40,7 +40,22 @@ export class ConfirmUser extends React.Component<{}, State> {
   }
 
   /**
-   * Confirming the user
+   *   Get the user details
+   */
+  loadDetails(userId: string, userEmail: string, callback: Function) {
+    if (userId) {
+      this.setState({
+        userId: userId,
+        userEmail: userEmail,
+        callback: callback,
+        isOpen: true
+      });
+    } else {
+      this.setState({ errorMessage: 'No user id', isOpen: true });
+    }
+  }
+  /**
+   * Confirming signup
    */
   confirmUser = async (): Promise <void> => {
     try {
@@ -50,29 +65,17 @@ export class ConfirmUser extends React.Component<{}, State> {
           UserPoolId: config.cognito.USER_POOL_ID
         }
       ).promise();
-      this.setState({
-          successMessage: 'User has been confirmed'
-                    });
+      if (typeof this.state.callback === 'function') {
+        this.state.callback();
+      }
     } catch (e) {
-      this.setState({
-        errorMessage:  `Something went wrong, please try again later. (${e.message})`
-                    });
+      this.setState({ errorMessage:  `Something went wrong, please try again later. (${e.message})` });
     }
   }
-  /**
-   *   Get the user details
-   */
-  loadDetails(userId: string, userEmail: string) {
-    if (userId) {
-      this.setState({ userId: userId, userEmail: userEmail, isOpen: true});
-    } else {
-      this.setState({ errorMessage: 'No user id', isOpen: true });
-    }
-  }
-  confirmUserModal = () => {
+
+  toggleModal = () => {
     this.setState(prevState => ({
       isOpen: !prevState.isOpen,
-      successMessage: undefined,
       errorMessage: undefined
     }));
   }
@@ -80,7 +83,7 @@ export class ConfirmUser extends React.Component<{}, State> {
    * Hide the button if there's a message
    */
   confirmButton = () => {
-    if (this.state.errorMessage || this.state.successMessage) {
+    if (this.state.errorMessage) {
       return <></>;
     } else {
       return <Button color="danger" onClick={this.confirmUser}>Confirm</Button>;
@@ -88,25 +91,22 @@ export class ConfirmUser extends React.Component<{}, State> {
   }
 
   render() {
-    const hasError = (this.state.successMessage || this.state.errorMessage);
+    const hasError = this.state.errorMessage;
 
     return (
-      <Modal isOpen={this.state.isOpen} toggle={this.confirmUserModal}>
+      <Modal isOpen={this.state.isOpen} toggle={this.toggleModal}>
         <ModalHeader>Confirm User?</ModalHeader>
         <ModalBody>
           {
             hasError ?
-              <>
-                {this.state.successMessage ? <Alert color="success">{this.state.successMessage}</Alert> : <></>}
-                {this.state.errorMessage ? <Alert color="danger">{this.state.errorMessage}</Alert> : <></>}
-              </>
+              <> {this.state.errorMessage ? <Alert color="danger"> {this.state.errorMessage}</Alert> : <></>} </>
               :
               <>Confirm {this.state.userEmail ? this.state.userEmail : this.state.userId}?</>
           }
         </ModalBody>
         <ModalFooter>
           {this.confirmButton()}
-          <Button color="secondary" onClick={this.confirmUserModal}>Cancel</Button>
+          <Button color="secondary" onClick={this.toggleModal}>Cancel</Button>
         </ModalFooter>
       </Modal>
     );
