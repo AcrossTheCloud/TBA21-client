@@ -70,11 +70,11 @@ export class ResetPasswordClass extends React.Component<RouteComponentProps, {}>
     this.setState({ isLoading: true });
 
     try {
-      await Auth.forgotPasswordSubmit(this.state.email, this.state.confirmationCode, this.state.password);
+      await Auth.forgotPasswordSubmit(this.state.email || this.matchEmail, this.state.confirmationCode, this.state.password);
       // this.props.userHasAuthenticated(true);
       this.props.history.push('/login');
     } catch (e) {
-      alert(e.message);
+      console.log(e, e.message);
       this.setState({ isLoading: false });
     }
   }
