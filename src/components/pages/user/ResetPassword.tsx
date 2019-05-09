@@ -4,10 +4,14 @@ import {
   Input,
   Label
 } from 'reactstrap';
+import { has, get } from 'lodash';
 import { Auth } from 'aws-amplify';
 import LoaderButton from 'src/components/utils/LoaderButton';
 import 'styles/pages/user/resetPassword.scss';
-export class ResetPassword extends React.Component<{history: any}, {}> { // tslint:disable-line: no-any
+import { RouteComponentProps, withRouter } from 'react-router';
+
+export class ResetPasswordClass extends React.Component<RouteComponentProps, {}> {
+  matchEmail;
 
   state: {
     isLoading: false,
@@ -18,8 +22,10 @@ export class ResetPassword extends React.Component<{history: any}, {}> { // tsli
     reset: null
   };
 
-  constructor(props: any) { // tslint:disable-line: no-any
+  constructor(props: RouteComponentProps) {
     super(props);
+
+    this.matchEmail = has(this.props.match, 'params.email') ? get(this.props.match, 'params.email') : undefined;
 
     this.state = {
       isLoading: false,
@@ -141,10 +147,11 @@ export class ResetPassword extends React.Component<{history: any}, {}> { // tsli
   render() {
     return (
       <div className={'resetPassword'}>
-        {this.state.reset === null
-          ? this.renderResetForm()
-          : this.renderNewPasswordForm()}
+        {this.state.reset === null && !this.matchEmail ? this.renderResetForm() : this.renderNewPasswordForm()}
       </div>
     );
   }
 }
+
+// Passes in history for us :)
+export const ResetPassword = withRouter(ResetPasswordClass);
