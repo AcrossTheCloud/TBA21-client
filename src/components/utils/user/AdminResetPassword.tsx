@@ -51,7 +51,7 @@ class AdminResetPassword extends React.Component<{}, State> {
         }
         ).promise();
         this.setState({
-          successMessage: 'Password has been reset.'
+          successMessage: 'User has been sent an email to reset their password.'
         });
       } catch (e) {
         console.log(e.message);
@@ -115,7 +115,9 @@ class AdminResetPassword extends React.Component<{}, State> {
         </ModalBody>
         <ModalFooter>
           {this.confirmButton()}
-          <Button color="secondary" onClick={this.resetPasswordModalToggle}>Cancel</Button>
+          <Button color="secondary" onClick={this.resetPasswordModalToggle}>
+            {this.state.successMessage ? 'Ok' : 'Cancel'}
+          </Button>
         </ModalFooter>
       </Modal>
     );
