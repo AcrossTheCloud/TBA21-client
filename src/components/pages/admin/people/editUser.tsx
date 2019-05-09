@@ -172,7 +172,7 @@ export default class EditUser extends React.Component<{}, State> {
         userId: userId,
         userEmail: userAttributes.email,
         groupsLoading: true,
-        emailVerified: userDetails.email_verified === 'true',
+        emailVerified: userAttributes.email_verified === 'true',
         status: userDetails.UserStatus,
         enabled: userDetails.Enabled
       });
@@ -591,7 +591,6 @@ export default class EditUser extends React.Component<{}, State> {
         return (
           <>
             <Button color="danger" className="mr-auto" onClick={this.deleteUserModalToggle}>DELETE USER</Button>{' '}
-            {this.state.emailVerified ? <Button color="primary" onClick={() => this.resetUserPasswordRef.current.loadDetails(this.state.userId, this.state.userEmail)} disabled={!this.state.enabled}>Reset Password</Button> : <></>}
             <Button color="primary" onClick={this.submitChanges} disabled={!this.state.enabled}>Change User</Button>{' '}
           </>
         );
@@ -607,6 +606,7 @@ export default class EditUser extends React.Component<{}, State> {
         </ModalHeader>
 
         <ModalBody>
+
           {this.state.errorMessage ? <Alert color="danger">{this.state.errorMessage}</Alert> : <></>}
           {this.state.successMessage ? <Alert color="success">{this.state.successMessage}</Alert> : <></>}
 
@@ -622,6 +622,8 @@ export default class EditUser extends React.Component<{}, State> {
                     <div className="float-right">
                       {this.state.enabled ? <Button color="danger" size="sm" className="mr-3" onClick={() => this.toggleUserRef.current.loadDetails(this.state.userId, this.state.enabled, this.state.userEmail, this.onChangeToggleModal)}>Disable User</Button> : <></>}{' '}
                       {this.state.enabled && this.state.status === 'UNCONFIRMED' ? <Button size="sm" color="primary" onClick={() => this.confirmUserRef.current.loadDetails(this.state.userId, this.state.userEmail, this.onChangeToggleModal)}>Confirm User</Button> : <></>}
+                      {this.state.emailVerified ? <Button color="primary" size="sm" className="mr-3" onClick={() => this.resetUserPasswordRef.current.loadDetails(this.state.userId, this.state.userEmail)} disabled={!this.state.enabled}>Reset Password</Button> : <></>}
+
                     </div>
                   </Col>
                 </Row>
