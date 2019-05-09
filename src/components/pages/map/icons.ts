@@ -1,5 +1,4 @@
 import * as L from 'leaflet';
-import { IconOptions } from 'leaflet';
 
 interface Icons {
     [name: string]: any; // tslint:disable-line: no-any
@@ -11,7 +10,7 @@ export let MapIcons: Icons = {};
 // A list of our default icons
 const defaultIcons: Icons = {
     'jellyFish': {
-        iconUrl: './assets/markers/jelly.svg',
+        iconUrl: '/assets/markers/jelly.svg',
         iconSize:     [30, 38], // size of the icon
         iconAnchor:   [15, 38], // point of the icon which will correspond to marker's location [iconWidth/2, iconHeight]
         popupAnchor:  [-3, -38] // point from which the popup should open relative to the iconAnchor
@@ -48,7 +47,7 @@ export function getMapIcon(iconName: string) {// tslint:disable-line: no-any
  * @param iconOptions
  * @return a Leaflet Icon Object to be assigned to a Marker.
  */
-export function createMapIcon(iconName: string, iconOptions: IconOptions) {
+export function createMapIcon(iconName: string, iconOptions: L.IconOptions) {
     const iconExists = iconName in MapIcons;
     if (!iconExists) {
         MapIcons[iconName] = new L.Icon(iconOptions);

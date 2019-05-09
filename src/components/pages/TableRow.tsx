@@ -1,41 +1,5 @@
 import * as React from 'react';
-import { StaticMap, Marker } from 'react-map-gl';
-import * as MapboxGL from 'mapbox-gl';
-import { MultiMedia } from '../utils/MultiMedia';
-
-import { FaStar } from 'react-icons/fa';
-
-interface MyMapProps {
-  lng: number;
-  lat: number;
-}
-
-class MyRowMap extends React.Component<MyMapProps, {}> {
-
-  map: MapboxGL.Map;
-
-  render() {
-    return (
-      <div>
-        <StaticMap
-          mapboxApiAccessToken="pk.eyJ1IjoiYWNyb3NzdGhlY2xvdWQiLCJhIjoiY2ppNnQzNG9nMDRiMDNscDh6Zm1mb3dzNyJ9.nFFwx_YtN04_zs-8uvZKZQ"
-          width={200}
-          height={200}
-          longitude={this.props.lng}
-          latitude={this.props.lat}
-          zoom={6}
-        >
-          <Marker longitude={this.props.lng} latitude={this.props.lat}>
-          <div style={{color: '#00f'}}>
-            <FaStar size={24} />
-         </div>
-          </Marker>
-        </StaticMap>
-      </div>
-    );
-  }
-
-}
+import { MultiMedia } from 'src/components/utils/MultiMedia';
 
 export interface Person {
   personId: string;
@@ -83,7 +47,6 @@ export class TableRow extends React.Component<OceanObject, {}> {
         <td>{renderPeople(this.props.people)}</td>
         <td>{this.props.tags ? this.props.tags.toString() : ''}</td>
         <td vertical-align="top"><Items urls={this.props.urls} /></td>
-        <td><MyRowMap lng={this.props.position[0]} lat={this.props.position[1]} /></td>
       </tr>
     );
   }

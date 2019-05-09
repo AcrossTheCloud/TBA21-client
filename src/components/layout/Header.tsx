@@ -1,45 +1,33 @@
 import * as React from 'react';
+import { Link } from 'react-router-dom';
+import { Auth } from 'aws-amplify';
 import {
   Collapse,
   Navbar,
   NavbarToggler,
   NavbarBrand,
   Nav,
-  NavItem,
-  NavLink } from 'reactstrap';
+  NavItem
+} from 'reactstrap';
 
-import { Auth } from 'aws-amplify';
+import { checkAuth } from '../utils/Auth';
 
-export default class Header extends React.Component<{history: any}, {isAuthenticated: boolean, isOpen: boolean}> { // tslint:disable-line: no-any
+interface State {
+  isAuthenticated: boolean;
+  authorisation?: string[];
+  isOpen: boolean;
+}
 
-  state: {isOpen: false, isAuthenticated: false};
-
+export default class Header extends React.Component<{history: any}, State> { // tslint:disable-line: no-any
   async componentDidMount() {
-    try {
-      if (await Auth.currentSession()) {
-        this.setState({ isAuthenticated: true });
-      }
-    } catch (e) {
-      if (e !== 'No current user') {
-        this.setState({ isAuthenticated: false });
-      }
-    }
-
+    this.setState(await checkAuth());
   }
 
   constructor(props: any) { // tslint:disable-line: no-any
     super(props);
 
     this.props.history.listen(async (location: any) => { // tslint:disable-line: no-any
-      try {
-        if (await Auth.currentSession()) {
-          this.setState({ isAuthenticated: true });
-        }
-      } catch (e) {
-        if (e !== 'No current user') {
-          this.setState({ isAuthenticated: false });
-        }
-      }
+      this.setState(await checkAuth());
     });
 
     this.toggle = this.toggle.bind(this);
@@ -71,38 +59,38 @@ export default class Header extends React.Component<{history: any}, {isAuthentic
           <Collapse isOpen={this.state.isOpen} navbar>
             <Nav className="ml-auto" navbar>
               <NavItem>
-                <NavLink href="/">Home</NavLink>
+                <Link className="nav-link" to="/">Home</Link>
               </NavItem>
               { this.state.isAuthenticated ?
                 <NavItem>
-                  <NavLink href="/itemEntry">Item Metadata Entry</NavLink>
+                  <Link className="nav-link" to="/itemEntry">Item Metadata Entry</Link>
                 </NavItem>
                 : ''
               }
               { this.state.isAuthenticated ?
                 <NavItem>
-                  <NavLink href="/PersonEntry">Person Metadata Entry</NavLink>
+                  <Link className="nav-link" to="/PersonEntry">Person Metadata Entry</Link>
                 </NavItem>
                 : ''
               }
 
               <NavItem>
-                <NavLink href="/view">View Items</NavLink>
+                <Link className="nav-link" to="/view">View Items</Link>
               </NavItem>
               <NavItem>
-                <NavLink href="/map">Map View</NavLink>
+                <Link className="nav-link" to="/map">Map View</Link>
               </NavItem>
 
               <NavItem>
-                <NavLink href="/viewGraph">View Items and People Graph</NavLink>
+                <Link className="nav-link" to="/viewGraph">View Items and People Graph</Link>
               </NavItem>
               { this.state.isAuthenticated ?
                 <NavItem>
-                  <NavLink href="/" onClick={() => { this.logout(); }}>Logout</NavLink>
+                  <Link className="nav-link" to="/" onClick={() => { this.logout(); }}>Logout</Link>
                 </NavItem>
                 :
                 <NavItem>
-                  <NavLink href="/login">Login</NavLink>
+                  <Link className="nav-link" to="/login">Login</Link>
                 </NavItem>
               }
             </Nav>
