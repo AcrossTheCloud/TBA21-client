@@ -1,13 +1,16 @@
 import * as React from 'react';
 import { Map, Marker, Popup, TileLayer } from 'react-leaflet';
+
+import { LocationEvent } from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
 import { connect } from 'react-redux';
 
 import { getMapIcon } from './icons';
 import { OceanObject, renderPeople, Items } from 'src/components/pages/TableRow';
 import { fetchMarkers, putModifiedMarkers } from 'src/actions/map/map';
 
-import 'leaflet/dist/leaflet.css';
-import 'styles/pages/map/map.scss';
+import '../../../styles/pages/map/map.scss';
 
 interface Props {
   fetchMarkers: Function;
@@ -56,6 +59,8 @@ const MapMarkerPopUpContentTemplate = (item: MarkerContent) => {
 };
 
 class MapView extends React.Component<Props, State> {
+  map;
+
   state = {
     lat: -34.4282514,
     lng: 152, // Default position (Wollongong-ish)
@@ -74,6 +79,9 @@ class MapView extends React.Component<Props, State> {
   }
 
   componentDidMount(): void {
+
+    this.locateUser();
+
     const hasMarkers = (this.props.markers && this.props.markers.length);
     const hasModifiedMarkers = (this.props.modifiedMarkers && this.props.modifiedMarkers.length);
 
@@ -100,6 +108,21 @@ class MapView extends React.Component<Props, State> {
 
   closeSideBar() {
     this.setState({sideBarState: 'closed'});
+  }
+
+  /**
+   * Use leaflet's locate method to locate the use and set the view to that location.
+   */
+  locateUser = () => {
+    this.map.leafletElement.locate()
+      .on('locationfound', (location: LocationEvent) => {
+        this.map.leafletElement.flyTo(location.latlng, 15);
+      })
+      .on('locationerror', () => {
+        // Fly to a default location if the user declines our request to get their GPS location or if we had trouble getting said location.
+        // Ideally the map would already be in this location anyway.
+        this.map.leafletElement.flyTo([this.state.lat, this.state.lng], 10);
+      });
   }
 
   modifyMarkers = (data: any): void => { // tslint:disable-line: no-any
@@ -240,11 +263,13 @@ class MapView extends React.Component<Props, State> {
           </div>
         </div>
 
-        <Map center={position} zoom={this.state.zoom} style={MapStyle}>
-          <TileLayer
-            url={tileLayer}
-          />
-
+        <Map
+          center={position}
+          zoom={this.state.zoom}
+          style={MapStyle}
+          ref={map => this.map = map}
+        >ref={map => this.map = map}
+          <TileLayer url={tileLayer} />
           <this.MarkerList markers={this.state.markers}/>
         </Map>
       </div>

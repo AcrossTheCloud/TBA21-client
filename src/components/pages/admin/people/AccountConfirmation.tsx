@@ -25,8 +25,6 @@ class AccountConfirmationClass extends React.Component<Props, State>  {
 
     this.matchEmail = has(props.match, 'params.email') ? get(props.match, 'params.email') : undefined;
 
-    console.log('this.matchEmail', props.match, this.matchEmail);
-
     this.state = {
       email: this.matchEmail,
       errorMessage: undefined,
