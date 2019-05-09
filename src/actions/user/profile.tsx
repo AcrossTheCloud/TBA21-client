@@ -16,7 +16,6 @@ export const PROFILE_SUCCESS = 'PROFILE_SUCCESS';
  * Dispatches to the PROFILE_ERROR reducer action.type
  */
 export const dispatchError = (message: string) => dispatch => {
-  console.log('dispatchError');
   dispatch({type: PROFILE_ERROR, message: message});
 };
 
@@ -41,8 +40,6 @@ export const updateAttributes = (attributes: any) => async dispatch => { // tsli
       throw new Error('Not authed');
     }
   } catch (e) {
-    console.log(e);
-
     // Account with that email address already exists in Cognito.
     if (e.code === 'AliasExistsException') {
       dispatch({type: PROFILE_ERROR, message: 'An account with the given email already exists.', showForm: true});

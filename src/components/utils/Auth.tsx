@@ -39,7 +39,6 @@ export const checkAuth = async (): Promise<Authorisation> => {
         authorisation[group] = true;
       });
     }
-
     return Object.keys(authorisation).length ? { authorisation: authorisation, isAuthenticated: true } : { isAuthenticated: true };
   } catch (e) {
     if (e !== 'not authenticated') {

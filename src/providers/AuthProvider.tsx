@@ -33,7 +33,7 @@ export class AuthProvider extends React.Component<Props, State> {
   async componentDidMount(): Promise<void> {
     if (!this.state.isAuthenticated) {
       const auth = await checkAuth();
-      this.setState( prevState => ({ ...prevState, ...auth }) );
+      this.setState(prevState => ({...prevState, ...auth}));
     }
   }
 

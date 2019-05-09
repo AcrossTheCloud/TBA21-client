@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { Auth } from 'aws-amplify';
 import {
   Collapse,
   Navbar,
@@ -10,7 +9,6 @@ import {
   NavItem
 } from 'reactstrap';
 
-import { checkAuth } from '../utils/Auth';
 import { AuthConsumer } from '../../providers/AuthProvider';
 
 interface Props {
@@ -18,13 +16,7 @@ interface Props {
 }
 
 interface State {
-  isAuthenticated: boolean;
-  authorisation?: Authorisation;
   isOpen: boolean;
-}
-
-interface Authorisation {
-  [key: string]: boolean;
 }
 
 export default class Header extends React.Component<Props, State> { // tslint:disable-line: no-any
@@ -32,19 +24,10 @@ export default class Header extends React.Component<Props, State> { // tslint:di
     super(props);
 
     this.state = {
-      isAuthenticated: false,
       isOpen: false
     };
 
-    this.props.history.listen(async (location: any) => { // tslint:disable-line: no-any
-      this.setState(await checkAuth());
-    });
-
     this.toggle = this.toggle.bind(this);
-  }
-
-  async componentDidMount() {
-    this.setState(await checkAuth());
   }
 
   toggle() {
@@ -53,16 +36,7 @@ export default class Header extends React.Component<Props, State> { // tslint:di
     });
   }
 
-  async logout() {
-    try {
-      await Auth.signOut();
-      this.props.history.push('/');
-    } catch (e) {
-      alert(e.message);
-    }
-  }
   render() {
-
     return (
       <AuthConsumer>
         {({ isAuthenticated, authorisation, logout }) => {
