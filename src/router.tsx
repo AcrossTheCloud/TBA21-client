@@ -49,7 +49,7 @@ export const AppRouter = () => {
             <Route exact path="/login" render={(props) => <Login {... {history: props.history}} />} />
             <Route exact path="/signup" render={(props) => <SignUp {... {history: props.history}} />} />
             <Route exact path="/resetPassword/" render={(props) => <ResetPassword {... {history: props.history}} />} />
-            <Route exact path="/resetPassword/:email" render={(props) => <ResetPassword {... {history: props.history}} />} />
+            <Route exact path="/resetPassword/:confirm" render={(props) => <ResetPassword {... {history: props.history}} />} />
             <Route exact path="/viewGraph" component={NetworkGraph} />
             <Route exact path="/Profile" render={(props) => <Profile {... {history: props.history}}/>} />
 

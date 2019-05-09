@@ -11,7 +11,7 @@ import 'styles/pages/user/resetPassword.scss';
 import { RouteComponentProps, withRouter } from 'react-router';
 
 export class ResetPasswordClass extends React.Component<RouteComponentProps, {}> {
-  matchEmail;
+  matchConfirm;
 
   state: {
     isLoading: false,
@@ -25,7 +25,7 @@ export class ResetPasswordClass extends React.Component<RouteComponentProps, {}>
   constructor(props: RouteComponentProps) {
     super(props);
 
-    this.matchEmail = has(this.props.match, 'params.email') ? get(this.props.match, 'params.email') : undefined;
+    this.matchConfirm = has(this.props.match, 'params.confirm') ? get(this.props.match, 'params.confirm') : undefined;
 
     this.state = {
       isLoading: false,
@@ -42,9 +42,16 @@ export class ResetPasswordClass extends React.Component<RouteComponentProps, {}>
   }
 
   validateNewPasswordForm() {
-    return this.state.password.length > 0 &&
-      this.state.password === this.state.confirmPassword &&
-      this.state.confirmationCode.length > 0;
+    if (this.matchConfirm) {
+      return this.state.email.length > 0 &&
+        this.state.password.length > 0 &&
+        this.state.password === this.state.confirmPassword &&
+        this.state.confirmationCode.length > 0;
+    } else {
+      return this.state.password.length > 0 &&
+        this.state.password === this.state.confirmPassword &&
+        this.state.confirmationCode.length > 0;
+    }
   }
 
   handleResetSubmit = async (event: any) => { // tslint:disable-line: no-any
@@ -70,7 +77,7 @@ export class ResetPasswordClass extends React.Component<RouteComponentProps, {}>
     this.setState({ isLoading: true });
 
     try {
-      await Auth.forgotPasswordSubmit(this.state.email || this.matchEmail, this.state.confirmationCode, this.state.password);
+      await Auth.forgotPasswordSubmit(this.state.email, this.state.confirmationCode, this.state.password);
       // this.props.userHasAuthenticated(true);
       this.props.history.push('/login');
     } catch (e) {
@@ -81,7 +88,20 @@ export class ResetPasswordClass extends React.Component<RouteComponentProps, {}>
 
   renderNewPasswordForm() {
     return (
-      <form onSubmit={this.handleNewPasswordSubmit} className={'small'}>
+      <form onSubmit={this.handleNewPasswordSubmit} className="small">
+        {
+          this.matchConfirm ?
+            <FormGroup id="email">
+              <Label>Email</Label>
+              <Input
+                autoFocus
+                type="email"
+                value={this.state.email}
+                onChange={(e) => this.setState({email: e.target.value})}
+              />
+            </FormGroup>
+          : <></>
+        }
         <FormGroup id="password">
           <Label>Password</Label>
           <Input
@@ -147,7 +167,7 @@ export class ResetPasswordClass extends React.Component<RouteComponentProps, {}>
   render() {
     return (
       <div className={'resetPassword'}>
-        {this.state.reset === null && !this.matchEmail ? this.renderResetForm() : this.renderNewPasswordForm()}
+        {this.state.reset === null && !this.matchConfirm ? this.renderResetForm() : this.renderNewPasswordForm()}
       </div>
     );
   }
