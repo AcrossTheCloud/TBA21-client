@@ -23,6 +23,7 @@ import * as emailHelper from '../../../utils/inputs/email';
 import { getCurrentCredentials } from '../../../utils/Auth';
 import AdminResetPassword from  '../../../utils/user/AdminResetPassword';
 import { ConfirmUser } from '../../../utils/user/ConfirmUser';
+import { ToggleUserStatus } from '../../../utils/user/ToggleUserStatus';
 
 interface State {
   isOpen: boolean;
@@ -86,6 +87,7 @@ export default class EditUser extends React.Component<{}, State> {
   emailField;
   resetUserPasswordRef;
   confirmUserRef;
+  enableUserRef;
   cognitoIdentityServiceProvider;
   userPoolId: string;
 
@@ -95,6 +97,7 @@ export default class EditUser extends React.Component<{}, State> {
     this.emailField = React.createRef();
     this.resetUserPasswordRef = React.createRef();
     this.confirmUserRef = React.createRef();
+    this.enableUserRef = React.createRef();
 
     this.state = {
       isOpen: false,
@@ -203,6 +206,22 @@ export default class EditUser extends React.Component<{}, State> {
     await this.updateUserAttributes(attributesToChange);
     await this.updateUserGroups();
 
+    // Reload the modal with the updated user details.
+    this.setState({ ...initialState, userId: this.state.userId });
+    this.loadUserDetails(this.state.userId);
+  }
+
+  openEnableUserModal = () => {
+    this.enableUserRef.current.loadDetails(this.state.userId, this.state.enabled, this.state.userEmail, this.onToggleUserChange);
+  }
+
+  onToggleUserChange = () => {
+    if (!this.state.userId || typeof this.state.userId === 'undefined') {
+      this.setState({
+        errorMessage: 'Please close the window and re-open, looks like we\'ve lost the user\'s details.',
+      });
+      return;
+    }
     // Reload the modal with the updated user details.
     this.setState({ ...initialState, userId: this.state.userId });
     this.loadUserDetails(this.state.userId);
@@ -567,6 +586,7 @@ export default class EditUser extends React.Component<{}, State> {
         return (
           <>
             <Button color="danger" className="mr-auto" onClick={this.deleteUserModalToggle} disabled={!this.state.enabled}>DELETE USER</Button>{' '}
+            {this.state.enabled ? <Button color="danger" className="mr-auto" onClick={this.openEnableUserModal}>DISABLE USER </Button> : <></>}
             {this.state.emailVerified ? <Button color="primary" onClick={() => this.resetUserPasswordRef.current.loadDetails(this.state.userId, this.state.userEmail)} disabled={!this.state.enabled}>Reset Password</Button> : <></>}
             <Button color="primary" onClick={this.submitChanges} disabled={!this.state.enabled}>Change User</Button>{' '}
           </>
@@ -583,7 +603,7 @@ export default class EditUser extends React.Component<{}, State> {
         <ModalBody>
           {this.state.errorMessage ? <Alert color="danger">{this.state.errorMessage}</Alert> : <></>}
           {this.state.successMessage ? <Alert color="success">{this.state.successMessage}</Alert> : <></>}
-          {!this.state.enabled ? <Alert color="danger">This user is disabled, please enable them before continuing</Alert> : <></>}
+          {!this.state.enabled ? <Alert color="danger">This user is disabled, please enable them before continuing <Button color="secondary" onClick={this.openEnableUserModal}>Enable User</Button></Alert> : <></>}
           {
             this.state.userId ?
               <Form onSubmit={e => { e.preventDefault(); }} autoComplete="off">
@@ -622,6 +642,7 @@ export default class EditUser extends React.Component<{}, State> {
                 </Modal>
                 <AdminResetPassword ref={this.resetUserPasswordRef} />
                 <ConfirmUser ref={this.confirmUserRef} />
+                <ToggleUserStatus ref={this.enableUserRef} />
               </Form>
             : <></>
           }
