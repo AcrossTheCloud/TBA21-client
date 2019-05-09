@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Redirect, Route, RouteProps } from 'react-router';
+import { Route } from 'react-router';
 import { Router } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { has } from 'lodash';
@@ -34,24 +34,6 @@ import {
 
 import { AuthConsumer, AuthProvider } from './providers/AuthProvider';
 
-/**
- *
- * Checks auth and returns the Component or Redirects to / if the User is not an Admin
- *
- * @param Component {React.Component}
- * @param otherProps All other props provided
- * @returns A Route of Component or Redirect
- */
-const AdminRoute: React.FunctionComponent<RouteProps> = ({ component: Component, ...otherProps }: { component: React.ComponentType<RouteProps>; }) => {
-  return (
-    <AuthConsumer>
-      {({ authorisation }) => (
-        <Route {...otherProps} render={props => has(authorisation, 'admin') ? <Component {...props} /> : <Redirect to="/" />} />
-      )}
-    </AuthConsumer>
-  );
-};
-
 export const AppRouter = () => {
   return (
     <AuthProvider history={history}>
@@ -59,6 +41,7 @@ export const AppRouter = () => {
         <Router history={history}>
           <div>
             <Route path="/" render={(props) => <App {... {history: props.history}}/>} />
+
             <Route exact path="/" component={Home} />
             <Route exact path="/view" component={ViewItems} />
             <Route path="/view/:itemId" component={ViewItem} />
@@ -71,9 +54,18 @@ export const AppRouter = () => {
 
             <Route exact path="/confirm/:email" component={AccountConfirmation} />
 
-            <AdminRoute exact path="/ManageUsers" component={ManageUsers}/>
-            <AdminRoute exact path="/itemEntry" component={ItemEntryForm} />
-            <AdminRoute exact path="/PersonEntry" component={PersonEntryForm} />
+            <AuthConsumer>
+              {({authorisation}) => (
+                has(authorisation, 'admin') ?
+                  <>
+                    <Route exact path="/ManageUsers" component={ManageUsers} />
+                    <Route exact path="/itemEntry" component={ItemEntryForm} />
+                    <Route exact path="/PersonEntry" component={PersonEntryForm} />
+                  </>
+                : <></>
+                )}
+            </AuthConsumer>
+
           </div>
         </Router>
       </Provider>

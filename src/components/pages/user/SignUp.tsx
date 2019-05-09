@@ -9,7 +9,6 @@ import { ISignUpResult } from 'amazon-cognito-identity-js';
 
 import LoaderButton from 'src/components/utils/LoaderButton';
 import 'styles/pages/user/signup.scss';
-import { checkAuth } from '../../utils/Auth';
 import { AccountConfirmation } from '../admin/people/AccountConfirmation';
 
 interface Props {
@@ -38,15 +37,6 @@ export class SignUp extends React.Component<Props, State> {
       confirmationCode: '',
       newUser: null
     };
-  }
-
-  async componentDidMount(): Promise<void> {
-    const { isAuthenticated } = await checkAuth();
-
-    // Redirect to home page if authenticated.
-    if (isAuthenticated) {
-      this.props.history.push(`/`);
-    }
   }
 
   validateForm() {
