@@ -1,5 +1,5 @@
 import { FETCH_ITEM, FETCH_ITEM_ERROR } from '../../actions/items/viewItem';
-import { OceanObject } from '../../components/pages/TableRow';
+import { OceanObject } from '../../components/TableRow';
 
 export interface State {
   hasError: boolean;

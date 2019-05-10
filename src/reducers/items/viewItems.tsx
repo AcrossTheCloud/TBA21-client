@@ -1,5 +1,5 @@
 import { FETCH_ITEMS } from '../../actions/items/viewItems';
-import { OceanObject } from '../../components/pages/TableRow';
+import { OceanObject } from '../../components/TableRow';
 
 export interface State {
   items: Array<OceanObject>;

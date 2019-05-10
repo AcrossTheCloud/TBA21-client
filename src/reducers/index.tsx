@@ -3,7 +3,7 @@ import ViewItems from '../reducers/items/viewItems';
 import ViewItem from '../reducers/items/viewItem';
 import Map from '../reducers/map/map';
 import Profile from '../reducers/user/profile';
-import manageUsers from '../reducers/admin/people/manageUsers';
+import manageUsers from '../reducers/admin/user/manageUsers';
 
 const reducers = {
   viewItems: ViewItems,

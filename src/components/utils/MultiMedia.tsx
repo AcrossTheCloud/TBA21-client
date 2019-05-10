@@ -1,7 +1,7 @@
 import * as React from 'react';
 import ReactPlayer from 'react-player';
 
-import 'styles/pages/multiMedia.scss';
+import 'src/styles/components/multiMedia.scss';
 
 interface MultiMediaProps {
   url: string;
