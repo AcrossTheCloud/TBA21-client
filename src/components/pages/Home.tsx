@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
+import CollectionTable from './admin/tables/CollectionTable';
 
 import 'styles/pages/home.scss';
 
@@ -17,6 +18,8 @@ export const Home: React.StatelessComponent<{}> = () => {
             Open the archive
           </Link>
         </p>
+
+        <CollectionTable />
       </div>
     );
 };
