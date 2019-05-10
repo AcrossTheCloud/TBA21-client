@@ -1,9 +1,13 @@
 import * as React from 'react';
-import { Button, FormGroup, Input, Label } from 'reactstrap';
-import { Auth } from 'aws-amplify';
-import 'styles/pages/user/login.scss';
+import { Alert, Button, FormGroup, Input, Label } from 'reactstrap';
+
 import { loadFacebookSDK } from '../../utils/Facebook/FacebookSDK';
 import FacebookButton from '../../utils/Facebook/FacebookButton';
+
+import { AuthContext } from '../../../providers/AuthProvider';
+
+import 'styles/pages/user/login.scss';
+import { AccountConfirmation } from '../admin/people/AccountConfirmation';
 
 interface Props {
   history: any; // tslint:disable-line: no-any
@@ -12,18 +16,22 @@ interface Props {
 interface State {
   email: string;
   password: string;
+  errorMessage: string | undefined;
+  notConfirmed: boolean;
 }
 
 export class Login extends React.Component<Props, State> {
 
-  constructor(props: any) { // tslint:disable-line: no-any
+  constructor(props: Props) {
     super(props);
 
     this.state = {
       email: '',
       password: '',
+      errorMessage: undefined,
+      notConfirmed: false
     };
-    
+
     loadFacebookSDK();
   }
 
@@ -31,24 +39,38 @@ export class Login extends React.Component<Props, State> {
     return this.state.email.length > 0 && this.state.password.length > 0;
   }
 
-  handleFbLogin = () => {
-    this.props.history.push('/');
-  }
-
   async handleSubmit(event: any) { // tslint:disable-line: no-any
     event.preventDefault();
+
+    const loginFunction = this.context.login;
     try {
-      await Auth.signIn(this.state.email, this.state.password);
-      this.props.history.push('/');
+      await loginFunction(this.state.email, this.state.password);
     } catch (e) {
-      alert(e.message);
+      if (e.code === 'UserNotConfirmedException') {
+        this.setState( { notConfirmed: true });
+      }
+      if (e.code === 'UserLoginEmailPasswordException') {
+        this.setState( { errorMessage: 'We\'ve had a bit of a technical issue.' });
+      }
     }
   }
 
   render() {
+    const ErrorMessage = () => (this.state.errorMessage ? <Alert color="danger">{this.state.errorMessage}</Alert> : <></>);
+
+    if (this.state.notConfirmed) {
+      return (
+        <>
+          <ErrorMessage />
+          <AccountConfirmation email={this.state.email} />
+        </>
+      );
+    }
+
     return (
-      <div className={'login'}>
-        <form onSubmit={(e) => { this.handleSubmit(e); }} className={'small'}>
+      <div className="login">
+        <ErrorMessage />
+        <form onSubmit={(e) => { this.handleSubmit(e); }} className="small">
           <FormGroup id="email">
             <Label>Email</Label>
             <Input
@@ -85,12 +107,12 @@ export class Login extends React.Component<Props, State> {
           >
             Reset password
           </Button>
-          <FacebookButton
-            onLogin={this.handleFbLogin}
-          />
+          <FacebookButton />
         </form>
-
       </div>
     );
   }
 }
+
+// Bind AuthContext to Login so we can access things outside of the child <AuthConsumer> JSX tag
+Login.contextType = AuthContext;

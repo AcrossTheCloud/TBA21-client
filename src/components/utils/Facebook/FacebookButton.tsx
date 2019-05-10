@@ -1,11 +1,8 @@
 import * as React from 'react';
-import { Auth } from 'aws-amplify';
 import { Button } from 'reactstrap';
 import { waitForInit } from './FacebookSDK';
+import { AuthConsumer } from '../../../providers/AuthProvider';
 
-interface Props {
-  onLogin: Function;
-}
 interface State {
   isLoading: boolean;
   sdkLoaded: boolean;
@@ -13,9 +10,10 @@ interface State {
   password: string;
 }
 
-class FacebookButton extends React.Component<Props, State> {
+class FacebookButton extends React.Component<{}, State> {
 
   theWindow: any = window; // tslint:disable-line: no-any
+  _isMounted = false;
 
   constructor(props: any) { // tslint:disable-line: no-any
     super(props);
@@ -29,67 +27,53 @@ class FacebookButton extends React.Component<Props, State> {
   }
 
   async componentDidMount() {
-    const loadingSDK = await waitForInit();
-
-    if (loadingSDK) {
-      this.setState({ sdkLoaded: true, isLoading: false });
+    this._isMounted = true;
+    if (this._isMounted) {
+      const loadingSDK = await waitForInit();
+      if (loadingSDK) {
+        this.setState({ sdkLoaded: true, isLoading: false });
+      }
     }
   }
-  statusChangeCallback = (response: any) => { // tslint:disable-line: no-any
-    if (response.status === 'connected') {
-      this.handleResponse(response.authResponse);
-    } else {
-      this.handleError(response);
-    }
-  }
-  checkLoginState = () => {
-      this.theWindow.FB.getLoginStatus(this.statusChangeCallback);
+
+  componentWillUnmount() {
+    this._isMounted = false;
   }
 
-  handleClick = () => {
+  handleClick = (e: React.MouseEvent<HTMLButtonElement>, authProviderCallback: Function): void  => {
     this.theWindow.FB.login(
-      this.checkLoginState,
-      {scope: 'public_profile,email'}
-    );
+      () => {
+        this.theWindow.FB.getLoginStatus( async (response: any): Promise<void> => { // tslint:disable-line: no-any
+          if (response.status === 'connected') {
+            this.setState({ isLoading: true });
+            await authProviderCallback(response.authResponse);
+          } else {
+            this.setState({ isLoading: false });
+            this.handleError(response);
+          }
+        });
+      },
+      {scope: 'public_profile,email'});
   }
 
   handleError(error: string) {
     alert(error);
   }
 
-  async handleResponse(data: { email: string; accessToken: string; expiresIn: number; }) {
-
-    const { email, accessToken: token, expiresIn } = data;
-    const expiresAt = expiresIn * 1000 + new Date().getTime();
-    const user = { name, email };
-
-    this.setState({ isLoading: true });
-
-    try {
-      const response = await Auth.federatedSignIn(
-        'facebook',
-        { token, 'expires_at': expiresAt },
-        user
-      );
-
-      this.setState({ isLoading: false });
-      this.props.onLogin(response);
-    } catch (e) {
-      this.setState({ isLoading: false });
-      this.handleError(e);
-    }
-  }
-
   render() {
     if (this.state.sdkLoaded) {
       return (
-        <Button
-          block
-          onClick={this.handleClick}
-          disabled={this.state.isLoading}
-        >
-        Login with Facebook
-        </Button>
+        <AuthConsumer>
+          {({ facebookLogin }) => (
+            <Button
+              block
+              onClick={e => this.handleClick(e, facebookLogin)}
+              disabled={this.state.isLoading}
+            >
+            Login with Facebook
+            </Button>
+          )}
+        </AuthConsumer>
       );
     } else {
       return <></>;
