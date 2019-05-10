@@ -76,7 +76,7 @@ export const listUsers = async (limit: number = 15, paginationToken?: string, us
         email: userAttributes.email,
         enabled: user.Enabled,
         status: user.UserStatus,
-        emailVerified: userAttributes.email_verified
+        emailVerified: userAttributes.email_verified === 'true'
       };
     });
 
