@@ -5,22 +5,24 @@ import { Map, Marker, TileLayer } from 'react-leaflet';
 import { LocationEvent } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-interface MapState {
+interface State {
   position: Position | null;
   marker: Position;
   zoom: number;
 }
-interface MapProps {
+
+interface Props {
   markerPosition?: Position | null;
+  positionCallback?: Function;
 }
 
-type Position = { lat: number, lng: number };
+export type Position = { lat: number, lng: number };
 
-export default class DraggableMap extends React.Component<MapProps, MapState> {
+export default class DraggableMap extends React.Component<Props, State> {
 
   map = React.createRef<Map>();
 
-  state: MapState = {
+  state: State = {
     position: null,
     zoom: 13,
     marker: {
@@ -50,6 +52,12 @@ export default class DraggableMap extends React.Component<MapProps, MapState> {
     }
   }
 
+  componentDidUpdate(): void {
+    if (typeof this.props.positionCallback === 'function') {
+      this.props.positionCallback(this.state.marker);
+    }
+  }
+
   getPosition = () => {
     const marker = this.refmarker.current;
     if (marker !== null) {
@@ -63,12 +71,12 @@ export default class DraggableMap extends React.Component<MapProps, MapState> {
     const map = this.map.current;
     if (map !== null) {
       const position = map.leafletElement.mouseEventToLatLng(event.originalEvent);
-      console.log(map.leafletElement.mouseEventToLatLng(event.originalEvent));
 
       map.leafletElement.flyTo(position);
       this.setState({ marker: position });
     }
   }
+
   draggedMarker = () => {
     const
       marker = this.refmarker.current,
@@ -83,24 +91,13 @@ export default class DraggableMap extends React.Component<MapProps, MapState> {
       });
     }
   }
-  latInputChange = () => {
+
+  inputChange = () => {
     const map = this.map.current;
     if (map !== null) {
       this.setState(
         {
-          marker: {...this.state.marker, lat: this.latInputRef.value},
-        },
-        () => {
-          map.leafletElement.flyTo(this.state.marker);
-        });
-    }
-  }
-  lngInputChange = () => {
-    const map = this.map.current;
-    if (map !== null) {
-      this.setState(
-        {
-          marker: {...this.state.marker, lng: this.lngInputRef.value},
+          marker: {lat: parseFloat(this.latInputRef.value), lng: parseFloat(this.lngInputRef.value)},
         },
         () => {
           map.leafletElement.flyTo(this.state.marker);
@@ -148,13 +145,13 @@ export default class DraggableMap extends React.Component<MapProps, MapState> {
             <Col md="6">
               <InputGroup>
                 <InputGroupAddon addonType="prepend">Lat</InputGroupAddon>
-                <Input type="number" value={this.state.marker.lat} innerRef={(el) => { this.latInputRef = el; }} onChange={this.latInputChange}/>
+                <Input type="number" value={this.state.marker.lat} innerRef={(el) => { this.latInputRef = el; }} onChange={this.inputChange}/>
               </InputGroup>
             </Col>
             <Col md="6">
               <InputGroup>
                 <InputGroupAddon addonType="prepend">Lng</InputGroupAddon>
-                <Input type="number" value={this.state.marker.lng} innerRef={(el) => { this.lngInputRef = el; }} onChange={this.lngInputChange}/>
+                <Input type="number" value={this.state.marker.lng} innerRef={(el) => { this.lngInputRef = el; }} onChange={this.inputChange}/>
               </InputGroup>
             </Col>
           </Row>
