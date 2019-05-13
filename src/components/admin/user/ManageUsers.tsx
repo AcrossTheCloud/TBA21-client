@@ -116,7 +116,7 @@ class ManageUsers extends React.Component<Props, State> {
     }
   }
 
-  componentWillUpdate(): void {
+  componentDidUpdate(): void {
     if (this.state.isLoading && this.props.users) {
       this.setState({ isLoading: false });
     }
