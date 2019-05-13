@@ -1,8 +1,11 @@
 import * as React from 'react';
 import { Container, Row, Col, Input, InputGroup, InputGroupAddon } from 'reactstrap';
-import { getMapIcon } from './icons';
 import { Map, Marker, TileLayer } from 'react-leaflet';
 import { LocationEvent } from 'leaflet';
+import { isEqual } from 'lodash';
+
+import { getMapIcon } from './icons';
+
 import 'leaflet/dist/leaflet.css';
 
 interface State {
@@ -19,6 +22,7 @@ interface Props {
 export type Position = { lat: number, lng: number };
 
 export default class DraggableMap extends React.Component<Props, State> {
+  _isMounted;
 
   map = React.createRef<Map>();
 
@@ -37,9 +41,13 @@ export default class DraggableMap extends React.Component<Props, State> {
 
   constructor(props: any) { // tslint:disable-line: no-any
     super(props);
+
+    this._isMounted = false;
   }
 
   componentDidMount(): void {
+    this._isMounted = true;
+
     if (this.props.markerPosition) {
       this.setState({
         marker: this.props.markerPosition,
@@ -52,10 +60,18 @@ export default class DraggableMap extends React.Component<Props, State> {
     }
   }
 
-  componentDidUpdate(): void {
+  componentDidUpdate(prevProps: Props, prevState: State): void {
     if (typeof this.props.positionCallback === 'function') {
-      this.props.positionCallback(this.state.marker);
+
+      // If the marker position object isn't the same as the Previous State or Marker Position given to us in props, don't run this.
+      if (!isEqual(prevState.marker, this.state.marker) && !isEqual(this.state.marker, this.props.markerPosition)) {
+        this.props.positionCallback(this.state.marker);
+      }
     }
+  }
+
+  componentWillUnmount(): void {
+    this._isMounted = false;
   }
 
   getPosition = () => {
@@ -69,7 +85,7 @@ export default class DraggableMap extends React.Component<Props, State> {
 
   onMapClick = (event) => {
     const map = this.map.current;
-    if (map !== null) {
+    if (map !== null && this._isMounted) {
       const position = map.leafletElement.mouseEventToLatLng(event.originalEvent);
 
       map.leafletElement.flyTo(position);
@@ -82,7 +98,7 @@ export default class DraggableMap extends React.Component<Props, State> {
       marker = this.refmarker.current,
       map = this.map.current;
 
-    if (marker !== null && map !== null) {
+    if (marker !== null && map !== null && this._isMounted) {
       const position = marker.leafletElement.getLatLng();
 
       map.leafletElement.flyTo(position);
@@ -94,7 +110,7 @@ export default class DraggableMap extends React.Component<Props, State> {
 
   inputChange = () => {
     const map = this.map.current;
-    if (map !== null) {
+    if (map !== null && this._isMounted) {
       this.setState(
         {
           marker: {lat: parseFloat(this.latInputRef.value), lng: parseFloat(this.lngInputRef.value)},
@@ -110,7 +126,7 @@ export default class DraggableMap extends React.Component<Props, State> {
    */
   locateUser = (): void => {
     const map = this.map.current;
-    if (map !== null) {
+    if (map !== null && this._isMounted) {
       map.leafletElement.locate()
         .on('locationfound', (location: LocationEvent) => {
           map.leafletElement.flyTo(location.latlng, 15);
