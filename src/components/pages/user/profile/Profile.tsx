@@ -26,7 +26,6 @@ interface Props {
 }
 
 interface State {
-  isAuthenticated: boolean;
   credentials: {};
 }
 
@@ -56,7 +55,6 @@ class Profile extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      isAuthenticated: false,
       credentials: {}
     };
   }
@@ -141,7 +139,7 @@ class Profile extends React.Component<Props, State> {
 
         <ChangePassword changePassword={this.props.changePassword} />
 
-        <DeleteAccount isAuthenticated={this.state.isAuthenticated} deleteAccountAction={this.props.deleteAccount}/>
+        <DeleteAccount deleteAccountAction={this.props.deleteAccount}/>
       </Container>
     );
   }
