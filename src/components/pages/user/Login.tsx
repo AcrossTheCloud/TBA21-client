@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { Alert, Button, FormGroup, Input, Label } from 'reactstrap';
 
-import { loadFacebookSDK } from '../../utils/Facebook/FacebookSDK';
 import FacebookButton from '../../utils/Facebook/FacebookButton';
 
 import { AuthContext } from '../../../providers/AuthProvider';
@@ -18,6 +17,7 @@ interface State {
   password: string;
   errorMessage: string | undefined;
   notConfirmed: boolean;
+  isSignUp: boolean;
 }
 
 export class Login extends React.Component<Props, State> {
@@ -29,10 +29,10 @@ export class Login extends React.Component<Props, State> {
       email: '',
       password: '',
       errorMessage: undefined,
-      notConfirmed: false
+      notConfirmed: false,
+      isSignUp: false
     };
 
-    loadFacebookSDK();
   }
 
   validateForm() {
@@ -107,7 +107,7 @@ export class Login extends React.Component<Props, State> {
           >
             Reset password
           </Button>
-          <FacebookButton />
+          <FacebookButton isSignUp={this.state.isSignUp} />
         </form>
       </div>
     );
