@@ -1,5 +1,6 @@
 import * as React from 'react';
 import {
+  Alert,
   FormGroup,
   Input,
   Label
@@ -40,14 +41,19 @@ export class SignUp extends React.Component<Props, State> {
   }
 
   /**
-   * we pass this to FacebookButton as props to access the users information
-   * @param response is passed in from the FB.api call
+   * We pass this to FacebookButton as props to access the users information
+   * @param response an object returned from Facebook FB.api
    */
   setUserDetails = (response: any) => {// tslint:disable-line: no-any
     if (response.email) {
       this.setState({
         email: response.email,
         hasFbLoaded: true
+      });
+    } else {
+      this.setState({
+        hasFbLoaded: true,
+        hasMessage: true
       });
     }
   }
@@ -92,8 +98,9 @@ export class SignUp extends React.Component<Props, State> {
                 onChange={(e) => this.setState({email: e.target.value})}
                 disabled={this.state.hasFbLoaded}
               />
+              {this.state.hasMessage ? <Alert color="warning">Please enter your details as we were unable to retrieve them from Facebook.</Alert> : <></>}
             </FormGroup>
-            <FormGroup id="password">
+              <FormGroup id="password">
               <Label>Password</Label>
               <Input
                 value={this.state.password}

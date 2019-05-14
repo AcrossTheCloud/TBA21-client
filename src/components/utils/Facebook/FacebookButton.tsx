@@ -60,6 +60,9 @@ class FacebookButton extends React.Component<Props, State> {
           if (response.status === 'connected') {
             this.setState({ isLoading: true });
             this.getUserDetails();
+          }
+          if (response.error) {
+            this.setState({ isLoading: false, errorMessage: response.error });
           } else {
             this.setState({ isLoading: false });
           }
@@ -112,7 +115,7 @@ class FacebookButton extends React.Component<Props, State> {
         >
           Sign up with Facebook
         </Button>
-          {this.state.errorMessage ? <Alert color="warning">Please enter your details as we were unable to retrieve them from Facebook</Alert> : <></>}
+          {this.state.errorMessage ? <Alert color="warning">Please enter your details as we were unable to retrieve them from Facebook.</Alert> : <></>}
         </>
       );
     } else {
