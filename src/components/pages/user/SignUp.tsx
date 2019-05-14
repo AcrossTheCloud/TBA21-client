@@ -3,14 +3,15 @@ import {
   Alert,
   FormGroup,
   Input,
-  Label
+  Label,
 } from 'reactstrap';
 import { Auth } from 'aws-amplify';
 import { ISignUpResult } from 'amazon-cognito-identity-js';
 
 import LoaderButton from 'src/components/utils/LoaderButton';
 import 'styles/pages/user/signup.scss';
-import { AccountConfirmation } from '../admin/people/AccountConfirmation';
+import { AccountConfirmation } from '../..';
+import FacebookButton from '../../utils/Facebook/FacebookButton';
 
 interface Props {
   history: any; // tslint:disable-line: no-any
@@ -23,6 +24,9 @@ interface State {
   confirmPassword: string;
   confirmationCode: string;
   newUser: null | ISignUpResult;
+  isSignUp: boolean;
+  hasFbLoaded: boolean;
+  hasMessage?: boolean;
 }
 
 export class SignUp extends React.Component<Props, State> {
@@ -36,7 +40,9 @@ export class SignUp extends React.Component<Props, State> {
       password: '',
       confirmPassword: '',
       confirmationCode: '',
-      newUser: null
+      newUser: null,
+      isSignUp: true,
+      hasFbLoaded: false
     };
   }
 
@@ -124,6 +130,10 @@ export class SignUp extends React.Component<Props, State> {
               text="Signup"
               loadingText="Signing up…"
             />
+           <br />
+            <FormGroup>
+              {!this.state.hasFbLoaded ? <FacebookButton isSignUp={this.state.isSignUp} setUserDetails={this.setUserDetails} /> : <></>}
+            </FormGroup>
           </form>
         </div>
       );
