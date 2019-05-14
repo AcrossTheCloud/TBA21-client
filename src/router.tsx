@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Route } from 'react-router';
-import { Router } from 'react-router-dom';
+import { Router, Redirect } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { has } from 'lodash';
 
@@ -34,6 +34,26 @@ import {
 
 import { AuthConsumer, AuthProvider } from './providers/AuthProvider';
 
+const LoggedInRoutes = ({isAuthenticated, ...rest}) => {
+  const isLoggedIn = isAuthenticated;
+  return (
+    <>
+      <Route exact path="/Profile" render={routeProps => isLoggedIn ? <Profile {... {history: routeProps.history}} {...rest}/> : <Redirect to="/"/>}/>
+    </>
+  );
+};
+
+const AdminRoutes = ({authorisation, ...rest}) => {
+  const isAdmin = has(authorisation, 'admin');
+  return (
+    <>
+      <Route exact path="/ManageUsers" render={routeProps => isAdmin ? <ManageUsers {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
+      <Route exact path="/itemEntry" render={routeProps => isAdmin ? <ItemEntryForm {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
+      <Route exact path="/PersonEntry" render={routeProps => isAdmin ? <PersonEntryForm {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
+    </>
+  );
+};
+
 export const AppRouter = () => {
   return (
     <AuthProvider history={history}>
@@ -51,20 +71,22 @@ export const AppRouter = () => {
             <Route exact path="/resetPassword/" render={(props) => <ResetPassword {... {history: props.history}} />} />
             <Route exact path="/resetPassword/:confirm" render={(props) => <ResetPassword {... {history: props.history}} />} />
             <Route exact path="/viewGraph" component={NetworkGraph} />
-            <Route exact path="/Profile" render={(props) => <Profile {... {history: props.history}}/>} />
 
             <Route exact path="/confirm/:email" component={AccountConfirmation} />
 
             <AuthConsumer>
-              {({authorisation}) => (
-                has(authorisation, 'admin') ?
-                  <>
-                    <Route exact path="/ManageUsers" component={ManageUsers} />
-                    <Route exact path="/itemEntry" component={ItemEntryForm} />
-                    <Route exact path="/PersonEntry" component={PersonEntryForm} />
-                  </>
-                : <></>
-                )}
+              {({isLoading, authorisation, isAuthenticated}) => {
+                if (!isLoading) {
+                  return (
+                    <>
+                      <AdminRoutes authorisation={authorisation} history={history} />
+                      <LoggedInRoutes isAuthenticated={isAuthenticated} history={history} />
+                    </>
+                  );
+                } else {
+                  return <></>;
+                }
+              }}
             </AuthConsumer>
 
           </div>

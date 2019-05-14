@@ -3,6 +3,7 @@ import { Auth } from 'aws-amplify';
 import { Authorisation, AuthorisationList, checkAuth } from '../components/utils/Auth';
 
 interface State {
+  isLoading: boolean;
   isAuthenticated: boolean;
   authorisation?: AuthorisationList;
 }
@@ -11,6 +12,7 @@ export interface Props {
 }
 
 const authContextDefaultValues = {
+  isLoading: true,
   isAuthenticated: false,
   authorisation: {},
   login: (email: string, password: string) => { return; },
@@ -25,6 +27,7 @@ export class AuthProvider extends React.Component<Props, State> {
     super(props);
 
     this.state = {
+      isLoading: true,
       isAuthenticated: false,
       authorisation: {}
     };
@@ -33,7 +36,7 @@ export class AuthProvider extends React.Component<Props, State> {
   async componentDidMount(): Promise<void> {
     if (!this.state.isAuthenticated) {
       const auth = await checkAuth();
-      this.setState(prevState => ({...prevState, ...auth}));
+      this.setState(prevState => ({...prevState, ...auth, isLoading: false}));
     }
   }
 
@@ -88,6 +91,7 @@ export class AuthProvider extends React.Component<Props, State> {
     return (
       <AuthContext.Provider
         value={{
+          isLoading: this.state.isLoading,
           isAuthenticated: this.state.isAuthenticated,
           authorisation: this.state.authorisation ? this.state.authorisation : {},
           login: this.login,
