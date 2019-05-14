@@ -24,7 +24,6 @@ interface State {
   confirmPassword: string;
   confirmationCode: string;
   newUser: null | ISignUpResult;
-  isSignUp: boolean;
   hasFbLoaded: boolean;
   hasMessage?: boolean;
 }
@@ -41,7 +40,6 @@ export class SignUp extends React.Component<Props, State> {
       confirmPassword: '',
       confirmationCode: '',
       newUser: null,
-      isSignUp: true,
       hasFbLoaded: false
     };
   }
@@ -132,7 +130,7 @@ export class SignUp extends React.Component<Props, State> {
             />
            <br />
             <FormGroup>
-              {!this.state.hasFbLoaded ? <FacebookButton isSignUp={this.state.isSignUp} setUserDetails={this.setUserDetails} /> : <></>}
+              {!this.state.hasFbLoaded ? <FacebookButton isSignUp={true} setUserDetails={this.setUserDetails} /> : <></>}
             </FormGroup>
           </form>
         </div>
