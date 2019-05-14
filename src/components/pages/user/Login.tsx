@@ -7,6 +7,8 @@ import { AuthContext } from '../../../providers/AuthProvider';
 
 import 'styles/pages/user/login.scss';
 import { AccountConfirmation } from '../admin/people/AccountConfirmation';
+import LoaderButton from '../../utils/LoaderButton';
+import { ResetPassword } from './ResetPassword';
 
 interface Props {
   history: any; // tslint:disable-line: no-any
@@ -16,9 +18,14 @@ interface State {
   email: string;
   password: string;
   errorMessage: string | undefined;
+  alertMessage: string | undefined;
+  passwordReset: boolean;
   notConfirmed: boolean;
-  isSignUp: boolean;
+  isLoading: boolean;
 }
+
+const ErrorMessage = (props: {message: string | undefined}) => (props.message ? <Alert color="danger">{props.message}</Alert> : <></>);
+const AlertMessage = (props: {message: string| undefined}) => (props.message ? <Alert color="warning">{props.message}</Alert> : <></>);
 
 export class Login extends React.Component<Props, State> {
 
@@ -29,8 +36,10 @@ export class Login extends React.Component<Props, State> {
       email: '',
       password: '',
       errorMessage: undefined,
+      alertMessage: undefined,
+      passwordReset: false,
       notConfirmed: false,
-      isSignUp: false
+      isLoading: false
     };
 
   }
@@ -41,27 +50,53 @@ export class Login extends React.Component<Props, State> {
 
   async handleSubmit(event: any) { // tslint:disable-line: no-any
     event.preventDefault();
+    this.setState( { isLoading: true });
 
     const loginFunction = this.context.login;
     try {
       await loginFunction(this.state.email, this.state.password);
     } catch (e) {
       if (e.code === 'UserNotConfirmedException') {
-        this.setState( { notConfirmed: true });
+        // The error happens if the user didn't finish the confirmation step when signing up
+        // In this case you need to resend the code and confirm the user
+        // About how to resend the code and confirm the user, please check the signUp part
+        this.setState( { notConfirmed: true, isLoading: false });
+
+      } else if (e.code === 'PasswordResetRequiredException') {
+        // The error happens when the password is reset in the Cognito console
+        // In this case you need to call forgotPassword to reset the password
+        // Please check the Forgot Password part.
+        this.setState( { alertMessage: 'Your password needs to be reset before logging in.', passwordReset: true, isLoading: false });
+      } else if (e.code === 'NotAuthorizedException') {
+        // The error happens when the incorrect password is provided
+        this.setState( { errorMessage: 'Login details incorrect, try again.', isLoading: false });
+      } else if (e.code === 'UserNotFoundException') {
+        // The error happens when the supplied username/email does not exist in the Cognito user pool
+        this.setState( { errorMessage: 'Login details incorrect, try again.', isLoading: false });
+      } else if (e.code === 'UserLoginEmailPasswordException') {
+        // Custom error message from the login method in AuthProvider.
+        this.setState( { errorMessage: 'We\'ve had a bit of a technical issue.', isLoading: false });
+      } else {
+        console.log(e);
       }
-      if (e.code === 'UserLoginEmailPasswordException') {
-        this.setState( { errorMessage: 'We\'ve had a bit of a technical issue.' });
-      }
+
     }
   }
 
   render() {
-    const ErrorMessage = () => (this.state.errorMessage ? <Alert color="danger">{this.state.errorMessage}</Alert> : <></>);
+    if (this.state.passwordReset) {
+      return (
+        <>
+          <AlertMessage message={this.state.alertMessage} />
+          <ResetPassword email={this.state.email} />
+        </>
+      );
+    }
 
     if (this.state.notConfirmed) {
       return (
         <>
-          <ErrorMessage />
+          <ErrorMessage message={this.state.errorMessage}/>
           <AccountConfirmation email={this.state.email} />
         </>
       );
@@ -69,7 +104,8 @@ export class Login extends React.Component<Props, State> {
 
     return (
       <div className="login">
-        <ErrorMessage />
+        <ErrorMessage message={this.state.errorMessage}/>
+        <AlertMessage message={this.state.alertMessage} />
         <form onSubmit={(e) => { this.handleSubmit(e); }} className="small">
           <FormGroup id="email">
             <Label>Email</Label>
@@ -88,13 +124,14 @@ export class Login extends React.Component<Props, State> {
               type="password"
             />
           </FormGroup>
-          <Button
+          <LoaderButton
             block
             disabled={!this.validateForm()}
             type="submit"
-          >
-            Login
-          </Button>
+            isLoading={this.state.isLoading}
+            text="Login"
+            loadingText="Logging you in.…"
+          />
           <Button
             block
             onClick={() => { this.props.history.push('/signup'); }}
@@ -107,7 +144,7 @@ export class Login extends React.Component<Props, State> {
           >
             Reset password
           </Button>
-          <FacebookButton isSignUp={this.state.isSignUp} />
+          <FacebookButton isSignUp={false} />
         </form>
       </div>
     );

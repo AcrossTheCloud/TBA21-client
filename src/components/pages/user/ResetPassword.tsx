@@ -1,5 +1,6 @@
 import * as React from 'react';
 import {
+  Alert,
   FormGroup,
   Input,
   Label
@@ -10,26 +11,36 @@ import LoaderButton from 'src/components/utils/LoaderButton';
 import 'styles/pages/user/resetPassword.scss';
 import { RouteComponentProps, withRouter } from 'react-router';
 
-export class ResetPasswordClass extends React.Component<RouteComponentProps, {}> {
+interface State {
+  errorMessage: string | undefined;
+  isLoading: boolean;
+  hasResentCode: boolean;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  confirmationCode: string;
+  reset: null | any;  // tslint:disable-line: no-any
+}
+
+interface Props extends RouteComponentProps {
+  email?: string;
+}
+
+const ErrorMessage = (props: {message: string | undefined}) => (props.message ? <Alert color="danger">{props.message}</Alert> : <></>);
+
+export class ResetPasswordClass extends React.Component<Props, State> {
   matchConfirm;
 
-  state: {
-    isLoading: false,
-    email: '',
-    password: '',
-    confirmPassword: '',
-    confirmationCode: '',
-    reset: null
-  };
-
-  constructor(props: RouteComponentProps) {
+  constructor(props: Props) {
     super(props);
 
     this.matchConfirm = has(this.props.match, 'params.confirm') ? get(this.props.match, 'params.confirm') : undefined;
 
     this.state = {
+      errorMessage: undefined,
       isLoading: false,
-      email: '',
+      hasResentCode: false,
+      email: '' || (this.props.email ? this.props.email : ''),
       password: '',
       confirmPassword: '',
       confirmationCode: '',
@@ -86,9 +97,27 @@ export class ResetPasswordClass extends React.Component<RouteComponentProps, {}>
     }
   }
 
+  resendConfirmationCode = async () => {
+    if (this.state.email) {
+      try {
+        this.setState({hasResentCode: true});
+        await Auth.resendSignUp(this.state.email);
+      } catch (e) {
+        // NOTE
+        // We get InvalidParameterException if the user is signed up, documentation on responses is non-existent
+        if (e.code === 'UserNotFoundException') {
+          this.setState({errorMessage: 'Looks like there\'s no account with this email address.'});
+        } else {
+          this.setState( { errorMessage: `We\'re unable to confirm your account due to an error, please contact us. (${e.code})` });
+        }
+      }
+    }
+  }
+
   renderNewPasswordForm() {
     return (
       <form onSubmit={this.handleNewPasswordSubmit} className="small">
+        <ErrorMessage message={this.state.errorMessage}/>
         {
           this.matchConfirm ?
             <FormGroup id="email">
@@ -126,7 +155,7 @@ export class ResetPasswordClass extends React.Component<RouteComponentProps, {}>
             value={this.state.confirmationCode}
             onChange={(e) => this.setState({confirmationCode: e.target.value})}
           />
-          Please check your email for the code.
+          Please check your email for the code{this.state.hasResentCode ? '.' : <> or <a href="#" onClick={this.resendConfirmationCode}>resend the code</a>.</>}
         </FormGroup>
         <LoaderButton
           block
