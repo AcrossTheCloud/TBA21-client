@@ -3,14 +3,14 @@ import {
   Alert,
   FormGroup,
   Input,
-  Label,
+  Label
 } from 'reactstrap';
 import { Auth } from 'aws-amplify';
 import { ISignUpResult } from 'amazon-cognito-identity-js';
 
 import LoaderButton from 'src/components/utils/LoaderButton';
 import 'styles/pages/user/signup.scss';
-import { AccountConfirmation } from '../..';
+import { AccountConfirmation } from '../admin/people/AccountConfirmation';
 import FacebookButton from '../../utils/Facebook/FacebookButton';
 
 interface Props {
