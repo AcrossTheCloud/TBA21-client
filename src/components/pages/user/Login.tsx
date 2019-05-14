@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { Alert, Button, FormGroup, Input, Label } from 'reactstrap';
 
-import { loadFacebookSDK } from '../../utils/Facebook/FacebookSDK';
 import FacebookButton from '../../utils/Facebook/FacebookButton';
 
 import { AuthContext } from '../../../providers/AuthProvider';
@@ -32,7 +31,6 @@ export class Login extends React.Component<Props, State> {
       notConfirmed: false
     };
 
-    loadFacebookSDK();
   }
 
   validateForm() {

@@ -1,16 +1,19 @@
 import * as React from 'react';
-import { Button } from 'reactstrap';
-import { waitForInit } from './FacebookSDK';
+import { Button, Alert } from 'reactstrap';
+import { loadFacebookSDK, waitForInit } from './FacebookSDK';
 import { AuthConsumer } from '../../../providers/AuthProvider';
 
 interface State {
   isLoading: boolean;
   sdkLoaded: boolean;
-  email: string;
-  password: string;
+  errorMessage?: string;
+}
+interface Props {
+  isSignUp: boolean;
+  setUserDetails?: Function;
 }
 
-class FacebookButton extends React.Component<{}, State> {
+class FacebookButton extends React.Component<Props, State> {
 
   theWindow: any = window; // tslint:disable-line: no-any
   _isMounted = false;
@@ -21,9 +24,8 @@ class FacebookButton extends React.Component<{}, State> {
     this.state = {
       sdkLoaded: false,
       isLoading: true,
-      email: '',
-      password: ''
     };
+    loadFacebookSDK();
   }
 
   async componentDidMount() {
@@ -40,40 +42,78 @@ class FacebookButton extends React.Component<{}, State> {
     this._isMounted = false;
   }
 
-  handleClick = (e: React.MouseEvent<HTMLButtonElement>, authProviderCallback: Function): void  => {
+  /**
+   * Getting user details and passing them back to SignUp
+   */
+  getUserDetails = () => {
+    FB.api('/me', { fields: 'name, email' }, (response: any) => { // tslint:disable-line: no-any
+      if (this.props.setUserDetails) {
+        this.props.setUserDetails(response);
+      }
+    });
+  }
+
+  handleSignupClick = () => {
     this.theWindow.FB.login(
       () => {
-        this.theWindow.FB.getLoginStatus( async (response: any): Promise<void> => { // tslint:disable-line: no-any
+        this.theWindow.FB.getLoginStatus( (response: any): void => { // tslint:disable-line: no-any
           if (response.status === 'connected') {
             this.setState({ isLoading: true });
-            await authProviderCallback(response.authResponse);
+            this.getUserDetails();
           } else {
             this.setState({ isLoading: false });
-            this.handleError(response);
           }
         });
       },
       {scope: 'public_profile,email'});
   }
 
-  handleError(error: string) {
-    alert(error);
+  handleLoginClick = (e: React.MouseEvent<HTMLButtonElement>, authProviderCallback: Function): void  => {
+    this.theWindow.FB.login(
+      () => {
+        this.theWindow.FB.getLoginStatus( async (response: any): Promise<void> => { // tslint:disable-line: no-any
+          if (response.status === 'connected') {
+            this.setState({ isLoading: true });
+            await authProviderCallback(response.authResponse);
+          }
+          if (response.error) {
+            this.setState({ isLoading: false, errorMessage: response.error });
+          } else {
+            this.setState({ isLoading: false });
+          }
+        });
+      },
+      {scope: 'public_profile,email'});
   }
 
   render() {
-    if (this.state.sdkLoaded) {
+    if (this.state.sdkLoaded && !this.props.isSignUp) {
       return (
         <AuthConsumer>
           {({ facebookLogin }) => (
             <Button
               block
-              onClick={e => this.handleClick(e, facebookLogin)}
+              onClick={e => this.handleLoginClick(e, facebookLogin)}
               disabled={this.state.isLoading}
             >
             Login with Facebook
             </Button>
           )}
         </AuthConsumer>
+      );
+    }
+    if (this.props.isSignUp) {
+      return (
+        <>
+        <Button
+          block
+          onClick={() => this.handleSignupClick()}
+          disabled={this.state.isLoading}
+        >
+          Sign up with Facebook
+        </Button>
+          {this.state.errorMessage ? <Alert color="warning">Please enter your details as we were unable to retrieve them from Facebook</Alert> : <></>}
+        </>
       );
     } else {
       return <></>;

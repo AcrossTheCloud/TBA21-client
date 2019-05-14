@@ -39,6 +39,18 @@ export class SignUp extends React.Component<Props, State> {
     };
   }
 
+  /**
+   * we pass this to FacebookButton as props to access the users information
+   * @param response is passed in from the FB.api call
+   */
+  setUserDetails = (response: any) => {// tslint:disable-line: no-any
+    if (response.email) {
+      this.setState({
+        email: response.email,
+        hasFbLoaded: true
+      });
+    }
+  }
   validateForm() {
     return (
       this.state.email.length > 0 &&
@@ -78,6 +90,7 @@ export class SignUp extends React.Component<Props, State> {
                 type="email"
                 value={this.state.email}
                 onChange={(e) => this.setState({email: e.target.value})}
+                disabled={this.state.hasFbLoaded}
               />
             </FormGroup>
             <FormGroup id="password">
