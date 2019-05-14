@@ -113,14 +113,14 @@ export class Login extends React.Component<Props, State> {
               autoFocus
               type="email"
               value={this.state.email}
-              onChange={(e) => this.setState({email: e.target.value})}
+              onChange={(e) => this.setState({email: e.target.value, errorMessage: undefined, alertMessage: undefined})}
             />
           </FormGroup>
           <FormGroup id="password">
             <Label>Password</Label>
             <Input
               value={this.state.password}
-              onChange={(e) => this.setState({password: e.target.value})}
+              onChange={(e) => this.setState({password: e.target.value, errorMessage: undefined, alertMessage: undefined})}
               type="password"
             />
           </FormGroup>
