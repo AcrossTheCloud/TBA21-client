@@ -12,9 +12,11 @@ const delimiters = [KeyCodes.comma, KeyCodes.enter];
 
 interface Props {
   tags: Tag[];
+  suggestions?: Tag[];
 }
 interface State {
   tags: Tag[];
+  suggestions: Tag[];
 }
 
 export interface Tag {
@@ -27,7 +29,8 @@ export default class Tags extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      tags: this.props.tags || []
+      tags: this.props.tags || [],
+      suggestions: this.props.suggestions || []
     };
 
     this.handleDelete = this.handleDelete.bind(this);
@@ -58,11 +61,12 @@ export default class Tags extends React.Component<Props, State> {
   }
 
   render() {
-    const { tags } = this.state;
+    const { tags, suggestions } = this.state;
     return (
       <>
         <ReactTags
           tags={tags}
+          suggestions={suggestions}
           delimiters={delimiters}
           handleDelete={this.handleDelete}
           handleAddition={this.handleAddition}

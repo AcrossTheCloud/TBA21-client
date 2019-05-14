@@ -7,8 +7,9 @@ import DraggableMap, { Position } from 'src/components/map/DraggableMap';
 
 import 'src/styles/components/admin/tables/modal.scss';
 import Tags, { Tag } from './Tags';
+import { FileUpload } from './FileUpload';
 
-interface Collection {
+interface Item {
   id: string;
   enabled: boolean;
   title: string;
@@ -20,7 +21,7 @@ interface State {
   wizardCurrentStep: number;
   wizardStepMax: number;
 
-  collections: Collection[];
+  items: Item[];
   tableIsLoading: boolean;
   componentModalOpen: boolean;
   rowEditingId: string | undefined;
@@ -28,7 +29,7 @@ interface State {
   markerPosition: Position | undefined;
 }
 
-export default class CollectionTable extends React.Component<{}, State> {
+export default class ItemTable extends React.Component<{}, State> {
   tableColumns;
 
   constructor(props: {}) {
@@ -40,7 +41,7 @@ export default class CollectionTable extends React.Component<{}, State> {
 
       componentModalOpen: false,
       tableIsLoading: true,
-      collections: [],
+      items: [],
       rowEditingId: undefined,
       markerPosition: undefined
     };
@@ -98,7 +99,7 @@ export default class CollectionTable extends React.Component<{}, State> {
   testing() {
 
     setTimeout(() => {
-      let dummyCollections: Collection[] = [];
+      let dummyItems: Item[] = [];
       for (let i = 0; i < 10; i++) {
 
         let dummyPersonTags: Tag[] = [];
@@ -106,11 +107,11 @@ export default class CollectionTable extends React.Component<{}, State> {
           dummyPersonTags.push({ id: `${i}-${t}`, text: `PersonTag-${t}` });
         }
 
-        dummyCollections.push(
+        dummyItems.push(
           {
             id: `${i}`,
             enabled: true,
-            title: `Collection-${i}`,
+            title: `Item-${i}`,
             markerPosition: { lat: 38, lng: 23 },
             peopleTags: [
               dummyPersonTags[Math.floor(Math.random() * dummyPersonTags.length)],
@@ -124,20 +125,20 @@ export default class CollectionTable extends React.Component<{}, State> {
 
       this.setState({
         tableIsLoading: false,
-        collections: dummyCollections
+        items: dummyItems
       });
     },
                2000);
   }
 
   async componentDidMount(): Promise<void> {
-    // Get list of collections
+    // Get list of item
 
     this.testing(); // todo-dan -remove
 
   }
 
-  onEditButtonClick = (row: Collection) => {
+  onEditButtonClick = (row: Item) => {
     this.setState(
 {
         componentModalOpen: true,
@@ -164,7 +165,7 @@ export default class CollectionTable extends React.Component<{}, State> {
       case 1 :
         return <DraggableMap positionCallback={this.DraggableMapPosition} markerPosition={this.state.markerPosition}/>;
       case 2 :
-        return <></>;
+        return <FileUpload />;
 
       default:
         return <></>;
@@ -189,9 +190,9 @@ export default class CollectionTable extends React.Component<{}, State> {
       <>
         <BootstrapTable
           bootstrap4
-          className="collectionTable"
+          className="itemTable"
           keyField="id"
-          data={this.state.tableIsLoading ? [] : this.state.collections}
+          data={this.state.tableIsLoading ? [] : this.state.items}
           columns={this.tableColumns}
           onTableChange={() => <Spinner style={{ width: '10rem', height: '10rem' }} type="grow" />}
           noDataIndication={() => <Spinner style={{ width: '10rem', height: '10rem' }} type="grow" />}
