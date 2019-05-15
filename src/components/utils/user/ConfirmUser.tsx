@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { getCurrentCredentials } from '../Auth';
 import { get } from 'lodash';
-import * as CognitoIdentityServiceProvider from 'aws-sdk/clients/cognitoidentityserviceprovider';
+import CognitoIdentityServiceProvider from 'aws-sdk/clients/cognitoidentityserviceprovider';
 import config from '../../../config';
 import { Alert, Button, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
 

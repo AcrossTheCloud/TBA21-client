@@ -15,7 +15,7 @@ const authContextDefaultValues = {
   authorisation: {},
   login: (email: string, password: string) => { return; },
   logout: () => { return; },
-  facebookLogin: (data: { email: string; accessToken: string; expiresIn: number; }) => { return; },
+  facebookLogin: (data: { name: string; email: string; accessToken: string; expiresIn: number; }) => { return; },
 };
 
 export const AuthContext = React.createContext(authContextDefaultValues);

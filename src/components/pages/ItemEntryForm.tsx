@@ -45,7 +45,7 @@ interface MyMapProps {
 
 class MyMap extends React.Component<MyMapProps, MyMapState> {
 
-  map: MapboxGL.Map;
+  map!: MapboxGL.Map;
 
   state: MyMapState = {
       viewstate: {
