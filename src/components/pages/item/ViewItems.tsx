@@ -12,6 +12,7 @@ import { State } from '../../../reducers/items/viewItems';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import 'styles/pages/ViewItems.scss';
+import { OceanObject } from '../TableRow';
 
 // Settings for the slider
 const sliderSettings = {
@@ -106,7 +107,7 @@ const SlickSlider: any = (props: State): JSX.Element => { // tslint:disable-line
 
 interface Props {
   fetchItems: Function;
-  items: [];
+  items: OceanObject[];
   sliderInitialized: boolean;
   sliderError: boolean;
 }
