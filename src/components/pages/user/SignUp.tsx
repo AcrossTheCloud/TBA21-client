@@ -8,7 +8,7 @@ import {
 import { Auth } from 'aws-amplify';
 import { ISignUpResult } from 'amazon-cognito-identity-js';
 
-import LoaderButton from 'src/components/utils/LoaderButton';
+import LoaderButton from 'components/utils/LoaderButton';
 import 'styles/pages/user/signup.scss';
 import { AccountConfirmation } from '../admin/people/AccountConfirmation';
 import FacebookButton from '../../utils/Facebook/FacebookButton';

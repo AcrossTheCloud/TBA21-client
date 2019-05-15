@@ -9,7 +9,7 @@ import * as MapboxGL from 'mapbox-gl';
 import { Async } from 'react-select';
 import { WithContext as ReactTags } from 'react-tag-input';
 import { API } from 'aws-amplify';
-import config from 'src/prod-config.js';
+import config from 'config.js';
 
 import 'styles/components/_dropzone.scss';
 import 'styles/components/_reactTags.scss';
@@ -45,7 +45,7 @@ interface MyMapProps {
 
 class MyMap extends React.Component<MyMapProps, MyMapState> {
 
-  map: MapboxGL.Map;
+  map!: MapboxGL.Map;
 
   state: MyMapState = {
       viewstate: {
@@ -214,7 +214,7 @@ class ItemEntryFormState {
         body: body
       });
       await response.status;
-      location.reload();
+      window.location.reload();
     } catch (err) {
       alert(err);
     }
