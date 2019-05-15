@@ -3,13 +3,13 @@ import * as moment from 'moment';
 import { connect } from 'react-redux';
 import Alert from 'reactstrap/lib/Alert';
 
-import { MultiMedia } from 'src/components/utils/MultiMedia';
+import { MultiMedia } from 'components/utils/MultiMedia';
 import { getMapIcon } from '../map/icons';
 import { Map, Marker, TileLayer } from 'react-leaflet';
 
 import { OceanObject } from '../TableRow';
-import { fetchItem } from 'src/actions/items/viewItem';
-import { State } from 'src/reducers/items/viewItem';
+import { fetchItem } from 'actions/items/viewItem';
+import { State } from 'reducers/items/viewItem';
 
 import 'leaflet/dist/leaflet.css';
 

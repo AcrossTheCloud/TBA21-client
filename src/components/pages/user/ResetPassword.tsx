@@ -6,7 +6,7 @@ import {
 } from 'reactstrap';
 import { has, get } from 'lodash';
 import { Auth } from 'aws-amplify';
-import LoaderButton from 'src/components/utils/LoaderButton';
+import LoaderButton from 'components/utils/LoaderButton';
 import 'styles/pages/user/resetPassword.scss';
 import { RouteComponentProps, withRouter } from 'react-router';
 

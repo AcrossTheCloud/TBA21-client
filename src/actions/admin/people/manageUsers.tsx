@@ -1,5 +1,5 @@
 import { get, has } from 'lodash';
-import * as CognitoIdentityServiceProvider from 'aws-sdk/clients/cognitoidentityserviceprovider';
+import CognitoIdentityServiceProvider from 'aws-sdk/clients/cognitoidentityserviceprovider';
 
 import config from '../../../config';
 import { getCurrentCredentials } from '../../../components/utils/Auth';

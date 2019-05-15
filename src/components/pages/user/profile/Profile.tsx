@@ -7,9 +7,9 @@ import * as $ from 'jquery';
 import DeleteAccount from '../../../utils/user/DeleteAccount';
 import ChangePassword from '../../../utils/user/ChangePassword';
 import { getCurrentAuthenticatedUser, logout } from '../../../utils/Auth';
-import { deleteAccount, dispatchError, updateAttributes, changePassword } from 'src/actions/user/profile';
+import { deleteAccount, dispatchError, updateAttributes, changePassword } from 'actions/user/profile';
 
-import 'src/styles/pages/user/profile/profile.scss';
+import 'styles/pages/user/profile/profile.scss';
 
 interface Props {
   errorMessage: string | boolean;

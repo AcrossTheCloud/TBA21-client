@@ -4,7 +4,7 @@ import { Alert, Container } from 'reactstrap';
 import { connect } from 'react-redux';
 
 import Slider from 'react-slick';
-import { MultiMedia } from 'src/components/utils/MultiMedia';
+import { MultiMedia } from 'components/utils/MultiMedia';
 
 import { fetchItems } from '../../../actions/items/viewItems';
 import { State } from '../../../reducers/items/viewItems';

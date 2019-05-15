@@ -18,7 +18,7 @@ import { loadMore } from '../../../../actions/admin/people/manageUsers';
 import AdminResetPassword from '../../../utils/user/AdminResetPassword';
 import { SearchUsers } from './SearchUsers';
 
-import 'src/styles/pages/admin/people/manageUsers.scss';
+import 'styles/pages/admin/people/manageUsers.scss';
 
 export interface Props {
   errorMessage?: string | undefined;

@@ -63,9 +63,9 @@ export class AuthProvider extends React.Component<Props, State> {
     this.setState({ isAuthenticated: false, authorisation: {} });
   }
 
-  facebookLogin = async (data: { email: string; accessToken: string; expiresIn: number; }): Promise<void> => {
+  facebookLogin = async (data: { name: string; email: string; accessToken: string; expiresIn: number; }): Promise<void> => {
     const
-      {email, accessToken: token, expiresIn} = data,
+      {name, email, accessToken: token, expiresIn} = data,
       expiresAt = expiresIn * 1000 + new Date().getTime(),
       user = {name, email};
 

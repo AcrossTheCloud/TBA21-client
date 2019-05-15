@@ -1,4 +1,4 @@
-import * as CognitoIdentityServiceProvider from 'aws-sdk/clients/cognitoidentityserviceprovider';
+import CognitoIdentityServiceProvider from 'aws-sdk/clients/cognitoidentityserviceprovider';
 import { Auth } from 'aws-amplify';
 import { AWSError } from 'aws-sdk';
 import { get } from 'lodash';
