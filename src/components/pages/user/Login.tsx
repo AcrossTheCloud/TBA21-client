@@ -1,18 +1,15 @@
 import * as React from 'react';
-import { Alert, Button, FormGroup, Input, Label } from 'reactstrap';
+import { RouteComponentProps, withRouter } from 'react-router-dom';
+import { Alert, Button, Container, FormGroup, Input, Label } from 'reactstrap';
 
 import FacebookButton from '../../utils/Facebook/FacebookButton';
-
 import { AuthContext } from '../../../providers/AuthProvider';
 
-import 'styles/pages/user/login.scss';
 import { AccountConfirmation } from '../admin/people/AccountConfirmation';
 import LoaderButton from '../../utils/LoaderButton';
 import { ResetPassword } from './ResetPassword';
 
-interface Props {
-  history: any; // tslint:disable-line: no-any
-}
+import 'styles/pages/user/login.scss';
 
 interface State {
   email: string;
@@ -27,9 +24,9 @@ interface State {
 const ErrorMessage = (props: {message: string | undefined}) => (props.message ? <Alert color="danger">{props.message}</Alert> : <></>);
 const AlertMessage = (props: {message: string| undefined}) => (props.message ? <Alert color="warning">{props.message}</Alert> : <></>);
 
-export class Login extends React.Component<Props, State> {
+class LoginClass extends React.Component<RouteComponentProps, State> {
 
-  constructor(props: Props) {
+  constructor(props: RouteComponentProps) {
     super(props);
 
     this.state = {
@@ -48,7 +45,11 @@ export class Login extends React.Component<Props, State> {
     return this.state.email.length > 0 && this.state.password.length > 0;
   }
 
-  async handleSubmit(event: any) { // tslint:disable-line: no-any
+  /**
+   * Runs the AuthProvider login function and either redirects to / or shows a friendly error message.
+   * @param event {React.FormEvent} Mouse click
+   */
+  async handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     this.setState( { isLoading: true });
 
@@ -60,7 +61,7 @@ export class Login extends React.Component<Props, State> {
         // The error happens if the user didn't finish the confirmation step when signing up
         // In this case you need to resend the code and confirm the user
         // About how to resend the code and confirm the user, please check the signUp part
-        this.setState( { notConfirmed: true, isLoading: false });
+        this.setState( { alertMessage: 'You need to confirm it before you can reset your password.', notConfirmed: true, isLoading: false });
 
       } else if (e.code === 'PasswordResetRequiredException') {
         // The error happens when the password is reset in the Cognito console
@@ -77,6 +78,7 @@ export class Login extends React.Component<Props, State> {
         // Custom error message from the login method in AuthProvider.
         this.setState( { errorMessage: 'We\'ve had a bit of a technical issue.', isLoading: false });
       } else {
+        this.setState( { errorMessage: 'We\'ve had a bit of a technical issue.', isLoading: false });
         console.log(e);
       }
 
@@ -87,6 +89,7 @@ export class Login extends React.Component<Props, State> {
     if (this.state.passwordReset) {
       return (
         <>
+          <ErrorMessage message={this.state.errorMessage}/>
           <AlertMessage message={this.state.alertMessage} />
           <ResetPassword email={this.state.email} />
         </>
@@ -95,15 +98,16 @@ export class Login extends React.Component<Props, State> {
 
     if (this.state.notConfirmed) {
       return (
-        <>
+        <Container className="login">
           <ErrorMessage message={this.state.errorMessage}/>
+          <AlertMessage message={this.state.alertMessage} />
           <AccountConfirmation email={this.state.email} />
-        </>
+        </Container>
       );
     }
 
     return (
-      <div className="login">
+      <Container className="login">
         <ErrorMessage message={this.state.errorMessage}/>
         <AlertMessage message={this.state.alertMessage} />
         <form onSubmit={(e) => { this.handleSubmit(e); }} className="small">
@@ -111,6 +115,7 @@ export class Login extends React.Component<Props, State> {
             <Label>Email</Label>
             <Input
               autoFocus
+              disabled={this.state.isLoading}
               type="email"
               value={this.state.email}
               onChange={(e) => this.setState({email: e.target.value, errorMessage: undefined, alertMessage: undefined})}
@@ -119,6 +124,7 @@ export class Login extends React.Component<Props, State> {
           <FormGroup id="password">
             <Label>Password</Label>
             <Input
+              disabled={this.state.isLoading}
               value={this.state.password}
               onChange={(e) => this.setState({password: e.target.value, errorMessage: undefined, alertMessage: undefined})}
               type="password"
@@ -146,10 +152,14 @@ export class Login extends React.Component<Props, State> {
           </Button>
           <FacebookButton isSignUp={false} />
         </form>
-      </div>
+      </Container>
     );
   }
 }
 
+// Passes in history for us :)
+export const Login = withRouter(LoginClass);
+
+// This goes under the export, don't ask why ..
 // Bind AuthContext to Login so we can access things outside of the child <AuthConsumer> JSX tag
-Login.contextType = AuthContext;
+LoginClass.contextType = AuthContext;

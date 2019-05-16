@@ -66,10 +66,9 @@ export const AppRouter = () => {
             <Route exact path="/view" component={ViewItems} />
             <Route path="/view/:itemId" component={ViewItem} />
             <Route exact path="/map" component={MapView} />
-            <Route exact path="/login" render={(props) => <Login {... {history: props.history}} />} />
-            <Route exact path="/signup" render={(props) => <SignUp {... {history: props.history}} />} />
+            <Route exact path="/login" component={Login} />
+            <Route exact path="/signup" component={SignUp} />
             <Route exact path="/resetPassword/" component={ResetPassword} />
-            <Route exact path="/resetPassword/:confirm" component={ResetPassword}/>
             <Route exact path="/viewGraph" component={NetworkGraph} />
 
             <Route exact path="/confirm/:email" component={AccountConfirmation} />
