@@ -42,8 +42,6 @@
     "redux": "^4.0.1",
     "redux-thunk": "^2.3.0",
     "slick-carousel": "^1.8.1",
-    "tslint": "^5.16.0",
-    "tslint-react": "^4.0.0",
     "uuid": "^3.3.2"
   },
   "scripts": {
@@ -79,7 +77,9 @@
     "@types/redux-thunk": "^2.1.0",
     "@types/uuid": "^3.4.4",
     "enzyme": "^3.9.0",
-    "typescript": "^3.4.5"
+    "typescript": "^3.4.5",
+    "tslint": "^5.16.0",
+    "tslint-react": "^4.0.0"
   },
   "browserslist": [
     ">0.2%",

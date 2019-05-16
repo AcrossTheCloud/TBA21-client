@@ -47,7 +47,7 @@ export class Login extends React.Component<Props, State> {
       if (e.code === 'UserNotConfirmedException') {
         this.setState( { notConfirmed: true });
       }
-      if (e.code === 'UserLoginEmailPasswordException') {
+      if (e.message === 'UserLoginEmailPasswordException') {
         this.setState( { errorMessage: 'We\'ve had a bit of a technical issue.' });
       }
     }

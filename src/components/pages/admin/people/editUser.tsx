@@ -375,7 +375,7 @@ export default class EditUser extends React.Component<{}, State> {
     if (this.state.groupsError) {
       return <Alert color="danger">{this.state.groupsError}</Alert>;
     }
-    if (!cognitioGroups || cognitioGroups && !cognitioGroups.length || typeof userGroups === 'undefined') {
+    if (!cognitioGroups || (cognitioGroups && !cognitioGroups.length) || typeof userGroups === 'undefined') {
       return <Alert color="danger">Unable to the list of load groups at this time.</Alert>;
     }
 

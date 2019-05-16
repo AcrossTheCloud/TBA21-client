@@ -40,7 +40,7 @@ interface MyMapState {
 }
 
 interface MyMapProps {
-  onClick: (e: PointerEvent) => void; 
+  onClick: (e: PointerEvent) => void;
 }
 
 class MyMap extends React.Component<MyMapProps, MyMapState> {
@@ -57,11 +57,6 @@ class MyMap extends React.Component<MyMapProps, MyMapState> {
   };
 
   _onViewportChange = (viewstate: ViewState) => this.setState({viewstate});
-
-  constructor (props: any) { // tslint:disable-line: no-any
-    super(props);
-    // this.props = props;
-  }
 
   render() {
     return (
@@ -422,10 +417,10 @@ export class ItemEntryForm extends React.Component<{}, State> {
         let fileType = this.whatType(f.type);
         switch (fileType) {
             case 'application/pdf':
-                itemDisplay = <object data={f.preview}/>;
+                itemDisplay = <object aria-label="" data={f.preview}/>;
                 break;
             case 'image':
-                itemDisplay = <img src={f.preview}/>;
+                itemDisplay = <img alt="" src={f.preview}/>;
                 break;
             default:
                 break;

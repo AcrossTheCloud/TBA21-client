@@ -70,14 +70,14 @@ const SlickSlider: any = (props: State): JSX.Element => { // tslint:disable-line
     return <Alert color="danger">Error loading items.</Alert>;
   }
 
-  if (!props || props.items && !props.items.length) {
+  if (!props || (props.items && !props.items.length)) {
     // No content message if the list is empty.
     return <React.Fragment><Alert color="danger">No items in this section</Alert></React.Fragment>;
   } else {
     // Map results, with HTML structure.
     let results = props.items.map((item, index) => {
       const multiMedia = (item.urls && item.urls[0]) ? <div className="image"><MultiMedia url={item.urls[0]} key={index + '_mm'} /></div> : '';
-      
+
       return (
         <Link
           to={`/view/${item.itemId}`}
