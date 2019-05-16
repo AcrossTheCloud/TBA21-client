@@ -23,7 +23,7 @@ import { UserList } from '../../../../actions/admin/people/manageUsers';
 import { listUsers } from '../../../../actions/admin/people/manageUsers';
 import AdminResetPassword from '../../../utils/user/AdminResetPassword';
 
-import 'src/styles/pages/admin/people/manageUsers.scss';
+import 'styles/pages/admin/people/manageUsers.scss';
 
 interface Props {
   limit: number;

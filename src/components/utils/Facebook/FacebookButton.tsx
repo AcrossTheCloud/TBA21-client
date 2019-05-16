@@ -46,7 +46,7 @@ class FacebookButton extends React.Component<Props, State> {
    * Getting user details and passing them back to SignUp
    */
   getUserDetails = () => {
-    FB.api('/me', { fields: 'name, email' }, (response: any) => { // tslint:disable-line: no-any
+    this.theWindow.FB.api('/me', { fields: 'name, email' }, (response: any) => { // tslint:disable-line: no-any
       if (this.props.setUserDetails) {
         this.props.setUserDetails(response);
       }

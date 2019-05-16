@@ -8,12 +8,12 @@ import {
 import { Auth } from 'aws-amplify';
 import { ISignUpResult } from 'amazon-cognito-identity-js';
 
-import LoaderButton from 'src/components/utils/LoaderButton';
-import { AccountConfirmation } from '../admin/people/AccountConfirmation';
-import FacebookButton from 'src/components/utils/Facebook/FacebookButton';
+import LoaderButton from 'components/utils/LoaderButton';
+import { AccountConfirmation } from './AccountConfirmation';
+import FacebookButton from 'components/utils/Facebook/FacebookButton';
 import { PasswordForm } from '../../utils/inputs/PasswordForm';
 
-import 'src/styles/pages/user/signup.scss';
+import 'styles/pages/user/signup.scss';
 
 interface State {
   errorMessage: string | undefined;

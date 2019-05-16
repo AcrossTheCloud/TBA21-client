@@ -17,7 +17,7 @@ const authContextDefaultValues = {
   authorisation: {},
   login: (email: string, password: string) => { return; },
   logout: () => { return; },
-  facebookLogin: (data: { email: string; accessToken: string; expiresIn: number; }) => { return; },
+  facebookLogin: (data: { name: string; email: string; accessToken: string; expiresIn: number; }) => { return; },
 };
 
 export const AuthContext = React.createContext(authContextDefaultValues);
@@ -66,9 +66,9 @@ export class AuthProvider extends React.Component<Props, State> {
     this.setState({ isAuthenticated: false, authorisation: {} });
   }
 
-  facebookLogin = async (data: { email: string; accessToken: string; expiresIn: number; }): Promise<void> => {
+  facebookLogin = async (data: { name: string; email: string; accessToken: string; expiresIn: number; }): Promise<void> => {
     const
-      {email, accessToken: token, expiresIn} = data,
+      {name, email, accessToken: token, expiresIn} = data,
       expiresAt = expiresIn * 1000 + new Date().getTime(),
       user = {name, email};
 

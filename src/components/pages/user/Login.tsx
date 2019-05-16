@@ -5,7 +5,7 @@ import { Alert, Button, Container, FormGroup, Input, Label } from 'reactstrap';
 import FacebookButton from '../../utils/Facebook/FacebookButton';
 import { AuthContext } from '../../../providers/AuthProvider';
 
-import { AccountConfirmation } from '../admin/people/AccountConfirmation';
+import { AccountConfirmation } from './AccountConfirmation';
 import LoaderButton from '../../utils/LoaderButton';
 import { ResetPassword } from './ResetPassword';
 

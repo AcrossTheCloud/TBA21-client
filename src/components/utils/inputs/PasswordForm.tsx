@@ -5,9 +5,9 @@ import {
   Label
 } from 'reactstrap';
 
-import * as InputValidation from 'src/components/utils/inputs/input';
+import * as InputValidation from 'components/utils/inputs/input';
 
-import 'src/styles/utils/inputs/passwordForm.scss';
+import 'styles/utils/inputs/passwordForm.scss';
 
 interface Props {
   callback: Function;

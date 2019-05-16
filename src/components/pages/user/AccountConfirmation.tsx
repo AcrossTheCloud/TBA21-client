@@ -5,7 +5,7 @@ import { Auth } from 'aws-amplify';
 import { has, get } from 'lodash';
 import { Alert, FormGroup, Input, Label } from 'reactstrap';
 
-import LoaderButton from '../../../utils/LoaderButton';
+import LoaderButton from '../../utils/LoaderButton';
 
 // Extends RouteComponentProps from the router, allows you to pass in History to props through withRouter
 // Instead of passing in down the hierarchy from router.tsx

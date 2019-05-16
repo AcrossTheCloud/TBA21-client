@@ -7,8 +7,8 @@ import 'leaflet/dist/leaflet.css';
 import { connect } from 'react-redux';
 
 import { getMapIcon } from './icons';
-import { OceanObject, RenderPeople, Items } from 'src/components/pages/TableRow';
-import { fetchMarkers, putModifiedMarkers } from 'src/actions/map/map';
+import { OceanObject, RenderPeople, Items } from 'components/pages/TableRow';
+import { fetchMarkers, putModifiedMarkers } from 'actions/map/map';
 
 import '../../../styles/pages/map/map.scss';
 

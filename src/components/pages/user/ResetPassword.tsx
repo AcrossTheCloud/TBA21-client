@@ -2,19 +2,20 @@ import * as React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
 
 import {
-  Alert, Container,
+  Alert,
+  Container,
   FormGroup,
   Input,
   Label
 } from 'reactstrap';
 
 import { Auth } from 'aws-amplify';
+import LoaderButton from 'components/utils/LoaderButton';
 
-import LoaderButton from 'src/components/utils/LoaderButton';
+import { PasswordForm } from 'components/utils/inputs/PasswordForm';
+import { AccountConfirmation } from './AccountConfirmation';
+
 import 'styles/pages/user/resetPassword.scss';
-
-import { PasswordForm } from '../../utils/inputs/PasswordForm';
-import { AccountConfirmation } from '../..';
 
 interface State {
   errorMessage: string | undefined;
