@@ -19,9 +19,9 @@ export class MultiMedia extends React.Component<MultiMediaProps, {}> {
           </div>
       );
     } else if (this.props.url.toLowerCase().endsWith('.jpg') || this.props.url.toLowerCase().endsWith('.jpeg') || this.props.url.toLowerCase().endsWith('.png')) {
-      element = <img className="img-fluid" src={this.props.url} />;
+      element = <img alt="" className="img-fluid" src={this.props.url} />;
     } else {
-      element = <a href={this.props.url} target="_blank">link</a>;
+      element = <a href={this.props.url} target="_blank" rel="noopener noreferrer">link</a>;
     }
 
     return (
