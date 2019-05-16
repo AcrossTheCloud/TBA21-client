@@ -2,14 +2,15 @@ import * as React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
 import { Alert, Button, Container, FormGroup, Input, Label } from 'reactstrap';
 
-import FacebookButton from '../../utils/Facebook/FacebookButton';
-import { AuthContext } from '../../../providers/AuthProvider';
+import FacebookButton from 'components/utils/Facebook/FacebookButton';
+import { AuthContext } from 'providers/AuthProvider';
 
 import { AccountConfirmation } from './AccountConfirmation';
-import LoaderButton from '../../utils/LoaderButton';
+import LoaderButton from 'components/utils/LoaderButton';
 import { ResetPassword } from './ResetPassword';
 
 import 'styles/pages/user/login.scss';
+
 
 interface State {
   email: string;
@@ -81,7 +82,9 @@ class LoginClass extends React.Component<RouteComponentProps, State> {
         this.setState( { errorMessage: 'We\'ve had a bit of a technical issue.', isLoading: false });
         console.log(e);
       }
-
+      if (e.message === 'UserLoginEmailPasswordException') {
+        this.setState( { errorMessage: 'We\'ve had a bit of a technical issue.' });
+      }
     }
   }
 

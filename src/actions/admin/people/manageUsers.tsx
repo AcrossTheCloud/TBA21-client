@@ -38,7 +38,7 @@ export const listUsers = async (limit: number = 15, paginationToken?: string, us
     };
 
   if (userQuery) {
-    Object.assign (params, {Filter:  `${userQueryOption} ^=  \'${userQuery}\'`} );
+    Object.assign (params, {Filter:  `${userQueryOption} ^=  '${userQuery}'`} );
   }
 
   let responsePaginationToken: string | undefined;

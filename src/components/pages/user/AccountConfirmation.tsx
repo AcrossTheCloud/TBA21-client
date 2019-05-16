@@ -101,7 +101,7 @@ class AccountConfirmationClass extends React.Component<Props, State>  {
         if (e.code === 'UserNotFoundException') {
           this.setState({errorMessage: 'Looks like there\'s no account with this email address.'});
         } else {
-          this.setState( { errorMessage: `We\'re unable to confirm your account due to an error, please contact us. (${e.code})` });
+          this.setState( { errorMessage: `We're unable to confirm your account due to an error, please contact us. (${e.code})` });
         }
       }
     }

@@ -12,11 +12,6 @@ export class NetworkGraph extends React.Component<{}, Graph> {
     edges: []
   };
 
-  constructor(props: any) { // tslint:disable-line: no-any
-    super(props);
-    // this.props = props;
-  }
-
   componentDidMount() {
     API.get('tba21', 'itemsGraph', {})
       .then((data: Graph) => {

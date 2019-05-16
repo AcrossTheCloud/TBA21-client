@@ -53,10 +53,7 @@ export class AuthProvider extends React.Component<Props, State> {
         throw e;
       }
     } else {
-      throw  {
-        code: 'UserLoginEmailPasswordException',
-        message: 'No email and/or password'
-      };
+      throw new Error('UserLoginEmailPasswordException');
     }
   }
 

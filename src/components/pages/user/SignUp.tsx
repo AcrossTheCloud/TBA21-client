@@ -52,7 +52,7 @@ export class SignUp extends React.Component<{}, State> {
       password: '',
       confirmationCode: '',
       newUser: null,
-      hasFbLoaded: false,
+      hasFbLoaded: false
     };
   }
 
