@@ -17,7 +17,6 @@ interface State {
   password: string;
   errorMessage: string | undefined;
   notConfirmed: boolean;
-  isSignUp: boolean;
 }
 
 export class Login extends React.Component<Props, State> {
@@ -29,8 +28,7 @@ export class Login extends React.Component<Props, State> {
       email: '',
       password: '',
       errorMessage: undefined,
-      notConfirmed: false,
-      isSignUp: false
+      notConfirmed: false
     };
 
   }
@@ -107,7 +105,7 @@ export class Login extends React.Component<Props, State> {
           >
             Reset password
           </Button>
-          <FacebookButton isSignUp={this.state.isSignUp} />
+          <FacebookButton isSignUp={false} />
         </form>
       </div>
     );
