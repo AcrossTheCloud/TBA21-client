@@ -6,11 +6,11 @@ import 'leaflet/dist/leaflet.css';
 
 import { connect } from 'react-redux';
 
-import { getMapIcon } from 'src/components/map/icons';
-import { OceanObject, renderPeople, Items } from 'src/components/TableRow';
-import { fetchMarkers, putModifiedMarkers } from 'src/actions/map/map';
+import { getMapIcon } from './icons';
+import { OceanObject, renderPeople, Items } from 'components/TableRow';
+import { fetchMarkers, putModifiedMarkers } from 'actions/map/map';
 
-import 'src/styles/components/map/map.scss';
+import 'styles/components/map/map.scss';
 
 interface Props {
   fetchMarkers: Function;
@@ -268,7 +268,7 @@ class MapView extends React.Component<Props, State> {
           zoom={this.state.zoom}
           style={MapStyle}
           ref={map => this.map = map}
-        >ref={map => this.map = map}
+        >
           <TileLayer url={tileLayer} />
           <this.MarkerList markers={this.state.markers}/>
         </Map>

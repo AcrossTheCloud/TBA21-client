@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { MultiMedia } from 'src/components/utils/MultiMedia';
+import { MultiMedia } from 'components/utils/MultiMedia';
 
 export interface Person {
   personId: string;

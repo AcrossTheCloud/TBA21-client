@@ -33,6 +33,34 @@ import {
 } from './components/';
 
 import { AuthConsumer, AuthProvider } from './providers/AuthProvider';
+import { AuthorisationList } from './components/utils/Auth';
+
+const isLoggedIn = (isAuthenticated: boolean ): JSX.Element => {
+  if (!isAuthenticated) {
+    return (
+      <>
+        <Route exact path="/login" render={(propse) => <Login {... {history: propse.history}} />} />
+        <Route exact path="/signup" render={(propse) => { return <SignUp {... {history: propse.history}} />; }} />
+      </>
+    );
+  } else {
+    return <Route exact path="/Profile" render={(propse) => <Profile {... {history: propse.history}}/>} />;
+  }
+};
+
+const isAdmin = (authorisation: AuthorisationList): JSX.Element => {
+  if (has(authorisation, 'admin')) {
+    return (
+      <>
+        <Route exact path="/ManageUsers" component={ManageUsers} />
+        <Route exact path="/itemEntry" component={ItemEntryForm} />
+        <Route exact path="/PersonEntry" component={PersonEntryForm} />
+      </>
+    );
+  } else {
+    return <></>;
+  }
+};
 
 export const AppRouter = () => {
   return (
@@ -46,25 +74,20 @@ export const AppRouter = () => {
             <Route exact path="/view" component={ViewItems} />
             <Route path="/view/:itemId" component={ViewItem} />
             <Route exact path="/map" component={MapView} />
-            <Route exact path="/login" render={(props) => <Login {... {history: props.history}} />} />
-            <Route exact path="/signup" render={(props) => <SignUp {... {history: props.history}} />} />
+
             <Route exact path="/resetPassword/" render={(props) => <ResetPassword {... {history: props.history}} />} />
             <Route exact path="/resetPassword/:confirm" render={(props) => <ResetPassword {... {history: props.history}} />} />
             <Route exact path="/viewGraph" component={NetworkGraph} />
-            <Route exact path="/Profile" render={(props) => <Profile {... {history: props.history}}/>} />
 
             <Route exact path="/confirm/:email" component={AccountConfirmation} />
 
             <AuthConsumer>
-              {({authorisation}) => (
-                has(authorisation, 'admin') ?
-                  <>
-                    <Route exact path="/ManageUsers" component={ManageUsers} />
-                    <Route exact path="/itemEntry" component={ItemEntryForm} />
-                    <Route exact path="/PersonEntry" component={PersonEntryForm} />
-                  </>
-                : <></>
-                )}
+              {({authorisation, isAuthenticated}) => (
+                <>
+                  {isAdmin(authorisation)}
+                  {isLoggedIn(isAuthenticated)}
+                </>
+              )}
             </AuthConsumer>
 
           </div>

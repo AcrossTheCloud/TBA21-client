@@ -1,5 +1,5 @@
 import { FETCH_MARKERS, FETCH_MARKERS_ERROR, PUT_MODIFIED_MARKERS } from '../../actions/map/map';
-import { MarkerData } from 'src/components/map/map';
+import { MarkerData } from 'components/map/map';
 
 interface State {
   markers: MarkerData[];

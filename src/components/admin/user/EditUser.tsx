@@ -16,7 +16,7 @@ import {
   Alert
 } from 'reactstrap';
 import { get, find, findIndex, clone } from 'lodash';
-import * as CognitoIdentityServiceProvider from 'aws-sdk/clients/cognitoidentityserviceprovider';
+import CognitoIdentityServiceProvider from 'aws-sdk/clients/cognitoidentityserviceprovider';
 
 import config from '../../../dev-config';
 import * as emailHelper from '../../utils/inputs/email';
@@ -89,7 +89,7 @@ export default class EditUser extends React.Component<{}, State> {
   confirmUserRef;
   toggleUserRef;
   cognitoIdentityServiceProvider;
-  userPoolId: string;
+  userPoolId!: string;
 
   constructor(props: {}) {
     super(props);
@@ -375,7 +375,7 @@ export default class EditUser extends React.Component<{}, State> {
     if (this.state.groupsError) {
       return <Alert color="danger">{this.state.groupsError}</Alert>;
     }
-    if (!cognitioGroups || cognitioGroups && !cognitioGroups.length || typeof userGroups === 'undefined') {
+    if (!cognitioGroups || (cognitioGroups && !cognitioGroups.length) || typeof userGroups === 'undefined') {
       return <Alert color="danger">Unable to the list of load groups at this time.</Alert>;
     }
 

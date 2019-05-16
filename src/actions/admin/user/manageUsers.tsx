@@ -1,5 +1,5 @@
 import { get, has } from 'lodash';
-import * as CognitoIdentityServiceProvider from 'aws-sdk/clients/cognitoidentityserviceprovider';
+import CognitoIdentityServiceProvider from 'aws-sdk/clients/cognitoidentityserviceprovider';
 
 import config from '../../../config';
 import { getCurrentCredentials } from '../../../components/utils/Auth';
@@ -38,7 +38,7 @@ export const listUsers = async (limit: number = 15, paginationToken?: string, us
     };
 
   if (userQuery) {
-    Object.assign (params, {Filter:  `${userQueryOption} ^=  \'${userQuery}\'`} );
+    Object.assign (params, {Filter:  `${userQueryOption} ^=  '${userQuery}'`} ); // AWS expects single quotes around the userQuery
   }
 
   let responsePaginationToken: string | undefined;

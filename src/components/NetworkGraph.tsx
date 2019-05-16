@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Sigma, RelativeSize, RandomizeNodePositions, ForceAtlas2, EdgeShapes, NodeShapes, Graph } from 'react-sigma';
 import { API } from 'aws-amplify';
 
-import 'src/styles/components/networkGraph.scss';
+import 'styles/components/networkGraph.scss';
 
 // let myGraph =
 export class NetworkGraph extends React.Component<{}, Graph> {
@@ -11,11 +11,6 @@ export class NetworkGraph extends React.Component<{}, Graph> {
     nodes: [],
     edges: []
   };
-
-  constructor(props: any) { // tslint:disable-line: no-any
-    super(props);
-    // this.props = props;
-  }
 
   componentDidMount() {
     API.get('tba21', 'itemsGraph', {})

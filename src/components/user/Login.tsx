@@ -1,13 +1,11 @@
 import * as React from 'react';
 import { Alert, Button, FormGroup, Input, Label } from 'reactstrap';
 
-import { loadFacebookSDK } from 'src/components/utils/facebook/facebookSDK';
-import FacebookButton from 'src/components/utils/facebook/FacebookButton';
+import FacebookButton from 'components/utils/facebook/FacebookButton';
+import { AuthContext } from 'providers/AuthProvider';
+import { AccountConfirmation } from 'components/user/AccountConfirmation';
 
-import { AuthContext } from 'src/providers/AuthProvider';
-
-import 'src/styles/components/user/login.scss';
-import { AccountConfirmation } from 'src/components/user/AccountConfirmation';
+import 'styles/components/user/login.scss';
 
 interface Props {
   history: any; // tslint:disable-line: no-any
@@ -31,8 +29,6 @@ export class Login extends React.Component<Props, State> {
       errorMessage: undefined,
       notConfirmed: false
     };
-
-    loadFacebookSDK();
   }
 
   validateForm() {
@@ -48,8 +44,7 @@ export class Login extends React.Component<Props, State> {
     } catch (e) {
       if (e.code === 'UserNotConfirmedException') {
         this.setState( { notConfirmed: true });
-      }
-      if (e.code === 'UserLoginEmailPasswordException') {
+      } else if (e.message === 'UserLoginEmailPasswordException') {
         this.setState( { errorMessage: 'We\'ve had a bit of a technical issue.' });
       }
     }
@@ -107,7 +102,7 @@ export class Login extends React.Component<Props, State> {
           >
             Reset password
           </Button>
-          <FacebookButton />
+          <FacebookButton isSignUp={false} />
         </form>
       </div>
     );

@@ -19,11 +19,10 @@ import {
 import { FaSync, FaPenAlt, FaKey } from 'react-icons/fa';
 
 import EditUser from './EditUser';
-import { UserList } from 'src/actions/admin/user/manageUsers';
-import { listUsers } from 'src/actions/admin/user/manageUsers';
-import AdminResetPassword from 'src/components/utils/user/AdminResetPassword';
+import { UserList, listUsers } from 'actions/admin/user/manageUsers';
+import AdminResetPassword from 'components/utils/user/AdminResetPassword';
 
-import 'src/styles/components/admin/user/manageUsers.scss';
+import 'styles/components/admin/user/manageUsers.scss';
 
 interface Props {
   limit: number;

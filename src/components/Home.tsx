@@ -2,9 +2,9 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 import CollectionTable from './admin/tables/CollectionTable';
 
-import 'src/styles/components/home.scss';
+import 'styles/components/home.scss';
 
-const logo = require('src/images/tba_logo.png');
+const logo = require('images/tba_logo.png');
 
 export const Home: React.StatelessComponent<{}> = () => {
     return (

@@ -1,4 +1,4 @@
-import config from '../../../config';
+import config from 'config';
 
 export const loadFacebookSDK = () => {
   const theWindow: any = window;  // tslint:disable-line: no-any

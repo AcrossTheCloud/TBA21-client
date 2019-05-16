@@ -14,11 +14,11 @@ import { connect } from 'react-redux';
 import { FaSync, FaPenAlt, FaKey } from 'react-icons/fa';
 
 import EditUser from './EditUser';
-import { loadMore } from 'src/actions/admin/user/manageUsers';
-import AdminResetPassword from 'src/components/utils/user/AdminResetPassword';
+import { loadMore } from 'actions/admin/user/manageUsers';
+import AdminResetPassword from 'components/utils/user/AdminResetPassword';
 import { SearchUsers } from './SearchUsers';
 
-import 'src/styles/components/admin/user/manageUsers.scss';
+import 'styles/components/admin/user/manageUsers.scss';
 
 export interface Props {
   errorMessage?: string | undefined;

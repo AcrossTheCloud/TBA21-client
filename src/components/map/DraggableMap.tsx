@@ -23,8 +23,7 @@ export type Position = { lat: number, lng: number };
 
 export default class DraggableMap extends React.Component<Props, State> {
   _isMounted;
-
-  map = React.createRef<Map>();
+  map;
 
   state: State = {
     position: null,
@@ -84,7 +83,7 @@ export default class DraggableMap extends React.Component<Props, State> {
   }
 
   onMapClick = (event) => {
-    const map = this.map.current;
+    const map = this.map;
     if (map !== null && this._isMounted) {
       const position = map.leafletElement.mouseEventToLatLng(event.originalEvent);
 
@@ -96,7 +95,7 @@ export default class DraggableMap extends React.Component<Props, State> {
   draggedMarker = () => {
     const
       marker = this.refmarker.current,
-      map = this.map.current;
+      map = this.map;
 
     if (marker !== null && map !== null && this._isMounted) {
       const position = marker.leafletElement.getLatLng();
@@ -109,7 +108,7 @@ export default class DraggableMap extends React.Component<Props, State> {
   }
 
   inputChange = () => {
-    const map = this.map.current;
+    const map = this.map;
     if (map !== null && this._isMounted) {
       this.setState(
         {
@@ -125,12 +124,15 @@ export default class DraggableMap extends React.Component<Props, State> {
    * Use leaflet's locate method to locate the use and set the view to that location.
    */
   locateUser = (): void => {
-    const map = this.map.current;
+    const map = this.map;
     if (map !== null && this._isMounted) {
       map.leafletElement.locate()
         .on('locationfound', (location: LocationEvent) => {
-          map.leafletElement.flyTo(location.latlng, 15);
-          this.setState({marker: location.latlng});
+          console.log('locateUser data', location);
+          if (location && location.latlng) {
+            map.leafletElement.flyTo(location.latlng, 15);
+            this.setState({marker: location.latlng});
+          }
         })
         .on('locationerror', () => {
           // Fly to a default location if the user declines our request to get their GPS location or if we had trouble getting said location.
@@ -177,7 +179,7 @@ export default class DraggableMap extends React.Component<Props, State> {
           center={position}
           zoom={this.state.zoom}
           style={mapStyle}
-          ref={this.map}
+          ref={map => this.map = map}
           onclick={this.onMapClick}
         >
           <TileLayer

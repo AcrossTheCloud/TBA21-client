@@ -6,9 +6,10 @@ import {
 } from 'reactstrap';
 import { has, get } from 'lodash';
 import { Auth } from 'aws-amplify';
-import LoaderButton from 'src/components/utils/LoaderButton';
-import 'src/styles/components/user/resetPassword.scss';
+import LoaderButton from 'components/utils/LoaderButton';
 import { RouteComponentProps, withRouter } from 'react-router';
+
+import 'styles/components/user/resetPassword.scss';
 
 export class ResetPasswordClass extends React.Component<RouteComponentProps, {}> {
   matchConfirm;

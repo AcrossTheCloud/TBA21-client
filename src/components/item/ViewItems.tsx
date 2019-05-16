@@ -4,14 +4,16 @@ import { Alert, Container } from 'reactstrap';
 import { connect } from 'react-redux';
 
 import Slider from 'react-slick';
-import { MultiMedia } from 'src/components/utils/MultiMedia';
+import { MultiMedia } from 'components/utils/MultiMedia';
 
 import { fetchItems } from '../../actions/items/viewItems';
 import { State } from '../../reducers/items/viewItems';
 
+import { OceanObject } from '../TableRow';
+
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
-import 'src/styles/components/ViewItems.scss';
+import 'styles/components/ViewItems.scss';
 
 // Settings for the slider
 const sliderSettings = {
@@ -69,7 +71,7 @@ const SlickSlider: any = (props: State): JSX.Element => { // tslint:disable-line
     return <Alert color="danger">Error loading items.</Alert>;
   }
 
-  if (!props || props.items && !props.items.length) {
+  if (!props || (props.items && !props.items.length)) {
     // No content message if the list is empty.
     return <React.Fragment><Alert color="danger">No items in this section</Alert></React.Fragment>;
   } else {
@@ -106,7 +108,7 @@ const SlickSlider: any = (props: State): JSX.Element => { // tslint:disable-line
 
 interface Props {
   fetchItems: Function;
-  items: [];
+  items: OceanObject[];
   sliderInitialized: boolean;
   sliderError: boolean;
 }

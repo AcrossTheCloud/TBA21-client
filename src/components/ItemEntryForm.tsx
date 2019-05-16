@@ -9,11 +9,11 @@ import * as MapboxGL from 'mapbox-gl';
 import { Async } from 'react-select';
 import { WithContext as ReactTags } from 'react-tag-input';
 import { API } from 'aws-amplify';
-import config from 'src/prod-config.js';
+import config from 'config.js';
 
-import 'src/styles/components/_dropzone.scss';
+import 'styles/components/_dropzone.scss';
 import 'styles/components/_reactTags.scss';
-import 'src/styles/components/itemEntryForm.scss';
+import 'styles/components/itemEntryForm.scss';
 
 import { Storage } from 'aws-amplify';
 import { v1 as uuid } from 'uuid';
@@ -45,7 +45,7 @@ interface MyMapProps {
 
 class MyMap extends React.Component<MyMapProps, MyMapState> {
 
-  map: MapboxGL.Map;
+  map!: MapboxGL.Map;
 
   state: MyMapState = {
       viewstate: {
@@ -57,11 +57,6 @@ class MyMap extends React.Component<MyMapProps, MyMapState> {
   };
 
   _onViewportChange = (viewstate: ViewState) => this.setState({viewstate});
-
-  constructor (props: any) { // tslint:disable-line: no-any
-    super(props);
-    // this.props = props;
-  }
 
   render() {
     return (
@@ -214,7 +209,7 @@ class ItemEntryFormState {
         body: body
       });
       await response.status;
-      location.reload();
+      window.location.reload();
     } catch (err) {
       alert(err);
     }
