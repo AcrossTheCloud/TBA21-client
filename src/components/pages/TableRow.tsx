@@ -22,12 +22,20 @@ export interface OceanObject {
   tags: Array<string>;
 }
 
-export const renderPeople = function (people: Array<Person>) {
-  return people.reduce(
-    (accumulator: string, currentPerson: Person) => {
-      return (accumulator + currentPerson.personName + ': ' + currentPerson.roles.toString().replace(',', ', ') + '; ');
-    },
-    '').slice(0, -2);
+export const RenderPeople = (props: { people: Array<Person> }): JSX.Element => {
+  if (!props.people) { return <></>; }
+
+  return (
+    <>
+      {
+        props.people.reduce(
+        (accumulator: string, currentPerson: Person) => {
+          return (accumulator + currentPerson.personName + ': ' + currentPerson.roles.toString().replace(',', ', ') + '; ');
+        },
+        '').slice(0, -2)
+      }
+    </>
+  );
 };
 
 export class Items extends React.Component<Urls, {}> {
@@ -44,7 +52,7 @@ export class TableRow extends React.Component<OceanObject, {}> {
     return (
       <tr>
         <td>{this.props.description}</td>
-        <td>{renderPeople(this.props.people)}</td>
+        <td><RenderPeople people={this.props.people} /></td>
         <td>{this.props.tags ? this.props.tags.toString() : ''}</td>
         <td vertical-align="top"><Items urls={this.props.urls} /></td>
       </tr>

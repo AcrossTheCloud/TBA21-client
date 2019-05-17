@@ -7,7 +7,7 @@ import 'leaflet/dist/leaflet.css';
 import { connect } from 'react-redux';
 
 import { getMapIcon } from './icons';
-import { OceanObject, renderPeople, Items } from 'components/pages/TableRow';
+import { OceanObject, RenderPeople, Items } from 'components/pages/TableRow';
 import { fetchMarkers, putModifiedMarkers } from 'actions/map/map';
 
 import '../../../styles/pages/map/map.scss';
@@ -203,7 +203,7 @@ class MapView extends React.Component<Props, State> {
         </div>
         <div className="urls"><Items urls={oceanObject.urls} /></div>
         <div className="people">
-          {renderPeople(oceanObject.people)}
+          <RenderPeople people={oceanObject.people} />
         </div>
       </div>
     );
@@ -254,9 +254,9 @@ class MapView extends React.Component<Props, State> {
       tileLayer: string = 'https://api.tiles.mapbox.com/v4/' + mapID + '/{z}/{x}/{y}.png?access_token=' + accessToken;
 
     return (
-      <div className={'mapWrapper'}>
+      <div className="mapWrapper">
 
-        <div id={'sidebar'} className={this.state.sideBarState}>
+        <div id="sidebar" className={this.state.sideBarState}>
           <div className="closeButton" onClick={this.closeSideBar}>X</div>
           <div className="content">
             {this.state.sideBarContent}
@@ -268,7 +268,7 @@ class MapView extends React.Component<Props, State> {
           zoom={this.state.zoom}
           style={MapStyle}
           ref={map => this.map = map}
-        >ref={map => this.map = map}
+        >
           <TileLayer url={tileLayer} />
           <this.MarkerList markers={this.state.markers}/>
         </Map>

@@ -2,7 +2,6 @@ import * as React from 'react';
 import { Button, Modal, ModalBody, ModalHeader, ModalFooter } from 'reactstrap';
 
 interface Props {
-  isAuthenticated: boolean;
   deleteAccountAction: Function;
 }
 

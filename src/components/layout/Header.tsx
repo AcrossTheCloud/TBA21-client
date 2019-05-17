@@ -78,11 +78,16 @@ export default class Header extends React.Component<Props, State> { // tslint:di
                     </NavItem>
 
                     {isAuthenticated ?
-                      <NavItem>
-                        <Link className="nav-link" to="/" onClick={logout}>
-                          Logout
-                        </Link>
-                      </NavItem>
+                      <>
+                        <NavItem>
+                            <Link className="nav-link" to="/Profile">Profile</Link>
+                        </NavItem>
+                        <NavItem>
+                          <Link className="nav-link" to="/" onClick={logout}>
+                            Logout
+                          </Link>
+                        </NavItem>
+                      </>
                       :
                       <NavItem>
                         <Link className="nav-link" to="/login">Login</Link>

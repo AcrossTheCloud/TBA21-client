@@ -1,12 +1,17 @@
 import * as React from 'react';
+import { RouteComponentProps, withRouter } from 'react-router-dom';
+
 import { Auth } from 'aws-amplify';
 import { has, get } from 'lodash';
 import { Alert, FormGroup, Input, Label } from 'reactstrap';
-import LoaderButton from '../../../utils/LoaderButton';
-import { RouteComponentProps, withRouter } from 'react-router-dom';
 
+import LoaderButton from '../../utils/LoaderButton';
+
+// Extends RouteComponentProps from the router, allows you to pass in History to props through withRouter
+// Instead of passing in down the hierarchy from router.tsx
 interface Props extends RouteComponentProps {
   email: string;
+  sentCode?: boolean | undefined;
 }
 
 interface State {
@@ -42,26 +47,49 @@ class AccountConfirmationClass extends React.Component<Props, State>  {
     }
   }
 
+  /**
+   * Checks for whitespace and if the confirmation code isn't empty.
+   */
   validateConfirmationForm() {
-    return this.state.confirmationCode.length > 0;
+    const hasWhitespace = /\s/.test(this.state.confirmationCode);
+    return this.state.confirmationCode.length > 0 && !hasWhitespace;
   }
 
+  /**
+   *
+   * API call to Cognitio check the if the given confirmation code is correct.
+   *
+   * @param event {React.FormEvent} Mouse click
+   */
   handleConfirmationSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (this.state.email) {
-      this.setState({isLoading: true});
+      this.setState({isLoading: true, errorMessage: undefined});
 
       try {
         await Auth.confirmSignUp(this.state.email, this.state.confirmationCode);
 
+        // We push to / and then to login to make the /login re-render as it's state is set to notConfirmed :)
+        // Probably a better way to do this.
+        this.props.history.push('/');
         this.props.history.push('/login');
       } catch (e) {
-        alert(e.message);
-        this.setState({isLoading: false});
+        let errorMessage: string | undefined = undefined;
+
+        if (e.code === 'NotAuthorizedException') {
+          errorMessage = 'Your account is already confirmed.';
+        }
+        if (e.code === 'CodeMismatchException' || e.code === 'InvalidParameterException') {
+          errorMessage = 'Incorrect code.';
+        }
+        this.setState({isLoading: false, errorMessage: errorMessage});
       }
     }
   }
 
+  /**
+   * Resend confirmation code API call
+   */
   resendConfirmationCode = async () => {
     if (this.state.email) {
       try {
@@ -80,10 +108,9 @@ class AccountConfirmationClass extends React.Component<Props, State>  {
   }
 
   render() {
-    if (this.state.errorMessage) {
-      return <Alert color="danger">{this.state.errorMessage}</Alert>;
-    } else {
-      return (
+    return (
+      <>
+        {this.state.errorMessage ? <Alert color="danger">{this.state.errorMessage}</Alert> : <></>}
         <form onSubmit={this.handleConfirmationSubmit}>
           <FormGroup id="confirmationCode">
             <Label>Confirmation Code</Label>
@@ -93,7 +120,7 @@ class AccountConfirmationClass extends React.Component<Props, State>  {
               value={this.state.confirmationCode}
               onChange={(e) => this.setState({confirmationCode: e.target.value})}
             />
-            Please check your email for the code{this.state.hasResentCode ? '.' : <> or <a href="#" onClick={this.resendConfirmationCode}>resend the code</a>.</>}
+            Please check your email for the code{this.state.hasResentCode || this.props.sentCode ? '.' : <> or <a href="#" onClick={this.resendConfirmationCode}>resend the code</a>.</>}
           </FormGroup>
           <LoaderButton
             block
@@ -104,8 +131,8 @@ class AccountConfirmationClass extends React.Component<Props, State>  {
             loadingText="Verifying…"
           />
         </form>
-      );
-    }
+      </>
+    );
   }
 }
 
