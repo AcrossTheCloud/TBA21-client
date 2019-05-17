@@ -99,7 +99,7 @@ class AccountConfirmationClass extends React.Component<Props, State>  {
         // NOTE
         // We get InvalidParameterException if the user is signed up, documentation on responses is non-existent
         if (e.code === 'UserNotFoundException') {
-          this.setState({errorMessage: 'Looks like there\'s no account with this email address.'});
+          this.setState({errorMessage: `Looks like there's no account with this email address.`});
         } else {
           this.setState( { errorMessage: `We're unable to confirm your account due to an error, please contact us. (${e.code})` });
         }

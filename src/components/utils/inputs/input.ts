@@ -9,7 +9,7 @@ export const hasLowerCase = (query: string): boolean => (
 );
 // Check that we have any symbols in a string
 export const hasSymbol = (query: string): boolean => (
-  /[~!@#$%^&*()_+\-={}[\]|\\;':"<>?,./]/.test(query)
+  /[~!@#$%^&*()_+\-={}[\]|\\;':"<>?,./`]/.test(query)
 );
 // Check that we have any numbers in a string
 export const hasNumber = (query: string): boolean => (
