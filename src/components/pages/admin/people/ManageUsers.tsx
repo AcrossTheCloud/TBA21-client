@@ -9,6 +9,8 @@ import {
   Spinner,
   Row,
   Col,
+  UncontrolledPopover,
+  PopoverBody
 } from 'reactstrap';
 import { connect } from 'react-redux';
 import { FaSync, FaPenAlt, FaKey } from 'react-icons/fa';
@@ -92,8 +94,17 @@ class ManageUsers extends React.Component<Props, State> {
         formatter: (cell, row, rowIndex) => {
           return (
             <span className="optionIcon">
-              <FaPenAlt onClick={() => this.editUsersRef.current.loadUserDetails(row.username)}/>
-              {row.enabled && row.emailVerified && row.status !== 'RESET_REQUIRED' ? <FaKey onClick={() => this.resetUserPasswordRef.current.loadDetails(row.username, row.email)} /> : <></>}
+              <FaPenAlt id={`editUser-${rowIndex}`} onClick={() => this.editUsersRef.current.loadUserDetails(row.username)}/>
+              <UncontrolledPopover trigger="hover" placement="bottom" target={`editUser-${rowIndex}`}><PopoverBody>Edit user.</PopoverBody></UncontrolledPopover>
+              {
+                row.enabled && row.emailVerified && row.status !== 'RESET_REQUIRED' ?
+                  <>
+                    <FaKey id={`resetPassword-${rowIndex}`} onClick={() => this.resetUserPasswordRef.current.loadDetails(row.username, row.email)} />
+                    <UncontrolledPopover trigger="hover" placement="bottom" target={`resetPassword-${rowIndex}`}><PopoverBody>Reset Password.</PopoverBody></UncontrolledPopover>
+                  </>
+                  :
+                  <></>
+              }
             </span>
           );
         }
