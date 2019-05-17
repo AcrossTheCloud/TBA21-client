@@ -1,9 +1,9 @@
 import { get, has } from 'lodash';
 import CognitoIdentityServiceProvider from 'aws-sdk/clients/cognitoidentityserviceprovider';
 
-import config from '../../../config';
-import { getCurrentCredentials } from '../../../components/utils/Auth';
-import { User } from '../../../components/admin/user/ManageUsers';
+import config from 'config';
+import { getCurrentCredentials } from 'components/utils/Auth';
+import { User } from 'components/admin/user/ManageUsers';
 
 // Defining our Actions for the reducers
 export const LOAD_MORE = 'LOAD_MORE';

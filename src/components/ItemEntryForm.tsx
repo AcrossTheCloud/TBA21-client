@@ -417,10 +417,10 @@ export class ItemEntryForm extends React.Component<{}, State> {
         let fileType = this.whatType(f.type);
         switch (fileType) {
             case 'application/pdf':
-                itemDisplay = <object data={f.preview}/>;
+                itemDisplay = <object aria-label="" data={f.preview}/>;
                 break;
             case 'image':
-                itemDisplay = <img src={f.preview}/>;
+                itemDisplay = <img alt="" src={f.preview}/>;
                 break;
             default:
                 break;

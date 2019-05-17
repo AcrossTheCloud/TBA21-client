@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Route } from 'react-router';
-import { Router } from 'react-router-dom';
+import { Router, Redirect } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { has } from 'lodash';
 
@@ -33,33 +33,25 @@ import {
 } from './components/';
 
 import { AuthConsumer, AuthProvider } from './providers/AuthProvider';
-import { AuthorisationList } from './components/utils/Auth';
 
-const isLoggedIn = (isAuthenticated: boolean ): JSX.Element => {
-  if (!isAuthenticated) {
-    return (
-      <>
-        <Route exact path="/login" render={(propse) => <Login {... {history: propse.history}} />} />
-        <Route exact path="/signup" render={(propse) => { return <SignUp {... {history: propse.history}} />; }} />
-      </>
-    );
-  } else {
-    return <Route exact path="/Profile" render={(propse) => <Profile {... {history: propse.history}}/>} />;
-  }
+const LoggedInRoutes = ({isAuthenticated, ...rest}) => {
+  const isLoggedIn = isAuthenticated;
+  return (
+    <>
+      <Route exact path="/Profile" render={routeProps => isLoggedIn ? <Profile {... {history: routeProps.history}} {...rest}/> : <Redirect to="/"/>}/>
+    </>
+  );
 };
 
-const isAdmin = (authorisation: AuthorisationList): JSX.Element => {
-  if (has(authorisation, 'admin')) {
-    return (
-      <>
-        <Route exact path="/ManageUsers" component={ManageUsers} />
-        <Route exact path="/itemEntry" component={ItemEntryForm} />
-        <Route exact path="/PersonEntry" component={PersonEntryForm} />
-      </>
-    );
-  } else {
-    return <></>;
-  }
+const AdminRoutes = ({authorisation, ...rest}) => {
+  const isAdmin = has(authorisation, 'admin');
+  return (
+    <>
+      <Route exact path="/ManageUsers" render={routeProps => isAdmin ? <ManageUsers {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
+      <Route exact path="/itemEntry" render={routeProps => isAdmin ? <ItemEntryForm {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
+      <Route exact path="/PersonEntry" render={routeProps => isAdmin ? <PersonEntryForm {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
+    </>
+  );
 };
 
 export const AppRouter = () => {
@@ -74,20 +66,26 @@ export const AppRouter = () => {
             <Route exact path="/view" component={ViewItems} />
             <Route path="/view/:itemId" component={ViewItem} />
             <Route exact path="/map" component={MapView} />
-
-            <Route exact path="/resetPassword/" render={(props) => <ResetPassword {... {history: props.history}} />} />
-            <Route exact path="/resetPassword/:confirm" render={(props) => <ResetPassword {... {history: props.history}} />} />
+            <Route exact path="/login" component={Login} />
+            <Route exact path="/signup" component={SignUp} />
+            <Route exact path="/resetPassword/" component={ResetPassword} />
             <Route exact path="/viewGraph" component={NetworkGraph} />
 
             <Route exact path="/confirm/:email" component={AccountConfirmation} />
 
             <AuthConsumer>
-              {({authorisation, isAuthenticated}) => (
-                <>
-                  {isAdmin(authorisation)}
-                  {isLoggedIn(isAuthenticated)}
-                </>
-              )}
+              {({isLoading, authorisation, isAuthenticated}) => {
+                if (!isLoading) {
+                  return (
+                    <>
+                      <AdminRoutes authorisation={authorisation} history={history} />
+                      <LoggedInRoutes isAuthenticated={isAuthenticated} history={history} />
+                    </>
+                  );
+                } else {
+                  return <></>;
+                }
+              }}
             </AuthConsumer>
 
           </div>
