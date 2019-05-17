@@ -54,9 +54,6 @@ export default class Header extends React.Component<Props, State> { // tslint:di
                     {isAuthenticated && isAdmin ?
                       <>
                         <NavItem>
-                          <Link className="nav-link" to="/itemEntry">Item Metadata Entry</Link>
-                        </NavItem>
-                        <NavItem>
                           <Link className="nav-link" to="/PersonEntry">Person Metadata Entry</Link>
                         </NavItem>
                         <NavItem>

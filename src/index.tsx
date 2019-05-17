@@ -6,7 +6,7 @@ import Amplify from 'aws-amplify';
 import config from './config.js';
 
 import 'bootstrap/dist/css/bootstrap.css';
-import 'mapbox-gl/dist/mapbox-gl.css';
+
 // Our custom styles
 import './styles/app.scss';
 

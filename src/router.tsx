@@ -14,7 +14,6 @@ import {
   // START ADMIN
   ViewItems,
   ViewItem,
-  ItemEntryForm,
   ManageUsers,
   // END ADMIN
 
@@ -26,7 +25,6 @@ import {
   AccountConfirmation,
   // END USER
 
-  PersonEntryForm,
   NetworkGraph,
 
   MapView
@@ -48,8 +46,6 @@ const AdminRoutes = ({authorisation, ...rest}) => {
   return (
     <>
       <Route exact path="/ManageUsers" render={routeProps => isAdmin ? <ManageUsers {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
-      <Route exact path="/itemEntry" render={routeProps => isAdmin ? <ItemEntryForm {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
-      <Route exact path="/PersonEntry" render={routeProps => isAdmin ? <PersonEntryForm {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
     </>
   );
 };

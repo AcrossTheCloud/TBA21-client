@@ -3,8 +3,6 @@ export * from './layout/Header';
 // END LAYOUT
 
 export * from './Home';
-export * from './ItemEntryForm';
-export * from './PersonEntryForm';
 
 // START USER
 export { default as Profile } from './user/profile/Profile';

@@ -3,6 +3,7 @@ import { RouteComponentProps, withRouter } from 'react-router';
 
 import {
   Alert,
+  Button,
   Container,
   FormGroup,
   Input,
@@ -262,7 +263,7 @@ export class ResetPasswordClass extends React.Component<Props, State> {
                   value={this.state.confirmationCode}
                   onChange={e => this.onConfirmationCodeChange(e.target.value)}
                 />
-                Please check your email for the code{this.state.hasResentCode ? '.' : <> or <a href="#" onClick={this.resendConfirmationCode}>resend the code</a>.</>}
+                Please check your email for the code{this.state.hasResentCode ? '.' : <> or <Button color="link" onClick={this.resendConfirmationCode}>resend the code</Button>.</>}
               </FormGroup>
 
               <LoaderButton

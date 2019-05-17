@@ -3,7 +3,8 @@ import { RouteComponentProps, withRouter } from 'react-router-dom';
 
 import { Auth } from 'aws-amplify';
 import { has, get } from 'lodash';
-import { Alert, FormGroup, Input, Label } from 'reactstrap';
+import { Alert, Button, FormGroup, Input, Label } from 'reactstrap';
+
 import LoaderButton from 'components/utils/LoaderButton';
 
 // Extends RouteComponentProps from the router, allows you to pass in History to props through withRouter
@@ -119,7 +120,7 @@ class AccountConfirmationClass extends React.Component<Props, State>  {
               value={this.state.confirmationCode}
               onChange={(e) => this.setState({confirmationCode: e.target.value})}
             />
-            Please check your email for the code{this.state.hasResentCode || this.props.sentCode ? '.' : <> or <a href="#" onClick={this.resendConfirmationCode}>resend the code</a>.</>}
+            Please check your email for the code{this.state.hasResentCode || this.props.sentCode ? '.' : <> or <Button color="link" onClick={this.resendConfirmationCode}>resend the code</Button>.</>}
           </FormGroup>
           <LoaderButton
             block
