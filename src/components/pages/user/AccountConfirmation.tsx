@@ -3,7 +3,7 @@ import { RouteComponentProps, withRouter } from 'react-router-dom';
 
 import { Auth } from 'aws-amplify';
 import { has, get } from 'lodash';
-import { Alert, FormGroup, Input, Label } from 'reactstrap';
+import { Alert, Button, FormGroup, Input, Label } from 'reactstrap';
 
 import LoaderButton from '../../utils/LoaderButton';
 
@@ -99,7 +99,7 @@ class AccountConfirmationClass extends React.Component<Props, State>  {
         // NOTE
         // We get InvalidParameterException if the user is signed up, documentation on responses is non-existent
         if (e.code === 'UserNotFoundException') {
-          this.setState({errorMessage: 'Looks like there\'s no account with this email address.'});
+          this.setState({errorMessage: `Looks like there's no account with this email address.`});
         } else {
           this.setState( { errorMessage: `We're unable to confirm your account due to an error, please contact us. (${e.code})` });
         }
@@ -120,7 +120,7 @@ class AccountConfirmationClass extends React.Component<Props, State>  {
               value={this.state.confirmationCode}
               onChange={(e) => this.setState({confirmationCode: e.target.value})}
             />
-            Please check your email for the code{this.state.hasResentCode || this.props.sentCode ? '.' : <> or <a href="#" onClick={this.resendConfirmationCode}>resend the code</a>.</>}
+            Please check your email for the code{this.state.hasResentCode || this.props.sentCode ? '.' : <> or <Button color="link" href="#" onClick={this.resendConfirmationCode}>resend the code</Button>.</>}
           </FormGroup>
           <LoaderButton
             block

@@ -3,6 +3,7 @@ import { RouteComponentProps, withRouter } from 'react-router';
 
 import {
   Alert,
+  Button,
   Container,
   FormGroup,
   Input,
@@ -101,7 +102,7 @@ export class ResetPasswordClass extends React.Component<Props, State> {
       this.setState({ reset, errorMessage: undefined });
     } catch (e) {
       if (e.code === 'UserNotFoundException') {
-        errorMessage = 'Looks like there\'s no account with this email address.';
+        errorMessage = `Looks like there's no account with this email address.`;
       } else if (e.code === 'LimitExceededException') {
         errorMessage = 'We\'ve hit a wall, you\'ve requested another confirmation code however, we sent you one recently.';
       } else if (e.code === 'InvalidParameterException') {
@@ -120,9 +121,9 @@ export class ResetPasswordClass extends React.Component<Props, State> {
           // NOTE
           // We get InvalidParameterException if the user is signed up, documentation on responses is non-existent
           if (e.code === 'UserNotFoundException') {
-            errorMessage = 'Looks like there\'s no account with this email address.';
+            errorMessage = `Looks like there's no account with this email address.`;
           } else {
-            errorMessage = `We\'re unable to confirm your account due to an error, please contact us. (${e.code})`;
+            errorMessage = `We're unable to confirm your account due to an error, please contact us. (${e.code})`;
           }
         }
       }
@@ -156,7 +157,7 @@ export class ResetPasswordClass extends React.Component<Props, State> {
       if (e.code === 'CodeMismatchException') {
         errorMessage = 'Invalid verification code provided, please try again.';
       } else {
-        errorMessage = `We\'re having technical difficulties, please contact us. (${e.code})`;
+        errorMessage = `We're having technical difficulties, please contact us. (${e.code})`;
       }
 
       this.setState({ isLoading: false, errorMessage: errorMessage });
@@ -175,11 +176,11 @@ export class ResetPasswordClass extends React.Component<Props, State> {
         // NOTE
         // We get InvalidParameterException if the user is signed up and confirmed?, documentation on responses is non-existent
         if (e.code === 'UserNotFoundException') {
-          this.setState({errorMessage: 'Looks like there\'s no account with this email address.'});
+          this.setState({errorMessage: `Looks like there's no account with this email address.`});
         } else if (e.code === 'InvalidParameterException') {
           this.setState( { errorMessage: `Looks like your email address has not been confirmed.` });
         } else {
-          this.setState( { errorMessage: `We\'re unable to confirm your account due to an error, please contact us. (${e.code})` });
+          this.setState( { errorMessage: `We're unable to confirm your account due to an error, please contact us. (${e.code})` });
         }
       }
     }
@@ -262,7 +263,7 @@ export class ResetPasswordClass extends React.Component<Props, State> {
                   value={this.state.confirmationCode}
                   onChange={e => this.onConfirmationCodeChange(e.target.value)}
                 />
-                Please check your email for the code{this.state.hasResentCode ? '.' : <> or <a href="#" onClick={this.resendConfirmationCode}>resend the code</a>.</>}
+                Please check your email for the code{this.state.hasResentCode ? '.' : <> or <Button color="link" href="#" onClick={this.resendConfirmationCode}>resend the code</Button>.</>}
               </FormGroup>
 
               <LoaderButton
