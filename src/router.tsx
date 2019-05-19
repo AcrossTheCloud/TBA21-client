@@ -15,6 +15,11 @@ import {
   ViewItems,
   ViewItem,
   ManageUsers,
+
+  // START Tables
+  Collections,
+  // END Tables
+
   // END ADMIN
 
   // START USER
@@ -46,6 +51,7 @@ const AdminRoutes = ({authorisation, ...rest}) => {
   return (
     <>
       <Route exact path="/ManageUsers" render={routeProps => isAdmin ? <ManageUsers {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
+      <Route exact path="/Collections" render={routeProps => isAdmin ? <Collections {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
     </>
   );
 };

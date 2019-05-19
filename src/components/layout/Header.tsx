@@ -59,6 +59,9 @@ export default class Header extends React.Component<Props, State> { // tslint:di
                         <NavItem>
                           <Link className="nav-link" to="/ManageUsers">Manage Users</Link>
                         </NavItem>
+                        <NavItem>
+                          <Link className="nav-link" to="/Collections">Collections</Link>
+                        </NavItem>
                       </>
                       : <></>
                     }

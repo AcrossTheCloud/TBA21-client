@@ -4,7 +4,7 @@ import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import { Button, Modal, ModalBody, ModalFooter, Spinner } from 'reactstrap';
 
 import DraggableMap, { Position } from 'components/map/DraggableMap';
-import Tags, { Tag } from './Tags';
+import Tags, { Tag } from '../Tags';
 
 import 'styles/components/admin/tables/modal.scss';
 

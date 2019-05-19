@@ -14,6 +14,11 @@ export * from './user/AccountConfirmation';
 
 // START ADMIN
 export { default as ManageUsers } from './admin/user/ManageUsers';
+
+// START Tables
+export { default as Collections } from './admin/tables/collections/Collections';
+// END Tables
+
 // END ADMIN
 
 // START ITEMS
