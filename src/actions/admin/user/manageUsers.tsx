@@ -3,7 +3,7 @@ import CognitoIdentityServiceProvider, { UserType, AttributeType } from 'aws-sdk
 
 import config from 'config';
 import { getCurrentCredentials } from 'components/utils/Auth';
-import { User } from 'types/User';
+import { Gender, User, UserAttributes } from 'types/User';
 
 // Defining our Actions for the reducers
 export const LOAD_MORE = 'LOAD_MORE';
@@ -21,7 +21,7 @@ export interface UserList {
  * @param userQuery filters search results
  * @param userQueryOption toggles the search result filter
  */
-export const listUsers = async (limit: number = 15, paginationToken?: string, userQuery?: string, userQueryOption?: string): Promise<UserList | null> => {
+export const listUsers = async (limit: number = 15, paginationToken?: string, userQuery?: string, userQueryOption?: string): Promise<UserList> => {
   const
     credentials = await getCurrentCredentials(),
     cognitoIdentityServiceProvider = new CognitoIdentityServiceProvider({
@@ -59,11 +59,18 @@ export const listUsers = async (limit: number = 15, paginationToken?: string, us
     // Convert attributes to a key: value pair instead of an Array of Objects
     const users: User[] = data.Users.map( (user: UserType) => {
 
-      let userAttributes: {[Name: string]: string} = {};
+      // We don't know what we're potentially getting back from AWS, (Leave this indicator - USER-E1)
+      let userAttributes: UserAttributes = {}; // tslint:disable-line: no-any
       if (user.Attributes) {
         user.Attributes.forEach( (attribute: AttributeType) => {
           if (typeof attribute.Value !== 'undefined') {
-            userAttributes[attribute.Name] = attribute.Value;
+            if (attribute.Name === 'email_verified') {
+              userAttributes[attribute.Name] = (attribute.Value === 'true');
+            } else if (attribute.Name === 'gender' && attribute.Value in Gender) {
+              userAttributes[attribute.Name] = Gender[attribute.Value];
+            } else {
+              userAttributes[attribute.Name] = attribute.Value;
+            }
           }
         });
       }
@@ -74,25 +81,25 @@ export const listUsers = async (limit: number = 15, paginationToken?: string, us
       }
 
       return {
-        username: user.Username ? user.Username : 'No Name',
+        username: user.Username,
         enabled: user.Enabled ? user.Enabled : false,
-        status: user.UserStatus ? user.UserStatus : '',
+        status: user.UserStatus,
 
-        email: userAttributes.email ? userAttributes.email : 'No Email',
-        emailVerified: userAttributes.email_verified === 'true',
+        email: userAttributes.email,
+        emailVerified: userAttributes.email_verified,
 
-        family_name: userAttributes.family_name ? userAttributes.family_name : undefined,
-        given_names: userAttributes.given_names ? userAttributes.given_names : undefined,
+        family_name: userAttributes.family_name,
+        given_names: userAttributes.given_names,
 
-        gender: userAttributes.gender ? userAttributes.gender : undefined,
-        date_of_birth: userAttributes.date_of_birth ? userAttributes.date_of_birth : undefined,
+        gender: userAttributes.gender,
+        date_of_birth: userAttributes.date_of_birth,
 
-        organisation: userAttributes.organisation ? userAttributes.organisation : undefined,
-        affiliation: userAttributes.affiliation ? userAttributes.affiliation : undefined,
-        job_role: userAttributes.job_role ? userAttributes.job_role : undefined,
+        organisation: userAttributes.organisation,
+        affiliation: userAttributes.affiliation,
+        job_role: userAttributes.job_role,
 
-        website: userAttributes.website ? userAttributes.website : undefined,
-        address: userAttributes.address ? userAttributes.address : undefined
+        website: userAttributes.website,
+        address: userAttributes.address
       };
     });
 
@@ -101,7 +108,10 @@ export const listUsers = async (limit: number = 15, paginationToken?: string, us
       paginationToken: responsePaginationToken
     };
   } else {
-    return null;
+    return {
+      users: [],
+      paginationToken: undefined
+    };
   }
 };
 
@@ -123,7 +133,7 @@ export const loadMore = (limit: number, paginationToken?: string | null, refresh
      });
   };
   try {
-    const response: UserList | null = await listUsers(limit, paginationToken);
+    const response: UserList = await listUsers(limit, paginationToken);
 
     if (response && has(response, 'users')) {
       dispatch({

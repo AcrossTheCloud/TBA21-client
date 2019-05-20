@@ -22,6 +22,8 @@ import EditUser from './EditUser';
 import { UserList, listUsers } from 'actions/admin/user/manageUsers';
 import AdminResetPassword from 'components/utils/user/AdminResetPassword';
 
+import { User } from 'types/User';
+
 import 'styles/components/admin/user/manageUsers.scss';
 
 interface Props {
@@ -36,11 +38,6 @@ interface State {
   paginationToken: string | undefined;
   resetPasswordModalIsOpen: boolean;
   isLoading: boolean;
-}
-
-export interface User {
-  email: string;
-  username: string;
 }
 
 const ErrorMessage = (props: {message: string | undefined}) => {
@@ -107,9 +104,9 @@ export class SearchUsers extends React.Component<Props, State> {
     const target = event.target as HTMLInputElement;
 
     this.setState({
-                    searchBy: target.value,
-                    searchByLabel: target.innerText
-                  });
+      searchBy: target.value,
+      searchByLabel: target.innerText
+    });
   }
 
   /**
@@ -123,7 +120,7 @@ export class SearchUsers extends React.Component<Props, State> {
         userQuery = get(this.searchInputRef, 'current.value'),
         userQueryOption = this.state.searchBy,
         token = this.state.paginationToken,
-        results: UserList | null = await listUsers(this.props.limit, token, userQuery, userQueryOption);
+        results: UserList = await listUsers(this.props.limit, token, userQuery, userQueryOption);
 
       if (results && results.users && results.users.length) {
         this.setState({
