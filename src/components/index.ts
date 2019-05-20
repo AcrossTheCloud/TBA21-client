@@ -17,6 +17,8 @@ export { default as ManageUsers } from './admin/user/ManageUsers';
 
 // START Tables
 export { default as Collections } from './admin/tables/collections/Collections';
+export { default as Items } from './admin/tables/items/Items';
+export { default as People } from './admin/tables/people/People';
 // END Tables
 
 // END ADMIN

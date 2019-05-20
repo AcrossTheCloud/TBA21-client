@@ -1,9 +1,13 @@
 .tableModal {
   &.fullwidth {
-    &.modal-dialog {
-      max-width: 100%;
-      margin: 0;
-      height: 100%;
+    max-width: 100%;
+    margin: 0;
+    height: 100%;
+    display: flex;
+    flex: 1 0 100%;
+
+    .modal-body {
+      overflow: scroll;
     }
   }
 }

@@ -1,5 +1,5 @@
 import { get, has } from 'lodash';
-import CognitoIdentityServiceProvider from 'aws-sdk/clients/cognitoidentityserviceprovider';
+import CognitoIdentityServiceProvider, { UserType, AttributeType } from 'aws-sdk/clients/cognitoidentityserviceprovider';
 
 import config from 'config';
 import { getCurrentCredentials } from 'components/utils/Auth';
@@ -41,7 +41,7 @@ export const listUsers = async (limit: number = 15, paginationToken?: string, us
     Object.assign (params, {Filter:  `${userQueryOption} ^=  '${userQuery}'`} ); // AWS expects single quotes around the userQuery
   }
 
-  let responsePaginationToken: string | undefined;
+  let responsePaginationToken: string | undefined = undefined;
 
   // If we've passed a paginationToken add it to the Params.
   if (paginationToken) {
@@ -50,21 +50,23 @@ export const listUsers = async (limit: number = 15, paginationToken?: string, us
 
   const data = await cognitoIdentityServiceProvider.listUsers(params).promise();
 
-  if (data && data.Users) {
+  if (data && (data.Users && data.Users.length)) {
     // If we have a token return it, otherwise we assume we're at the end of the list os our users.
     if (has(data, 'PaginationToken')) {
       responsePaginationToken = data.PaginationToken;
-    } else {
-      responsePaginationToken = undefined;
     }
 
     // Convert attributes to a key: value pair instead of an Array of Objects
-    const users: User[] = data.Users.map( (user: any) => { // tslint:disable-line: no-any
-      let userAttributes: any = {}; // tslint:disable-line: no-any
+    const users: User[] = data.Users.map( (user: UserType) => {
 
-      user.Attributes.forEach( (attribute: {Name: string, Value: string}) => {
-        userAttributes[attribute.Name] = attribute.Value;
-      });
+      let userAttributes: {[Name: string]: string} = {};
+      if (user.Attributes) {
+        user.Attributes.forEach( (attribute: AttributeType) => {
+          if (typeof attribute.Value !== 'undefined') {
+            userAttributes[attribute.Name] = attribute.Value;
+          }
+        });
+      }
 
       // Disable the user if their status is unknown or COMPROMISED, because, who knows.
       if (user.UserStatus === 'UNKNOWN' || user.UserStatus === 'COMPROMISED') {
@@ -72,10 +74,10 @@ export const listUsers = async (limit: number = 15, paginationToken?: string, us
       }
 
       return {
-        username: user.Username,
-        email: userAttributes.email,
-        enabled: user.Enabled,
-        status: user.UserStatus,
+        username: user.Username ? user.Username : 'No Name',
+        email: userAttributes.email ? userAttributes.email : 'No Email',
+        enabled: user.Enabled ? user.Enabled : false,
+        status: user.UserStatus ? user.UserStatus : '',
         emailVerified: userAttributes.email_verified === 'true'
       };
     });

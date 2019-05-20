@@ -153,7 +153,7 @@ export default class DraggableMap extends React.Component<Props, State> {
       mapStyle = {
         height: '100%',
         minHeight: '400px',
-        margin: '30px'
+        margin: '30px 15px'
       };
 
     return (
