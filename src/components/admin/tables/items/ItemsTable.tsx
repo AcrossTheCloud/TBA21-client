@@ -4,18 +4,12 @@ import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import { Button, Modal, ModalBody, ModalFooter, Spinner } from 'reactstrap';
 
 import DraggableMap, { Position } from 'components/map/DraggableMap';
-import Tags, { Tag } from '../Tags';
+import Tags from '../Tags';
 import { FileUpload } from '../FileUpload';
 
-import 'styles/components/admin/tables/modal.scss';
+import { Item } from 'types/Item';
 
-interface Item {
-  id: string;
-  enabled: boolean;
-  title: string;
-  peopleTags: Tag[];
-  markerPosition: Position;
-}
+import 'styles/components/admin/tables/modal.scss';
 
 interface State {
   wizardCurrentStep: number;
@@ -95,55 +89,12 @@ export default class ItemsTable extends React.Component<{}, State> {
     ];
   }
 
-  // todo-dan REMOVE ths testing dummy data function.
-  testing() {
-
-    setTimeout(() => {
-      let dummyItems: Item[] = [];
-      for (let i = 0; i < 10; i++) {
-
-        let dummyPersonTags: Tag[] = [];
-        for (let t = 0; t < 10; t++) {
-          dummyPersonTags.push({ id: `${i}-${t}`, text: `PersonTag-${t}` });
-        }
-
-        dummyItems.push(
-          {
-            id: `${i}`,
-            enabled: true,
-            title: `Item-${i}`,
-            markerPosition: { lat: 38, lng: 23 },
-            peopleTags: [
-              dummyPersonTags[Math.floor(Math.random() * dummyPersonTags.length)],
-              dummyPersonTags[Math.floor(Math.random() * dummyPersonTags.length)],
-              dummyPersonTags[Math.floor(Math.random() * dummyPersonTags.length)],
-              dummyPersonTags[Math.floor(Math.random() * dummyPersonTags.length)]
-            ] // random pick
-          }
-        );
-      }
-
-      this.setState({
-        tableIsLoading: false,
-        items: dummyItems
-      });
-    },
-               2000);
-  }
-
-  async componentDidMount(): Promise<void> {
-    // Get list of item
-
-    this.testing(); // todo-dan -remove
-
-  }
-
   onEditButtonClick = (row: Item) => {
     this.setState(
 {
         componentModalOpen: true,
-        rowEditingId: row.id,
-        markerPosition: row.markerPosition
+        // rowEditingId: row.id,
+        // markerPosition: row.markerPosition
       }
     );
   }

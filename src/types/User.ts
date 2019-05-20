@@ -1,3 +1,10 @@
+// enums as strings allows string comparisons. :)
+export enum Gender {
+  MALE = 'Male',
+  FEMALE = 'Female',
+  OTHER = 'Other'
+}
+
 export interface User {
   username: string;
 
@@ -7,7 +14,7 @@ export interface User {
   email: string;
   emailVerified: boolean;
 
-  gender: string | undefined;
+  gender: Gender | undefined;
   date_of_birth: string | undefined;
 
   family_name: string | undefined;
