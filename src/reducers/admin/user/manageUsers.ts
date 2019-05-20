@@ -1,5 +1,5 @@
 import { LOAD_MORE, ERROR } from '../../../actions/admin/user/manageUsers';
-import { User } from '../../../components/admin/user/ManageUsers';
+import { User } from 'types/User';
 
 export interface State {
   errorMessage?: string | undefined;

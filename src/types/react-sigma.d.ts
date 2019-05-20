@@ -1,5 +1,3 @@
-
-
 declare module 'react-sigma' {
   import * as React from 'react';
 

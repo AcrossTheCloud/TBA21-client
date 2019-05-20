@@ -20,6 +20,8 @@ import { loadMore } from 'actions/admin/user/manageUsers';
 import AdminResetPassword from 'components/utils/user/AdminResetPassword';
 import { SearchUsers } from './SearchUsers';
 
+import { User } from 'types/User';
+
 import 'styles/components/admin/user/manageUsers.scss';
 
 export interface Props {
@@ -34,13 +36,6 @@ export interface Props {
 interface State {
   resetPasswordModalIsOpen: boolean;
   isLoading: boolean;
-}
-
-export interface User {
-  email: string;
-  username: string;
-  enabled: boolean;
-  status: string;
 }
 
 const ErrorMessage = (props: {message: string | undefined}) => {

@@ -1,5 +1,3 @@
-
-
 declare module 'react-telephone-input' {
   import * as React from 'react';
 

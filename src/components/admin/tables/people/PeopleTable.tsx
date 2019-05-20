@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { get, has } from 'lodash';
+import { AWSError } from 'aws-sdk';
 import CognitoIdentityServiceProvider, { ListUsersInGroupResponse, UserType, AttributeType } from 'aws-sdk/clients/cognitoidentityserviceprovider';
 import BootstrapTable from 'react-bootstrap-table-next';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
@@ -8,31 +9,9 @@ import { Button, Modal, ModalBody, ModalFooter, Spinner } from 'reactstrap';
 import config from 'config';
 import { getCurrentCredentials } from 'components/utils/Auth';
 
+import { User } from 'types/User';
+
 import 'styles/components/admin/tables/modal.scss';
-import { AWSError } from 'aws-sdk';
-
-interface User {
-  username: string;
-
-  status: string;
-  enabled: boolean;
-
-  email: string;
-  emailVerified: boolean;
-
-  gender: string | undefined;
-  date_of_birth: string | undefined;
-
-  family_name: string | undefined;
-  given_names: string | undefined;
-
-  organisation: string | undefined;
-  affiliation: string | undefined;
-  job_role: string | undefined;
-
-  website: string | undefined;
-  address: string | undefined;
-}
 
 interface State {
   errorMessage: string | undefined;

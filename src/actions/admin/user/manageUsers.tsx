@@ -3,7 +3,7 @@ import CognitoIdentityServiceProvider, { UserType, AttributeType } from 'aws-sdk
 
 import config from 'config';
 import { getCurrentCredentials } from 'components/utils/Auth';
-import { User } from 'components/admin/user/ManageUsers';
+import { User } from 'types/User';
 
 // Defining our Actions for the reducers
 export const LOAD_MORE = 'LOAD_MORE';
@@ -75,10 +75,24 @@ export const listUsers = async (limit: number = 15, paginationToken?: string, us
 
       return {
         username: user.Username ? user.Username : 'No Name',
-        email: userAttributes.email ? userAttributes.email : 'No Email',
         enabled: user.Enabled ? user.Enabled : false,
         status: user.UserStatus ? user.UserStatus : '',
-        emailVerified: userAttributes.email_verified === 'true'
+
+        email: userAttributes.email ? userAttributes.email : 'No Email',
+        emailVerified: userAttributes.email_verified === 'true',
+
+        family_name: userAttributes.family_name ? userAttributes.family_name : undefined,
+        given_names: userAttributes.given_names ? userAttributes.given_names : undefined,
+
+        gender: userAttributes.gender ? userAttributes.gender : undefined,
+        date_of_birth: userAttributes.date_of_birth ? userAttributes.date_of_birth : undefined,
+
+        organisation: userAttributes.organisation ? userAttributes.organisation : undefined,
+        affiliation: userAttributes.affiliation ? userAttributes.affiliation : undefined,
+        job_role: userAttributes.job_role ? userAttributes.job_role : undefined,
+
+        website: userAttributes.website ? userAttributes.website : undefined,
+        address: userAttributes.address ? userAttributes.address : undefined
       };
     });
 
