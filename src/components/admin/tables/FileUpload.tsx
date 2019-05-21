@@ -6,7 +6,7 @@ import Dropzone from 'react-dropzone';
 import { v1 as uuid } from 'uuid';
 
 import Tags, { Tag } from './Tags';
-import config from '../../..//config';
+import config from 'config.js';
 
 import 'styles/components/_dropzone.scss';
 import 'styles/components/_reactTags.scss';
@@ -119,10 +119,10 @@ export class FileUpload extends React.Component<{}, State> {
       let fileType = this.whatType(f.type);
       switch (fileType) {
         case 'application/pdf':
-          itemDisplay = <object data={f.preview}/>;
+          itemDisplay = <object data={f.preview} aria-label="preview"/>;
           break;
         case 'image':
-          itemDisplay = <img src={f.preview}/>;
+          itemDisplay = <img src={f.preview} alt="preview"/>;
           break;
         default:
           break;
