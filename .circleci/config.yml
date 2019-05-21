@@ -1,4 +1,7 @@
-version: 2
+version: 2.1
+orbs:
+  codecov: codecov/codecov@1.0.4
+
 jobs:
   build:
     docker:
@@ -17,15 +20,13 @@ jobs:
       - run:
           name: Build
           command: npm run build
-#      - run:
-#          name: Test
-#          command: npm run test
-#      - run:
-#          name: Generate code coverage
-#          command: './node_modules/.bin/nyc report --reporter=text-lcov'
-#      - store_artifacts:
-#          path: test-results.xml
-#          prefix: tests
+      - run:
+          name: Test
+          command: npm run test
+      - store_artifacts:
+          path: coverage
+      - codecov/upload:
+          file: coverage/coverage-final.json
       - save_cache:
           key: dependency-cache-{{ checksum "package-lock.json" }}
           paths:

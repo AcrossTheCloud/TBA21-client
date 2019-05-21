@@ -3,13 +3,13 @@
 # dependencies
 /node_modules
 
-# testing
+# unit testing coverage
 /coverage
 
 # production
 /build
 
-# misc
+# misc incl. .env files
 .DS_Store
 .env.local
 .env.development.local
