@@ -3,7 +3,6 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import {
   Container,
-  Alert,
   Button,
   Input,
   Spinner,
@@ -21,6 +20,7 @@ import AdminResetPassword from 'components/utils/user/AdminResetPassword';
 import { SearchUsers } from './SearchUsers';
 
 import { User } from 'types/User';
+import { ErrorMessage } from '../../utils/alerts';
 
 import 'styles/components/admin/user/manageUsers.scss';
 
@@ -37,14 +37,6 @@ interface State {
   resetPasswordModalIsOpen: boolean;
   isLoading: boolean;
 }
-
-const ErrorMessage = (props: {message: string | undefined}) => {
-  if (props.message === undefined) {
-    return <></>;
-  } else {
-    return <Alert color="danger">{props.message}</Alert>;
-  }
-};
 
 class ManageUsers extends React.Component<Props, State> {
   editUsersRef;

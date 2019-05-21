@@ -2,7 +2,6 @@ import * as React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
 
 import {
-  Alert,
   Button,
   Container,
   FormGroup,
@@ -15,12 +14,11 @@ import LoaderButton from 'components/utils/LoaderButton';
 
 import { PasswordForm } from 'components/utils/inputs/PasswordForm';
 import { AccountConfirmation } from './AccountConfirmation';
+import { Alerts, WarningMessage, ErrorMessage } from '../utils/alerts';
 
 import 'styles/components/user/resetPassword.scss';
 
-interface State {
-  errorMessage: string | undefined;
-  alertMessage: string | undefined;
+interface State extends Alerts {
   isLoading: boolean;
   hasResentCode: boolean;
   email: string;
@@ -36,17 +34,12 @@ interface Props extends RouteComponentProps {
   email?: string;
 }
 
-const ErrorMessage = (props: {message: string | undefined}) => (props.message ? <Alert color="danger">{props.message}</Alert> : <></>);
-const AlertMessage = (props: {message: string| undefined}) => (props.message ? <Alert color="warning">{props.message}</Alert> : <></>);
-
 export class ResetPasswordClass extends React.Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
 
     this.state = {
-      errorMessage: undefined,
-      alertMessage: undefined,
       isLoading: false,
       hasResentCode: false,
       email: (this.props.email ? this.props.email : ''),
@@ -92,7 +85,7 @@ export class ResetPasswordClass extends React.Component<Props, State> {
 
     let
       errorMessage: string | undefined = undefined,
-      alertMessage: string | undefined = undefined,
+      warningMessage: string | undefined = undefined,
       state = {
         isLoading: false
       };
@@ -110,7 +103,7 @@ export class ResetPasswordClass extends React.Component<Props, State> {
           await Auth.resendSignUp(this.state.email);
 
           errorMessage = 'Your account has not been confirmed, you need to confirm it before you can reset your password.';
-          alertMessage = 'Please check your email for a verification code.';
+          warningMessage = 'Please check your email for a verification code.';
 
           Object.assign(state, {
             hasResentCode: true,
@@ -131,7 +124,7 @@ export class ResetPasswordClass extends React.Component<Props, State> {
 
     Object.assign(state, {
       errorMessage: errorMessage,
-      alertMessage: alertMessage
+      warningMessage: warningMessage
     });
 
     this.setState({ ...state });
@@ -209,7 +202,7 @@ export class ResetPasswordClass extends React.Component<Props, State> {
       return (
         <Container className="resetPassword">
           <ErrorMessage message={this.state.errorMessage}/>
-          <AlertMessage message={this.state.alertMessage}/>
+          <WarningMessage message={this.state.warningMessage}/>
           <AccountConfirmation email={this.state.email} sentCode={true} />
         </Container>
       );

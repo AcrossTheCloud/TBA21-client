@@ -3,9 +3,10 @@ import { RouteComponentProps, withRouter } from 'react-router-dom';
 
 import { Auth } from 'aws-amplify';
 import { has, get } from 'lodash';
-import { Alert, Button, FormGroup, Input, Label } from 'reactstrap';
+import { Button, FormGroup, Input, Label } from 'reactstrap';
 
 import LoaderButton from 'components/utils/LoaderButton';
+import { Alerts, ErrorMessage } from '../utils/alerts';
 
 // Extends RouteComponentProps from the router, allows you to pass in History to props through withRouter
 // Instead of passing in down the hierarchy from router.tsx
@@ -14,9 +15,8 @@ interface Props extends RouteComponentProps {
   sentCode?: boolean | undefined;
 }
 
-interface State {
+interface State extends Alerts {
   email: string | undefined;
-  errorMessage: string | undefined;
   isLoading: boolean;
   hasResentCode: boolean;
   confirmationCode: string;
@@ -32,7 +32,6 @@ class AccountConfirmationClass extends React.Component<Props, State>  {
 
     this.state = {
       email: this.matchEmail,
-      errorMessage: undefined,
       isLoading: false,
       hasResentCode: false,
       confirmationCode: '',
@@ -110,7 +109,8 @@ class AccountConfirmationClass extends React.Component<Props, State>  {
   render() {
     return (
       <>
-        {this.state.errorMessage ? <Alert color="danger">{this.state.errorMessage}</Alert> : <></>}
+        <ErrorMessage message={this.state.errorMessage} />
+
         <form onSubmit={this.handleConfirmationSubmit}>
           <FormGroup id="confirmationCode">
             <Label>Confirmation Code</Label>

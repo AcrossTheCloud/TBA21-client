@@ -1,6 +1,5 @@
 import * as React from 'react';
 import {
-  Alert,
   Container,
   FormGroup,
   Input,
@@ -13,13 +12,11 @@ import LoaderButton from 'components/utils/LoaderButton';
 import FacebookButton from 'components/utils/facebook/FacebookButton';
 import { AccountConfirmation } from './AccountConfirmation';
 import { PasswordForm } from 'components/utils/inputs/PasswordForm';
+import { Alerts, ErrorMessage, WarningMessage } from '../utils/alerts';
 
 import 'styles/components/user/signup.scss';
 
-interface State {
-  errorMessage: string | undefined;
-  alertMessage: string | undefined;
-
+interface State extends Alerts {
   isLoading: boolean;
   formValid: boolean;
   passwordValid: boolean;
@@ -34,17 +31,11 @@ interface State {
   password: string;
 }
 
-const ErrorMessage = (props: {message: string | undefined}) => (props.message ? <Alert color="danger">{props.message}</Alert> : <></>);
-const AlertMessage = (props: {message: string| undefined}) => (props.message ? <Alert color="warning">{props.message}</Alert> : <></>);
-
 export class SignUp extends React.Component<{}, State> {
   constructor(props: {}) {
     super(props);
 
     this.state = {
-      errorMessage: undefined,
-      alertMessage: undefined,
-
       formValid: false,
       passwordValid: false,
 
@@ -132,7 +123,7 @@ export class SignUp extends React.Component<{}, State> {
       return (
         <Container className="signUp">
           <ErrorMessage message={this.state.errorMessage} />
-          <AlertMessage message={this.state.alertMessage} />
+          <WarningMessage message={this.state.warningMessage} />
           <form onSubmit={this.handleSubmit} className="small">
             <FormGroup id="email">
               <Label>Email</Label>
@@ -143,7 +134,7 @@ export class SignUp extends React.Component<{}, State> {
                 onChange={e => this.onEmailChange(e.target.value)}
                 disabled={this.state.hasFbLoaded}
               />
-              {this.state.hasMessage ? <Alert color="warning">Please enter your details as we were unable to retrieve them from Facebook.</Alert> : <></>}
+              {this.state.hasMessage ? <WarningMessage message="Please enter your details as we were unable to retrieve them from Facebook." /> : <></>}
             </FormGroup>
 
             <PasswordForm callback={this.passwordCallback} />

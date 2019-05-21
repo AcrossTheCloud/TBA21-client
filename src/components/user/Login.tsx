@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
-import { Alert, Button, Container, FormGroup, Input, Label } from 'reactstrap';
+import { Button, Container, FormGroup, Input, Label } from 'reactstrap';
 
 import FacebookButton from 'components/utils/facebook/FacebookButton';
 import { AuthContext } from 'providers/AuthProvider';
@@ -8,22 +8,17 @@ import { AuthContext } from 'providers/AuthProvider';
 import { AccountConfirmation } from './AccountConfirmation';
 import LoaderButton from 'components/utils/LoaderButton';
 import { ResetPassword } from './ResetPassword';
+import { Alerts, ErrorMessage, WarningMessage } from '../utils/alerts';
 
 import 'styles/components/user/login.scss';
 
-
-interface State {
+interface State extends Alerts{
   email: string;
   password: string;
-  errorMessage: string | undefined;
-  alertMessage: string | undefined;
   passwordReset: boolean;
   notConfirmed: boolean;
   isLoading: boolean;
 }
-
-const ErrorMessage = (props: {message: string | undefined}) => (props.message ? <Alert color="danger">{props.message}</Alert> : <></>);
-const AlertMessage = (props: {message: string| undefined}) => (props.message ? <Alert color="warning">{props.message}</Alert> : <></>);
 
 class LoginClass extends React.Component<RouteComponentProps, State> {
 
@@ -33,8 +28,6 @@ class LoginClass extends React.Component<RouteComponentProps, State> {
     this.state = {
       email: '',
       password: '',
-      errorMessage: undefined,
-      alertMessage: undefined,
       passwordReset: false,
       notConfirmed: false,
       isLoading: false
@@ -61,13 +54,13 @@ class LoginClass extends React.Component<RouteComponentProps, State> {
         // The error happens if the user didn't finish the confirmation step when signing up
         // In this case you need to resend the code and confirm the user
         // About how to resend the code and confirm the user, please check the signUp part
-        this.setState( { alertMessage: 'You need to confirm it before you can reset your password.', notConfirmed: true, isLoading: false });
+        this.setState( { warningMessage: 'You need to confirm it before you can reset your password.', notConfirmed: true, isLoading: false });
 
       } else if (e.code === 'PasswordResetRequiredException') {
         // The error happens when the password is reset in the Cognito console
         // In this case you need to call forgotPassword to reset the password
         // Please check the Forgot Password part.
-        this.setState( { alertMessage: 'Your password needs to be reset before logging in.', passwordReset: true, isLoading: false });
+        this.setState( { warningMessage: 'Your password needs to be reset before logging in.', passwordReset: true, isLoading: false });
       } else if (e.code === 'NotAuthorizedException') {
         // The error happens when the incorrect password is provided
         this.setState( { errorMessage: 'Login details incorrect, try again.', isLoading: false });
@@ -92,7 +85,7 @@ class LoginClass extends React.Component<RouteComponentProps, State> {
       return (
         <>
           <ErrorMessage message={this.state.errorMessage}/>
-          <AlertMessage message={this.state.alertMessage} />
+          <WarningMessage message={this.state.warningMessage} />
           <ResetPassword email={this.state.email} />
         </>
       );
@@ -102,7 +95,7 @@ class LoginClass extends React.Component<RouteComponentProps, State> {
       return (
         <Container className="login">
           <ErrorMessage message={this.state.errorMessage}/>
-          <AlertMessage message={this.state.alertMessage} />
+          <WarningMessage message={this.state.warningMessage} />
           <AccountConfirmation email={this.state.email} />
         </Container>
       );
@@ -111,7 +104,7 @@ class LoginClass extends React.Component<RouteComponentProps, State> {
     return (
       <Container className="login">
         <ErrorMessage message={this.state.errorMessage}/>
-        <AlertMessage message={this.state.alertMessage} />
+        <WarningMessage message={this.state.warningMessage} />
         <form onSubmit={(e) => { this.handleSubmit(e); }} className="small">
           <FormGroup id="email">
             <Label>Email</Label>
@@ -120,7 +113,7 @@ class LoginClass extends React.Component<RouteComponentProps, State> {
               disabled={this.state.isLoading}
               type="email"
               value={this.state.email}
-              onChange={(e) => this.setState({email: e.target.value, errorMessage: undefined, alertMessage: undefined})}
+              onChange={(e) => this.setState({email: e.target.value, errorMessage: undefined, warningMessage: undefined})}
             />
           </FormGroup>
           <FormGroup id="password">
@@ -128,7 +121,7 @@ class LoginClass extends React.Component<RouteComponentProps, State> {
             <Input
               disabled={this.state.isLoading}
               value={this.state.password}
-              onChange={(e) => this.setState({password: e.target.value, errorMessage: undefined, alertMessage: undefined})}
+              onChange={(e) => this.setState({password: e.target.value, errorMessage: undefined, warningMessage: undefined})}
               type="password"
             />
           </FormGroup>

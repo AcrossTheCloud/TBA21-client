@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { Alert, Container } from 'reactstrap';
+import { Container } from 'reactstrap';
 import { connect } from 'react-redux';
 
 import Slider from 'react-slick';
@@ -14,6 +14,7 @@ import { OceanObject } from '../TableRow';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import 'styles/components/ViewItems.scss';
+import { ErrorMessage, WarningMessage } from '../utils/alerts';
 
 // Settings for the slider
 const sliderSettings = {
@@ -68,12 +69,12 @@ const SlickSlider: any = (props: State): JSX.Element => { // tslint:disable-line
 
   // Error message
   if (props.sliderError) {
-    return <Alert color="danger">Error loading items.</Alert>;
+    return <ErrorMessage message="Error loading items."/>;
   }
 
   if (!props || (props.items && !props.items.length)) {
     // No content message if the list is empty.
-    return <React.Fragment><Alert color="danger">No items in this section</Alert></React.Fragment>;
+    return <ErrorMessage message="No items in this section."/>;
   } else {
     // Map results, with HTML structure.
     let results = props.items.map((item, index) => {
@@ -102,7 +103,7 @@ const SlickSlider: any = (props: State): JSX.Element => { // tslint:disable-line
 
     // If we don't have any results for some reason, show an error message.
     // Otherwise show the slider.
-    return results.length ? theSlider : <Alert color="danger">There are no results.</Alert>;
+    return results.length ? theSlider : <WarningMessage message="There are no results."/>;
   }
 };
 

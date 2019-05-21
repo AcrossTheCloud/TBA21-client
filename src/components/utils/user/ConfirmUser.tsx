@@ -3,14 +3,14 @@ import { getCurrentCredentials } from '../Auth';
 import { get } from 'lodash';
 import CognitoIdentityServiceProvider from 'aws-sdk/clients/cognitoidentityserviceprovider';
 import config from '../../../config';
-import { Alert, Button, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
+import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
+import { Alerts, ErrorMessage } from '../alerts';
 
-interface State {
+interface State extends Alerts {
   userId?: string;
   userEmail?: string;
   isOpen?: boolean | undefined;
   callback?: Function;
-  errorMessage?: string | undefined;
 }
 
 export class ConfirmUser extends React.Component<{}, State> {
@@ -26,17 +26,17 @@ export class ConfirmUser extends React.Component<{}, State> {
     const credentials = await getCurrentCredentials();
 
     this.cognitoIdentityServiceProvider = new CognitoIdentityServiceProvider({
-         region: config.cognito.REGION,
-         credentials: {
-           accessKeyId: get(credentials, 'accessKeyId'),
-           sessionToken: get(credentials, 'sessionToken'),
-           secretAccessKey: get(credentials, 'data.Credentials.SecretKey'),
-         }
-       });
+       region: config.cognito.REGION,
+       credentials: {
+         accessKeyId: get(credentials, 'accessKeyId'),
+         sessionToken: get(credentials, 'sessionToken'),
+         secretAccessKey: get(credentials, 'data.Credentials.SecretKey'),
+       }
+     });
 
     this.setState({
-        isOpen: this.state.isOpen
-      });
+      isOpen: this.state.isOpen
+    });
   }
 
   /**
@@ -99,7 +99,7 @@ export class ConfirmUser extends React.Component<{}, State> {
         <ModalBody>
           {
             hasError ?
-              <> {this.state.errorMessage ? <Alert color="danger"> {this.state.errorMessage}</Alert> : <></>} </>
+              <ErrorMessage message={this.state.errorMessage}/>
               :
               <>Confirm {this.state.userEmail ? this.state.userEmail : this.state.userId}?</>
           }

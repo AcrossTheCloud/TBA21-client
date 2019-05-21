@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { Alert, Button, Container, Form, FormGroup, Input, Label } from 'reactstrap';
+import { Button, Container, Form, FormGroup, Input, Label } from 'reactstrap';
 import { get, has } from 'lodash';
 import $ from 'jquery';
 
@@ -8,13 +8,11 @@ import DeleteAccount from 'components/utils/user/DeleteAccount';
 import ChangePassword from 'components/utils/user/ChangePassword';
 import { getCurrentAuthenticatedUser, logout } from 'components/utils/Auth';
 import { deleteAccount, dispatchError, updateAttributes, changePassword } from 'actions/user/profile';
+import { Alerts, ErrorMessage, SuccessMessage } from '../../utils/alerts';
 
 import 'styles/components/user/profile/profile.scss';
 
-interface Props {
-  errorMessage: string | boolean;
-  successMessage: string | boolean;
-
+interface Props extends Alerts {
   deleteAccount: Function;
   dispatchError: Function;
   updateAttributes: Function;
@@ -28,25 +26,6 @@ interface Props {
 interface State {
   credentials: {};
 }
-
-const ErrorMessage = (props: {message: string | boolean}) => {
-  return (
-    <Alert color="danger">
-      {props.message ? props.message : 'An error has occurred.'}
-    </Alert>
-  );
-};
-const SuccessMessage = (props: {message: string | boolean}) => {
-  if (typeof props.message !== 'boolean') {
-    return (
-      <Alert color="success">
-        {props.message}
-      </Alert>
-    );
-  } else {
-    return <></>;
-  }
-};
 
 class Profile extends React.Component<Props, State> {
   private emailInput;
@@ -122,8 +101,8 @@ class Profile extends React.Component<Props, State> {
     return(
       <Container id="profile">
 
-        {this.props.errorMessage ? <ErrorMessage message={this.props.errorMessage} /> : <></>}
-        {this.props.successMessage ? <SuccessMessage message={this.props.successMessage} /> : <></>}
+        <ErrorMessage message={this.props.errorMessage} />
+        <SuccessMessage message={this.props.successMessage} />
 
         <div className="overlay" style={{display: 'none'}} />
         Your Profile<br />

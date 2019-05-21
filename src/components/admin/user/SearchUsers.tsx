@@ -3,7 +3,6 @@ import { get } from 'lodash';
 import BootstrapTable from 'react-bootstrap-table-next';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import {
-  Alert,
   Button,
   FormGroup,
   Input,
@@ -25,28 +24,20 @@ import AdminResetPassword from 'components/utils/user/AdminResetPassword';
 import { User } from 'types/User';
 
 import 'styles/components/admin/user/manageUsers.scss';
+import { Alerts, ErrorMessage } from '../../utils/alerts';
 
 interface Props {
   limit: number;
 }
 
-interface State {
+interface State extends Alerts {
   results: User[];
-  errorMessage: string | undefined;
   searchBy: string;
   searchByLabel: string;
   paginationToken: string | undefined;
   resetPasswordModalIsOpen: boolean;
   isLoading: boolean;
 }
-
-const ErrorMessage = (props: {message: string | undefined}) => {
-  if (props.message === undefined) {
-    return <></>;
-  } else {
-    return <Alert color="danger">{props.message}</Alert>;
-  }
-};
 
 export class SearchUsers extends React.Component<Props, State> {
   editUsersRef;

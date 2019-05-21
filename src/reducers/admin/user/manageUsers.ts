@@ -1,8 +1,8 @@
 import { LOAD_MORE, ERROR } from '../../../actions/admin/user/manageUsers';
 import { User } from 'types/User';
+import { Alerts } from '../../../components/utils/alerts';
 
-export interface State {
-  errorMessage?: string | undefined;
+export interface State extends Alerts {
   users: User[];
   paginationToken?: string;
   limit: number;

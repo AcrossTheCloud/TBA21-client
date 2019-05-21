@@ -1,12 +1,12 @@
 import * as React from 'react';
-import { Button, Alert } from 'reactstrap';
+import { Button } from 'reactstrap';
 import { loadFacebookSDK, waitForInit } from './facebookSDK';
 import { AuthConsumer } from 'providers/AuthProvider';
+import { Alerts, WarningMessage } from '../alerts';
 
-interface State {
+interface State extends Alerts {
   isLoading: boolean;
   sdkLoaded: boolean;
-  errorMessage?: string;
 }
 interface Props {
   isSignUp: boolean;
@@ -90,21 +90,6 @@ class FacebookButton extends React.Component<Props, State> {
   }
 
   render() {
-    if (this.state.sdkLoaded && !this.props.isSignUp) {
-      return (
-        <AuthConsumer>
-          {({ facebookLogin }) => (
-            <Button
-              block
-              onClick={e => this.handleLoginClick(e, facebookLogin)}
-              disabled={this.state.isLoading}
-            >
-            Login with Facebook
-            </Button>
-          )}
-        </AuthConsumer>
-      );
-    }
     if (this.props.isSignUp) {
       return (
         <>
@@ -115,11 +100,25 @@ class FacebookButton extends React.Component<Props, State> {
         >
           Sign up with Facebook
         </Button>
-          {this.state.errorMessage ? <Alert color="warning">Please enter your details as we were unable to retrieve them from Facebook.</Alert> : <></>}
+          <WarningMessage message="Please enter your details as we were unable to retrieve them from Facebook."/>
         </>
       );
+    } else if (this.state.sdkLoaded) {
+      return (
+        <AuthConsumer>
+          {({ facebookLogin }) => (
+            <Button
+              block
+              onClick={e => this.handleLoginClick(e, facebookLogin)}
+              disabled={this.state.isLoading}
+            >
+              Login with Facebook
+            </Button>
+          )}
+        </AuthConsumer>
+      );
     } else {
-      return <></>;
+      return  <></>;
     }
   }
 }

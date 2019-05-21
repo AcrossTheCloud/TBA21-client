@@ -1,7 +1,6 @@
 import * as React from 'react';
 import * as moment from 'moment';
 import { connect } from 'react-redux';
-import Alert from 'reactstrap/lib/Alert';
 
 import { MultiMedia } from 'components/utils/MultiMedia';
 import { getMapIcon } from '../map/icons';
@@ -10,6 +9,8 @@ import { Map, Marker, TileLayer } from 'react-leaflet';
 import { OceanObject } from '../TableRow';
 import { fetchItem } from 'actions/items/viewItem';
 import { State } from 'reducers/items/viewItem';
+
+import { ErrorMessage } from '../utils/alerts';
 
 import 'leaflet/dist/leaflet.css';
 
@@ -128,21 +129,7 @@ const Item = (props) => {
   }
 };
 
-/**
- * Returns A bootstrap Alert if true.
- *
- * @param props Object, error (boolean)
- */
-const ErrorMessage = (props) => {
-  if (props.error) {
-    return <Alert color="danger">Oops</Alert>;
-  } else {
-    return <></>;
-  }
-};
-
 class ViewItem extends React.Component<Props, State> {
-
   matchedItemId: string = '';
 
   constructor(props: any) { // tslint:disable-line: no-any
@@ -165,7 +152,7 @@ class ViewItem extends React.Component<Props, State> {
 
   render() {
     if (this.props.hasError) {
-      return <ErrorMessage error="Looks like we've had a bit of a hiccup." />;
+      return <ErrorMessage message="Looks like we've had a bit of a hiccup." />;
     }
 
     if (typeof this.props.itemInformation === 'undefined') {

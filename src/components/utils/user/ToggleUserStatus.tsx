@@ -1,14 +1,14 @@
 import * as React from 'react';
 import { get } from 'lodash';
 import CognitoIdentityServiceProvider from 'aws-sdk/clients/cognitoidentityserviceprovider';
-import { Alert, Button, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
+import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
 
 import config from '../../../config';
 import { getCurrentCredentials } from '../Auth';
+import { Alerts, ErrorMessage } from '../alerts';
 
-interface State {
+interface State extends Alerts {
   isOpen?: boolean;
-  errorMessage?: string;
   userId?: string;
   userEmail?: string;
   enabled?: boolean;
@@ -126,7 +126,7 @@ export class ToggleUserStatus extends React.Component<{}, State> {
           {
             hasError ?
               <>
-                {this.state.errorMessage ? <Alert color="danger">{this.state.errorMessage}</Alert> : <></>}
+                <ErrorMessage message={this.state.errorMessage}/>
               </>
               :
               <>{this.state.enabled ? 'Disable ' : 'Enable '}{this.state.userEmail ? this.state.userEmail : this.state.userId}?</>

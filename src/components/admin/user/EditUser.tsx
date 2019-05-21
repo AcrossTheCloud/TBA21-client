@@ -24,15 +24,14 @@ import { getCurrentCredentials } from '../../utils/Auth';
 import AdminResetPassword from '../../utils/user/AdminResetPassword';
 import { ConfirmUser } from '../../utils/user/ConfirmUser';
 import { ToggleUserStatus } from '../../utils/user/ToggleUserStatus';
+import { Alerts, ErrorMessage, SuccessMessage, WarningMessage } from '../../utils/alerts';
 
-interface State {
+interface State extends Alerts {
   isOpen: boolean;
   deleteUserModalIsOpen: boolean;
   resetPasswordModalIsOpen: boolean;
   groupsLoading: boolean;
 
-  successMessage?: string| undefined;
-  errorMessage?: string | undefined;
   groupsError?: string | undefined;
 
   userId?: string | undefined;
@@ -373,10 +372,10 @@ export default class EditUser extends React.Component<{}, State> {
       return <>Loading User Groups</>;
     }
     if (this.state.groupsError) {
-      return <Alert color="danger">{this.state.groupsError}</Alert>;
+      return <ErrorMessage message={this.state.groupsError}/>;
     }
     if (!cognitioGroups || (cognitioGroups && !cognitioGroups.length) || typeof userGroups === 'undefined') {
-      return <Alert color="danger">Unable to the list of load groups at this time.</Alert>;
+      return <ErrorMessage message="Unable to the list of load groups at this time."/>;
     }
 
     const groupElements: JSX.Element[] = cognitioGroups.map((group: GroupData, i) => {
@@ -606,12 +605,11 @@ export default class EditUser extends React.Component<{}, State> {
         </ModalHeader>
 
         <ModalBody>
+          <ErrorMessage message={this.state.errorMessage}/>
+          <SuccessMessage message={this.state.successMessage}/>
 
-          {this.state.errorMessage ? <Alert color="danger">{this.state.errorMessage}</Alert> : <></>}
-          {this.state.successMessage ? <Alert color="success">{this.state.successMessage}</Alert> : <></>}
-
-          {this.state.status === 'UNKNOWN ' ? <Alert color="warning">There's an issue with this user.</Alert> : <></>}
-          {this.state.enabled && this.state.status === 'RESET_REQUIRED' ? <Alert color="warning">You're unable to edit this users email address as they have not confirmed their password via a confirmation code.</Alert> : <></>}
+          {this.state.status === 'UNKNOWN ' ? <WarningMessage message="There's an issue with this user"/> : <></>}
+          {this.state.enabled && this.state.status === 'RESET_REQUIRED' ? <WarningMessage message="You're unable to edit this users email address as they have not confirmed their password via a confirmation code"/> : <></>}
           {!this.state.enabled && this.state.status !== 'UNKNOWN ' ? <Alert color="danger">This user is disabled, please enable them before continuing <Button color="secondary" onClick={() => this.toggleUserRef.current.loadDetails(this.state.userId, this.state.enabled, this.state.userEmail, this.onChangeToggleModal)}>Enable User</Button></Alert> : <></>}
 
           {
