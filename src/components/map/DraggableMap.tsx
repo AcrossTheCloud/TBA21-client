@@ -156,19 +156,19 @@ export default class DraggableMap extends React.Component<Props, State> {
       };
 
     return (
-      <React.Fragment>
+      <div id="draggableMap">
         <Container>
           <Row>
             <Col md="6">
               <InputGroup>
                 <InputGroupAddon addonType="prepend">Lat</InputGroupAddon>
-                <Input type="number" value={this.state.marker.lat} innerRef={(el) => { this.latInputRef = el; }} onChange={this.inputChange}/>
+                <Input className="lat" type="number" value={this.state.marker.lat} innerRef={(el) => { this.latInputRef = el; }} onChange={this.inputChange}/>
               </InputGroup>
             </Col>
             <Col md="6">
               <InputGroup>
                 <InputGroupAddon addonType="prepend">Lng</InputGroupAddon>
-                <Input type="number" value={this.state.marker.lng} innerRef={(el) => { this.lngInputRef = el; }} onChange={this.inputChange}/>
+                <Input className="lng" type="number" value={this.state.marker.lng} innerRef={(el) => { this.lngInputRef = el; }} onChange={this.inputChange}/>
               </InputGroup>
             </Col>
           </Row>
@@ -192,7 +192,7 @@ export default class DraggableMap extends React.Component<Props, State> {
             icon={getMapIcon()}
           />
         </Map>
-      </React.Fragment>
+      </div>
     );
   }
 }
