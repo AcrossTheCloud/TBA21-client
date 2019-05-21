@@ -2,7 +2,6 @@ version: 2
 jobs:
   build:
     working_directory: ~/build
-    # The primary container is an instance of the first image listed. The job's commands run in this container.
     docker:
       - image: circleci/node:lts
 
