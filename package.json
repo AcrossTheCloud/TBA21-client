@@ -41,13 +41,13 @@
   "scripts": {
     "start": "bash src/link_config.sh && react-scripts start",
     "build": "bash src/link_config.sh && react-scripts build",
-    "test": "CI=TRUE react-scripts test",
+    "test": "jest --coverage",
     "eject": "react-scripts eject",
     "winstart": "react-scripts start",
     "winbuild": "react-scripts build"
   },
   "devDependencies": {
-    "@types/enzyme": "^3.9.1",
+    "@types/enzyme": "^3.9.2",
     "@types/facebook-js-sdk": "^3.2.1",
     "@types/graphql": "^14.2.0",
     "@types/jest": "^23.3.14",
@@ -69,9 +69,13 @@
     "@types/redux-thunk": "^2.1.0",
     "@types/uuid": "^3.4.4",
     "enzyme": "^3.9.0",
-    "typescript": "^3.4.5",
+    "enzyme-adapter-react-16": "^1.13.1",
+    "enzyme-to-json": "^3.3.5",
+    "jest": "^24.8.0",
+    "ts-jest": "^24.0.2",
     "tslint": "^5.16.0",
-    "tslint-react": "^4.0.0"
+    "tslint-react": "^4.0.0",
+    "typescript": "^3.4.5"
   },
   "browserslist": [
     ">0.2%",
