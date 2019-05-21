@@ -9,7 +9,7 @@
 # production
 /build
 
-# misc
+# misc incl. .env files
 .DS_Store
 .env.local
 .env.development.local
