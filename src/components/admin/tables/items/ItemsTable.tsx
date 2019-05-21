@@ -3,11 +3,12 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import { Button, Modal, ModalBody, ModalFooter, Spinner } from 'reactstrap';
 
-import DraggableMap, { Position } from 'components/map/DraggableMap';
+import DraggableMap from 'components/map/DraggableMap';
 import Tags from '../Tags';
 import { FileUpload } from '../FileUpload';
 
 import { Item } from 'types/Item';
+import { Position } from 'types/Map';
 
 import 'styles/components/admin/tables/modal.scss';
 

@@ -1,6 +1,7 @@
 import { Tag } from 'components/admin/tables/Tags';
-import { Position } from 'components/map/DraggableMap';
-import { User } from 'types/User';
+
+import { LeafletGeoJSON } from './Map';
+import { User } from './User';
 import { Ocean } from './Ocean';
 
 // enums as strings allows string comparisons. :)
@@ -11,7 +12,7 @@ export enum Status {
 }
 
 export interface Item {
-  markerPosition: Position;
+  markerPosition: LeafletGeoJSON;
 
   sha512: string;
   s3_key: string;

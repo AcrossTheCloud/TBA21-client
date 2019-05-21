@@ -5,6 +5,7 @@ import { LocationEvent } from 'leaflet';
 import { isEqual } from 'lodash';
 
 import { getMapIcon } from './icons';
+import { Position } from 'types/Map';
 
 import 'leaflet/dist/leaflet.css';
 
@@ -18,8 +19,6 @@ interface Props {
   markerPosition?: Position | null;
   positionCallback?: Function;
 }
-
-export type Position = { lat: number, lng: number };
 
 export default class DraggableMap extends React.Component<Props, State> {
   _isMounted;
