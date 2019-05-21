@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { Home } from './Home';
+import DraggableMap from './DraggableMap';
 
-describe('Home', () => {
+describe('Draggable map', () => {
 
   it('Renders without crashing', () => {
-    expect(shallow(<Home />));
+    expect(shallow(<DraggableMap />));
   });
 
 });

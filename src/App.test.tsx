@@ -2,13 +2,13 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import { App } from './App';
 
-describe('Counter', () => {
-  test('App has a navigation bar', () => {
+describe('App', () => {
+  test('Has a navigation bar', () => {
     const wrapper = shallow(<App />);
     expect(wrapper.find('navigation'));
   });
 
-  it('App renders without crashing', () => {
+  it('Renders without crashing', () => {
     expect(shallow(<App />));
   });
 
