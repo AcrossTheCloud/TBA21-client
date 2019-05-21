@@ -3,8 +3,9 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import { Button, Modal, ModalBody, ModalFooter, Spinner } from 'reactstrap';
 
-import DraggableMap, { Position } from 'components/map/DraggableMap';
+import DraggableMap from 'components/map/DraggableMap';
 import Tags, { Tag } from '../Tags';
+import { Position } from 'types/Map';
 
 import 'styles/components/admin/tables/modal.scss';
 
@@ -194,7 +195,7 @@ export default class CollectionTable extends React.Component<{}, State> {
           data={this.state.tableIsLoading ? [] : this.state.collections}
           columns={this.tableColumns}
           onTableChange={() => <Spinner style={{ width: '10rem', height: '10rem' }} type="grow" />}
-          noDataIndication={() => <Spinner style={{ width: '10rem', height: '10rem' }} type="grow" />}
+          noDataIndication={() => !this.state.tableIsLoading && !this.state.collections.length ? 'No data to display.' : <Spinner style={{ width: '10rem', height: '10rem' }} type="grow" />}
         />
 
         <Modal isOpen={this.state.componentModalOpen} className="tableModal fullwidth">

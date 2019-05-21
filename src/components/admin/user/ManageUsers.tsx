@@ -169,7 +169,7 @@ class ManageUsers extends React.Component<Props, State> {
             columns={this.columns}
             rowClasses={this.rowStyle}
             onTableChange={() => <Spinner style={{ width: '10rem', height: '10rem' }} type="grow" />}
-            noDataIndication={() => <Spinner style={{ width: '10rem', height: '10rem' }} type="grow" />}
+            noDataIndication={() => !this.state.isLoading && !this.props.users.length ? 'No data to display.' : <Spinner style={{ width: '10rem', height: '10rem' }} type="grow" />}
           />
 
           {

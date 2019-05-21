@@ -147,7 +147,7 @@ export default class ItemsTable extends React.Component<{}, State> {
           data={this.state.tableIsLoading ? [] : this.state.items}
           columns={this.tableColumns}
           onTableChange={() => <Spinner style={{ width: '10rem', height: '10rem' }} type="grow" />}
-          noDataIndication={() => <Spinner style={{ width: '10rem', height: '10rem' }} type="grow" />}
+          noDataIndication={() => !this.state.tableIsLoading && !this.state.items.length ? 'No data to display.' : <Spinner style={{ width: '10rem', height: '10rem' }} type="grow" />}
         />
 
         <Modal isOpen={this.state.componentModalOpen} className="tableModal fullwidth">
