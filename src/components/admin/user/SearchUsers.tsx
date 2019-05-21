@@ -213,7 +213,7 @@ export class SearchUsers extends React.Component<Props, State> {
                 data={this.state.isLoading ? [] : this.state.results}
                 columns={this.columns}
                 onTableChange={() => <Spinner style={{ width: '10rem', height: '10rem' }} type="grow" />}
-                noDataIndication={() => <Spinner style={{ width: '10rem', height: '10rem' }} type="grow" />}
+                noDataIndication={() => !this.state.isLoading && !this.state.results.length ? 'No data to display.' : <Spinner style={{ width: '10rem', height: '10rem' }} type="grow" />}
               />
               : <></>
           }

@@ -4,18 +4,26 @@ import { AWSError } from 'aws-sdk';
 import CognitoIdentityServiceProvider, { ListUsersInGroupResponse, UserType, AttributeType } from 'aws-sdk/clients/cognitoidentityserviceprovider';
 import BootstrapTable from 'react-bootstrap-table-next';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
-import { Button, Modal, ModalBody, ModalFooter, Spinner } from 'reactstrap';
+import {
+  Button,
+  FormGroup,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  Spinner,
+} from 'reactstrap';
 
 import config from 'config';
 import { getCurrentCredentials } from 'components/utils/Auth';
 
 import { Gender, User, UserAttributes } from 'types/User';
+import { Alerts, ErrorMessage } from '../../../utils/alerts';
 
 import 'styles/components/admin/tables/modal.scss';
+import { FaSync } from 'react-icons/fa';
+import { SearchUsers } from '../../user/SearchUsers';
 
-interface State {
-  errorMessage: string | undefined;
-
+interface State extends Alerts {
   users: User[];
   paginationToken: string | undefined;
 
@@ -25,21 +33,24 @@ interface State {
 }
 
 export default class UserTable extends React.Component<{}, State> {
+  _isMounted;
   tableColumns;
+  searchInputRef;
+  cognitoGroup = 'admin'; // todo-prod change this to the actual group.
 
   constructor(props: {}) {
     super(props);
+    this._isMounted = false;
+
+    this.searchInputRef = React.createRef();
 
     this.state = {
-      errorMessage: undefined,
-
       componentModalOpen: false,
       tableIsLoading: true,
       rowEditingId: undefined,
 
       users: [],
       paginationToken: undefined,
-
     };
 
     this.tableColumns = [
@@ -90,7 +101,12 @@ export default class UserTable extends React.Component<{}, State> {
   }
 
   componentDidMount(): void {
+    this._isMounted = true;
+
     this.listUsers();
+  }
+  componentWillUnmount(): void {
+    this._isMounted = false;
   }
 
   onEditButtonClick = (row: User) => {
@@ -112,51 +128,59 @@ export default class UserTable extends React.Component<{}, State> {
 
   /**
    * Load list of users from AWS Cognito
-   * @param limit {number | null} Number of results to load
-   * @param paginationToken {string | null} String returned from AWS API Call
-   * @param userQuery filters search results
-   * @param userQueryOption toggles the search result filter
+   * @param limit {number | undefined} Number of results to load
    */
-  listUsers = async (limit: number = 15, paginationToken: string | undefined = undefined, userQuery?: string, userQueryOption?: string): Promise<void> => {
+  listUsers = async (limit: number = 15): Promise<void> => {
+    type ListUsersState = {
+      users: User[] | [],
+      paginationToken: string | undefined,
+      tableIsLoading: boolean,
+      errorMessage: string | undefined
+    };
+
+    let listUsersState: ListUsersState = {
+      users: [],
+      tableIsLoading: false,
+      paginationToken: undefined,
+      errorMessage: undefined
+    };
+
     try {
       const
         credentials = await getCurrentCredentials(),
         cognitoIdentityServiceProvider = new CognitoIdentityServiceProvider({
-                                                                              region: config.cognito.REGION,
-                                                                              credentials: {
-                                                                                accessKeyId: get(credentials, 'accessKeyId'),
-                                                                                sessionToken: get(credentials, 'sessionToken'),
-                                                                                secretAccessKey: get(credentials, 'data.Credentials.SecretKey'),
-                                                                              }
-                                                                            }),
+          region: config.cognito.REGION,
+          credentials: {
+            accessKeyId: get(credentials, 'accessKeyId'),
+            sessionToken: get(credentials, 'sessionToken'),
+            secretAccessKey: get(credentials, 'data.Credentials.SecretKey'),
+          }
+        });
+
+      let
+        responsePaginationToken: string | undefined = undefined,
         params: CognitoIdentityServiceProvider.ListUsersInGroupRequest = {
-          GroupName: 'admin',
+          GroupName: this.cognitoGroup,
           UserPoolId: config.cognito.USER_POOL_ID,
           Limit: limit
         };
 
-      if (userQuery) {
-        Object.assign (params, {Filter:  `${userQueryOption} ^=  '${userQuery}'`} ); // AWS expects single quotes around the userQuery
+      // If we have a paginationToken add it to the Params.
+      if (this.state.paginationToken) {
+        Object.assign(params, { NextToken: this.state.paginationToken });
       }
-
-      let responsePaginationToken: string | undefined = undefined;
-
-      // If we've passed a paginationToken add it to the Params.
-      if (paginationToken) {
-        Object.assign(params, {PaginationToken: paginationToken});
-      }
-
-      const data: ListUsersInGroupResponse | AWSError = await cognitoIdentityServiceProvider.listUsersInGroup(params).promise();
+      let data: ListUsersInGroupResponse | AWSError | undefined = await cognitoIdentityServiceProvider.listUsersInGroup(params).promise();
 
       if (data) {
+        console.log('data', data);
         // If we have a token return it, otherwise we assume we're at the end of the list os our users.
-        if (has(data, 'PaginationToken')) {
+        if (has(data, 'NextToken')) {
           responsePaginationToken = data.NextToken;
         }
 
         if (data.Users) {
           // Convert attributes to a key: value pair instead of an Array of Objects
-          const users: User[] = data.Users.map( (user: UserType) => {
+          let users: User[] = data.Users.map( (user: UserType) => {
 
             // We don't know what we're potentially getting back from AWS, (Leave this indicator - USER-E1)
             let userAttributes: UserAttributes = {}; // tslint:disable-line: no-any
@@ -202,49 +226,58 @@ export default class UserTable extends React.Component<{}, State> {
             };
           });
 
-          this.setState({
-            users: users,
-            tableIsLoading: false,
-            paginationToken: responsePaginationToken
-          });
-        } else {
-          this.setState({
-            users: [],
-            paginationToken: undefined,
-            tableIsLoading: false,
-          });
+          listUsersState = {
+            ...listUsersState,
+            users: [...this.state.users, ...users],
+            paginationToken: responsePaginationToken,
+          };
+
         }
       } else {
-        this.setState({
-          users: [],
-          paginationToken: undefined,
-          tableIsLoading: false,
-          errorMessage: `Looks like there's no data to display`
-        });
+        listUsersState.errorMessage = `Looks like there's no data to display`;
+      }
+
+      // Set our state
+      if (this._isMounted) {
+        this.setState({ ...listUsersState });
       }
     } catch (e) {
       console.log(e);
-      this.setState({
-        users: [],
-        tableIsLoading: false,
-        paginationToken: undefined,
-        errorMessage: `Looks like there's no data to display`
-      });
+      if (this._isMounted) {
+        this.setState({
+          ...listUsersState,
+          errorMessage: `We've had a bit of an issue with your request. (${e.message})`
+        });
+      }
     }
   }
 
   render() {
     return (
       <>
-        <BootstrapTable
-          bootstrap4
-          className="peopleTable"
-          keyField="username"
-          data={this.state.tableIsLoading ? [] : this.state.users}
-          columns={this.tableColumns}
-          onTableChange={() => <Spinner style={{ width: '10rem', height: '10rem' }} type="grow" />}
-          noDataIndication={() => <Spinner style={{ width: '10rem', height: '10rem' }} type="grow" />}
-        />
+        <ErrorMessage message={this.state.errorMessage}/>
+        <FormGroup className="PeopleTable">
+          <BootstrapTable
+            bootstrap4
+            className="peopleTable"
+            keyField="username"
+            data={this.state.tableIsLoading ? [] : this.state.users}
+            columns={this.tableColumns}
+            onTableChange={() => <Spinner style={{ width: '10rem', height: '10rem' }} type="grow" />}
+            noDataIndication={() => !this.state.tableIsLoading && !this.state.users.length ? 'No data to display.' : <Spinner style={{ width: '10rem', height: '10rem' }} type="grow" />}
+          />
+
+          {
+            this.state.paginationToken ?
+              <Button  color="primary" size="lg" block onClick={() => this.listUsers()}>
+                Load More &nbsp; <FaSync />
+              </Button>
+              : <></>
+          }
+
+          <SearchUsers limit={15} />
+
+        </FormGroup>
 
         <Modal isOpen={this.state.componentModalOpen} className="tableModal fullwidth">
           <ModalBody>
