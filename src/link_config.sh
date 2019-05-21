@@ -8,10 +8,13 @@ cd -P -- "$(dirname -- "$0")"
 envFile="../.env"
 if [ -f $envFile ]
 then
-    envFileValue=$(cat "$envFile" | grep ENV= | cut -d '=' -f2)
+  envFileValue=$(cat "$envFile" | grep ENV= | cut -d '=' -f2)
 fi
 # remove old config
-rm config.js
+if [ -f config.js ] 
+then
+  rm config.js
+fi
 
 
 # symlink correct version
