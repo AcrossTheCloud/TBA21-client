@@ -29,7 +29,7 @@ interface State {
 
   markerPosition: Position | undefined;
 
-  title?: string;
+  title: string;
   description?: string;
 }
 
@@ -47,7 +47,9 @@ export default class CollectionTable extends React.Component<{}, State> {
       tableIsLoading: true,
       collections: [],
       rowEditingId: undefined,
-      markerPosition: undefined
+      markerPosition: undefined,
+
+      title: ''
     };
 
     this.tableColumns = [
@@ -164,19 +166,24 @@ export default class CollectionTable extends React.Component<{}, State> {
     console.log(markerPos.lat, markerPos.lng);
   }
 
-  handleTitleDescription = (title, description) => {
-      this.setState({
-        title: title,
-        description: description
-      });
-    }
+  /**
+   *  Sets the title and description from TitleAndDescription callback.
+   * @param title { string }
+   * @param description { string }
+   */
+  callbackTitleDescription = (title: string, description: string) => {
+    this.setState({
+      title: title,
+      description: description
+    });
+  }
 
   Wizard = (props) => {
     switch (props.step) {
       case 1 :
         return <DraggableMap positionCallback={this.DraggableMapPosition} markerPosition={this.state.markerPosition}/>;
       case 2 :
-        return <TitleAndDescription handleTitleDescription={this.handleTitleDescription} title={this.state.title} description={this.state.description} />;
+        return <TitleAndDescription callback={this.callbackTitleDescription} title={this.state.title} description={this.state.description} />;
 
       default:
         return <></>;
