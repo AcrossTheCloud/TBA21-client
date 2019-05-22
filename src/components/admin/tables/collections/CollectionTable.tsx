@@ -8,6 +8,7 @@ import Tags, { Tag } from '../Tags';
 import { Position } from 'types/Map';
 
 import 'styles/components/admin/tables/modal.scss';
+import { TitleAndDescription } from 'components/utils/TitleAndDescription';
 
 interface Collection {
   id: string;
@@ -27,6 +28,9 @@ interface State {
   rowEditingId: string | undefined;
 
   markerPosition: Position | undefined;
+
+  title?: string;
+  description?: string;
 }
 
 export default class CollectionTable extends React.Component<{}, State> {
@@ -160,12 +164,19 @@ export default class CollectionTable extends React.Component<{}, State> {
     console.log(markerPos.lat, markerPos.lng);
   }
 
+  handleTitleDescription = (title, description) => {
+      this.setState({
+        title: title,
+        description: description
+      });
+    }
+
   Wizard = (props) => {
     switch (props.step) {
       case 1 :
         return <DraggableMap positionCallback={this.DraggableMapPosition} markerPosition={this.state.markerPosition}/>;
       case 2 :
-        return <></>;
+        return <TitleAndDescription handleTitleDescription={this.handleTitleDescription} title={this.state.title} description={this.state.description} />;
 
       default:
         return <></>;
