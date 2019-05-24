@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Container, Form, Input, Label } from 'reactstrap';
+import { FormGroup, Input, Label } from 'reactstrap';
 
 interface State {
   title: string;
@@ -50,8 +50,8 @@ export class TitleAndDescription extends React.Component<Props, State> {
 
   render() {
     return(
-      <Container>
-        <Form>
+      <>
+        <FormGroup>
           <Label for="title">Title</Label>
           <Input
             type="text"
@@ -61,7 +61,8 @@ export class TitleAndDescription extends React.Component<Props, State> {
             onChange={e => this.handleChange('title', e.target.value)}
             onBlur={() => this.props.callback(this.state.title, this.state.description)}
           />
-          <br />
+        </FormGroup>
+        <FormGroup>
           <Label for="description">Description</Label>
           <Input
             type="textarea"
@@ -71,10 +72,8 @@ export class TitleAndDescription extends React.Component<Props, State> {
             onChange={e => this.handleChange('description', e.target.value)}
             onBlur={() => this.props.callback(this.state.title, this.state.description)}
           />
-          <br />
-
-        </Form>
-      </Container>
+        </FormGroup>
+      </>
     );
   }
 }
