@@ -12,7 +12,7 @@ export const fetchMarkers = () => dispatch => {
      });
   };
 
-  API.get('tba21', 'items', {})
+  API.get('tba21', 'items/get', {})
     .then((data) => {
       if ( !data || (data && !data.Items) ) {
         return dispatchError();
