@@ -3,7 +3,7 @@ import { API } from 'aws-amplify';
 export const FETCH_ITEMS = 'FETCH_ITEMS';
 
 export const fetchItems = () => dispatch => {
-    API.get('tba21', 'items', {})
+    API.get('tba21', 'items/get', {})
       .then((data) => {
         if (data.Items) { data = data.Items; }
 
