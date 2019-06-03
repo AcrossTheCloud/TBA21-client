@@ -52,10 +52,10 @@ const AdminRoutes = ({authorisation, ...rest}) => {
   const isAdmin = has(authorisation, 'admin');
   return (
     <>
-      <Route exact path="/ManageUsers" render={routeProps => isAdmin ? <ManageUsers {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
-      <Route exact path="/Collections" render={routeProps => isAdmin ? <Collections {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
-      <Route exact path="/Items" render={routeProps => isAdmin ? <Items {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
-      <Route exact path="/People" render={routeProps => isAdmin ? <People {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
+      <Route exact path="/admin/ManageUsers" render={routeProps => isAdmin ? <ManageUsers {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
+      <Route exact path="/admin/Collections" render={routeProps => isAdmin ? <Collections {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
+      <Route exact path="/admin/Items" render={routeProps => isAdmin ? <Items {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
+      <Route exact path="/admin/People" render={routeProps => isAdmin ? <People {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
     </>
   );
 };
@@ -66,7 +66,7 @@ export const AppRouter = () => {
       <Provider store={store}>
         <Router history={history}>
           <div>
-            <Route path="/" render={(props) => <App {... {history: props.history}}/>} />
+            <Route path="/" render={() => <App />} />
 
             <Route exact path="/" component={Home} />
             <Route exact path="/view" component={ViewItems} />
