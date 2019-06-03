@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Map, Marker, Popup, TileLayer } from 'react-leaflet';
+import { Map, Marker, TileLayer } from 'react-leaflet';
 
 import { LocationEvent } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -7,16 +7,16 @@ import 'leaflet/dist/leaflet.css';
 import { connect } from 'react-redux';
 
 import { getMapIcon } from './icons';
-import { OceanObject, RenderPeople, Items } from 'components/TableRow';
-import { fetchMarkers, putModifiedMarkers } from 'actions/map/map';
+import { fetchMarkers } from 'actions/map/map';
 
 import 'styles/components/map/map.scss';
+import { Item } from '../../types/Item';
 
 interface Props {
   fetchMarkers: Function;
-  putModifiedMarkers: Function;
-  modifiedMarkers: MarkerData[];
-  markers: MarkerData[];
+  markers: {
+    [id: string]: MarkerData
+  };
   hasError: boolean;
 }
 
@@ -26,36 +26,16 @@ interface State {
   zoom: number;
   sideBarState: string;
   sideBarContent?: JSX.Element;
-  markers: MarkerData[];
 }
 export type MarkerData = {
-  key: number,
-  type?: string; // popUp or SideBar
   position: any,  // tslint:disable-line: no-any // this is a LatLngExpression ...... [number,number]
-  content: string | JSX.Element,
   icon?: any, // tslint:disable-line: no-any // Optional Leaflet icon
-  data: OceanObject
+  data: Item
 };
-type MarkerContent = {
-  description: string,
-  ocean: string
-};
+
 const MapStyle = {
   width: '100%',
   height: '100%'
-};
-
-/**
- * Default HTML template for popup markers
- * @param item Object
- */
-const MapMarkerPopUpContentTemplate = (item: MarkerContent) => {
-  return (
-    <div>
-      <div>{item.description}</div>
-      Ocean : {item.ocean};
-    </div>
-  );
 };
 
 class MapView extends React.Component<Props, State> {
@@ -70,43 +50,20 @@ class MapView extends React.Component<Props, State> {
     markers: []
   };
 
-  constructor(props: any) { // tslint:disable-line: no-any
-    super(props);
-
-    this.openSideBar = this.openSideBar.bind(this);
-    this.closeSideBar = this.closeSideBar.bind(this);
-    this.handleMarkerSideBarClick = this.handleMarkerSideBarClick.bind(this);
+  componentDidMount(): void {
+    this.locateUser();
+    this.checkComponentHasMarkers();
   }
 
-  componentDidMount(): void {
-
-    this.locateUser();
-
+  checkComponentHasMarkers = (): void => {
     const hasMarkers = (this.props.markers && this.props.markers.length);
-    const hasModifiedMarkers = (this.props.modifiedMarkers && this.props.modifiedMarkers.length);
 
     if (!hasMarkers) {
       this.props.fetchMarkers();
-    } else if (hasModifiedMarkers) {
-      this.setState({ markers: this.props.modifiedMarkers });
-    }
-
-  }
-
-  componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>): void {
-    const hasMarkers = (this.props.markers.length && this.props.markers.length);
-    const hasModifiedMarkers = (this.props.modifiedMarkers && this.props.modifiedMarkers.length);
-
-    if (hasMarkers && !hasModifiedMarkers) {
-      this.modifyMarkers(this.props.markers);
     }
   }
 
-  openSideBar() {
-    this.setState({sideBarState: 'open'});
-  }
-
-  closeSideBar() {
+  closeSideBar = () => {
     this.setState({sideBarState: 'closed'});
   }
 
@@ -125,92 +82,28 @@ class MapView extends React.Component<Props, State> {
       });
   }
 
-  modifyMarkers = (data: any): void => { // tslint:disable-line: no-any
-    let responseMarkers: MarkerData[] = [];
-
-    // TESTING popUp onclick button
-    // createMapIcon('iconicon', {
-    //   // https://pixabay.com/en/clipart-fish-sign-icon-cartoon-3418130/
-    //   iconUrl: './assets/markers/fish.png',
-    //   iconSize: [64, 43],
-    //   iconAnchor: [32, 43],
-    //   popupAnchor: [-3, -38]
-    // });
-    // data[5].icon = 'iconicon';
-    // data[5].type = 'popUp';
-    //
-    // // TESTING popUp type icon
-    // data[6].type = 'popUp';
-    // createMapIcon('testing', {
-    //   // https://pixabay.com/en/whale-blue-gray-fountain-spray-311849/
-    //   iconUrl: './assets/markers/whale.svg',
-    //   iconSize: [64, 43],
-    //   iconAnchor: [32, 43],
-    //   popupAnchor: [-3, -38]
-    // });
-    // data[6].icon = 'testing';
-    // END TESTING
-
-    data.forEach((item, index: number) => {
-      const
-        lng = item.position[0],
-        lat = item.position[1],
-        contentTemplate = () => {
-          if (item.type === 'popUp') {
-            return MapMarkerPopUpContentTemplate(item);
-          } else {
-            return '';
-          }
-        };
-
-      let markerData: MarkerData = {
-        key: index,
-        position: [lat, lng],
-        content: contentTemplate(),
-        data: item
-      };
-
-      if (item.type && item.type.length > 0) {
-        markerData.type = item.type;
-      } else {
-        // Set the default "type" to sidebar, this opens the sidebar with the data when the marker is clicked.
-        markerData.type = 'sidebar';
-      }
-
-      if (item.icon && item.icon.length > 0) {
-        markerData.icon = item.icon;
-      }
-      responseMarkers.push(markerData);
-    });
-
-    this.setState({markers: responseMarkers});
-
-    this.props.putModifiedMarkers(responseMarkers);
-  }
-
   /**
    *
-   * Formats an OceanObject into a human readable JSX and presents it nicely to the user.
+   * Formats an Item into a human readable JSX and presents it nicely to the user.
    *
-   * @param oceanObject OceanObject
+   * @param item {Item}
    */
-  handleMarkerSideBarClick(oceanObject: OceanObject) {
+  handleMarkerSideBarClick = (item: Item) => {
     const content = (
-      <div className="oceanObject">
-        <div className="description text-capitalize">{oceanObject.description}</div>
+      <div className="item">
+        <div className="description text-capitalize">{item.description}</div>
         <div className="tags small">
-          Tags : {oceanObject.tags ? oceanObject.tags.toString() : ''}
-        </div>
-        <div className="urls"><Items urls={oceanObject.urls} /></div>
-        <div className="people">
-          <RenderPeople people={oceanObject.people} />
+          Tags : {item.concept_tags ? item.concept_tags.toString() : ''}
         </div>
       </div>
     );
 
-    this.setState({sideBarContent: content});
-
-    this.openSideBar();
+    this.setState(
+      {
+        sideBarState: 'open',
+        sideBarContent: content
+      }
+    );
   }
 
   /**
@@ -218,32 +111,23 @@ class MapView extends React.Component<Props, State> {
    * @param props
    * @constructor
    */
-  MarkerList = (props: any): JSX.Element => { // tslint:disable-line: no-any
+  MarkerList = (): JSX.Element => {
+    if (!this.props.markers || !Object.keys(this.props.markers).length) { return <></>; }
+
     let items: JSX.Element[] = [];
 
-    const markers = props.markers;
-
-    if (!markers || !Object.keys(markers).length) { return <React.Fragment/>; }
-
-    markers.forEach((marker, key) => {
-      const type = marker.type;
-      const icon = getMapIcon(marker.icon);
-
-      if (type === 'popUp') {
-        items.push(
-          <Marker key={key} position={marker.position} icon={icon}>
-            <Popup>{marker.content}</Popup>
-          </Marker>
-        );
-      } else if (type === 'sidebar') {
-        items.push(<Marker key={key} position={marker.position} icon={icon} onClick={() => { this.handleMarkerSideBarClick(marker.data); }}/>);
-      } else {
-        items.push(<Marker key={key} position={marker.position} icon={icon} />);
-      }
-
+    Object.entries(this.props.markers).forEach(([key, val]) => {
+      items.push(
+        <Marker
+          key={key}
+          position={val.position}
+          icon={getMapIcon(val.icon)}
+          onClick={() => this.handleMarkerSideBarClick(val.data)}
+        />
+      );
     });
 
-    return <React.Fragment>{items}</React.Fragment>;
+    return <>{items}</>;
   }
 
   render() {
@@ -270,17 +154,16 @@ class MapView extends React.Component<Props, State> {
           ref={map => this.map = map}
         >
           <TileLayer url={tileLayer} />
-          <this.MarkerList markers={this.state.markers}/>
+          <this.MarkerList/>
         </Map>
       </div>
     );
   }
 }
 
-const mapStateToProps = (state: { map: Props }) => ({ // tslint:disable-line: no-any
+const mapStateToProps = (state: { map: Props }) => ({
   markers: state.map.markers,
-  modifiedMarkers: state.map.modifiedMarkers,
   hasError: state.map.hasError
 });
 
-export default connect(mapStateToProps, { fetchMarkers, putModifiedMarkers })(MapView);
+export default connect(mapStateToProps, { fetchMarkers })(MapView);

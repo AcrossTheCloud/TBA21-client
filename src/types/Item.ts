@@ -7,7 +7,7 @@ import { License } from './License';
 import { S3Upload } from './s3Upload';
 
 export interface Item {
-  id: number,
+  id: number;
 
   s3uploads_sha512: S3Upload;
   s3_key: string;
@@ -24,7 +24,7 @@ export interface Item {
   place: string;
   country_or_ocean: string | Ocean;
 
-  item_type: number,
+  item_type: number;
 
   creators: User[];
   contributor_login: string;
@@ -49,5 +49,7 @@ export interface Item {
   description: string;
 
   location: LeafletGeoJSON;
+
+  icon: string;
 
 }

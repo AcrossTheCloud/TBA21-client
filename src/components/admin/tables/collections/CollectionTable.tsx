@@ -2,6 +2,7 @@ import * as React from 'react';
 import BootstrapTable from 'react-bootstrap-table-next';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import { Button, Modal, ModalBody, ModalFooter, Spinner } from 'reactstrap';
+import { API } from 'aws-amplify';
 
 import { TitleAndDescription } from 'components/admin/tables/TitleAndDescription';
 import DraggableMap from 'components/map/DraggableMap';
@@ -9,6 +10,7 @@ import Tags, { Tag } from '../Tags';
 import { Position } from 'types/Map';
 
 import 'styles/components/admin/tables/modal.scss';
+import { Alerts, ErrorMessage } from '../../../utils/alerts';
 
 interface Collection {
   id: string;
@@ -18,7 +20,7 @@ interface Collection {
   markerPosition: Position | undefined;
 }
 
-interface State {
+interface State extends Alerts {
   wizardCurrentStep: number;
   wizardStepMax: number;
 
@@ -34,10 +36,13 @@ interface State {
 }
 
 export default class CollectionTable extends React.Component<{}, State> {
+  _isMounted;
   tableColumns;
 
   constructor(props: {}) {
     super(props);
+
+    this._isMounted = false;
 
     this.state = {
       wizardCurrentStep: 1,
@@ -138,10 +143,26 @@ export default class CollectionTable extends React.Component<{}, State> {
   }
 
   async componentDidMount(): Promise<void> {
+    this._isMounted = true;
     // Get list of collections
+    this.getCollections();
+  }
 
-    this.testing(); // todo-dan -remove
+  componentWillUnmount(): void {
+    this._isMounted = false;
+  }
 
+  getCollections = async (): Promise<void> => {
+    try {
+      const collections = await API.get('tba21', 'admin/collections/get', {});
+
+      if (!this._isMounted) { return; }
+      this.setState({collections: collections});
+    } catch (e) {
+
+      if (!this._isMounted) { return; }
+      this.setState({errorMessage: `We've had some trouble getting the list of collections`});
+    }
   }
 
   onEditButtonClick = (row: Collection) => {
@@ -155,6 +176,8 @@ export default class CollectionTable extends React.Component<{}, State> {
   }
 
   componentModalToggle = () => {
+    if (!this._isMounted) { return; }
+
     this.setState( prevState => ({
       ...prevState,
       componentModalOpen: !prevState.componentModalOpen
@@ -172,6 +195,8 @@ export default class CollectionTable extends React.Component<{}, State> {
    * @param description { string }
    */
   callbackTitleDescription = (title: string, description: string) => {
+    if (!this._isMounted) { return; }
+
     this.setState({
       title: title,
       description: description
@@ -179,6 +204,8 @@ export default class CollectionTable extends React.Component<{}, State> {
   }
 
   Wizard = (props) => {
+    if (!this._isMounted) { return <></>; }
+
     switch (props.step) {
       case 1 :
         return <DraggableMap positionCallback={this.DraggableMapPosition} markerPosition={this.state.markerPosition}/>;
@@ -193,9 +220,7 @@ export default class CollectionTable extends React.Component<{}, State> {
   handleWizardNextStep = () => {
     let stepNumber = this.state.wizardCurrentStep;
     stepNumber++;
-    this.setState({
-      wizardCurrentStep: stepNumber,
-    });
+    this.setState({ wizardCurrentStep: stepNumber });
   }
   handleWizardPrevStep = () => {
     let stepNumber = this.state.wizardCurrentStep;
@@ -206,6 +231,8 @@ export default class CollectionTable extends React.Component<{}, State> {
   render() {
     return (
       <>
+        <ErrorMessage message={this.state.errorMessage}/>
+
         <BootstrapTable
           bootstrap4
           className="collectionTable"

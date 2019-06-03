@@ -200,11 +200,7 @@ export class SearchUsers extends React.Component<Props, State> {
             </InputGroupAddon>
           </InputGroup>
 
-          {
-            this.state.errorMessage ?
-              <ErrorMessage message={this.state.errorMessage}/>
-              : <> </>
-          }
+          <ErrorMessage message={this.state.errorMessage}/>
           {
             this.state.results.length ?
               <BootstrapTable
