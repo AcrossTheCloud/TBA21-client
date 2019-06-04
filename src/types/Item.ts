@@ -1,6 +1,5 @@
 import { Tag } from 'components/admin/tables/Tags';
 
-import { LeafletGeoJSON } from './Map';
 import { User } from './User';
 import { Ocean } from './Ocean';
 import { License } from './License';
@@ -48,7 +47,8 @@ export interface Item {
   title: string;
   description: string;
 
-  location: LeafletGeoJSON;
+  location: string;
+  geojson: string;
 
   icon: string;
 

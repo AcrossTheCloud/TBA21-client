@@ -108,8 +108,6 @@ class MapView extends React.Component<Props, State> {
 
   /**
    * Looks through our list of Markers and returns them to the Leaflet instance
-   * @param props
-   * @constructor
    */
   MarkerList = (): JSX.Element => {
     if (!this.props.markers || !Object.keys(this.props.markers).length) { return <></>; }
