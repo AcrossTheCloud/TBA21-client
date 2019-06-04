@@ -6,19 +6,11 @@ import { API } from 'aws-amplify';
 
 import { TitleAndDescription } from 'components/admin/tables/TitleAndDescription';
 import DraggableMap from 'components/map/DraggableMap';
-import Tags, { Tag } from '../Tags';
 import { Position } from 'types/Map';
 
 import 'styles/components/admin/tables/modal.scss';
 import { Alerts, ErrorMessage } from '../../../utils/alerts';
-
-interface Collection {
-  id: string;
-  enabled: boolean;
-  title: string;
-  peopleTags: Tag[];
-  markerPosition: Position | undefined;
-}
+import { Collection } from '../../../../types/Collection';
 
 interface State extends Alerts {
   wizardCurrentStep: number;
@@ -27,9 +19,9 @@ interface State extends Alerts {
   collections: Collection[];
   tableIsLoading: boolean;
   componentModalOpen: boolean;
-  rowEditingId: string | undefined;
 
-  markerPosition: Position | undefined;
+  rowEditingId: string | undefined;
+  geojson: string | undefined;
 
   title: string;
   description?: string;
@@ -52,7 +44,7 @@ export default class CollectionTable extends React.Component<{}, State> {
       tableIsLoading: true,
       collections: [],
       rowEditingId: undefined,
-      markerPosition: undefined,
+      geojson: undefined,
 
       title: ''
     };
@@ -63,8 +55,8 @@ export default class CollectionTable extends React.Component<{}, State> {
         hidden: true
       },
       {
-        dataField: 'enabled',
-        hidden: true
+        dataField: 'status',
+        text: 'Status',
       },
       {
         dataField: 'title',
@@ -72,22 +64,6 @@ export default class CollectionTable extends React.Component<{}, State> {
         events: {
           onClick: (e, column, columnIndex, row, rowIndex) => {
             console.log(e, column, columnIndex, row, rowIndex);
-          }
-        }
-      },
-      {
-        dataField: 'People',
-        text: 'People',
-        formatter: (e, row, rowIndex) => {
-          return (
-            <>
-              <Tags tags={row.peopleTags} />
-            </>
-          );
-        },
-        events: {
-          onClick: (e, column, columnIndex, row, rowIndex) => {
-            console.log(row, row.tagHOC.state);
           }
         }
       },
@@ -106,42 +82,6 @@ export default class CollectionTable extends React.Component<{}, State> {
     ];
   }
 
-  // todo-dan REMOVE ths testing dummy data function.
-  testing() {
-
-    setTimeout(() => {
-      let dummyCollections: Collection[] = [];
-      for (let i = 0; i < 10; i++) {
-
-        let dummyPersonTags: Tag[] = [];
-        for (let t = 0; t < 10; t++) {
-          dummyPersonTags.push({ id: `${i}-${t}`, text: `PersonTag-${t}` });
-        }
-
-        dummyCollections.push(
-          {
-            id: `${i}`,
-            enabled: true,
-            title: `Collection-${i}`,
-            markerPosition: undefined,
-            peopleTags: [
-              dummyPersonTags[Math.floor(Math.random() * dummyPersonTags.length)],
-              dummyPersonTags[Math.floor(Math.random() * dummyPersonTags.length)],
-              dummyPersonTags[Math.floor(Math.random() * dummyPersonTags.length)],
-              dummyPersonTags[Math.floor(Math.random() * dummyPersonTags.length)]
-            ] // random pick
-          }
-        );
-      }
-
-      this.setState({
-        tableIsLoading: false,
-        collections: dummyCollections
-      });
-    },
-               2000);
-  }
-
   async componentDidMount(): Promise<void> {
     this._isMounted = true;
     // Get list of collections
@@ -154,23 +94,24 @@ export default class CollectionTable extends React.Component<{}, State> {
 
   getCollections = async (): Promise<void> => {
     try {
-      const collections = await API.get('tba21', 'admin/collections/get', {});
+      const response = await API.get('tba21', 'admin/collections/get', {});
 
       if (!this._isMounted) { return; }
-      this.setState({collections: collections});
+      this.setState({collections: response.collections, tableIsLoading: false});
     } catch (e) {
 
       if (!this._isMounted) { return; }
-      this.setState({errorMessage: `We've had some trouble getting the list of collections`});
+      this.setState({collections: [], errorMessage: `We've had some trouble getting the list of collections`, tableIsLoading: false});
     }
   }
 
   onEditButtonClick = (row: Collection) => {
     this.setState(
-{
+      {
+        wizardCurrentStep: 1,
         componentModalOpen: true,
         rowEditingId: row.id,
-        markerPosition: row.markerPosition
+        geojson: row.geojson
       }
     );
   }
@@ -208,7 +149,7 @@ export default class CollectionTable extends React.Component<{}, State> {
 
     switch (props.step) {
       case 1 :
-        return <DraggableMap positionCallback={this.DraggableMapPosition} markerPosition={this.state.markerPosition}/>;
+        return <DraggableMap positionCallback={this.DraggableMapPosition} geojson={this.state.geojson}/>;
       case 2 :
         return <TitleAndDescription callback={this.callbackTitleDescription} title={this.state.title} description={this.state.description} />;
 
@@ -234,6 +175,7 @@ export default class CollectionTable extends React.Component<{}, State> {
         <ErrorMessage message={this.state.errorMessage}/>
 
         <BootstrapTable
+          remote
           bootstrap4
           className="collectionTable"
           keyField="id"

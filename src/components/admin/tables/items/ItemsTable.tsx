@@ -21,7 +21,7 @@ interface State {
   componentModalOpen: boolean;
   rowEditingId: string | undefined;
 
-  markerPosition: Position | undefined;
+  geojson: string | undefined;
 }
 
 export default class ItemsTable extends React.Component<{}, State> {
@@ -38,7 +38,7 @@ export default class ItemsTable extends React.Component<{}, State> {
       tableIsLoading: true,
       items: [],
       rowEditingId: undefined,
-      markerPosition: undefined
+      geojson: undefined
     };
 
     this.tableColumns = [
@@ -95,7 +95,7 @@ export default class ItemsTable extends React.Component<{}, State> {
 {
         componentModalOpen: true,
         // rowEditingId: row.id,
-        // markerPosition: row.markerPosition
+        // geojson: row.geojson
       }
     );
   }
@@ -115,7 +115,7 @@ export default class ItemsTable extends React.Component<{}, State> {
   Wizard = (props) => {
     switch (props.step) {
       case 1 :
-        return <DraggableMap positionCallback={this.DraggableMapPosition} markerPosition={this.state.markerPosition}/>;
+        return <DraggableMap positionCallback={this.DraggableMapPosition} geojson={this.state.geojson}/>;
       case 2 :
         return <FileUpload />;
 

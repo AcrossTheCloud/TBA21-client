@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Container, Row, Col, Input, InputGroup, InputGroupAddon } from 'reactstrap';
-import { Map, Marker, TileLayer } from 'react-leaflet';
-import { LocationEvent } from 'leaflet';
+import { Map, Marker, TileLayer, Polyline } from 'react-leaflet';
+import { LatLngExpression, LocationEvent } from 'leaflet';
 import { isEqual } from 'lodash';
 
 import { getMapIcon } from './icons';
@@ -10,13 +10,15 @@ import { Position } from 'types/Map';
 import 'leaflet/dist/leaflet.css';
 
 interface State {
-  position: Position | null;
-  marker: Position;
+  position: LatLngExpression;
+  marker: Position | undefined;
+  mode: 'marker' | 'lineString';
+  lineString: LatLngExpression[] | undefined;
   zoom: number;
 }
 
 interface Props {
-  markerPosition?: Position | null;
+  geojson: string | undefined;
   positionCallback?: Function;
 }
 
@@ -25,8 +27,10 @@ export default class DraggableMap extends React.Component<Props, State> {
   map;
 
   state: State = {
-    position: null,
+    position: [0, 0],
     zoom: 13,
+    lineString: undefined,
+    mode: 'marker',
     marker: {
       lat: 51.505,
       lng: -0.09,
@@ -46,11 +50,28 @@ export default class DraggableMap extends React.Component<Props, State> {
   componentDidMount(): void {
     this._isMounted = true;
 
-    if (this.props.markerPosition) {
-      this.setState({
-        marker: this.props.markerPosition,
-        position: this.props.markerPosition
-      });
+    if (this.props.geojson) {
+      const
+        geoJSON = JSON.parse(this.props.geojson),
+        { type }: { type: string } = geoJSON;
+
+      if (type === 'Point') {
+        const { coordinates }: { coordinates: LatLngExpression } = geoJSON;
+        this.setState({
+          mode: 'marker',
+          marker: { lat: coordinates[0], lng: coordinates[1]},
+          position: [coordinates[0], coordinates[1]]
+        });
+      } else if (type === 'LineString') {
+        const { coordinates }: { coordinates: LatLngExpression[] } = geoJSON;
+        this.setState({
+          marker: undefined,
+          mode: 'lineString',
+          lineString: coordinates,
+          position: [coordinates[0][0], coordinates[0][1]]
+        });
+
+      }
     } else {
       if (this.state.position === null) {
         this.locateUser();
@@ -61,9 +82,11 @@ export default class DraggableMap extends React.Component<Props, State> {
   componentDidUpdate(prevProps: Props, prevState: State): void {
     if (typeof this.props.positionCallback === 'function') {
 
-      // If the marker position object isn't the same as the Previous State or Marker Position given to us in props, don't run this.
-      if (!isEqual(prevState.marker, this.state.marker) && !isEqual(this.state.marker, this.props.markerPosition)) {
-        this.props.positionCallback(this.state.marker);
+      if (this.state.mode === 'marker') {
+        // If the marker position object isn't the same as the Previous State or Marker Position given to us in props, don't run this.
+        if (!isEqual(prevState.marker, this.state.marker) && !isEqual(this.state.marker, this.props.geojson)) {
+          this.props.positionCallback(this.state.marker);
+        }
       }
     }
   }
@@ -83,7 +106,8 @@ export default class DraggableMap extends React.Component<Props, State> {
 
   onMapClick = (event) => {
     const map = this.map;
-    if (map !== null && this._isMounted) {
+
+    if (map !== null && this._isMounted && this.state.mode === 'marker') {
       const position = map.leafletElement.mouseEventToLatLng(event.originalEvent);
 
       map.leafletElement.flyTo(position);
@@ -144,7 +168,6 @@ export default class DraggableMap extends React.Component<Props, State> {
 
   render(): React.ReactNode {
     const
-      position: [number, number] = (this.state.position !== null ? [this.state.position.lat, this.state.position.lng] : [1, 1]),
       mapID: string = 'mapbox.outdoors',
       accessToken: string = 'pk.eyJ1IjoiYWNyb3NzdGhlY2xvdWQiLCJhIjoiY2ppNnQzNG9nMDRiMDNscDh6Zm1mb3dzNyJ9.nFFwx_YtN04_zs-8uvZKZQ',
       tileLayer: string = 'https://api.tiles.mapbox.com/v4/' + mapID + '/{z}/{x}/{y}.png?access_token=' + accessToken,
@@ -157,25 +180,29 @@ export default class DraggableMap extends React.Component<Props, State> {
 
     return (
       <div id="draggableMap">
-        <Container>
-          <Row>
-            <Col md="6">
-              <InputGroup>
-                <InputGroupAddon addonType="prepend">Lat</InputGroupAddon>
-                <Input className="lat" type="number" value={this.state.marker.lat} innerRef={(el) => { this.latInputRef = el; }} onChange={this.inputChange}/>
-              </InputGroup>
-            </Col>
-            <Col md="6">
-              <InputGroup>
-                <InputGroupAddon addonType="prepend">Lng</InputGroupAddon>
-                <Input className="lng" type="number" value={this.state.marker.lng} innerRef={(el) => { this.lngInputRef = el; }} onChange={this.inputChange}/>
-              </InputGroup>
-            </Col>
-          </Row>
-        </Container>
+        {this.state.mode === 'marker' && this.state.marker ?
+          <Container>
+            <Row>
+              <Col md="6">
+                <InputGroup>
+                  <InputGroupAddon addonType="prepend">Lat</InputGroupAddon>
+                  <Input className="lat" type="number" value={this.state.marker.lat} innerRef={(el) => { this.latInputRef = el; }} onChange={this.inputChange}/>
+                </InputGroup>
+              </Col>
+              <Col md="6">
+                <InputGroup>
+                  <InputGroupAddon addonType="prepend">Lng</InputGroupAddon>
+                  <Input className="lng" type="number" value={this.state.marker.lng} innerRef={(el) => { this.lngInputRef = el; }} onChange={this.inputChange}/>
+                </InputGroup>
+              </Col>
+            </Row>
+          </Container>
+        :
+          <></>
+        }
 
         <Map
-          center={position}
+          center={this.state.position}
           zoom={this.state.zoom}
           style={mapStyle}
           ref={map => this.map = map}
@@ -184,13 +211,24 @@ export default class DraggableMap extends React.Component<Props, State> {
           <TileLayer
             url={tileLayer}
           />
-          <Marker
-            draggable={true}
-            position={this.state.marker}
-            ref={this.refmarker}
-            ondragend={this.draggedMarker}
-            icon={getMapIcon()}
-          />
+
+          {this.state.mode === 'lineString' && this.state.lineString ?
+            <Polyline color="lime" positions={this.state.lineString} />
+            :
+            <></>
+          }
+
+          {this.state.mode === 'marker' && this.state.marker ?
+            <Marker
+              draggable={true}
+              position={this.state.marker}
+              ref={this.refmarker}
+              ondragend={this.draggedMarker}
+              icon={getMapIcon()}
+            />
+          :
+            <></>
+          }
         </Map>
       </div>
     );

@@ -1,20 +1,20 @@
 import * as React from 'react';
-import { mount } from 'enzyme';
+import { shallow } from 'enzyme';
 import DraggableMap from './DraggableMap';
 
 describe('Draggable map', () => {
   let wrapper;
-  const props = {
-    markerPosition: { lat: -12, lng: 120}
-  };
+  const
+    props = {
+      geojson: '{"type":"Point","coordinates":[-12, 120]}'
+    },
+    geoJSON = JSON.parse(props.geojson);
 
-  // Mount the component before each test
-  beforeEach(() => {
-    wrapper = mount(<DraggableMap {...props} />);
+  beforeAll( () => {
+    wrapper = shallow(<DraggableMap {...props} />);
   });
 
-  // Unmount after each test
-  afterEach( () => {
+  afterAll( () => {
     wrapper.unmount();
   });
 
@@ -27,30 +27,16 @@ describe('Draggable map', () => {
     expect(instance.componentDidMount).toHaveBeenCalledTimes(1);
   });
 
-  it('Props should have pre-defined Lat and Lng maker positions', () => {
-    expect(wrapper.props('markerPosition')).toMatchObject(props);
-  });
-
   it('State should have LAT LNG from props after mount', () => {
-    const instance = wrapper.instance();
-    instance.componentDidMount();
-
-    expect(wrapper.state('marker')).toMatchObject(props.markerPosition);
+    expect(wrapper.state('marker')).toMatchObject({ lat: geoJSON.coordinates[0], lng: geoJSON.coordinates[1] });
   });
 
-  it(`Lat input field should equal our props lat ${props.markerPosition.lat}`, () => {
-    const instance = wrapper.instance();
-    instance.componentDidMount();
-
-    expect(wrapper.find('#draggableMap input.lat').props().value).toEqual(props.markerPosition.lat);
+  it(`Lat input field should equal our props lat ${geoJSON.coordinates[0]}`, () => {
+    expect(wrapper.find('#draggableMap Input.lat').props().value).toEqual(geoJSON.coordinates[0]);
   });
 
-  it(`Lng input field should equal our props lng ${props.markerPosition.lng}`, () => {
-    const instance = wrapper.instance();
-    instance.componentDidMount();
-
-    expect(wrapper.find('#draggableMap input.lng').props().value).toEqual(props.markerPosition.lng);
-
+  it(`Lng input field should equal our props lng ${geoJSON.coordinates[1]}`, () => {
+    expect(wrapper.find('#draggableMap Input.lng').props().value).toEqual(geoJSON.coordinates[1]);
   });
 
 });
