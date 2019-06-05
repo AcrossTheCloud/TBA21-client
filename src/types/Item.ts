@@ -1,4 +1,4 @@
-import { Tag } from 'components/admin/tables/Tags';
+import { Tag } from 'components/admin/tables/utils/Tags';
 
 import { User } from './User';
 import { Ocean } from './Ocean';

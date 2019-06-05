@@ -1,39 +1,38 @@
-import * as React from 'react';
-import BootstrapTable from 'react-bootstrap-table-next';
-import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
-import { Button, Modal, ModalBody, ModalFooter, Spinner } from 'reactstrap';
 import { API } from 'aws-amplify';
 
-import { TitleAndDescription } from 'components/admin/tables/TitleAndDescription';
+import * as React from 'react';
+import BootstrapTable from 'react-bootstrap-table-next';
+
+import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
+import { Button, Modal, ModalBody, ModalFooter, Spinner } from 'reactstrap';
+
 import DraggableMap from 'components/map/DraggableMap';
+import { FileUpload } from './FileUpload';
+
+import { Item } from 'types/Item';
 import { Position } from 'types/Map';
 
+import { Alerts } from 'components/utils/alerts';
+import { TitleAndDescription } from 'components/admin/tables/utils/TitleAndDescription';
+
 import 'styles/components/admin/tables/modal.scss';
-import { Alerts, ErrorMessage } from '../../../utils/alerts';
-import { Collection } from '../../../../types/Collection';
 
 interface State extends Alerts {
   wizardCurrentStep: number;
   wizardStepMax: number;
 
-  collections: Collection[];
+  items: Item[];
   tableIsLoading: boolean;
   componentModalOpen: boolean;
-
-  rowEditingId: string | undefined;
-  geojson: string | undefined;
-
-  title: string;
-  description?: string;
+  rowEditingId: number | undefined;
 }
 
-export default class CollectionTable extends React.Component<{}, State> {
+export default class ItemsTable extends React.Component<{}, State> {
   _isMounted;
   tableColumns;
 
   constructor(props: {}) {
     super(props);
-
     this._isMounted = false;
 
     this.state = {
@@ -42,11 +41,8 @@ export default class CollectionTable extends React.Component<{}, State> {
 
       componentModalOpen: false,
       tableIsLoading: true,
-      collections: [],
-      rowEditingId: undefined,
-      geojson: undefined,
-
-      title: ''
+      items: [],
+      rowEditingId: undefined
     };
 
     this.tableColumns = [
@@ -82,43 +78,35 @@ export default class CollectionTable extends React.Component<{}, State> {
     ];
   }
 
-  async componentDidMount(): Promise<void> {
+  async componentDidMount() {
     this._isMounted = true;
-    // Get list of collections
-    this.getCollections();
+    this.getItems();
   }
 
-  componentWillUnmount(): void {
-    this._isMounted = false;
-  }
-
-  getCollections = async (): Promise<void> => {
+  getItems = async (): Promise<void> => {
     try {
-      const response = await API.get('tba21', 'admin/collections/get', {});
+      const response = await API.get('tba21', 'admin/items/get', {});
 
       if (!this._isMounted) { return; }
-      this.setState({collections: response.collections, tableIsLoading: false});
+      this.setState({items: response.items, tableIsLoading: false});
     } catch (e) {
 
       if (!this._isMounted) { return; }
-      this.setState({collections: [], errorMessage: `We've had some trouble getting the list of collections`, tableIsLoading: false});
+      this.setState({items: [], errorMessage: `We've had some trouble getting the list of items.`, tableIsLoading: false});
     }
   }
 
-  onEditButtonClick = (row: Collection) => {
+  onEditButtonClick = (row: Item) => {
     this.setState(
-      {
-        wizardCurrentStep: 1,
+{
         componentModalOpen: true,
+        wizardCurrentStep: 1,
         rowEditingId: row.id,
-        geojson: row.geojson
       }
     );
   }
 
   componentModalToggle = () => {
-    if (!this._isMounted) { return; }
-
     this.setState( prevState => ({
       ...prevState,
       componentModalOpen: !prevState.componentModalOpen
@@ -130,28 +118,20 @@ export default class CollectionTable extends React.Component<{}, State> {
     console.log(markerPos.lat, markerPos.lng);
   }
 
-  /**
-   *  Sets the title and description from TitleAndDescription callback.
-   * @param title { string }
-   * @param description { string }
-   */
-  callbackTitleDescription = (title: string, description: string) => {
-    if (!this._isMounted) { return; }
-
-    this.setState({
-      title: title,
-      description: description
-    });
-  }
-
-  Wizard = (props) => {
-    if (!this._isMounted) { return <></>; }
-
+  Wizard = (props: { step: number }) => {
     switch (props.step) {
       case 1 :
-        return <DraggableMap positionCallback={this.DraggableMapPosition} geojson={this.state.geojson}/>;
+        return (
+          <TitleAndDescription
+            title={this.state.rowEditingId ? this.state.items[this.state.rowEditingId].title : ''}
+            description={this.state.rowEditingId ? this.state.items[this.state.rowEditingId].description : ''}
+            callback={() => { console.log('hh'); }}
+          />
+          );
       case 2 :
-        return <TitleAndDescription callback={this.callbackTitleDescription} title={this.state.title} description={this.state.description} />;
+        return <FileUpload />;
+      case 3 :
+        return <DraggableMap positionCallback={this.DraggableMapPosition} geojson={this.state.rowEditingId ? this.state.items[this.state.rowEditingId].geojson : ''}/>
 
       default:
         return <></>;
@@ -161,7 +141,9 @@ export default class CollectionTable extends React.Component<{}, State> {
   handleWizardNextStep = () => {
     let stepNumber = this.state.wizardCurrentStep;
     stepNumber++;
-    this.setState({ wizardCurrentStep: stepNumber });
+    this.setState({
+      wizardCurrentStep: stepNumber,
+    });
   }
   handleWizardPrevStep = () => {
     let stepNumber = this.state.wizardCurrentStep;
@@ -172,17 +154,15 @@ export default class CollectionTable extends React.Component<{}, State> {
   render() {
     return (
       <>
-        <ErrorMessage message={this.state.errorMessage}/>
-
         <BootstrapTable
           remote
           bootstrap4
-          className="collectionTable"
+          className="itemTable"
           keyField="id"
-          data={this.state.tableIsLoading ? [] : this.state.collections}
+          data={this.state.tableIsLoading ? [] : this.state.items}
           columns={this.tableColumns}
           onTableChange={() => <Spinner style={{ width: '10rem', height: '10rem' }} type="grow" />}
-          noDataIndication={() => !this.state.tableIsLoading && !this.state.collections.length ? 'No data to display.' : <Spinner style={{ width: '10rem', height: '10rem' }} type="grow" />}
+          noDataIndication={() => !this.state.tableIsLoading && !this.state.items.length ? 'No data to display.' : <Spinner style={{ width: '10rem', height: '10rem' }} type="grow" />}
         />
 
         <Modal isOpen={this.state.componentModalOpen} className="tableModal fullwidth">

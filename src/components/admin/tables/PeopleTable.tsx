@@ -12,16 +12,16 @@ import {
   ModalFooter,
   Spinner,
 } from 'reactstrap';
+import { FaSync } from 'react-icons/fa';
 
-import config from 'config';
+import config from 'dev-config';
 import { getCurrentCredentials } from 'components/utils/Auth';
 
 import { Gender, User, UserAttributes } from 'types/User';
-import { Alerts, ErrorMessage } from '../../../utils/alerts';
+import { Alerts, ErrorMessage } from '../../utils/alerts';
+import { SearchUsers } from 'components/admin/user/SearchUsers';
 
 import 'styles/components/admin/tables/modal.scss';
-import { FaSync } from 'react-icons/fa';
-import { SearchUsers } from '../../user/SearchUsers';
 
 interface State extends Alerts {
   users: User[];

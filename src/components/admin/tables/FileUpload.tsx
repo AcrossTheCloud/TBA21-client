@@ -5,7 +5,7 @@ import { API, Storage } from 'aws-amplify';
 import Dropzone from 'react-dropzone';
 import { v1 as uuid } from 'uuid';
 
-import Tags, { Tag } from './Tags';
+import Tags, { Tag } from './utils/Tags';
 import config from 'config.js';
 
 import 'styles/components/_dropzone.scss';
@@ -45,8 +45,8 @@ export class FileUpload extends React.Component<{}, State> {
     this.state = {
       tags: [],
       urls: [],
-      files: Array<NewFile>(),
-      rejectedFiles: Array<NewFile>()
+      files: [],
+      rejectedFiles: []
     };
 
     this.onDrop = this.onDrop.bind(this);
@@ -105,7 +105,7 @@ export class FileUpload extends React.Component<{}, State> {
 
     if (stored) {
       console.log(stored); // tslint:disable-line: no-console
-      if  (file.type.includes('image')) {
+      if (file.type.includes('image')) {
         setTimeout(this.getImageTags(stored['key']), 4500); // tslint:disable-line: no-string-literal
       }
       return config.other.BASE_CONTENT_URL + 'public/' + stored['key']; // tslint:disable-line: no-string-literal
@@ -113,6 +113,7 @@ export class FileUpload extends React.Component<{}, State> {
       return '';
     }
   }
+
   previewItems() {
     return this.state.files.map(f => {
       var itemDisplay;

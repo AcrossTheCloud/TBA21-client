@@ -2,7 +2,6 @@ import * as React from 'react';
 import { Container, Row, Col, Input, InputGroup, InputGroupAddon } from 'reactstrap';
 import { Map, Marker, TileLayer, Polyline } from 'react-leaflet';
 import { LatLngExpression, LocationEvent } from 'leaflet';
-import { isEqual } from 'lodash';
 
 import { getMapIcon } from './icons';
 import { Position } from 'types/Map';
@@ -80,18 +79,21 @@ export default class DraggableMap extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props, prevState: State): void {
-    if (typeof this.props.positionCallback === 'function') {
+    this.callback();
+  }
 
+  callback = (prevState?: State) => {
+    if (typeof this.props.positionCallback === 'function') {
       if (this.state.mode === 'marker') {
-        // If the marker position object isn't the same as the Previous State or Marker Position given to us in props, don't run this.
-        if (!isEqual(prevState.marker, this.state.marker) && !isEqual(this.state.marker, this.props.geojson)) {
-          this.props.positionCallback(this.state.marker);
-        }
+        this.props.positionCallback(this.state.marker);
+      } else if (this.state.mode === 'lineString') {
+        this.props.positionCallback(this.state.lineString);
       }
     }
   }
 
   componentWillUnmount(): void {
+    this.callback();
     this._isMounted = false;
   }
 
