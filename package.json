@@ -16,6 +16,7 @@
     "popper.js": "^1.15.0",
     "react": "^16.8.6",
     "react-bootstrap-table-next": "^3.1.2",
+    "react-bootstrap-table2-paginator": "^2.0.6",
     "react-dnd": "^5.0.0",
     "react-dnd-html5-backend": "^3.0.2",
     "react-dom": "^16.8.6",

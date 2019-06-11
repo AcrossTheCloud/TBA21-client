@@ -2,8 +2,7 @@ import { API } from 'aws-amplify';
 
 import * as React from 'react';
 import BootstrapTable from 'react-bootstrap-table-next';
-
-import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
+import paginationFactory from 'react-bootstrap-table2-paginator';
 import { Button, Modal, ModalBody, ModalFooter, Spinner } from 'reactstrap';
 
 import DraggableMap from 'components/map/DraggableMap';
@@ -12,8 +11,11 @@ import { FileUpload } from './FileUpload';
 import { Item } from 'types/Item';
 import { Position } from 'types/Map';
 
-import { Alerts } from 'components/utils/alerts';
+import { Alerts, ErrorMessage } from 'components/utils/alerts';
 import { TitleAndDescription } from 'components/admin/tables/utils/TitleAndDescription';
+
+import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
+import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css';
 
 import 'styles/components/admin/tables/modal.scss';
 
@@ -22,9 +24,13 @@ interface State extends Alerts {
   wizardStepMax: number;
 
   items: Item[];
-  tableIsLoading: boolean;
   componentModalOpen: boolean;
   rowEditingId: number | undefined;
+
+  tableIsLoading: boolean;
+  page: number;
+  sizePerPage: number;
+  totalSize: number;
 }
 
 export default class ItemsTable extends React.Component<{}, State> {
@@ -40,9 +46,13 @@ export default class ItemsTable extends React.Component<{}, State> {
       wizardStepMax: 5,
 
       componentModalOpen: false,
-      tableIsLoading: true,
       items: [],
-      rowEditingId: undefined
+      rowEditingId: undefined,
+
+      tableIsLoading: true,
+      page: 1,
+      sizePerPage: 2,
+      totalSize: 0,
     };
 
     this.tableColumns = [
@@ -83,14 +93,44 @@ export default class ItemsTable extends React.Component<{}, State> {
     this.getItems();
   }
 
-  getItems = async (): Promise<void> => {
+  getItemsQuery = async (offset: number): Promise<{ items: Item[], totalSize: number } | void> => {
     try {
-      const response = await API.get('tba21', 'admin/items/get', {});
+      const
+        queryStringParameters = {
+          offset: offset,
+          limit: this.state.sizePerPage
+        },
+        response = await API.get('tba21', 'admin/items/get', { queryStringParameters: queryStringParameters });
 
       if (!this._isMounted) { return; }
-      this.setState({items: response.items, tableIsLoading: false});
-    } catch (e) {
+      return {
+        items: response.items,
+        totalSize: parseInt(response.items[0].count, 0)
+      };
 
+    } catch (e) {
+      if (!this._isMounted) { return; }
+      this.setState({items: [], errorMessage: `We've had some trouble getting the list of items.`, tableIsLoading: false});
+    }
+  }
+
+  getItems = async (): Promise<void> => {
+    try {
+      const response = await this.getItemsQuery(0);
+
+      if (response) {
+        const { items, totalSize } = response;
+
+        if (!this._isMounted) { return; }
+        this.setState(
+          {
+            items: items,
+            tableIsLoading: false,
+            totalSize: totalSize
+          }
+        );
+      }
+    } catch (e) {
       if (!this._isMounted) { return; }
       this.setState({items: [], errorMessage: `We've had some trouble getting the list of items.`, tableIsLoading: false});
     }
@@ -131,13 +171,12 @@ export default class ItemsTable extends React.Component<{}, State> {
       case 2 :
         return <FileUpload />;
       case 3 :
-        return <DraggableMap positionCallback={this.DraggableMapPosition} geojson={this.state.rowEditingId ? this.state.items[this.state.rowEditingId].geojson : ''}/>
+        return <DraggableMap positionCallback={this.DraggableMapPosition} geojson={this.state.rowEditingId ? this.state.items[this.state.rowEditingId].geojson : ''}/>;
 
       default:
         return <></>;
     }
   }
-
   handleWizardNextStep = () => {
     let stepNumber = this.state.wizardCurrentStep;
     stepNumber++;
@@ -151,18 +190,52 @@ export default class ItemsTable extends React.Component<{}, State> {
     this.setState({ wizardCurrentStep: stepNumber });
   }
 
+  handleTableChange = async (type, { page, sizePerPage }): Promise<void> => {
+    if (type === 'pagination') {
+      const currentIndex = (page - 1) * sizePerPage;
+      this.setState({ tableIsLoading: true });
+
+      try {
+        const response = await this.getItemsQuery(currentIndex);
+        if (response) {
+
+          if (!this._isMounted) { return; }
+
+          this.setState({
+            errorMessage: undefined,
+            page,
+            sizePerPage,
+            items: response.items,
+            tableIsLoading: false
+          });
+        }
+
+      } catch (e) {
+        this.setState({page: this.state.page - 1, errorMessage: `We've had some trouble getting the list of items.`, tableIsLoading: false});
+      }
+    }
+  }
+
   render() {
+    const
+      { page, sizePerPage, totalSize } = this.state,
+      items = this.state.items,
+      currentIndex = (page - 1) * sizePerPage,
+      slicedItems = items.length ? items.slice(currentIndex, currentIndex + sizePerPage) : [];
+
     return (
       <>
+        <ErrorMessage message={this.state.errorMessage}/>
         <BootstrapTable
           remote
           bootstrap4
           className="itemTable"
           keyField="id"
-          data={this.state.tableIsLoading ? [] : this.state.items}
+          data={this.state.tableIsLoading ? [] : items}
           columns={this.tableColumns}
-          onTableChange={() => <Spinner style={{ width: '10rem', height: '10rem' }} type="grow" />}
-          noDataIndication={() => !this.state.tableIsLoading && !this.state.items.length ? 'No data to display.' : <Spinner style={{ width: '10rem', height: '10rem' }} type="grow" />}
+          pagination={paginationFactory({ page, sizePerPage, totalSize })}
+          onTableChange={this.handleTableChange}
+          noDataIndication={() => !this.state.tableIsLoading && !slicedItems.length ? 'No data to display.' : <Spinner style={{ width: '10rem', height: '10rem' }} type="grow" />}
         />
 
         <Modal isOpen={this.state.componentModalOpen} className="tableModal fullwidth">
