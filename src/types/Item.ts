@@ -6,6 +6,7 @@ import { License } from './License';
 import { S3Upload } from './s3Upload';
 
 export interface Item {
+  count: number;
   id: number;
 
   s3uploads_sha512: S3Upload;

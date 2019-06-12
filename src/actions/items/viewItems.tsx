@@ -1,25 +1,74 @@
 import { API } from 'aws-amplify';
+import { Item } from '../../types/Item';
 
 export const FETCH_ITEMS = 'FETCH_ITEMS';
+export const FETCH_MORE_ITEMS = 'FETCH_MORE_ITEMS';
+export const FETCH_ITEMS_NO_ITEMS = 'FETCH_ITEMS_NO_ITEMS';
+export const FETCH_ITEMS_ERROR = 'FETCH_ITEMS_ERROR';
 
-export const fetchItems = () => dispatch => {
-    API.get('tba21', 'items/get', {})
-      .then((data) => {
-        if (data.items) { data = data.items; }
+export const fetchItems = () => async dispatch => {
 
-        dispatch({
-          type: FETCH_ITEMS,
-          items: data,
-          sliderInitialized: true,
-          sliderError: false,
-        });
-      })
-      .catch((e: any) => { // tslint:disable-line: no-any
-        dispatch({
-          type: FETCH_ITEMS,
-          items: [],
-          sliderInitialized: true,
-          sliderError: true,
-        });
-      });
+  try {
+    const response = await API.get('tba21', 'items/get', {
+      queryStringParameters : {
+        limit: 2
+      }});
+    if (!response || response.items) {
+      dispatch({
+       type: FETCH_ITEMS_NO_ITEMS,
+       items: {},
+     });
+    }
+
+    let items: { [id: string]: Item } = {};
+
+    response.items.forEach( (item: Item) => {
+      Object.assign(items, { [item.id]: item });
+    });
+
+    dispatch({
+       type: FETCH_ITEMS,
+       items: items,
+    });
+
+  } catch (e) {
+    dispatch({
+       type: FETCH_ITEMS_ERROR,
+       items: {},
+     });
+  }
+};
+
+export const fetchMoreItems = (offset: number) => async dispatch => {
+  try {
+    const response = await API.get('tba21', 'items/get', {
+      queryStringParameters : {
+        offset: offset,
+        limit: 2
+      }
+    });
+    if (!response || response.items) {
+      dispatch({
+       type: FETCH_ITEMS_NO_ITEMS,
+       items: {},
+     });
+    }
+
+    let items: { [id: string]: Item } = {};
+
+    response.items.forEach( (item: Item) => {
+      Object.assign(items, { [item.id]: item });
+    });
+
+    dispatch({
+     type: FETCH_MORE_ITEMS,
+     items: items,
+   });
+
+  } catch (e) {
+    dispatch({
+       type: FETCH_ITEMS_ERROR,
+       items: {},
+     });
+  }
 };
