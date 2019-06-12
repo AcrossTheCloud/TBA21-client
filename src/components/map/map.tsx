@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Map, Marker, TileLayer } from 'react-leaflet';
 
-import { LocationEvent } from 'leaflet';
+import * as L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
 import { connect } from 'react-redux';
@@ -72,7 +72,7 @@ class MapView extends React.Component<Props, State> {
    */
   locateUser = () => {
     this.map.leafletElement.locate()
-      .on('locationfound', (location: LocationEvent) => {
+      .on('locationfound', (location: L.LocationEvent) => {
         this.map.leafletElement.flyTo(location.latlng, 15);
       })
       .on('locationerror', () => {
@@ -97,6 +97,20 @@ class MapView extends React.Component<Props, State> {
         </div>
       </div>
     );
+
+    // todo dan for moveend
+    const
+      mapBounds = this.map.leafletElement.getBounds(),
+      southWest = mapBounds._southWest,
+      northEast = mapBounds._northEast;
+    const bounds = {
+      lat_ne: northEast.lat,
+      lat_sw: southWest.lat,
+      lng_ne: northEast.lng,
+      lng_sw: southWest.lng
+    };
+
+    console.log(mapBounds, bounds);
 
     this.setState(
       {

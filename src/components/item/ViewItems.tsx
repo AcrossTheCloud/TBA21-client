@@ -4,17 +4,15 @@ import { Container } from 'reactstrap';
 import { connect } from 'react-redux';
 
 import Slider from 'react-slick';
-import { MultiMedia } from 'components/utils/MultiMedia';
 
 import { fetchItems } from '../../actions/items/viewItems';
 import { State } from '../../reducers/items/viewItems';
-
-import { OceanObject } from '../TableRow';
 
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import 'styles/components/ViewItems.scss';
 import { ErrorMessage, WarningMessage } from '../utils/alerts';
+import { Item } from '../../types/Item';
 
 // Settings for the slider
 const sliderSettings = {
@@ -55,7 +53,7 @@ const sliderSettings = {
  *
  *
  *
- * @param {object} props Items {Array<ObjectOcean>} Array of OceanObject
+ * @param {object} props Items {Array<Item>} Array of Item
  * @param {object} props sliderInitialized {boolean} If the slider has been initialized or not
  * @param {object} props sliderError {boolean} If the slider is in error state
  * @constructor
@@ -78,17 +76,16 @@ const SlickSlider: any = (props: State): JSX.Element => { // tslint:disable-line
   } else {
     // Map results, with HTML structure.
     let results = props.items.map((item, index) => {
-      const multiMedia = (item.urls && item.urls[0]) ? <div className="image"><MultiMedia url={item.urls[0]} key={index + '_mm'} /></div> : '';
+      // const multiMedia = (item.urls && item.urls[0]) ? <div className="image"><MultiMedia url={item.urls[0]} key={index + '_mm'} /></div> : '';
 
       return (
         <Link
-          to={`/view/${item.itemId}`}
+          to={`/view/${item.id}`}
           className="item"
           key={index}
         >
           <>
-            {multiMedia}
-            <div className="description">{item.description}</div>
+            <div className="title">{item.title}</div>
           </>
         </Link>
       );
@@ -109,7 +106,7 @@ const SlickSlider: any = (props: State): JSX.Element => { // tslint:disable-line
 
 interface Props {
   fetchItems: Function;
-  items: OceanObject[];
+  items: Item[];
   sliderInitialized: boolean;
   sliderError: boolean;
 }

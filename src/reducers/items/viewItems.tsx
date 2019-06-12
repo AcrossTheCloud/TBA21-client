@@ -1,8 +1,8 @@
 import { FETCH_ITEMS } from '../../actions/items/viewItems';
-import { OceanObject } from '../../components/TableRow';
+import { Item } from '../../types/Item';
 
 export interface State {
-  items: Array<OceanObject>;
+  items: Item[];
   sliderInitialized: boolean;
   sliderError: boolean;
 }
@@ -12,7 +12,7 @@ const initialState: State = {
   sliderError: false
 };
 
-export default (state: State|null = initialState, action) => {
+export default (state: State | null = initialState, action) => {
   if (state === undefined) { state = initialState; }
 
   switch (action.type) {

@@ -2,23 +2,21 @@ import * as React from 'react';
 import * as moment from 'moment';
 import { connect } from 'react-redux';
 
-import { MultiMedia } from 'components/utils/MultiMedia';
 import { getMapIcon } from '../map/icons';
 import { Map, Marker, TileLayer } from 'react-leaflet';
 
-import { OceanObject } from '../TableRow';
 import { fetchItem } from 'actions/items/viewItem';
 import { State } from 'reducers/items/viewItem';
 
-import { ErrorMessage } from '../utils/alerts';
+import { Alerts, ErrorMessage } from '../utils/alerts';
 
 import 'leaflet/dist/leaflet.css';
+import { Item } from '../../types/Item';
 
-interface Props {
+interface Props extends Alerts {
   fetchItem: Function;
   itemId: string;
-  itemInformation: OceanObject;
-  hasError: boolean;
+  item: Item;
 }
 
 const MapStyle = {
@@ -28,12 +26,12 @@ const MapStyle = {
 
 /**
  *
- * React component, converts an OceanObject into a friendly display.
+ * React component, converts an Item into a friendly display.
  *
- * @param props Object, itemInformation (OceanObject | boolean)
+ * @param props Object, item (Item | boolean)
  */
-const Item = (props) => {
-  if (Object.keys(props.itemInformation).length) {
+const ItemDisplay = (props) => {
+  if (Object.keys(props.item).length) {
     // Checks if the people array exists and returns a JSX element of all people.
     const
       icon = getMapIcon('jellyFish'),
@@ -41,37 +39,37 @@ const Item = (props) => {
       accessToken: string = 'pk.eyJ1IjoiYWNyb3NzdGhlY2xvdWQiLCJhIjoiY2ppNnQzNG9nMDRiMDNscDh6Zm1mb3dzNyJ9.nFFwx_YtN04_zs-8uvZKZQ',
       tileLayer: string = 'https://api.tiles.mapbox.com/v4/' + mapID + '/{z}/{x}/{y}.png?access_token=' + accessToken;
 
-    let multiMedia: boolean | Array<JSX.Element> = false;
+    let multiMedia: boolean | JSX.Element[] = false;
 
     // Checks if the people array exists and returns a JSX element of all people.
     const ItemPeople = () => {
-      let people: boolean | Array<JSX.Element> = false;
-      if (props.itemInformation.people && props.itemInformation.people.length > 0) {
-        // Returns an Array of people
-        people = props.itemInformation.people.map( (person, index) => {
+      let creators: boolean | JSX.Element[] = false;
+      if (props.item.creators && props.item.creators.length > 0) {
+        // Returns an Array of creators
+        creators = props.item.creators.map( (creator, index) => {
           return (
-            <div className="person" key={index}>
-              {person.personName}
+            <div className="creator" key={index}>
+              {creator}
             </div>
           );
         });
-        return  <>People: {people}</>;
+        return  <>People: {creators}</>;
       } else { return <></>; }
     };
 
-    if (props.itemInformation.urls.length > 0) {
-      multiMedia = props.itemInformation.urls.map((url, index) => {
-          return <MultiMedia url={url} key={index}/>;
-      });
-    }
+    // if (props.item.urls.length > 0) {
+    //   multiMedia = props.item.urls.map((url, index) => {
+    //       return <MultiMedia url={url} key={index}/>;
+    //   });
+    // }
 
     // Returns a JSX element of all tags.
     const ItemTags = () => {
-      if (props.itemInformation.tags && props.itemInformation.tags.length > 0) {
-        // Returns an Array of tags
-        const items: Array<JSX.Element> = props.itemInformation.tags.map( (tag, index) => {
+      if (props.item.concept_tags && props.item.concept_tags.length > 0) {
+        // Returns an Array of concept_tags
+        const items: JSX.Element[] = props.item.concept_tags.map( (tag, index) => {
            return (
-          <div className="tag" key={index}>
+          <div className="concept_tags" key={index}>
              {tag}
           </div>
           );
@@ -83,8 +81,8 @@ const Item = (props) => {
 
     // Returns position text and a Leaflet Map with a Marker.
     const ItemMap = () => {
-      if (props.itemInformation.position && props.itemInformation.position.length > 0) {
-        const markerPosition: [number, number] = [props.itemInformation.position[1], props.itemInformation.position[0]];
+      if (props.item.position && props.item.position.length > 0) {
+        const markerPosition: [number, number] = [props.item.position[1], props.item.position[0]];
         return (
           <>
             Position: {markerPosition[0]},{markerPosition[1]}
@@ -101,8 +99,8 @@ const Item = (props) => {
 
     // Checks for a timestamp, converts it to human friendly text and returns the result.
     const ItemDate = () => {
-      if (props.itemInformation.timestamp) {
-        let timestamp = props.itemInformation.timestamp;
+      if (props.item.timestamp) {
+        let timestamp = props.item.timestamp;
         timestamp = moment.unix(timestamp).format('DD/MM/YYYY, hh:mm a');
 
         return (
@@ -114,9 +112,9 @@ const Item = (props) => {
     };
 
     return (
-      <div className="item" key={props.itemInformation.itemId}>
-        {props.itemInformation.description ? <div>Description: {props.itemInformation.description}</div> : ''}
-        {props.itemInformation.ocean ? <div>Ocean: {props.itemInformation.ocean}</div> : ''}
+      <div className="item" key={props.item.itemId}>
+        {props.item.description ? <div>Description: {props.item.description}</div> : ''}
+        {props.item.ocean ? <div>Ocean: {props.item.ocean}</div> : ''}
         {ItemDate()}
         {ItemPeople()}
         {ItemTags()}
@@ -151,16 +149,15 @@ class ViewItem extends React.Component<Props, State> {
   }
 
   render() {
-    if (this.props.hasError) {
-      return <ErrorMessage message="Looks like we've had a bit of a hiccup." />;
-    }
-
-    if (typeof this.props.itemInformation === 'undefined') {
+    if (typeof this.props.item === 'undefined') {
       return 'Loading...';
     }
 
     return (
-      <Item itemInformation={this.props.itemInformation} />
+      <>
+        <ErrorMessage message={this.props.errorMessage} />
+        <ItemDisplay item={this.props.item} />
+      </>
     );
   }
 }
@@ -168,9 +165,9 @@ class ViewItem extends React.Component<Props, State> {
 // State to props
 const mapStateToProps = (state: { viewItem: State }) => { // tslint:disable-line: no-any
   return {
-    hasError: state.viewItem.hasError,
+    errorMessage: state.viewItem.errorMessage,
     itemId: state.viewItem.itemId,
-    itemInformation: state.viewItem.itemInformation
+    item: state.viewItem.item
   };
 };
 

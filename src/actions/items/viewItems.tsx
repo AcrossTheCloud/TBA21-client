@@ -5,7 +5,7 @@ export const FETCH_ITEMS = 'FETCH_ITEMS';
 export const fetchItems = () => dispatch => {
     API.get('tba21', 'items/get', {})
       .then((data) => {
-        if (data.Items) { data = data.Items; }
+        if (data.items) { data = data.items; }
 
         dispatch({
           type: FETCH_ITEMS,

@@ -1,14 +1,14 @@
-import { FETCH_ITEM, FETCH_ITEM_ERROR } from '../../actions/items/viewItem';
-import { OceanObject } from '../../components/TableRow';
+import { FETCH_ITEM, FETCH_ITEM_ERROR, FETCH_ITEM_ERROR_NO_SUCH_ITEM } from '../../actions/items/viewItem';
+import { Item } from '../../types/Item';
+import { Alerts } from '../../components/utils/alerts';
 
-export interface State {
-  hasError: boolean;
+export interface State extends Alerts {
   itemId?: string | boolean;
-  itemInformation?: OceanObject;
+  item?: Item;
 }
 
 const initialState: State = {
-  hasError: false
+  errorMessage: undefined
 };
 
 /**
@@ -26,14 +26,22 @@ export default (state: State = initialState, action) => {
     case FETCH_ITEM:
       return {
         ...state,
-        itemInformation: action.itemInformation,
+        item: action.item,
         itemId: action.itemId,
+        errorMessage: undefined
       };
 
     case FETCH_ITEM_ERROR:
       return {
         ...state,
-        hasError: true,
+        errorMessage: `Looks like we've had a bit of a hiccup.`,
+      };
+
+    case FETCH_ITEM_ERROR_NO_SUCH_ITEM:
+      return {
+        ...state,
+        item: action.item,
+        errorMessage: `Are you sure you've got the right url? We can't find what you're looking for. Sorry!`,
       };
 
     default:

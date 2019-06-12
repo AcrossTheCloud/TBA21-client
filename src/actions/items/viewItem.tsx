@@ -3,6 +3,7 @@ import { API } from 'aws-amplify';
 // Defining our Actions for the reducers.
 export const FETCH_ITEM = 'FETCH_ITEM';
 export const FETCH_ITEM_ERROR = 'FETCH_ITEM_ERROR';
+export const FETCH_ITEM_ERROR_NO_SUCH_ITEM = 'FETCH_ITEM_ERROR_NO_SUCH_ITEM';
 
 /**
  *
@@ -10,7 +11,7 @@ export const FETCH_ITEM_ERROR = 'FETCH_ITEM_ERROR';
  *
  * @param itemId {string}
  */
-export const fetchItem = (itemId) => (dispatch, getState) => {
+export const fetchItem = (itemId) => async (dispatch, getState) => {
 
   const prevState = getState();
 
@@ -23,26 +24,33 @@ export const fetchItem = (itemId) => (dispatch, getState) => {
   if (!itemId) {
     dispatch({
      type: FETCH_ITEM,
-     itemInformation: {},
+     item: {},
    });
   }
 
-  // API call to get the items information or return an error.
-  API.get('tba21', 'items', {
-    queryStringParameters : {
-      itemId: itemId
-    }
-  })
-  .then((data) => {
-    dispatch({
-     type: FETCH_ITEM,
-     itemInformation: data,
-     itemId: data.itemId,
+  try {
+    const response = await API.get('tba21', 'items/getById', {
+      queryStringParameters : {
+        id: itemId
+      }
     });
-  })
-  .catch((e: any) => { // tslint:disable-line: no-any
-    dispatch({
-       type: FETCH_ITEM_ERROR
+
+    if (response.items.length) {
+      const item = response.items[0];
+      dispatch({
+       type: FETCH_ITEM,
+       item: item,
+       itemId: response.id,
      });
-  });
+    } else {
+      dispatch({
+         type: FETCH_ITEM_ERROR_NO_SUCH_ITEM,
+         item: {}
+      });
+    }
+  } catch (e) {
+      dispatch({
+        type: FETCH_ITEM_ERROR
+      });
+  }
 };
