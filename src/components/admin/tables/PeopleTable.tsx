@@ -14,7 +14,7 @@ import {
 } from 'reactstrap';
 import { FaSync } from 'react-icons/fa';
 
-import config from 'dev-config';
+import config from 'config';
 import { getCurrentCredentials } from 'components/utils/Auth';
 
 import { Gender, User, UserAttributes } from 'types/User';

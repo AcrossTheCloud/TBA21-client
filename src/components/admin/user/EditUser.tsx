@@ -18,7 +18,7 @@ import {
 import { get, find, findIndex, clone } from 'lodash';
 import CognitoIdentityServiceProvider from 'aws-sdk/clients/cognitoidentityserviceprovider';
 
-import config from '../../../dev-config';
+import config from '../../../config';
 import * as emailHelper from '../../utils/inputs/email';
 import { getCurrentCredentials } from '../../utils/Auth';
 import AdminResetPassword from '../../utils/user/AdminResetPassword';
