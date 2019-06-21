@@ -59,7 +59,7 @@ export const getCurrentCredentials = async (): Promise<ICredentials | boolean> =
 
 /**
  *
- * Gets the currentAuthed user from AWS-Amplify, this returns tokens such as AccessToken
+ * Gets the current Authed user from AWS-Amplify, this returns tokens such as AccessToken
  *
  * @param bypassCache {boolean}
  *

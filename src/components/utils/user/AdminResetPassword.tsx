@@ -1,10 +1,11 @@
 import * as React from 'react';
-import { Alert, Button, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
+import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
 import CognitoIdentityServiceProvider from 'aws-sdk/clients/cognitoidentityserviceprovider';
 import { get } from 'lodash';
 
 import { getCurrentCredentials } from '../Auth';
 import config from '../../../config';
+import { ErrorMessage, SuccessMessage } from '../alerts';
 
 interface State {
   userId?: string;
@@ -106,8 +107,8 @@ class AdminResetPassword extends React.Component<{}, State> {
           {
             hasError ?
               <>
-                {this.state.successMessage ? <Alert color="success">{this.state.successMessage}</Alert> : <></>}
-                {this.state.errorMessage ? <Alert color="danger">{this.state.errorMessage}</Alert> : <></>}
+                <SuccessMessage message={this.state.successMessage}/>
+                <ErrorMessage message={this.state.errorMessage}/>
               </>
             :
               <>Reset Password for {this.state.userEmail ? this.state.userEmail : this.state.userId}?</>

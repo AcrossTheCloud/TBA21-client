@@ -1,26 +1,29 @@
 import * as React from 'react';
-import { Link } from 'react-router-dom';
+import { NavLink as ReactLink, RouteComponentProps, withRouter } from 'react-router-dom';
 import {
   Collapse,
   Navbar,
   NavbarToggler,
   NavbarBrand,
   Nav,
-  NavItem
+  NavItem,
+  NavLink,
+  UncontrolledDropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem
 } from 'reactstrap';
 
 import { AuthConsumer } from '../../providers/AuthProvider';
 
-interface Props {
-  history: any; // tslint:disable-line: no-any
-}
+import 'styles/layout/_navigation.scss';
 
 interface State {
   isOpen: boolean;
 }
 
-export default class Header extends React.Component<Props, State> { // tslint:disable-line: no-any
-  constructor(props: Props) { // tslint:disable-line: no-any
+class HeaderClass extends React.Component<RouteComponentProps, State> { // tslint:disable-line: no-any
+  constructor(props: RouteComponentProps) { // tslint:disable-line: no-any
     super(props);
 
     this.state = {
@@ -36,61 +39,92 @@ export default class Header extends React.Component<Props, State> { // tslint:di
     });
   }
 
+  AdminRoutes(): JSX.Element {
+    return (
+      <UncontrolledDropdown inNavbar nav>
+        <DropdownToggle nav caret>
+          Admin
+        </DropdownToggle>
+        <DropdownMenu>
+          <DropdownItem>
+            <NavItem>
+              <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/admin/Collections/">Collections</NavLink>
+            </NavItem>
+          </DropdownItem>
+          <DropdownItem>
+            <NavItem>
+              <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/admin/Items">Items</NavLink>
+            </NavItem>
+          </DropdownItem>
+
+          <DropdownItem divider />
+
+          <DropdownItem>
+            <NavItem>
+              <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/admin/People">People</NavLink>
+            </NavItem>
+          </DropdownItem>
+          <DropdownItem>
+            <NavItem>
+              <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/admin/PersonEntry">Person Metadata Entry</NavLink>
+            </NavItem>
+          </DropdownItem>
+          <DropdownItem>
+            <NavItem>
+              <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/admin/ManageUsers">Manage Users</NavLink>
+            </NavItem>
+          </DropdownItem>
+        </DropdownMenu>
+      </UncontrolledDropdown>
+    );
+  }
+
   render() {
     return (
       <AuthConsumer>
         {({ isAuthenticated, authorisation, logout }) => {
           const isAdmin = (authorisation && Object.keys(authorisation).length &&  authorisation.hasOwnProperty('admin'));
           return (
-            <div className={'navigation'}>
+            <div id="navigation">
               <Navbar color="light" light expand="md">
                 <NavbarBrand href="/">TBA21</NavbarBrand>
                 <NavbarToggler onClick={this.toggle}/>
                 <Collapse isOpen={this.state.isOpen} navbar>
                   <Nav className="ml-auto" navbar>
                     <NavItem>
-                      <Link className="nav-link" to="/">Home</Link>
+                      <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/">Home</NavLink>
                     </NavItem>
+
                     {isAuthenticated && isAdmin ?
-                      <>
-                        <NavItem>
-                          <Link className="nav-link" to="/itemEntry">Item Metadata Entry</Link>
-                        </NavItem>
-                        <NavItem>
-                          <Link className="nav-link" to="/PersonEntry">Person Metadata Entry</Link>
-                        </NavItem>
-                        <NavItem>
-                          <Link className="nav-link" to="/ManageUsers">Manage Users</Link>
-                        </NavItem>
-                      </>
+                      <this.AdminRoutes />
                       : <></>
                     }
 
                     <NavItem>
-                      <Link className="nav-link" to="/view">View Items</Link>
+                      <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/view">View Items</NavLink>
                     </NavItem>
                     <NavItem>
-                      <Link className="nav-link" to="/map">Map View</Link>
+                      <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/map">Map View</NavLink>
                     </NavItem>
 
                     <NavItem>
-                      <Link className="nav-link" to="/viewGraph">View Items and People Graph</Link>
+                      <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/viewGraph">View Items and People Graph</NavLink>
                     </NavItem>
 
                     {isAuthenticated ?
                       <>
                         <NavItem>
-                            <Link className="nav-link" to="/Profile">Profile</Link>
+                            <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/Profile">Profile</NavLink>
                         </NavItem>
                         <NavItem>
-                          <Link className="nav-link" to="/" onClick={logout}>
+                          <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/" onClick={logout}>
                             Logout
-                          </Link>
+                          </NavLink>
                         </NavItem>
                       </>
                       :
                       <NavItem>
-                        <Link className="nav-link" to="/login">Login</Link>
+                        <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/login">Login</NavLink>
                       </NavItem>
                     }
                   </Nav>
@@ -103,3 +137,5 @@ export default class Header extends React.Component<Props, State> { // tslint:di
     );
   }
 }
+
+export const Header = withRouter(HeaderClass);

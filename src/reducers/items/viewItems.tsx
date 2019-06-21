@@ -1,18 +1,17 @@
-import { FETCH_ITEMS } from '../../actions/items/viewItems';
-import { OceanObject } from '../../components/pages/TableRow';
+import { FETCH_ITEMS, FETCH_MORE_ITEMS } from '../../actions/items/viewItems';
+import { Item } from '../../types/Item';
+import { Alerts } from '../../components/utils/alerts';
 
-export interface State {
-  items: Array<OceanObject>;
-  sliderInitialized: boolean;
-  sliderError: boolean;
+export interface State extends Alerts {
+  items: {
+    [id: number]: Item
+  };
 }
 const initialState: State = {
-  items: [],
-  sliderInitialized: false,
-  sliderError: false
+  items: {}
 };
 
-export default (state: State|null = initialState, action) => {
+export default (state: State | null = initialState, action) => {
   if (state === undefined) { state = initialState; }
 
   switch (action.type) {
@@ -20,8 +19,13 @@ export default (state: State|null = initialState, action) => {
       return {
         ...state,
         items: action.items,
-        sliderInitialized: action.sliderInitialized,
-        sliderError: action.sliderError
+      };
+
+    case FETCH_MORE_ITEMS:
+      const stateItems = state && state.items ? state.items : {};
+      return {
+        ...state,
+        items: {...stateItems, ...action.items},
       };
 
     default:

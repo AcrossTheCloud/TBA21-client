@@ -1,10 +1,13 @@
 import * as React from 'react';
-import Header from './components/layout/Header';
+import { Header } from './components/layout/Header';
+import { withRouter } from 'react-router';
 
-export const App = (props) => {
+const TheApp = () => {
   return (
     <div className="container-fluid">
-      <Header history={props.history} />
+      <Header/>
     </div>
   );
 };
+
+export const App = withRouter(TheApp);

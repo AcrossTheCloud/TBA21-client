@@ -41,8 +41,6 @@ export default (state: State|null = initialState, action) => {
       // If there's an error message, pass it through.
       if (typeof action.message !== 'undefined') {
         Object.assign(profileErrorState, {errorMessage: action.message});
-      } else {
-        Object.assign(profileErrorState, {errorMessage: true});
       }
 
       return profileErrorState;
@@ -54,8 +52,6 @@ export default (state: State|null = initialState, action) => {
       // If there's an error message, pass it through.
       if (typeof action.message !== 'undefined') {
         Object.assign(profileSuccessState, {successMessage: action.message});
-      } else {
-        Object.assign(profileSuccessState, {successMessage: true});
       }
 
       return profileSuccessState;

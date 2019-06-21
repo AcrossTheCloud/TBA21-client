@@ -1,39 +1,31 @@
-import { FETCH_MARKERS, FETCH_MARKERS_ERROR, PUT_MODIFIED_MARKERS } from '../../actions/map/map';
-import { MarkerData } from 'components/pages/map/map';
+import { FETCH_MARKERS, FETCH_MARKERS_ERROR } from '../../actions/map/map';
+import { MarkerData } from 'components/map/map';
 
 interface State {
-  markers: MarkerData[];
-  modifiedMarkers: MarkerData[];
+  markers: {
+    [id: string]: MarkerData
+  };
   hasError: boolean;
 }
 const initialState: State = {
-  markers: [],
-  modifiedMarkers: [],
+  markers: {},
   hasError: false
 };
 
-export default (state: State|null = initialState, action) => {
+export default (state: State | undefined = initialState, action) => {
   if (state === undefined) { state = initialState; }
 
   switch (action.type) {
     case FETCH_MARKERS:
       return {
         ...state,
-        markers: action.markerData,
-        modifiedMarkers: [],
+        markers: {...state.markers, ...action.markers}
       };
     case FETCH_MARKERS_ERROR:
       return {
         ...state,
         hasError: true,
-        markers: [],
-        modifiedMarkers: [],
-      };
-
-    case PUT_MODIFIED_MARKERS:
-      return {
-        ...state,
-        modifiedMarkers: action.markers,
+        markers: {}
       };
 
     default:
