@@ -1,7 +1,7 @@
 import * as React from 'react';
 import BootstrapTable from 'react-bootstrap-table-next';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
-import { Button, Modal, ModalBody, ModalFooter, Spinner } from 'reactstrap';
+import { Button, Fade, Modal, ModalBody, ModalFooter, Spinner } from 'reactstrap';
 import { API } from 'aws-amplify';
 
 import { TitleAndDescription } from 'components/admin/tables/utils/TitleAndDescription';
@@ -42,7 +42,7 @@ export default class CollectionTable extends React.Component<{}, State> {
       wizardCurrentStep: 1,
       wizardStepMax: 5,
 
-      componentModalOpen: false,
+      componentModalOpen: true,
       tableIsLoading: true,
       collections: [],
       rowEditingId: undefined,
@@ -146,20 +146,6 @@ export default class CollectionTable extends React.Component<{}, State> {
     });
   }
 
-  Wizard = (props) => {
-    if (!this._isMounted) { return <></>; }
-
-    switch (props.step) {
-      case 1 :
-        return <DraggableMap positionCallback={this.DraggableMapPosition} geojson={this.state.geojson}/>;
-      case 2 :
-        return <TitleAndDescription callback={this.callbackTitleDescription} title={this.state.title} description={this.state.description} />;
-
-      default:
-        return <></>;
-    }
-  }
-
   handleWizardNextStep = () => {
     let stepNumber = this.state.wizardCurrentStep;
     stepNumber++;
@@ -187,10 +173,16 @@ export default class CollectionTable extends React.Component<{}, State> {
           noDataIndication={() => !this.state.tableIsLoading && !this.state.collections.length ? 'No data to display.' : <Spinner style={{ width: '10rem', height: '10rem' }} type="grow" />}
         />
 
-        <Modal isOpen={this.state.componentModalOpen} className="tableModal fullwidth">
+        <Modal id="collectionTableWizardModal" className="tableModal fullwidth" isOpen={this.state.componentModalOpen}>
           <ModalBody>
 
-            <this.Wizard step={this.state.wizardCurrentStep}/>
+            <Fade in={this.state.wizardCurrentStep === 1}>
+              <DraggableMap positionCallback={this.DraggableMapPosition} geojson={this.state.geojson}/>
+            </Fade>
+
+            <Fade in={this.state.wizardCurrentStep === 2}>
+              <TitleAndDescription callback={this.callbackTitleDescription} title={this.state.title} description={this.state.description} />
+            </Fade>
 
           </ModalBody>
           <ModalFooter>

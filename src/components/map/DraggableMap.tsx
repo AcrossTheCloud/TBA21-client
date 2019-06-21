@@ -176,12 +176,11 @@ export default class DraggableMap extends React.Component<Props, State> {
 
       mapStyle = {
         height: '100%',
-        minHeight: '400px',
-        margin: '30px 15px'
+        minHeight: '400px'
       };
 
     return (
-      <div id="draggableMap">
+      <div id="draggableMap" className="h-100">
         {this.state.mode === 'marker' && this.state.marker ?
           <Container>
             <Row>
