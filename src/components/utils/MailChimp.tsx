@@ -44,7 +44,7 @@ export default class MailChimp extends React.Component<Props, State> {
         allTags: allTags,
         subscriberDetails: subscriberDetails,
         isLoading: false,
-        errorMessage: 'TEST'
+        errorMessage: undefined
       });
     } catch (e) {
       this.setState({ errorMessage: `We've had a bit of an issue getting our mailing list options for you. Please try again later.` });
