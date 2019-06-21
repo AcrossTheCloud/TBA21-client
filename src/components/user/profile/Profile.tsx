@@ -11,6 +11,7 @@ import { deleteAccount, dispatchError, updateAttributes, changePassword } from '
 import { Alerts, ErrorMessage, SuccessMessage } from '../../utils/alerts';
 
 import 'styles/components/user/profile/profile.scss';
+import MailChimp from '../../utils/MailChimp';
 
 interface Props extends Alerts {
   deleteAccount: Function;
@@ -117,6 +118,14 @@ class Profile extends React.Component<Props, State> {
         </Form>
 
         <ChangePassword changePassword={this.props.changePassword} />
+
+        {has(credentials, 'email') ?
+          <>
+            <h3>Communication Preferences</h3>
+            <MailChimp email={get(credentials, 'email')}/>
+          </>
+          : <></>
+        }
 
         <DeleteAccount deleteAccountAction={this.props.deleteAccount}/>
       </Container>
