@@ -35,8 +35,12 @@ export class AuthProvider extends React.Component<Props, State> {
 
   async componentDidMount(): Promise<void> {
     if (!this.state.isAuthenticated) {
-      const auth = await checkAuth();
-      this.setState(prevState => ({...prevState, ...auth, isLoading: false}));
+      try {
+        const auth = await checkAuth(true);
+        this.setState(prevState => ({...prevState, ...auth, isLoading: false}));
+      } catch (e) {
+        await this.logout();
+      }
     }
   }
 

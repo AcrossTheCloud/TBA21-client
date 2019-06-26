@@ -21,8 +21,12 @@ interface Props {
 }
 
 export default class MailChimp extends React.Component<Props, State> {
+  private _isMounted;
+
   constructor(props: Props) {
     super(props);
+
+    this._isMounted = false;
 
     this.state = {
       isLoading: true,
@@ -35,20 +39,30 @@ export default class MailChimp extends React.Component<Props, State> {
   }
 
   async componentDidMount(): Promise<void> {
+    this._isMounted = true;
+
     try {
       const
         allTags = await API.get('tba21', 'mailchimp/getSegments', {}),
         subscriberDetails = await this.getUserTags();
 
-      this.setState({
-        allTags: allTags,
-        subscriberDetails: subscriberDetails,
-        isLoading: false,
-        errorMessage: undefined
-      });
+      if (this._isMounted) {
+        this.setState({
+          allTags: allTags,
+          subscriberDetails: subscriberDetails,
+          isLoading: false,
+          errorMessage: undefined
+        });
+      }
     } catch (e) {
-      this.setState({ errorMessage: `We've had a bit of an issue getting our mailing list options for you. Please try again later.` });
+      if (this._isMounted) {
+        this.setState({errorMessage: `We've had a bit of an issue getting our mailing list options for you. Please try again later.`});
+      }
     }
+  }
+
+  componentWillUnmount(): void {
+    this._isMounted = false;
   }
 
   getUserTags = async (): Promise<SubscriberDetails> => {
@@ -62,7 +76,9 @@ export default class MailChimp extends React.Component<Props, State> {
   }
 
   checkboxOnChange = async (e: React.ChangeEvent<HTMLInputElement>, tag: string) => {
-    this.setState({ isLoading: true });
+    if (this._isMounted) {
+      this.setState({isLoading: true});
+    }
 
     try {
       const
@@ -87,15 +103,21 @@ export default class MailChimp extends React.Component<Props, State> {
         }
       }
 
-      this.setState({ isLoading: false, subscriberDetails: subscriberDetails });
+      if (this._isMounted) {
+        this.setState({ isLoading: false, subscriberDetails: subscriberDetails });
+      }
 
     } catch (e) {
-      this.setState({ isLoading: false, errorMessage: `Looks like we've had an issue updating your preferences.` });
+      if (this._isMounted) {
+        this.setState({ isLoading: false, errorMessage: `Looks like we've had an issue updating your preferences.` });
+      }
     }
   }
 
   subscribeUser = async (): Promise<void> => {
-    this.setState({ isLoading: true });
+    if (this._isMounted) {
+      this.setState({ isLoading: true });
+    }
 
     let
       status = 'unsubscribed',
@@ -112,14 +134,16 @@ export default class MailChimp extends React.Component<Props, State> {
     } catch (e) {
       responseErrorMessage = e;
     } finally {
-      this.setState({
-        errorMessage: responseErrorMessage,
-        subscriberDetails: {
-          ...this.state.subscriberDetails,
-          status: status
-        },
-        isLoading: false
-      });
+      if (this._isMounted) {
+        this.setState({
+          errorMessage: responseErrorMessage,
+          subscriberDetails: {
+            ...this.state.subscriberDetails,
+            status: status
+          },
+          isLoading: false
+        });
+      }
     }
   }
 

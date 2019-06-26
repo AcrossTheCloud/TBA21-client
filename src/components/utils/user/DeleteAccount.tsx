@@ -34,11 +34,11 @@ export default class DeleteAccount extends React.Component<Props, State> {
   /**
    * Executes the deleteAccountAction, see actions/user/profile
    */
-  deleteAccount(): void {
+  deleteAccount = async (): Promise<void> => {
     this.setState({modalOpen: false});
 
     // Dispatches the Overlay and Delete API call.
-    this.props.deleteAccountAction();
+    await this.props.deleteAccountAction();
   }
 
   render() {

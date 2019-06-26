@@ -60,7 +60,7 @@ export const deleteAccount = () => async dispatch => {
   dispatch({type: OVERLAY, overlay: true});
 
   // No accessToken? Have an error
-  if (accessToken.length) {
+  if (accessToken && accessToken.length) {
     // Sets up CognitoIdentityServiceProvider with our correct region and API version
     const
       cognitoIdentityServiceProvider = new CognitoIdentityServiceProvider(

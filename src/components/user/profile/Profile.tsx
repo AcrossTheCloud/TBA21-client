@@ -1,19 +1,22 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { RouteComponentProps, withRouter } from 'react-router';
 import { Button, Container, Form, FormGroup, Input, Label } from 'reactstrap';
 import { get, has } from 'lodash';
 import $ from 'jquery';
 
 import DeleteAccount from 'components/utils/user/DeleteAccount';
 import ChangePassword from 'components/utils/user/ChangePassword';
-import { getCurrentAuthenticatedUser, logout } from 'components/utils/Auth';
+import { checkAuth, getCurrentAuthenticatedUser } from 'components/utils/Auth';
 import { deleteAccount, dispatchError, updateAttributes, changePassword } from 'actions/user/profile';
 import { Alerts, ErrorMessage, SuccessMessage } from '../../utils/alerts';
 
-import 'styles/components/user/profile/profile.scss';
 import MailChimp from '../../utils/MailChimp';
 
-interface Props extends Alerts {
+import 'styles/components/user/profile/profile.scss';
+import { AuthContext } from '../../../providers/AuthProvider';
+
+interface Props extends RouteComponentProps, Alerts {
   deleteAccount: Function;
   dispatchError: Function;
   updateAttributes: Function;
@@ -21,7 +24,6 @@ interface Props extends Alerts {
 
   accountDeleted: boolean;
   overlay: boolean;
-  history: any; // tslint:disable-line: no-any
 }
 
 interface State {
@@ -30,9 +32,11 @@ interface State {
 
 class Profile extends React.Component<Props, State> {
   private emailInput;
+  private _isMounted;
 
   constructor(props: Props) {
     super(props);
+    this._isMounted = false;
 
     this.state = {
       credentials: {}
@@ -40,13 +44,16 @@ class Profile extends React.Component<Props, State> {
   }
 
   async componentDidMount(): Promise<void> {
+    this._isMounted = true;
     await this.getUserCredentials();
   }
 
   async componentDidUpdate(): Promise<void> {
+    const context = this.context;
+
     if (this.props.accountDeleted) {
       try {
-        await logout();
+        await context.logout();
         this.props.history.push('/');
       } catch (e) {
         this.props.dispatchError();
@@ -55,48 +62,58 @@ class Profile extends React.Component<Props, State> {
   }
 
   getUserCredentials = async (): Promise<void> => {
-    const userDetails = await getCurrentAuthenticatedUser(true);
+    const
+      userDetails = await getCurrentAuthenticatedUser(true),
+      auth = await checkAuth();
 
     // Redirect to login page if not authenticated.
     if (!userDetails) {
       this.props.history.push(`/login`);
     } else {
-      const email = has(userDetails, 'attributes.email') ? get(userDetails, 'attributes.email') : null;
 
       let userCredentials = {
-        email: email
+        email: get(userDetails, 'attributes.email'),
+        auth: get(auth, 'authorisation')
       };
 
-      this.setState({ credentials: userCredentials });
-      this.emailInput.value = email;
+      if (this._isMounted) {
+        this.setState({ credentials: userCredentials });
+        this.emailInput.value = userCredentials.email;
+      }
     }
   }
 
   submitForm = async (): Promise<void> => {
     let attributes = {};
 
-    if (this.emailInput.value !== get(this.state.credentials, 'email')) {
-      Object.assign(attributes, {'email': this.emailInput.value.toString()});
-    }
+    if (this._isMounted) {
+      if (this.emailInput.value !== get(this.state.credentials, 'email')) {
+        Object.assign(attributes, {'email': this.emailInput.value.toString()});
+      }
 
-    if (Object.keys(attributes).length) {
-      await this.props.updateAttributes(attributes);
-      await this.getUserCredentials();
+      if (Object.keys(attributes).length) {
+        await this.props.updateAttributes(attributes);
+        await this.getUserCredentials();
+      }
     }
   }
 
   render() {
     const credentials = this.state.credentials;
 
-    if (this.props.overlay) {
-      $('.overlay')
-        .addClass('on')
-        .css('z-index', 99999)
-        .fadeIn(300);
-    } else {
-      $('.overlay.on')
-        .removeClass('on')
-        .fadeOut(300, () => { $(this).css('z-index', -100); });
+    if (this._isMounted) {
+      if (this.props.overlay) {
+        $('.overlay')
+          .addClass('on')
+          .css('z-index', 99999)
+          .fadeIn(300);
+      } else {
+        $('.overlay.on')
+          .removeClass('on')
+          .fadeOut(300, () => {
+            $(this).css('z-index', -100);
+          });
+      }
     }
 
     return(
@@ -106,7 +123,7 @@ class Profile extends React.Component<Props, State> {
         <SuccessMessage message={this.props.successMessage} />
 
         <div className="overlay" style={{display: 'none'}} />
-        Your Profile<br />
+        <h1>Your Profile</h1>
 
         <Form onSubmit={(e) => { e.preventDefault(); this.submitForm(); }} autoComplete="off">
           <FormGroup>
@@ -149,4 +166,6 @@ const mapDispatchToProps = {
   changePassword,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Profile);
+Profile.contextType = AuthContext;
+
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Profile));
