@@ -1,11 +1,9 @@
 import * as React from 'react';
 import { Auth } from 'aws-amplify';
-import { Authorisation, AuthorisationList, checkAuth } from '../components/utils/Auth';
+import { Authorisation, checkAuth } from '../components/utils/Auth';
 
-interface State {
+interface State extends Authorisation {
   isLoading: boolean;
-  isAuthenticated: boolean;
-  authorisation?: AuthorisationList;
 }
 export interface Props {
   history: any; // tslint:disable-line: no-any
