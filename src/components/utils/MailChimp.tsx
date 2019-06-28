@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { API } from 'aws-amplify';
+import { API, Auth } from 'aws-amplify';
 import { get } from 'lodash';
 import { Button, Form, FormGroup, Input, Label, Spinner } from 'reactstrap';
 import { getCurrentAuthenticatedUser } from './Auth';
@@ -84,19 +84,29 @@ export default class MailChimp extends React.Component<Props, State> {
       const
         { checked } = e.target,
         query = {
-          tag: tag,
-          uuid: get(await getCurrentAuthenticatedUser(), 'username')
+          tag: tag
         };
       let { subscriberDetails } = this.state;
 
       if (checked) {
-        await API.post('tba21', 'mailchimp/postSubscriberAddTag', { body: query });
+        await API.post('tba21', 'mailchimp/postSubscriberAddTag', {
+          headers: {
+            Authorization: `Bearer ${(await Auth.currentSession()).getIdToken().getJwtToken()}`
+          },
+          body: query
+
+        });
         // Add the tag if it doesn't exist.
         if (!subscriberDetails.tags.includes(tag)) {
           subscriberDetails.tags.push(tag);
         }
       } else {
-        await API.del('tba21', 'mailchimp/deleteSubscriberRemoveTag', { queryStringParameters: query });
+        await API.del('tba21', 'mailchimp/deleteSubscriberRemoveTag', {
+          headers: {
+            Authorization: `Bearer ${(await Auth.currentSession()).getIdToken().getJwtToken()}`
+          },
+          queryStringParameters: query
+        });
         // Add the tag if it doesn't exist.
         if (subscriberDetails.tags.includes(tag)) {
           subscriberDetails.tags.splice(subscriberDetails.tags.indexOf(tag), 1);
@@ -125,8 +135,8 @@ export default class MailChimp extends React.Component<Props, State> {
     try {
       // Returns a boolean if the request was successful or not.
       const response = await API.post('tba21', 'mailchimp/postSubscribeUser', {
-        body: {
-          uuid: get(await getCurrentAuthenticatedUser(), 'username')
+        headers: {
+          Authorization: `Bearer ${(await Auth.currentSession()).getIdToken().getJwtToken()}`
         }
       });
 
@@ -151,7 +161,7 @@ export default class MailChimp extends React.Component<Props, State> {
     const {isLoading, allTags, subscriberDetails, errorMessage} = this.state;
     return (
       <Form>
-        <TimedErrorMessage message={errorMessage} />
+        <TimedErrorMessage message={errorMessage} time={5000} />
 
         {
           isLoading ? <Spinner type="grow"/> :
