@@ -203,9 +203,12 @@ export class ItemEditor extends React.Component<Props, State> {
 
             <FormGroup>
               <legend>Focus</legend>
-              <Input type="range" step="1" min="0" max="3"/>
-              <Input type="range" step="1" min="0" max="3"/>
-              <Input type="range" step="1" min="0" max="3"/>
+              <Label for="art">Art</Label>
+              <Input className="art" type="range" step="1" min="0" max="3"/>
+              <Label for="scitech">Sci Tech</Label>
+              <Input className="scitech" type="range" step="1" min="0" max="3"/>
+              <Label for="action">Action</Label>
+              <Input className="action" type="range" step="1" min="0" max="3"/>
             </FormGroup>
 
             <FormGroup>
