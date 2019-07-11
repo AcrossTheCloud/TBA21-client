@@ -181,7 +181,7 @@ export default class Items extends React.Component<{}, State> {
           remote
           bootstrap4
           className="itemTable"
-          keyField="id"
+          keyField="s3_key"
           data={this.state.tableIsLoading ? [] : items}
           columns={this.tableColumns}
           pagination={paginationFactory({ page, sizePerPage, totalSize })}
