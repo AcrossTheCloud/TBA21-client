@@ -12,6 +12,7 @@ export interface Tag {
 interface State {
   tags: Tag[];
   selectedTags: Tag[];
+  defaultValues?: Tag[] | [];
   isLoading: boolean;
   rekognitionTags: Tag[];
 }
@@ -19,7 +20,7 @@ interface State {
 interface Props {
   className?: string;
 
-  defaultValues?: Tag[];
+  defaultValues?: Tag[] | [];
   defaultOptions?: Tag[];
   defaultOptionsStrings?: string[];
 
@@ -33,7 +34,7 @@ class Tags extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { defaultOptionsStrings } = this.props;
+    const { defaultOptionsStrings, defaultValues } = this.props;
 
     let rekognitionTags: Tag[] = [];
     if (defaultOptionsStrings && defaultOptionsStrings.length) {
@@ -43,9 +44,12 @@ class Tags extends React.Component<Props, State> {
     this.state = {
       tags: [],
       selectedTags: [],
+      defaultValues: defaultValues ? defaultValues : [],
       isLoading: false,
       rekognitionTags: rekognitionTags
     };
+
+    console.log(defaultValues, 'defaultValues');
   }
 
   loadTags = async (inputValue: string) => {
@@ -59,7 +63,7 @@ class Tags extends React.Component<Props, State> {
 
         const
           queryStringParameters = ( inputValue ? { query: inputValue, type: this.props.type } : {} ),
-          queriedTags = await API.get('tba21', 'tags', { queryStringParameters: queryStringParameters }),
+          queriedTags = await API.get('tba21', 'tags/search', { queryStringParameters: queryStringParameters }),
 
           tags = queriedTags.tags.map(t => ({id: t.id, value: t.id, label: t.tag_name.charAt(0).toUpperCase() + t.tag_name.slice(1)})),
           filteredTags = tags.filter( tag => !find(this.state.tags, { tag_name: tag.tag_name }) );
@@ -127,8 +131,9 @@ class Tags extends React.Component<Props, State> {
 
   render() {
     const {
-      className, defaultValues
+      className
     } = this.props;
+
     return (
       <div className={className ? className : ''}>
         <AsyncCreatableSelect
@@ -137,7 +142,7 @@ class Tags extends React.Component<Props, State> {
           isLoading={this.state.isLoading}
           cacheOptions
 
-          defaultValues={defaultValues ? defaultValues : []}
+          defaultValue={this.state.defaultValues}
           defaultOptions={[ { label: 'Generated Suggestions', options: [...this.state.rekognitionTags] } , ...this.state.tags]}
 
           options={this.state.tags}
@@ -145,7 +150,6 @@ class Tags extends React.Component<Props, State> {
           loadOptions={this.loadTags}
 
           onChange={this.onChange}
-          value={this.state.selectedTags}
         />
       </div>
     );

@@ -1,8 +1,11 @@
-import { Tag } from 'components/admin/tables/utils/Tags';
-
 import { User } from './User';
 import { Ocean } from './Ocean';
 import { License } from './License';
+
+export interface APITag {
+  id: number;
+  tag_name: string;
+}
 
 export interface Item {
   count: number;
@@ -22,11 +25,11 @@ export interface Item {
 
   status: boolean | null;
 
-  concept_tags: Tag[] | null;
-  keyword_tags: Tag[] | null;
+  concept_tags: APITag[] | null;
+  keyword_tags: APITag[] | null;
 
-  aggregated_concept_tags?: Tag[] | null;
-  aggregated_keyword_tags?: Tag[] | null;
+  aggregated_concept_tags?: APITag[] | null;
+  aggregated_keyword_tags?: APITag[] | null;
 
   place: string | null;
   country_or_ocean: string | Ocean | null;

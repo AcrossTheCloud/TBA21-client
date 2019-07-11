@@ -14,7 +14,14 @@ import {
   // START ADMIN
   ViewItems,
   ViewItem,
-  ManageUsers,
+  AdminManageUsers,
+
+  // START Tables
+  AdminCollections,
+  AdminItems,
+  AdminPeople,
+  // END Tables
+
   // END ADMIN
 
   // START Collaborator
@@ -58,7 +65,10 @@ const AdminRoutes = ({authorisation, ...rest}) => {
   const isAdmin = has(authorisation, 'admin');
   return (
     <>
-      <Route exact path="/admin/ManageUsers" render={routeProps => isAdmin ? <ManageUsers {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
+      <Route exact path="/admin/ManageUsers" render={routeProps => isAdmin ? <AdminManageUsers {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
+      <Route exact path="/admin/Collections" render={routeProps => isAdmin ? <AdminCollections {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
+      <Route exact path="/admin/Items" render={routeProps => isAdmin ? <AdminItems {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
+      <Route exact path="/admin/People" render={routeProps => isAdmin ? <AdminPeople {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
     </>
   );
 };

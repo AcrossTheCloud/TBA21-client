@@ -1,4 +1,4 @@
-import { Tag } from 'components/admin/tables/utils/Tags';
+import { APITag } from './Item';
 
 import { User } from './User';
 import { Ocean } from './Ocean';
@@ -15,8 +15,8 @@ export interface Collection {
 
   status: boolean;
 
-  concept_tags: Tag[];
-  keyword_tags: Tag[];
+  concept_tags: APITag[];
+  keyword_tags: APITag[];
 
   place: string;
   country_or_ocean: string | Ocean;

@@ -27,7 +27,7 @@ export class ItemEditor extends React.Component<Props, State> {
     this._isMounted = false;
 
     this.state = {
-      item: props.item,
+      item:  props.item,
       loadingRekognitionTags: props.item.keyword_tags === null,
     };
   }
@@ -106,17 +106,17 @@ export class ItemEditor extends React.Component<Props, State> {
 
     Object.entries(this.state.item)
       .filter( ([key, value]) => {
-       return !(
-         value === null ||
-         key === 'count' ||
-         key === 'sha512' || key === 'aggregated_keyword_tags' ||
-         key === 'aggregated_concept_tags' || key === 'md5' ||
-         key === 'created_at' || key === 'updated_at');
-      }).forEach( tag => {
+         return !(
+           value === null ||
+           key === 'count' || key === 'image_hash' ||
+           key === 'sha512' || key === 'aggregated_keyword_tags' ||
+           key === 'aggregated_concept_tags' || key === 'md5' ||
+           key === 'created_at' || key === 'updated_at' || key === 'machine_recognition_tags'
+         );
+      })
+      .forEach( tag => {
         Object.assign(itemsProperties, { [tag[0]]: tag[1]});
-    });
-
-    console.log('sdfsdf', itemsProperties);
+      });
 
     API.put('tba21', 'admin/items/update', {
       body: {
@@ -130,11 +130,16 @@ export class ItemEditor extends React.Component<Props, State> {
       title,
       description,
       time_produced,
+      status,
 
       country_or_ocean,
       license,
 
+      aggregated_keyword_tags
+
     } = this.state.item;
+
+    const keywordTags = aggregated_keyword_tags ? aggregated_keyword_tags.map( t => ({ id: t.id, value: t.id, label: t.tag_name}) ) : [];
 
     return (
       <Form className="container-fluid">
@@ -148,6 +153,19 @@ export class ItemEditor extends React.Component<Props, State> {
             <FormGroup>
               <Label for="description">Description</Label>
               <Input type="textarea" id="description" defaultValue={description ? description : ''} onChange={e => this.setState({ item: { ...this.state.item, description: e.target.value } })}/>
+            </FormGroup>
+
+            <FormGroup>
+              <Label for="status">Status</Label>
+              <Input
+                type="select"
+                name="status"
+                onChange={e => this.setState({ item: { ...this.state.item, status: e.target.value === 'true' } })}
+                defaultValue={status ? 'true' : 'false'}
+              >
+                <option value="false">Unpublished</option>
+                <option value="true">Publish</option>
+              </Input>
             </FormGroup>
           </Col>
 
@@ -164,6 +182,7 @@ export class ItemEditor extends React.Component<Props, State> {
                 <Tags
                   className="keyword_tags"
                   type="keyword"
+                  defaultValues={keywordTags}
                   defaultOptionsStrings={this.state.rekognitionTags}
                   callback={tagIds => this.setState({ item: { ...this.state.item, keyword_tags: tagIds ? tagIds : [] } })}
                 />
