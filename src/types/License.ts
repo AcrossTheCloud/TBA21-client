@@ -1,5 +1,5 @@
 export enum License {
-  CC_BY= 'CC BY',
+  CC_BY = 'CC BY',
   CC_BY_SA = 'CC BY-SA',
   CC_BY_ND = 'CC BY-ND',
   CC_BY_NC = 'CC BY-NC',

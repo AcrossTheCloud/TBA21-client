@@ -13,6 +13,7 @@ import {
   DropdownMenu,
   DropdownItem
 } from 'reactstrap';
+import { has } from 'lodash';
 
 import { AuthConsumer } from '../../providers/AuthProvider';
 
@@ -48,19 +49,6 @@ class HeaderClass extends React.Component<RouteComponentProps, State> { // tslin
         <DropdownMenu>
           <DropdownItem>
             <NavItem>
-              <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/admin/Collections/">Collections</NavLink>
-            </NavItem>
-          </DropdownItem>
-          <DropdownItem>
-            <NavItem>
-              <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/admin/Items">Items</NavLink>
-            </NavItem>
-          </DropdownItem>
-
-          <DropdownItem divider />
-
-          <DropdownItem>
-            <NavItem>
               <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/admin/People">People</NavLink>
             </NavItem>
           </DropdownItem>
@@ -76,6 +64,14 @@ class HeaderClass extends React.Component<RouteComponentProps, State> { // tslin
           </DropdownItem>
         </DropdownMenu>
       </UncontrolledDropdown>
+    );
+  }
+
+  ColllaboratorRoutes(): JSX.Element {
+    return (
+      <NavItem>
+        <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/items/upload">Items</NavLink>
+      </NavItem>
     );
   }
 
@@ -97,6 +93,11 @@ class HeaderClass extends React.Component<RouteComponentProps, State> { // tslin
 
                     {isAuthenticated && isAdmin ?
                       <this.AdminRoutes />
+                      : <></>
+                    }
+
+                    {isAuthenticated && (has(authorisation, 'collaborator') || has(authorisation, 'editor') || has(authorisation, 'admin')) ?
+                      <this.ColllaboratorRoutes />
                       : <></>
                     }
 

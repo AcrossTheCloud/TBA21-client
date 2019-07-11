@@ -3,54 +3,61 @@ import { Tag } from 'components/admin/tables/utils/Tags';
 import { User } from './User';
 import { Ocean } from './Ocean';
 import { License } from './License';
-import { S3Upload } from './s3Upload';
 
 export interface Item {
   count: number;
-  id: number;
 
-  s3uploads_sha512: S3Upload;
   s3_key: string;
+  sha512: string | null;
+
+  exif: {  [name: string]: any } | null; // tslint:disable-line: no-any
+  machine_recognition_tags: { [name: string]: any } | null; // tslint:disable-line: no-any
+
+  md5: string | null;
+  image_hash: string | null;
 
   created_at: string;
   updated_at: string;
-  time_produced: string;
+  time_produced: string | null;
 
-  status: boolean;
+  status: boolean | null;
 
-  concept_tags: Tag[];
-  keyword_tags: Tag[];
+  concept_tags: Tag[] | null;
+  keyword_tags: Tag[] | null;
 
-  place: string;
-  country_or_ocean: string | Ocean;
+  aggregated_concept_tags?: Tag[] | null;
+  aggregated_keyword_tags?: Tag[] | null;
 
-  item_type: number;
+  place: string | null;
+  country_or_ocean: string | Ocean | null;
 
-  creators: User[];
-  contributor_login: string;
+  item_type: number | null;
 
-  directors: string[];
-  writers: string[];
-  collaborators: string;
+  creators: User[] | null;
+  contributor: string | null;
 
-  exhibited_at: string;
+  directors: string[] | null;
+  writers: string[] | null;
+  collaborators: string | null;
 
-  series: string;
-  ISBN: number;
-  edition: number;
-  publisher: string[];
-  interviewers: string[];
-  interviewees: string[];
-  cast_: string;
+  exhibited_at: string | null;
 
-  license: License;
+  series: string | null;
+  isbn: number | null;
+  edition: number | null;
+  publisher: string[] | null;
+  interviewers: string[] | null;
+  interviewees: string[] | null;
+  cast_: string | null;
 
-  title: string;
-  description: string;
+  license: License | null;
 
-  location: string;
-  geojson: string;
+  title: string | null;
+  description: string | null;
 
-  icon: string;
+  map_icon: string | null;
+
+  location: string | null;
+  geojson: string | null;
 
 }
