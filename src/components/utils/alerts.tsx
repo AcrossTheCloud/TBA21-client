@@ -23,13 +23,13 @@ export const TimedErrorMessage = (props: {message: string | undefined, time?: nu
   React.useEffect(() => {
     setMessage(props.message);
     setTime(props.time ? props.time : 2000);
-  },[ props.time, props.message ]);
+  },              [ props.time, props.message ]);
 
   // Remove the alert.
   React.useEffect(() => {
     const timer = setTimeout(() => { setMessage(undefined); }, time);
     return () => clearTimeout(timer);
-  },[ message, time ]);
+  },              [ message, time ]);
 
   return message === undefined ? <></> : <Alert color="danger">{message}</Alert>;
 };
