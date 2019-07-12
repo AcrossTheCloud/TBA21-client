@@ -56,7 +56,7 @@ export class ItemEditor extends React.Component<Props, State> {
       .filter( ([key, value]) => {
          return !(
            value === null ||
-           key === 'count' || key === 'image_hash' ||
+           key === 'count' || key === 'image_hash' ||key === 'exif' ||
            key === 'sha512' || key === 'aggregated_keyword_tags' ||
            key === 'aggregated_concept_tags' || key === 'md5' ||
            key === 'created_at' || key === 'updated_at' || key === 'machine_recognition_tags'
