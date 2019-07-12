@@ -25,8 +25,8 @@ export interface Item {
 
   status: boolean | null;
 
-  concept_tags: APITag[] | null;
-  keyword_tags: APITag[] | null;
+  concept_tags: number[] | null;
+  keyword_tags: number[] | null;
 
   aggregated_concept_tags?: APITag[] | null;
   aggregated_keyword_tags?: APITag[] | null;

@@ -82,6 +82,10 @@ export default class Items extends React.Component<{}, State> {
     this.getItems();
   }
 
+  componentWillUnmount() {
+    this._isMounted = false;
+  }
+
   getItemsQuery = async (offset: number): Promise<{ items: Item[], totalSize: number } | void> => {
     try {
       const
@@ -110,7 +114,6 @@ export default class Items extends React.Component<{}, State> {
       if (response) {
         const { items, totalSize } = response;
 
-        if (!this._isMounted) { return; }
         this.setState(
           {
             items: items,

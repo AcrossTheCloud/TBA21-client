@@ -52,7 +52,7 @@ class Tags extends React.Component<Props, State> {
   componentDidMount(): void {
     const { loadItemRekognitionTags } = this.props;
 
-    if (loadItemRekognitionTags) {
+    if (loadItemRekognitionTags && loadItemRekognitionTags.length) {
       this.getItemRekognitionTags(loadItemRekognitionTags);
     }
 

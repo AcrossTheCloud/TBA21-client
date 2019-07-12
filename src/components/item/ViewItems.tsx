@@ -1,5 +1,5 @@
 import * as React from 'react';
-// import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Container, CardColumns, Card, CardBody, CardTitle, CardImg, CardText, Button } from 'reactstrap';
 import { connect } from 'react-redux';
 import { FaSync } from 'react-icons/fa';
@@ -22,14 +22,20 @@ interface Props extends Alerts {
 const Masonry = ( props: { items: {[id: number]: Item} } ) => {
   const items: JSX.Element[] = [];
 
-  Object.entries(props.items).forEach( ([index, item]) => {
+  Object.entries(props.items).forEach( ([s3key, item]) => {
     items.push(
-      <Card key={index}>
-        <CardImg src={`https://place-hold.it/${Math.floor(Math.random() * 500) + 300}x500`}/>
-        <CardBody>
-          <CardTitle>{item.title}</CardTitle>
-          <CardText>{item.description}</CardText>
-        </CardBody>
+      <Card key={s3key}>
+        <Link
+          // to={`/view/${s3key.split('/').slice(2).join('/')}`} // remove /private/UUID
+          to={`/view/${s3key}`}
+          className="item"
+        >
+          <CardImg src={`https://place-hold.it/${Math.floor(Math.random() * 500) + 300}x500`}/>
+          <CardBody>
+            <CardTitle>{item.title}</CardTitle>
+            <CardText>{item.description}</CardText>
+          </CardBody>
+        </Link>
       </Card>
     );
   });

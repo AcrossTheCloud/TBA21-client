@@ -9,19 +9,21 @@ export const FETCH_ITEM_ERROR_NO_SUCH_ITEM = 'FETCH_ITEM_ERROR_NO_SUCH_ITEM';
  *
  * API call to fetch item information based on the itemID and dispatch it through to Redux
  *
- * @param itemId {string}
+ * @param s3key {string}
  */
-export const fetchItem = (itemId) => async (dispatch, getState) => {
+export const fetchItem = (s3key: string) => async (dispatch, getState) => {
 
   const prevState = getState();
 
+  console.log('prevState.viewItem', prevState.viewItem);
+
   // Detect if we have the same itemID and return the previous state.
   // We do this here to stop another API call and you can easily get the prevState in the Action.
-  if (itemId === prevState.viewItem.itemId) {
+  if (prevState.viewItem.item && s3key === prevState.viewItem.item.s3_key) {
     return prevState.viewItem;
   }
 
-  if (!itemId) {
+  if (!s3key) {
     dispatch({
      type: FETCH_ITEM,
      item: {},
@@ -29,9 +31,9 @@ export const fetchItem = (itemId) => async (dispatch, getState) => {
   }
 
   try {
-    const response = await API.get('tba21', 'items/getById', {
+    const response = await API.get('tba21', 'items/getByS3Key', {
       queryStringParameters : {
-        id: itemId
+        s3Key: s3key
       }
     });
 
@@ -39,8 +41,7 @@ export const fetchItem = (itemId) => async (dispatch, getState) => {
       const item = response.items[0];
       dispatch({
        type: FETCH_ITEM,
-       item: item,
-       itemId: response.id,
+       item: item
      });
     } else {
       dispatch({
@@ -49,8 +50,8 @@ export const fetchItem = (itemId) => async (dispatch, getState) => {
       });
     }
   } catch (e) {
-      dispatch({
-        type: FETCH_ITEM_ERROR
-      });
+    dispatch({
+      type: FETCH_ITEM_ERROR
+    });
   }
 };

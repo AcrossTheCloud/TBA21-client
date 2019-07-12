@@ -8,6 +8,7 @@ import { ItemEditor } from './ItemEditor';
 
 interface Props {
   callback?: Function;
+  items?: string[];
 }
 
 interface State {

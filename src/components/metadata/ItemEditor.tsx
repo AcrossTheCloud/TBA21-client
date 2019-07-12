@@ -14,8 +14,6 @@ interface Props {
 
 interface State {
   item: Item;
-  loadingRekognitionTags: boolean;
-  rekognitionTags?: string[];
 }
 
 export class ItemEditor extends React.Component<Props, State> {
@@ -27,8 +25,7 @@ export class ItemEditor extends React.Component<Props, State> {
     this._isMounted = false;
 
     this.state = {
-      item:  props.item,
-      loadingRekognitionTags: props.item.keyword_tags === null,
+      item: props.item
     };
   }
 
@@ -92,6 +89,10 @@ export class ItemEditor extends React.Component<Props, State> {
 
     const keywordTags = aggregated_keyword_tags ? aggregated_keyword_tags.map( t => ({ id: t.id, value: t.id, label: t.tag_name}) ) : [];
 
+    // const filePreview = () => {
+    //
+    // }
+
     return (
       <Form className="container-fluid">
         <Row>
@@ -132,7 +133,7 @@ export class ItemEditor extends React.Component<Props, State> {
                   className="keyword_tags"
                   type="keyword"
                   defaultValues={keywordTags}
-                  loadItemRekognitionTags={this.state.item.s3_key}
+                  loadItemRekognitionTags={!keywordTags.length ? this.state.item.s3_key : ''}
                   callback={tagIds => this._isMounted ? this.setState({ item: { ...this.state.item, keyword_tags: tagIds ? tagIds : [] } }) : false}
                 />
             </FormGroup>
