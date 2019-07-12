@@ -26,6 +26,7 @@ import {
 
   // START Collaborator
   Items,
+  CollectionEditor,
   // END Collaborator
 
   // START USER
@@ -57,6 +58,7 @@ const CollaboratorRoutes = ({authorisation, ...rest}) => {
   return (
     <>
       <Route exact path="/items/upload" render={routeProps => hasAuth ? <Items {...history} {...routeProps} {...rest}/> : <Redirect to="/"/>}/>
+      <Route exact path="/collection" render={routeProps => hasAuth ? <CollectionEditor editMode={false} {...history} {...routeProps} {...rest}/> : <Redirect to="/"/>}/>
     </>
   );
 };

@@ -82,9 +82,14 @@ class HeaderClass extends React.Component<RouteComponentProps, State> { // tslin
 
   ColllaboratorRoutes(): JSX.Element {
     return (
-      <NavItem>
-        <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/items/upload">Items</NavLink>
-      </NavItem>
+      <>
+        <NavItem>
+          <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/items/upload">Add Items</NavLink>
+        </NavItem>
+        <NavItem>
+          <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/collection">Add Collection</NavLink>
+        </NavItem>
+      </>
     );
   }
 
