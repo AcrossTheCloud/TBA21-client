@@ -22,6 +22,7 @@ export { default as AdminPeople } from './admin/pages/people/People';
 // START Collaborator
 export { default as Collections } from './admin/pages/collections/Collections';
 export { Items } from './metadata/Items';
+export { CollectionEditor } from './metadata/CollectionEditor';
 // END Collaborator
 
 // START ITEMS

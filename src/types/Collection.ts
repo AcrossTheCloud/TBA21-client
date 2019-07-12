@@ -1,50 +1,55 @@
-import { APITag } from './Item';
-
 import { User } from './User';
 import { Ocean } from './Ocean';
 import { License } from './License';
+import { APITag } from './Item';
 
 export interface Collection {
-  id: string;
+  count?: number;
 
-  s3_prefix: string;
+  id?: number;
 
-  created_at: string;
-  updated_at: string;
-  time_produced: string;
+  created_at?: string;
+  updated_at?: string;
+  time_produced?: string | null;
 
-  status: boolean;
+  status?: boolean | null;
 
-  concept_tags: APITag[];
-  keyword_tags: APITag[];
+  concept_tags?: number[] | null;
+  keyword_tags?: number[] | null;
 
-  place: string;
-  country_or_ocean: string | Ocean;
+  aggregated_concept_tags?: APITag[] | null;
+  aggregated_keyword_tags?: APITag[] | null;
 
-  item_type: number;
+  place?: string | null;
+  country_or_ocean?: string | Ocean | null;
 
-  creators: User[];
-  contributor: string;
+  item_type?: number | null;
 
-  directors: string[];
-  writers: string[];
-  collaborators: string;
+  creators?: User[] | null;
+  contributor?: string | null;
 
-  exhibited_at: string;
+  directors?: string[] | null;
+  writers?: string[] | null;
+  collaborators?: string | null;
 
-  series: string;
-  ISBN: number;
-  edition: number;
-  publisher: string[];
-  interviewers: string[];
-  interviewees: string[];
-  cast_: string;
+  exhibited_at?: string | null;
 
-  license: License;
+  series?: string | null;
+  isbn?: number | null;
+  edition?: number | null;
+  publisher?: string[] | null;
+  interviewers?: string[] | null;
+  interviewees?: string[] | null;
+  cast_?: string | null;
 
-  title: string;
-  description: string;
+  license?: License | null;
 
-  geom: string;
-  geojson: string;
+  title?: string | null;
+  description?: string | null;
+
+  map_icon?: string | null;
+
+  location?: string | null;
+  geojson?: string | null;
+
 }
