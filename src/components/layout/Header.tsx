@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { NavLink as ReactLink, RouteComponentProps, withRouter } from 'react-router-dom';
 import {
   Collapse,
   Navbar,
@@ -6,109 +7,149 @@ import {
   NavbarBrand,
   Nav,
   NavItem,
-  NavLink } from 'reactstrap';
+  NavLink,
+  UncontrolledDropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem
+} from 'reactstrap';
+import { has } from 'lodash';
 
-import { Auth } from 'aws-amplify';
+import { AuthConsumer } from '../../providers/AuthProvider';
 
-export default class Header extends React.Component<{history: any}, {isAuthenticated: boolean, isOpen: boolean}> { // tslint:disable-line: no-any
+import 'styles/layout/_navigation.scss';
 
-  state: {isOpen: false, isAuthenticated: false};
+interface State {
+  isOpen: boolean;
+}
 
-  async componentDidMount() {
-    try {
-      if (await Auth.currentSession()) {
-        this.setState({ isAuthenticated: true });
-      }
-    } catch (e) {
-      if (e !== 'No current user') {
-        this.setState({ isAuthenticated: false });
-      }
-    }
-
-  }
-
-  constructor(props: any) { // tslint:disable-line: no-any
+class HeaderClass extends React.Component<RouteComponentProps, State> { // tslint:disable-line: no-any
+  constructor(props: RouteComponentProps) { // tslint:disable-line: no-any
     super(props);
 
-    this.props.history.listen(async (location: any) => { // tslint:disable-line: no-any
-      try {
-        if (await Auth.currentSession()) {
-          this.setState({ isAuthenticated: true });
-        }
-      } catch (e) {
-        if (e !== 'No current user') {
-          this.setState({ isAuthenticated: false });
-        }
-      }
-    });
-
-    this.toggle = this.toggle.bind(this);
     this.state = {
-      isAuthenticated: false,
       isOpen: false
     };
+
+    this.toggle = this.toggle.bind(this);
   }
+
   toggle() {
     this.setState({
       isOpen: !this.state.isOpen
     });
   }
 
-  async logout() {
-    try {
-      await Auth.signOut();
-      this.props.history.push('/');
-    } catch (e) {
-      alert(e.message);
-    }
+  AdminRoutes(): JSX.Element {
+    return (
+      <UncontrolledDropdown inNavbar nav>
+        <DropdownToggle nav caret>
+          Admin
+        </DropdownToggle>
+        <DropdownMenu>
+          <DropdownItem>
+            <NavItem>
+              <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/admin/Collections/">Collections</NavLink>
+            </NavItem>
+          </DropdownItem>
+          <DropdownItem>
+            <NavItem>
+              <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/admin/Items">Items</NavLink>
+            </NavItem>
+          </DropdownItem>
+
+          <DropdownItem divider />
+
+          <DropdownItem>
+            <NavItem>
+              <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/admin/People">People</NavLink>
+            </NavItem>
+          </DropdownItem>
+          <DropdownItem>
+            <NavItem>
+              <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/admin/PersonEntry">Person Metadata Entry</NavLink>
+            </NavItem>
+          </DropdownItem>
+          <DropdownItem>
+            <NavItem>
+              <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/admin/ManageUsers">Manage Users</NavLink>
+            </NavItem>
+          </DropdownItem>
+        </DropdownMenu>
+      </UncontrolledDropdown>
+    );
   }
+
+  ColllaboratorRoutes(): JSX.Element {
+    return (
+      <NavItem>
+        <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/items/upload">Items</NavLink>
+      </NavItem>
+    );
+  }
+
   render() {
     return (
-      <div className={'navigation'}>
-        <Navbar color="light" light expand="md">
-          <NavbarBrand href="/">TBA21</NavbarBrand>
-          <NavbarToggler onClick={this.toggle} />
-          <Collapse isOpen={this.state.isOpen} navbar>
-            <Nav className="ml-auto" navbar>
-              <NavItem>
-                <NavLink href="/">Home</NavLink>
-              </NavItem>
-              { this.state.isAuthenticated ?
-                <NavItem>
-                  <NavLink href="/itemEntry">Item Metadata Entry</NavLink>
-                </NavItem>
-                : ''
-              }
-              { this.state.isAuthenticated ?
-                <NavItem>
-                  <NavLink href="/PersonEntry">Person Metadata Entry</NavLink>
-                </NavItem>
-                : ''
-              }
+      <AuthConsumer>
+        {({ isAuthenticated, authorisation, logout }) => {
+          const isAdmin = (authorisation && Object.keys(authorisation).length &&  authorisation.hasOwnProperty('admin'));
+          return (
+            <div id="navigation">
+              <Navbar color="light" light expand="md">
+                <NavbarBrand href="/">TBA21</NavbarBrand>
+                <NavbarToggler onClick={this.toggle}/>
+                <Collapse isOpen={this.state.isOpen} navbar>
+                  <Nav className="ml-auto" navbar>
+                    <NavItem>
+                      <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/">Home</NavLink>
+                    </NavItem>
 
-              <NavItem>
-                <NavLink href="/view">View Items</NavLink>
-              </NavItem>
-              <NavItem>
-                <NavLink href="/map">Map View</NavLink>
-              </NavItem>
+                    {isAuthenticated && isAdmin ?
+                      <this.AdminRoutes />
+                      : <></>
+                    }
 
-              <NavItem>
-                <NavLink href="/viewGraph">View Items and People Graph</NavLink>
-              </NavItem>
-              { this.state.isAuthenticated ?
-                <NavItem>
-                  <NavLink href="/" onClick={() => { this.logout(); }}>Logout</NavLink>
-                </NavItem>
-                :
-                <NavItem>
-                  <NavLink href="/login">Login</NavLink>
-                </NavItem>
-              }
-            </Nav>
-          </Collapse>
-        </Navbar>
-      </div>
+                    {isAuthenticated && (has(authorisation, 'collaborator') || has(authorisation, 'editor') || has(authorisation, 'admin')) ?
+                      <this.ColllaboratorRoutes />
+                      : <></>
+                    }
+
+                    <NavItem>
+                      <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/view">View Items</NavLink>
+                    </NavItem>
+                    <NavItem>
+                      <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/map">Map View</NavLink>
+                    </NavItem>
+
+                    <NavItem>
+                      <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/viewGraph">View Items and People Graph</NavLink>
+                    </NavItem>
+
+                    {isAuthenticated ?
+                      <>
+                        <NavItem>
+                            <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/Profile">Profile</NavLink>
+                        </NavItem>
+                        <NavItem>
+                          <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/" onClick={logout}>
+                            Logout
+                          </NavLink>
+                        </NavItem>
+                      </>
+                      :
+                      <NavItem>
+                        <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/login">Login</NavLink>
+                      </NavItem>
+                    }
+                  </Nav>
+                </Collapse>
+              </Navbar>
+            </div>
+          );
+        }}
+      </AuthConsumer>
     );
   }
 }
+
+export const Header = withRouter(HeaderClass);

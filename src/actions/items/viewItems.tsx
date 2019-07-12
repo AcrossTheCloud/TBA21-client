@@ -1,0 +1,74 @@
+import { API } from 'aws-amplify';
+import { Item } from '../../types/Item';
+
+export const FETCH_ITEMS = 'FETCH_ITEMS';
+export const FETCH_MORE_ITEMS = 'FETCH_MORE_ITEMS';
+export const FETCH_ITEMS_NO_ITEMS = 'FETCH_ITEMS_NO_ITEMS';
+export const FETCH_ITEMS_ERROR = 'FETCH_ITEMS_ERROR';
+
+export const fetchItems = () => async dispatch => {
+
+  try {
+    const response = await API.get('tba21', 'items/get', {
+      queryStringParameters : {
+        limit: 2
+      }});
+    if (!response || response.items) {
+      dispatch({
+       type: FETCH_ITEMS_NO_ITEMS,
+       items: {},
+     });
+    }
+
+    let items: { [id: string]: Item } = {};
+
+    response.items.forEach( (item: Item) => {
+      Object.assign(items, { [item.s3_key]: item });
+    });
+
+    dispatch({
+       type: FETCH_ITEMS,
+       items: items,
+    });
+
+  } catch (e) {
+    dispatch({
+       type: FETCH_ITEMS_ERROR,
+       items: {},
+     });
+  }
+};
+
+export const fetchMoreItems = (offset: number) => async dispatch => {
+  try {
+    const response = await API.get('tba21', 'items/get', {
+      queryStringParameters : {
+        offset: offset,
+        limit: 2
+      }
+    });
+    if (!response || response.items) {
+      dispatch({
+       type: FETCH_ITEMS_NO_ITEMS,
+       items: {},
+     });
+    }
+
+    let items: { [id: string]: Item } = {};
+
+    response.items.forEach( (item: Item) => {
+      Object.assign(items, { [item.s3_key]: item });
+    });
+
+    dispatch({
+     type: FETCH_MORE_ITEMS,
+     items: items,
+   });
+
+  } catch (e) {
+    dispatch({
+       type: FETCH_ITEMS_ERROR,
+       items: {},
+     });
+  }
+};

@@ -1,18 +1,28 @@
-.dropzone {
+.dropzone_wrapper {
+  background-color: #c3e6cb;
+
+  .dropzone {
+    padding: 50px 0;
+    text-align: center;
+  }
+
   div {
     cursor: pointer;
   }
+
   ul {
     &.previewItems {
       padding: 0;
-      li{
+
+      li {
         list-style: none;
         display: inline-block;
         width: 20%;
         min-width: 165px;
         vertical-align: top;
         margin: .7em;
-        img{
+
+        img {
           width: 100%;
         }
       }
