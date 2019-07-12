@@ -32,61 +32,12 @@ export class ItemEditor extends React.Component<Props, State> {
     };
   }
 
-  async componentDidMount(): Promise<void> {
+  componentDidMount(): void {
     this._isMounted = true;
-
-    if (this.state.loadingRekognitionTags) {
-      await this.getItemRekognitionTags();
-    }
   }
 
-  getItemRekognitionTags = async () => {
-    let
-      counter = 6,
-      timeoutSeconds = 1000;
-
-    const doAPICall = async (): Promise<string[] | []> => {
-      return new Promise( resolve => {
-
-        const apiTimeout = setTimeout( async () => {
-          counter --;
-
-          try {
-            const response = await API.get('tba21', 'items/getRekognitionTags', {
-              queryStringParameters: {
-                s3key: this.state.item.s3_key
-              }
-            });
-
-            timeoutSeconds = timeoutSeconds * 1.2;
-
-            if (response.tags && response.tags.length) {
-              clearTimeout(apiTimeout);
-              return resolve(response.tags);
-            } else {
-              if (!counter) {
-                clearTimeout(apiTimeout);
-                return resolve([]);
-              } else {
-                return resolve(await doAPICall());
-              }
-            }
-          } catch (e) {
-            console.log('ERR - ', e);
-            return resolve([]);
-          }
-
-        }, timeoutSeconds);
-      });
-    };
-
-    try {
-      const results = await doAPICall();
-      this.setState({ loadingRekognitionTags: false, rekognitionTags: results });
-    } catch (e) {
-      this.setState({ loadingRekognitionTags: false });
-      console.log('ERROR -- ', e);
-    }
+  componentWillUnmount() {
+    this._isMounted = false;
   }
 
   getItemFile = async () => {
@@ -147,12 +98,12 @@ export class ItemEditor extends React.Component<Props, State> {
           <Col md="6">
             <FormGroup>
               <Label for="title">Title</Label>
-              <Input id="title" defaultValue={title ? title : ''} onChange={e => this.setState({ item: { ...this.state.item, title: e.target.value } })}/>
+              <Input id="title" defaultValue={title ? title : ''} onChange={e => this._isMounted ? this.setState({ item: { ...this.state.item, title: e.target.value } }) : false}/>
             </FormGroup>
 
             <FormGroup>
               <Label for="description">Description</Label>
-              <Input type="textarea" id="description" defaultValue={description ? description : ''} onChange={e => this.setState({ item: { ...this.state.item, description: e.target.value } })}/>
+              <Input type="textarea" id="description" defaultValue={description ? description : ''} onChange={e => this._isMounted ? this.setState({ item: { ...this.state.item, description: e.target.value } }) : false}/>
             </FormGroup>
 
             <FormGroup>
@@ -160,7 +111,7 @@ export class ItemEditor extends React.Component<Props, State> {
               <Input
                 type="select"
                 name="status"
-                onChange={e => this.setState({ item: { ...this.state.item, status: e.target.value === 'true' } })}
+                onChange={e => this._isMounted ? this.setState({ item: { ...this.state.item, status: e.target.value === 'true' } }) : false}
                 defaultValue={status ? 'true' : 'false'}
               >
                 <option value="false">Unpublished</option>
@@ -177,16 +128,13 @@ export class ItemEditor extends React.Component<Props, State> {
 
             <FormGroup>
               <Label for="keyword_tags">Keyword Tags</Label>
-              {this.state.loadingRekognitionTags ?
-                <div>Loading Tags</div> :
                 <Tags
                   className="keyword_tags"
                   type="keyword"
                   defaultValues={keywordTags}
-                  defaultOptionsStrings={this.state.rekognitionTags}
-                  callback={tagIds => this.setState({ item: { ...this.state.item, keyword_tags: tagIds ? tagIds : [] } })}
+                  loadItemRekognitionTags={this.state.item.s3_key}
+                  callback={tagIds => this._isMounted ? this.setState({ item: { ...this.state.item, keyword_tags: tagIds ? tagIds : [] } }) : false}
                 />
-              }
             </FormGroup>
           </Col>
 
@@ -198,7 +146,7 @@ export class ItemEditor extends React.Component<Props, State> {
 
             <FormGroup>
               <Label for="location">Location</Label>
-              <Select id="location" options={oceans} value={country_or_ocean ? {value: country_or_ocean, label: country_or_ocean} : []} onChange={e => this.setState({ item: { ...this.state.item, country_or_ocean: e.label  } })} isSearchable/>
+              <Select id="location" options={oceans} value={country_or_ocean ? {value: country_or_ocean, label: country_or_ocean} : []} onChange={e => this._isMounted ? this.setState({ item: { ...this.state.item, country_or_ocean: e.label  } }) : false} isSearchable/>
             </FormGroup>
 
             <FormGroup>
@@ -218,7 +166,7 @@ export class ItemEditor extends React.Component<Props, State> {
 
             <FormGroup>
               <Label for="license_type">License</Label>
-              <Select id="license_type" options={licenseType} value={license ? {value: license, label: license} : []} onChange={e => this.setState({ item: { ...this.state.item, license: e.label  } })} isSearchable/>
+              <Select id="license_type" options={licenseType} value={license ? {value: license, label: license} : []} onChange={e => this._isMounted ? this.setState({ item: { ...this.state.item, license: e.label  } }) : false} isSearchable/>
             </FormGroup>
 
             <Button onClick={this.updateItem}>Update</Button>

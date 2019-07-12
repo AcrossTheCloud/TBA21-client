@@ -14,7 +14,8 @@ interface State {
   selectedTags: Tag[];
   defaultValues?: Tag[] | [];
   isLoading: boolean;
-  rekognitionTags: Tag[];
+
+  rekognitionTags: Tag[] | [];
 }
 
 interface Props {
@@ -22,10 +23,11 @@ interface Props {
 
   defaultValues?: Tag[] | [];
   defaultOptions?: Tag[];
-  defaultOptionsStrings?: string[];
 
   type: 'concept' | 'keyword';
   callback?: Function;
+
+  loadItemRekognitionTags?: string; // the items s3_key
 }
 
 class Tags extends React.Component<Props, State> {
@@ -34,22 +36,75 @@ class Tags extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { defaultOptionsStrings, defaultValues } = this.props;
-
-    let rekognitionTags: Tag[] = [];
-    if (defaultOptionsStrings && defaultOptionsStrings.length) {
-      rekognitionTags = defaultOptionsStrings.map( t => ( { value: t, label: t} ));
-    }
+    const { loadItemRekognitionTags, defaultValues } = this.props;
 
     this.state = {
       tags: [],
       selectedTags: [],
       defaultValues: defaultValues ? defaultValues : [],
-      isLoading: false,
-      rekognitionTags: rekognitionTags
+      isLoading: !!loadItemRekognitionTags,
+      rekognitionTags: []
     };
 
     console.log(defaultValues, 'defaultValues');
+  }
+
+  componentDidMount(): void {
+    const { loadItemRekognitionTags } = this.props;
+
+    if (loadItemRekognitionTags) {
+      this.getItemRekognitionTags(loadItemRekognitionTags);
+    }
+
+  }
+
+  getItemRekognitionTags = async (s3key: string) => {
+    let
+      counter = 6,
+      timeoutSeconds = 1000;
+
+    const doAPICall = async (): Promise<string[]> => {
+      return new Promise( resolve => {
+
+        const apiTimeout = setTimeout( async () => {
+          counter --;
+
+          try {
+            const response = await API.get('tba21', 'items/getRekognitionTags', {
+              queryStringParameters: {
+                s3key: s3key
+              }
+            });
+
+            timeoutSeconds = timeoutSeconds * 1.2;
+
+            if (response.tags && response.tags.length) {
+              clearTimeout(apiTimeout);
+              return resolve(response.tags);
+            } else {
+              if (!counter) {
+                clearTimeout(apiTimeout);
+                return resolve([]);
+              } else {
+                return resolve(await doAPICall());
+              }
+            }
+          } catch (e) {
+            console.log('ERR - ', e);
+            return resolve([]);
+          }
+
+        }, timeoutSeconds);
+      });
+    };
+
+    try {
+      const results = await doAPICall();
+      this.setState({ isLoading: false, rekognitionTags: results.map( t => ( { value: t, label: t} )) });
+    } catch (e) {
+      this.setState({ isLoading: false });
+      console.log('ERROR -- ', e);
+    }
   }
 
   loadTags = async (inputValue: string) => {
@@ -93,7 +148,7 @@ class Tags extends React.Component<Props, State> {
     return results.tags.map( t => ({ id: t.id, value: t.id, label: t.tag_name}) );
   }
 
-  onChange = async (tagsList: any, actionMeta: any) => {
+  onChange = async (tagsList: any, actionMeta: any) => { // tslint:disable-line: no-any
 
     if (actionMeta.action === 'clear') {
       this.setState({ selectedTags: [] });
