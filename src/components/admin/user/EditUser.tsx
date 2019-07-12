@@ -367,7 +367,6 @@ export default class EditUser extends React.Component<{}, State> {
     const
       cognitioGroups = this.state.cognitioGroups,
       userGroups = this.state.userGroups;
-
     if (this.state.groupsLoading) {
       return <>Loading User Groups</>;
     }
@@ -401,8 +400,7 @@ export default class EditUser extends React.Component<{}, State> {
    *
    */
   loadGroups = async (userId: string): Promise<void> => {
-    let
-      cognitioGroups: GroupData[] = [];
+    let cognitioGroups: GroupData[] = [];
 
     const error = (message: string): void => {
       this.setState({
@@ -447,13 +445,11 @@ export default class EditUser extends React.Component<{}, State> {
    * @return {Promise<GroupData[]> {void}
    */
   getGroups = async (nextToken?: string): Promise<GroupData[] | void> => {
-    // https://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/API_ListGroups.html
     let params = {
         UserPoolId: this.userPoolId,
         Limit: 60
       },
       groups: GroupData[] = [];
-
     // Set the token in the params if we have one.
     if (nextToken !== undefined) {
       Object.assign(params, { NextToken: nextToken });
@@ -507,7 +503,6 @@ export default class EditUser extends React.Component<{}, State> {
     if (nextToken !== undefined) {
       Object.assign(params, { NextToken: nextToken });
     }
-
     try {
       const usersGroups = await this.cognitoIdentityServiceProvider.adminListGroupsForUser(params).promise();
 
@@ -541,7 +536,7 @@ export default class EditUser extends React.Component<{}, State> {
   }
   /**
    *
-   * Detects if a group checkbox has been changed and stores it so we can save the users attributes late.
+   * Detects if a group checkbox has been changed and stores it so we can save the users attributes later.
    *
    * On groupCheckbox change add it to state
    * Otherwise remove it

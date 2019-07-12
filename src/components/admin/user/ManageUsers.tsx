@@ -12,7 +12,7 @@ import {
   PopoverBody
 } from 'reactstrap';
 import { connect } from 'react-redux';
-import { FaSync, FaPenAlt, FaKey } from 'react-icons/fa';
+import { FaSync, FaPenAlt, FaKey, FaUserPlus } from 'react-icons/fa';
 
 import EditUser from './EditUser';
 import { loadMore } from 'actions/admin/user/manageUsers';
@@ -23,6 +23,7 @@ import { User } from 'types/User';
 import { ErrorMessage } from '../../utils/alerts';
 
 import 'styles/components/admin/user/manageUsers.scss';
+import { AddUser } from './AddUser';
 
 export interface Props {
   errorMessage?: string | undefined;
@@ -34,24 +35,24 @@ export interface Props {
 }
 
 interface State {
-  resetPasswordModalIsOpen: boolean;
   isLoading: boolean;
 }
 
 class ManageUsers extends React.Component<Props, State> {
   editUsersRef;
   resetUserPasswordRef;
+  addUserRef;
   columns;
 
   constructor(props: Props) {
     super(props);
     this.state = {
-      isLoading: !this.props.users.length,
-      resetPasswordModalIsOpen: false,
+      isLoading: !this.props.users.length
     };
 
     this.editUsersRef = React.createRef();
     this.resetUserPasswordRef = React.createRef();
+    this.addUserRef = React.createRef();
 
     this.columns = [
       {
@@ -128,6 +129,7 @@ class ManageUsers extends React.Component<Props, State> {
         {/* START MODALS */}
         <EditUser ref={this.editUsersRef} />
         <AdminResetPassword ref={this.resetUserPasswordRef} />
+        <AddUser ref={this.addUserRef} />
         {/* END MODALS */}
 
         <div className="list">
@@ -153,10 +155,12 @@ class ManageUsers extends React.Component<Props, State> {
                 <option>50</option>
               </Input>
             </Col>
-
-            <Col xs="6" sm={{size: 2, offset: 8}}>
+            <Col xs="6" sm={{size: 2, offset: 8}} className="py-2">
               <Button color="secondary" className="float-right" onClick={() => { this.setState({ isLoading: true }); this.props.loadMore(this.props.limit, undefined, true); }}>
                 <FaSync />
+              </Button>
+              <Button color="secondary" className="float-right mr-2" onClick={() => this.addUserRef.current.addUserModalToggle()} >
+                <FaUserPlus />
               </Button>
             </Col>
           </Row>
