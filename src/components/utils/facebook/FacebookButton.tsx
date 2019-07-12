@@ -100,7 +100,7 @@ class FacebookButton extends React.Component<Props, State> {
         >
           Sign up with Facebook
         </Button>
-          <WarningMessage message="Please enter your details as we were unable to retrieve them from Facebook."/>
+          {this.state.errorMessage ? <WarningMessage message="Please enter your details as we were unable to retrieve them from Facebook."/> : <></>}
         </>
       );
     } else if (this.state.sdkLoaded) {
