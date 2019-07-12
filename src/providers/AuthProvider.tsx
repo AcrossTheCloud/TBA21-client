@@ -1,11 +1,9 @@
 import * as React from 'react';
 import { Auth } from 'aws-amplify';
-import { Authorisation, AuthorisationList, checkAuth } from '../components/utils/Auth';
+import { Authorisation, checkAuth } from '../components/utils/Auth';
 
-interface State {
+interface State extends Authorisation {
   isLoading: boolean;
-  isAuthenticated: boolean;
-  authorisation?: AuthorisationList;
 }
 export interface Props {
   history: any; // tslint:disable-line: no-any
@@ -35,8 +33,12 @@ export class AuthProvider extends React.Component<Props, State> {
 
   async componentDidMount(): Promise<void> {
     if (!this.state.isAuthenticated) {
-      const auth = await checkAuth();
-      this.setState(prevState => ({...prevState, ...auth, isLoading: false}));
+      try {
+        const auth = await checkAuth(true);
+        this.setState(prevState => ({...prevState, ...auth, isLoading: false}));
+      } catch (e) {
+        await this.logout();
+      }
     }
   }
 

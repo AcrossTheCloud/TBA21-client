@@ -83,7 +83,7 @@ export class SignUp extends React.Component<{}, State> {
    */
   handleSubmit = async (event: React.FormEvent): Promise<void> => {
     event.preventDefault();
-    this.setState({ errorMessage: '', isLoading: true });
+    this.setState({ errorMessage: undefined, isLoading: true });
 
     try {
       const newUser = await Auth.signUp({
@@ -98,7 +98,7 @@ export class SignUp extends React.Component<{}, State> {
       } else if (e.code === 'InvalidPasswordException') {
         this.setState({ errorMessage: 'Your password does not meet our requirements.' });
       } else {
-        this.setState({ errorMessage: 'We\'ve had a bit of a technical issue.' });
+        this.setState({ errorMessage: e });
       }
     }
 

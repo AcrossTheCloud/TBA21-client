@@ -13,6 +13,7 @@ import {
   DropdownMenu,
   DropdownItem
 } from 'reactstrap';
+import { has } from 'lodash';
 
 import { AuthConsumer } from '../../providers/AuthProvider';
 
@@ -79,6 +80,14 @@ class HeaderClass extends React.Component<RouteComponentProps, State> { // tslin
     );
   }
 
+  ColllaboratorRoutes(): JSX.Element {
+    return (
+      <NavItem>
+        <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/items/upload">Items</NavLink>
+      </NavItem>
+    );
+  }
+
   render() {
     return (
       <AuthConsumer>
@@ -97,6 +106,11 @@ class HeaderClass extends React.Component<RouteComponentProps, State> { // tslin
 
                     {isAuthenticated && isAdmin ?
                       <this.AdminRoutes />
+                      : <></>
+                    }
+
+                    {isAuthenticated && (has(authorisation, 'collaborator') || has(authorisation, 'editor') || has(authorisation, 'admin')) ?
+                      <this.ColllaboratorRoutes />
                       : <></>
                     }
 

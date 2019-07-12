@@ -19,7 +19,7 @@ interface State {
   suggestions: Tag[];
 }
 
-export interface Tag {
+interface Tag {
   id: string;
   text: string;
 }

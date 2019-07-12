@@ -26,11 +26,11 @@ export const fetchMarkers = (id: number) => async dispatch => {
           }
         }
 
-        if (item.icon && item.icon.length > 0) {
-          markerData.icon = item.icon;
+        if (item.map_icon && item.map_icon.length > 0) {
+          markerData.icon = item.map_icon;
         }
 
-        Object.assign(responseMarkers, { [item.id]: markerData });
+        Object.assign(responseMarkers, { [item.s3_key]: markerData });
       });
     }
 

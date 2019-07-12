@@ -15,7 +15,6 @@ import { Item } from '../../types/Item';
 
 interface Props extends Alerts {
   fetchItem: Function;
-  itemId: string;
   item: Item;
 }
 
@@ -75,7 +74,7 @@ const ItemDisplay = (props) => {
           );
         });
 
-        return <>Tags: {items}</>;
+        return <>Cocnept Tags: {items}</>;
       } else { return <></>; }
     };
 
@@ -134,6 +133,7 @@ class ViewItem extends React.Component<Props, State> {
     super(props);
 
     // Get our itemId passed through from URL props
+    console.log('MATCH', props.match);
     if (props.match && props.match.params && props.match.params.itemId) {
       this.matchedItemId = props.match.params.itemId;
     }
@@ -144,7 +144,7 @@ class ViewItem extends React.Component<Props, State> {
     if (this.matchedItemId) {
       this.props.fetchItem(this.matchedItemId);
     } else {
-      this.props.fetchItem(this.props.itemId);
+      this.setState({ errorMessage: 'No item with that id.' });
     }
   }
 
@@ -166,7 +166,6 @@ class ViewItem extends React.Component<Props, State> {
 const mapStateToProps = (state: { viewItem: State }) => { // tslint:disable-line: no-any
   return {
     errorMessage: state.viewItem.errorMessage,
-    itemId: state.viewItem.itemId,
     item: state.viewItem.item
   };
 };

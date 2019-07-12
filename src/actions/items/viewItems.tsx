@@ -23,7 +23,7 @@ export const fetchItems = () => async dispatch => {
     let items: { [id: string]: Item } = {};
 
     response.items.forEach( (item: Item) => {
-      Object.assign(items, { [item.id]: item });
+      Object.assign(items, { [item.s3_key]: item });
     });
 
     dispatch({
@@ -57,7 +57,7 @@ export const fetchMoreItems = (offset: number) => async dispatch => {
     let items: { [id: string]: Item } = {};
 
     response.items.forEach( (item: Item) => {
-      Object.assign(items, { [item.id]: item });
+      Object.assign(items, { [item.s3_key]: item });
     });
 
     dispatch({

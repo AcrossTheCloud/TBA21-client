@@ -28,18 +28,23 @@ export const logout = async () => {
  * Checks the authentication status of the user and the user group they belong to
  * @return Object, {authorisation {Array<string>}, isAuthenticated {boolean}}
  */
-export const checkAuth = async (): Promise<Authorisation> => {
+export const checkAuth = async (bypassCache: boolean = false): Promise<Authorisation> => {
   try {
-    const
-      userGroups = get(await Auth.currentAuthenticatedUser(), 'signInUserSession.idToken.payload.cognito:groups'),
-      authorisation = {};
+    const currentUser = await Auth.currentAuthenticatedUser({ bypassCache: bypassCache });
+    if (currentUser) {
+      const
+        userGroups = get(currentUser, 'signInUserSession.idToken.payload.cognito:groups'),
+        authorisation = {};
 
-    if (userGroups && userGroups.length) {
-      userGroups.forEach( (group: string)  => {
-        authorisation[group] = true;
-      });
+      if (userGroups && userGroups.length) {
+        userGroups.forEach( (group: string)  => {
+          authorisation[group] = true;
+        });
+      }
+      return Object.keys(authorisation).length ? { authorisation: authorisation, isAuthenticated: true } : { isAuthenticated: true };
+    } else {
+      return { isAuthenticated: false };
     }
-    return Object.keys(authorisation).length ? { authorisation: authorisation, isAuthenticated: true } : { isAuthenticated: true };
   } catch (e) {
     if (e !== 'not authenticated') {
       console.log('checkAuth -- ERROR -- ', e);
