@@ -35,11 +35,10 @@ interface State extends Alerts {
 interface GroupData {
   name: string;
 }
-const initialState = {
+const initialState: State = {
   isOpen: false,
   groupsLoading: false,
   userEmail: '',
-  username: '',
   userAttributes: [],
   cognitioGroups: [],
   groups: [],
