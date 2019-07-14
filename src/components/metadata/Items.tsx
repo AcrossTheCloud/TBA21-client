@@ -8,7 +8,7 @@ import { ItemEditor } from './ItemEditor';
 
 interface Props {
   callback?: Function;
-  items?: string[];
+  items?: Item[];
 }
 
 interface State {
@@ -51,11 +51,31 @@ export class Items extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
+    let propItems: ItemsObject = {};
+    // If we have items from props, put them into the items state
+    if (this.props.items && this.props.items.length) {
+      this.props.items.forEach( (item: Item) => {
+        Object.assign(propItems, {
+          [item.s3_key]: {
+            loaded: true,
+            isLoading: false,
+            details: item
+          }
+        });
+      });
+    }
+
     this.state = {
-      items: {}
+      items: propItems
     };
   }
 
+  /**
+   *
+   * A response s3key from the FileUpload component
+   *
+   * @param s3Key { string }
+   */
   fileUploadCallback = async (s3Key: string): Promise<void> => {
     const items: ItemsObject = {};
 
@@ -71,6 +91,14 @@ export class Items extends React.Component<Props, State> {
     this.loadItem(s3Key);
   }
 
+  /**
+   * Get the item from the database by s3key, assign it to ItemObject
+   * Set the loaded flag to true and isLoading to false and the details of the item from the db
+   *
+   * If we have a callback set as props, call it. (See CollectionsEditor)
+   *
+   * @param s3Key { string }
+   */
   loadItem = async (s3Key: string) => {
     const items: ItemsObject = {};
     try {
