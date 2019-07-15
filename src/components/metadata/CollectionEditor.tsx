@@ -194,7 +194,7 @@ export class CollectionEditor extends React.Component<Props, State> {
                   <Select id="license_type" options={licenseType} value={license ? {value: license, label: license} : []} onChange={e => this.setState({ collection: { ...this.state.collection, license: e.label  } })} isSearchable/>
                 </FormGroup>
 
-                <Button onClick={this.putCollection}>Create</Button>
+                <Button onClick={this.putCollection}>{this.props.editMode ? 'Update' : 'Create'}</Button>
               </Col>
             </Row>
           </Form>

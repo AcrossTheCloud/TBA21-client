@@ -98,7 +98,7 @@ export default class Items extends React.Component<{}, State> {
       if (!this._isMounted) { return; }
       return {
         items: response.items,
-        totalSize: parseInt(response.items[0].count, 0)
+        totalSize: response.items[0] && response.items[0].count ? parseInt(response.items[0].count, 0) : 0
       };
 
     } catch (e) {

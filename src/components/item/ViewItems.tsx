@@ -10,6 +10,7 @@ import { fetchItems, fetchMoreItems } from '../../actions/items/viewItems';
 import { State } from '../../reducers/items/viewItems';
 
 import 'styles/components/ViewItems.scss';
+import { sdkGetObject } from '../utils/s3File';
 
 interface Props extends Alerts {
   fetchItems: Function;
@@ -19,31 +20,34 @@ interface Props extends Alerts {
   };
 }
 
-const Masonry = ( props: { items: {[id: number]: Item} } ) => {
-  const items: JSX.Element[] = [];
+const MasonryItem = ( props: { item: Item } ): JSX.Element => {
+  const [ item, setItem ] = React.useState(props.item);
 
-  Object.entries(props.items).forEach( ([s3key, item]) => {
-    items.push(
-      <Card key={s3key}>
-        <Link
-          // to={`/view/${s3key.split('/').slice(2).join('/')}`} // remove /private/UUID
-          to={`/view/${s3key}`}
-          className="item"
-        >
-          <CardImg src={`https://place-hold.it/${Math.floor(Math.random() * 500) + 300}x500`}/>
-          <CardBody>
-            <CardTitle>{item.title}</CardTitle>
-            <CardText>{item.description}</CardText>
-          </CardBody>
-        </Link>
-      </Card>
-    );
-  });
+  React.useEffect(() => {
+    const getFile = async (key: string) => {
+      const result = await sdkGetObject(props.item.s3_key);
+      if (result && result.blobURL && result.type) {
+        setItem({ ...props.item, file: result });
+      }
+    };
+
+    getFile(props.item.s3_key);
+  }, [ props.item ]);
 
   return (
-    <CardColumns>
-      {items}
-    </CardColumns>
+    <Card>
+      <Link
+        // to={`/view/${props.items.s3_key.split('/').slice(2).join('/')}`} // remove /private/UUID
+        to={`/view/${item.s3_key}`}
+        className="item"
+      >
+        {item.file && item.file.blobURL && item.file.type === 'image' ? <CardImg src={item.file.blobURL}/> : <></>}
+        <CardBody>
+          <CardTitle>{item.title}</CardTitle>
+          <CardText>{item.description}</CardText>
+        </CardBody>
+      </Link>
+    </Card>
   );
 };
 
@@ -64,7 +68,12 @@ class ViewItems extends React.Component<Props, {}> { // tslint:disable-line: no-
     const itemsLength = Object.keys(this.props.items).length;
     return (
       <Container id="viewItems">
-        <Masonry items={this.props.items} />
+        <CardColumns>
+          {
+            Object.entries(this.props.items).map( ([key, item]) => <MasonryItem key={item.s3_key} item={item} /> )
+          }
+        </CardColumns>
+
         {
           itemsLength && Object.keys(this.props.items).length < Object.values(this.props.items)[0].count ?
             <Button
