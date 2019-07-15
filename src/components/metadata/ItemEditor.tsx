@@ -1,12 +1,13 @@
 import * as React from 'react';
 import { Button, Col, Form, FormGroup, Input, Label, Row } from 'reactstrap';
 
-import { API, Storage } from 'aws-amplify';
+import { API } from 'aws-amplify';
 import Select from 'react-select';
 
 import { Item } from '../../types/Item';
 import { itemTextSubTypes, licenseType, oceans } from './SelectOptions';
 import Tags from './Tags';
+import { storageGet } from '../utils/s3File';
 
 interface Props {
   item: Item;
@@ -43,13 +44,15 @@ export class ItemEditor extends React.Component<Props, State> {
   getItemFile = async (): Promise<void> => {
     try {
       let element;
+
       const
         key = this.state.item.s3_key.split('/').slice(2).join('/'),
-        result: any = await Storage.get(key, {level: 'private', download: true}); // tslint:disable-line: no-any
+        result = await storageGet(key);
 
-      if (result.ContentType.includes('image')) {
-        const blob = new Blob([ result.Body ], { type: result.ContentType });
-        element = <img className="img-fluid" src={window.URL.createObjectURL(blob)} alt={this.state.item.title ? this.state.item.title : this.state.item.s3_key}/>;
+      if (result && result.blobURL) {
+        if (result.type === 'image') {
+          element = <img className="img-fluid" src={result.blobURL} alt={this.state.item.title ? this.state.item.title : this.state.item.s3_key}/>;
+        }
       }
 
       if (element) {

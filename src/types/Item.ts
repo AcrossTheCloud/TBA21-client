@@ -1,6 +1,7 @@
 import { User } from './User';
 import { Ocean } from './Ocean';
 import { License } from './License';
+import { S3File } from './s3File';
 
 export interface APITag {
   id: number;
@@ -12,6 +13,8 @@ export interface Item {
 
   s3_key: string;
   sha512: string | null;
+
+  file?: S3File;
 
   exif: {  [name: string]: any } | null; // tslint:disable-line: no-any
   machine_recognition_tags: { [name: string]: any } | null; // tslint:disable-line: no-any

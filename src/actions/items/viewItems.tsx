@@ -22,14 +22,14 @@ export const fetchItems = () => async dispatch => {
 
     let items: { [id: string]: Item } = {};
 
-    response.items.forEach( (item: Item) => {
+    response.items.forEach( async (item: Item) => {
       Object.assign(items, { [item.s3_key]: item });
     });
 
     dispatch({
-       type: FETCH_ITEMS,
-       items: items,
-    });
+     type: FETCH_ITEMS,
+     items: items,
+   });
 
   } catch (e) {
     dispatch({
