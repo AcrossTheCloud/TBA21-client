@@ -80,7 +80,7 @@ export const AppRouter = () => {
     <AuthProvider history={history}>
       <Provider store={store}>
         <Router history={history}>
-          <div>
+          <div className="min-vh-100 d-flex flex-column">
             <Route path="/" render={() => <App />} />
 
             <Route exact path="/" component={Home} />
