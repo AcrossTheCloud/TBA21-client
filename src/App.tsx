@@ -24,8 +24,9 @@ class TheApp extends React.Component<RouteComponentProps, State> {
         {
           // Only show the logo on / (home)
           this.props.location.pathname === '/' ?
-          <Logo loaded={this.state.logoLoaded} onChange={() => this.setState({ logoLoaded: true })}/> :
-          <></>
+            <Logo loaded={this.state.logoLoaded} onChange={() => this.setState({ logoLoaded: true })}/>
+            :
+            <></>
         }
       </>
     );

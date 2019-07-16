@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, CSSProperties } from 'react';
 import $ from 'jquery';
 
 import 'styles/layout/logo.scss';
@@ -13,9 +13,15 @@ interface State {
   loaded: boolean;
 }
 
+const logoNormalStyling: CSSProperties = {
+  height: '43px'
+};
+
 export default class Logo extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
+
+    console.log('this.props.loaded', this.props.loaded);
 
     this.state = {
       loaded: this.props.loaded || false
@@ -33,9 +39,11 @@ export default class Logo extends Component<Props, State> {
       }, 2750);
 
       setTimeout(() => {
-        $('#logo').animate({ height: '43px' }, 1000, () => {
+        $('#logo').animate( logoNormalStyling, 1000, () => {
           $('body').addClass('logoLoaded');
           $('#logo').addClass('loaded');
+
+          this.setState({ loaded: true });
         });
 
 
@@ -50,7 +58,7 @@ export default class Logo extends Component<Props, State> {
     const { loaded } = this.state;
 
     return (
-      <div id="logo">
+      <div id="logo" className={loaded ? 'loaded' : ''} style={loaded ? logoNormalStyling : {}}>
         <header>
           <div className={`left show ${loaded ? 'init' : ''}`}>
             <img src={logo} alt="Ocean Archive" />
