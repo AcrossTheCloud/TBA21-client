@@ -4,7 +4,6 @@ import { Router, Redirect } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { has } from 'lodash';
 
-import { App } from './App';
 import history from './history';
 import store from './store';
 
@@ -80,9 +79,7 @@ export const AppRouter = () => {
     <AuthProvider history={history}>
       <Provider store={store}>
         <Router history={history}>
-          <div className="min-vh-100 d-flex flex-column">
-            <Route path="/" render={() => <App />} />
-
+          <div id="body" className="fixed">
             <Route exact path="/" component={Home} />
             <Route exact path="/view" component={ViewItems} />
             <Route path="/view/:itemId" component={ViewItem} />

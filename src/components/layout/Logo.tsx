@@ -1,27 +1,21 @@
-import React, { Component, CSSProperties } from 'react';
+import React, { Component } from 'react';
 import $ from 'jquery';
 
 import 'styles/layout/logo.scss';
 import logo from 'images/logo/oa_web_white.svg';
 
 interface Props {
-  onChange?: Function;
-  loaded?: boolean;
+  onChange: Function;
+  loaded: boolean;
 }
 
 interface State {
   loaded: boolean;
 }
 
-const logoNormalStyling: CSSProperties = {
-  height: '43px'
-};
-
 export default class Logo extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-
-    console.log('this.props.loaded', this.props.loaded);
 
     this.state = {
       loaded: this.props.loaded || false
@@ -39,13 +33,8 @@ export default class Logo extends Component<Props, State> {
       }, 2750);
 
       setTimeout(() => {
-        $('#logo').animate( logoNormalStyling, 1000, () => {
-          $('body').addClass('logoLoaded');
-          $('#logo').addClass('loaded');
-
-          this.setState({ loaded: true });
-        });
-
+        $('#body').removeClass('fixed').addClass('logoLoaded');
+        this.setState({ loaded: true });
 
         if (this.props.onChange && typeof this.props.onChange === 'function') {
           this.props.onChange();
@@ -58,7 +47,7 @@ export default class Logo extends Component<Props, State> {
     const { loaded } = this.state;
 
     return (
-      <div id="logo" className={loaded ? 'loaded' : ''} style={loaded ? logoNormalStyling : {}}>
+      <div id="logo" className={loaded ? 'loaded' : ''}>
         <header>
           <div className={`left show ${loaded ? 'init' : ''}`}>
             <img src={logo} alt="Ocean Archive" />

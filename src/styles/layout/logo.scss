@@ -1,36 +1,25 @@
-body.logoLoaded {
-  #logo {
-    header {
-      transform: translate3d(0,0,0);
-    }
-  }
-}
-
 #logo {
   background: #fff;
-  height: 100vh;
   width: 100%;
-  top: 0;
-  left: 0;
-  position: absolute;
+  height: 100vh;
+  transform: translate3d(0, calc(-50% - 43px) ,0);
+  transition: transform .5s cubic-bezier(0.22, 0.61, 0.36, 1), opacity .2s linear;
+
   &.loaded {
-    position: relative;
-  }
-  header {
-    position: sticky;
-    backface-visibility: hidden;
-    top: 50%;
-    left: 0;
-    width: 100%;
+    transform: translate3d(0,0,0);
     height: 43px;
+  }
+
+  header {
+    width: 100%;
+
+    backface-visibility: hidden;
     z-index: 11;
     background-color: transparent;
     mix-blend-mode: difference;
     overflow-x: hidden;
     //filter: invert(1);
     //transform: translate3d(0,-30vw,0);
-    transform: translateY(-50%);
-    transition: transform .5s cubic-bezier(0.22, 0.61, 0.36, 1), opacity .2s linear;
 
     .left {
       left: 0;

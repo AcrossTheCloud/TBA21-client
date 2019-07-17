@@ -5,6 +5,7 @@ import { has } from 'lodash';
 import { FileUpload } from './FileUpload';
 import { Item } from '../../types/Item';
 import { ItemEditor } from './ItemEditor';
+import { AudioPlayer } from 'components/utils/AudioPlayer';
 
 interface Props {
   callback?: Function;
@@ -165,6 +166,13 @@ export class Items extends React.Component<Props, State> {
   render() {
     return (
       <>
+
+        TEST
+        {
+          // todo-dan remove
+        }
+        <AudioPlayer file="https://archive.org/download/testmp3testfile/mpthreetest.mp3" />
+
         <FileUpload callback={this.fileUploadCallback} />
 
         <div className="container-fluid">

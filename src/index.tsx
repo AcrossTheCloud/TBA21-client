@@ -1,8 +1,8 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { AppRouter } from './router';
 import Amplify from 'aws-amplify';
 
+import { AppRouter } from './router';
 import config from './config.js';
 
 import 'bootstrap/dist/css/bootstrap.css';
