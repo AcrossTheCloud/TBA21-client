@@ -1,7 +1,9 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
+import { Button } from 'reactstrap';
 
+import { AuthConsumer } from '../providers/AuthProvider';
 import { logoDispatch } from 'actions/home';
 import { Header } from 'components/layout/Header';
 
@@ -30,6 +32,16 @@ class HomePage extends React.Component<Props, {}> {
       <div id="home" className="flex-fill">
 
         <section id="header">
+
+          <AuthConsumer>
+            {({ isAuthenticated, logout }) => (
+              isAuthenticated ?
+                <Button color="link" onClick={() => logout()}><span className="simple-icon-logout"/> Logout</Button>
+                :
+                <Button color="link" tag={Link} to="/login"><span className="simple-icon-login"/> Login</Button>
+            )}
+          </AuthConsumer>
+
           <Header/>
           Hello
         </section>

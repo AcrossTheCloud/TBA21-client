@@ -5,6 +5,8 @@
   transform: translate3d(0, calc(-50% - 43px) ,0);
   transition: transform .5s cubic-bezier(0.22, 0.61, 0.36, 1), opacity .2s linear;
 
+  overflow-x: hidden;
+
   &.loaded {
     transform: translate3d(0,0,0);
     height: 43px;
