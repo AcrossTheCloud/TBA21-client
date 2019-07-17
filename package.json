@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "aws-amplify": "^1.1.27",
-    "aws-amplify-react": "^2.3.7",
-    "aws-sdk": "^2.450.0",
+    "aws-amplify": "^1.1.30",
+    "aws-amplify-react": "^2.3.10",
+    "aws-sdk": "^2.493.0",
     "bootstrap": "^4.3.1",
     "filereader": "^0.10.3",
     "jquery": "^3.4.1",
