@@ -75,11 +75,12 @@ const AdminRoutes = ({authorisation, ...rest}) => {
 };
 
 export const AppRouter = () => {
+  const currentLocation = window.location.pathname;
   return (
     <AuthProvider history={history}>
       <Provider store={store}>
         <Router history={history}>
-          <div id="body" className="fixed">
+          <div id="body" className={currentLocation === '/' ? 'fixed' : ''}>
             <Route exact path="/" component={Home} />
             <Route exact path="/view" component={ViewItems} />
             <Route path="/view/:itemId" component={ViewItem} />

@@ -8,14 +8,19 @@ import { Item } from '../../types/Item';
 import { itemTextSubTypes, licenseType, oceans } from './SelectOptions';
 import Tags from './Tags';
 import { storageGet } from '../utils/s3File';
+import { Alerts, ErrorMessage, SuccessMessage } from '../utils/alerts';
+
+
+import 'styles/components/metadata/itemEditor.scss';
 
 interface Props {
   item: Item;
 }
 
-interface State {
+interface State extends Alerts{
   item: Item;
   filePreview?: JSX.Element;
+  isLoading: boolean;
 }
 
 export class ItemEditor extends React.Component<Props, State> {
@@ -27,7 +32,8 @@ export class ItemEditor extends React.Component<Props, State> {
     this._isMounted = false;
 
     this.state = {
-      item: props.item
+      item: props.item,
+      isLoading: true
     };
   }
 
@@ -42,9 +48,9 @@ export class ItemEditor extends React.Component<Props, State> {
   }
 
   getItemFile = async (): Promise<void> => {
-    try {
-      let element;
+    let element;
 
+    try {
       const
         key = this.state.item.s3_key.split('/').slice(2).join('/'),
         result = await storageGet(key);
@@ -55,37 +61,62 @@ export class ItemEditor extends React.Component<Props, State> {
         }
       }
 
-      if (element) {
-        this.setState({ filePreview: element });
-      }
-
     } catch (e) {
       console.log('getItemFile', e);
+    } finally {
+      const state = {
+        isLoading: false
+      };
+      if (element) {
+        Object.assign(state, { filePreview: element });
+      }
+
+      this.setState(state);
     }
   }
 
   updateItem = async () => {
-    const itemsProperties = {};
+    this.setState({ isLoading: true });
 
-    Object.entries(this.state.item)
-      .filter( ([key, value]) => {
-         return !(
-           value === null ||
-           key === 'count' || key === 'image_hash' || key === 'exif' ||
-           key === 'sha512' || key === 'aggregated_keyword_tags' ||
-           key === 'aggregated_concept_tags' || key === 'md5' ||
-           key === 'created_at' || key === 'updated_at' || key === 'machine_recognition_tags'
-         );
-      })
-      .forEach( tag => {
-        Object.assign(itemsProperties, { [tag[0]]: tag[1]});
+    try {
+      const
+        itemsProperties = {},
+        state = {
+          isLoading: false
+        };
+
+      Object.entries(this.state.item)
+        .filter( ([key, value]) => {
+          return !(
+            value === null ||
+            key === 'count' || key === 'image_hash' || key === 'exif' ||
+            key === 'sha512' || key === 'aggregated_keyword_tags' ||
+            key === 'aggregated_concept_tags' || key === 'md5' ||
+            key === 'created_at' || key === 'updated_at' || key === 'machine_recognition_tags'
+          );
+        })
+        .forEach( tag => {
+          Object.assign(itemsProperties, { [tag[0]]: tag[1]});
+        });
+
+      const result = await API.put('tba21', 'admin/items/update', {
+        body: {
+          ...itemsProperties
+        }
       });
 
-    API.put('tba21', 'admin/items/update', {
-      body: {
-        ...itemsProperties
+      if (!result.success && result.message && result.message.length > 1) {
+        Object.assign(state, { errorMessage: result.message, item: { ...this.state.item, status: false } });
+      } else {
+        Object.assign(state, { successMessage: 'Updated item!' });
       }
-    });
+
+      this.setState(state);
+
+    } catch (e) {
+      console.log(e);
+      this.setState({ isLoading: false, errorMessage: 'We had an issue updating this item.' });
+    }
   }
 
   render() {
@@ -105,8 +136,11 @@ export class ItemEditor extends React.Component<Props, State> {
     const keywordTags = aggregated_keyword_tags ? aggregated_keyword_tags.map( t => ({ id: t.id, value: t.id, label: t.tag_name}) ) : [];
 
     return (
-      <Form className="container-fluid">
+      <Form className="container-fluid itemEditor">
+        <div className={`overlay ${this.state.isLoading ? 'show' : ''}`} />
         <Row>
+          <ErrorMessage message={this.state.errorMessage} />
+          <SuccessMessage message={this.state.successMessage} />
           { this.state.filePreview ?
             <Col md="6">
               {this.state.filePreview}
@@ -130,7 +164,7 @@ export class ItemEditor extends React.Component<Props, State> {
                 type="select"
                 name="status"
                 onChange={e => this._isMounted ? this.setState({ item: { ...this.state.item, status: e.target.value === 'true' } }) : false}
-                defaultValue={status ? 'true' : 'false'}
+                value={status ? 'true' : 'false'}
               >
                 <option value="false">Unpublished</option>
                 <option value="true">Publish</option>
