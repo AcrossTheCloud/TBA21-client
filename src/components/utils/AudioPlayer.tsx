@@ -2,11 +2,13 @@ import * as React from 'react';
 import WaveSurfer from 'wavesurfer.js';
 
 interface Props {
-  file: string;
+  url: string;
+  id: string;
 }
 
 interface State {
-  file: string;
+  url: string;
+  id: string;
   paused: boolean;
   wavesurfer?: WaveSurfer;
   loaded: boolean;
@@ -21,7 +23,8 @@ export class AudioPlayer extends React.Component<Props, State> {
     this._isMounted = false;
 
     this.state = {
-      file: props.file,
+      url: props.url,
+      id: this.props.id.replace(/[^\w\s]/gi, ''),
       paused: true,
       loaded: false,
     };
@@ -37,7 +40,7 @@ export class AudioPlayer extends React.Component<Props, State> {
           barHeight: 20,
           // barWidth: 1,
 
-          container: '#wave',
+          container: `#wave_${this.state.id}`,
           backend: 'MediaElement',
           responsive: true,
 
@@ -49,16 +52,12 @@ export class AudioPlayer extends React.Component<Props, State> {
         },
         wavesurfer = WaveSurfer.create(options);
 
-      wavesurfer.load(this.state.file);
+      wavesurfer.load(this.state.url);
       this.setState( { wavesurfer: wavesurfer, loaded: true } );
     }
   }
 
   render() {
-    return (
-      <>
-        <div id="wave"/>
-      </>
-    );
+    return <div id={`wave_${this.state.id}`}/>;
   }
 }

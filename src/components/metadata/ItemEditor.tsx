@@ -7,17 +7,17 @@ import Select from 'react-select';
 import { Item } from '../../types/Item';
 import { itemTextSubTypes, licenseType, oceans } from './SelectOptions';
 import Tags from './Tags';
-import { storageGet } from '../utils/s3File';
-import { Alerts, ErrorMessage, SuccessMessage } from '../utils/alerts';
-
+import { sdkGetObject } from '../utils/s3File';
+import { Alerts, ErrorMessage, SuccessMessage, WarningMessage } from '../utils/alerts';
 
 import 'styles/components/metadata/itemEditor.scss';
+import { AudioPlayer } from '../utils/AudioPlayer';
 
 interface Props {
   item: Item;
 }
 
-interface State extends Alerts{
+interface State extends Alerts {
   item: Item;
   filePreview?: JSX.Element;
   isLoading: boolean;
@@ -47,48 +47,63 @@ export class ItemEditor extends React.Component<Props, State> {
     this._isMounted = false;
   }
 
+  /**
+   *
+   * Loads the items file from S3 and outputs the correct HTML Element for the ContentType
+   *
+   */
   getItemFile = async (): Promise<void> => {
-    let element;
+    const state = {
+      isLoading: false,
+      warningMessage: undefined,
+      errorMessage: undefined
+    };
 
     try {
       const
         key = this.state.item.s3_key.split('/').slice(2).join('/'),
-        result = await storageGet(key);
+        result = await sdkGetObject(key);
 
-      if (result && result.blobURL) {
+      if (result && result.url) {
         if (result.type === 'image') {
-          element = <img className="img-fluid" src={result.blobURL} alt={this.state.item.title ? this.state.item.title : this.state.item.s3_key}/>;
+          Object.assign(state, { filePreview: <img className="img-fluid" src={result.url} alt={this.state.item.title ? this.state.item.title : this.state.item.s3_key}/> });
+        } else if (result.type === 'audio') {
+          Object.assign(state, { filePreview: <AudioPlayer id={this.state.item.image_hash || this.state.item.s3_key} url={result.url} /> });
         }
+        // Handle other file types here.
+      } else {
+        Object.assign(state, { warningMessage: 'Unable to load file.' });
       }
 
     } catch (e) {
       console.log('getItemFile', e);
+      Object.assign(state, { errorMessage: 'Unable to load file.' });
     } finally {
-      const state = {
-        isLoading: false
-      };
-      if (element) {
-        Object.assign(state, { filePreview: element });
-      }
-
       this.setState(state);
     }
   }
 
+  /**
+   *
+   * Updates the item in the database
+   *
+   */
   updateItem = async () => {
     this.setState({ isLoading: true });
 
-    try {
-      const
-        itemsProperties = {},
-        state = {
-          isLoading: false
-        };
+    const
+      state = {
+        isLoading: false
+      };
 
+    try {
+      const itemsProperties = {};
+
+      // We filter out specific values here as the API doesn't accept them, but returns them in the Item object.
       Object.entries(this.state.item)
         .filter( ([key, value]) => {
           return !(
-            value === null ||
+            value === null || key === 'id' ||
             key === 'count' || key === 'image_hash' || key === 'exif' ||
             key === 'sha512' || key === 'aggregated_keyword_tags' ||
             key === 'aggregated_concept_tags' || key === 'md5' ||
@@ -107,15 +122,17 @@ export class ItemEditor extends React.Component<Props, State> {
 
       if (!result.success && result.message && result.message.length > 1) {
         Object.assign(state, { errorMessage: result.message, item: { ...this.state.item, status: false } });
-      } else {
+      } else if (result.success) {
         Object.assign(state, { successMessage: 'Updated item!' });
+      } else {
+        Object.assign(state, { warningMessage: result });
       }
-
-      this.setState(state);
 
     } catch (e) {
       console.log(e);
-      this.setState({ isLoading: false, errorMessage: 'We had an issue updating this item.' });
+      Object.assign(state, { errorMessage: 'We had an issue updating this item.' });
+    } finally {
+      this.setState(state);
     }
   }
 
@@ -139,8 +156,11 @@ export class ItemEditor extends React.Component<Props, State> {
       <Form className="container-fluid itemEditor">
         <div className={`overlay ${this.state.isLoading ? 'show' : ''}`} />
         <Row>
-          <ErrorMessage message={this.state.errorMessage} />
-          <SuccessMessage message={this.state.successMessage} />
+          <Col xs="12">
+            <WarningMessage message={this.state.warningMessage} />
+            <ErrorMessage message={this.state.errorMessage} />
+            <SuccessMessage message={this.state.successMessage} />
+          </Col>
           { this.state.filePreview ?
             <Col md="6">
               {this.state.filePreview}

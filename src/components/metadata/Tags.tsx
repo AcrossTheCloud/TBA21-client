@@ -31,10 +31,13 @@ interface Props {
 }
 
 class Tags extends React.Component<Props, State> {
+  _isMounted;
   loadTagsTimeout;
 
   constructor(props: Props) {
     super(props);
+
+    this._isMounted = false;
 
     const { loadItemRekognitionTags, defaultValues } = this.props;
 
@@ -45,28 +48,38 @@ class Tags extends React.Component<Props, State> {
       isLoading: !!loadItemRekognitionTags,
       rekognitionTags: []
     };
-
-    console.log(defaultValues, 'defaultValues');
   }
 
   componentDidMount(): void {
+    this._isMounted = true;
     const { loadItemRekognitionTags } = this.props;
 
     if (loadItemRekognitionTags && loadItemRekognitionTags.length) {
       this.getItemRekognitionTags(loadItemRekognitionTags);
     }
-
   }
 
+  componentWillUnmount(): void {
+    this._isMounted = false;
+  }
+
+  /**
+   *
+   * Pools the DB for the Items Machine Rekognition Tags
+   *
+   * @param s3key { string }
+   */
   getItemRekognitionTags = async (s3key: string) => {
     let
       counter = 6,
       timeoutSeconds = 1000;
 
+    // Function with a Timeout Promise, as we increase the time between calls, this is due to Rekognition and the helpers taking time.
     const doAPICall = async (): Promise<string[]> => {
       return new Promise( resolve => {
 
         const apiTimeout = setTimeout( async () => {
+          if (!this._isMounted) { clearTimeout(apiTimeout); return; }
           counter --;
 
           try {
@@ -76,7 +89,7 @@ class Tags extends React.Component<Props, State> {
               }
             });
 
-            timeoutSeconds = timeoutSeconds * 1.2;
+            timeoutSeconds = timeoutSeconds * 1.8;
 
             if (response.tags && response.tags.length) {
               clearTimeout(apiTimeout);
@@ -98,15 +111,30 @@ class Tags extends React.Component<Props, State> {
       });
     };
 
+    const state = {
+      isLoading: false
+    };
     try {
       const results = await doAPICall();
-      this.setState({ isLoading: false, rekognitionTags: results.map( t => ( { value: t, label: t} )) });
+      Object.assign(state, {rekognitionTags: results.map( t => ( { value: t, label: t} )) });
     } catch (e) {
-      this.setState({ isLoading: false });
       console.log('ERROR -- ', e);
+    } finally {
+      if (this._isMounted) {
+        this.setState(state);
+      }
     }
   }
 
+  /**
+   *
+   * Load tags that match the give string
+   *
+   * Timeout for the user keyboard presses, clear the timeout if they've pressed another key within 500ms and start again,
+   * This avoids multiple calls before the user has finsihed typing.
+   *
+   * @param inputValue { string }
+   */
   loadTags = async (inputValue: string) => {
     if (inputValue && inputValue.length <= 1) { clearTimeout(this.loadTagsTimeout); return; }
 
@@ -123,6 +151,7 @@ class Tags extends React.Component<Props, State> {
           tags = queriedTags.tags.map(t => ({id: t.id, value: t.id, label: t.tag_name.charAt(0).toUpperCase() + t.tag_name.slice(1)})),
           filteredTags = tags.filter( tag => !find(this.state.tags, { tag_name: tag.tag_name }) );
 
+        if (!this._isMounted) { clearTimeout(this.loadTagsTimeout); return; }
         this.setState(
           {
             isLoading: false,
@@ -130,12 +159,21 @@ class Tags extends React.Component<Props, State> {
           }
         );
 
+        // Return the tags to React Select
         resolve(filteredTags.filter(tag => tag.label.toLowerCase().includes(inputValue.toLowerCase())));
-      }, 1500);
+      }, 500);
     });
   }
 
+  /**
+   *
+   * Adds a tag to the DB
+   *
+   * @param inputValue { string }
+   */
   createTag = async (inputValue: string) => {
+    if (!this._isMounted) { return; }
+
     this.setState( { isLoading: true });
 
     const results = await API.put('tba21', 'admin/tags', {
@@ -148,6 +186,14 @@ class Tags extends React.Component<Props, State> {
     return results.tags.map( t => ({ id: t.id, value: t.id, label: t.tag_name}) );
   }
 
+  /**
+   * OnChange event for React-Select
+   *
+   * Detects each ActionMeta (event) from React Select and does the correct action.
+   *
+   * @param tagsList { any }
+   * @param actionMeta { any }
+   */
   onChange = async (tagsList: any, actionMeta: any) => { // tslint:disable-line: no-any
 
     if (actionMeta.action === 'clear') {
@@ -170,18 +216,19 @@ class Tags extends React.Component<Props, State> {
       return tags;
     };
 
-    if (actionMeta.action === 'select-option' || actionMeta.action === 'create-option') {
-      this.setState({ isLoading: false, selectedTags: await createNewTags() } );
-    }
+    if (this._isMounted) {
+      if (actionMeta.action === 'select-option' || actionMeta.action === 'create-option') {
+        this.setState({isLoading: false, selectedTags: await createNewTags()});
+      }
 
-    if (actionMeta.action === 'remove-value') {
-      this.setState({ selectedTags: tagsList} );
+      if (actionMeta.action === 'remove-value') {
+        this.setState({selectedTags: tagsList});
+      }
     }
 
     if (this.props.callback && typeof this.props.callback === 'function') {
-      this.props.callback(this.state.selectedTags.map( tag => tag.id));
+      this.props.callback(this.state.selectedTags.map(tag => tag.id));
     }
-
   }
 
   render() {

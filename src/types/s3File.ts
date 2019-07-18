@@ -1,4 +1,4 @@
 export interface S3File {
-  blobURL?: string;
+  url?: string;
   type: string;
 }
