@@ -17,7 +17,9 @@ export const storageGet = async (key: string): Promise<S3File | false> => {
 };
 
 export const sdkGetObject = async (key: string): Promise<S3File | false> => {
-  AWSConfig.credentials = await Auth.currentCredentials();
+  if (!AWSConfig.credentials) {
+    AWSConfig.credentials = await Auth.currentCredentials();
+  }
   const s3 = new S3(
     {
       params: {
