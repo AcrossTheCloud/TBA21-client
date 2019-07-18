@@ -1,5 +1,5 @@
-import { Storage } from 'aws-amplify';
-import { CognitoIdentityCredentials, config as AWSConfig, S3 } from 'aws-sdk';
+import { Auth, Storage } from 'aws-amplify';
+import { config as AWSConfig, S3 } from 'aws-sdk';
 import config from 'config';
 import { S3File } from '../../types/s3File';
 
@@ -17,13 +17,7 @@ export const storageGet = async (key: string): Promise<S3File | false> => {
 };
 
 export const sdkGetObject = async (key: string): Promise<S3File | false> => {
-  AWSConfig.update({
-   region: config.s3.REGION,
-   credentials: new CognitoIdentityCredentials({
-    IdentityPoolId: config.cognito.IDENTITY_POOL_ID
-   })
- });
-
+  AWSConfig.credentials = await Auth.currentCredentials();
   const s3 = new S3(
     {
       params: {

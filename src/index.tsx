@@ -1,6 +1,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import Amplify from 'aws-amplify';
+import { config as AWSConfig } from 'aws-sdk';
 
 import { AppRouter } from './router';
 import config from './config.js';
@@ -33,6 +34,9 @@ Amplify.configure({
     ]
   }
 });
+
+// Set AWS-SDK Region
+AWSConfig.region = config.s3.REGION;
 
 ReactDOM.render(
   <AppRouter />, document.getElementById('root')
