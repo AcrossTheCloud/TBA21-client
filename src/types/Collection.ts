@@ -1,7 +1,21 @@
+import { APITag } from './Item';
+
 import { User } from './User';
 import { Ocean } from './Ocean';
 import { License } from './License';
-import { APITag } from './Item';
+
+enum collectionType {
+  Series = 'Series',
+  Area_of_Research = 'Area of research',
+  Event = 'Event',
+  Edited_Volume = 'Edited Volume',
+  Expedition = 'Expedition',
+  Collection = 'Collection',
+  Convening = 'Convening',
+  Performance = 'Performance',
+  Installation = 'Installation',
+  Other = 'Other'
+}
 
 export interface Collection {
   count?: number;
@@ -17,40 +31,74 @@ export interface Collection {
 
   concept_tags?: number[] | null;
   keyword_tags?: number[] | null;
-
   aggregated_concept_tags?: APITag[] | null;
   aggregated_keyword_tags?: APITag[] | null;
 
-  place?: string | null;
-  country_or_ocean?: string | Ocean | null;
+  place?: string | null; // array?
 
-  item_type?: number | null;
+  regional_focus?: string | null;
+  country_or_ocean?: Ocean | string | null; // array?
 
-  creators?: User[] | null;
-  contributor?: string | null;
+  creators?: string[] | null;
+  contributors?: User[] | string | null;
 
   directors?: string[] | null;
-  writers?: string[] | null;
-  collaborators?: string | null;
+  writers?: string | null;
+
+  editor?: string | null;
+  collaborators?: string | null; // array
 
   exhibited_at?: string | null;
+  series?: number | null;
 
-  series?: string | null;
-  isbn?: number | null;
-  edition?: number | null;
-  publisher?: string[] | null;
+  ISBN?: number[] | null;
+  edition?: string | null;
+
+  publisher?: string | null;
   interviewers?: string[] | null;
-  interviewees?: string[] | null;
-  cast_?: string | null;
 
-  license?: License | null;
+  interviewees?: string[] | null;
+  cast_?: string[] | null;
 
   title?: string | null;
+  subtitle?: string | null;
+
   description?: string | null;
+  copyright_holder?: string | null;
 
-  map_icon?: string | null;
+  copyright_country?: string | null;
+  disciplinary_field?: string | null;
 
+  specialization?: string | null;
+  department?: string | null;
+
+  expedition_leader?: string | null;
+  institution?: string | null;
+
+  expedition_vessel?: string | null;
+  expedition_route?: string | null;
+
+  expedition_blog_link?: string | null;
+  participants?: string[] | null;
+
+  venue?: string[] | null;
+  curator?: string | null;
+
+  host?: string[] | null;
+  type?: collectionType;
+
+  host_organization?: string[] | null;
+  focus_arts?: number | null;
+
+  focus_action?: number | null;
+  focus_scitech?: number | null;
+
+  url?: string | null;
+  related_material?: number[] | null;
+
+  license?: License;
   location?: string | null;
-  geojson?: string | null;
 
+  other_metadata?: string | null;
+  geojson?: string | null;
 }
