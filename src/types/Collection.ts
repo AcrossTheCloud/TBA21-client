@@ -5,11 +5,12 @@ import { APITag } from './Item';
 
 export interface Collection {
   count?: number;
+  id?: string;
 
-  id?: number;
-
-  created_at?: string;
-  updated_at?: string;
+  created_at?: string | null;
+  updated_at?: string | null;
+  start_date?: string | null;
+  end_date?: string | null;
   time_produced?: string | null;
 
   status?: boolean | null;

@@ -150,7 +150,8 @@ export class ItemEditor extends React.Component<Props, State> {
 
     } = this.state.item;
 
-    const keywordTags = aggregated_keyword_tags ? aggregated_keyword_tags.map( t => ({ id: t.id, value: t.id, label: t.tag_name}) ) : [];
+    const keywordTags = aggregated_keyword_tags ? aggregated_keyword_tags.map( t => ({ id: t.id, value: t.id, label: t.tag_name }) ) : [];
+    const countryOrOcean = country_or_ocean ? country_or_ocean.map( t => ({ value: t, label: t }) ) : [];
 
     return (
       <Form className="container-fluid itemEditor">
@@ -218,7 +219,7 @@ export class ItemEditor extends React.Component<Props, State> {
 
             <FormGroup>
               <Label for="location">Location</Label>
-              <Select id="location" options={oceans} value={country_or_ocean ? {value: country_or_ocean, label: country_or_ocean} : []} onChange={e => this._isMounted ? this.setState({ item: { ...this.state.item, country_or_ocean: e.label  } }) : false} isSearchable/>
+              <Select id="location" options={oceans} value={countryOrOcean} onChange={e => this._isMounted ? this.setState({ item: { ...this.state.item, country_or_ocean: e.label  } }) : false} isSearchable/>
             </FormGroup>
 
             <FormGroup>

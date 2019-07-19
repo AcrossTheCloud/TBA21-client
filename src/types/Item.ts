@@ -1,5 +1,4 @@
 import { User } from './User';
-import { Ocean } from './Ocean';
 import { License } from './License';
 import { S3File } from './s3File';
 

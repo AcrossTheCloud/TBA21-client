@@ -79,7 +79,10 @@ class ViewItems extends React.Component<Props, {}> { // tslint:disable-line: no-
   }
 
   render() {
-    const itemsLength = Object.keys(this.props.items).length;
+    const
+      itemsLength = Object.keys(this.props.items).length,
+      count = Object.values(this.props.items)[0].count; // TODO-Dan count is optional
+
     return (
       <Container id="viewItems">
         <CardColumns>
@@ -89,7 +92,7 @@ class ViewItems extends React.Component<Props, {}> { // tslint:disable-line: no-
         </CardColumns>
 
         {
-          itemsLength && Object.keys(this.props.items).length < Object.values(this.props.items)[0].count ?
+          itemsLength && Object.keys(this.props.items).length < count ?
             <Button
               block
               color="primary"
