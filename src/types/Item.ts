@@ -36,7 +36,36 @@ enum itemSubtype {
   Radio = 'Radio',
   Interview = 'Interview',
   Field_Recording = 'Field Recording',
-  Podcast = 'Podcast'
+  Podcast = 'Podcast',
+  Academic_public = 'Academic Public',
+  Article = 'Article',
+  News = 'News',
+  Policy_paper = 'Policy Paper',
+  Report = 'Report',
+  Book = 'Book',
+  Essay = 'Essay',
+  Historical_text = 'Historical Text',
+  Event_press = 'Event Press',
+  Toolkit = 'Toolkit',
+  Other = 'Other',
+  Movie = 'Movie',
+  Documenatry = 'Documentary',
+  Art = 'Art',
+  Journalism = 'Journalism',
+  Event_Recording = 'Event Recording',
+  Informational_Video = 'Informational Video',
+  Trailer = 'Trailer',
+  Artwork_Documentarion = 'Artwork Documentation',
+  Raw__Footage = 'Raw Footage',
+  Photograph = 'Photograph',
+  Research = 'Research',
+  Digital_art = 'Digital Art',
+  Graphics = 'Graphics',
+  Map = 'Map',
+  Film_Still = 'Film Still',
+  Sculpture = 'Sculpture',
+  Painting = 'Painting',
+  Illustration = 'Illustration'
 }
 
 export interface Item {
@@ -59,23 +88,21 @@ export interface Item {
   time_produced: string | null;
 
   status: boolean | null;
-  concept_tags: number[] | null;
 
+  concept_tags: number[] | null;
   keyword_tags: number[] | null;
   aggregated_concept_tags?: APITag[] | null;
-
   aggregated_keyword_tags?: APITag[] | null;
+
   place: string[] | null;
 
   country_or_ocean: string[] | null;
   item_type: itemType;
-
   item_subtype: itemSubtype;
-  creators:  User[] | null;
 
+  creators:  User[] | null;
   contributor: string | null;
   directors: string[] | null;
-
   writers: string[] | null;
   editor: string | null;
 
@@ -107,6 +134,7 @@ export interface Item {
   license: License | null;
 
   title: string | null;
+  in_title: string | null;
   subtitle: string | null;
 
   description: string | null;
@@ -124,7 +152,7 @@ export interface Item {
   birth_date: string | null;
   death_date: string | null;
 
-  venue: string[] | null;
+  venues: string[] | null;
   screened_at: string | null;
 
   genre: string | null;

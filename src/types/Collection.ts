@@ -34,10 +34,10 @@ export interface Collection {
   aggregated_concept_tags?: APITag[] | null;
   aggregated_keyword_tags?: APITag[] | null;
 
-  place?: string | null; // array?
+  place?: string | null;
 
   regional_focus?: string | null;
-  country_or_ocean?: Ocean | string | null; // array?
+  country_or_ocean?: Ocean | string | null;
 
   creators?: string[] | null;
   contributors?: User[] | string | null;
@@ -46,7 +46,7 @@ export interface Collection {
   writers?: string | null;
 
   editor?: string | null;
-  collaborators?: string | null; // array
+  collaborators?: string[] | null;
 
   exhibited_at?: string | null;
   series?: number | null;
@@ -101,4 +101,11 @@ export interface Collection {
 
   other_metadata?: string | null;
   geojson?: string | null;
+
+  map_icon?: string | null;
+
+  series_name?: string | null;
+  volume_in_series?: number | null;
+  pages?: number | null;
+  journal?: string | null;
 }
