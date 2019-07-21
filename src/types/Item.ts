@@ -27,6 +27,20 @@ export enum itemText {
   Toolkit = 'toolkit',
   Other = 'other'
 }
+export enum itemVideo {
+  Movie = 'Movie',
+  Documentary = 'Documentary',
+  Research = 'Research',
+  Interview = 'Interview',
+  Art = 'Art',
+  News_Journalism = 'News / Journalism',
+  Event_Recording = 'Event Recording',
+  Informational_Video = 'Informational Video',
+  Trailer = 'Trailer',
+  Artwork_Documentation = 'Artwork Documentation',
+  Raw_Footage = 'Raw Footage',
+  Other = 'Other'
+}
 
 enum itemSubtype {
   Music = 'Music',
