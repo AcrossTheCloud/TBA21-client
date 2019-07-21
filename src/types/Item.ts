@@ -41,45 +41,29 @@ export enum itemVideo {
   Raw_Footage = 'Raw Footage',
   Other = 'Other'
 }
-
-enum itemSubtype {
-  Music = 'Music',
-  Performance = 'Performance',
-  Sound_Art = 'Sound Art',
-  Lecture = 'Lecture',
-  Radio = 'Radio',
-  Interview = 'Interview',
-  Field_Recording = 'Field Recording',
-  Podcast = 'Podcast',
-  Academic_public = 'Academic Public',
-  Article = 'Article',
-  News = 'News',
-  Policy_paper = 'Policy Paper',
-  Report = 'Report',
-  Book = 'Book',
-  Essay = 'Essay',
-  Historical_text = 'Historical Text',
-  Event_press = 'Event Press',
-  Toolkit = 'Toolkit',
-  Other = 'Other',
-  Movie = 'Movie',
-  Documenatry = 'Documentary',
-  Art = 'Art',
-  Journalism = 'Journalism',
-  Event_Recording = 'Event Recording',
-  Informational_Video = 'Informational Video',
-  Trailer = 'Trailer',
-  Artwork_Documentarion = 'Artwork Documentation',
-  Raw__Footage = 'Raw Footage',
+export enum itemImage {
   Photograph = 'Photograph',
   Research = 'Research',
-  Digital_art = 'Digital Art',
+  Digital_Art = 'Digital Art',
   Graphics = 'Graphics',
   Map = 'Map',
   Film_Still = 'Film Still',
   Sculpture = 'Sculpture',
   Painting = 'Painting',
-  Illustration = 'Illustration'
+  Illustration = 'Illustration',
+  Artwork_Documentation = 'Artwork Documentation',
+  Other = 'Other'
+}
+export enum itemAudio {
+  Field_Recording = 'Field Recording',
+  Sound_Art = 'Sound Art',
+  Music = 'Music',
+  Podcast = 'Podcast',
+  Lecture = 'Lecture',
+  Interview = 'Interview',
+  Radio = 'Radio',
+  Performance_Poetry = 'Performance Poetry',
+  Other = 'Other'
 }
 
 export interface Item {
@@ -102,21 +86,23 @@ export interface Item {
   time_produced: string | null;
 
   status: boolean | null;
-
   concept_tags: number[] | null;
+
   keyword_tags: number[] | null;
   aggregated_concept_tags?: APITag[] | null;
-  aggregated_keyword_tags?: APITag[] | null;
 
+  aggregated_keyword_tags?: APITag[] | null;
   place: string[] | null;
 
   country_or_ocean: string[] | null;
   item_type: itemType;
-  item_subtype: itemSubtype;
 
+  item_subtype: itemAudio | itemImage | itemText | itemVideo;
   creators:  User[] | null;
+
   contributor: string | null;
   directors: string[] | null;
+
   writers: string[] | null;
   editor: string | null;
 
