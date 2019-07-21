@@ -48,3 +48,29 @@ export const itemVideoSubTypes = [
   {value: 'Raw_Footage', label: 'Raw Footage'},
   {value: 'Other', label: 'Other'}
 ];
+
+export const itemImageSubTypes = [
+  {value: 'Photograph', label: 'Photograph'},
+  {value: 'Research', label: 'Research'},
+  {value: 'Digital_Art', label: 'Digital Art'},
+  {value: 'Graphics', label: 'Graphics'},
+  {value: 'Map', label: 'Map'},
+  {value: 'Film_Still', label: 'Film Still'},
+  {value: 'Sculpture', label: 'Sculpture'},
+  {value: 'Painting', label: 'Painting'},
+  {value: 'Illustration', label: 'Illustration'},
+  {value: 'Artwork_Documentation', label: 'Artwork Documentation'},
+  {value: 'Other', label: 'Other'}
+];
+
+export const itemAudioSubTypes = [
+  {value: 'Field_Recording', label: 'Field Recording'},
+  {value: 'Sound_Art', label: 'Sound Art'},
+  {value: 'Music', label: 'Music'},
+  {value: 'Podcast', label: 'Podcast'},
+  {value: 'Lecture', label: 'Lecture'},
+  {value: 'Interview', label: 'Interview'},
+  {value: 'Radio', label: 'Radio'},
+  {value: 'Performance_Poetry', label: 'Performance Poetry'},
+  {value: 'Other', label: 'Other'}
+];

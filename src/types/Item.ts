@@ -41,16 +41,29 @@ export enum itemVideo {
   Raw_Footage = 'Raw Footage',
   Other = 'Other'
 }
-
-enum itemSubtype {
-  Music = 'Music',
-  Performance = 'Performance',
-  Sound_Art = 'Sound Art',
-  Lecture = 'Lecture',
-  Radio = 'Radio',
-  Interview = 'Interview',
+export enum itemImage {
+  Photograph = 'Photograph',
+  Research = 'Research',
+  Digital_Art = 'Digital Art',
+  Graphics = 'Graphics',
+  Map = 'Map',
+  Film_Still = 'Film Still',
+  Sculpture = 'Sculpture',
+  Painting = 'Painting',
+  Illustration = 'Illustration',
+  Artwork_Documentation = 'Artwork Documentation',
+  Other = 'Other'
+}
+export enum itemAudio {
   Field_Recording = 'Field Recording',
-  Podcast = 'Podcast'
+  Sound_Art = 'Sound Art',
+  Music = 'Music',
+  Podcast = 'Podcast',
+  Lecture = 'Lecture',
+  Interview = 'Interview',
+  Radio = 'Radio',
+  Performance_Poetry = 'Performance Poetry',
+  Other = 'Other'
 }
 
 export interface Item {
@@ -84,7 +97,7 @@ export interface Item {
   country_or_ocean: string[] | null;
   item_type: itemType;
 
-  item_subtype: itemSubtype;
+  item_subtype: itemAudio | itemImage | itemText | itemVideo;
   creators:  User[] | null;
 
   contributor: string | null;
