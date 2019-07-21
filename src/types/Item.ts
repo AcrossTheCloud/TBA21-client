@@ -14,6 +14,20 @@ enum itemType {
   Image = 'Image'
 }
 
+export enum itemText {
+  Academic_Publication = 'academic publication',
+  Article = 'article',
+  News = 'news',
+  Policy_Paper = 'policy paper',
+  Report = 'report',
+  Book = 'book',
+  Essay = 'essay',
+  Historical_Text = 'historical text',
+  Event_Press = 'event press',
+  Toolkit = 'toolkit',
+  Other = 'other'
+}
+
 enum itemSubtype {
   Music = 'Music',
   Performance = 'Performance',
@@ -26,8 +40,8 @@ enum itemSubtype {
 }
 
 export interface Item {
-  file?: S3File;
-  count: number;
+  file: S3File;
+  count?: number;
 
   exif: {  [name: string]: any } | null; // tslint:disable-line: no-any
   machine_recognition_tags: { [name: string]: any } | null; // tslint:disable-line: no-any

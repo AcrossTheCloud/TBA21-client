@@ -81,7 +81,7 @@ class ViewItems extends React.Component<Props, {}> { // tslint:disable-line: no-
   render() {
     const
       itemsLength = Object.keys(this.props.items).length,
-      count = Object.values(this.props.items)[0].count; // TODO-Dan count is optional
+      count = itemsLength && (this.props.items[0] && this.props.items[0].count) ? this.props.items[0].count : 0;
 
     return (
       <Container id="viewItems">
