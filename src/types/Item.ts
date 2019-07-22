@@ -94,7 +94,7 @@ export interface Item {
   aggregated_keyword_tags?: APITag[] | null;
   place: string[] | null;
 
-  country_or_ocean: string[] | null;
+  country_or_ocean: string | null;
   item_type: itemType;
 
   item_subtype: itemAudio | itemImage | itemText | itemVideo;
