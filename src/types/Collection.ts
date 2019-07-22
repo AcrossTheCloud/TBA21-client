@@ -8,6 +8,7 @@ enum collectionType {
   Series = 'Series',
   Area_of_Research = 'Area of research',
   Event = 'Event',
+  Event_Series = 'Event Series',
   Edited_Volume = 'Edited Volume',
   Expedition = 'Expedition',
   Collection = 'Collection',
