@@ -39,19 +39,18 @@ export const sdkGetObject = async (key: string): Promise<S3File | false> => {
       },
       head: HeadObjectOutput = await s3.headObject({ Bucket: config.s3.BUCKET , Key: key}).promise(); // todo-dan 403 error here.
 
-    console.log('sdkGetObject', head, head.ContentType, (head.ContentLength && head.ContentLength < 19865800));
-
     if (head && ( head.ContentType && (head.ContentLength && head.ContentLength < 19865800) )) {
+      const url = await s3.getSignedUrl('getObject', params);
       if (head.ContentType.includes('image')) {
         return {
-          url: await s3.getSignedUrl('getObject', params),
+          url: url,
           type: 'image'
         };
       }
 
       if (head.ContentType.includes('audio')) {
         return {
-          url: await s3.getSignedUrl('getObject', params),
+          url: url,
           type: 'audio'
         };
       }

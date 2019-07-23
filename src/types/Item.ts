@@ -86,15 +86,15 @@ export interface Item {
   time_produced: string | null;
 
   status: boolean | null;
-  concept_tags: number[] | null;
 
+  concept_tags: number[] | null;
   keyword_tags: number[] | null;
   aggregated_concept_tags?: APITag[] | null;
-
   aggregated_keyword_tags?: APITag[] | null;
-  place: string[] | null;
 
+  place: string[] | null;
   country_or_ocean: string | null;
+
   item_type: itemType;
 
   item_subtype: itemAudio | itemImage | itemText | itemVideo;
@@ -112,10 +112,13 @@ export interface Item {
   exhibited_at: string | null;
   series: number | null;
 
-  ISBN: number[] | null;
-  DOI: number | null;
+  isbn: number[] | null;
+  related_isbn: number[] | null;
+  doi: number | null;
+  url: string | null;
 
   edition: number | null;
+  edition_uploaded: number | null;
   year_produced: number | null;
 
   volume: number | null;
@@ -158,6 +161,7 @@ export interface Item {
   genre: string | null;
   news_outlet: string | null;
 
+  curator: string | null;
   institution: string | null;
   medium: string | null;
 
@@ -177,6 +181,7 @@ export interface Item {
   performers: string[] | null;
 
   host_organization: string[] | null;
+  organisation: string[] | null;
   radio_station: string[] | null;
 
   other_metadata: string | null;
@@ -186,15 +191,14 @@ export interface Item {
   related_event: string | null;
 
   volume_in_series: string[] | null;
-  organisation: string | null;
 
-  OA_highlight: boolean | null;
-  TBA21_material: boolean | null;
+  oa_highlight: boolean | null;
+  tba21_material: boolean | null;
 
-  OA_original: boolean | null;
+  oa_original: boolean | null;
   lecturer: string | null;
 
-  author: string | null;
+  authors: string | null;
   credit: string | null;
 
   copyright_holder: string | null;
@@ -207,6 +211,7 @@ export interface Item {
   document_code: string | null;
 
   project: string | null;
+  related_project: string | null;
   journal: string | null;
 
   event_title: string | null;
