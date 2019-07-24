@@ -1701,6 +1701,7 @@ export class ItemEditor extends React.Component<Props, State> {
                   item.item_subtype === itemImage.Other ? <this.ItemImage /> : <></>
                 }
 
+                {item.item_subtype === itemImage.Research ? <this.ImageResearch /> : <></>}
                 {item.item_subtype === itemImage.Graphics ? <this.ImageGraphics /> : <></>}
                 {item.item_subtype === itemImage.Map ? <this.ImageMap /> : <></>}
                 {item.item_subtype === itemImage.Film_Still ? <this.ImageFilmStill /> : <></>}
