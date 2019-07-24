@@ -15,17 +15,17 @@ enum itemType {
 }
 
 export enum itemText {
-  Academic_Publication = 'academic publication',
-  Article = 'article',
-  News = 'news',
-  Policy_Paper = 'policy paper',
-  Report = 'report',
-  Book = 'book',
-  Essay = 'essay',
-  Historical_Text = 'historical text',
-  Event_Press = 'event press',
-  Toolkit = 'toolkit',
-  Other = 'other'
+  Academic_Publication = 'Academic Publication',
+  Article = 'Article',
+  News = 'News',
+  Policy_Paper = 'Policy Paper',
+  Report = 'Report',
+  Book = 'Book',
+  Essay = 'Essay',
+  Historical_Text = 'Historical Text',
+  Event_Press = 'Event Press',
+  Toolkit = 'Toolkit',
+  Other = 'Other'
 }
 export enum itemVideo {
   Movie = 'Movie',
@@ -198,7 +198,7 @@ export interface Item {
   oa_original: boolean | null;
   lecturer: string | null;
 
-  authors: string | null;
+  authors: string[] | null;
   credit: string | null;
 
   copyright_holder: string | null;

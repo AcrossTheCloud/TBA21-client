@@ -44,14 +44,16 @@ export const sdkGetObject = async (key: string): Promise<S3File | false> => {
       if (head.ContentType.includes('image')) {
         return {
           url: url,
-          type: 'image'
+          type: 'image',
+          item_type: 'Image'
         };
       }
 
       if (head.ContentType.includes('audio')) {
         return {
           url: url,
-          type: 'audio'
+          type: 'audio',
+          item_type: 'Audio'
         };
       }
 
