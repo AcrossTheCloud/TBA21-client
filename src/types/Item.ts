@@ -214,9 +214,12 @@ export interface Item {
   related_project: string | null;
   journal: string | null;
 
+  projection: string | null;
+  minute_second: string | null;
+
   event_title: string | null;
   recording_studio: string | null;
 
   original_text_credit: string | null;
-  geojson: string | null;
+  location: string | null;
 }

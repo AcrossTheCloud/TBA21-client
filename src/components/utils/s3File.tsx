@@ -37,7 +37,7 @@ export const sdkGetObject = async (key: string): Promise<S3File | false> => {
         Bucket: config.s3.BUCKET,
         Key: key
       },
-      head: HeadObjectOutput = await s3.headObject({ Bucket: config.s3.BUCKET , Key: key}).promise(); // todo-dan 403 error here.
+      head: HeadObjectOutput = await s3.headObject({ Bucket: config.s3.BUCKET , Key: key}).promise();
 
     if (head && ( head.ContentType && (head.ContentLength && head.ContentLength < 19865800) )) {
       const url = await s3.getSignedUrl('getObject', params);

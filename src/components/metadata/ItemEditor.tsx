@@ -30,7 +30,12 @@ import { API } from 'aws-amplify';
 import Select from 'react-select';
 import { isEqual } from 'lodash';
 
-import { Item, itemText, itemVideo } from '../../types/Item';
+import {
+  Item,
+  itemImage,
+  itemText,
+  itemVideo
+} from '../../types/Item';
 import {
   countries,
   itemAudioSubTypes,
@@ -1287,6 +1292,199 @@ export class ItemEditor extends React.Component<Props, State> {
     );
   }
 
+  // ITEM IMAGE
+  ItemImage = () => {
+    const item = this.state.changedItem;
+    return (
+      <Row>
+        <Col md="6">
+          <FormGroup>
+            <Label for="medium">Medium</Label>
+            <Input type="text" id="medium" defaultValue={item.medium ? item.medium : ''} onChange={e => this.changeItem('medium', e.target.value)}/>
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="dimensions">Dimensions</Label>
+            <Input type="text" id="dimensions" defaultValue={item.dimensions ? item.dimensions : ''} onChange={e => this.changeItem('dimensions', e.target.value)}/>
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="exhibited_at">Exhibited At</Label>
+            <Input type="text" id="exhibited_at" defaultValue={item.exhibited_at ? item.exhibited_at : ''} onChange={e => this.changeItem('exhibited_at', e.target.value)}/>
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="other_metadata">Other</Label>
+            <Input type="text" id="other_metadata" defaultValue={item.other_metadata ? item.other_metadata : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
+          </FormGroup>
+        </Col>
+      </Row>
+    );
+  }
+  ImageResearch = () => {
+    const item = this.state.changedItem;
+    return (
+      <Row>
+        <Col md="6">
+          <FormGroup>
+            <Label for="medium">Medium</Label>
+            <Input type="text" id="medium" defaultValue={item.medium ? item.medium : ''} onChange={e => this.changeItem('medium', e.target.value)}/>
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="dimensions">Dimensions</Label>
+            <Input type="text" id="dimensions" defaultValue={item.dimensions ? item.dimensions : ''} onChange={e => this.changeItem('dimensions', e.target.value)}/>
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="collaborators">Collaborators</Label>
+            <Input
+              type="text"
+              className="collaborators"
+              required={false}
+              defaultValue={item.collaborators ? item.collaborators : ''}
+              onChange={e => this.changeItem('collaborators', [e.target.value])}
+            />
+          </FormGroup>
+        </Col>
+      </Row>
+    );
+  }
+  ImageGraphics = () => {
+    const item = this.state.changedItem;
+    return (
+      <Row>
+        <Col md="6">
+          <FormGroup>
+            <Label for="medium">Medium</Label>
+            <Input type="text" id="medium" defaultValue={item.medium ? item.medium : ''} onChange={e => this.changeItem('medium', e.target.value)}/>
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="dimensions">Dimensions</Label>
+            <Input type="text" id="dimensions" defaultValue={item.dimensions ? item.dimensions : ''} onChange={e => this.changeItem('dimensions', e.target.value)}/>
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="exhibited_at">Exhibited At</Label>
+            <Input type="text" id="exhibited_at" defaultValue={item.exhibited_at ? item.exhibited_at : ''} onChange={e => this.changeItem('exhibited_at', e.target.value)}/>
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="created_for">Created For</Label>
+            <Input type="text" id="created_for" defaultValue={item.created_for ? item.created_for : ''} onChange={e => this.changeItem('created_for', e.target.value)}/>
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="other_metadata">Other</Label>
+            <Input type="text" id="other_metadata" defaultValue={item.other_metadata ? item.other_metadata : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
+          </FormGroup>
+        </Col>
+      </Row>
+    );
+  }
+  ImageMap = () => {
+    const item = this.state.changedItem;
+    return (
+      <Row>
+        <Col md="6">
+          <FormGroup>
+            <Label for="medium">Medium</Label>
+            <Input type="text" id="medium" defaultValue={item.medium ? item.medium : ''} onChange={e => this.changeItem('medium', e.target.value)}/>
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="projection">Projection</Label>
+            <Input type="text" id="projection" defaultValue={item.projection ? item.projection : ''} onChange={e => this.changeItem('projection', e.target.value)}/>
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="location">Coordinates (Lat, Lng)</Label>
+            <Input type="text" id="location" defaultValue={item.location ? item.location : ''} onChange={e => this.changeItem('location', e.target.value)}/>
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="exhibited_at">Exhibited At</Label>
+            <Input type="text" id="exhibited_at" defaultValue={item.exhibited_at ? item.exhibited_at : ''} onChange={e => this.changeItem('exhibited_at', e.target.value)}/>
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="other_metadata">Other</Label>
+            <Input type="text" id="other_metadata" defaultValue={item.other_metadata ? item.other_metadata : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
+          </FormGroup>
+        </Col>
+      </Row>
+    );
+  }
+  ImageFilmStill = () => {
+    const item = this.state.changedItem;
+    return (
+      <Row>
+        <Col md="6">
+          <FormGroup>
+            <Label for="directors">Director</Label>
+            <Input type="text" id="directors" defaultValue={item.directors ? item.directors : ''} onChange={e => this.changeItem('directors', e.target.value)}/>
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="writers">Writer</Label>
+            <Input type="text" id="writers" defaultValue={item.writers ? item.writers : ''} onChange={e => this.changeItem('writers', e.target.value)}/>
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="collaborators">Collaborators</Label>
+            <Input type="text" id="collaborators" defaultValue={item.collaborators ? item.collaborators : ''} onChange={e => this.changeItem('collaborators', e.target.value)}/>
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="genre">Genre</Label>
+            <Input type="text" id="genre" defaultValue={item.genre ? item.genre : ''} onChange={e => this.changeItem('genre', e.target.value)}/>
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="cast_">Cast</Label>
+            <Input type="text" id="cast_" defaultValue={item.cast_ ? item.cast_ : ''} onChange={e => this.changeItem('cast_', e.target.value)}/>
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="minute_second">Minute : Second</Label>
+            <Input type="text" defaultValue={item.minute_second ? item.minute_second : ''} onChange={e => this.changeItem('minute_second', e.target.value)}/>
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="screened_at">Screened At</Label>
+            <Input type="text" id="screened_at" defaultValue={item.screened_at ? item.screened_at : ''} onChange={e => this.changeItem('screened_at', e.target.value)}/>
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="other_metadata">Other</Label>
+            <Input type="text" id="other_metadata" defaultValue={item.other_metadata ? item.other_metadata : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
+          </FormGroup>
+        </Col>
+      </Row>
+    );
+  }
+
   render() {
     const
       item = this.state.changedItem,
@@ -1464,6 +1662,7 @@ export class ItemEditor extends React.Component<Props, State> {
                   </Col>
                 </Row>
 
+                {/* Item Text */}
                 {item.item_subtype === itemText.Academic_Publication ? <this.AcademicPublication /> : <></>}
                 {item.item_subtype === itemText.Article ? <this.Article /> : <></>}
                 {item.item_subtype === itemText.News ? <this.News /> : <></>}
@@ -1476,6 +1675,7 @@ export class ItemEditor extends React.Component<Props, State> {
                 {item.item_subtype === itemText.Toolkit ? <this.Toolkit /> : <></>}
                 {item.item_subtype === itemText.Other ? <this.Other /> : <></>}
 
+                {/* Item Video */}
                 {item.item_subtype === itemVideo.Movie ? <this.MovieTrailer /> : <></>}
                 {item.item_subtype === itemVideo.Documentary ? <this.DocumentaryArt /> : <></>}
                 {item.item_subtype === itemVideo.Research ? <this.Research /> : <></>}
@@ -1488,6 +1688,22 @@ export class ItemEditor extends React.Component<Props, State> {
                 {item.item_subtype === itemVideo.Artwork_Documentation ? <this.ArtworkDocumentation /> : <></>}
                 {item.item_subtype === itemVideo.Raw_Footage ? <this.RawFootage /> : <></>}
                 {item.item_subtype === itemVideo.Other ? <this.VideoOther /> : <></>}
+
+
+
+                { // Item Image
+                  item.item_subtype === itemImage.Photograph ||
+                  item.item_subtype === itemImage.Digital_Art ||
+                  item.item_subtype === itemImage.Sculpture ||
+                  item.item_subtype === itemImage.Painting ||
+                  item.item_subtype === itemImage.Illustration ||
+                  item.item_subtype === itemImage.Artwork_Documentation ||
+                  item.item_subtype === itemImage.Other ? <this.ItemImage /> : <></>
+                }
+
+                {item.item_subtype === itemImage.Graphics ? <this.ImageGraphics /> : <></>}
+                {item.item_subtype === itemImage.Map ? <this.ImageMap /> : <></>}
+                {item.item_subtype === itemImage.Film_Still ? <this.ImageFilmStill /> : <></>}
 
               </TabPane>
               <TabPane tabId="2">
