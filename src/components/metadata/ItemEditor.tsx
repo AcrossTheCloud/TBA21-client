@@ -24,8 +24,6 @@ import {
   UncontrolledButtonDropdown
 } from 'reactstrap';
 
-import '../../../node_modules/react-datepicker/dist/react-datepicker.min.css';
-
 import { API } from 'aws-amplify';
 import Select from 'react-select';
 import { isEqual } from 'lodash';
@@ -54,14 +52,19 @@ import { AudioPlayer } from '../utils/AudioPlayer';
 
 import pencil from 'images/svgs/pencil.svg';
 import 'styles/components/metadata/itemEditor.scss';
+import Authors from './fields/Authors';
 
 interface Props {
   item: Item;
 }
 
-interface State extends Alerts {
-  item: Item;
-  filePreview?: JSX.Element;
+interface State extends Alerts, UIEditing {
+  originalItem: Item;
+  changedItem: Item;
+  changedItemFields: {
+    [key: string]: string
+  };
+  isDifferent: boolean;
   isLoading: boolean;
   hideForm: boolean;
 
@@ -278,6 +281,14 @@ export class ItemEditor extends React.Component<Props, State> {
   validateURL = (url: string): boolean => {
     return /^(?:(http|ftp|sftp)(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/.test(url);
   }
+  authorsValid = (authors: string[] | null): void => {
+    let valid = false;
+    this.changeItem('authors', authors);
+    if (authors && authors.length > 0) {
+      valid = true;
+    }
+    this.setState({ validate: { ...this.state.validate, authors: valid } });
+  }
 
   // ITEM TEXT
   TextAcademicPublication = () => {
@@ -287,22 +298,9 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="authors">Author(s)</Label>
-            <Input
-              type="text"
-              className="authors"
-              required={true}
-              defaultValue={item.authors ? item.authors : ''}
-              invalid={this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors}
-              onChange={e => {
-                const value = e.target.value.split(',').filter(i => i.length).map(i => i.trim()); // split on , and filter out any array items without a length and trim
-                let valid = value.length > 0;
-                if (!value) { valid = false; }
-                if (valid) { this.changeItem('authors', value); } // if valid set the data in changedItem
-                this.setState({ validate: { ...this.state.validate, authors: valid } });
-              }}
-            />
-            <FormFeedback>This is a required field</FormFeedback>
-            <FormText>Use , (comma) as a delimiter per author.</FormText>
+            <Authors values={item.authors} callback={values => this.authorsValid(values)} />
+            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
+            <FormText>Use tab or enter to add a new Author.</FormText>
           </FormGroup>
         </Col>
 
@@ -312,10 +310,18 @@ export class ItemEditor extends React.Component<Props, State> {
             <Input
               type="text"
               className="subtitle"
-              required={true}
+              required
               defaultValue={item.subtitle ? item.subtitle : ''}
-              onChange={e => this.changeItem('subtitle', e.target.value)}
+              invalid={this.state.validate.hasOwnProperty('subtitle') && !this.state.validate.subtitle}
+              onChange={e => {
+                const value = e.target.value;
+                let valid = value.length > 0;
+                if (!value) { valid = false; }
+                if (valid) { this.changeItem('subtitle', value); } // if valid set the data in changedItem
+                this.setState({ validate: { ...this.state.validate, subtitle: valid } });
+              }}
             />
+            <FormFeedback>This is a required field</FormFeedback>
           </FormGroup>
         </Col>
 
@@ -365,7 +371,7 @@ export class ItemEditor extends React.Component<Props, State> {
 
         <Col md="4">
           <FormGroup>
-            <Label for="pages">Pages Count</Label>
+            <Label for="pages">Pages (Count)</Label>
             <Input
               type="number"
               className="pages"
@@ -401,7 +407,14 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="4">
           <FormGroup>
             <Label for="isbn">ISBN</Label>
-            <Input type="number" className="isbn" defaultValue={this.state.changedItem.isbn ? this.state.changedItem.isbn.toString() : ''} onChange={e => this.changeItem('isbn', e.target.value)}/>
+            <Input type="number" className="isbn" defaultValue={item.isbn ? item.isbn.toString() : ''} onChange={e => this.changeItem('isbn', e.target.value)}/>
+          </FormGroup>
+        </Col>
+
+        <Col md="4">
+          <FormGroup>
+            <Label for="other_metadata">Other</Label>
+            <Input type="number" className="other_metadata" defaultValue={item.other_metadata ? item.other_metadata.toString() : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
           </FormGroup>
         </Col>
       </Row>
@@ -414,13 +427,9 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="authors">Author(s)</Label>
-            <Input
-              type="text"
-              className="authors"
-              required={true}
-              defaultValue={item.authors ? item.authors : ''}
-              onChange={e => this.changeItem('authors', e.target.value)}
-            />
+            <Authors values={item.authors} callback={values => this.authorsValid(values)} />
+            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
+            <FormText>Use tab or enter to add a new Author.</FormText>
           </FormGroup>
         </Col>
 
@@ -435,6 +444,13 @@ export class ItemEditor extends React.Component<Props, State> {
             />
           </FormGroup>
         </Col>
+
+        <Col md="4">
+          <FormGroup>
+            <Label for="other_metadata">Other</Label>
+            <Input type="number" className="other_metadata" defaultValue={item.other_metadata ? item.other_metadata.toString() : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
+          </FormGroup>
+        </Col>
       </Row>
     );
   }
@@ -445,13 +461,9 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="authors">Author(s)</Label>
-            <Input
-              type="text"
-              className="authors"
-              required={true}
-              defaultValue={item.authors ? item.authors : ''}
-              onChange={e => this.changeItem('authors', e.target.value)}
-            />
+            <Authors values={item.authors} callback={values => this.authorsValid(values)} />
+            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
+            <FormText>Use tab or enter to add a new Author.</FormText>
           </FormGroup>
         </Col>
 
@@ -461,9 +473,16 @@ export class ItemEditor extends React.Component<Props, State> {
             <Input
               type="text"
               className="subtitle"
-              required={true}
+              required
               defaultValue={item.subtitle ? item.subtitle : ''}
-              onChange={e => this.changeItem('subtitle', e.target.value)}
+              invalid={this.state.validate.hasOwnProperty('subtitle') && !this.state.validate.subtitle}
+              onChange={e => {
+                const value = e.target.value.split(',').filter(i => i.length).map(i => i.trim()); // split on , and filter out any array items without a length and trim
+                let valid = value.length > 0;
+                if (!value) { valid = false; }
+                if (valid) { this.changeItem('subtitle', value); } // if valid set the data in changedItem
+                this.setState({ validate: { ...this.state.validate, subtitle: valid } });
+              }}
             />
           </FormGroup>
         </Col>
@@ -479,6 +498,13 @@ export class ItemEditor extends React.Component<Props, State> {
             />
           </FormGroup>
         </Col>
+
+        <Col md="4">
+          <FormGroup>
+            <Label for="other_metadata">Other</Label>
+            <Input type="number" className="other_metadata" defaultValue={item.other_metadata ? item.other_metadata.toString() : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
+          </FormGroup>
+        </Col>
       </Row>
     );
   }
@@ -489,13 +515,9 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="authors">Author(s)</Label>
-            <Input
-              type="text"
-              className="authors"
-              required={true}
-              defaultValue={item.authors ? item.authors : ''}
-              onChange={e => this.changeItem('authors', e.target.value)}
-            />
+            <Authors values={item.authors} callback={values => this.authorsValid(values)} />
+            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
+            <FormText>Use tab or enter to add a new Author.</FormText>
           </FormGroup>
         </Col>
 
@@ -505,9 +527,16 @@ export class ItemEditor extends React.Component<Props, State> {
             <Input
               type="text"
               className="host_organization"
-              required={true}
+              required
               defaultValue={item.host_organization ? item.host_organization : ''}
-              onChange={e => this.changeItem('host_organization', e.target.value)}
+              invalid={this.state.validate.hasOwnProperty('host_organization') && !this.state.validate.host_organization}
+              onChange={e => {
+                const value = e.target.value;
+                let valid = value.length > 0;
+                if (!value) { valid = false; }
+                if (valid) { this.changeItem('host_organization', value); } // if valid set the data in changedItem
+                this.setState({ validate: { ...this.state.validate, host_organization: valid } });
+              }}
             />
           </FormGroup>
         </Col>
@@ -535,6 +564,13 @@ export class ItemEditor extends React.Component<Props, State> {
             />
           </FormGroup>
         </Col>
+
+        <Col md="4">
+          <FormGroup>
+            <Label for="other_metadata">Other</Label>
+            <Input type="number" className="other_metadata" defaultValue={item.other_metadata ? item.other_metadata.toString() : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
+          </FormGroup>
+        </Col>
       </Row>
     );
   }
@@ -545,13 +581,9 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="authors">Author(s)</Label>
-            <Input
-              type="text"
-              className="authors"
-              required={true}
-              defaultValue={item.authors ? item.authors : ''}
-              onChange={e => this.changeItem('authors', e.target.value)}
-            />
+            <Authors values={item.authors} callback={values => this.authorsValid(values)} />
+            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
+            <FormText>Use tab or enter to add a new Author.</FormText>
           </FormGroup>
         </Col>
 
@@ -561,7 +593,7 @@ export class ItemEditor extends React.Component<Props, State> {
             <Input
               type="text"
               className="subtitle"
-              required={true}
+              required
               defaultValue={item.subtitle ? item.subtitle : ''}
               onChange={e => this.changeItem('subtitle', e.target.value)}
             />
@@ -592,6 +624,13 @@ export class ItemEditor extends React.Component<Props, State> {
           </FormGroup>
         </Col>
 
+        <Col md="4">
+          <FormGroup>
+            <Label for="volume">Volume In Series</Label>
+            <Input type="number" className="volume" defaultValue={this.state.changedItem.volume ? this.state.changedItem.volume.toString() : ''} onChange={e => this.changeItem('volume', e.target.value)}/>
+          </FormGroup>
+        </Col>
+
         <Col>
           <FormGroup>
             <Label for="publisher">Publisher</Label>
@@ -599,8 +638,15 @@ export class ItemEditor extends React.Component<Props, State> {
               type="text"
               className="publisher"
               defaultValue={item.publisher ? item.publisher : ''}
-              onChange={e => this.changeItem('publisher', e.target.value)}
-              required={true}
+              required
+              invalid={this.state.validate.hasOwnProperty('publisher') && !this.state.validate.publisher}
+              onChange={e => {
+                const value = e.target.value;
+                let valid = value.length > 0;
+                if (!value) { valid = false; }
+                if (valid) { this.changeItem('publisher', value); } // if valid set the data in changedItem
+                this.setState({ validate: { ...this.state.validate, publisher: valid } });
+              }}
             />
           </FormGroup>
         </Col>
@@ -612,16 +658,16 @@ export class ItemEditor extends React.Component<Props, State> {
               type="text"
               className="city_of_publication"
               defaultValue={item.city_of_publication ? item.city_of_publication : ''}
-              onChange={e => this.changeItem('city_of_publication', e.target.value)}
-              required={true}
+              required
+              invalid={this.state.validate.hasOwnProperty('city_of_publication') && !this.state.validate.city_of_publication}
+              onChange={e => {
+                const value = e.target.value;
+                let valid = value.length > 0;
+                if (!value) { valid = false; }
+                if (valid) { this.changeItem('city_of_publication', value); } // if valid set the data in changedItem
+                this.setState({ validate: { ...this.state.validate, city_of_publication: valid } });
+              }}
             />
-          </FormGroup>
-        </Col>
-
-        <Col md="4">
-          <FormGroup>
-            <Label for="volume">Volume In Series</Label>
-            <Input type="number" className="volume" defaultValue={this.state.changedItem.volume ? this.state.changedItem.volume.toString() : ''} onChange={e => this.changeItem('volume', e.target.value)}/>
           </FormGroup>
         </Col>
 
@@ -632,8 +678,15 @@ export class ItemEditor extends React.Component<Props, State> {
               type="number"
               className="edition"
               defaultValue={this.state.changedItem.edition ? this.state.changedItem.edition.toString() : ''}
-              onChange={e => this.changeItem('edition', e.target.value)}
-              required={true}
+              required
+              invalid={this.state.validate.hasOwnProperty('edition') && !this.state.validate.edition}
+              onChange={e => {
+                const value = e.target.value;
+                let valid = value.length > 0;
+                if (!value) { valid = false; }
+                if (valid) { this.changeItem('edition', value); } // if valid set the data in changedItem
+                this.setState({ validate: { ...this.state.validate, edition: valid } });
+              }}
             />
           </FormGroup>
         </Col>
@@ -647,7 +700,7 @@ export class ItemEditor extends React.Component<Props, State> {
 
         <Col md="4">
           <FormGroup>
-            <Label for="pages">Pages Count</Label>
+            <Label for="pages">Pages (Count)</Label>
             <Input
               type="number"
               className="pages"
@@ -670,6 +723,13 @@ export class ItemEditor extends React.Component<Props, State> {
             <Input type="number" className="related_isbn" defaultValue={this.state.changedItem.related_isbn ? this.state.changedItem.related_isbn.toString() : ''} onChange={e => this.changeItem('related_isbn', e.target.value)}/>
           </FormGroup>
         </Col>
+
+        <Col md="4">
+          <FormGroup>
+            <Label for="other_metadata">Other</Label>
+            <Input type="number" className="other_metadata" defaultValue={item.other_metadata ? item.other_metadata.toString() : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
+          </FormGroup>
+        </Col>
       </Row>
     );
   }
@@ -680,13 +740,9 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="authors">Author(s)</Label>
-            <Input
-              type="text"
-              className="authors"
-              required={true}
-              defaultValue={item.authors ? item.authors : ''}
-              onChange={e => this.changeItem('authors', e.target.value)}
-            />
+            <Authors values={item.authors} callback={values => this.authorsValid(values)} />
+            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
+            <FormText>Use tab or enter to add a new Author.</FormText>
           </FormGroup>
         </Col>
 
@@ -708,9 +764,16 @@ export class ItemEditor extends React.Component<Props, State> {
             <Input
               type="text"
               className="venues"
-              required={true}
+              required
               defaultValue={item.venues ? item.venues : ''}
-              onChange={e => this.changeItem('venues', [e.target.value])}
+              invalid={this.state.validate.hasOwnProperty('venues') && !this.state.validate.venues}
+              onChange={e => {
+                const value = e.target.value;
+                let valid = value.length > 0;
+                if (!value) { valid = false; }
+                if (valid) { this.changeItem('venues', value); } // if valid set the data in changedItem
+                this.setState({ validate: { ...this.state.validate, venues: valid } });
+              }}
             />
           </FormGroup>
         </Col>
@@ -726,6 +789,13 @@ export class ItemEditor extends React.Component<Props, State> {
             />
           </FormGroup>
         </Col>
+
+        <Col md="4">
+          <FormGroup>
+            <Label for="other_metadata">Other</Label>
+            <Input type="number" className="other_metadata" defaultValue={item.other_metadata ? item.other_metadata.toString() : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
+          </FormGroup>
+        </Col>
       </Row>
     );
   }
@@ -736,13 +806,9 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="authors">Author(s)</Label>
-            <Input
-              type="text"
-              className="authors"
-              required={true}
-              defaultValue={item.authors ? item.authors : ''}
-              onChange={e => this.changeItem('authors', e.target.value)}
-            />
+            <Authors values={item.authors} callback={values => this.authorsValid(values)} />
+            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
+            <FormText>Use tab or enter to add a new Author.</FormText>
           </FormGroup>
         </Col>
 
@@ -810,8 +876,15 @@ export class ItemEditor extends React.Component<Props, State> {
               type="text"
               className="publisher"
               defaultValue={item.publisher ? item.publisher : ''}
-              onChange={e => this.changeItem('publisher', e.target.value)}
-              required={true}
+              required
+              invalid={this.state.validate.hasOwnProperty('publisher') && !this.state.validate.publisher}
+              onChange={e => {
+                const value = e.target.value;
+                let valid = value.length > 0;
+                if (!value) { valid = false; }
+                if (valid) { this.changeItem('publisher', value); } // if valid set the data in changedItem
+                this.setState({ validate: { ...this.state.validate, publisher: valid } });
+              }}
             />
           </FormGroup>
         </Col>
@@ -823,30 +896,49 @@ export class ItemEditor extends React.Component<Props, State> {
               type="text"
               className="city_of_publication"
               defaultValue={item.city_of_publication ? item.city_of_publication : ''}
-              onChange={e => this.changeItem('city_of_publication', e.target.value)}
+              required
+              invalid={this.state.validate.hasOwnProperty('city_of_publication') && !this.state.validate.city_of_publication}
+              onChange={e => {
+                const value = e.target.value;
+                let valid = value.length > 0;
+                if (!value) { valid = false; }
+                if (valid) { this.changeItem('city_of_publication', value); } // if valid set the data in changedItem
+                this.setState({ validate: { ...this.state.validate, city_of_publication: valid } });
+              }}
             />
           </FormGroup>
         </Col>
 
-        <FormGroup>
-          <Label for="edition">First Edition</Label>
-          <Input
-            type="number"
-            className="edition"
-            defaultValue={item.edition ? item.edition.toString() : ''}
-            onChange={e => this.changeItem('edition', e.target.value)}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <Label for="edition_uploaded">Edition Uploaded</Label>
-          <Input
-            type="number"
-            className="edition_uploaded"
-            defaultValue={item.edition_uploaded ? item.edition_uploaded.toString() : ''}
-            onChange={e => this.changeItem('edition_uploaded', e.target.value)}
-          />
-        </FormGroup>
+        <Col>
+          <FormGroup>
+            <Label for="first_edition">First Edition</Label>
+            <Input
+              type="number"
+              className="first_edition"
+              defaultValue={item.first_edition ? item.first_edition.toString() : ''}
+              onChange={e => this.changeItem('first_edition', e.target.value)}
+            />
+          </FormGroup>
+        </Col>
+        <Col>
+          <FormGroup>
+            <Label for="edition">Edition</Label>
+            <Input
+              type="number"
+              className="edition"
+              defaultValue={item.edition ? item.edition.toString() : ''}
+              invalid={this.state.validate.hasOwnProperty('edition') && !this.state.validate.edition}
+              required
+              onChange={e => {
+                const value = e.target.value;
+                let valid = value.length > 0;
+                if (!value) { valid = false; }
+                if (valid) { this.changeItem('edition', value); } // if valid set the data in changedItem
+                this.setState({ validate: { ...this.state.validate, edition: valid } });
+              }}
+            />
+          </FormGroup>
+        </Col>
 
         <Col md="4">
           <FormGroup>
@@ -902,13 +994,9 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="authors">Author(s)</Label>
-            <Input
-              type="text"
-              className="authors"
-              required={true}
-              defaultValue={item.authors ? item.authors : ''}
-              onChange={e => this.changeItem('authors', e.target.value)}
-            />
+            <Authors values={item.authors} callback={values => this.authorsValid(values)} />
+            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
+            <FormText>Use tab or enter to add a new Author.</FormText>
           </FormGroup>
         </Col>
 
@@ -930,9 +1018,16 @@ export class ItemEditor extends React.Component<Props, State> {
             <Input
               type="text"
               className="institution"
-              required={true}
+              required
               defaultValue={item.institution ? item.institution : ''}
-              onChange={e => this.changeItem('institution', [e.target.value])}
+              invalid={this.state.validate.hasOwnProperty('institution') && !this.state.validate.institution}
+              onChange={e => {
+                const value = e.target.value;
+                let valid = value.length > 0;
+                if (!value) { valid = false; }
+                if (valid) { this.changeItem('institution', value); } // if valid set the data in changedItem
+                this.setState({ validate: { ...this.state.validate, institution: valid } });
+              }}
             />
           </FormGroup>
         </Col>
@@ -943,7 +1038,7 @@ export class ItemEditor extends React.Component<Props, State> {
             <Input
               type="text"
               className="related_event"
-              required={true}
+              required
               defaultValue={item.related_event ? item.related_event : ''}
               onChange={e => this.changeItem('related_event', [e.target.value])}
             />
@@ -959,13 +1054,9 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="authors">Author(s)</Label>
-            <Input
-              type="text"
-              className="authors"
-              required={true}
-              defaultValue={item.authors ? item.authors : ''}
-              onChange={e => this.changeItem('authors', e.target.value)}
-            />
+            <Authors values={item.authors} callback={values => this.authorsValid(values)} />
+            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
+            <FormText>Use tab or enter to add a new Author.</FormText>
           </FormGroup>
         </Col>
 
@@ -987,9 +1078,15 @@ export class ItemEditor extends React.Component<Props, State> {
             <Input
               type="text"
               className="organisation"
-              required={true}
               defaultValue={item.organisation ? item.organisation : ''}
-              onChange={e => this.changeItem('organisation', [e.target.value])}
+              invalid={this.state.validate.hasOwnProperty('organisation') && !this.state.validate.organisation}
+              onChange={e => {
+                const value = e.target.value;
+                let valid = value.length > 0;
+                if (!value) { valid = false; }
+                if (valid) { this.changeItem('organisation', value); } // if valid set the data in changedItem
+                this.setState({ validate: { ...this.state.validate, organisation: valid } });
+              }}
             />
           </FormGroup>
         </Col>
@@ -1018,7 +1115,7 @@ export class ItemEditor extends React.Component<Props, State> {
             <Input
               type="text"
               className="organisation"
-              required={true}
+              required
               defaultValue={item.organisation ? item.organisation : ''}
               onChange={e => this.changeItem('organisation', [e.target.value])}
             />
@@ -1176,10 +1273,11 @@ export class ItemEditor extends React.Component<Props, State> {
             <Input type="text" id="news_outlet" defaultValue={item.news_outlet ? item.news_outlet : ''} onChange={e => this.changeItem('news_outlet', e.target.value)}/>
           </FormGroup>
         </Col>
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
-            <Label for="authors">Author</Label>
-            <Input type="text" id="authors" defaultValue={item.authors ? item.authors : ''} onChange={e => this.changeItem('authors', e.target.value)}/>
+            <Label for="authors">Author(s)</Label>
+            <Authors values={item.authors} callback={values => this.authorsValid(values)} />
+            <FormText>Use tab or enter to add a new Author.</FormText>
           </FormGroup>
         </Col>
         <Col md="4">
@@ -1269,13 +1367,9 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="authors">Author(s)</Label>
-            <Input
-              type="text"
-              className="authors"
-              required={true}
-              defaultValue={item.authors ? item.authors : ''}
-              onChange={e => this.changeItem('authors', e.target.value)}
-            />
+            <Authors values={item.authors} callback={values => this.authorsValid(values)} />
+            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
+            <FormText>Use tab or enter to add a new Author.</FormText>
           </FormGroup>
         </Col>
         <Col md="6">
@@ -1290,7 +1384,7 @@ export class ItemEditor extends React.Component<Props, State> {
             <Input
               type="text"
               className="organisation"
-              required={true}
+              required
               defaultValue={item.organisation ? item.organisation : ''}
               onChange={e => this.changeItem('organisation', [e.target.value])}
             />
@@ -1479,8 +1573,8 @@ export class ItemEditor extends React.Component<Props, State> {
         </Col>
         <Col md="6">
           <FormGroup>
-            <Label for="minute_second">Minute : Second</Label>
-            <Input type="text" defaultValue={item.minute_second ? item.minute_second : ''} onChange={e => this.changeItem('minute_second', e.target.value)}/>
+            <Label for="duration">Minute : Second</Label>
+            <Input type="time" defaultValue={item.duration ? item.duration.toString() : ''} onChange={e => this.changeItem('duration', e.target.value)}/>
           </FormGroup>
         </Col>
         <Col md="6">
@@ -1749,7 +1843,8 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="authors">Author(s)</Label>
-            <Input type="text" id="authors" defaultValue={item.authors ? item.authors : ''} onChange={e => this.changeItem('authors', e.target.value)}/>
+            <Authors values={item.authors} callback={values => this.authorsValid(values)} />
+            <FormText>Use tab or enter to add a new Author.</FormText>
           </FormGroup>
         </Col>
         <Col md="6">

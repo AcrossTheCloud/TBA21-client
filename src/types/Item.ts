@@ -118,7 +118,7 @@ export interface Item {
   url: string | null;
 
   edition: number | null;
-  edition_uploaded: number | null;
+  first_edition: number | null;
   year_produced: number | null;
 
   volume: number | null;
@@ -215,7 +215,6 @@ export interface Item {
   journal: string | null;
 
   projection: string | null;
-  minute_second: string | null;
 
   event_title: string | null;
   recording_studio: string | null;
