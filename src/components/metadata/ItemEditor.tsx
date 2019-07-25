@@ -1,12 +1,13 @@
 import * as React from 'react';
 import { Button, Col, Form, FormGroup, Input, Label, Row } from 'reactstrap';
 
-import { API, Storage } from 'aws-amplify';
+import { API } from 'aws-amplify';
 import Select from 'react-select';
 
 import { Item } from '../../types/Item';
 import { itemTextSubTypes, licenseType, oceans } from './SelectOptions';
 import Tags from './Tags';
+import { storageGet } from '../utils/s3File';
 
 interface Props {
   item: Item;
@@ -14,6 +15,7 @@ interface Props {
 
 interface State {
   item: Item;
+  filePreview?: JSX.Element;
 }
 
 export class ItemEditor extends React.Component<Props, State> {
@@ -29,21 +31,34 @@ export class ItemEditor extends React.Component<Props, State> {
     };
   }
 
-  componentDidMount(): void {
+  async componentDidMount(): Promise<void> {
     this._isMounted = true;
+
+    await this.getItemFile();
   }
 
   componentWillUnmount() {
     this._isMounted = false;
   }
 
-  getItemFile = async () => {
+  getItemFile = async (): Promise<void> => {
     try {
+      let element;
+
       const
         key = this.state.item.s3_key.split('/').slice(2).join('/'),
-        result = await Storage.get(key, {level: 'private', download: true});
+        result = await storageGet(key);
 
-      console.log(result);
+      if (result && result.blobURL) {
+        if (result.type === 'image') {
+          element = <img className="img-fluid" src={result.blobURL} alt={this.state.item.title ? this.state.item.title : this.state.item.s3_key}/>;
+        }
+      }
+
+      if (element) {
+        this.setState({ filePreview: element });
+      }
+
     } catch (e) {
       console.log('getItemFile', e);
     }
@@ -56,7 +71,7 @@ export class ItemEditor extends React.Component<Props, State> {
       .filter( ([key, value]) => {
          return !(
            value === null ||
-           key === 'count' || key === 'image_hash' ||key === 'exif' ||
+           key === 'count' || key === 'image_hash' || key === 'exif' ||
            key === 'sha512' || key === 'aggregated_keyword_tags' ||
            key === 'aggregated_concept_tags' || key === 'md5' ||
            key === 'created_at' || key === 'updated_at' || key === 'machine_recognition_tags'
@@ -89,13 +104,15 @@ export class ItemEditor extends React.Component<Props, State> {
 
     const keywordTags = aggregated_keyword_tags ? aggregated_keyword_tags.map( t => ({ id: t.id, value: t.id, label: t.tag_name}) ) : [];
 
-    // const filePreview = () => {
-    //
-    // }
-
     return (
       <Form className="container-fluid">
         <Row>
+          { this.state.filePreview ?
+            <Col md="6">
+              {this.state.filePreview}
+            </Col>
+            : <></>
+          }
           <Col md="6">
             <FormGroup>
               <Label for="title">Title</Label>

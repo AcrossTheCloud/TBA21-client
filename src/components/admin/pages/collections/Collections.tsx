@@ -95,7 +95,7 @@ export default class Collections extends React.Component<{}, State> {
 
       return {
         collections: response.collections,
-        totalSize: parseInt(response.collections[0].count, 0)
+        totalSize: response.collections[0] && response.collections[0].count ? parseInt(response.collections[0].count, 0) : 0
       };
 
     } catch (e) {
