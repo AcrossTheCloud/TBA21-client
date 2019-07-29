@@ -89,7 +89,7 @@ class Tags extends React.Component<Props, State> {
               }
             });
 
-            timeoutSeconds = timeoutSeconds * 1.8;
+            timeoutSeconds = timeoutSeconds * 1.5;
 
             if (response.tags && response.tags.length) {
               clearTimeout(apiTimeout);
