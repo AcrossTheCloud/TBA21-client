@@ -100,19 +100,16 @@ export class Items extends React.Component<Props, State> {
    * @param s3Key { string }
    */
   loadItem = async (s3Key: string) => {
-    const items: ItemsObject = {};
+    const
+      items: ItemsObject = {},
+      itemState = {
+        loaded: false,
+        isLoading: false,
+      };
     try {
       const result: Item | null = await this.getItemByKey(s3Key);
       if (result) {
-        Object.assign(items, {
-          [result.s3_key]: {
-            loaded: true,
-            isLoading: false,
-            details: result
-          }
-        });
-
-        this.setState({ items: {...this.state.items, ...items} } );
+        Object.assign(itemState, { details: result, loaded: true });
 
         if (typeof this.props.callback === 'function') {
           this.props.callback(result.s3_key);
@@ -120,6 +117,10 @@ export class Items extends React.Component<Props, State> {
       }
     } catch (e) {
       console.log('No', e);
+    } finally {
+      Object.assign(items, { [s3Key]: itemState });
+
+      this.setState({ items: {...this.state.items, ...items} } );
     }
   }
 

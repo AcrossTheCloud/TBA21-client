@@ -1,0 +1,59 @@
+#logo {
+  background: #fff;
+  width: 100%;
+  height: 100vh;
+  transform: translate3d(0, calc(-50% - 43px) ,0);
+  transition: transform .5s cubic-bezier(0.22, 0.61, 0.36, 1), opacity .2s linear;
+
+  overflow-x: hidden;
+
+  &.loaded {
+    transform: translate3d(0,0,0);
+    height: 43px;
+  }
+
+  header {
+    width: 100%;
+
+    backface-visibility: hidden;
+    z-index: 11;
+    background-color: transparent;
+    mix-blend-mode: difference;
+    overflow-x: hidden;
+    //filter: invert(1);
+    //transform: translate3d(0,-30vw,0);
+
+    .left {
+      left: 0;
+      margin-left: -80vw;
+      &.init {
+        &.show {
+          margin-left: -6vw;
+          opacity: 1;
+        }
+      }
+    }
+
+    .right {
+      opacity: 0;
+      right: -16em;
+      margin-right: 58vw;
+      &.op {
+        opacity: 1;
+      }
+      &.init {
+        &.show {
+          margin-right: 6vw;
+          opacity: 1;
+        }
+      }
+    }
+
+    .left, .right {
+      width: 16em;
+      position: absolute;
+      top: .5em;
+      transition: margin 1s cubic-bezier(0.22, 0.61, 0.36, 1) .1s, opacity .8s linear;
+    }
+  }
+}

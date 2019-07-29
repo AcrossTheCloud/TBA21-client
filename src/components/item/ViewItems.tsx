@@ -8,9 +8,11 @@ import { Alerts } from '../utils/alerts';
 import { Item } from '../../types/Item';
 import { fetchItems, fetchMoreItems } from '../../actions/items/viewItems';
 import { State } from '../../reducers/items/viewItems';
+import { sdkGetObject } from '../utils/s3File';
 
 import 'styles/components/ViewItems.scss';
-import { sdkGetObject } from '../utils/s3File';
+import { S3File } from '../../types/s3File';
+import { AudioPlayer } from '../utils/AudioPlayer';
 
 interface Props extends Alerts {
   fetchItems: Function;
@@ -20,13 +22,25 @@ interface Props extends Alerts {
   };
 }
 
+const FileType = (props: { id: string, file: S3File }): JSX.Element => {
+  if (props.file.url) {
+    if (props.file.type === 'image') {
+      return <CardImg src={props.file.url}/>;
+    }
+    if (props.file.type === 'audio') {
+      return <AudioPlayer url={props.file.url} id={props.id} />
+    }
+  }
+  return <></>;
+};
+
 const MasonryItem = ( props: { item: Item } ): JSX.Element => {
   const [ item, setItem ] = React.useState(props.item);
 
   React.useEffect(() => {
     const getFile = async (key: string) => {
       const result = await sdkGetObject(props.item.s3_key);
-      if (result && result.blobURL && result.type) {
+      if (result && result.url && result.type) {
         setItem({ ...props.item, file: result });
       }
     };
@@ -41,7 +55,7 @@ const MasonryItem = ( props: { item: Item } ): JSX.Element => {
         to={`/view/${item.s3_key}`}
         className="item"
       >
-        {item.file && item.file.blobURL && item.file.type === 'image' ? <CardImg src={item.file.blobURL}/> : <></>}
+        {item.file ? <FileType id={item.s3_key} file={item.file} /> : <></>}
         <CardBody>
           <CardTitle>{item.title}</CardTitle>
           <CardText>{item.description}</CardText>
@@ -65,7 +79,10 @@ class ViewItems extends React.Component<Props, {}> { // tslint:disable-line: no-
   }
 
   render() {
-    const itemsLength = Object.keys(this.props.items).length;
+    const
+      itemsLength = Object.keys(this.props.items).length,
+      count = itemsLength && (this.props.items[0] && this.props.items[0].count) ? this.props.items[0].count : 0;
+
     return (
       <Container id="viewItems">
         <CardColumns>
@@ -75,7 +92,7 @@ class ViewItems extends React.Component<Props, {}> { // tslint:disable-line: no-
         </CardColumns>
 
         {
-          itemsLength && Object.keys(this.props.items).length < Object.values(this.props.items)[0].count ?
+          itemsLength && Object.keys(this.props.items).length < count ?
             <Button
               block
               color="primary"

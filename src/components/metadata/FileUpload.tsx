@@ -55,10 +55,6 @@ export class FileUpload extends React.Component<Props, State> {
     };
   }
 
-  whatType(item: string) {
-    return item.indexOf('image') > -1 ? 'image' : item;
-  }
-
   onDrop = async (acceptedFiles: Array<any>, rejectedFiles: any) => {  // tslint:disable-line:no-any
     const files: Files = {};
 
@@ -66,19 +62,23 @@ export class FileUpload extends React.Component<Props, State> {
 
     acceptedFiles.forEach( file => {
       if (file && !this.state.files.hasOwnProperty(file.name)) {
-        const fileUUID = uuid();
-
-        Object.assign(files, {
-          [file.name]: {
+        const
+          fileUUID = uuid(),
+          fileProps = {
             uuid: fileUUID,
             name: file.name,
-            preview: URL.createObjectURL(file), // Create the thumb/preview
             size: file.size,
             type: file.type,
             uploaded: false,
             original: file,
-          }
-        });
+          };
+
+        // Create the thumb/preview if it's an image.
+        if (file.type.includes('image')) {
+          Object.assign(fileProps, { preview: URL.createObjectURL(file) });
+        }
+
+        Object.assign(files, { [file.name]: fileProps });
       }
     });
 
@@ -137,7 +137,7 @@ export class FileUpload extends React.Component<Props, State> {
       return (
         <Col xs="12" md="6" lg="2" key={file.name}>
           <div className={uploaded}>
-            <img alt={file.name} className="inmg-fluid" src={file.preview} />
+            {file.preview ? <img alt={file.name} className="img-fluid" src={file.preview} /> : <>{file.name}</>}
             <Progress id={file.uuid} value={0} max={file.size} />
           </div>
         </Col>

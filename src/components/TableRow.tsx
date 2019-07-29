@@ -40,6 +40,7 @@ export const RenderPeople = (props: { people: Array<Person> }): JSX.Element => {
 
 export class Items extends React.Component<Urls, {}> {
   render() {
+
     console.log(this.props); // tslint:disable-line: no-console
     return (
       this.props.urls.map((item: string) => {return (<MultiMedia url={item} key={item} />); })

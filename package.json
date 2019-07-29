@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "aws-amplify": "^1.1.27",
-    "aws-amplify-react": "^2.3.7",
-    "aws-sdk": "^2.450.0",
+    "aws-amplify": "^1.1.30",
+    "aws-amplify-react": "^2.3.10",
+    "aws-sdk": "^2.493.0",
     "bootstrap": "^4.3.1",
     "filereader": "^0.10.3",
     "jquery": "^3.4.1",
@@ -31,12 +31,13 @@
     "react-select": "^3.0.4",
     "react-sigma": "^1.2.30",
     "react-spring": "^8.0.23",
-    "react-tag-input": "^6.4.0",
     "react-telephone-input": "^4.73.4",
     "reactstrap": "^8.0.0",
     "redux": "^4.0.1",
     "redux-thunk": "^2.3.0",
-    "uuid": "^3.3.2"
+    "simple-line-icons": "^2.4.1",
+    "uuid": "^3.3.2",
+    "wavesurfer.js": "^3.0.0"
   },
   "scripts": {
     "start": "bash src/link_config.sh && react-scripts start",
@@ -63,7 +64,6 @@
     "@types/react-router": "^4.4.5",
     "@types/react-router-dom": "^4.3.3",
     "@types/react-select": "^3.0.0",
-    "@types/react-tag-input": "^5.0.3",
     "@types/reactstrap": "^8.0.0",
     "@types/redux": "^3.6.0",
     "@types/redux-thunk": "^2.1.0",

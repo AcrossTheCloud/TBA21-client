@@ -1,45 +1,70 @@
-import { Storage } from 'aws-amplify';
-import { CognitoIdentityCredentials, config as AWSConfig, S3 } from 'aws-sdk';
+import { Auth } from 'aws-amplify';
+import { config as AWSConfig, S3 } from 'aws-sdk';
+import { HeadObjectOutput } from 'aws-sdk/clients/s3';
+
 import config from 'config';
 import { S3File } from '../../types/s3File';
 
-export const storageGet = async (key: string): Promise<S3File | false> => {
-  const result: any = await Storage.get(key, {level: 'private', download: true}); // tslint:disable-line: no-any
-  if (result.ContentType.includes('image')) {
-    const blob = new Blob([ result.Body ], { type: result.ContentType });
-    return {
-      blobURL: window.URL.createObjectURL(blob),
-      type: 'image'
-    };
-  } else {
-    return false;
-  }
-};
-
+/**
+ *
+ * Gets the S3 Object from any UUID "folder"
+ *
+ * Converts it to a URL if the contentType is an image.
+ *
+ * @param key { string }
+ */
 export const sdkGetObject = async (key: string): Promise<S3File | false> => {
-  AWSConfig.update({
-   region: config.s3.REGION,
-   credentials: new CognitoIdentityCredentials({
-    IdentityPoolId: config.cognito.IDENTITY_POOL_ID
-   })
- });
+  try {
 
-  const s3 = new S3(
-    {
-      params: {
-        Bucket: config.s3.BUCKET
-      }
+    if (!AWSConfig.credentials) {
+      AWSConfig.credentials = await Auth.currentCredentials();
+    } else {
+      AWSConfig.update({
+       credentials: await Auth.currentCredentials()
+     });
     }
-  );
 
-  const result: any = await s3.getObject({ Bucket: config.s3.BUCKET , Key: key}).promise(); // tslint:disable-line: no-any
-  if (result.ContentType.includes('image')) {
-    const blob = new Blob([ result.Body ], { type: result.ContentType });
-    return {
-      blobURL: window.URL.createObjectURL(blob),
-      type: 'image'
-    };
-  } else {
+    const s3 = new S3(
+      {
+        params: {
+          Bucket: config.s3.BUCKET
+        }
+      }
+    );
+
+    const
+      params = {
+        Bucket: config.s3.BUCKET,
+        Key: key
+      },
+      head: HeadObjectOutput = await s3.headObject({ Bucket: config.s3.BUCKET , Key: key}).promise();
+
+    if (head && ( head.ContentType && (head.ContentLength && head.ContentLength < 19865800) )) {
+      const url = await s3.getSignedUrl('getObject', params);
+      if (head.ContentType.includes('image')) {
+        return {
+          url: url,
+          type: 'image',
+          item_type: 'Image'
+        };
+      }
+
+      if (head.ContentType.includes('audio')) {
+        return {
+          url: url,
+          type: 'audio',
+          item_type: 'Audio'
+        };
+      }
+
+      return false;
+    } else {
+      return false;
+    }
+
+    // return await contentType();
+  } catch (e) {
+    console.log('e', e);
     return false;
   }
 };
