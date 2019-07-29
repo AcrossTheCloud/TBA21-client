@@ -97,7 +97,7 @@ const defaultRequiredFields = (item: Item) => {
   return {
     'title': (title !== null && title.length > 0),
     'description': (description !== null && description.length > 0),
-    'year_produced': (year_produced !== null && year_produced.toString().length > 0),
+    'year_produced': (year_produced !== null && year_produced.length > 0),
     'item_subtype': (item_subtype !== null && item_subtype.length > 0),
     'country_or_ocean': (country_or_ocean !== null && country_or_ocean.length > 0),
     'focus_arts': (focus_arts !== null && focus_arts.toString().length > 0),
@@ -311,20 +311,21 @@ export class ItemEditor extends React.Component<Props, State> {
       options = itemImageSubTypes;
     }
 
-    return <Select id="item_subtype" options={options} value={[options.find( o => o.label === this.state.changedItem.item_subtype)]} onChange={e => { console.log('in select', e); this.validateLength('item_subtype', e.value); this.subTypeOnChange(e.value); } } isSearchable/>;
+    return <Select id="item_subtype" options={options} value={[options.find( o => o.label === this.state.changedItem.item_subtype)]} onChange={e => { this.validateLength('item_subtype', e.value); this.subTypeOnChange(e.value); }} isSearchable/>;
   }
 
-  subTypeOnChange = (value: string) => {
+  subTypeOnChange = (subType: string) => {
     const state = {
       ...defaultRequiredFields(this.state.changedItem),
+      ...this.state.validate
     };
 
     const {
       authors,
       subtitle,
       news_outlet,
-      host_organization,
-      organization,
+      host_organisation,
+      organisation,
       publisher,
       city_of_publication,
       venues,
@@ -335,16 +336,18 @@ export class ItemEditor extends React.Component<Props, State> {
       episode_name,
       speakers,
       lecturer,
-      interviewer,
+      interviewers,
       interviewees,
       recording_name,
       medium,
       dimensions,
-      director,
-      writer,
-      event_title,
+      directors,
+      writers,
       exhibited_at,
-    } = this.state.validate;
+      location,
+      participants,
+      produced_by
+    } = this.state.changedItem;
 
     const
       textFields = {
@@ -358,11 +361,11 @@ export class ItemEditor extends React.Component<Props, State> {
         },
         'Policy Paper': {
           'authors': (authors || false),
-          'host_organization': (host_organization || false)
+          'host_organisation': (host_organisation || false)
         },
         'Report': {
           'authors': (authors || false),
-          'organization': (organization || false)
+          'organisation': (organisation || false)
         },
         'Book': {
           'authors': (authors || false),
@@ -407,7 +410,7 @@ export class ItemEditor extends React.Component<Props, State> {
           'lecturer': (lecturer || false)
         },
         'Interview': {
-          'interviewer': (interviewer || false),
+          'interviewers': (interviewers || false),
           'interviewees': (interviewees || false)
         },
         'Radio': {
@@ -430,8 +433,8 @@ export class ItemEditor extends React.Component<Props, State> {
           'medium': (medium || false)
         },
         'Film Still': {
-          'director': (director || false),
-          'writer': (writer || false),
+          'directors': (directors || false),
+          'writers': (writers || false),
         },
         'Sculpture': {
           'medium': (medium || false),
@@ -452,31 +455,34 @@ export class ItemEditor extends React.Component<Props, State> {
       },
       videoFields = {
         'Movie': {
-          'director': (director || false)
+          'directors': (directors || false)
         },
         'Documentary': {
-          'director': (director || false)
+          'directors': (directors || false)
         },
         'Interview': {
-          'interviewer': (interviewer || false),
+          'interviewers': (interviewers || false),
           'interviewees': (interviewees || false)
         },
         'Art': {
-          'director': (director || false)
+          'directors': (directors || false)
         },
         'News / Journalism': {
           'authors': (authors || false),
           'news outlet': (news_outlet || false)
         },
         'Event Recording': {
-          'authors': (authors || false),
-          'event_title': (event_title || false)
+          'location': (location || false),
+          'participants ': (participants  || false)
         },
         'Trailer': {
-          'director': (director || false)
+          'directors': (directors || false)
         },
         'Artwork Documentation': {
           'exhibited_at': (exhibited_at || false)
+        },
+        'Informational Video': {
+          'produced_by': (produced_by || false)
         }
       };
 
@@ -487,8 +493,11 @@ export class ItemEditor extends React.Component<Props, State> {
       ...imageFields,
       ...videoFields,
     };
-    Object.assign(state, subtypeRequiredFields[value]);
-    this.setState({ validate: {...state} });
+    Object.assign(state, subtypeRequiredFields[subType]);
+
+    if (subtypeRequiredFields[subType]) {
+      this.setState({ validate: {...state} });
+    }
   }
 
   validateURL = (url: string): boolean => {
@@ -532,7 +541,7 @@ export class ItemEditor extends React.Component<Props, State> {
           </FormGroup>
         </Col>
 
-        <Col>
+        <Col md="4">
           <FormGroup>
             <Label for="in_title">In (title of book or journal)</Label>
             <Input
@@ -685,15 +694,17 @@ export class ItemEditor extends React.Component<Props, State> {
             />
           </FormGroup>
         </Col>
-        <Col>
+        <Col md="4">
           <FormGroup>
             <Label for="news_outlet">News Outlet</Label>
             <Input
               type="text"
               className="news_outlet"
               defaultValue={item.news_outlet ? item.news_outlet : ''}
-              onChange={e => this.changeItem('news_outlet', e.target.value)}
+              invalid={this.state.validate.hasOwnProperty('news_outlet') && !this.state.validate.subtitle}
+              onChange={e => this.validateLength('news_outlet', e.target.value)}
             />
+            <FormFeedback>This is a required field</FormFeedback>
           </FormGroup>
         </Col>
         <Col md="4">
@@ -720,9 +731,9 @@ export class ItemEditor extends React.Component<Props, State> {
 
         <Col md="6">
           <FormGroup>
-            <Label for="host_organization">Organization</Label>
-            <CustomSelect values={item.host_organization} callback={values => this.validateLength('host_organization', values)} />
-            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('host_organization') && !this.state.validate.host_organization ? 'block' : 'none') }}>This is a required field</FormFeedback>
+            <Label for="host_organisation">Organization</Label>
+            <CustomSelect values={item.host_organisation} callback={values => this.validateLength('host_organisation', values)} />
+            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('host_organisation') && !this.state.validate.host_organisation ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Organization.</FormText>
           </FormGroup>
         </Col>
@@ -817,7 +828,7 @@ export class ItemEditor extends React.Component<Props, State> {
           </FormGroup>
         </Col>
 
-        <Col>
+        <Col md="4">
           <FormGroup>
             <Label for="publisher">Publisher</Label>
             <CustomSelect values={item.publisher} callback={values => this.validateLength('publisher', values)} />
@@ -826,7 +837,7 @@ export class ItemEditor extends React.Component<Props, State> {
           </FormGroup>
         </Col>
 
-        <Col>
+        <Col md="4">
           <FormGroup>
             <Label for="city_of_publication">City</Label>
             <Input
@@ -1021,7 +1032,7 @@ export class ItemEditor extends React.Component<Props, State> {
           </FormGroup>
         </Col>
 
-        <Col>
+        <Col md="4">
           <FormGroup>
             <Label for="publisher">Publisher</Label>
             <CustomSelect values={item.publisher} callback={values => this.validateLength('publisher', values)} />
@@ -1030,7 +1041,7 @@ export class ItemEditor extends React.Component<Props, State> {
           </FormGroup>
         </Col>
 
-        <Col>
+        <Col md="4">
           <FormGroup>
             <Label for="city_of_publication">City</Label>
             <Input
@@ -1044,7 +1055,7 @@ export class ItemEditor extends React.Component<Props, State> {
           </FormGroup>
         </Col>
 
-        <Col>
+        <Col md="4">
           <FormGroup>
             <Label for="first_edition">First Edition</Label>
             <Input
@@ -1055,7 +1066,7 @@ export class ItemEditor extends React.Component<Props, State> {
             />
           </FormGroup>
         </Col>
-        <Col>
+        <Col md="4">
           <FormGroup>
             <Label for="edition">Edition</Label>
             <Input
@@ -1413,6 +1424,20 @@ export class ItemEditor extends React.Component<Props, State> {
       <Row>
         <Col md="4">
           <FormGroup>
+            <Label for="location">Location</Label>
+            <Input type="text" id="location" defaultValue={item.location ? item.location : ''} onChange={e => this.changeItem('location', e.target.value)}/>
+          </FormGroup>
+        </Col>
+        <Col md="4">
+          <FormGroup>
+            <Label for="participants">Participant(s)</Label>
+            <CustomSelect values={item.participants} callback={values => this.validateLength('participants', values)} />
+            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('participants') && !this.state.validate.participants ? 'block' : 'none') }}>This is a required field</FormFeedback>
+            <FormText>Use tab or enter to add a new Participant.</FormText>
+          </FormGroup>
+        </Col>
+        <Col md="4">
+          <FormGroup>
             <Label for="event_title">Event Title</Label>
             <Input type="text" id="event_title" defaultValue={item.event_title ? item.event_title : ''} onChange={e => this.changeItem('event_title', e.target.value)}/>
           </FormGroup>
@@ -1425,8 +1450,8 @@ export class ItemEditor extends React.Component<Props, State> {
         </Col>
       </Row>
     );
-  } // todo missing schema fields, see spreadsheet
-  VideoInformationalVideo = () => { // todo missing schema fields, see spreadsheet
+  }
+  VideoInformationalVideo = () => {
     const item = this.state.changedItem;
     return (
       <Row>
@@ -1435,6 +1460,14 @@ export class ItemEditor extends React.Component<Props, State> {
             <Label for="collaborators">Collaborators</Label>
             <CustomSelect values={item.collaborators} callback={values => this.changeItem('collaborators', values)} />
             <FormText>Use tab or enter to add a new Collaborator.</FormText>
+          </FormGroup>
+        </Col>
+        <Col md="4">
+          <FormGroup>
+            <Label for="produced_by">Produced By</Label>
+            <CustomSelect values={item.produced_by} callback={values => this.validateLength('produced_by', values)} />
+            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('produced_by') && !this.state.validate.produced_by ? 'block' : 'none') }}>This is a required field</FormFeedback>
+            <FormText>Use tab or enter to add a new item.</FormText>
           </FormGroup>
         </Col>
         <Col md="4">
@@ -1452,7 +1485,7 @@ export class ItemEditor extends React.Component<Props, State> {
       <Row>
         <Col md="4">
           <FormGroup>
-            <Label for="exhibited_at">Exhibited At</Label>
+            <Label for="produced_by">Exhibited At</Label>
             <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('exhibited_at') && !this.state.validate.exhibited_at ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Exhibit.</FormText>
@@ -1853,9 +1886,9 @@ export class ItemEditor extends React.Component<Props, State> {
         </Col>
         <Col md="6">
           <FormGroup>
-            <Label for="host_organization">Organization</Label>
-            <CustomSelect values={item.host_organization} callback={values => this.validateLength('host_organization', values)} />
-            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('host_organization') && !this.state.validate.host_organization ? 'block' : 'none') }}>This is a required field</FormFeedback>
+            <Label for="host_organisation">Organization</Label>
+            <CustomSelect values={item.host_organisation} callback={values => this.validateLength('host_organisation', values)} />
+            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('host_organisation') && !this.state.validate.host_organisation ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Organization.</FormText>
           </FormGroup>
         </Col>
@@ -1958,9 +1991,9 @@ export class ItemEditor extends React.Component<Props, State> {
         </Col>
         <Col md="6">
           <FormGroup>
-            <Label for="host_organization">Organization</Label>
-            <CustomSelect values={item.host_organization} callback={values => this.validateLength('host_organization', values)} />
-            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('host_organization') && !this.state.validate.host_organization ? 'block' : 'none') }}>This is a required field</FormFeedback>
+            <Label for="host_organisation">Organization</Label>
+            <CustomSelect values={item.host_organisation} callback={values => this.validateLength('host_organisation', values)} />
+            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('host_organisation') && !this.state.validate.host_organisation ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Organization.</FormText>
           </FormGroup>
         </Col>
@@ -2030,7 +2063,7 @@ export class ItemEditor extends React.Component<Props, State> {
         </Row>
 
         <Row>
-          <Col md="4">
+          <Col>
             <Row>
               <Col xs="12">
                 <InputGroup>
@@ -2066,13 +2099,13 @@ export class ItemEditor extends React.Component<Props, State> {
             <Row>
               <Col xs="8">
                 <InputGroup>
-                  <CustomInput type="switch" id="oa_highlight" name="OA_highlight" label="OA Highlight Switch" checked={this.state.changedItem.oa_highlight || false} onChange={e => this.changeItem('oa_highlight', e.target.checked)} />
+                  <CustomInput type="switch" id="oa_highlight" name="OA_highlight" label="OA Highlight" checked={this.state.changedItem.oa_highlight || false} onChange={e => this.changeItem('oa_highlight', e.target.checked)} />
                 </InputGroup>
                 <InputGroup>
-                  <CustomInput type="switch" id="oa_original" name="OA_original" label="OA Original Switch" checked={this.state.changedItem.oa_original || false} onChange={e => this.changeItem('oa_original', e.target.checked)} />
+                  <CustomInput type="switch" id="oa_original" name="OA_original" label="OA Original" checked={this.state.changedItem.oa_original || false} onChange={e => this.changeItem('oa_original', e.target.checked)} />
                 </InputGroup>
                 <InputGroup>
-                  <CustomInput type="switch" id="tba21_material" name="TBA21_material" label="TBA21 Material Switch" checked={this.state.changedItem.tba21_material || false} onChange={e => this.changeItem('tba21_material', e.target.checked)} />
+                  <CustomInput type="switch" id="tba21_material" name="TBA21_material" label="TBA21 Material" checked={this.state.changedItem.tba21_material || false} onChange={e => this.changeItem('tba21_material', e.target.checked)} />
                 </InputGroup>
               </Col>
               <Col xs="4">
@@ -2127,7 +2160,7 @@ export class ItemEditor extends React.Component<Props, State> {
 
                     <FormGroup>
                       <Label for="year_produced">Year Produced</Label>
-                      <YearSelect value={item.year_produced ? item.year_produced.toString() : ''} callback={e => this.validateLength('year_produced', e.target.value)}/>
+                      <YearSelect value={item.year_produced ? item.year_produced : ''} callback={e => this.validateLength('year_produced', e)}/>
                       <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('year_produced') && !this.state.validate.year_produced ? 'block' : 'none') }}>This is a required field</FormFeedback>
                       <FormFeedback>This is a required field</FormFeedback>
                     </FormGroup>
@@ -2264,7 +2297,7 @@ export class ItemEditor extends React.Component<Props, State> {
                         className="concept_tags"
                         type="concept"
                         defaultValues={conceptTags}
-                        callback={tagIds => this.validateLength('concept_tags', tagIds ? tagIds : [])}
+                        callback={tags => this.validateLength('concept_tags', tags ? tags.map(tag => tag.id) : [])}
                       />
                       <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('concept_tags') && !this.state.validate.concept_tags ? 'block' : 'none') }}>This is a required field</FormFeedback>
                     </FormGroup>
@@ -2276,7 +2309,7 @@ export class ItemEditor extends React.Component<Props, State> {
                         type="keyword"
                         defaultValues={keywordTags}
                         loadItemRekognitionTags={!keywordTags.length ? this.state.originalItem.s3_key : ''}
-                        callback={tagIds => this.changeItem('keyword_tags', tagIds ? tagIds : [])}
+                        callback={tags => this.changeItem('keyword_tags', tags ? tags.map(tag => tag.id) : [])}
                       />
                     </FormGroup>
 
@@ -2289,6 +2322,7 @@ export class ItemEditor extends React.Component<Props, State> {
                         step="1"
                         min="0"
                         max="3"
+                        value={item.focus_arts ? item.focus_arts : 0}
                         onChange={e => this.validateLength('focus_arts', e.target.value)}
                         invalid={this.state.validate.hasOwnProperty('focus_arts') && !this.state.validate.focus_arts}
                       />
@@ -2301,6 +2335,7 @@ export class ItemEditor extends React.Component<Props, State> {
                         step="1"
                         min="0"
                         max="3"
+                        value={item.focus_scitech ? item.focus_scitech : 0}
                         onChange={e => this.validateLength('focus_scitech', e.target.value)}
                         invalid={this.state.validate.hasOwnProperty('focus_scitech') && !this.state.validate.focus_scitech}
                       />
@@ -2312,6 +2347,7 @@ export class ItemEditor extends React.Component<Props, State> {
                         step="1"
                         min="0"
                         max="3"
+                        value={item.focus_action ? item.focus_action : 0}
                         onChange={e => this.validateLength('focus_action', e.target.value)}
                         invalid={this.state.validate.hasOwnProperty('focus_action') && !this.state.validate.focus_action}
                       />

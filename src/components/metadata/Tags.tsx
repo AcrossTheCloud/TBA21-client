@@ -227,7 +227,7 @@ class Tags extends React.Component<Props, State> {
     }
 
     if (this.props.callback && typeof this.props.callback === 'function') {
-      this.props.callback(this.state.selectedTags.map(tag => tag.id));
+      this.props.callback(this.state.selectedTags.map(tag => tag));
     }
   }
 

@@ -8,7 +8,7 @@ interface Props {
   value: string | null;
 }
 interface State {
-  values: SelectObject[];
+  value: SelectObject;
   inputValue: string;
 }
 
@@ -26,18 +26,18 @@ export default class YearSelect extends React.Component<Props, State> {
     const { value } = this.props;
 
     const thisYear = (new Date()).getFullYear();
-    this.listOfYears = range(1900, thisYear + 1).map(y => ({ label: y, value: y }));
+    this.listOfYears = range(1900, thisYear + 1).map(y => ({ label: y.toString(), value: y.toString() }));
 
     this.state = {
-      values: value ? [{ label: value, value: value }] : [],
+      value: value ? { label: value, value: value } : {label: '', value: ''},
       inputValue: ''
     };
   }
 
-  handleChange = (values: any) => { // tslint:disable-line: no-any
-    this.setState({ values: values });
+  handleChange = (value: any) => { // tslint:disable-line: no-any
+    this.setState({ value: value });
     if (typeof this.props.callback === 'function') {
-      this.props.callback((values && values.length) ? values[0].value : []);
+      this.props.callback(value ? value.value : '');
     }
   }
 
@@ -49,37 +49,44 @@ export default class YearSelect extends React.Component<Props, State> {
     this.setState({ inputValue });
   }
 
+  handleCreateOption = (inputValue: string) => {
+    this.setState({ inputValue: '', value: createOption(inputValue) });
+    if (typeof this.props.callback === 'function') {
+      this.props.callback(inputValue);
+    }
+  }
+
   handleKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
-    let { inputValue, values } = this.state;
+    let { inputValue, value } = this.state;
     if (!inputValue) { return; }
 
     if (event.key === 'Enter' || event.key === 'Tab') {
 
       this.setState({
         inputValue: '',
-        values: [createOption(inputValue)]
+        value: createOption(inputValue)
       });
       event.preventDefault();
 
       if (typeof this.props.callback === 'function') {
-        this.props.callback((values && values.length) ? values[0].value : []);
+        this.props.callback(value.value);
       }
     }
   }
 
   render() {
-    const { inputValue, values } = this.state;
+    const { inputValue, value } = this.state;
     return (
       <CreatableSelect
         isClearable
         onInputChange={this.handleInputChange}
         onChange={this.handleChange}
         onKeyDown={this.handleKeyDown}
-        value={values}
+        value={value}
         options={this.listOfYears}
         inputValue={inputValue}
         formatCreateLabel={i => i}
-        onCreateOption={i => this.setState({ inputValue: '', values: [createOption(i)]})}
+        onCreateOption={this.handleCreateOption}
       />
     );
   }
