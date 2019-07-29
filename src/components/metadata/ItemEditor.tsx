@@ -701,7 +701,7 @@ export class ItemEditor extends React.Component<Props, State> {
               type="text"
               className="news_outlet"
               defaultValue={item.news_outlet ? item.news_outlet : ''}
-              invalid={this.state.validate.hasOwnProperty('news_outlet') && !this.state.validate.subtitle}
+              invalid={this.state.validate.hasOwnProperty('news_outlet') && !this.state.validate.news_outlet}
               onChange={e => this.validateLength('news_outlet', e.target.value)}
             />
             <FormFeedback>This is a required field</FormFeedback>
