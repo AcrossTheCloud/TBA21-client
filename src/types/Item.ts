@@ -89,8 +89,8 @@ export interface Item {
 
   concept_tags: number[] | null;
   keyword_tags: number[] | null;
-  aggregated_concept_tags?: APITag[] | null;
-  aggregated_keyword_tags?: APITag[] | null;
+  aggregated_concept_tags: APITag[] | null;
+  aggregated_keyword_tags: APITag[] | null;
 
   place: string[] | null;
   country_or_ocean: string | null;
@@ -109,11 +109,11 @@ export interface Item {
   featured_in: string | null;
   collaborators: string[] | null;
 
-  exhibited_at: string | null;
+  exhibited_at: string[] | null;
   series: number | null;
 
-  isbn: number[] | null;
-  related_isbn: number[] | null;
+  isbn: string[] | null;
+  related_isbn: string[] | null;
   doi: number | null;
   url: string | null;
 
@@ -133,7 +133,7 @@ export interface Item {
   interviewers: string[] | null;
   interviewees: string[] | null;
 
-  cast_: string | null; // should be an array, need to change in schema
+  cast_: string[] | null; // should be an array, need to change in schema
   license: License | null;
 
   title: string | null;
@@ -145,8 +145,8 @@ export interface Item {
 
   focus_arts: number | null;
   focus_action: number | null;
-
   focus_scitech: number | null;
+
   article_link: string | null;
 
   translated_from: string | null;
@@ -161,6 +161,7 @@ export interface Item {
   genre: string | null;
   news_outlet: string | null;
 
+  host: string[] | null;
   curator: string | null;
   institution: string | null;
   medium: string | null;

@@ -16,7 +16,7 @@ const createOption = (label: string): SelectObject => ({
   value: label,
 });
 
-export default class Authors extends React.Component<Props, State> {
+export default class CustomSelect extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
@@ -29,7 +29,7 @@ export default class Authors extends React.Component<Props, State> {
   handleChange = (values: any) => { // tslint:disable-line: no-any
     this.setState({ values: values });
     if (typeof this.props.callback === 'function') {
-      this.props.callback((values && values.length) ? values.map(e => e.value) : null);
+      this.props.callback((values && values.length) ? values.map(e => e.value) : []);
     }
   }
 
@@ -56,7 +56,7 @@ export default class Authors extends React.Component<Props, State> {
       event.preventDefault();
 
       if (typeof this.props.callback === 'function') {
-        this.props.callback((values && values.length) ? values.map(e => e.value) : null);
+        this.props.callback((values && values.length) ? values.map(e => e.value) : []);
       }
     }
   }

@@ -1,5 +1,4 @@
 import * as React from 'react';
-import $ from 'jquery';
 import {
   Button,
   Col,
@@ -52,7 +51,8 @@ import { AudioPlayer } from '../utils/AudioPlayer';
 
 import pencil from 'images/svgs/pencil.svg';
 import 'styles/components/metadata/itemEditor.scss';
-import Authors from './fields/Authors';
+import CustomSelect from './fields/CustomSelect';
+import YearSelect from './fields/YearSelect';
 
 interface Props {
   item: Item;
@@ -69,6 +69,7 @@ interface State extends Alerts, UIEditing {
   hideForm: boolean;
 
   activeTab: string;
+  titleEnabled: boolean;
 
   validate: {
     [key: string]: boolean
@@ -78,6 +79,34 @@ interface State extends Alerts, UIEditing {
 interface UIEditing {
   editingTitle?: boolean;
 }
+
+const defaultRequiredFields = (item: Item) => {
+  const {
+    title,
+    description,
+    year_produced,
+    item_subtype,
+    country_or_ocean,
+    focus_arts,
+    focus_action,
+    focus_scitech,
+    aggregated_concept_tags,
+    credit
+  } = item;
+
+  return {
+    'title': (title !== null && title.length > 0),
+    'description': (description !== null && description.length > 0),
+    'year_produced': (year_produced !== null && year_produced.toString().length > 0),
+    'item_subtype': (item_subtype !== null && item_subtype.length > 0),
+    'country_or_ocean': (country_or_ocean !== null && country_or_ocean.length > 0),
+    'focus_arts': (focus_arts !== null && focus_arts.toString().length > 0),
+    'focus_action': (focus_action !== null && focus_action.toString().length > 0),
+    'focus_scitech': (focus_scitech !== null && focus_scitech.toString().length > 0),
+    'concept_tags': (aggregated_concept_tags !== null && aggregated_concept_tags.length > 0),
+    'credit': (credit !== null && credit.length > 0)
+  };
+};
 
 export class ItemEditor extends React.Component<Props, State> {
   _isMounted;
@@ -95,7 +124,8 @@ export class ItemEditor extends React.Component<Props, State> {
       isLoading: true,
       hideForm: false,
       activeTab: '1',
-      validate: {}
+      validate: defaultRequiredFields(props.item),
+      titleEnabled: false
     };
   }
 
@@ -129,7 +159,7 @@ export class ItemEditor extends React.Component<Props, State> {
         const data = {
           originalItem: { ...response.item, file: getFileResult },
           changedItem: { ...response.item, file: getFileResult, item_type: (getFileResult && getFileResult.item_type) ? getFileResult.item_type.substr(0, 1).toUpperCase() : null }
-        }
+        };
         Object.assign(state, data);
       } else {
         Object.assign(state, { errorMessage: 'No item by that name.', hideForm: true });
@@ -183,10 +213,16 @@ export class ItemEditor extends React.Component<Props, State> {
       }
     );
 
-    const
-      state = {
-        isLoading: false
-      };
+    const state = {
+      isLoading: false
+    };
+
+    const invalidFields = Object.entries(this.state.validate).filter(v => v[1] === false).map(([key, val]) => key);
+    if (invalidFields.length > 0) {
+      Object.assign(state, { errorMessage: `Missing required Field(s)` });
+      this.setState(state);
+      return;
+    }
 
     try {
       const itemsProperties = {};
@@ -275,19 +311,196 @@ export class ItemEditor extends React.Component<Props, State> {
       options = itemImageSubTypes;
     }
 
-    return <Select id="item_subtype" options={options} value={[options.find( o => o.label === this.state.changedItem.item_subtype)]} onChange={e => this.changeItem('item_subtype', e.value)} isSearchable/>;
+    return <Select id="item_subtype" options={options} value={[options.find( o => o.label === this.state.changedItem.item_subtype)]} onChange={e => { console.log('in select', e); this.validateLength('item_subtype', e.value); this.subTypeOnChange(e.value); } } isSearchable/>;
+  }
+
+  subTypeOnChange = (value: string) => {
+    const state = {
+      ...defaultRequiredFields(this.state.changedItem),
+    };
+
+    const {
+      authors,
+      subtitle,
+      news_outlet,
+      host_organization,
+      organization,
+      publisher,
+      city_of_publication,
+      venues,
+      edition,
+      first_edition_year,
+      institution,
+      performers,
+      episode_name,
+      speakers,
+      lecturer,
+      interviewer,
+      interviewees,
+      recording_name,
+      medium,
+      dimensions,
+      director,
+      writer,
+      event_title,
+      exhibited_at,
+    } = this.state.validate;
+
+    const
+      textFields = {
+        'Academic Publication': {
+          'authors': (authors || false),
+          'subtitle': (subtitle || false)
+        },
+        'News': {
+          'authors': (authors || false),
+          'news_outlet': (news_outlet || false)
+        },
+        'Policy Paper': {
+          'authors': (authors || false),
+          'host_organization': (host_organization || false)
+        },
+        'Report': {
+          'authors': (authors || false),
+          'organization': (organization || false)
+        },
+        'Book': {
+          'authors': (authors || false),
+          'publisher': (publisher || false),
+          'city_of_publication': (city_of_publication	 || false),
+          'edition': (edition	 || false)
+        },
+        'Essay': {
+          'authors': (authors || false),
+          'venues': (venues || false),
+          'city_of_publication': (city_of_publication	 || false),
+          'edition': (edition	 || false)
+        },
+        'Historical Text': {
+          'authors': (authors || false),
+          'publisher': (publisher || false),
+          'venues': (venues || false),
+          'first_edition_year': (first_edition_year	 || false),
+          'edition': (edition	 || false)
+        },
+        'Event Press': {
+          'authors': (authors || false),
+          'institution': (institution || false),
+        },
+        'Toolkit': {
+          'authors': (authors || false),
+          'institution': (institution || false),
+        }
+      },
+      audioFields = {
+        'Sound Art': {
+          'performers': (performers || false)
+        },
+        'Music': {
+          'performers': (performers || false)
+        },
+        'Podcast': {
+          'episode_name': (episode_name || false),
+          'speakers': (speakers || false)
+        },
+        'Lecture': {
+          'lecturer': (lecturer || false)
+        },
+        'Interview': {
+          'interviewer': (interviewer || false),
+          'interviewees': (interviewees || false)
+        },
+        'Radio': {
+          'recording_name ': (recording_name || false)
+        },
+        'Performance Poetry ': {
+          'performers ': (performers || false)
+        }
+      },
+      imageFields = {
+        'Photograph': {
+          'medium': (medium || false),
+          'dimensions': (dimensions || false)
+        },
+        'Graphics': {
+          'medium': (medium || false),
+          'dimensions': (dimensions || false)
+        },
+        'Map': {
+          'medium': (medium || false)
+        },
+        'Film Still': {
+          'director': (director || false),
+          'writer': (writer || false),
+        },
+        'Sculpture': {
+          'medium': (medium || false),
+          'dimensions': (dimensions || false)
+        },
+        'Painting': {
+          'medium': (medium || false),
+          'dimensions': (dimensions || false)
+        },
+        'Illustration': {
+          'medium': (medium || false),
+          'dimensions': (dimensions || false)
+        },
+        'Artwork Documentation': {
+          'medium': (medium || false),
+          'dimensions': (dimensions || false)
+        }
+      },
+      videoFields = {
+        'Movie': {
+          'director': (director || false)
+        },
+        'Documentary': {
+          'director': (director || false)
+        },
+        'Interview': {
+          'interviewer': (interviewer || false),
+          'interviewees': (interviewees || false)
+        },
+        'Art': {
+          'director': (director || false)
+        },
+        'News / Journalism': {
+          'authors': (authors || false),
+          'news outlet': (news_outlet || false)
+        },
+        'Event Recording': {
+          'authors': (authors || false),
+          'event_title': (event_title || false)
+        },
+        'Trailer': {
+          'director': (director || false)
+        },
+        'Artwork Documentation': {
+          'exhibited_at': (exhibited_at || false)
+        }
+      };
+
+    // All the required fields per sub type
+    const subtypeRequiredFields = {
+      ...textFields,
+      ...audioFields,
+      ...imageFields,
+      ...videoFields,
+    };
+    Object.assign(state, subtypeRequiredFields[value]);
+    this.setState({ validate: {...state} });
   }
 
   validateURL = (url: string): boolean => {
     return /^(?:(http|ftp|sftp)(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/.test(url);
   }
-  authorsValid = (authors: string[] | null): void => {
+  validateLength = (field: string, inputValue: string | string[]): void => {
     let valid = false;
-    this.changeItem('authors', authors);
-    if (authors && authors.length > 0) {
+    this.changeItem(field, inputValue);
+    if (inputValue && inputValue.length > 0) {
       valid = true;
     }
-    this.setState({ validate: { ...this.state.validate, authors: valid } });
+    this.setState({ validate: { ...this.state.validate, [field]: valid } });
   }
 
   // ITEM TEXT
@@ -298,7 +511,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="authors">Author(s)</Label>
-            <Authors values={item.authors} callback={values => this.authorsValid(values)} />
+            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Author.</FormText>
           </FormGroup>
@@ -313,13 +526,7 @@ export class ItemEditor extends React.Component<Props, State> {
               required
               defaultValue={item.subtitle ? item.subtitle : ''}
               invalid={this.state.validate.hasOwnProperty('subtitle') && !this.state.validate.subtitle}
-              onChange={e => {
-                const value = e.target.value;
-                let valid = value.length > 0;
-                if (!value) { valid = false; }
-                if (valid) { this.changeItem('subtitle', value); } // if valid set the data in changedItem
-                this.setState({ validate: { ...this.state.validate, subtitle: valid } });
-              }}
+              onChange={e => this.validateLength('subtitle', e.target.value)}
             />
             <FormFeedback>This is a required field</FormFeedback>
           </FormGroup>
@@ -364,7 +571,6 @@ export class ItemEditor extends React.Component<Props, State> {
               className="edition"
               defaultValue={this.state.changedItem.edition ? this.state.changedItem.edition.toString() : ''}
               onChange={e => this.changeItem('edition', e.target.value)}
-              required={false}
             />
           </FormGroup>
         </Col>
@@ -407,7 +613,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="4">
           <FormGroup>
             <Label for="isbn">ISBN</Label>
-            <Input type="number" className="isbn" defaultValue={item.isbn ? item.isbn.toString() : ''} onChange={e => this.changeItem('isbn', e.target.value)}/>
+            <CustomSelect values={item.isbn} callback={values => this.changeItem('isbn', values)} />
           </FormGroup>
         </Col>
 
@@ -427,7 +633,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="authors">Author(s)</Label>
-            <Authors values={item.authors} callback={values => this.authorsValid(values)} />
+            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Author.</FormText>
           </FormGroup>
@@ -461,12 +667,11 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="authors">Author(s)</Label>
-            <Authors values={item.authors} callback={values => this.authorsValid(values)} />
+            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Author.</FormText>
           </FormGroup>
         </Col>
-
         <Col md="6">
           <FormGroup>
             <Label for="subtitle">Subtitle</Label>
@@ -476,17 +681,10 @@ export class ItemEditor extends React.Component<Props, State> {
               required
               defaultValue={item.subtitle ? item.subtitle : ''}
               invalid={this.state.validate.hasOwnProperty('subtitle') && !this.state.validate.subtitle}
-              onChange={e => {
-                const value = e.target.value.split(',').filter(i => i.length).map(i => i.trim()); // split on , and filter out any array items without a length and trim
-                let valid = value.length > 0;
-                if (!value) { valid = false; }
-                if (valid) { this.changeItem('subtitle', value); } // if valid set the data in changedItem
-                this.setState({ validate: { ...this.state.validate, subtitle: valid } });
-              }}
+              onChange={e => this.validateLength('subtitle', e.target.value)}
             />
           </FormGroup>
         </Col>
-
         <Col>
           <FormGroup>
             <Label for="news_outlet">News Outlet</Label>
@@ -498,7 +696,6 @@ export class ItemEditor extends React.Component<Props, State> {
             />
           </FormGroup>
         </Col>
-
         <Col md="4">
           <FormGroup>
             <Label for="other_metadata">Other</Label>
@@ -515,7 +712,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="authors">Author(s)</Label>
-            <Authors values={item.authors} callback={values => this.authorsValid(values)} />
+            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Author.</FormText>
           </FormGroup>
@@ -524,20 +721,9 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="host_organization">Organization</Label>
-            <Input
-              type="text"
-              className="host_organization"
-              required
-              defaultValue={item.host_organization ? item.host_organization : ''}
-              invalid={this.state.validate.hasOwnProperty('host_organization') && !this.state.validate.host_organization}
-              onChange={e => {
-                const value = e.target.value;
-                let valid = value.length > 0;
-                if (!value) { valid = false; }
-                if (valid) { this.changeItem('host_organization', value); } // if valid set the data in changedItem
-                this.setState({ validate: { ...this.state.validate, host_organization: valid } });
-              }}
-            />
+            <CustomSelect values={item.host_organization} callback={values => this.validateLength('host_organization', values)} />
+            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('host_organization') && !this.state.validate.host_organization ? 'block' : 'none') }}>This is a required field</FormFeedback>
+            <FormText>Use tab or enter to add a new Organization.</FormText>
           </FormGroup>
         </Col>
 
@@ -581,7 +767,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="authors">Author(s)</Label>
-            <Authors values={item.authors} callback={values => this.authorsValid(values)} />
+            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Author.</FormText>
           </FormGroup>
@@ -634,20 +820,9 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col>
           <FormGroup>
             <Label for="publisher">Publisher</Label>
-            <Input
-              type="text"
-              className="publisher"
-              defaultValue={item.publisher ? item.publisher : ''}
-              required
-              invalid={this.state.validate.hasOwnProperty('publisher') && !this.state.validate.publisher}
-              onChange={e => {
-                const value = e.target.value;
-                let valid = value.length > 0;
-                if (!value) { valid = false; }
-                if (valid) { this.changeItem('publisher', value); } // if valid set the data in changedItem
-                this.setState({ validate: { ...this.state.validate, publisher: valid } });
-              }}
-            />
+            <CustomSelect values={item.publisher} callback={values => this.validateLength('publisher', values)} />
+            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('publisher') && !this.state.validate.publisher ? 'block' : 'none') }}>This is a required field</FormFeedback>
+            <FormText>Use tab or enter to add a new Publisher.</FormText>
           </FormGroup>
         </Col>
 
@@ -660,13 +835,7 @@ export class ItemEditor extends React.Component<Props, State> {
               defaultValue={item.city_of_publication ? item.city_of_publication : ''}
               required
               invalid={this.state.validate.hasOwnProperty('city_of_publication') && !this.state.validate.city_of_publication}
-              onChange={e => {
-                const value = e.target.value;
-                let valid = value.length > 0;
-                if (!value) { valid = false; }
-                if (valid) { this.changeItem('city_of_publication', value); } // if valid set the data in changedItem
-                this.setState({ validate: { ...this.state.validate, city_of_publication: valid } });
-              }}
+              onChange={e => this.validateLength('city_of_publication', e.target.value)}
             />
           </FormGroup>
         </Col>
@@ -680,13 +849,7 @@ export class ItemEditor extends React.Component<Props, State> {
               defaultValue={this.state.changedItem.edition ? this.state.changedItem.edition.toString() : ''}
               required
               invalid={this.state.validate.hasOwnProperty('edition') && !this.state.validate.edition}
-              onChange={e => {
-                const value = e.target.value;
-                let valid = value.length > 0;
-                if (!value) { valid = false; }
-                if (valid) { this.changeItem('edition', value); } // if valid set the data in changedItem
-                this.setState({ validate: { ...this.state.validate, edition: valid } });
-              }}
+              onChange={e => this.validateLength('edition', e.target.value)}
             />
           </FormGroup>
         </Col>
@@ -713,7 +876,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="4">
           <FormGroup>
             <Label for="isbn">ISBN</Label>
-            <Input type="number" className="isbn" defaultValue={this.state.changedItem.isbn ? this.state.changedItem.isbn.toString() : ''} onChange={e => this.changeItem('isbn', e.target.value)}/>
+            <CustomSelect values={item.isbn} callback={values => this.changeItem('isbn', values)} />
           </FormGroup>
         </Col>
 
@@ -740,7 +903,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="authors">Author(s)</Label>
-            <Authors values={item.authors} callback={values => this.authorsValid(values)} />
+            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Author.</FormText>
           </FormGroup>
@@ -761,20 +924,9 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="publication_venue">Publication Venue</Label>
-            <Input
-              type="text"
-              className="venues"
-              required
-              defaultValue={item.venues ? item.venues : ''}
-              invalid={this.state.validate.hasOwnProperty('venues') && !this.state.validate.venues}
-              onChange={e => {
-                const value = e.target.value;
-                let valid = value.length > 0;
-                if (!value) { valid = false; }
-                if (valid) { this.changeItem('venues', value); } // if valid set the data in changedItem
-                this.setState({ validate: { ...this.state.validate, venues: valid } });
-              }}
-            />
+            <CustomSelect values={item.venues} callback={values => this.validateLength('venues', values)} />
+            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('venues') && !this.state.validate.venues ? 'block' : 'none') }}>This is a required field</FormFeedback>
+            <FormText>Use tab or enter to add a new Venue.</FormText>
           </FormGroup>
         </Col>
 
@@ -806,7 +958,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="authors">Author(s)</Label>
-            <Authors values={item.authors} callback={values => this.authorsValid(values)} />
+            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Author.</FormText>
           </FormGroup>
@@ -872,20 +1024,9 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col>
           <FormGroup>
             <Label for="publisher">Publisher</Label>
-            <Input
-              type="text"
-              className="publisher"
-              defaultValue={item.publisher ? item.publisher : ''}
-              required
-              invalid={this.state.validate.hasOwnProperty('publisher') && !this.state.validate.publisher}
-              onChange={e => {
-                const value = e.target.value;
-                let valid = value.length > 0;
-                if (!value) { valid = false; }
-                if (valid) { this.changeItem('publisher', value); } // if valid set the data in changedItem
-                this.setState({ validate: { ...this.state.validate, publisher: valid } });
-              }}
-            />
+            <CustomSelect values={item.publisher} callback={values => this.validateLength('publisher', values)} />
+            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('publisher') && !this.state.validate.publisher ? 'block' : 'none') }}>This is a required field</FormFeedback>
+            <FormText>Use tab or enter to add a new Publisher.</FormText>
           </FormGroup>
         </Col>
 
@@ -898,13 +1039,7 @@ export class ItemEditor extends React.Component<Props, State> {
               defaultValue={item.city_of_publication ? item.city_of_publication : ''}
               required
               invalid={this.state.validate.hasOwnProperty('city_of_publication') && !this.state.validate.city_of_publication}
-              onChange={e => {
-                const value = e.target.value;
-                let valid = value.length > 0;
-                if (!value) { valid = false; }
-                if (valid) { this.changeItem('city_of_publication', value); } // if valid set the data in changedItem
-                this.setState({ validate: { ...this.state.validate, city_of_publication: valid } });
-              }}
+              onChange={e => this.validateLength('city_of_publication', e.target.value)}
             />
           </FormGroup>
         </Col>
@@ -929,13 +1064,7 @@ export class ItemEditor extends React.Component<Props, State> {
               defaultValue={item.edition ? item.edition.toString() : ''}
               invalid={this.state.validate.hasOwnProperty('edition') && !this.state.validate.edition}
               required
-              onChange={e => {
-                const value = e.target.value;
-                let valid = value.length > 0;
-                if (!value) { valid = false; }
-                if (valid) { this.changeItem('edition', value); } // if valid set the data in changedItem
-                this.setState({ validate: { ...this.state.validate, edition: valid } });
-              }}
+              onChange={e => this.validateLength('edition', e.target.value)}
             />
           </FormGroup>
         </Col>
@@ -974,7 +1103,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="4">
           <FormGroup>
             <Label for="isbn">ISBN</Label>
-            <Input type="number" className="isbn" defaultValue={this.state.changedItem.isbn ? this.state.changedItem.isbn.toString() : ''} onChange={e => this.changeItem('isbn', e.target.value)}/>
+            <CustomSelect values={item.isbn} callback={values => this.changeItem('isbn', values)} />
           </FormGroup>
         </Col>
 
@@ -994,7 +1123,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="authors">Author(s)</Label>
-            <Authors values={item.authors} callback={values => this.authorsValid(values)} />
+            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Author.</FormText>
           </FormGroup>
@@ -1002,13 +1131,9 @@ export class ItemEditor extends React.Component<Props, State> {
 
         <Col md="6">
           <FormGroup>
-            <Label for="curator">Host/Artist/Curator Of Event</Label>
-            <Input
-              type="text"
-              className="curator"
-              defaultValue={item.curator ? item.curator : ''}
-              onChange={e => this.changeItem('curator', e.target.value)}
-            />
+            <Label for="host">Host/Artist/Curator Of Event</Label>
+            <CustomSelect values={item.host} callback={values => this.changeItem('host', values)} />
+            <FormText>Use tab or enter to add a new Host, Artist or Curator.</FormText>
           </FormGroup>
         </Col>
 
@@ -1021,13 +1146,7 @@ export class ItemEditor extends React.Component<Props, State> {
               required
               defaultValue={item.institution ? item.institution : ''}
               invalid={this.state.validate.hasOwnProperty('institution') && !this.state.validate.institution}
-              onChange={e => {
-                const value = e.target.value;
-                let valid = value.length > 0;
-                if (!value) { valid = false; }
-                if (valid) { this.changeItem('institution', value); } // if valid set the data in changedItem
-                this.setState({ validate: { ...this.state.validate, institution: valid } });
-              }}
+              onChange={e => this.validateLength('institution', e.target.value)}
             />
           </FormGroup>
         </Col>
@@ -1054,7 +1173,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="authors">Author(s)</Label>
-            <Authors values={item.authors} callback={values => this.authorsValid(values)} />
+            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Author.</FormText>
           </FormGroup>
@@ -1062,13 +1181,9 @@ export class ItemEditor extends React.Component<Props, State> {
 
         <Col md="6">
           <FormGroup>
-            <Label for="curator">Host/Artist/Curator Of Event</Label>
-            <Input
-              type="text"
-              className="curator"
-              defaultValue={item.curator ? item.curator : ''}
-              onChange={e => this.changeItem('curator', e.target.value)}
-            />
+            <Label for="host">Host/Artist/Curator Of Event</Label>
+            <CustomSelect values={item.host} callback={values => this.changeItem('host', values)} />
+            <FormText>Use tab or enter to add a new Host, Artist or Curator.</FormText>
           </FormGroup>
         </Col>
 
@@ -1080,13 +1195,7 @@ export class ItemEditor extends React.Component<Props, State> {
               className="organisation"
               defaultValue={item.organisation ? item.organisation : ''}
               invalid={this.state.validate.hasOwnProperty('organisation') && !this.state.validate.organisation}
-              onChange={e => {
-                const value = e.target.value;
-                let valid = value.length > 0;
-                if (!value) { valid = false; }
-                if (valid) { this.changeItem('organisation', value); } // if valid set the data in changedItem
-                this.setState({ validate: { ...this.state.validate, organisation: valid } });
-              }}
+              onChange={e => this.changeItem('organisation', e.target.value)}
             />
           </FormGroup>
         </Col>
@@ -1100,13 +1209,8 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="collaborators">Collaborators</Label>
-            <Input
-              type="text"
-              className="collaborators"
-              required={false}
-              defaultValue={item.collaborators ? item.collaborators : ''}
-              onChange={e => this.changeItem('collaborators', [e.target.value])}
-            />
+            <CustomSelect values={item.collaborators} callback={values => this.changeItem('collaborators', values)} />
+            <FormText>Use tab or enter to add a new Collaborator.</FormText>
           </FormGroup>
         </Col>
         <Col md="6">
@@ -1133,28 +1237,33 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="4">
           <FormGroup>
             <Label for="directors">Director</Label>
-            <Input type="text" id="directors" defaultValue={item.directors ? item.directors : ''} onChange={e => this.changeItem('directors', e.target.value)}/>
+            <CustomSelect values={item.directors} callback={values => this.validateLength('directors', values)} />
+            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('directors') && !this.state.validate.directors ? 'block' : 'none') }}>This is a required field</FormFeedback>
+            <FormText>Use tab or enter to add a new Director.</FormText>
           </FormGroup>
         </Col>
 
         <Col md="4">
           <FormGroup>
             <Label for="collaborators">Collaborators</Label>
-            <Input type="text" id="collaborators" defaultValue={item.collaborators ? item.collaborators : ''} onChange={e => this.changeItem('collaborators', e.target.value)}/>
+            <CustomSelect values={item.collaborators} callback={values => this.changeItem('collaborators', values)} />
+            <FormText>Use tab or enter to add a new Collaborator.</FormText>
           </FormGroup>
         </Col>
 
         <Col md="4">
           <FormGroup>
             <Label for="writers">Writer</Label>
-            <Input type="text" id="writers" defaultValue={item.writers ? item.writers : ''} onChange={e => this.changeItem('writers', e.target.value)}/>
+            <CustomSelect values={item.writers} callback={values => this.changeItem('writers', values)} />
+            <FormText>Use tab or enter to add a new Collaborator.</FormText>
           </FormGroup>
         </Col>
 
         <Col md="4">
           <FormGroup>
             <Label for="cast_">Cast</Label>
-            <Input type="text" id="cast_" defaultValue={item.cast_ ? item.cast_ : ''} onChange={e => this.changeItem('cast_', e.target.value)}/>
+            <CustomSelect values={item.cast_} callback={values => this.changeItem('cast_', values)} />
+            <FormText>Use tab or enter to add a new cast member.</FormText>
           </FormGroup>
         </Col>
 
@@ -1188,19 +1297,23 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="4">
           <FormGroup>
             <Label for="directors">Director</Label>
-            <Input type="text" id="directors" defaultValue={item.directors ? item.directors : ''} onChange={e => this.changeItem('directors', e.target.value)}/>
+            <CustomSelect values={item.directors} callback={values => this.validateLength('directors', values)} />
+            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('directors') && !this.state.validate.directors ? 'block' : 'none') }}>This is a required field</FormFeedback>
+            <FormText>Use tab or enter to add a new Director.</FormText>
           </FormGroup>
         </Col>
         <Col md="4">
           <FormGroup>
             <Label for="collaborators">Collaborators</Label>
-            <Input type="text" id="collaborators" defaultValue={item.collaborators ? item.collaborators : ''} onChange={e => this.changeItem('collaborators', e.target.value)}/>
+            <CustomSelect values={item.collaborators} callback={values => this.changeItem('collaborators', values)} />
+            <FormText>Use tab or enter to add a new Collaborator.</FormText>
           </FormGroup>
         </Col>
         <Col md="4">
           <FormGroup>
             <Label for="cast_">Cast</Label>
-            <Input type="text" id="cast_" defaultValue={item.cast_ ? item.cast_ : ''} onChange={e => this.changeItem('cast_', e.target.value)}/>
+            <CustomSelect values={item.cast_} callback={values => this.changeItem('cast_', values)} />
+            <FormText>Use tab or enter to add a new cast member.</FormText>
           </FormGroup>
         </Col>
         <Col md="4">
@@ -1226,7 +1339,8 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="4">
           <FormGroup>
             <Label for="collaborators">Collaborators</Label>
-            <Input type="text" id="collaborators" defaultValue={item.collaborators ? item.collaborators : ''} onChange={e => this.changeItem('collaborators', e.target.value)}/>
+            <CustomSelect values={item.collaborators} callback={values => this.changeItem('collaborators', values)} />
+            <FormText>Use tab or enter to add a new Collaborator.</FormText>
           </FormGroup>
         </Col>
         <Col md="4">
@@ -1245,13 +1359,17 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="4">
           <FormGroup>
             <Label for="interviewers">Interviewer</Label>
-            <Input type="text" id="interviewers" defaultValue={item.interviewers ? item.interviewers : ''} onChange={e => this.changeItem('interviewers', e.target.value)}/>
+            <CustomSelect values={item.interviewers} callback={values => this.validateLength('interviewers', values)} />
+            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('interviewers') && !this.state.validate.interviewers ? 'block' : 'none') }}>This is a required field</FormFeedback>
+            <FormText>Use tab or enter to add a new Interviewer.</FormText>
           </FormGroup>
         </Col>
         <Col md="4">
           <FormGroup>
             <Label for="interviewees">Interviewee(s)</Label>
-            <Input type="text" id="interviewees" defaultValue={item.interviewees ? item.interviewees : ''} onChange={e => this.changeItem('interviewees', e.target.value)}/>
+            <CustomSelect values={item.interviewees} callback={values => this.validateLength('interviewees', values)} />
+            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('interviewees') && !this.state.validate.interviewees ? 'block' : 'none') }}>This is a required field</FormFeedback>
+            <FormText>Use tab or enter to add a new Interviewee(s).</FormText>
           </FormGroup>
         </Col>
         <Col md="4">
@@ -1276,7 +1394,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="authors">Author(s)</Label>
-            <Authors values={item.authors} callback={values => this.authorsValid(values)} />
+            <CustomSelect values={item.authors} callback={values => this.changeItem(values, 'authors')} />
             <FormText>Use tab or enter to add a new Author.</FormText>
           </FormGroup>
         </Col>
@@ -1315,7 +1433,8 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="4">
           <FormGroup>
             <Label for="collaborators">Collaborators</Label>
-            <Input type="text" id="collaborators" defaultValue={item.collaborators ? item.collaborators : ''} onChange={e => this.changeItem('collaborators', e.target.value)}/>
+            <CustomSelect values={item.collaborators} callback={values => this.changeItem('collaborators', values)} />
+            <FormText>Use tab or enter to add a new Collaborator.</FormText>
           </FormGroup>
         </Col>
         <Col md="4">
@@ -1334,7 +1453,9 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="4">
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
-            <Input type="text" id="exhibited_at" defaultValue={item.exhibited_at ? item.exhibited_at : ''} onChange={e => this.changeItem('exhibited_at', e.target.value)}/>
+            <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('exhibited_at') && !this.state.validate.exhibited_at ? 'block' : 'none') }}>This is a required field</FormFeedback>
+            <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
 
@@ -1367,7 +1488,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="authors">Author(s)</Label>
-            <Authors values={item.authors} callback={values => this.authorsValid(values)} />
+            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Author.</FormText>
           </FormGroup>
@@ -1375,7 +1496,8 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="collaborators">Collaborators</Label>
-            <Input type="text" id="collaborators" defaultValue={item.collaborators ? item.collaborators : ''} onChange={e => this.changeItem('collaborators', e.target.value)}/>
+            <CustomSelect values={item.collaborators} callback={values => this.changeItem('collaborators', values)} />
+            <FormText>Use tab or enter to add a new Collaborator.</FormText>
           </FormGroup>
         </Col>
         <Col md="6">
@@ -1420,7 +1542,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
-            <Input type="text" id="exhibited_at" defaultValue={item.exhibited_at ? item.exhibited_at : ''} onChange={e => this.changeItem('exhibited_at', e.target.value)}/>
+            <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
           </FormGroup>
         </Col>
         <Col md="6">
@@ -1451,13 +1573,8 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="collaborators">Collaborators</Label>
-            <Input
-              type="text"
-              className="collaborators"
-              required={false}
-              defaultValue={item.collaborators ? item.collaborators : ''}
-              onChange={e => this.changeItem('collaborators', [e.target.value])}
-            />
+            <CustomSelect values={item.collaborators} callback={values => this.changeItem('collaborators', values)} />
+            <FormText>Use tab or enter to add a new Collaborator.</FormText>
           </FormGroup>
         </Col>
       </Row>
@@ -1482,7 +1599,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
-            <Input type="text" id="exhibited_at" defaultValue={item.exhibited_at ? item.exhibited_at : ''} onChange={e => this.changeItem('exhibited_at', e.target.value)}/>
+            <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
           </FormGroup>
         </Col>
         <Col md="6">
@@ -1525,7 +1642,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
-            <Input type="text" id="exhibited_at" defaultValue={item.exhibited_at ? item.exhibited_at : ''} onChange={e => this.changeItem('exhibited_at', e.target.value)}/>
+            <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
           </FormGroup>
         </Col>
         <Col md="6">
@@ -1544,19 +1661,24 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="directors">Director</Label>
-            <Input type="text" id="directors" defaultValue={item.directors ? item.directors : ''} onChange={e => this.changeItem('directors', e.target.value)}/>
+            <CustomSelect values={item.directors} callback={values => this.validateLength('directors', values)} />
+            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('directors') && !this.state.validate.directors ? 'block' : 'none') }}>This is a required field</FormFeedback>
+            <FormText>Use tab or enter to add a new Director.</FormText>
           </FormGroup>
         </Col>
         <Col md="6">
           <FormGroup>
             <Label for="writers">Writer</Label>
-            <Input type="text" id="writers" defaultValue={item.writers ? item.writers : ''} onChange={e => this.changeItem('writers', e.target.value)}/>
+            <CustomSelect values={item.writers} callback={values => this.validateLength('writers', values)} />
+            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('writers') && !this.state.validate.writers ? 'block' : 'none') }}>This is a required field</FormFeedback>
+            <FormText>Use tab or enter to add a new Writer.</FormText>
           </FormGroup>
         </Col>
         <Col md="6">
           <FormGroup>
             <Label for="collaborators">Collaborators</Label>
-            <Input type="text" id="collaborators" defaultValue={item.collaborators ? item.collaborators : ''} onChange={e => this.changeItem('collaborators', e.target.value)}/>
+            <CustomSelect values={item.collaborators} callback={values => this.changeItem('collaborators', values)} />
+            <FormText>Use tab or enter to add a new Collaborator.</FormText>
           </FormGroup>
         </Col>
         <Col md="6">
@@ -1568,7 +1690,8 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="cast_">Cast</Label>
-            <Input type="text" id="cast_" defaultValue={item.cast_ ? item.cast_ : ''} onChange={e => this.changeItem('cast_', e.target.value)}/>
+            <CustomSelect values={item.cast_} callback={values => this.changeItem('cast_', values)} />
+            <FormText>Use tab or enter to add a new cast member.</FormText>
           </FormGroup>
         </Col>
         <Col md="6">
@@ -1607,7 +1730,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
-            <Input type="text" id="exhibited_at" defaultValue={item.exhibited_at ? item.exhibited_at : ''} onChange={e => this.changeItem('exhibited_at', e.target.value)}/>
+            <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
           </FormGroup>
         </Col>
         <Col md="6">
@@ -1638,7 +1761,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
-            <Input type="text" id="exhibited_at" defaultValue={item.exhibited_at ? item.exhibited_at : ''} onChange={e => this.changeItem('exhibited_at', e.target.value)}/>
+            <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
           </FormGroup>
         </Col>
         <Col md="6">
@@ -1730,8 +1853,10 @@ export class ItemEditor extends React.Component<Props, State> {
         </Col>
         <Col md="6">
           <FormGroup>
-            <Label for="host_organization">Host Organization</Label>
-            <Input type="text" id="host_organization" defaultValue={item.host_organization ? item.host_organization : ''} onChange={e => this.changeItem('host_organization', e.target.value)}/>
+            <Label for="host_organization">Organization</Label>
+            <CustomSelect values={item.host_organization} callback={values => this.validateLength('host_organization', values)} />
+            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('host_organization') && !this.state.validate.host_organization ? 'block' : 'none') }}>This is a required field</FormFeedback>
+            <FormText>Use tab or enter to add a new Organization.</FormText>
           </FormGroup>
         </Col>
         <Col md="6">
@@ -1750,13 +1875,17 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="interviewers">Interviewer</Label>
-            <Input type="text" id="interviewers" defaultValue={item.interviewers ? item.interviewers : ''} onChange={e => this.changeItem('interviewers', e.target.value)}/>
+            <CustomSelect values={item.interviewers} callback={values => this.validateLength('interviewers', values)} />
+            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('interviewers') && !this.state.validate.interviewers ? 'block' : 'none') }}>This is a required field</FormFeedback>
+            <FormText>Use tab or enter to add a new Interviewer.</FormText>
           </FormGroup>
         </Col>
         <Col md="6">
           <FormGroup>
             <Label for="interviewees">Interviewee(s)</Label>
-            <Input type="text" id="interviewees" defaultValue={item.interviewees ? item.interviewees : ''} onChange={e => this.changeItem('interviewees', e.target.value)}/>
+            <CustomSelect values={item.interviewees} callback={values => this.validateLength('interviewees', values)} />
+            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('interviewees') && !this.state.validate.interviewees ? 'block' : 'none') }}>This is a required field</FormFeedback>
+            <FormText>Use tab or enter to add a new Interviewee(s).</FormText>
           </FormGroup>
         </Col>
         <Col md="6">
@@ -1829,8 +1958,10 @@ export class ItemEditor extends React.Component<Props, State> {
         </Col>
         <Col md="6">
           <FormGroup>
-            <Label for="host_organization">Host Organization</Label>
-            <Input type="text" id="host_organization" defaultValue={item.host_organization ? item.host_organization : ''} onChange={e => this.changeItem('host_organization', e.target.value)}/>
+            <Label for="host_organization">Organization</Label>
+            <CustomSelect values={item.host_organization} callback={values => this.validateLength('host_organization', values)} />
+            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('host_organization') && !this.state.validate.host_organization ? 'block' : 'none') }}>This is a required field</FormFeedback>
+            <FormText>Use tab or enter to add a new Organization.</FormText>
           </FormGroup>
         </Col>
       </Row>
@@ -1843,14 +1974,15 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="authors">Author(s)</Label>
-            <Authors values={item.authors} callback={values => this.authorsValid(values)} />
+            <CustomSelect values={item.authors} callback={values => this.changeItem(values, 'authors')} />
             <FormText>Use tab or enter to add a new Author.</FormText>
           </FormGroup>
         </Col>
         <Col md="6">
           <FormGroup>
             <Label for="collaborators">Collaborators</Label>
-            <Input type="text" id="collaborators" defaultValue={item.collaborators ? item.collaborators : ''} onChange={e => this.changeItem('collaborators', e.target.value)}/>
+            <CustomSelect values={item.collaborators} callback={values => this.changeItem('collaborators', values)} />
+            <FormText>Use tab or enter to add a new Collaborator.</FormText>
           </FormGroup>
         </Col>
         <Col md="6">
@@ -1903,22 +2035,25 @@ export class ItemEditor extends React.Component<Props, State> {
               <Col xs="12">
                 <InputGroup>
                   <Input
-                    className="border-0 bg-white"
+                    className={`${this.state.titleEnabled ? '' : 'border-0'} bg-white`}
                     id="title"
                     defaultValue={item.title ? item.title : ''}
                     placeholder="Please Enter A Title"
-                    onChange={e => this.changeItem('title', e.target.value)}
-                    disabled
+                    onChange={e => this.validateLength('title', e.target.value)}
+                    disabled={!this.state.titleEnabled}
+                    required
+                    invalid={this.state.validate.hasOwnProperty('title') && !this.state.validate.title}
                   />
                   <InputGroupAddon addonType="append">
                     <InputGroupText className="border-0 bg-white">
                       <img
                         src={pencil}
                         alt="Edit Item"
-                        onClick={() => $('#title').removeAttr('disabled').removeClass('border-0')}
+                        onClick={() => this.setState(prevState => ({ titleEnabled: !prevState.titleEnabled }))}
                       />
                     </InputGroupText>
                   </InputGroupAddon>
+                  <FormFeedback>This is a required field</FormFeedback>
                 </InputGroup>
               </Col>
             </Row>
@@ -1945,8 +2080,10 @@ export class ItemEditor extends React.Component<Props, State> {
                   <Button id="caret" onClick={this.updateItem} disabled={!this.state.isDifferent}>Save</Button>
                   <DropdownToggle caret />
                   <DropdownMenu>
-                    <DropdownItem onClick={() => { this.changeItem('status', false); this.updateItem(); }}>Unpublish</DropdownItem>
-                    <DropdownItem onClick={() => { this.changeItem('status', true); this.updateItem(); }}>Publish</DropdownItem>
+                    {item.status ?
+                      <DropdownItem onClick={() => { this.changeItem('status', false); this.updateItem(); }}>Unpublish</DropdownItem> :
+                      <DropdownItem onClick={() => { this.changeItem('status', true); this.updateItem(); }}>Publish</DropdownItem>
+                    }
                   </DropdownMenu>
                 </UncontrolledButtonDropdown>
               </Col>
@@ -1978,11 +2115,21 @@ export class ItemEditor extends React.Component<Props, State> {
                   <Col>
                     <FormGroup>
                       <Label for="description">Description</Label>
-                      <Input type="textarea" id="description" defaultValue={item.description ? item.description : ''} onChange={e => this.changeItem('description', e.target.value)}/>
+                      <Input
+                        type="textarea"
+                        id="description"
+                        defaultValue={item.description ? item.description : ''}
+                        onChange={e => this.validateLength('description', e.target.value)}
+                        invalid={this.state.validate.hasOwnProperty('description') && !this.state.validate.description}
+                      />
+                      <FormFeedback>This is a required field</FormFeedback>
                     </FormGroup>
 
                     <FormGroup>
                       <Label for="year_produced">Year Produced</Label>
+                      <YearSelect value={item.year_produced ? item.year_produced.toString() : ''} callback={e => this.validateLength('year_produced', e.target.value)}/>
+                      <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('year_produced') && !this.state.validate.year_produced ? 'block' : 'none') }}>This is a required field</FormFeedback>
+                      <FormFeedback>This is a required field</FormFeedback>
                     </FormGroup>
 
                     <FormGroup>
@@ -1992,7 +2139,8 @@ export class ItemEditor extends React.Component<Props, State> {
 
                     <FormGroup>
                       <Label for="country_or_ocean">Region (Country/Ocean)</Label>
-                      <Select id="country_or_ocean" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries }]} value={[countryOrOcean]} onChange={e => this.changeItem('country_or_ocean', e.value)} isSearchable/>
+                      <Select id="country_or_ocean" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries }]} value={[countryOrOcean]} onChange={e => this.validateLength('country_or_ocean', e.value)} isSearchable/>
+                      <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('country_or_ocean') && !this.state.validate.country_or_ocean ? 'block' : 'none') }}>This is a required field</FormFeedback>
                     </FormGroup>
 
                     <FormGroup>
@@ -2003,6 +2151,7 @@ export class ItemEditor extends React.Component<Props, State> {
                     <FormGroup>
                       <Label for="sub_type">Sub Type</Label>
                       <this.SubType />
+                      <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('item_subtype') && !this.state.validate.item_subtype ? 'block' : 'none') }}>This is a required field</FormFeedback>
                     </FormGroup>
 
                     <FormGroup>
@@ -2012,7 +2161,14 @@ export class ItemEditor extends React.Component<Props, State> {
 
                     <FormGroup>
                       <Label for="credit">Credit</Label>
-                      <Input type="text" id="credit" defaultValue={item.credit ? item.credit : ''} onChange={e => this.changeItem('credit', e.target.value)}/>
+                      <Input
+                        type="text"
+                        id="credit"
+                        defaultValue={item.credit ? item.credit : ''}
+                        onChange={e => this.validateLength('credit', e.target.value)}
+                        invalid={this.state.validate.hasOwnProperty('credit') && !this.state.validate.credit}
+                      />
+                      <FormFeedback>This is a required field</FormFeedback>
                     </FormGroup>
 
                     <FormGroup>
@@ -2108,8 +2264,9 @@ export class ItemEditor extends React.Component<Props, State> {
                         className="concept_tags"
                         type="concept"
                         defaultValues={conceptTags}
-                        callback={tagIds => this.changeItem('concept_tags', tagIds ? tagIds : [])}
+                        callback={tagIds => this.validateLength('concept_tags', tagIds ? tagIds : [])}
                       />
+                      <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('concept_tags') && !this.state.validate.concept_tags ? 'block' : 'none') }}>This is a required field</FormFeedback>
                     </FormGroup>
 
                     <FormGroup>
@@ -2126,11 +2283,39 @@ export class ItemEditor extends React.Component<Props, State> {
                     <FormGroup>
                       <legend>Focus</legend>
                       <Label for="art">Art</Label>
-                      <Input className="art" type="range" step="1" min="0" max="3"/>
+                      <Input
+                        className="art"
+                        type="range"
+                        step="1"
+                        min="0"
+                        max="3"
+                        onChange={e => this.validateLength('focus_arts', e.target.value)}
+                        invalid={this.state.validate.hasOwnProperty('focus_arts') && !this.state.validate.focus_arts}
+                      />
+                      <FormFeedback>This is a required field</FormFeedback>
+
                       <Label for="scitech">Sci Tech</Label>
-                      <Input className="scitech" type="range" step="1" min="0" max="3"/>
+                      <Input
+                        className="scitech"
+                        type="range"
+                        step="1"
+                        min="0"
+                        max="3"
+                        onChange={e => this.validateLength('focus_scitech', e.target.value)}
+                        invalid={this.state.validate.hasOwnProperty('focus_scitech') && !this.state.validate.focus_scitech}
+                      />
+                      <FormFeedback>This is a required field</FormFeedback>
                       <Label for="action">Action</Label>
-                      <Input className="action" type="range" step="1" min="0" max="3"/>
+                      <Input
+                        className="action"
+                        type="range"
+                        step="1"
+                        min="0"
+                        max="3"
+                        onChange={e => this.validateLength('focus_action', e.target.value)}
+                        invalid={this.state.validate.hasOwnProperty('focus_action') && !this.state.validate.focus_action}
+                      />
+                      <FormFeedback>This is a required field</FormFeedback>
                     </FormGroup>
                   </Col>
                 </Row>
