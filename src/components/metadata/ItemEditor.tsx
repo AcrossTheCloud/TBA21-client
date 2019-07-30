@@ -25,7 +25,7 @@ import {
 
 import { API } from 'aws-amplify';
 import Select from 'react-select';
-import { isEqual } from 'lodash';
+import { isEqual, isArray } from 'lodash';
 
 import {
   Item,
@@ -312,7 +312,7 @@ export class ItemEditor extends React.Component<Props, State> {
       options = itemImageSubTypes;
     }
 
-    return <Select id="item_subtype" options={options} value={[options.find( o => o.label === this.state.changedItem.item_subtype)]} onChange={e => { this.validateLength('item_subtype', e.value); this.subTypeOnChange(e.value); }} isSearchable/>;
+    return <Select id="item_subtype" options={options} value={[options.find( o => o.label === this.state.changedItem.item_subtype)]} onChange={e => this.validateLength('item_subtype', e.value)} isSearchable/>;
   }
 
   subTypeOnChange = (subType: string) => {
@@ -506,7 +506,11 @@ export class ItemEditor extends React.Component<Props, State> {
     if (inputValue && inputValue.length > 0) {
       valid = true;
     }
-    this.setState({ validate: { ...this.state.validate, [field]: valid } });
+    this.setState({ validate: { ...this.state.validate, [field]: valid } }, () => {
+      if (!isArray(inputValue) && field === 'item_subtype') {
+        this.subTypeOnChange(inputValue);
+      }
+    });
   }
 
   // ITEM TEXT

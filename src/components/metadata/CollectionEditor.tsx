@@ -14,7 +14,7 @@ import {
 } from 'reactstrap';
 import { API } from 'aws-amplify';
 import Select from 'react-select';
-import { isEqual } from 'lodash';
+import { isEqual, isArray } from 'lodash';
 
 import Tags from './Tags';
 import {
@@ -231,7 +231,8 @@ export class CollectionEditor extends React.Component<Props, State> {
   typeOnChange = (subType: string) => {
     const state = {
       ...defaultRequiredFields(this.state.collection),
-      ...this.state.validate
+      ...this.state.validate,
+      type: true
     };
 
     const {
@@ -292,7 +293,7 @@ export class CollectionEditor extends React.Component<Props, State> {
 
     if (TypeFields[subType]) {
       Object.assign(state, TypeFields[subType]);
-      this.setState({ validate: {...state} });
+      this.setState({ validate: state });
     }
   }
 
@@ -302,7 +303,11 @@ export class CollectionEditor extends React.Component<Props, State> {
     if (inputValue && inputValue.length > 0) {
       valid = true;
     }
-    this.setState({ validate: { ...this.state.validate, [field]: valid } });
+    this.setState({ validate: { ...this.state.validate, [field]: valid } }, () => {
+      if (!isArray(inputValue) && field === 'type') {
+        this.typeOnChange(inputValue);
+      }
+    });
   }
 
   Series = (): JSX.Element => {
@@ -1171,8 +1176,8 @@ export class CollectionEditor extends React.Component<Props, State> {
                     </FormGroup>
 
                     <FormGroup>
-                      <Label for="sub_type">Type</Label>
-                      <Select id="type" options={collectionTypes} value={[collectionTypes.find( o => o.label === type)]} onChange={e => { this.validateLength('type', e.value); this.typeOnChange(e.value); }} isSearchable/>
+                      <Label for="type">Type</Label>
+                      <Select id="type" options={collectionTypes} value={[collectionTypes.find( o => o.label === type)]} onChange={e => this.validateLength('type', e.value)} isSearchable/>
                       <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('type') && !this.state.validate.type ? 'block' : 'none') }}>This is a required field</FormFeedback>
                     </FormGroup>
 
