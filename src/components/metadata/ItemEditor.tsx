@@ -53,6 +53,7 @@ import pencil from 'images/svgs/pencil.svg';
 import 'styles/components/metadata/itemEditor.scss';
 import CustomSelect from './fields/CustomSelect';
 import YearSelect from './fields/YearSelect';
+import { validateURL } from '../utils/inputs/url';
 
 interface Props {
   item: Item;
@@ -61,7 +62,7 @@ interface Props {
 interface State extends Alerts, UIEditing {
   originalItem: Item;
   changedItem: Item;
-  changedItemFields: {
+  changedFields: {
     [key: string]: string
   };
   isDifferent: boolean;
@@ -119,7 +120,7 @@ export class ItemEditor extends React.Component<Props, State> {
     this.state = {
       originalItem: props.item,
       changedItem: {...props.item},
-      changedItemFields: {},
+      changedFields: {},
       isDifferent: false,
       isLoading: true,
       hideForm: false,
@@ -228,11 +229,11 @@ export class ItemEditor extends React.Component<Props, State> {
       const itemsProperties = {};
 
       // We filter out specific values here as the API doesn't accept them, but returns them in the Item object.
-      Object.entries(this.state.changedItemFields)
+      Object.entries(this.state.changedFields)
         .filter( ([key, value]) => {
           return !(
             value === null
-            // || key === 'id' // use this to exclude things, you shouldn't need to (eg don't put them in changedItemFields...
+            // || key === 'id' // use this to exclude things, you shouldn't need to (eg don't put them in changedFields...
           );
         })
         .forEach( tag => {
@@ -250,9 +251,9 @@ export class ItemEditor extends React.Component<Props, State> {
 
       if (!result.success && result.message && result.message.length > 1) {
         // If we've failed set ChangedItem back to the original
-        Object.assign(state, { errorMessage: result.message, changedItem: {...this.state.originalItem}, changedItemFields: {}, status: false, isDifferent: false });
+        Object.assign(state, { errorMessage: result.message, changedItem: {...this.state.originalItem}, changedFields: {}, status: false, isDifferent: false, validate: defaultRequiredFields(this.state.originalItem)});
       } else if (result.success) {
-        Object.assign(state, { successMessage: 'Updated item!', changedItemFields: {}, originalItem: {...this.state.changedItem}, isDifferent: false });
+        Object.assign(state, { successMessage: 'Updated item!', changedFields: {}, originalItem: {...this.state.changedItem}, isDifferent: false, validate: defaultRequiredFields(this.state.originalItem)});
       } else {
         Object.assign(state, { warningMessage: result });
       }
@@ -267,28 +268,28 @@ export class ItemEditor extends React.Component<Props, State> {
 
   /**
    *
-   * Adds changed values to ChangedItem and ChangedItemFields
+   * Adds changed values to changedItem and changedFields
    * Compares props.item to changedItem and enables/disabled Update button
    *
    * @param key { string }
    * @param value { any }
    */
   changeItem = (key: string, value: any) => { // tslint:disable-line: no-any
-    const { changedItem, changedItemFields } = this.state;
+    const { changedItem, changedFields } = this.state;
 
     if (value) {
-      Object.assign(changedItemFields, { [key]: value });
+      Object.assign(changedFields, { [key]: value });
       Object.assign(changedItem, { [key]: value });
     } else {
-      if (changedItemFields[key]) {
-        delete changedItemFields[key];
+      if (changedFields[key]) {
+        delete changedFields[key];
         // Reset back to original item key value
         Object.assign(changedItem, { [key]: this.state.originalItem[key] });
       }
     }
     this.setState(
       {
-        changedItemFields: changedItemFields,
+        changedFields: changedFields,
         changedItem: changedItem,
         isDifferent: !isEqual(this.state.originalItem, changedItem)
       }
@@ -493,16 +494,12 @@ export class ItemEditor extends React.Component<Props, State> {
       ...imageFields,
       ...videoFields,
     };
-    Object.assign(state, subtypeRequiredFields[subType]);
-
     if (subtypeRequiredFields[subType]) {
+      Object.assign(state, subtypeRequiredFields[subType]);
       this.setState({ validate: {...state} });
     }
   }
 
-  validateURL = (url: string): boolean => {
-    return /^(?:(http|ftp|sftp)(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/.test(url);
-  }
   validateLength = (field: string, inputValue: string | string[]): void => {
     let valid = false;
     this.changeItem(field, inputValue);
@@ -513,14 +510,14 @@ export class ItemEditor extends React.Component<Props, State> {
   }
 
   // ITEM TEXT
-  TextAcademicPublication = () => {
+  TextAcademicPublication = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
       <Row>
         <Col md="6">
           <FormGroup>
             <Label for="authors">Author(s)</Label>
-            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
+            <CustomSelect isMulti values={item.authors} callback={values => this.validateLength('authors', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Author.</FormText>
           </FormGroup>
@@ -622,7 +619,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="4">
           <FormGroup>
             <Label for="isbn">ISBN</Label>
-            <CustomSelect values={item.isbn} callback={values => this.changeItem('isbn', values)} />
+            <CustomSelect isMulti values={item.isbn} callback={values => this.changeItem('isbn', values)} />
           </FormGroup>
         </Col>
 
@@ -635,14 +632,14 @@ export class ItemEditor extends React.Component<Props, State> {
       </Row>
     );
   }
-  TextArticle  = () => {
+  TextArticle  = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
       <Row>
         <Col md="6">
           <FormGroup>
             <Label for="authors">Author(s)</Label>
-            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
+            <CustomSelect isMulti values={item.authors} callback={values => this.validateLength('authors', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Author.</FormText>
           </FormGroup>
@@ -669,14 +666,14 @@ export class ItemEditor extends React.Component<Props, State> {
       </Row>
     );
   }
-  TextNews = () => {
+  TextNews = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
       <Row>
         <Col md="6">
           <FormGroup>
             <Label for="authors">Author(s)</Label>
-            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
+            <CustomSelect isMulti values={item.authors} callback={values => this.validateLength('authors', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Author.</FormText>
           </FormGroup>
@@ -716,14 +713,14 @@ export class ItemEditor extends React.Component<Props, State> {
       </Row>
     );
   }
-  TextPolicyPaperReport = () => {
+  TextPolicyPaperReport = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
       <Row>
         <Col md="6">
           <FormGroup>
             <Label for="authors">Author(s)</Label>
-            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
+            <CustomSelect isMulti values={item.authors} callback={values => this.validateLength('authors', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Author.</FormText>
           </FormGroup>
@@ -732,7 +729,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="host_organisation">Organization</Label>
-            <CustomSelect values={item.host_organisation} callback={values => this.validateLength('host_organisation', values)} />
+            <CustomSelect isMulti values={item.host_organisation} callback={values => this.validateLength('host_organisation', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('host_organisation') && !this.state.validate.host_organisation ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Organization.</FormText>
           </FormGroup>
@@ -771,14 +768,14 @@ export class ItemEditor extends React.Component<Props, State> {
       </Row>
     );
   }
-  TextBook = () => {
+  TextBook = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
       <Row>
         <Col md="6">
           <FormGroup>
             <Label for="authors">Author(s)</Label>
-            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
+            <CustomSelect isMulti values={item.authors} callback={values => this.validateLength('authors', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Author.</FormText>
           </FormGroup>
@@ -831,7 +828,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="4">
           <FormGroup>
             <Label for="publisher">Publisher</Label>
-            <CustomSelect values={item.publisher} callback={values => this.validateLength('publisher', values)} />
+            <CustomSelect isMulti values={item.publisher} callback={values => this.validateLength('publisher', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('publisher') && !this.state.validate.publisher ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Publisher.</FormText>
           </FormGroup>
@@ -887,7 +884,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="4">
           <FormGroup>
             <Label for="isbn">ISBN</Label>
-            <CustomSelect values={item.isbn} callback={values => this.changeItem('isbn', values)} />
+            <CustomSelect isMulti values={item.isbn} callback={values => this.changeItem('isbn', values)} />
           </FormGroup>
         </Col>
 
@@ -907,14 +904,14 @@ export class ItemEditor extends React.Component<Props, State> {
       </Row>
     );
   }
-  TextEssay = () => {
+  TextEssay = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
       <Row>
         <Col md="6">
           <FormGroup>
             <Label for="authors">Author(s)</Label>
-            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
+            <CustomSelect isMulti values={item.authors} callback={values => this.validateLength('authors', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Author.</FormText>
           </FormGroup>
@@ -935,7 +932,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="publication_venue">Publication Venue</Label>
-            <CustomSelect values={item.venues} callback={values => this.validateLength('venues', values)} />
+            <CustomSelect isMulti values={item.venues} callback={values => this.validateLength('venues', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('venues') && !this.state.validate.venues ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Venue.</FormText>
           </FormGroup>
@@ -962,14 +959,14 @@ export class ItemEditor extends React.Component<Props, State> {
       </Row>
     );
   }
-  TextHistoricalText = () => {
+  TextHistoricalText = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
       <Row>
         <Col md="6">
           <FormGroup>
             <Label for="authors">Author(s)</Label>
-            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
+            <CustomSelect isMulti values={item.authors} callback={values => this.validateLength('authors', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Author.</FormText>
           </FormGroup>
@@ -990,14 +987,24 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="birth_date">Date Of Birth</Label>
-            <Input type="date" id="birth_date" defaultValue={item.birth_date ? item.birth_date : new Date().toISOString().substr(0, 10)} />
+            <Input
+              type="date"
+              id="birth_date"
+              defaultValue={item.birth_date ? item.birth_date : new Date().toISOString().substr(0, 10)}
+              onChange={e => this.validateLength('birth_date', e.target.value)}
+            />
           </FormGroup>
         </Col>
 
         <Col md="6">
           <FormGroup>
             <Label for="death_date">Day Of Death</Label>
-            <Input type="date" id="death_date" defaultValue={item.death_date ? item.death_date : new Date().toISOString().substr(0, 10)} />
+            <Input
+              type="date"
+              id="death_date"
+              defaultValue={item.death_date ? item.death_date : new Date().toISOString().substr(0, 10)}
+              onChange={e => this.validateLength('death_date', e.target.value)}
+            />
           </FormGroup>
         </Col>
 
@@ -1028,14 +1035,19 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="4">
           <FormGroup>
             <Label for="volume">Volume In Series</Label>
-            <Input type="number" className="volume" defaultValue={this.state.changedItem.volume ? this.state.changedItem.volume.toString() : ''} onChange={e => this.changeItem('volume', e.target.value)}/>
+            <Input
+              type="number"
+              className="volume"
+              defaultValue={this.state.changedItem.volume ? this.state.changedItem.volume.toString() : ''}
+              onChange={e => this.changeItem('volume', e.target.value)}
+            />
           </FormGroup>
         </Col>
 
         <Col md="4">
           <FormGroup>
             <Label for="publisher">Publisher</Label>
-            <CustomSelect values={item.publisher} callback={values => this.validateLength('publisher', values)} />
+            <CustomSelect isMulti values={item.publisher} callback={values => this.validateLength('publisher', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('publisher') && !this.state.validate.publisher ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Publisher.</FormText>
           </FormGroup>
@@ -1114,7 +1126,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="4">
           <FormGroup>
             <Label for="isbn">ISBN</Label>
-            <CustomSelect values={item.isbn} callback={values => this.changeItem('isbn', values)} />
+            <CustomSelect isMulti values={item.isbn} callback={values => this.changeItem('isbn', values)} />
           </FormGroup>
         </Col>
 
@@ -1127,14 +1139,14 @@ export class ItemEditor extends React.Component<Props, State> {
       </Row>
     );
   }
-  TextEventPress = () => {
+  TextEventPress = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
       <Row>
         <Col md="6">
           <FormGroup>
             <Label for="authors">Author(s)</Label>
-            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
+            <CustomSelect isMulti values={item.authors} callback={values => this.validateLength('authors', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Author.</FormText>
           </FormGroup>
@@ -1143,7 +1155,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="host">Host/Artist/Curator Of Event</Label>
-            <CustomSelect values={item.host} callback={values => this.changeItem('host', values)} />
+            <CustomSelect isMulti values={item.host} callback={values => this.changeItem('host', values)} />
             <FormText>Use tab or enter to add a new Host, Artist or Curator.</FormText>
           </FormGroup>
         </Col>
@@ -1177,14 +1189,14 @@ export class ItemEditor extends React.Component<Props, State> {
       </Row>
     );
   }
-  TextToolkit = () => {
+  TextToolkit = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
       <Row>
         <Col md="6">
           <FormGroup>
             <Label for="authors">Author(s)</Label>
-            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
+            <CustomSelect isMulti values={item.authors} callback={values => this.validateLength('authors', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Author.</FormText>
           </FormGroup>
@@ -1193,7 +1205,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="host">Host/Artist/Curator Of Event</Label>
-            <CustomSelect values={item.host} callback={values => this.changeItem('host', values)} />
+            <CustomSelect isMulti values={item.host} callback={values => this.changeItem('host', values)} />
             <FormText>Use tab or enter to add a new Host, Artist or Curator.</FormText>
           </FormGroup>
         </Col>
@@ -1213,14 +1225,14 @@ export class ItemEditor extends React.Component<Props, State> {
       </Row>
     );
   }
-  TextOther = () => {
+  TextOther = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
       <Row>
         <Col md="6">
           <FormGroup>
             <Label for="collaborators">Collaborators</Label>
-            <CustomSelect values={item.collaborators} callback={values => this.changeItem('collaborators', values)} />
+            <CustomSelect isMulti values={item.collaborators} callback={values => this.changeItem('collaborators', values)} />
             <FormText>Use tab or enter to add a new Collaborator.</FormText>
           </FormGroup>
         </Col>
@@ -1241,7 +1253,7 @@ export class ItemEditor extends React.Component<Props, State> {
   }
 
   // ITEM VIDEO
-  VideoMovieTrailer = () => {
+  VideoMovieTrailer = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
       <Row>
@@ -1257,7 +1269,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="4">
           <FormGroup>
             <Label for="collaborators">Collaborators</Label>
-            <CustomSelect values={item.collaborators} callback={values => this.changeItem('collaborators', values)} />
+            <CustomSelect isMulti values={item.collaborators} callback={values => this.changeItem('collaborators', values)} />
             <FormText>Use tab or enter to add a new Collaborator.</FormText>
           </FormGroup>
         </Col>
@@ -1265,7 +1277,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="4">
           <FormGroup>
             <Label for="writers">Writer</Label>
-            <CustomSelect values={item.writers} callback={values => this.changeItem('writers', values)} />
+            <CustomSelect isMulti values={item.writers} callback={values => this.changeItem('writers', values)} />
             <FormText>Use tab or enter to add a new Collaborator.</FormText>
           </FormGroup>
         </Col>
@@ -1273,7 +1285,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="4">
           <FormGroup>
             <Label for="cast_">Cast</Label>
-            <CustomSelect values={item.cast_} callback={values => this.changeItem('cast_', values)} />
+            <CustomSelect isMulti values={item.cast_} callback={values => this.changeItem('cast_', values)} />
             <FormText>Use tab or enter to add a new cast member.</FormText>
           </FormGroup>
         </Col>
@@ -1301,14 +1313,14 @@ export class ItemEditor extends React.Component<Props, State> {
       </Row>
     );
   }
-  VideoDocumentaryArt = () => {
+  VideoDocumentaryArt = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
       <Row>
         <Col md="4">
           <FormGroup>
             <Label for="directors">Director</Label>
-            <CustomSelect values={item.directors} callback={values => this.validateLength('directors', values)} />
+            <CustomSelect isMulti values={item.directors} callback={values => this.validateLength('directors', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('directors') && !this.state.validate.directors ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Director.</FormText>
           </FormGroup>
@@ -1316,14 +1328,14 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="4">
           <FormGroup>
             <Label for="collaborators">Collaborators</Label>
-            <CustomSelect values={item.collaborators} callback={values => this.changeItem('collaborators', values)} />
+            <CustomSelect isMulti values={item.collaborators} callback={values => this.changeItem('collaborators', values)} />
             <FormText>Use tab or enter to add a new Collaborator.</FormText>
           </FormGroup>
         </Col>
         <Col md="4">
           <FormGroup>
             <Label for="cast_">Cast</Label>
-            <CustomSelect values={item.cast_} callback={values => this.changeItem('cast_', values)} />
+            <CustomSelect isMulti values={item.cast_} callback={values => this.changeItem('cast_', values)} />
             <FormText>Use tab or enter to add a new cast member.</FormText>
           </FormGroup>
         </Col>
@@ -1343,14 +1355,14 @@ export class ItemEditor extends React.Component<Props, State> {
       </Row>
     );
   }
-  VideoResearch = () => {
+  VideoResearch = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
       <Row>
         <Col md="4">
           <FormGroup>
             <Label for="collaborators">Collaborators</Label>
-            <CustomSelect values={item.collaborators} callback={values => this.changeItem('collaborators', values)} />
+            <CustomSelect isMulti values={item.collaborators} callback={values => this.changeItem('collaborators', values)} />
             <FormText>Use tab or enter to add a new Collaborator.</FormText>
           </FormGroup>
         </Col>
@@ -1363,14 +1375,14 @@ export class ItemEditor extends React.Component<Props, State> {
       </Row>
     );
   }
-  VideoInterview = () => {
+  VideoInterview = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
       <Row>
         <Col md="4">
           <FormGroup>
             <Label for="interviewers">Interviewer</Label>
-            <CustomSelect values={item.interviewers} callback={values => this.validateLength('interviewers', values)} />
+            <CustomSelect isMulti values={item.interviewers} callback={values => this.validateLength('interviewers', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('interviewers') && !this.state.validate.interviewers ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Interviewer.</FormText>
           </FormGroup>
@@ -1378,7 +1390,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="4">
           <FormGroup>
             <Label for="interviewees">Interviewee(s)</Label>
-            <CustomSelect values={item.interviewees} callback={values => this.validateLength('interviewees', values)} />
+            <CustomSelect isMulti values={item.interviewees} callback={values => this.validateLength('interviewees', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('interviewees') && !this.state.validate.interviewees ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Interviewee(s).</FormText>
           </FormGroup>
@@ -1392,7 +1404,7 @@ export class ItemEditor extends React.Component<Props, State> {
       </Row>
     );
   }
-  VideoNewsJournalism = () => {
+  VideoNewsJournalism = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
       <Row>
@@ -1405,7 +1417,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="authors">Author(s)</Label>
-            <CustomSelect values={item.authors} callback={values => this.changeItem(values, 'authors')} />
+            <CustomSelect isMulti values={item.authors} callback={values => this.changeItem(values, 'authors')} />
             <FormText>Use tab or enter to add a new Author.</FormText>
           </FormGroup>
         </Col>
@@ -1418,7 +1430,7 @@ export class ItemEditor extends React.Component<Props, State> {
       </Row>
     );
   }
-  VideoEventRecording = () => {
+  VideoEventRecording = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
       <Row>
@@ -1431,7 +1443,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="4">
           <FormGroup>
             <Label for="participants">Participant(s)</Label>
-            <CustomSelect values={item.participants} callback={values => this.validateLength('participants', values)} />
+            <CustomSelect isMulti values={item.participants} callback={values => this.validateLength('participants', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('participants') && !this.state.validate.participants ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Participant.</FormText>
           </FormGroup>
@@ -1451,21 +1463,21 @@ export class ItemEditor extends React.Component<Props, State> {
       </Row>
     );
   }
-  VideoInformationalVideo = () => {
+  VideoInformationalVideo = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
       <Row>
         <Col md="4">
           <FormGroup>
             <Label for="collaborators">Collaborators</Label>
-            <CustomSelect values={item.collaborators} callback={values => this.changeItem('collaborators', values)} />
+            <CustomSelect isMulti values={item.collaborators} callback={values => this.changeItem('collaborators', values)} />
             <FormText>Use tab or enter to add a new Collaborator.</FormText>
           </FormGroup>
         </Col>
         <Col md="4">
           <FormGroup>
             <Label for="produced_by">Produced By</Label>
-            <CustomSelect values={item.produced_by} callback={values => this.validateLength('produced_by', values)} />
+            <CustomSelect isMulti values={item.produced_by} callback={values => this.validateLength('produced_by', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('produced_by') && !this.state.validate.produced_by ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new item.</FormText>
           </FormGroup>
@@ -1479,14 +1491,14 @@ export class ItemEditor extends React.Component<Props, State> {
       </Row>
     );
   }
-  VideoArtworkDocumentation = () => {
+  VideoArtworkDocumentation = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
       <Row>
         <Col md="4">
           <FormGroup>
             <Label for="produced_by">Exhibited At</Label>
-            <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+            <CustomSelect isMulti values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('exhibited_at') && !this.state.validate.exhibited_at ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
@@ -1501,7 +1513,7 @@ export class ItemEditor extends React.Component<Props, State> {
       </Row>
     );
   }
-  VideoRawFootage = () => {
+  VideoRawFootage = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
       <Row>
@@ -1514,14 +1526,14 @@ export class ItemEditor extends React.Component<Props, State> {
       </Row>
     );
   }
-  VideoOther = () => {
+  VideoOther = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
       <Row>
         <Col md="6">
           <FormGroup>
             <Label for="authors">Author(s)</Label>
-            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
+            <CustomSelect isMulti values={item.authors} callback={values => this.validateLength('authors', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Author.</FormText>
           </FormGroup>
@@ -1529,7 +1541,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="collaborators">Collaborators</Label>
-            <CustomSelect values={item.collaborators} callback={values => this.changeItem('collaborators', values)} />
+            <CustomSelect isMulti values={item.collaborators} callback={values => this.changeItem('collaborators', values)} />
             <FormText>Use tab or enter to add a new Collaborator.</FormText>
           </FormGroup>
         </Col>
@@ -1556,7 +1568,7 @@ export class ItemEditor extends React.Component<Props, State> {
   }
 
   // ITEM IMAGE
-  ItemImage = () => {
+  ItemImage = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
       <Row>
@@ -1575,7 +1587,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
-            <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+            <CustomSelect isMulti values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
           </FormGroup>
         </Col>
         <Col md="6">
@@ -1587,7 +1599,7 @@ export class ItemEditor extends React.Component<Props, State> {
       </Row>
     );
   }
-  ImageResearch = () => {
+  ImageResearch = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
       <Row>
@@ -1606,14 +1618,14 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="collaborators">Collaborators</Label>
-            <CustomSelect values={item.collaborators} callback={values => this.changeItem('collaborators', values)} />
+            <CustomSelect isMulti values={item.collaborators} callback={values => this.changeItem('collaborators', values)} />
             <FormText>Use tab or enter to add a new Collaborator.</FormText>
           </FormGroup>
         </Col>
       </Row>
     );
   }
-  ImageGraphics = () => {
+  ImageGraphics = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
       <Row>
@@ -1632,7 +1644,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
-            <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+            <CustomSelect isMulti values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
           </FormGroup>
         </Col>
         <Col md="6">
@@ -1650,7 +1662,7 @@ export class ItemEditor extends React.Component<Props, State> {
       </Row>
     );
   }
-  ImageMap = () => {
+  ImageMap = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
       <Row>
@@ -1675,7 +1687,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
-            <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+            <CustomSelect isMulti values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
           </FormGroup>
         </Col>
         <Col md="6">
@@ -1687,14 +1699,14 @@ export class ItemEditor extends React.Component<Props, State> {
       </Row>
     );
   }
-  ImageFilmStill = () => {
+  ImageFilmStill = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
       <Row>
         <Col md="6">
           <FormGroup>
             <Label for="directors">Director</Label>
-            <CustomSelect values={item.directors} callback={values => this.validateLength('directors', values)} />
+            <CustomSelect isMulti values={item.directors} callback={values => this.validateLength('directors', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('directors') && !this.state.validate.directors ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Director.</FormText>
           </FormGroup>
@@ -1702,7 +1714,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="writers">Writer</Label>
-            <CustomSelect values={item.writers} callback={values => this.validateLength('writers', values)} />
+            <CustomSelect isMulti values={item.writers} callback={values => this.validateLength('writers', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('writers') && !this.state.validate.writers ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Writer.</FormText>
           </FormGroup>
@@ -1710,7 +1722,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="collaborators">Collaborators</Label>
-            <CustomSelect values={item.collaborators} callback={values => this.changeItem('collaborators', values)} />
+            <CustomSelect isMulti values={item.collaborators} callback={values => this.changeItem('collaborators', values)} />
             <FormText>Use tab or enter to add a new Collaborator.</FormText>
           </FormGroup>
         </Col>
@@ -1723,7 +1735,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="cast_">Cast</Label>
-            <CustomSelect values={item.cast_} callback={values => this.changeItem('cast_', values)} />
+            <CustomSelect isMulti values={item.cast_} callback={values => this.changeItem('cast_', values)} />
             <FormText>Use tab or enter to add a new cast member.</FormText>
           </FormGroup>
         </Col>
@@ -1750,7 +1762,7 @@ export class ItemEditor extends React.Component<Props, State> {
   }
 
   // ITEM AUDIO
-  AudioFieldRecording = () => {
+  AudioFieldRecording = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
       <Row>
@@ -1763,7 +1775,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
-            <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+            <CustomSelect isMulti values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
           </FormGroup>
         </Col>
         <Col md="6">
@@ -1775,7 +1787,7 @@ export class ItemEditor extends React.Component<Props, State> {
       </Row>
     );
   }
-  AudioSoundArt = () => {
+  AudioSoundArt = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
       <Row>
@@ -1794,7 +1806,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
-            <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+            <CustomSelect isMulti values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
           </FormGroup>
         </Col>
         <Col md="6">
@@ -1806,7 +1818,7 @@ export class ItemEditor extends React.Component<Props, State> {
       </Row>
     );
   }
-  AudioMusic = () => {
+  AudioMusic = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
       <Row>
@@ -1837,7 +1849,7 @@ export class ItemEditor extends React.Component<Props, State> {
       </Row>
     );
   }
-  AudioPodcast = () => {
+  AudioPodcast = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
       <Row>
@@ -1874,7 +1886,7 @@ export class ItemEditor extends React.Component<Props, State> {
       </Row>
     );
   }
-  AudioLecture = () => {
+  AudioLecture = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
       <Row>
@@ -1887,7 +1899,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="host_organisation">Organization</Label>
-            <CustomSelect values={item.host_organisation} callback={values => this.validateLength('host_organisation', values)} />
+            <CustomSelect isMulti values={item.host_organisation} callback={values => this.validateLength('host_organisation', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('host_organisation') && !this.state.validate.host_organisation ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Organization.</FormText>
           </FormGroup>
@@ -1901,14 +1913,14 @@ export class ItemEditor extends React.Component<Props, State> {
       </Row>
     );
   }
-  AudioInterview = () => {
+  AudioInterview = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
       <Row>
         <Col md="6">
           <FormGroup>
             <Label for="interviewers">Interviewer</Label>
-            <CustomSelect values={item.interviewers} callback={values => this.validateLength('interviewers', values)} />
+            <CustomSelect isMulti values={item.interviewers} callback={values => this.validateLength('interviewers', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('interviewers') && !this.state.validate.interviewers ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Interviewer.</FormText>
           </FormGroup>
@@ -1916,7 +1928,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="interviewees">Interviewee(s)</Label>
-            <CustomSelect values={item.interviewees} callback={values => this.validateLength('interviewees', values)} />
+            <CustomSelect isMulti values={item.interviewees} callback={values => this.validateLength('interviewees', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('interviewees') && !this.state.validate.interviewees ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Interviewee(s).</FormText>
           </FormGroup>
@@ -1930,7 +1942,7 @@ export class ItemEditor extends React.Component<Props, State> {
       </Row>
     );
   }
-  AudioRadio = () => {
+  AudioRadio = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
       <Row>
@@ -1973,7 +1985,7 @@ export class ItemEditor extends React.Component<Props, State> {
       </Row>
     );
   }
-  AudioPerformancePoetry  = () => {
+  AudioPerformancePoetry  = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
       <Row>
@@ -1992,7 +2004,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="host_organisation">Organization</Label>
-            <CustomSelect values={item.host_organisation} callback={values => this.validateLength('host_organisation', values)} />
+            <CustomSelect isMulti values={item.host_organisation} callback={values => this.validateLength('host_organisation', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('host_organisation') && !this.state.validate.host_organisation ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Organization.</FormText>
           </FormGroup>
@@ -2000,21 +2012,21 @@ export class ItemEditor extends React.Component<Props, State> {
       </Row>
     );
   }
-  AudioOther  = () => {
+  AudioOther  = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
       <Row>
         <Col md="6">
           <FormGroup>
             <Label for="authors">Author(s)</Label>
-            <CustomSelect values={item.authors} callback={values => this.changeItem(values, 'authors')} />
+            <CustomSelect isMulti values={item.authors} callback={values => this.changeItem(values, 'authors')} />
             <FormText>Use tab or enter to add a new Author.</FormText>
           </FormGroup>
         </Col>
         <Col md="6">
           <FormGroup>
             <Label for="collaborators">Collaborators</Label>
-            <CustomSelect values={item.collaborators} callback={values => this.changeItem('collaborators', values)} />
+            <CustomSelect isMulti values={item.collaborators} callback={values => this.changeItem('collaborators', values)} />
             <FormText>Use tab or enter to add a new Collaborator.</FormText>
           </FormGroup>
         </Col>
@@ -2162,12 +2174,16 @@ export class ItemEditor extends React.Component<Props, State> {
                       <Label for="year_produced">Year Produced</Label>
                       <YearSelect value={item.year_produced ? item.year_produced : ''} callback={e => this.validateLength('year_produced', e)}/>
                       <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('year_produced') && !this.state.validate.year_produced ? 'block' : 'none') }}>This is a required field</FormFeedback>
-                      <FormFeedback>This is a required field</FormFeedback>
                     </FormGroup>
 
                     <FormGroup>
                       <Label for="time_produced">Date Produced</Label>
-                      <Input type="date" id="time_produced" defaultValue={item.time_produced ? item.time_produced : new Date().toISOString().substr(0, 10)} />
+                      <Input
+                        type="date"
+                        id="time_produced"
+                        defaultValue={item.time_produced ? item.time_produced : new Date().toISOString().substr(0, 10)}
+                        onChange={e => this.validateLength('time_produced', e.target.value)}
+                      />
                     </FormGroup>
 
                     <FormGroup>
@@ -2223,7 +2239,7 @@ export class ItemEditor extends React.Component<Props, State> {
                         invalid={this.state.validate.hasOwnProperty('url') && !this.state.validate.url}
                         onChange={e => {
                           const value = e.target.value;
-                          let valid = this.validateURL(value);
+                          let valid = validateURL(value);
                           if (!value) { valid = true; } // set valid to true for no content
                           if (valid) { this.changeItem('url', value); } // if valid set the data in changedItem
                           this.setState({ validate: { ...this.state.validate, url: valid } });

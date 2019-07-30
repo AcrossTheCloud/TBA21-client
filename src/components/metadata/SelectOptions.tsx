@@ -1,5 +1,6 @@
 import { itemAudio, itemImage, itemText, itemVideo } from '../../types/Item';
 import { License } from '../../types/License';
+import { collectionTypes as Types } from '../../types/Collection';
 
 export const oceans = [
   {value: 'Atlantic Ocean', label: 'Atlantic Ocean'},
@@ -401,7 +402,6 @@ export const itemTextSubTypes = [
   {value: itemText.Toolkit, label: 'Toolkit'},
   {value: itemText.Other, label: 'Other'}
 ];
-
 export const itemVideoSubTypes = [
   {value: itemVideo.Movie, label: 'Movie'},
   {value: itemVideo.Documentary, label: 'Documentary'},
@@ -416,7 +416,6 @@ export const itemVideoSubTypes = [
   {value: itemVideo.Raw_Footage, label: 'Raw Footage'},
   {value: itemVideo.Other, label: 'Other'}
 ];
-
 export const itemImageSubTypes = [
   {value: itemImage.Photograph, label: 'Photograph'},
   {value: itemImage.Research, label: 'Research'},
@@ -430,7 +429,6 @@ export const itemImageSubTypes = [
   {value: itemImage.Artwork_Documentation, label: 'Artwork Documentation'},
   {value: itemImage.Other, label: 'Other'}
 ];
-
 export const itemAudioSubTypes = [
   {value: itemAudio.Field_Recording, label: 'Field Recording'},
   {value: itemAudio.Sound_Art, label: 'Sound Art'},
@@ -441,4 +439,19 @@ export const itemAudioSubTypes = [
   {value: itemAudio.Radio, label: 'Radio'},
   {value: itemAudio.Performance_Poetry, label: 'Performance Poetry'},
   {value: itemAudio.Other, label: 'Other'}
+];
+
+export const collectionTypes = [
+  {value : Types.Series, label: 'Series'},
+  {value : Types.Area_of_Research, label: 'Area of research'},
+  {value : Types.Event, label: 'Event'},
+  {value : Types.Event_Series, label: 'Event Series'},
+  {value : Types.Edited_Volume, label: 'Edited Volume'},
+  {value : Types.Expedition, label: 'Expedition'},
+  {value : Types.Expedition, label: 'Exhibition'},
+  {value : Types.Collection, label: 'Collection'},
+  {value : Types.Convening, label: 'Convening'},
+  {value : Types.Performance, label: 'Performance'},
+  {value : Types.Installation, label: 'Installation'},
+  {value : Types.Other, label: 'Other'}
 ];
