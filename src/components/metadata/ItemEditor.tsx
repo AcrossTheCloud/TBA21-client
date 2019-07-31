@@ -253,7 +253,7 @@ export class ItemEditor extends React.Component<Props, State> {
         // If we've failed set ChangedItem back to the original
         Object.assign(state, { errorMessage: result.message, changedItem: {...this.state.originalItem}, changedFields: {}, status: false, isDifferent: false, validate: defaultRequiredFields(this.state.originalItem)});
       } else if (result.success) {
-        Object.assign(state, { successMessage: 'Updated item!', changedFields: {}, originalItem: {...this.state.changedItem}, isDifferent: false, validate: defaultRequiredFields(this.state.originalItem)});
+        Object.assign(state, { successMessage: 'Updated item!', changedFields: {}, originalItem: {...this.state.changedItem}, isDifferent: false});
       } else {
         Object.assign(state, { warningMessage: result });
       }
@@ -994,7 +994,7 @@ export class ItemEditor extends React.Component<Props, State> {
             <Input
               type="date"
               id="birth_date"
-              defaultValue={item.birth_date ? item.birth_date : new Date().toISOString().substr(0, 10)}
+              defaultValue={item.birth_date ? item.birth_date : ''}
               onChange={e => this.validateLength('birth_date', e.target.value)}
             />
           </FormGroup>
@@ -1006,7 +1006,7 @@ export class ItemEditor extends React.Component<Props, State> {
             <Input
               type="date"
               id="death_date"
-              defaultValue={item.death_date ? item.death_date : new Date().toISOString().substr(0, 10)}
+              defaultValue={item.death_date ? item.death_date : ''}
               onChange={e => this.validateLength('death_date', e.target.value)}
             />
           </FormGroup>
@@ -1579,6 +1579,51 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="medium">Medium</Label>
+            <Input
+              type="text"
+              id="medium"
+              defaultValue={item.medium ? item.medium : ''}
+              onChange={e => this.validateLength('medium', e.target.value)}
+              invalid={this.state.validate.hasOwnProperty('medium') && !this.state.validate.medium}
+            />
+            <FormFeedback>This is a required field</FormFeedback>
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="dimensions">Dimensions</Label>
+            <Input
+              type="text"
+              id="dimensions"
+              defaultValue={item.dimensions ? item.dimensions : ''}
+              onChange={e => this.validateLength('dimensions', e.target.value)}
+              invalid={this.state.validate.hasOwnProperty('dimensions') && !this.state.validate.dimensions}
+            />
+            <FormFeedback>This is a required field</FormFeedback>
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="exhibited_at">Exhibited At</Label>
+            <CustomSelect isMulti values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="other_metadata">Other</Label>
+            <Input type="text" id="other_metadata" defaultValue={item.other_metadata ? item.other_metadata : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
+          </FormGroup>
+        </Col>
+      </Row>
+    );
+  }
+  ItemDigitalArtOther = (): JSX.Element => {
+    const item = this.state.changedItem;
+    return (
+      <Row>
+        <Col md="6">
+          <FormGroup>
+            <Label for="medium">Medium</Label>
             <Input type="text" id="medium" defaultValue={item.medium ? item.medium : ''} onChange={e => this.changeItem('medium', e.target.value)}/>
           </FormGroup>
         </Col>
@@ -1673,7 +1718,14 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="medium">Medium</Label>
-            <Input type="text" id="medium" defaultValue={item.medium ? item.medium : ''} onChange={e => this.changeItem('medium', e.target.value)}/>
+            <Input
+              type="text"
+              id="medium"
+              defaultValue={item.medium ? item.medium : ''}
+              onChange={e => this.validateLength('medium', e.target.value)}
+              invalid={this.state.validate.hasOwnProperty('medium') && !this.state.validate.medium}
+            />
+            <FormFeedback>This is a required field</FormFeedback>
           </FormGroup>
         </Col>
         <Col md="6">
@@ -2185,7 +2237,7 @@ export class ItemEditor extends React.Component<Props, State> {
                       <Input
                         type="date"
                         id="time_produced"
-                        defaultValue={item.time_produced ? item.time_produced : new Date().toISOString().substr(0, 10)}
+                        defaultValue={item.time_produced ? item.time_produced : ''}
                         onChange={e => this.validateLength('time_produced', e.target.value)}
                       />
                     </FormGroup>
@@ -2284,13 +2336,18 @@ export class ItemEditor extends React.Component<Props, State> {
 
                 { // Item Image
                   item.item_subtype === itemImage.Photograph ||
-                  item.item_subtype === itemImage.Digital_Art ||
                   item.item_subtype === itemImage.Sculpture ||
                   item.item_subtype === itemImage.Painting ||
                   item.item_subtype === itemImage.Illustration ||
-                  item.item_subtype === itemImage.Artwork_Documentation ||
-                  item.item_subtype === itemImage.Other ? <this.ItemImage /> : <></>
+                  item.item_subtype === itemImage.Artwork_Documentation ? <this.ItemImage /> : <></>
                 }
+
+                {
+                  item.item_subtype === itemImage.Digital_Art ||
+                  item.item_subtype === itemImage.Other ? <this.ItemDigitalArtOther />
+                  : <></>
+                }
+
                 {item.item_subtype === itemImage.Research ? <this.ImageResearch /> : <></>}
                 {item.item_subtype === itemImage.Graphics ? <this.ImageGraphics /> : <></>}
                 {item.item_subtype === itemImage.Map ? <this.ImageMap /> : <></>}

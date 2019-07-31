@@ -74,14 +74,15 @@ export interface Collection {
 
   specialization?: string | null;
   department?: string | null;
-
-  expedition_leader?: string | null;
   institution?: string | null;
 
   expedition_vessel?: string | null;
   expedition_route?: string | null;
-
   expedition_blog_link?: string | null;
+  expedition_leader?: string | null;
+  expedition_start_point?: string | null;
+  expedition_end_point?: string | null;
+
   participants?: string[] | null;
 
   venues?: string[] | null;
@@ -99,6 +100,9 @@ export interface Collection {
 
   focus_action?: number | null;
   focus_scitech?: number | null;
+
+  city_of_publication?: string | null;
+  media_type?: string | null;
 
   url?: string | null;
   related_material?: string[] | null;
