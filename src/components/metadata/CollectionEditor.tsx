@@ -114,7 +114,7 @@ export class CollectionEditor extends React.Component<Props, State> {
           }
         });
 
-        if (results && results.items && results.items.length) {
+        if (results && results.items) {
           this.setState(
             {
               collection: {...this.state.collection, items: results.items.map( i => i.s3_key)},
@@ -135,7 +135,7 @@ export class CollectionEditor extends React.Component<Props, State> {
     this._isMounted = false;
   }
 
-  updateCollection = async () => {
+  putCollection = async () =>  {
     this.setState(
       {
         errorMessage: undefined,
@@ -155,6 +155,16 @@ export class CollectionEditor extends React.Component<Props, State> {
 
     try {
       const collectionProperties = {};
+
+      // if we're in edit more add the id to props
+      if (this.props.editMode) {
+        Object.assign(collectionProperties, { id: this.state.originalCollection.id });
+      }
+
+      // Put the items into the props
+      if (this.state.collection.items) {
+        Object.assign(collectionProperties, { items: this.state.collection.items });
+      }
 
       // We filter out specific values here as the API doesn't accept them, but returns them in the Item object.
       Object.entries(this.state.changedFields)
@@ -194,22 +204,21 @@ export class CollectionEditor extends React.Component<Props, State> {
   itemsCallback = (s3key: string, removeItem?: boolean): void => {
     const
       s3keyIndex = !!this.state.collection.items ? this.state.collection.items.indexOf(s3key) : -1,
-      itemsList = this.state.collection.items;
-    if (itemsList) {
-      if (itemsList.indexOf(s3key) === -1) {
-        const items: string[] = [...itemsList, s3key];
-        this.setState({ collection: {...this.state.collection, items: items}, isDifferent: true });
-      } else if (!!removeItem) {
-        // Remove the item if it exists and removeItem is true
-        itemsList.splice(s3keyIndex, 1);
+      itemsList = this.state.collection.items || [];
 
-        // Remove the loaded item if it exists
-        const loadedItems = this.state.loadedItems;
-        if (loadedItems[s3key]) {
-          delete loadedItems[s3key];
-        }
-        this.setState({ collection: {...this.state.collection, items: itemsList}, loadedItems: loadedItems, isDifferent: true });
+    if (itemsList.indexOf(s3key) === -1) {
+      const items: string[] = [...itemsList, s3key];
+      this.setState({ collection: {...this.state.collection, items: items}, isDifferent: true });
+    } else if (!!removeItem) {
+      // Remove the item if it exists and removeItem is true
+      itemsList.splice(s3keyIndex, 1);
+
+      // Remove the loaded item if it exists
+      const loadedItems = this.state.loadedItems;
+      if (loadedItems[s3key]) {
+        delete loadedItems[s3key];
       }
+      this.setState({ collection: {...this.state.collection, items: itemsList}, loadedItems: loadedItems, isDifferent: true });
     }
   }
 
@@ -905,17 +914,6 @@ export class CollectionEditor extends React.Component<Props, State> {
             <FormFeedback>This is a required field</FormFeedback>
           </FormGroup>
         </Col>
-        {/*<Col md="6">*/}
-        {/*  <FormGroup>*/}
-        {/*    <Label for="related_project">Media Type</Label>*/}
-        {/*    <Input*/}
-        {/*      type="text"*/}
-        {/*      className="related_project"*/}
-        {/*      defaultValue={collection.related_project ? collection.related_project : ''}*/}
-        {/*      onChange={e => this.changeCollection('related_project', e.target.value)}*/}
-        {/*    />*/}
-        {/*  </FormGroup>*/}
-        {/*</Col>*/}
       </Row>
     );
   }
@@ -1072,7 +1070,6 @@ export class CollectionEditor extends React.Component<Props, State> {
       location,
       copyright_holder,
       copyright_country,
-      status,
       focus_arts,
       focus_scitech,
       focus_action,
@@ -1135,12 +1132,12 @@ export class CollectionEditor extends React.Component<Props, State> {
             <Row>
               <Col md="12">
                 <UncontrolledButtonDropdown className="float-right">
-                  <Button id="caret" onClick={this.updateCollection} disabled={!this.state.isDifferent}>Save</Button>
+                  <Button id="caret" onClick={this.putCollection} disabled={!this.state.isDifferent}>Save</Button>
                   <DropdownToggle caret />
                   <DropdownMenu>
-                    {status ?
-                      <DropdownItem onClick={() => { this.changeCollection('status', false); this.updateCollection(); }}>Unpublish</DropdownItem> :
-                      <DropdownItem onClick={() => { this.changeCollection('status', true); this.updateCollection(); }}>Publish</DropdownItem>
+                    {this.state.originalCollection.status ?
+                      <DropdownItem onClick={() => { this.changeCollection('status', false); this.putCollection(); }}>Unpublish</DropdownItem> :
+                      <DropdownItem onClick={() => { this.changeCollection('status', true); this.putCollection(); }}>Publish</DropdownItem>
                     }
                   </DropdownMenu>
                 </UncontrolledButtonDropdown>

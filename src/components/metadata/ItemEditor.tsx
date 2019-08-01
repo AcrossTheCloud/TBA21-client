@@ -2181,7 +2181,7 @@ export class ItemEditor extends React.Component<Props, State> {
                   <Button id="caret" onClick={this.updateItem} disabled={!this.state.isDifferent}>Save</Button>
                   <DropdownToggle caret />
                   <DropdownMenu>
-                    {item.status ?
+                    {this.state.originalItem.status ?
                       <DropdownItem onClick={() => { this.changeItem('status', false); this.updateItem(); }}>Unpublish</DropdownItem> :
                       <DropdownItem onClick={() => { this.changeItem('status', true); this.updateItem(); }}>Publish</DropdownItem>
                     }

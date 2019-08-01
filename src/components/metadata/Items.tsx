@@ -5,7 +5,7 @@ import { has } from 'lodash';
 import { FileUpload } from './FileUpload';
 import { Item } from '../../types/Item';
 import { ItemEditor } from './ItemEditor';
-import { Button, Col } from 'reactstrap';
+import { Button, Col, Row } from 'reactstrap';
 
 interface Props {
   callback?: Function;
@@ -27,25 +27,25 @@ interface ItemsObject {
 const ItemsDisplay = (props: { removeItem: Function, s3Key: string, item: { loaded: boolean, isLoading: boolean, details?: Item }, callback: Function }): JSX.Element => {
   if (props.item && Object.keys(props.item).length && !props.item.isLoading && props.item.loaded && props.item.details) {
     return (
-      <div>
+      <Row>
         <Col xs="12">
           <Button onClick={() => props.removeItem(props.s3Key)}>Remove</Button>
         </Col>
         <ItemEditor item={props.item.details}/>
-      </div>
+      </Row>
     );
   } else {
     if (props.item.isLoading) {
       return (
-        <div onClick={() => props.callback(props.s3Key)}>
+        <Row onClick={() => props.callback(props.s3Key)}>
           Loading....
-        </div>
+        </Row>
       );
     } else {
       return (
-        <div onClick={() => props.callback(props.s3Key)}>
+        <Row onClick={() => props.callback(props.s3Key)}>
           Click here to load this item's details.
-        </div>
+        </Row>
       );
     }
   }
