@@ -13,9 +13,9 @@ import FacebookButton from 'components/utils/facebook/FacebookButton';
 import { AccountConfirmation } from './AccountConfirmation';
 import { PasswordForm } from 'components/utils/inputs/PasswordForm';
 import { Alerts, ErrorMessage, WarningMessage } from '../utils/alerts';
+import { validateEmail } from '../utils/inputs/email';
 
 import 'styles/components/user/signup.scss';
-import { validateEmail } from '../utils/inputs/email';
 
 interface State extends Alerts {
   isLoading: boolean;
