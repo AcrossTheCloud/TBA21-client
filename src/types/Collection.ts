@@ -4,7 +4,7 @@ import { User } from './User';
 import { Ocean } from './Ocean';
 import { License } from './License';
 
-enum collectionType {
+export enum collectionTypes {
   Series = 'Series',
   Area_of_Research = 'Area of research',
   Event = 'Event',
@@ -27,6 +27,7 @@ export interface Collection {
   start_date?: string | null;
   end_date?: string | null;
   time_produced?: string | null;
+  year_produced?: string | null;
 
   status?: boolean | null;
 
@@ -52,7 +53,7 @@ export interface Collection {
   exhibited_at?: string | null;
   series?: number | null;
 
-  ISBN?: number[] | null;
+  isbn?: string[] | null;
   edition?: string | null;
 
   publisher?: string | null;
@@ -65,37 +66,46 @@ export interface Collection {
   subtitle?: string | null;
 
   description?: string | null;
-  copyright_holder?: string | null;
 
+  copyright_holder?: string | null;
   copyright_country?: string | null;
+
   disciplinary_field?: string | null;
 
   specialization?: string | null;
   department?: string | null;
-
-  expedition_leader?: string | null;
   institution?: string | null;
 
   expedition_vessel?: string | null;
   expedition_route?: string | null;
-
   expedition_blog_link?: string | null;
+  expedition_leader?: string | null;
+  expedition_start_point?: string | null;
+  expedition_end_point?: string | null;
+
   participants?: string[] | null;
 
-  venue?: string[] | null;
+  venues?: string[] | null;
   curator?: string | null;
 
   host?: string[] | null;
-  type?: collectionType;
+  hosted_by?: string[] | null;
+  type?: collectionTypes;
+  event_type?: string;
 
-  host_organization?: string[] | null;
+  installation_name?: string[] | null;
+
+  host_organisation?: string[] | null;
   focus_arts?: number | null;
 
   focus_action?: number | null;
   focus_scitech?: number | null;
 
+  city_of_publication?: string | null;
+  media_type?: string | null;
+
   url?: string | null;
-  related_material?: number[] | null;
+  related_material?: string[] | null;
 
   license?: License;
   location?: string | null;
@@ -109,4 +119,8 @@ export interface Collection {
   volume_in_series?: number | null;
   pages?: number | null;
   journal?: string | null;
+
+  items?: string[]; // a list of item s3_keys
+
+  digital_collection?: boolean;
 }

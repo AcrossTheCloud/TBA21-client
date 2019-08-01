@@ -1,5 +1,6 @@
 import { itemAudio, itemImage, itemText, itemVideo } from '../../types/Item';
 import { License } from '../../types/License';
+import { collectionTypes as Types } from '../../types/Collection';
 
 export const oceans = [
   {value: 'Atlantic Ocean', label: 'Atlantic Ocean'},
@@ -260,6 +261,123 @@ export const countries = [
   {value: 'ZM', label: 'Zambia'},
   {value: 'ZW', label: 'Zimbabwe'}
 ];
+export const languages = [
+  {value: 'ar', label: 'Arabic'},
+  {value: 'bg', label:  'Bulgarian'}, 
+  {values: 'ca', label:  'Catalan'},
+  {value: 'zh-', label: 'Hans Chinese, Han'},
+  {value: 'cs', label: 'Czech'},
+  {value: 'da', label: 'Danish' },
+  {value: 'de', label: 'German'},
+  {value: 'el', label: 'Modern Greek'},
+  {value: 'en', label: 'English'},
+  {value: 'es', label: 'Spanish'},
+  {value: 'fi', label: 'Finnish'},
+  {value: 'fr', label: 'French'},
+  {value: 'he', label: 'Hebrew'},
+  {value: 'hu', label: 'Hungarian'},
+  {value: 'is', label: 'Icelandic'},
+  {value: 'it', label: 'Italian'},
+  {value: 'ja', label: 'Japanese'},
+  {value: 'ko', label: 'Korean'},
+  {value: 'nl', label: 'Dutch'},
+  {value: 'no', label: 'Norwegian'},
+  {value: 'pl', label: 'Polish'},
+  {value: 'pt', label: 'Portuguese'},
+  {value: 'rm', label: 'Romansh'},
+  {value: 'ro', label: 'Romanian'},
+  {value: 'ru', label: 'Russian'},
+  {value: 'hr', label: 'Croatian'},
+  {value: 'sk', label: 'Slovak'},
+  {value: 'sq', label: 'Albanian'},
+  {value: 'sv', label: 'Swedish'},
+  {value: 'th', label: 'Thai'},
+  {value: 'tr', label: 'Turkish'},
+  {value: 'ur', label: 'Urdu'},
+  {value: 'id', label: 'Indonesian'},
+  {value: 'uk', label: 'Ukrainian'},
+  {value: 'be', label: 'Belarusian'},
+  {value: 'sl', label: 'Slovenian'},
+  {value: 'et', label: 'Estonian'},
+  {value: 'lv', label: 'Latvian'},
+  {value: 'lt', label: 'Lithuania'},
+  {value: 'tg', label: 'Tajik'},
+  {value: 'fa', label: 'Persian'},
+  {value: 'vi', label: 'Vietnamese'},
+  {value: 'hy', label: 'Armenian'},
+  {value: 'az', label: 'Azerbaijani'},
+  {value: 'eu', label: 'Basque'},
+  {value: 'hsb', label: 'Upper Sorbian'},
+  {value: 'mk', label: 'Macedonian'},
+  {value: 'tn', label: 'Tswana'},
+  {value: 'xh', label: 'Xhosa'},
+  {value: 'zu', label: 'Zulu'},
+  {value: 'af', label: 'Afrikaans'},
+  {value: 'ka', label: 'Georgian'},
+  {value: 'fo', label: 'Faroese'},
+  {value: 'hi', label: 'Hindi'},
+  {value: 'mt', label: 'Maltese'},
+  {value: 'se', label: 'Northern Sami'},
+  {value: 'ga', label: 'Irish'},
+  {value: 'ms', label: 'Malay'},
+  {value: 'kk', label: 'Kazakh'}, 
+  {value: 'ky', label: 'irghiz'},
+  {value: 'sw', label: 'Swahili'},
+  {value: 'tk', label: 'Turkmen'},
+  {value: 'uz', label: 'Uzbek'},
+  {value: 'tt', label: 'Tatar'},
+  {value: 'bn', label: 'Bengali'},
+  {value: 'pa', label: 'Panjabi'},
+  {value: 'gu', label: 'Gujarati'},
+  {value: 'or', label: 'Oriya'},
+  {value: 'ta', label: 'Tamil'},
+  {value: 'te', label: 'Telugu'},
+  {value: 'kn', label: 'Kannada'},
+  {value: 'ml', label: 'Malayalam'},
+  {value: 'as', label: 'Assamese'},
+  {value: 'mr', label: 'Marathi'},
+  {value: 'sa', label: 'Sanskrit'},
+  {value: 'mn', label: 'Mongolian'},
+  {value: 'bo', label: 'Tibetan'},
+  {value: 'cy', label: 'Welsh'},
+  {value: 'km', label: 'Central Khmer'},
+  {value: 'lo', label: 'Lao'},
+  {value: 'gl', label: 'Galician'},
+  {value: 'kok', label: 'Konkani'},
+  {value: 'syr', label: 'Syriac'},
+  {value: 'si', label: 'Sinhala'},
+  {value: 'iu', label: 'Inuktitut'},
+  {value: 'am', label: 'Amharic'},
+  {value: 'tzm', label: 'Central Atlas Tamazight'},
+  {value: 'ne', label: 'Nepali'},
+  {value: 'fy', label: 'Western Frisian'},
+  {value: 'ps', label: 'Pushto'},
+  {value: 'fil', label: 'Filipino'},
+  {value: 'dv', label: 'Dhivehi'},
+  {value: 'ha', label: 'Hausa'},
+  {value: 'yo', label: 'Yoruba'},
+  {value: 'quz', label: 'Cusco Quechua'},
+  {value: 'nso', label: 'Pedi'},
+  {value: 'ba', label: 'Bashkir'},
+  {value: 'lb', label: 'Luxembourgish'},
+  {value: 'kl', label: 'Kalaallisut'},
+  {value: 'ig', label: 'Igbo'},
+  {value: 'ii', label: 'Sichuan Yi'},
+  {value: 'arn', label: 'Mapudungun'},
+  {value: 'moh', label: 'Mohawk'},
+  {value: 'br', label: 'Breton'},
+  {value: 'ug', label: 'Uighur'},
+  {value: 'mi', label: 'Maori'},
+  {value: 'oc', label: 'Occitan'},
+  {value: 'co', label: 'Corsican'},
+  {value: 'gsw', label: 'Swiss German'},
+  {value: 'sah', label: 'Yakut'},
+  {value: 'qut', label: 'Guatemala'},
+  {value: 'rw', label: 'Kinyarwanda'},
+  {value: 'wo', label: 'Wolof'},
+  {value: 'prs', label: 'Dari'},
+  {value: 'gd', label: 'Scottish Gaelic'}
+];
 
 export const licenseType = [
   {value: License.CC_BY, label: 'CC BY'},
@@ -284,7 +402,6 @@ export const itemTextSubTypes = [
   {value: itemText.Toolkit, label: 'Toolkit'},
   {value: itemText.Other, label: 'Other'}
 ];
-
 export const itemVideoSubTypes = [
   {value: itemVideo.Movie, label: 'Movie'},
   {value: itemVideo.Documentary, label: 'Documentary'},
@@ -299,7 +416,6 @@ export const itemVideoSubTypes = [
   {value: itemVideo.Raw_Footage, label: 'Raw Footage'},
   {value: itemVideo.Other, label: 'Other'}
 ];
-
 export const itemImageSubTypes = [
   {value: itemImage.Photograph, label: 'Photograph'},
   {value: itemImage.Research, label: 'Research'},
@@ -313,7 +429,6 @@ export const itemImageSubTypes = [
   {value: itemImage.Artwork_Documentation, label: 'Artwork Documentation'},
   {value: itemImage.Other, label: 'Other'}
 ];
-
 export const itemAudioSubTypes = [
   {value: itemAudio.Field_Recording, label: 'Field Recording'},
   {value: itemAudio.Sound_Art, label: 'Sound Art'},
@@ -324,4 +439,19 @@ export const itemAudioSubTypes = [
   {value: itemAudio.Radio, label: 'Radio'},
   {value: itemAudio.Performance_Poetry, label: 'Performance Poetry'},
   {value: itemAudio.Other, label: 'Other'}
+];
+
+export const collectionTypes = [
+  {value : Types.Series, label: 'Series'},
+  {value : Types.Area_of_Research, label: 'Area of research'},
+  {value : Types.Event, label: 'Event'},
+  {value : Types.Event_Series, label: 'Event Series'},
+  {value : Types.Edited_Volume, label: 'Edited Volume'},
+  {value : Types.Expedition, label: 'Expedition'},
+  {value : Types.Expedition, label: 'Exhibition'},
+  {value : Types.Collection, label: 'Collection'},
+  {value : Types.Convening, label: 'Convening'},
+  {value : Types.Performance, label: 'Performance'},
+  {value : Types.Installation, label: 'Installation'},
+  {value : Types.Other, label: 'Other'}
 ];

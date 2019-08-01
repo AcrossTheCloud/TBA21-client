@@ -5,6 +5,7 @@ import { has } from 'lodash';
 import { FileUpload } from './FileUpload';
 import { Item } from '../../types/Item';
 import { ItemEditor } from './ItemEditor';
+import { Button, Col, Row } from 'reactstrap';
 
 interface Props {
   callback?: Function;
@@ -23,25 +24,28 @@ interface ItemsObject {
   };
 }
 
-const ItemsDisplay = (props: { s3Key: string, item: { loaded: boolean, isLoading: boolean, details?: Item }, callback: Function }): JSX.Element => {
+const ItemsDisplay = (props: { removeItem: Function, s3Key: string, item: { loaded: boolean, isLoading: boolean, details?: Item }, callback: Function }): JSX.Element => {
   if (props.item && Object.keys(props.item).length && !props.item.isLoading && props.item.loaded && props.item.details) {
     return (
-      <div>
+      <Row>
+        <Col xs="12">
+          <Button onClick={() => props.removeItem(props.s3Key)}>Remove</Button>
+        </Col>
         <ItemEditor item={props.item.details}/>
-      </div>
+      </Row>
     );
   } else {
     if (props.item.isLoading) {
       return (
-        <div onClick={() => props.callback(props.s3Key)}>
+        <Row onClick={() => props.callback(props.s3Key)}>
           Loading....
-        </div>
+        </Row>
       );
     } else {
       return (
-        <div onClick={() => props.callback(props.s3Key)}>
+        <Row onClick={() => props.callback(props.s3Key)}>
           Click here to load this item's details.
-        </div>
+        </Row>
       );
     }
   }
@@ -124,6 +128,17 @@ export class Items extends React.Component<Props, State> {
     }
   }
 
+  removeItem = (s3Key: string) => {
+    const items: ItemsObject = this.state.items;
+    if (items[s3Key]) {
+      delete items[s3Key];
+      this.setState({ items: items });
+      if (typeof this.props.callback === 'function') {
+        this.props.callback(s3Key, true);
+      }
+    }
+  }
+
   getItemByKey = async (key: string): Promise<Item | null> => {
     if (!key || ( has(this.state.items, key) && this.state.items[key].loaded )) { return null; }
 
@@ -167,14 +182,11 @@ export class Items extends React.Component<Props, State> {
     return (
       <>
         <FileUpload callback={this.fileUploadCallback} />
-
-        <div className="container-fluid">
-          {
-            Object.entries(this.state.items).map( ( [s3Key, item] ) => {
-              return <ItemsDisplay key={s3Key} s3Key={s3Key} item={item} callback={this.fileUploadCallback} />;
-            })
-          }
-        </div>
+        {
+          Object.entries(this.state.items).map( ( [s3Key, item] ) => {
+            return <ItemsDisplay key={s3Key} s3Key={s3Key} item={item} callback={this.fileUploadCallback} removeItem={this.removeItem}/>;
+          })
+        }
       </>
     );
   }

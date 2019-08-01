@@ -4,7 +4,9 @@ import { SelectObject } from '../../utils/react-select';
 
 interface Props {
   callback?: Function;
-  values: string[] | null;
+  values?: string[] | null;
+  options?: SelectObject[];
+  isMulti?: boolean;
 }
 interface State {
   values: SelectObject[];
@@ -67,12 +69,13 @@ export default class CustomSelect extends React.Component<Props, State> {
       <CreatableSelect
         components={{ DropdownIndicator: null }}
         isClearable
-        isMulti
+        isMulti={!!this.props.isMulti}
         menuIsOpen={false}
         onInputChange={this.handleInputChange}
         onChange={this.handleChange}
         onKeyDown={this.handleKeyDown}
         value={values}
+        options={this.props.options ? this.props.options : []}
         inputValue={inputValue}
       />
     );

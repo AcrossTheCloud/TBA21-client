@@ -1,16 +1,14 @@
 import * as React from 'react';
 import {
   FormGroup,
-  Input,
-  Label
+  Input
 } from 'reactstrap';
 
 import * as InputValidation from 'components/utils/inputs/input';
 
-import 'styles/utils/inputs/passwordForm.scss';
-
 interface Props {
   callback: Function;
+  confirmPasswordWrapper?: Function;
 }
 
 interface State {
@@ -97,7 +95,6 @@ export class PasswordForm extends React.Component<Props, State> {
     } else {
       this.props.callback('', this.validate(password));
     }
-
   }
 
   /**
@@ -127,33 +124,47 @@ export class PasswordForm extends React.Component<Props, State> {
     return (
       <>
         <FormGroup className="passwordForm">
-          <Label>Password</Label>
           <Input
             value={this.state.password}
             onChange={e => this.onPasswordChange(e.target.value)}
             type="password"
+            placeholder="Password"
           />
-          <small>
-            <span className={this.state.password.length >= 8 ? 'valid' : 'invalid'}>Passwords must have a length of at least 8</span>
-            <br />
-            <span className={this.state.passwordHasLowerCase ? 'valid' : 'invalid'}>One lower character.</span>
-            <br />
-            <span className={this.state.passwordHasUpperCase ? 'valid' : 'invalid'}>One uppercase character.</span>
-            <br />
-            <span className={this.state.passwordHasNumberCase ? 'valid' : 'invalid'}>One number.</span>
-            <br />
-            <span className={this.state.passwordHasSymbolCase ? 'valid' : 'invalid'}>And one special character / symbol.</span>
+        </FormGroup>
+
+        {this.props.confirmPasswordWrapper ?
+          this.props.confirmPasswordWrapper(
+            <Input
+              value={this.state.confirmPassword}
+              onChange={e => this.onConfirmPasswordChange(e.target.value)}
+              placeholder="Confirm Password"
+              type="password"
+              className={this.state.password.length && !this.state.passwordsMatch ? 'invalid' : ''}
+            />
+          )
+        :
+          <FormGroup id="confirmPassword">
+            <Input
+              value={this.state.confirmPassword}
+              onChange={e => this.onConfirmPasswordChange(e.target.value)}
+              placeholder="Confirm Password"
+              type="password"
+              className={!this.state.passwordsMatch ? 'invalid' : ''}
+            />
+          </FormGroup>
+        }
+
+        {this.state.password.length ?
+          <small className="validation">
+            {!this.state.passwordsMatch ? <div>Passwords do not match</div> : <></>}
+            {this.state.password.length < 9 ? <div>Passwords must have a length of at least 8</div> : <></>}
+            {!this.state.passwordHasLowerCase ? <div>One lower character.</div> : <></>}
+            {!this.state.passwordHasUpperCase ? <div>One uppercase character.</div> : <></>}
+            {!this.state.passwordHasNumberCase ? <div>One number.</div> : <></>}
+            {!this.state.passwordHasSymbolCase ? <div>And one special character / symbol.</div> : <></>}
           </small>
-        </FormGroup>
-        <FormGroup id="confirmPassword">
-          <Label>Confirm Password</Label>
-          <Input
-            value={this.state.confirmPassword}
-            onChange={e => this.onConfirmPasswordChange(e.target.value)}
-            type="password"
-            invalid={!this.state.passwordsMatch}
-          />
-        </FormGroup>
+          : <></>
+        }
       </>
     );
   }
