@@ -1,18 +1,9 @@
-@import '../fonts/fonts.scss';
-@import 'icons';
-
-html, body {
-  min-height: 100%;
-  font-family: 'Roboto Mono', monospace;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+#body {
+  min-height: 100vh;
+  overflow: hidden;
 }
 
 img {
   max-width: 100%;
   height: auto;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Recta W01 Regular', sans-serif;
 }

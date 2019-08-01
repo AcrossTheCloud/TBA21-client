@@ -1,9 +1,41 @@
+@import "../../base/variables";
+
 .signUp {
 
-}
+  input {
+    &.form-control {
+      font-family: 'Roboto Mono', sans-serif;
+      font-size: 18px;
+      padding: 26px 15px;
+      background-color: $soft-gray;
+      border: none;
+      &.invalid {
+        color: #fff;
+        background-color: $input-error;
+      }
+    }
+  }
 
-@media all and (min-width: 480px) {
-  .signUp {
-    padding: 60px 0;
+  .form-group {
+    border: none;
+    margin-bottom: 0;
+
+    // Top and bottom full width lines
+    &:after, &:before {
+      content: '';
+      display: block;
+      width: 200vw;
+      border-bottom: 1px solid $mid-gray;
+      position: absolute;
+      left: -100vw;
+    }
+  }
+
+  .loaderButton {
+    height: 100%;
+  }
+
+  .validation {
+    color: $input-error
   }
 }
