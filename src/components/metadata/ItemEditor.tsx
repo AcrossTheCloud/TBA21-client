@@ -149,7 +149,7 @@ export class ItemEditor extends React.Component<Props, State> {
     };
 
     try {
-      const response = await API.get('tba21', 'admin/items/getByS3Key', {
+      const response = await API.get('tba21', 'admin/items/byS3Key', {
         queryStringParameters : {
           s3Key: this.props.item.s3_key
         }
@@ -168,6 +168,7 @@ export class ItemEditor extends React.Component<Props, State> {
     } catch (e) {
       Object.assign(state, { errorMessage: `${e}` });
     } finally {
+      if (!this._isMounted) { return; }
       this.setState(state);
     }
   }
@@ -205,6 +206,8 @@ export class ItemEditor extends React.Component<Props, State> {
    *
    */
   updateItem = async () => {
+    if (!this._isMounted) { return; }
+
     this.setState(
       {
         errorMessage: undefined,
@@ -275,6 +278,8 @@ export class ItemEditor extends React.Component<Props, State> {
    * @param value { any }
    */
   changeItem = (key: string, value: any) => { // tslint:disable-line: no-any
+    if (!this._isMounted) { return; }
+
     const { changedItem, changedFields } = this.state;
 
     if (value) {
@@ -316,6 +321,7 @@ export class ItemEditor extends React.Component<Props, State> {
   }
 
   subTypeOnChange = (subType: string) => {
+    if (!this._isMounted) { return; }
     const state = {
       ...defaultRequiredFields(this.state.changedItem),
       ...this.state.validate
@@ -501,6 +507,8 @@ export class ItemEditor extends React.Component<Props, State> {
   }
 
   validateLength = (field: string, inputValue: string | string[]): void => {
+    if (!this._isMounted) { return; }
+
     let valid = false;
     this.changeItem(field, inputValue);
     if (inputValue && inputValue.length > 0) {

@@ -128,10 +128,10 @@ class Tags extends React.Component<Props, State> {
 
   /**
    *
-   * Load tags that match the give string
+   * Load tags that match the given string
    *
    * Timeout for the user keyboard presses, clear the timeout if they've pressed another key within 500ms and start again,
-   * This avoids multiple calls before the user has finsihed typing.
+   * This avoids multiple calls before the user has finished typing.
    *
    * @param inputValue { string }
    */
