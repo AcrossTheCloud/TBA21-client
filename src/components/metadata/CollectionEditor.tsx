@@ -14,6 +14,7 @@ import {
 } from 'reactstrap';
 import { API } from 'aws-amplify';
 import Select from 'react-select';
+import AsyncSelect from 'react-select/async';
 import { isEqual, isArray } from 'lodash';
 
 import Tags from './Tags';
@@ -50,6 +51,7 @@ interface State extends Alerts {
   };
 
   activeTab: string;
+  selectInputValue: string;
   // If we're editing the collection, we'll do an API call to get the items and push them to <Items />
   isDifferent: boolean;
   loadedItems: Item[];
@@ -81,6 +83,8 @@ const defaultRequiredFields = (collection: Collection) => {
 
 export class CollectionEditor extends React.Component<Props, State> {
   _isMounted;
+  selectQueryItemsTimeout;
+
   constructor(props: Props) {
     super(props);
 
@@ -99,6 +103,7 @@ export class CollectionEditor extends React.Component<Props, State> {
       isDifferent: false,
       validate: defaultRequiredFields(collection),
       activeTab: '1',
+      selectInputValue: '',
       titleEnabled: false
     };
   }
@@ -209,7 +214,11 @@ export class CollectionEditor extends React.Component<Props, State> {
     if (itemsList.indexOf(s3key) === -1) {
       const items: string[] = [...itemsList, s3key];
       this.setState({ collection: {...this.state.collection, items: items}, isDifferent: true });
-    } else if (!!removeItem) {
+    } else if (!!removeItem && itemsList.length) {
+
+      console.log('s3key', s3key);
+      console.log('this.state.collection.items.indexOf(s3key)', !!this.state.collection.items ? this.state.collection.items.indexOf(s3key) : -1);
+
       // Remove the item if it exists and removeItem is true
       itemsList.splice(s3keyIndex, 1);
 
@@ -218,6 +227,9 @@ export class CollectionEditor extends React.Component<Props, State> {
       if (loadedItems[s3key]) {
         delete loadedItems[s3key];
       }
+
+      console.log('loadedItems', loadedItems);
+
       this.setState({ collection: {...this.state.collection, items: itemsList}, loadedItems: loadedItems, isDifferent: true });
     }
   }
@@ -1061,6 +1073,59 @@ export class CollectionEditor extends React.Component<Props, State> {
     );
   }
 
+  /**
+   *
+   * Load items that match the given string
+   *
+   * Timeout for the user keyboard presses, clear the timeout if they've pressed another key within 500ms and start again,
+   * This avoids multiple calls before the user has finished typing.
+   *
+   * @param inputValue { string }
+   */
+  selectQueryItems = async (inputValue: string) => {
+    if (inputValue && inputValue.length <= 1) { clearTimeout(this.selectQueryItemsTimeout); return; }
+
+    if (this.selectQueryItemsTimeout) { clearTimeout(this.selectQueryItemsTimeout); }
+
+    return new Promise( resolve => {
+      this.selectQueryItemsTimeout = setTimeout(async () => {
+        clearTimeout(this.selectQueryItemsTimeout);
+
+        const
+          queryStringParameters = ( inputValue ? { inputQuery: inputValue, limit: 100 } : {} ),
+          response = await API.get('tba21', 'admin/items/get', { queryStringParameters: queryStringParameters });
+
+        resolve(response.items.map( item => ({label: item.title || 'No title', value: item.s3_key, item: item}) ));
+      }, 500);
+    });
+  }
+
+  selectItemOnChange = (itemList: any, actionMeta) => { // tslint:disable-line: no-any
+    if (actionMeta.action === 'select-option' || actionMeta.action === 'create-option') {
+
+      // Item is already attached to the collection.
+      if (!!this.state.collection.items && this.state.collection.items.indexOf(itemList.item.s3_key) > -1) {
+        this.setState({ warningMessage: 'Item is already attached to Collection.', selectInputValue: '' });
+        return;
+      }
+
+      const
+        item: Item = itemList.item,
+        collectionItemList: string[] = !!this.state.collection.items ? this.state.collection.items : [];
+
+      collectionItemList.push(item.s3_key);
+
+      this.setState(
+        {
+          loadedItems: [...this.state.loadedItems, item],
+          collection: {...this.state.collection, items: collectionItemList},
+          isDifferent: true,
+          selectInputValue: ''
+        }
+      );
+    }
+  }
+
   render() {
     const {
       title,
@@ -1334,6 +1399,19 @@ export class CollectionEditor extends React.Component<Props, State> {
                 </Row>
               </TabPane>
               <TabPane tabId="3">
+                <Row>
+                  <h5>Add existing items</h5>
+                  <Col xs="12">
+                    <AsyncSelect
+                      cacheOptions
+                      isClearable
+                      loadOptions={this.selectQueryItems}
+                      onChange={this.selectItemOnChange}
+                      onInputChange={v => this.setState({ selectInputValue: v })}
+                      inputValue={this.state.selectInputValue}
+                    />
+                  </Col>
+                </Row>
                 <Row>
                   {
                     this.state.loadingItems ?

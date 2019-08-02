@@ -120,7 +120,7 @@ export interface Collection {
   pages?: number | null;
   journal?: string | null;
 
-  items?: string[]; // a list of item s3_keys
+  items?: string[] | null; // a list of item s3_keys
 
   digital_collection?: boolean;
 }

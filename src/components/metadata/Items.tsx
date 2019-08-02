@@ -25,6 +25,9 @@ interface ItemsObject {
 }
 
 const ItemsDisplay = (props: { removeItem: Function, s3Key: string, item: { loaded: boolean, isLoading: boolean, details?: Item }, callback: Function }): JSX.Element => {
+
+  console.log('s3Key', props.s3Key);
+
   if (props.item && Object.keys(props.item).length && !props.item.isLoading && props.item.loaded && props.item.details) {
     return (
       <Row>
@@ -52,11 +55,35 @@ const ItemsDisplay = (props: { removeItem: Function, s3Key: string, item: { load
 };
 
 export class Items extends React.Component<Props, State> {
+  _isMounted;
   constructor(props: Props) {
     super(props);
+    this._isMounted = false;
 
-    let propItems: ItemsObject = {};
+    this.state = {
+      items: {}
+    };
+  }
+
+  componentDidMount(): void {
+    this._isMounted = true;
     // If we have items from props, put them into the items state
+    this.setState({ items: this.checkPropsItems() });
+  }
+  componentWillUnmount(): void {
+    this._isMounted = false;
+  }
+
+  componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>): void {
+    if (!this._isMounted) {
+      if (prevProps.items !== this.props.items) {
+        this.setState({ items: this.checkPropsItems() });
+      }
+    }
+  }
+
+  checkPropsItems = (): ItemsObject => {
+    let propItems: ItemsObject = {};
     if (this.props.items && this.props.items.length) {
       this.props.items.forEach( (item: Item) => {
         Object.assign(propItems, {
@@ -68,10 +95,7 @@ export class Items extends React.Component<Props, State> {
         });
       });
     }
-
-    this.state = {
-      items: propItems
-    };
+    return propItems;
   }
 
   /**
@@ -81,6 +105,7 @@ export class Items extends React.Component<Props, State> {
    * @param s3Key { string }
    */
   fileUploadCallback = async (s3Key: string): Promise<void> => {
+    if (!this._isMounted) { return; }
     const items: ItemsObject = {};
 
     Object.assign(items, {
@@ -89,10 +114,13 @@ export class Items extends React.Component<Props, State> {
         isLoading: true
       }
     });
-    this.setState({ items: {...this.state.items, ...items} } );
+
+    console.log('fileUploadCallback', s3Key);
 
     // Load item
     this.loadItem(s3Key);
+
+    this.setState({ items: {...this.state.items, ...items} } );
   }
 
   /**
@@ -103,7 +131,8 @@ export class Items extends React.Component<Props, State> {
    *
    * @param s3Key { string }
    */
-  loadItem = async (s3Key: string) => {
+  loadItem = async (s3Key: string): Promise<void> => {
+    if (!this._isMounted) { return; }
     const
       items: ItemsObject = {},
       itemState = {
@@ -111,7 +140,12 @@ export class Items extends React.Component<Props, State> {
         isLoading: false,
       };
     try {
+      console.log('loadItem test', s3Key, this._isMounted);
+
       const result: Item | null = await this.getItemByKey(s3Key);
+
+      console.log('loadItem', result);
+
       if (result) {
         Object.assign(itemState, { details: result, loaded: true });
 
@@ -129,6 +163,7 @@ export class Items extends React.Component<Props, State> {
   }
 
   removeItem = (s3Key: string) => {
+    if (!this._isMounted) { return; }
     const items: ItemsObject = this.state.items;
     if (items[s3Key]) {
       delete items[s3Key];
@@ -140,6 +175,7 @@ export class Items extends React.Component<Props, State> {
   }
 
   getItemByKey = async (key: string): Promise<Item | null> => {
+    if (!this._isMounted) { return null; }
     if (!key || ( has(this.state.items, key) && this.state.items[key].loaded )) { return null; }
 
     let
@@ -150,9 +186,10 @@ export class Items extends React.Component<Props, State> {
       return new Promise( resolve => {
 
         const apiTimeout = setTimeout( async () => {
+          if (!this._isMounted) { clearTimeout(apiTimeout); return; }
           counter --;
 
-          const response = await API.get('tba21', 'admin/items/getByS3KeyNC', {
+          const response = await API.get('tba21', 'admin/items/byS3KeyNC', {
             queryStringParameters: {
               s3Key: s3key
             }

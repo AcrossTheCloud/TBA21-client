@@ -31,7 +31,7 @@ export const fetchItem = (s3key: string) => async (dispatch, getState) => {
   }
 
   try {
-    const response = await API.get('tba21', 'items/getByS3Key', {
+    const response = await API.get('tba21', 'items/byS3Key', {
       queryStringParameters : {
         s3Key: s3key
       }
