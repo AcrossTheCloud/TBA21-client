@@ -39,7 +39,7 @@ import {
   itemAudioSubTypes,
   itemImageSubTypes,
   itemTextSubTypes,
-  itemVideoSubTypes,
+  itemVideoSubTypes, languages,
   licenseType,
   oceans
 } from './SelectOptions';
@@ -877,7 +877,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="4">
           <FormGroup>
             <Label for="translated_from">Translated From</Label>
-            <Select id="translated_from" options={[]} value={[]} onChange={e => this.changeItem('translated_from', e.value)} isSearchable/>
+            <Select id="translated_from" options={[languages]} value={[item.translated_from]} onChange={e => this.changeItem('translated_from', e.value)} isSearchable/>
           </FormGroup>
         </Col>
 
@@ -1107,7 +1107,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="4">
           <FormGroup>
             <Label for="translated_from">Translated From</Label>
-            <Select id="translated_from" options={[]} value={[]} onChange={e => this.changeItem('translated_from', e.value)} isSearchable/>
+            <Select id="translated_from" options={[languages]} value={[item.translated_from]} onChange={e => this.changeItem('translated_from', e.value)} isSearchable/>
           </FormGroup>
         </Col>
 
@@ -2258,7 +2258,7 @@ export class ItemEditor extends React.Component<Props, State> {
 
                     <FormGroup>
                       <Label for="language">Language</Label>
-                      <Select id="language" options={[]} value={[]} onChange={e => this.changeItem('language', e.value)} isSearchable/>
+                      <Select id="language" options={[languages]} value={[item.language]} onChange={e => this.changeItem('language', e.value)} isSearchable/>
                     </FormGroup>
 
                     <FormGroup>
