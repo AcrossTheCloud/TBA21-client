@@ -55,7 +55,6 @@ import YearSelect from './fields/YearSelect';
 import { validateURL } from '../utils/inputs/url';
 
 import 'styles/components/metadata/itemEditor.scss';
-import { Languages } from '../../types/Languages';
 
 interface Props {
   item: Item;
