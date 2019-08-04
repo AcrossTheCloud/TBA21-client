@@ -114,7 +114,7 @@ export class SignUp extends React.Component<{}, State> {
   confirmPassword = (inputField: JSX.Element) => {
     return (
       <Row>
-        <FormGroup class="confirmPassword" className="col-md-8">
+        <FormGroup className="confirmPassword col-md-8 pr-md-0">
           {inputField}
         </FormGroup>
         <Col md="4" className="pl-md-0">
@@ -135,16 +135,14 @@ export class SignUp extends React.Component<{}, State> {
     if (!this.state.newUser) {
       return (
         <Container className="signUp">
-          <Row>
-            <Col>
+          <Row className="min-h-100">
+            <Col className="align-self-center">
+
               <ErrorMessage message={this.state.errorMessage} />
               <WarningMessage message={this.state.warningMessage} />
               {this.state.hasMessage ? <WarningMessage message="Please enter your details as we were unable to retrieve them from Facebook." /> : <></>}
-            </Col>
-          </Row>
-          <Row className="min-h-100">
-            <Col className="align-self-center">
-              <Form onSubmit={this.handleSubmit}>
+
+              <Form onSubmit={this.handleSubmit} className="fullscreen-lines">
                 <FormGroup>
                   <Input
                     autoFocus
@@ -167,7 +165,13 @@ export class SignUp extends React.Component<{}, State> {
     } else {
       return (
         <Container className="signUp">
-          <AccountConfirmation email={this.state.newUser.user.getUsername()} />
+          <Row className="min-h-100">
+            <Col className="align-self-center">
+              <ErrorMessage message={this.state.errorMessage}/>
+              <WarningMessage message={this.state.warningMessage}/>
+              <AccountConfirmation email={this.state.newUser.user.getUsername()} />
+            </Col>
+          </Row>
         </Container>
       );
     }

@@ -2,11 +2,11 @@ import * as React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
 
 import {
-  Button,
-  Container,
+  Button, Col,
+  Container, Form,
   FormGroup,
   Input,
-  Label
+  Row
 } from 'reactstrap';
 
 import { Auth } from 'aws-amplify';
@@ -201,74 +201,90 @@ export class ResetPasswordClass extends React.Component<Props, State> {
     if (this.state.notConfirmed) {
       return (
         <Container className="resetPassword">
-          <ErrorMessage message={this.state.errorMessage}/>
-          <WarningMessage message={this.state.warningMessage}/>
-          <AccountConfirmation email={this.state.email} sentCode={true} />
+          <Row className="min-h-100">
+            <Col className="align-self-center">
+              <ErrorMessage message={this.state.errorMessage}/>
+              <WarningMessage message={this.state.warningMessage}/>
+              <AccountConfirmation email={this.state.email} sentCode={true} />
+            </Col>
+          </Row>
         </Container>
       );
     }
 
     return (
       <Container className="resetPassword">
-        <ErrorMessage message={this.state.errorMessage}/>
-        {
-          this.state.reset === null && !this.props.email ?
-            <form onSubmit={this.handleResetSubmit}>
-              <FormGroup id="email">
-                <Label>Email</Label>
-                <Input
-                  autoFocus
-                  type="email"
-                  value={this.state.email}
-                  onChange={(e) => this.setState({email: e.target.value})}
-                />
-              </FormGroup>
-              <LoaderButton
-                block
-                disabled={!this.validateResetForm()}
-                type="submit"
-                isLoading={this.state.isLoading}
-                text="Reset"
-                loadingText="Resetting…"
-              />
-            </form>
-            :
-            <form onSubmit={this.handleNewPasswordSubmit} className="small">
-              {
-                this.props.email ?
-                  <FormGroup id="email">
-                    <Label>Email</Label>
+        <Row className="min-h-100">
+          <Col className="align-self-center">
+
+            <ErrorMessage message={this.state.errorMessage}/>
+
+            {
+              this.state.reset === null && !this.props.email ?
+                <Form onSubmit={this.handleResetSubmit} className="fullscreen-lines">
+                  <Row>
+                    <Col md="8" className="pr-md-0">
+                      <FormGroup id="email">
+                        <Input
+                          autoFocus
+                          placeholder="Email Address"
+                          type="email"
+                          value={this.state.email}
+                          onChange={(e) => this.setState({email: e.target.value})}
+                        />
+                      </FormGroup>
+                    </Col>
+                    <Col md="4" className="pl-md-0">
+                      <LoaderButton
+                        block
+                        disabled={!this.validateResetForm()}
+                        type="submit"
+                        isLoading={this.state.isLoading}
+                        text="Reset"
+                        loadingText="Resetting…"
+                      />
+                    </Col>
+                  </Row>
+                </Form>
+                :
+                <Form onSubmit={this.handleNewPasswordSubmit} className="fullscreen-lines">
+                  {
+                    this.props.email ?
+                      <FormGroup id="email">
+                        <Input
+                          placeholder="Email Address"
+                          autoFocus
+                          type="email"
+                          value={this.state.email}
+                          onChange={(e) => this.setState({email: e.target.value})}
+                        />
+                      </FormGroup>
+                      : <></>
+                  }
+                  <PasswordForm callback={this.passwordCallback} />
+                  <FormGroup id="confirmationCode">
                     <Input
                       autoFocus
-                      type="email"
-                      value={this.state.email}
-                      onChange={(e) => this.setState({email: e.target.value})}
+                      type="tel"
+                      placeholder="Confirmation Code"
+                      value={this.state.confirmationCode}
+                      onChange={e => this.onConfirmationCodeChange(e.target.value)}
                     />
+                    Please check your email for the code{this.state.hasResentCode ? '.' : <> or <Button color="link" onClick={this.resendConfirmationCode}>resend the code</Button>.</>}
                   </FormGroup>
-                  : <></>
-              }
-              <PasswordForm callback={this.passwordCallback} />
-              <FormGroup id="confirmationCode">
-                <Label>Confirmation Code</Label>
-                <Input
-                  autoFocus
-                  type="tel"
-                  value={this.state.confirmationCode}
-                  onChange={e => this.onConfirmationCodeChange(e.target.value)}
-                />
-                Please check your email for the code{this.state.hasResentCode ? '.' : <> or <Button color="link" onClick={this.resendConfirmationCode}>resend the code</Button>.</>}
-              </FormGroup>
 
-              <LoaderButton
-                block
-                disabled={!this.state.formValid || !this.state.passwordValid}
-                type="submit"
-                isLoading={this.state.isLoading}
-                text="Verify"
-                loadingText="Verifying…"
-              />
-            </form>
-        }
+                  <LoaderButton
+                    block
+                    disabled={!this.state.formValid || !this.state.passwordValid}
+                    type="submit"
+                    isLoading={this.state.isLoading}
+                    text="Verify"
+                    loadingText="Verifying…"
+                  />
+                </Form>
+            }
+          </Col>
+        </Row>
       </Container>
     );
   }
