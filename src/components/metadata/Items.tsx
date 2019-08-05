@@ -10,6 +10,7 @@ import { Button, Col, Row } from 'reactstrap';
 interface Props {
   callback?: Function;
   items?: Item[];
+  allowRemoveItem?: boolean;
 }
 
 interface State {
@@ -24,16 +25,17 @@ interface ItemsObject {
   };
 }
 
-const ItemsDisplay = (props: { removeItem: Function, s3Key: string, item: { loaded: boolean, isLoading: boolean, details?: Item }, callback: Function }): JSX.Element => {
-
-  console.log('s3Key', props.s3Key);
+const ItemsDisplay = (props: { removeItem: Function | undefined, s3Key: string, item: { loaded: boolean, isLoading: boolean, details?: Item }, callback: Function }): JSX.Element => {
 
   if (props.item && Object.keys(props.item).length && !props.item.isLoading && props.item.loaded && props.item.details) {
     return (
       <Row>
-        <Col xs="12">
-          <Button onClick={() => props.removeItem(props.s3Key)}>Remove</Button>
-        </Col>
+        {props.removeItem && typeof props.removeItem === 'function' ?
+          <Col xs="12">
+            <Button onClick={() => {if (props.removeItem) { props.removeItem(props.s3Key); }}}>Remove</Button>
+          </Col>
+          : <></>
+        }
         <ItemEditor item={props.item.details}/>
       </Row>
     );
@@ -221,7 +223,7 @@ export class Items extends React.Component<Props, State> {
         <FileUpload callback={this.fileUploadCallback} />
         {
           Object.entries(this.state.items).map( ( [s3Key, item] ) => {
-            return <ItemsDisplay key={s3Key} s3Key={s3Key} item={item} callback={this.fileUploadCallback} removeItem={this.removeItem}/>;
+            return <ItemsDisplay key={s3Key} s3Key={s3Key} item={item} callback={this.fileUploadCallback} removeItem={this.props.allowRemoveItem ? this.removeItem : undefined} />;
           })
         }
       </>
