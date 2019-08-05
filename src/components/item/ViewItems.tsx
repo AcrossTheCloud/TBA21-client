@@ -37,10 +37,18 @@ const FileType = (props: { id: string, file: S3File }): JSX.Element => {
 const MasonryItem = ( props: { item: Item } ): JSX.Element => {
   const [ item, setItem ] = React.useState(props.item);
 
+  // Check of the hook is mounted.
+  const mounted: React.MutableRefObject<boolean> = React.useRef(true);
+  React.useEffect(() => {
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+
   React.useEffect(() => {
     const getFile = async (key: string) => {
       const result = await sdkGetObject(props.item.s3_key);
-      if (result && result.url && result.type) {
+      if (result && result.url && result.type && mounted.current) {
         setItem({ ...props.item, file: result });
       }
     };
@@ -71,11 +79,23 @@ const MasonryItem = ( props: { item: Item } ): JSX.Element => {
  *
  */
 class ViewItems extends React.Component<Props, {}> { // tslint:disable-line: no-any
+  _isMounted;
+
+  constructor(props: Props) {
+    super(props);
+
+    this._isMounted = false;
+  }
 
   componentDidMount(): void {
+    this._isMounted = true;
     if (!Object.keys(this.props.items).length) {
       this.props.fetchItems();
     }
+  }
+
+  componentWillUnmount(): void {
+    this._isMounted = false;
   }
 
   render() {
