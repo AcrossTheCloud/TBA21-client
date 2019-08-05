@@ -3,7 +3,7 @@ import { RouteComponentProps, withRouter } from 'react-router-dom';
 
 import { Auth } from 'aws-amplify';
 import { has, get } from 'lodash';
-import { Button, FormGroup, Input, Label } from 'reactstrap';
+import { Button, Col, Form, FormGroup, Input, Row } from 'reactstrap';
 
 import LoaderButton from 'components/utils/LoaderButton';
 import { Alerts, ErrorMessage } from '../utils/alerts';
@@ -111,26 +111,34 @@ class AccountConfirmationClass extends React.Component<Props, State>  {
       <>
         <ErrorMessage message={this.state.errorMessage} />
 
-        <form onSubmit={this.handleConfirmationSubmit}>
-          <FormGroup id="confirmationCode">
-            <Label>Confirmation Code</Label>
-            <Input
-              autoFocus
-              type="tel"
-              value={this.state.confirmationCode}
-              onChange={(e) => this.setState({confirmationCode: e.target.value})}
-            />
-            Please check your email for the code{this.state.hasResentCode || this.props.sentCode ? '.' : <> or <Button color="link" onClick={this.resendConfirmationCode}>resend the code</Button>.</>}
-          </FormGroup>
-          <LoaderButton
-            block
-            disabled={!this.validateConfirmationForm()}
-            type="submit"
-            isLoading={this.state.isLoading}
-            text="Verify"
-            loadingText="Verifying…"
-          />
-        </form>
+        <Form id="confirmationCode" onSubmit={this.handleConfirmationSubmit} className="fullscreen-lines">
+          <Row>
+            <Col md="8" className="pr-md-0">
+              <FormGroup>
+                <Input
+                  autoFocus
+                  placeholder="Confirmation Code"
+                  type="tel"
+                  value={this.state.confirmationCode}
+                  onChange={(e) => this.setState({confirmationCode: e.target.value})}
+                />
+              </FormGroup>
+            </Col>
+            <Col md="4" className="pl-md-0">
+              <LoaderButton
+                block
+                disabled={!this.validateConfirmationForm()}
+                type="submit"
+                isLoading={this.state.isLoading}
+                text="Verify"
+                loadingText="Verifying…"
+              />
+            </Col>
+          </Row>
+        </Form>
+        <Col xs="12">
+          Please check your email for the code{this.state.hasResentCode || this.props.sentCode ? '.' : <> or <Button color="link" onClick={this.resendConfirmationCode}>resend the code</Button>.</>}
+        </Col>
       </>
     );
   }

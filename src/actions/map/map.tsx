@@ -19,8 +19,8 @@ export const fetchMarkers = (id: number) => async dispatch => {
             data: item
           };
 
-        if (item.geojson) {
-          const geoJSON: { type: string, coordinates: [number, number]} = JSON.parse(item.geojson);
+        if (item.location) {
+          const geoJSON: { type: string, coordinates: [number, number]} = JSON.parse(item.location);
           if (geoJSON.coordinates) {
             markerData.position = [geoJSON.coordinates[0], geoJSON.coordinates[1]];
           }

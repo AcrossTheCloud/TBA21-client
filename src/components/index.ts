@@ -1,8 +1,4 @@
-// START LAYOUT
-export * from './layout/Header';
-// END LAYOUT
-
-export * from './Home';
+export { default as Home } from './Home';
 
 // START USER
 export { default as Profile } from './user/profile/Profile';

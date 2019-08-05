@@ -8,6 +8,7 @@ import { Button, Container, Modal, ModalBody, ModalFooter, Spinner } from 'react
 import { Item } from 'types/Item';
 import { ItemEditor } from 'components/metadata/ItemEditor';
 import { Alerts, ErrorMessage } from 'components/utils/alerts';
+import { Header } from 'components/layout/Header';
 
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css';
@@ -93,7 +94,7 @@ export default class Items extends React.Component<{}, State> {
           offset: offset,
           limit: this.state.sizePerPage
         },
-        response = await API.get('tba21', 'admin/items/get', { queryStringParameters: queryStringParameters });
+        response = await API.get('tba21', 'admin/items', { queryStringParameters: queryStringParameters });
 
       if (!this._isMounted) { return; }
       return {
@@ -103,7 +104,7 @@ export default class Items extends React.Component<{}, State> {
 
     } catch (e) {
       if (!this._isMounted) { return; }
-      this.setState({items: [], errorMessage: `We've had some trouble getting the list of items.`, tableIsLoading: false});
+      this.setState({items: [], errorMessage: `${e} - We've had some trouble getting the list of items.`, tableIsLoading: false});
     }
   }
 
@@ -114,6 +115,7 @@ export default class Items extends React.Component<{}, State> {
       if (response) {
         const { items, totalSize } = response;
 
+        if (!this._isMounted) { return; }
         this.setState(
           {
             items: items,
@@ -124,11 +126,12 @@ export default class Items extends React.Component<{}, State> {
       }
     } catch (e) {
       if (!this._isMounted) { return; }
-      this.setState({items: [], errorMessage: `We've had some trouble getting the list of items.`, tableIsLoading: false});
+      this.setState({items: [], errorMessage: `${e} - We've had some trouble getting the list of items.`, tableIsLoading: false});
     }
   }
 
   onEditButtonClick = (item: Item) => {
+    if (!this._isMounted) { return; }
     this.setState(
       {
         componentModalOpen: true,
@@ -138,6 +141,7 @@ export default class Items extends React.Component<{}, State> {
   }
 
   componentModalToggle = () => {
+    if (!this._isMounted) { return; }
     this.setState( prevState => ({
        ...prevState,
        componentModalOpen: !prevState.componentModalOpen
@@ -148,6 +152,7 @@ export default class Items extends React.Component<{}, State> {
   handleTableChange = async (type, { page, sizePerPage }): Promise<void> => {
     if (type === 'pagination') {
       const currentIndex = (page - 1) * sizePerPage;
+      if (!this._isMounted) { return; }
       this.setState({ tableIsLoading: true });
 
       try {
@@ -165,6 +170,7 @@ export default class Items extends React.Component<{}, State> {
         }
 
       } catch (e) {
+        if (!this._isMounted) { return; }
         this.setState({page: this.state.page - 1, errorMessage: `We've had some trouble getting the list of items.`, tableIsLoading: false});
       }
     }
@@ -179,6 +185,7 @@ export default class Items extends React.Component<{}, State> {
 
     return (
       <Container>
+        <Header />
         <ErrorMessage message={this.state.errorMessage}/>
         <BootstrapTable
           remote

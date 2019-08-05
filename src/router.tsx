@@ -4,7 +4,6 @@ import { Router, Redirect } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { has } from 'lodash';
 
-import { App } from './App';
 import history from './history';
 import store from './store';
 
@@ -76,13 +75,12 @@ const AdminRoutes = ({authorisation, ...rest}) => {
 };
 
 export const AppRouter = () => {
+  const currentLocation = window.location.pathname;
   return (
     <AuthProvider history={history}>
       <Provider store={store}>
         <Router history={history}>
-          <div>
-            <Route path="/" render={() => <App />} />
-
+          <div id="body" className={currentLocation === '/' ? 'fixed' : ''}>
             <Route exact path="/" component={Home} />
             <Route exact path="/view" component={ViewItems} />
             <Route path="/view/:itemId" component={ViewItem} />

@@ -5,14 +5,15 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import { Button, Container, Modal, ModalBody, ModalFooter, Spinner } from 'reactstrap';
 
-import { Collection } from '../../../../types/Collection';
+import { Collection } from 'types/Collection';
+import { CollectionEditor } from 'components/metadata/CollectionEditor';
+
 import { Alerts, ErrorMessage } from 'components/utils/alerts';
 
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css';
 
 import 'styles/components/admin/tables/modal.scss';
-import { CollectionEditor } from '../../../metadata/CollectionEditor';
 
 interface State extends Alerts {
   collections: Collection[];

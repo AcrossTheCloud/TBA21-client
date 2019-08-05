@@ -4,6 +4,9 @@
   .dropzone {
     padding: 50px 0;
     text-align: center;
+    &:focus {
+      outline: -webkit-focus-ring-color auto 0;
+    }
   }
 
   div {

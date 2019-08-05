@@ -1,9 +1,12 @@
+@import "../../base/variables";
+
 .signUp {
 
-}
+  .loaderButton {
+    height: 100%;
+  }
 
-@media all and (min-width: 480px) {
-  .signUp {
-    padding: 60px 0;
+  .validation {
+    color: $input-error
   }
 }

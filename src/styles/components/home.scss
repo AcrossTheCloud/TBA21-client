@@ -1,32 +1,28 @@
+@import '../base/variables';
+
+#body {
+  &.fixed {
+    max-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
+    background: #fff;
+  }
+  &.logoLoaded {
+    #home {
+      #header {
+        transform: translate3d(0,0,0);
+      }
+    }
+  }
+}
+
 #home {
-  text-align: center;
+  color: #fff;
+  #header {
+    background: $dark-blue;
+    min-height: 100vh;
 
-  header {
-    background-color: #cccccc;
-    padding: 20px;
-    color: white;
-
-    img {
-      &.logo {
-        animation: animation_spin infinite 20s linear;
-        height: 80px;
-        width: 80px;
-      }
-    }
-
+    transform: translate3d(0,-60vw,0);
+    transition: transform .5s cubic-bezier(0.22, 0.61, 0.36, 1);
   }
-
-
-  h1 {
-      &.title {
-        font-size: 1.5em;
-      }
-    }
-
-  p {
-    &.intro {
-      font-size: large;
-    }
-  }
-
 }

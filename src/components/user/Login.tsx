@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
-import { Button, Container, FormGroup, Input, Label } from 'reactstrap';
+import { Button, Col, Container, Form, FormGroup, Input, Row } from 'reactstrap';
 
 import FacebookButton from 'components/utils/facebook/FacebookButton';
 import { AuthContext } from 'providers/AuthProvider';
@@ -12,7 +12,7 @@ import { Alerts, ErrorMessage, WarningMessage } from '../utils/alerts';
 
 import 'styles/components/user/login.scss';
 
-interface State extends Alerts{
+interface State extends Alerts {
   email: string;
   password: string;
   passwordReset: boolean;
@@ -94,59 +94,79 @@ class LoginClass extends React.Component<RouteComponentProps, State> {
     if (this.state.notConfirmed) {
       return (
         <Container className="login">
-          <ErrorMessage message={this.state.errorMessage}/>
-          <WarningMessage message={this.state.warningMessage} />
-          <AccountConfirmation email={this.state.email} />
+          <Row className="min-h-100">
+            <Col className="align-self-center">
+              <ErrorMessage message={this.state.errorMessage}/>
+              <WarningMessage message={this.state.warningMessage}/>
+              <AccountConfirmation email={this.state.email} />
+            </Col>
+          </Row>
         </Container>
       );
     }
 
     return (
       <Container className="login">
-        <ErrorMessage message={this.state.errorMessage}/>
-        <WarningMessage message={this.state.warningMessage} />
-        <form onSubmit={(e) => { this.handleSubmit(e); }} className="small">
-          <FormGroup id="email">
-            <Label>Email</Label>
-            <Input
-              autoFocus
-              disabled={this.state.isLoading}
-              type="email"
-              value={this.state.email}
-              onChange={(e) => this.setState({email: e.target.value, errorMessage: undefined, warningMessage: undefined})}
-            />
-          </FormGroup>
-          <FormGroup id="password">
-            <Label>Password</Label>
-            <Input
-              disabled={this.state.isLoading}
-              value={this.state.password}
-              onChange={(e) => this.setState({password: e.target.value, errorMessage: undefined, warningMessage: undefined})}
-              type="password"
-            />
-          </FormGroup>
-          <LoaderButton
-            block
-            disabled={!this.validateForm()}
-            type="submit"
-            isLoading={this.state.isLoading}
-            text="Login"
-            loadingText="Logging you in.…"
-          />
-          <Button
-            block
-            onClick={() => { this.props.history.push('/signup'); }}
-          >
-            Signup
-          </Button>
-          <Button
-            block
-            onClick={() => { this.props.history.push('/resetPassword'); }}
-          >
-            Reset password
-          </Button>
-          <FacebookButton isSignUp={false} />
-        </form>
+        <Row className="min-h-100">
+          <Col className="align-self-center">
+
+            <ErrorMessage message={this.state.errorMessage}/>
+            <WarningMessage message={this.state.warningMessage} />
+
+            <Form onSubmit={(e) => { this.handleSubmit(e); }} className="fullscreen-lines">
+              <Row>
+                <Col xs="12">
+                  <FormGroup id="email">
+                    <Input
+                      autoFocus
+                      disabled={this.state.isLoading}
+                      type="email"
+                      placeholder="Email Address"
+                      value={this.state.email}
+                      onChange={(e) => this.setState({email: e.target.value, errorMessage: undefined, warningMessage: undefined})}
+                    />
+                  </FormGroup>
+                </Col>
+              </Row>
+              <Row>
+                <Col md="8" className="pr-md-0">
+                  <FormGroup id="password">
+                    <Input
+                      disabled={this.state.isLoading}
+                      placeholder="Password"
+                      value={this.state.password}
+                      onChange={(e) => this.setState({password: e.target.value, errorMessage: undefined, warningMessage: undefined})}
+                      type="password"
+                    />
+                  </FormGroup>
+                </Col>
+                <Col md="4" className="pl-md-0">
+                  <LoaderButton
+                    block
+                    disabled={!this.validateForm()}
+                    type="submit"
+                    isLoading={this.state.isLoading}
+                    text="Login"
+                    loadingText="Logging you in.…"
+                  />
+                </Col>
+              </Row>
+              <Button
+                block
+                onClick={() => { this.props.history.push('/signup'); }}
+              >
+                Signup
+              </Button>
+              <Button
+                block
+                onClick={() => { this.props.history.push('/resetPassword'); }}
+              >
+                Reset password
+              </Button>
+              <FacebookButton isSignUp={false} />
+            </Form>
+          </Col>
+        </Row>
       </Container>
     );
   }

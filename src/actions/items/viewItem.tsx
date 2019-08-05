@@ -12,10 +12,7 @@ export const FETCH_ITEM_ERROR_NO_SUCH_ITEM = 'FETCH_ITEM_ERROR_NO_SUCH_ITEM';
  * @param s3key {string}
  */
 export const fetchItem = (s3key: string) => async (dispatch, getState) => {
-
   const prevState = getState();
-
-  console.log('prevState.viewItem', prevState.viewItem);
 
   // Detect if we have the same itemID and return the previous state.
   // We do this here to stop another API call and you can easily get the prevState in the Action.
@@ -37,8 +34,8 @@ export const fetchItem = (s3key: string) => async (dispatch, getState) => {
       }
     });
 
-    if (response.items.length) {
-      const item = response.items[0];
+    if (!!response.item && Object.keys(response.item).length) {
+      const item = response.item;
       dispatch({
        type: FETCH_ITEM,
        item: item

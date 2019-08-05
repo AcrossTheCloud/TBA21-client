@@ -1,9 +1,9 @@
 import * as React from 'react';
 import {
-  Container,
+  Col,
+  Container, Form,
   FormGroup,
-  Input,
-  Label
+  Input, Row
 } from 'reactstrap';
 import { Auth } from 'aws-amplify';
 import { ISignUpResult } from 'amazon-cognito-identity-js';
@@ -13,6 +13,7 @@ import FacebookButton from 'components/utils/facebook/FacebookButton';
 import { AccountConfirmation } from './AccountConfirmation';
 import { PasswordForm } from 'components/utils/inputs/PasswordForm';
 import { Alerts, ErrorMessage, WarningMessage } from '../utils/alerts';
+import { validateEmail } from '../utils/inputs/email';
 
 import 'styles/components/user/signup.scss';
 
@@ -66,14 +67,6 @@ export class SignUp extends React.Component<{}, State> {
     }
   }
 
-  validateForm = (): boolean => {
-    return this.state.email.length > 0;
-  }
-
-  onEmailChange = (email: string) => {
-    this.setState({ email: email, formValid: this.validateForm() });
-  }
-
   /**
    *
    * Attempts to sign up the user in Cognito, and shows confirmation code screen
@@ -112,52 +105,73 @@ export class SignUp extends React.Component<{}, State> {
    */
   passwordCallback = (password: string, error?: string) => {
     if (error && error.length) {
-      this.setState({ errorMessage: error, passwordValid: false, formValid: false });
+      this.setState({ passwordValid: false, formValid: false });
     } else {
-      this.setState({ password: password, passwordValid: true, formValid: this.validateForm(), errorMessage: undefined });
+      this.setState({ password: password, passwordValid: true, formValid: validateEmail(this.state.email), errorMessage: undefined });
     }
+  }
+
+  confirmPassword = (inputField: JSX.Element) => {
+    return (
+      <Row>
+        <FormGroup className="confirmPassword col-md-8 pr-md-0">
+          {inputField}
+        </FormGroup>
+        <Col md="4" className="pl-md-0">
+          <LoaderButton
+            block
+            disabled={!this.state.formValid || !this.state.passwordValid}
+            type="submit"
+            isLoading={this.state.isLoading}
+            text="Sign Up"
+            loadingText="Signing up…"
+          />
+        </Col>
+      </Row>
+    );
   }
 
   render() {
     if (!this.state.newUser) {
       return (
         <Container className="signUp">
-          <ErrorMessage message={this.state.errorMessage} />
-          <WarningMessage message={this.state.warningMessage} />
-          <form onSubmit={this.handleSubmit} className="small">
-            <FormGroup id="email">
-              <Label>Email</Label>
-              <Input
-                autoFocus
-                type="email"
-                value={this.state.email}
-                onChange={e => this.onEmailChange(e.target.value)}
-                disabled={this.state.hasFbLoaded}
-              />
+          <Row className="min-h-100">
+            <Col className="align-self-center">
+
+              <ErrorMessage message={this.state.errorMessage} />
+              <WarningMessage message={this.state.warningMessage} />
               {this.state.hasMessage ? <WarningMessage message="Please enter your details as we were unable to retrieve them from Facebook." /> : <></>}
-            </FormGroup>
 
-            <PasswordForm callback={this.passwordCallback} />
+              <Form onSubmit={this.handleSubmit} className="fullscreen-lines">
+                <FormGroup>
+                  <Input
+                    autoFocus
+                    type="email"
+                    placeholder="Email Address"
+                    value={this.state.email}
+                    onChange={e => this.setState({ email: e.target.value, formValid: validateEmail(e.target.value) })}
+                    disabled={this.state.hasFbLoaded}
+                  />
+                </FormGroup>
 
-            <LoaderButton
-              block
-              disabled={!this.state.formValid || !this.state.passwordValid}
-              type="submit"
-              isLoading={this.state.isLoading}
-              text="Signup"
-              loadingText="Signing up…"
-            />
-           <br />
-            <FormGroup>
-              {!this.state.hasFbLoaded ? <FacebookButton isSignUp={true} setUserDetails={this.setUserDetails} /> : <></>}
-            </FormGroup>
-          </form>
+                <PasswordForm callback={this.passwordCallback} confirmPasswordWrapper={this.confirmPassword} />
+
+                <>{!this.state.hasFbLoaded ? <FacebookButton isSignUp={true} setUserDetails={this.setUserDetails} /> : <></>}</>
+              </Form>
+            </Col>
+          </Row>
         </Container>
       );
     } else {
       return (
         <Container className="signUp">
-          <AccountConfirmation email={this.state.newUser.user.getUsername()} />
+          <Row className="min-h-100">
+            <Col className="align-self-center">
+              <ErrorMessage message={this.state.errorMessage}/>
+              <WarningMessage message={this.state.warningMessage}/>
+              <AccountConfirmation email={this.state.newUser.user.getUsername()} />
+            </Col>
+          </Row>
         </Container>
       );
     }
