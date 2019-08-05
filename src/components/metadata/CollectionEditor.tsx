@@ -1093,7 +1093,7 @@ export class CollectionEditor extends React.Component<Props, State> {
 
         const
           queryStringParameters = ( inputValue ? { inputQuery: inputValue, limit: 100 } : {} ),
-          response = await API.get('tba21', 'admin/items/get', { queryStringParameters: queryStringParameters });
+          response = await API.get('tba21', 'admin/items', { queryStringParameters: queryStringParameters });
 
         resolve(response.items.map( item => ({label: item.title || 'No title', value: item.s3_key, item: item}) ));
       }, 500);

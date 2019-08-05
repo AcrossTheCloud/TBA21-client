@@ -94,7 +94,7 @@ export default class Items extends React.Component<{}, State> {
           offset: offset,
           limit: this.state.sizePerPage
         },
-        response = await API.get('tba21', 'admin/items/get', { queryStringParameters: queryStringParameters });
+        response = await API.get('tba21', 'admin/items', { queryStringParameters: queryStringParameters });
 
       if (!this._isMounted) { return; }
       return {
