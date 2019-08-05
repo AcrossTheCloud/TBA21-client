@@ -1417,7 +1417,7 @@ export class CollectionEditor extends React.Component<Props, State> {
                     this.state.loadingItems ?
                       <>Loading</>
                       :
-                      <Items callback={this.itemsCallback} items={this.state.loadedItems}/>
+                      <Items callback={this.itemsCallback} items={this.state.loadedItems} allowRemoveItem/>
                   }
                 </Row>
               </TabPane>
