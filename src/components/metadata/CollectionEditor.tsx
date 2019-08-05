@@ -216,9 +216,6 @@ export class CollectionEditor extends React.Component<Props, State> {
       this.setState({ collection: {...this.state.collection, items: items}, isDifferent: true });
     } else if (!!removeItem && itemsList.length) {
 
-      console.log('s3key', s3key);
-      console.log('this.state.collection.items.indexOf(s3key)', !!this.state.collection.items ? this.state.collection.items.indexOf(s3key) : -1);
-
       // Remove the item if it exists and removeItem is true
       itemsList.splice(s3keyIndex, 1);
 
@@ -227,8 +224,6 @@ export class CollectionEditor extends React.Component<Props, State> {
       if (loadedItems[s3key]) {
         delete loadedItems[s3key];
       }
-
-      console.log('loadedItems', loadedItems);
 
       this.setState({ collection: {...this.state.collection, items: itemsList}, loadedItems: loadedItems, isDifferent: true });
     }
@@ -1101,7 +1096,7 @@ export class CollectionEditor extends React.Component<Props, State> {
   }
 
   selectItemOnChange = (itemList: any, actionMeta) => { // tslint:disable-line: no-any
-    if (actionMeta.action === 'select-option' || actionMeta.action === 'create-option') {
+    if (actionMeta.action === 'select-option') {
 
       // Item is already attached to the collection.
       if (!!this.state.collection.items && this.state.collection.items.indexOf(itemList.item.s3_key) > -1) {
@@ -1279,7 +1274,7 @@ export class CollectionEditor extends React.Component<Props, State> {
 
                     <FormGroup>
                       <Label for="type">Type</Label>
-                      <Select id="type" options={collectionTypes} value={[collectionTypes.find( o => o.label === type)]} onChange={e => this.validateLength('type', e.value)} isSearchable/>
+                      <Select id="type" options={collectionTypes} value={[collectionTypes.find( o => o.value === type)]} onChange={e => this.validateLength('type', e.value)} isSearchable/>
                       <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('type') && !this.state.validate.type ? 'block' : 'none') }}>This is a required field</FormFeedback>
                     </FormGroup>
 
@@ -1409,6 +1404,7 @@ export class CollectionEditor extends React.Component<Props, State> {
                       onChange={this.selectItemOnChange}
                       onInputChange={v => this.setState({ selectInputValue: v })}
                       inputValue={this.state.selectInputValue}
+                      value={this.state.selectInputValue}
                     />
                   </Col>
                 </Row>

@@ -3,20 +3,3 @@
 .min-h-100 {
   min-height: 100vh;
 }
-
-
-input {
-  &.form-control {
-    box-shadow: none;
-    border-radius: 0;
-    transition: all 0.15s ease-in-out;
-
-    &:focus {
-      color: #495057;
-      background-color: $mid-gray;
-      border: none;
-      outline: 0;
-      box-shadow: none;
-    }
-  }
-}

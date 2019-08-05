@@ -318,7 +318,7 @@ export class ItemEditor extends React.Component<Props, State> {
       options = itemImageSubTypes;
     }
 
-    return <Select id="item_subtype" options={options} value={[options.find( o => o.label === this.state.changedItem.item_subtype)]} onChange={e => this.validateLength('item_subtype', e.value)} isSearchable/>;
+    return <Select id="item_subtype" options={options} value={[options.find( o => o.value === this.state.changedItem.item_subtype)]} onChange={e => this.validateLength('item_subtype', e.value)} isSearchable/>;
   }
 
   subTypeOnChange = (subType: string) => {
