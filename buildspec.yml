@@ -13,9 +13,9 @@ phases:
     commands:
       npm install
       # - command
-  #pre_build:
-    #commands:
-      # - command
+  pre_build:
+    commands:
+      - bash src/link_config.sh
       # - command
   build:
     commands:
