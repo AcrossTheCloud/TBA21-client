@@ -27,12 +27,11 @@ import {
 import { Collection, collectionTypes as Types } from '../../types/Collection';
 import { Item } from '../../types/Item';
 import { Alerts, ErrorMessage, SuccessMessage, WarningMessage } from '../utils/alerts';
-
-import pencil from '../../images/svgs/pencil.svg';
 import YearSelect from './fields/YearSelect';
 import { validateURL } from '../utils/inputs/url';
 import { Items } from './Items';
 import CustomSelect from './fields/CustomSelect';
+import pencil from '../../images/svgs/pencil.svg';
 
 interface Props {
   collection?: Collection;
@@ -385,7 +384,7 @@ export class CollectionEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="regional_focus">Regional Focus</Label>
-            <Select id="regional_focus" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries }]} value={[countryOrOcean]} onChange={e => this.validateLength('regional_focus', e.value)} isSearchable/>
+            <Select menuPlacement="auto" id="regional_focus" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries }]} value={[countryOrOcean]} onChange={e => this.validateLength('regional_focus', e.value)} isSearchable/>
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('regional_focus') && !this.state.validate.regional_focus ? 'block' : 'none') }}>This is a required field</FormFeedback>
           </FormGroup>
         </Col>
@@ -464,6 +463,7 @@ export class CollectionEditor extends React.Component<Props, State> {
           <FormGroup>
             <Label for="event_type">Type Of Event</Label>
             <Select
+              menuPlacement="auto"
               id="event_type"
               options={eventTypes}
               value={[eventType]}
@@ -1264,7 +1264,7 @@ export class CollectionEditor extends React.Component<Props, State> {
 
                     <FormGroup>
                       <Label for="country_or_ocean">Region (Country/Ocean)</Label>
-                      <Select id="country_or_ocean" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries }]} value={[countryOrOcean]} onChange={e => this.changeCollection('country_or_ocean', e.value)} isSearchable/>
+                      <Select menuPlacement="auto" id="country_or_ocean" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries }]} value={[countryOrOcean]} onChange={e => this.changeCollection('country_or_ocean', e.value)} isSearchable/>
                     </FormGroup>
 
                     <FormGroup>
@@ -1274,13 +1274,13 @@ export class CollectionEditor extends React.Component<Props, State> {
 
                     <FormGroup>
                       <Label for="type">Type</Label>
-                      <Select id="type" options={collectionTypes} value={[collectionTypes.find( o => o.value === type)]} onChange={e => this.validateLength('type', e.value)} isSearchable/>
+                      <Select menuPlacement="auto" id="type" options={collectionTypes} value={[collectionTypes.find( o => o.value === type)]} onChange={e => this.validateLength('type', e.value)} isSearchable/>
                       <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('type') && !this.state.validate.type ? 'block' : 'none') }}>This is a required field</FormFeedback>
                     </FormGroup>
 
                     <FormGroup>
                       <Label for="license_type">License</Label>
-                      <Select id="license_type" options={licenseType} value={license ? {value: license, label: license} : []} onChange={e => this.changeCollection('license', e.label)} isSearchable/>
+                      <Select menuPlacement="auto" id="license_type" options={licenseType} value={license ? {value: license, label: license} : []} onChange={e => this.changeCollection('license', e.label)} isSearchable/>
                     </FormGroup>
 
                     <FormGroup>
@@ -1290,7 +1290,7 @@ export class CollectionEditor extends React.Component<Props, State> {
 
                     <FormGroup>
                       <Label for="copyright_country">Copyright Country</Label>
-                      <Select id="copyright_country" options={countries} value={[copyright_country ? countries.find(c => c.value === copyright_country) : null]} onChange={e => this.changeCollection('copyright_country', e.value)} isSearchable/>
+                      <Select menuPlacement="auto" id="copyright_country" options={countries} value={[copyright_country ? countries.find(c => c.value === copyright_country) : null]} onChange={e => this.changeCollection('copyright_country', e.value)} isSearchable/>
                     </FormGroup>
 
                     <FormGroup>

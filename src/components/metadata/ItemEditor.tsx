@@ -318,7 +318,7 @@ export class ItemEditor extends React.Component<Props, State> {
       options = itemImageSubTypes;
     }
 
-    return <Select id="item_subtype" options={options} value={[options.find( o => o.value === this.state.changedItem.item_subtype)]} onChange={e => this.validateLength('item_subtype', e.value)} isSearchable/>;
+    return <Select menuPlacement="auto" id="item_subtype" options={options} value={[options.find( o => o.value === this.state.changedItem.item_subtype)]} onChange={e => this.validateLength('item_subtype', e.value)} isSearchable/>;
   }
 
   subTypeOnChange = (subType: string) => {
@@ -878,7 +878,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="4">
           <FormGroup>
             <Label for="translated_from">Translated From</Label>
-            <Select id="translated_from" options={languages} value={item.language ? languages.find( c => c.value === item.language ) : []} onChange={e => this.changeItem('translated_from', e.value)} isSearchable/>
+            <Select menuPlacement="auto" id="translated_from" options={languages} value={item.language ? languages.find( c => c.value === item.language ) : []} onChange={e => this.changeItem('translated_from', e.value)} isSearchable/>
           </FormGroup>
         </Col>
 
@@ -1108,7 +1108,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="4">
           <FormGroup>
             <Label for="translated_from">Translated From</Label>
-            <Select id="translated_from" options={languages} value={item.language ? languages.find( c => c.value === item.language ) : []} onChange={e => this.changeItem('translated_from', e.value)} isSearchable/>
+            <Select menuPlacement="auto" id="translated_from" options={languages} value={item.language ? languages.find( c => c.value === item.language ) : []} onChange={e => this.changeItem('translated_from', e.value)} isSearchable/>
           </FormGroup>
         </Col>
 
@@ -2253,13 +2253,13 @@ export class ItemEditor extends React.Component<Props, State> {
 
                     <FormGroup>
                       <Label for="country_or_ocean">Region (Country/Ocean)</Label>
-                      <Select id="country_or_ocean" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries }]} value={[countryOrOcean]} onChange={e => this.validateLength('country_or_ocean', e.value)} isSearchable/>
+                      <Select menuPlacement="auto" id="country_or_ocean" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries }]} value={[countryOrOcean]} onChange={e => this.validateLength('country_or_ocean', e.value)} isSearchable/>
                       <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('country_or_ocean') && !this.state.validate.country_or_ocean ? 'block' : 'none') }}>This is a required field</FormFeedback>
                     </FormGroup>
 
                     <FormGroup>
                       <Label for="language">Language</Label>
-                      <Select id="language" options={languages} value={item.language ? languages.find( c => c.value === item.language ) : []} onChange={e => this.changeItem('language', e.value)} isSearchable/>
+                      <Select menuPlacement="auto" id="language" options={languages} value={item.language ? languages.find( c => c.value === item.language ) : []} onChange={e => this.changeItem('language', e.value)} isSearchable/>
                     </FormGroup>
 
                     <FormGroup>
@@ -2270,7 +2270,7 @@ export class ItemEditor extends React.Component<Props, State> {
 
                     <FormGroup>
                       <Label for="license_type">License</Label>
-                      <Select id="license_type" options={licenseType} value={item.license ? {value: item.license, label: item.license} : []} onChange={e => this.changeItem('license', e.label)} isSearchable/>
+                      <Select menuPlacement="auto" id="license_type" options={licenseType} value={item.license ? {value: item.license, label: item.license} : []} onChange={e => this.changeItem('license', e.label)} isSearchable/>
                     </FormGroup>
 
                     <FormGroup>
@@ -2292,7 +2292,7 @@ export class ItemEditor extends React.Component<Props, State> {
 
                     <FormGroup>
                       <Label for="copyright_country">Copyright Country</Label>
-                      <Select id="copyright_country" options={countries} value={[item.copyright_country ? countries.find(c => c.value === item.copyright_country) : null]} onChange={e => this.changeItem('copyright_country', e.value)} isSearchable/>
+                      <Select menuPlacement="auto" id="copyright_country" options={countries} value={[item.copyright_country ? countries.find(c => c.value === item.copyright_country) : null]} onChange={e => this.changeItem('copyright_country', e.value)} isSearchable/>
                     </FormGroup>
 
                     <FormGroup>

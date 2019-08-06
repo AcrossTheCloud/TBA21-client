@@ -43,7 +43,6 @@ class HomePage extends React.Component<Props, {}> {
           </AuthConsumer>
 
           <Header/>
-          Hello
         </section>
 
         <Logo loaded={this.props.logoLoaded} onChange={() => this.props.logoDispatch(true)}/>

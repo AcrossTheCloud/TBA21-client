@@ -23,25 +23,27 @@ export default class CustomSelect extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      values: (this.props.values && this.props.values.length) ? this.props.values.map( e => ({ label: e, value: e })) : [],
+      values: (this.props.values && this.props.values.length) ? this.props.values.map(e => ({label: e, value: e})) : [],
       inputValue: ''
     };
   }
 
   handleChange = (values: any) => { // tslint:disable-line: no-any
-    this.setState({ values: values });
+    this.setState({values: values});
     if (typeof this.props.callback === 'function') {
       this.props.callback((values && values.length) ? values.map(e => e.value) : []);
     }
   }
 
   handleInputChange = (inputValue: string) => {
-    this.setState({ inputValue });
+    this.setState({inputValue});
   }
 
   handleKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
-    let { inputValue, values } = this.state;
-    if (!inputValue) { return; }
+    let {inputValue, values} = this.state;
+    if (!inputValue) {
+      return;
+    }
 
     if (!values) {
       values = [];
@@ -52,9 +54,9 @@ export default class CustomSelect extends React.Component<Props, State> {
         values.push(createOption(inputValue));
       }
       this.setState({
-        inputValue: '',
-        values: values
-      });
+                      inputValue: '',
+                      values: values
+                    });
       event.preventDefault();
 
       if (typeof this.props.callback === 'function') {
@@ -64,10 +66,11 @@ export default class CustomSelect extends React.Component<Props, State> {
   }
 
   render() {
-    const { inputValue, values } = this.state;
+    const {inputValue, values} = this.state;
     return (
       <CreatableSelect
-        components={{ DropdownIndicator: null }}
+        menuPlacement="auto"
+        components={{DropdownIndicator: null}}
         isClearable
         isMulti={!!this.props.isMulti}
         menuIsOpen={false}
