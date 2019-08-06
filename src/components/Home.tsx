@@ -5,12 +5,11 @@ import { Button } from 'reactstrap';
 
 import { AuthConsumer } from '../providers/AuthProvider';
 import { logoDispatch } from 'actions/home';
-import { Header } from 'components/layout/Header';
 
 import Logo from './layout/Logo';
 import 'styles/components/home.scss';
 
-interface Props {
+export interface Props {
   logoDispatch: Function;
   logoLoaded: boolean;
 }
@@ -19,9 +18,7 @@ class HomePage extends React.Component<Props, {}> {
   render() {
     return (
       <div id="home" className="flex-fill">
-
         <section id="header">
-
           <AuthConsumer>
             {({ isAuthenticated, logout }) => (
               isAuthenticated ?
@@ -30,8 +27,6 @@ class HomePage extends React.Component<Props, {}> {
                 <Button color="link" tag={Link} to="/login"><span className="simple-icon-login"/> Login</Button>
             )}
           </AuthConsumer>
-
-          <Header/>
         </section>
 
         <Logo loaded={this.props.logoLoaded} onChange={() => this.props.logoDispatch(true)}/>
