@@ -26,7 +26,7 @@ export default class YearSelect extends React.Component<Props, State> {
     const { value } = this.props;
 
     const thisYear = (new Date()).getFullYear();
-    this.listOfYears = range(1900, thisYear + 1).map(y => ({ label: y.toString(), value: y.toString() }));
+    this.listOfYears = range(thisYear + 1, 1900).map(y => ({ label: y.toString(), value: y.toString() }));
 
     this.state = {
       value: value ? { label: value, value: value } : {label: '', value: ''},
@@ -34,10 +34,15 @@ export default class YearSelect extends React.Component<Props, State> {
     };
   }
 
-  handleChange = (value: any) => { // tslint:disable-line: no-any
-    this.setState({ value: value });
+  handleChange = (value: any, actionMeta) => { // tslint:disable-line: no-any
+    let newValue = value;
+    if (actionMeta.action === 'create-option') {
+      newValue = createOption(newValue);
+    }
+
+    this.setState({ value: newValue });
     if (typeof this.props.callback === 'function') {
-      this.props.callback(value ? value.value : '');
+      this.props.callback(newValue ? newValue.label : '');
     }
   }
 
@@ -50,26 +55,28 @@ export default class YearSelect extends React.Component<Props, State> {
   }
 
   handleCreateOption = (inputValue: string) => {
-    this.setState({ inputValue: '', value: createOption(inputValue) });
+    this.setState({ inputValue: inputValue, value: createOption(inputValue) });
     if (typeof this.props.callback === 'function') {
       this.props.callback(inputValue);
     }
   }
 
   handleKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
-    let { inputValue, value } = this.state;
+    let { inputValue } = this.state;
     if (!inputValue) { return; }
+
+    const createdValue = createOption(inputValue);
 
     if (event.key === 'Enter' || event.key === 'Tab') {
 
       this.setState({
         inputValue: '',
-        value: createOption(inputValue)
+        value: createdValue
       });
       event.preventDefault();
 
       if (typeof this.props.callback === 'function') {
-        this.props.callback(value.value);
+        this.props.callback(createdValue.value);
       }
     }
   }
