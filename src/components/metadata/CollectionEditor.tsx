@@ -49,6 +49,7 @@ interface State extends Alerts {
     [key: string]: boolean
   };
 
+  editMode: boolean;
   activeTab: string;
   selectInputValue: string;
   // If we're editing the collection, we'll do an API call to get the items and push them to <Items />
@@ -98,6 +99,8 @@ export class CollectionEditor extends React.Component<Props, State> {
 
       loadedItems: [],
       loadingItems: !!props.collection,
+
+      editMode: this.props.editMode ? this.props.editMode : false,
 
       isDifferent: false,
       validate: defaultRequiredFields(collection),
@@ -160,8 +163,13 @@ export class CollectionEditor extends React.Component<Props, State> {
     try {
       const collectionProperties = {};
 
+      let
+        fields = this.state.collection,
+        editMode = this.state.editMode;
+
       // if we're in edit more add the id to props
-      if (this.props.editMode) {
+      if (editMode) {
+        fields = this.state.changedFields;
         Object.assign(collectionProperties, { id: this.state.originalCollection.id });
       }
 
@@ -171,11 +179,6 @@ export class CollectionEditor extends React.Component<Props, State> {
       }
 
       // We filter out specific values here as the API doesn't accept them, but returns them in the Item object.
-      let fields = this.state.collection;
-      if (this.props.editMode) {
-        fields = this.state.changedFields;
-      }
-
       Object.entries(fields)
         .filter( ([key, value]) => {
           return !(
@@ -187,7 +190,7 @@ export class CollectionEditor extends React.Component<Props, State> {
           Object.assign(collectionProperties, { [tag[0]]: tag[1] });
         });
 
-      const result = await API.put('tba21', `admin/collections/${this.props.editMode ? 'update' : 'create'}`, {
+      const result = await API.put('tba21', `admin/collections/${editMode ? 'update' : 'create'}`, {
         body: {
           ...collectionProperties
         }
@@ -197,7 +200,14 @@ export class CollectionEditor extends React.Component<Props, State> {
         // If we've failed set collection back to the original
         Object.assign(state, { errorMessage: result.message, collection: {...this.state.originalCollection}, changedFields: {}, status: false, isDifferent: false });
       } else if (result.success) {
-        Object.assign(state, { successMessage: 'Updated collection!', changedFields: {}, originalCollection: {...this.state.collection}, isDifferent: false });
+        const
+          modeMessage = editMode ? 'Updated collection!' : 'Created collection!',
+          originalCollection = {...this.state.collection, id: result.id};
+        // We're in create mode, once we've created add the ID to the original collection and cnage the form to update
+        if (!editMode) {
+          editMode = true;
+        }
+        Object.assign(state, { editMode: editMode, successMessage: modeMessage, changedFields: {}, originalCollection: originalCollection, isDifferent: false });
       } else {
         Object.assign(state, { warningMessage: result });
       }
