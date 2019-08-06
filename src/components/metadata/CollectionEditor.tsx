@@ -171,7 +171,12 @@ export class CollectionEditor extends React.Component<Props, State> {
       }
 
       // We filter out specific values here as the API doesn't accept them, but returns them in the Item object.
-      Object.entries(this.state.changedFields)
+      let fields = this.state.collection;
+      if (this.props.editMode) {
+        fields = this.state.changedFields;
+      }
+
+      Object.entries(fields)
         .filter( ([key, value]) => {
           return !(
             value === null
@@ -259,12 +264,6 @@ export class CollectionEditor extends React.Component<Props, State> {
   }
 
   typeOnChange = (subType: string) => {
-    const state = {
-      ...defaultRequiredFields(this.state.collection),
-      ...this.state.validate,
-      type: true
-    };
-
     const {
       institution,
       venues,
@@ -275,8 +274,14 @@ export class CollectionEditor extends React.Component<Props, State> {
       expedition_leader,
       expedition_route,
       city_of_publication,
-      media_type
+      media_type,
     } = this.state.collection;
+
+    const state = {
+      ...defaultRequiredFields(this.state.collection),
+      ...this.state.validate,
+      type: true,
+    };
 
     const
       TypeFields = {
@@ -361,7 +366,7 @@ export class CollectionEditor extends React.Component<Props, State> {
         </Col>
         <Col md="6">
           <FormGroup>
-            <Label for="end_date">End Date</Label>Home.tsx:48
+            <Label for="end_date">End Date</Label>
             <Input
               type="date"
               id="end_date"
