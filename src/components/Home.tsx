@@ -16,17 +16,6 @@ interface Props {
 }
 
 class HomePage extends React.Component<Props, {}> {
-  _isMounted;
-
-  constructor(props: Props) {
-    super(props);
-    this._isMounted = false;
-  }
-
-  componentDidMount(): void {
-    this._isMounted = true;
-  }
-
   render() {
     return (
       <div id="home" className="flex-fill">

@@ -51,7 +51,6 @@ import { AudioPlayer } from '../utils/AudioPlayer';
 
 import pencil from 'images/svgs/pencil.svg';
 import CustomSelect from './fields/CustomSelect';
-import YearSelect from './fields/YearSelect';
 import { validateURL } from '../utils/inputs/url';
 
 import 'styles/components/metadata/itemEditor.scss';
@@ -86,7 +85,7 @@ const defaultRequiredFields = (item: Item) => {
   const {
     title,
     description,
-    year_produced,
+    time_produced,
     item_subtype,
     country_or_ocean,
     focus_arts,
@@ -99,7 +98,7 @@ const defaultRequiredFields = (item: Item) => {
   return {
     'title': (title !== null && title.length > 0),
     'description': (description !== null && description.length > 0),
-    'year_produced': (year_produced !== null && year_produced.length > 0),
+    'time_produced': (time_produced !== null && time_produced.length > 0),
     'item_subtype': (item_subtype !== null && item_subtype.length > 0),
     'country_or_ocean': (country_or_ocean !== null && country_or_ocean.length > 0),
     'focus_arts': (focus_arts !== null && focus_arts.toString().length > 0),
@@ -163,6 +162,10 @@ export class ItemEditor extends React.Component<Props, State> {
           changedItem: { ...response.item, file: getFileResult, item_type: (getFileResult && getFileResult.item_type) ? getFileResult.item_type.substr(0, 1).toUpperCase() : null }
         };
         Object.assign(state, data);
+
+        console.log('time', response.item.time_produced);
+        console.log('typeof', typeof response.item.time_produced);
+
       } else {
         Object.assign(state, { errorMessage: 'No item by that name.', hideForm: true });
       }
@@ -1003,7 +1006,7 @@ export class ItemEditor extends React.Component<Props, State> {
             <Input
               type="date"
               id="birth_date"
-              defaultValue={item.birth_date ? item.birth_date : ''}
+              defaultValue={item.birth_date ? new Date(item.birth_date).toISOString().substr(0, 10) : ''}
               onChange={e => this.validateLength('birth_date', e.target.value)}
             />
           </FormGroup>
@@ -1015,7 +1018,7 @@ export class ItemEditor extends React.Component<Props, State> {
             <Input
               type="date"
               id="death_date"
-              defaultValue={item.death_date ? item.death_date : ''}
+              defaultValue={item.death_date ? new Date(item.death_date).toISOString().substr(0, 10) : ''}
               onChange={e => this.validateLength('death_date', e.target.value)}
             />
           </FormGroup>
@@ -1231,8 +1234,9 @@ export class ItemEditor extends React.Component<Props, State> {
               className="organisation"
               defaultValue={item.organisation ? item.organisation : ''}
               invalid={this.state.validate.hasOwnProperty('organisation') && !this.state.validate.organisation}
-              onChange={e => this.changeItem('organisation', e.target.value)}
+              onChange={e => this.validateLength('organisation', e.target.value)}
             />
+            <FormFeedback>This is a required field</FormFeedback>
           </FormGroup>
         </Col>
       </Row>
@@ -1255,7 +1259,6 @@ export class ItemEditor extends React.Component<Props, State> {
             <Input
               type="text"
               className="organisation"
-              required
               defaultValue={item.organisation ? item.organisation : ''}
               onChange={e => this.changeItem('organisation', [e.target.value])}
             />
@@ -1690,13 +1693,27 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="medium">Medium</Label>
-            <Input type="text" id="medium" defaultValue={item.medium ? item.medium : ''} onChange={e => this.changeItem('medium', e.target.value)}/>
+            <Input
+              type="text"
+              id="medium"
+              defaultValue={item.medium ? item.medium : ''}
+              onChange={e => this.validateLength('medium', e.target.value)}
+              invalid={this.state.validate.hasOwnProperty('medium') && !this.state.validate.medium}
+            />
+            <FormFeedback>This is a required field</FormFeedback>
           </FormGroup>
         </Col>
         <Col md="6">
           <FormGroup>
             <Label for="dimensions">Dimensions</Label>
-            <Input type="text" id="dimensions" defaultValue={item.dimensions ? item.dimensions : ''} onChange={e => this.changeItem('dimensions', e.target.value)}/>
+            <Input
+              type="text"
+              id="dimensions"
+              defaultValue={item.dimensions ? item.dimensions : ''}
+              onChange={e => this.validateLength('dimensions', e.target.value)}
+              invalid={this.state.validate.hasOwnProperty('dimensions') && !this.state.validate.dimensions}
+            />
+            <FormFeedback>This is a required field</FormFeedback>
           </FormGroup>
         </Col>
         <Col md="6">
@@ -2236,19 +2253,15 @@ export class ItemEditor extends React.Component<Props, State> {
                     </FormGroup>
 
                     <FormGroup>
-                      <Label for="year_produced">Year Produced</Label>
-                      <YearSelect value={item.year_produced ? item.year_produced : ''} callback={e => this.validateLength('year_produced', e)}/>
-                      <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('year_produced') && !this.state.validate.year_produced ? 'block' : 'none') }}>This is a required field</FormFeedback>
-                    </FormGroup>
-
-                    <FormGroup>
                       <Label for="time_produced">Date Produced</Label>
                       <Input
                         type="date"
                         id="time_produced"
-                        defaultValue={item.time_produced ? item.time_produced : ''}
+                        value={item.time_produced ? new Date(item.time_produced).toISOString().substr(0, 10) : ''}
                         onChange={e => this.validateLength('time_produced', e.target.value)}
+                        invalid={this.state.validate.hasOwnProperty('time_produced') && !this.state.validate.time_produced}
                       />
+                      <FormFeedback>This is a required field</FormFeedback>
                     </FormGroup>
 
                     <FormGroup>

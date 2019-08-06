@@ -14,8 +14,11 @@ interface State {
 }
 
 export default class Logo extends Component<Props, State> {
+  _isMounted;
   constructor(props: Props) {
     super(props);
+
+    this._isMounted = false;
 
     this.state = {
       loaded: this.props.loaded || false
@@ -23,6 +26,8 @@ export default class Logo extends Component<Props, State> {
   }
 
   componentDidMount(): void {
+    this._isMounted = true;
+
     if (!this.props.loaded) {
       setTimeout(() => {
         $('#logo .right').addClass('op');
@@ -34,6 +39,7 @@ export default class Logo extends Component<Props, State> {
 
       setTimeout(() => {
         $('#body').removeClass('fixed').addClass('logoLoaded');
+        if (!this._isMounted) { return; }
         this.setState({ loaded: true });
 
         if (this.props.onChange && typeof this.props.onChange === 'function') {
@@ -41,6 +47,10 @@ export default class Logo extends Component<Props, State> {
         }
       }, 4750);
     }
+  }
+
+  componentWillUnmount(): void {
+    this._isMounted = false;
   }
 
   render() {
