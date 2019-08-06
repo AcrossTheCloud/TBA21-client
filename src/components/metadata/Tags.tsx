@@ -148,7 +148,7 @@ class Tags extends React.Component<Props, State> {
           queryStringParameters = ( inputValue ? { query: inputValue, type: this.props.type } : {} ),
           queriedTags = await API.get('tba21', 'tags/search', { queryStringParameters: queryStringParameters }),
 
-          tags = queriedTags.tags.map(t => ({id: t.id, value: t.id, label: t.tag_name.charAt(0).toUpperCase() + t.tag_name.slice(1)})),
+          tags = queriedTags.tags.map(t => ({id: t.id, value: t.id, label: t.tag_name})),
           filteredTags = tags.filter( tag => !find(this.state.tags, { tag_name: tag.tag_name }) );
 
         if (!this._isMounted) { clearTimeout(this.loadTagsTimeout); return; }
@@ -160,7 +160,7 @@ class Tags extends React.Component<Props, State> {
         );
 
         // Return the tags to React Select
-        resolve(filteredTags.filter(tag => tag.label.toLowerCase().includes(inputValue.toLowerCase())));
+        resolve(filteredTags.filter(tag => tag.label.includes(inputValue)));
       }, 500);
     });
   }
@@ -195,6 +195,7 @@ class Tags extends React.Component<Props, State> {
    * @param actionMeta { any }
    */
   onChange = async (tagsList: any, actionMeta: any) => { // tslint:disable-line: no-any
+    if (!this._isMounted) { return; }
 
     if (actionMeta.action === 'clear') {
       this.setState({ selectedTags: [] });
@@ -205,8 +206,7 @@ class Tags extends React.Component<Props, State> {
 
       for (let tag of tagsList) {
         // If the tag has no id it's more than likely a Rekognition tag, so we'll attempt to create it
-        // If the tag has the __isNew__ property, it's brand spankin' new so create it.
-        if (!tag.id || tag.__isNew__) {
+        if (!tag.id) {
           const results = await this.createTag(tag.label);
           tags.push({ id: results[0].id, value: results[0].id, label: results[0].label });
         } else {
@@ -216,17 +216,15 @@ class Tags extends React.Component<Props, State> {
       return tags;
     };
 
-    if (this._isMounted) {
-      if (actionMeta.action === 'select-option' || actionMeta.action === 'create-option') {
-        this.setState({isLoading: false, selectedTags: await createNewTags()});
-      }
-
-      if (actionMeta.action === 'remove-value') {
-        this.setState({selectedTags: tagsList});
-      }
+    if (actionMeta.action === 'select-option' || actionMeta.action === 'create-option') {
+      this.setState({isLoading: false, selectedTags: await createNewTags()});
     }
 
-    if (this.props.callback && typeof this.props.callback === 'function') {
+    if (actionMeta.action === 'remove-value') {
+      this.setState({selectedTags: tagsList});
+    }
+
+    if ((this.props.callback && typeof this.props.callback === 'function') && (this.state.selectedTags && this.state.selectedTags.length > 0)) {
       this.props.callback(this.state.selectedTags.map(tag => tag));
     }
   }

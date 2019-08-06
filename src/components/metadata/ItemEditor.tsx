@@ -92,8 +92,17 @@ const defaultRequiredFields = (item: Item) => {
     focus_action,
     focus_scitech,
     aggregated_concept_tags,
+    concept_tags,
     credit
   } = item;
+
+  let conceptTags: boolean = false;
+  if (aggregated_concept_tags !== null && aggregated_concept_tags.length > 0) {
+    conceptTags = true;
+  }
+  if (concept_tags) {
+    conceptTags = true;
+  }
 
   return {
     'title': (title !== null && title.length > 0),
@@ -104,7 +113,7 @@ const defaultRequiredFields = (item: Item) => {
     'focus_arts': (focus_arts !== null && focus_arts.toString().length > 0),
     'focus_action': (focus_action !== null && focus_action.toString().length > 0),
     'focus_scitech': (focus_scitech !== null && focus_scitech.toString().length > 0),
-    'concept_tags': (aggregated_concept_tags !== null && aggregated_concept_tags.length > 0),
+    'concept_tags': conceptTags,
     'credit': (credit !== null && credit.length > 0)
   };
 };
@@ -162,10 +171,6 @@ export class ItemEditor extends React.Component<Props, State> {
           changedItem: { ...response.item, file: getFileResult, item_type: (getFileResult && getFileResult.item_type) ? getFileResult.item_type.substr(0, 1).toUpperCase() : null }
         };
         Object.assign(state, data);
-
-        console.log('time', response.item.time_produced);
-        console.log('typeof', typeof response.item.time_produced);
-
       } else {
         Object.assign(state, { errorMessage: 'No item by that name.', hideForm: true });
       }
@@ -327,8 +332,7 @@ export class ItemEditor extends React.Component<Props, State> {
   subTypeOnChange = (subType: string) => {
     if (!this._isMounted) { return; }
     const state = {
-      ...defaultRequiredFields(this.state.changedItem),
-      ...this.state.validate
+      ...defaultRequiredFields(this.state.changedItem)
     };
 
     const {
@@ -341,7 +345,6 @@ export class ItemEditor extends React.Component<Props, State> {
       city_of_publication,
       venues,
       edition,
-      first_edition_year,
       institution,
       performers,
       episode_name,
@@ -387,14 +390,11 @@ export class ItemEditor extends React.Component<Props, State> {
         'Essay': {
           'authors': (authors || false),
           'venues': (venues || false),
-          'city_of_publication': (city_of_publication	 || false),
-          'edition': (edition	 || false)
         },
         'Historical Text': {
           'authors': (authors || false),
           'publisher': (publisher || false),
           'venues': (venues || false),
-          'first_edition_year': (first_edition_year	 || false),
           'edition': (edition	 || false)
         },
         'Event Press': {
@@ -615,8 +615,8 @@ export class ItemEditor extends React.Component<Props, State> {
             <Input
               type="url"
               id="url"
-              defaultValue={item.url ? item.url : ''}
-              invalid={this.state.validate.hasOwnProperty('url') && !this.state.validate.url}
+              defaultValue={item.doi ? item.doi.toString() : ''}
+              invalid={this.state.validate.hasOwnProperty('doi') && !this.state.validate.doi}
               onChange={e => {
                 const value = e.target.value;
                 let valid = /^10.\d{4,9}\/[-._;()/:a-zA-Z0-9]+$/.test(value);
@@ -629,6 +629,7 @@ export class ItemEditor extends React.Component<Props, State> {
                 this.setState({validate: {...this.state.validate, doi: valid}});
               }}
             />
+            <FormFeedback>This field is required.</FormFeedback>
           </FormGroup>
         </Col>
 
@@ -705,6 +706,7 @@ export class ItemEditor extends React.Component<Props, State> {
               invalid={this.state.validate.hasOwnProperty('subtitle') && !this.state.validate.subtitle}
               onChange={e => this.validateLength('subtitle', e.target.value)}
             />
+            <FormFeedback>This is a required field</FormFeedback>
           </FormGroup>
         </Col>
         <Col md="4">
@@ -861,6 +863,7 @@ export class ItemEditor extends React.Component<Props, State> {
               invalid={this.state.validate.hasOwnProperty('city_of_publication') && !this.state.validate.city_of_publication}
               onChange={e => this.validateLength('city_of_publication', e.target.value)}
             />
+            <FormFeedback>This is a required field</FormFeedback>
           </FormGroup>
         </Col>
 
@@ -875,6 +878,7 @@ export class ItemEditor extends React.Component<Props, State> {
               invalid={this.state.validate.hasOwnProperty('edition') && !this.state.validate.edition}
               onChange={e => this.validateLength('edition', e.target.value)}
             />
+            <FormFeedback>This is a required field</FormFeedback>
           </FormGroup>
         </Col>
 
@@ -1080,6 +1084,7 @@ export class ItemEditor extends React.Component<Props, State> {
               invalid={this.state.validate.hasOwnProperty('city_of_publication') && !this.state.validate.city_of_publication}
               onChange={e => this.validateLength('city_of_publication', e.target.value)}
             />
+            <FormFeedback>This is a required field</FormFeedback>
           </FormGroup>
         </Col>
 
@@ -1105,6 +1110,7 @@ export class ItemEditor extends React.Component<Props, State> {
               required
               onChange={e => this.validateLength('edition', e.target.value)}
             />
+            <FormFeedback>This field is required.</FormFeedback>
           </FormGroup>
         </Col>
 
@@ -1187,6 +1193,7 @@ export class ItemEditor extends React.Component<Props, State> {
               invalid={this.state.validate.hasOwnProperty('institution') && !this.state.validate.institution}
               onChange={e => this.validateLength('institution', e.target.value)}
             />
+            <FormFeedback>This field is required.</FormFeedback>
           </FormGroup>
         </Col>
 
@@ -2370,7 +2377,7 @@ export class ItemEditor extends React.Component<Props, State> {
                   : <></>
                 }
 
-                {item.item_subtype === itemImage.Research ? <this.ImageResearch /> : <></>}
+                {item.item_subtype === itemImage.ImageResearch ? <this.ImageResearch /> : <></>}
                 {item.item_subtype === itemImage.Graphics ? <this.ImageGraphics /> : <></>}
                 {item.item_subtype === itemImage.Map ? <this.ImageMap /> : <></>}
                 {item.item_subtype === itemImage.Film_Still ? <this.ImageFilmStill /> : <></>}

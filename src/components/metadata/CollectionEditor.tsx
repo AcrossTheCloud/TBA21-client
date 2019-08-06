@@ -66,9 +66,18 @@ const defaultRequiredFields = (collection: Collection) => {
     focus_arts,
     focus_action,
     focus_scitech,
+    concept_tags,
     aggregated_concept_tags,
     type,
   } = collection;
+
+  let conceptTags: boolean = false;
+  if (!!aggregated_concept_tags && aggregated_concept_tags.length > 0) {
+    conceptTags = true;
+  }
+  if (concept_tags) {
+    conceptTags = true;
+  }
 
   return {
     'title': (!!title && !!title.length),
@@ -76,7 +85,7 @@ const defaultRequiredFields = (collection: Collection) => {
     'focus_arts': (!!focus_arts && !!focus_arts.toString().length),
     'focus_action': (!!focus_action && !!focus_action.toString().length),
     'focus_scitech': (!!focus_scitech && !!focus_scitech.toString().length),
-    'concept_tags': (!!aggregated_concept_tags && !!aggregated_concept_tags.length),
+    'concept_tags': conceptTags,
     'type': (!!type && !!type.length)
   };
 };
@@ -170,6 +179,7 @@ export class CollectionEditor extends React.Component<Props, State> {
       // if we're in edit more add the id to props
       if (editMode) {
         fields = this.state.changedFields;
+        console.log('this.state.originalCollection.id', this.state.originalCollection.id);
         Object.assign(collectionProperties, { id: this.state.originalCollection.id });
       }
 
@@ -202,8 +212,8 @@ export class CollectionEditor extends React.Component<Props, State> {
       } else if (result.success) {
         const
           modeMessage = editMode ? 'Updated collection!' : 'Created collection!',
-          originalCollection = {...this.state.collection, id: result.id};
-        // We're in create mode, once we've created add the ID to the original collection and cnage the form to update
+          originalCollection = {...this.state.collection, id: result.id || this.state.collection.id || this.state.originalCollection.id};
+        // We're in create mode, once we've created add the ID to the original collection and change the form to update
         if (!editMode) {
           editMode = true;
         }
@@ -289,7 +299,6 @@ export class CollectionEditor extends React.Component<Props, State> {
 
     const state = {
       ...defaultRequiredFields(this.state.collection),
-      ...this.state.validate,
       type: true,
     };
 
@@ -471,6 +480,7 @@ export class CollectionEditor extends React.Component<Props, State> {
               invalid={this.state.validate.hasOwnProperty('curator') && !this.state.validate.curator}
               onChange={e => this.validateLength('curator', e.target.value)}
             />
+            <FormFeedback>This is a required field</FormFeedback>
           </FormGroup>
         </Col>
         <Col md="6">
