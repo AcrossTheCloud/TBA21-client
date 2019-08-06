@@ -107,7 +107,9 @@ export default class Collections extends React.Component<{}, State> {
 
   getCollections = async (): Promise<void> => {
     try {
-      const response = await this.getCollectionsQuery(0);
+      const
+        currentIndex = (this.state.page - 1) * this.state.sizePerPage,
+        response = await this.getCollectionsQuery(currentIndex);
 
       if (response) {
         const { collections, totalSize } = response;

@@ -110,7 +110,9 @@ export default class Items extends React.Component<{}, State> {
 
   getItems = async (): Promise<void> => {
     try {
-      const response = await this.getItemsQuery(0);
+      const
+        currentIndex = (this.state.page - 1) * this.state.sizePerPage,
+        response = await this.getItemsQuery(currentIndex);
 
       if (response) {
         const { items, totalSize } = response;
