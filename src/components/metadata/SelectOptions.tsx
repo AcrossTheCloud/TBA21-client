@@ -419,7 +419,7 @@ export const itemVideoSubTypes = [
 ];
 export const itemImageSubTypes = [
   {value: itemImage.Photograph, label: 'Photograph'},
-  {value: itemImage.ImageResearch, label: 'Research'},
+  {value: itemImage.Research, label: 'Research'},
   {value: itemImage.Digital_Art, label: 'Digital Art'},
   {value: itemImage.Graphics, label: 'Graphics'},
   {value: itemImage.Map, label: 'Map'},

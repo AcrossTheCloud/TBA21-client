@@ -40,8 +40,10 @@ export const sdkGetObject = async (key: string): Promise<S3File | false> => {
       head: HeadObjectOutput = await s3.headObject({ Bucket: config.s3.BUCKET , Key: key}).promise();
 
     if (head && ( head.ContentType && (head.ContentLength && head.ContentLength < 19865800) )) {
-      const url = await s3.getSignedUrl('getObject', params);
-      if (head.ContentType.includes('image')) {
+      const
+        type = head.ContentType,
+        url = await s3.getSignedUrl('getObject', params);
+      if (type.includes('image')) {
         return {
           url: url,
           type: 'image',
@@ -49,11 +51,40 @@ export const sdkGetObject = async (key: string): Promise<S3File | false> => {
         };
       }
 
-      if (head.ContentType.includes('audio')) {
+      if (type.includes('audio')) {
         return {
           url: url,
           type: 'audio',
           item_type: 'Audio'
+        };
+      }
+
+      if (type.includes('video')) {
+        return {
+          url: url,
+          type: 'video',
+          item_type: 'Video'
+        };
+      }
+
+      // https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types
+      const textTypes = [
+        'text',
+        'msword',
+        'vnd.openxmlformats-officedocument.wordprocessingml.document', // docx
+        'vnd.ms-', // vnd.ms-powerpoint , excel etc
+        'vnd.openxmlformats', // pptx powerpoint
+        'vnd.oasis.opendocument', // OpenDocument
+        'epub+zip',
+        'rtf', // Rich text
+        'xml',
+        'vnd.amazon',
+      ];
+      if (textTypes.some(el => type.includes(el))) {
+        return {
+          url: url,
+          type: 'text',
+          item_type: 'Text'
         };
       }
 

@@ -2347,12 +2347,12 @@ export class ItemEditor extends React.Component<Props, State> {
                 {item.item_subtype === itemText.Historical_Text ? <this.TextHistoricalText /> : <></>}
                 {item.item_subtype === itemText.Event_Press ? <this.TextEventPress /> : <></>}
                 {item.item_subtype === itemText.Toolkit ? <this.TextToolkit /> : <></>}
-                {item.item_subtype === itemText.Other ? <this.TextOther /> : <></>}
+                {(!!item.file && item.file.item_type === 'Text') && item.item_subtype === itemText.Other ? <this.TextOther /> : <></>}
 
                 {/* Item Video */}
                 {item.item_subtype === itemVideo.Movie ? <this.VideoMovieTrailer /> : <></>}
                 {item.item_subtype === itemVideo.Documentary ? <this.VideoDocumentaryArt /> : <></>}
-                {item.item_subtype === itemVideo.Research ? <this.VideoResearch /> : <></>}
+                {(!!item.file && item.file.item_type === 'Video') && item.item_subtype === itemVideo.Research ? <this.VideoResearch /> : <></>}
                 {item.item_subtype === itemVideo.Interview ? <this.VideoInterview /> : <></>}
                 {item.item_subtype === itemVideo.Art ? <this.VideoDocumentaryArt /> : <></>}
                 {item.item_subtype === itemVideo.News_Journalism ? <this.VideoNewsJournalism /> : <></>}
@@ -2361,7 +2361,7 @@ export class ItemEditor extends React.Component<Props, State> {
                 {item.item_subtype === itemVideo.Trailer ? <this.VideoMovieTrailer /> : <></>}
                 {item.item_subtype === itemVideo.Artwork_Documentation ? <this.VideoArtworkDocumentation /> : <></>}
                 {item.item_subtype === itemVideo.Raw_Footage ? <this.VideoRawFootage /> : <></>}
-                {item.item_subtype === itemVideo.Other ? <this.VideoOther /> : <></>}
+                {(!!item.file && item.file.item_type === 'Video') && item.item_subtype === itemVideo.Other ? <this.VideoOther /> : <></>}
 
                 { // Item Image
                   item.item_subtype === itemImage.Photograph ||
@@ -2373,11 +2373,11 @@ export class ItemEditor extends React.Component<Props, State> {
 
                 {
                   item.item_subtype === itemImage.Digital_Art ||
-                  item.item_subtype === itemImage.Other ? <this.ItemDigitalArtOther />
+                  (!!item.file && item.file.item_type === 'Image' && item.item_subtype === itemImage.Other) ? <this.ItemDigitalArtOther />
                   : <></>
                 }
 
-                {item.item_subtype === itemImage.ImageResearch ? <this.ImageResearch /> : <></>}
+                {(!!item.file && item.file.item_type === 'Image') && item.item_subtype === itemImage.Research ? <this.ImageResearch /> : <></>}
                 {item.item_subtype === itemImage.Graphics ? <this.ImageGraphics /> : <></>}
                 {item.item_subtype === itemImage.Map ? <this.ImageMap /> : <></>}
                 {item.item_subtype === itemImage.Film_Still ? <this.ImageFilmStill /> : <></>}
@@ -2391,7 +2391,7 @@ export class ItemEditor extends React.Component<Props, State> {
                 {item.item_subtype === itemAudio.Interview ? <this.AudioInterview /> : <></>}
                 {item.item_subtype === itemAudio.Radio ? <this.AudioRadio /> : <></>}
                 {item.item_subtype === itemAudio.Performance_Poetry ? <this.AudioPerformancePoetry /> : <></>}
-                {item.item_subtype === itemAudio.Other ? <this.AudioOther /> : <></>}
+                {(!!item.file && item.file.item_type === 'Audio') && item.item_subtype === itemAudio.Other ? <this.AudioOther /> : <></>}
 
               </TabPane>
               <TabPane tabId="2">
