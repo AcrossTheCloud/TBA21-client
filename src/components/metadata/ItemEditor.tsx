@@ -224,7 +224,14 @@ export class ItemEditor extends React.Component<Props, State> {
 
     const invalidFields = Object.entries(this.state.validate).filter(v => v[1] === false).map(([key, val]) => key);
     if (invalidFields.length > 0) {
-      Object.assign(state, { errorMessage: `Missing required Field(s)` });
+      const message: JSX.Element = (
+        <>
+          Missing required Field(s) <br/>
+          {invalidFields.map( (f, i) => ( <div key={i} style={{ textTransform: 'capitalize' }}>{f.replace(/_/g, ' ')}<br/></div> ) )}
+        </>
+      );
+
+      Object.assign(state, { errorMessage: message });
       this.setState(state);
       return;
     }
@@ -284,8 +291,6 @@ export class ItemEditor extends React.Component<Props, State> {
 
     const { changedItem, changedFields } = this.state;
 
-    console.log(key, value);
-
     if (value) {
       Object.assign(changedFields, { [key]: value });
       Object.assign(changedItem, { [key]: value });
@@ -304,8 +309,6 @@ export class ItemEditor extends React.Component<Props, State> {
       },
       () => {
         if (callback && typeof callback === 'function') {
-          console.log(this.state.changedFields);
-          console.log(this.state.changedItem.status);
           callback();
         }
       });
@@ -2235,14 +2238,6 @@ export class ItemEditor extends React.Component<Props, State> {
                   Details
                 </NavLink>
               </NavItem>
-              <NavItem>
-                <NavLink
-                  className={this.state.activeTab === '2' ? 'active' : ''}
-                  onClick={() => { if (this._isMounted) { this.setState({ activeTab: '2' }); }}}
-                >
-                  Taxonomy
-                </NavLink>
-              </NavItem>
             </Nav>
             <TabContent activeTab={this.state.activeTab}>
               <TabPane tabId="1">
@@ -2334,6 +2329,43 @@ export class ItemEditor extends React.Component<Props, State> {
                       <FormFeedback>Not a valid URL</FormFeedback>
                     </FormGroup>
 
+                    <FormGroup>
+                      <Label for="concept_tags">Concept Tags</Label>
+                      <Tags
+                        className="concept_tags"
+                        type="concept"
+                        defaultValues={conceptTags}
+                        callback={tags => this.validateLength('concept_tags', tags ? tags.map(tag => tag.id) : [])}
+                      />
+                      <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('concept_tags') && !this.state.validate.concept_tags ? 'block' : 'none') }}>This is a required field</FormFeedback>
+                    </FormGroup>
+
+                    <FormGroup>
+                      <Label for="keyword_tags">Keyword Tags</Label>
+                      <Tags
+                        className="keyword_tags"
+                        type="keyword"
+                        defaultValues={keywordTags}
+                        loadItemRekognitionTags={!keywordTags.length ? this.state.originalItem.s3_key : ''}
+                        callback={tags => this.changeItem('keyword_tags', tags ? tags.map(tag => tag.id) : [])}
+                      />
+                    </FormGroup>
+
+                    <FormGroup>
+                      <legend>Focus</legend>
+                      <Label for="art">Art</Label>
+                      <Focus id="focus_arts" defaultValue={item.focus_arts ? item.focus_arts : undefined} colour="#0076FF" onChange={e => this.validateLength('focus_arts', e.toString())} />
+                      <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('focus_arts') && !this.state.validate.focus_arts ? 'block' : 'none') }}>This is a required field</FormFeedback>
+
+                      <Label for="scitech">Sci Tech</Label>
+                      <Focus id="focus_scitech" defaultValue={item.focus_scitech ? item.focus_scitech : undefined} colour="#9013FE" onChange={e => this.validateLength('focus_scitech', e.toString())} />
+                      <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('focus_scitech') && !this.state.validate.focus_scitech ? 'block' : 'none') }}>This is a required field</FormFeedback>
+
+                      <Label for="action">Action</Label>
+                      <Focus id="focus_action" defaultValue={item.focus_action ? item.focus_action : undefined} colour="#50E3C2" onChange={e => this.validateLength('focus_action', e.toString())} />
+                      <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('focus_action') && !this.state.validate.focus_action ? 'block' : 'none') }}>This is a required field</FormFeedback>
+                    </FormGroup>
+
                   </Col>
                 </Row>
 
@@ -2394,49 +2426,6 @@ export class ItemEditor extends React.Component<Props, State> {
                 {item.item_subtype === itemAudio.Performance_Poetry ? <this.AudioPerformancePoetry /> : <></>}
                 {(!!item.file && item.file.item_type === 'Audio') && item.item_subtype === itemAudio.Other ? <this.AudioOther /> : <></>}
 
-              </TabPane>
-              <TabPane tabId="2">
-                <Row>
-                  <Col>
-                    <FormGroup>
-                      <Label for="concept_tags">Concept Tags</Label>
-                      <Tags
-                        className="concept_tags"
-                        type="concept"
-                        defaultValues={conceptTags}
-                        callback={tags => this.validateLength('concept_tags', tags ? tags.map(tag => tag.id) : [])}
-                      />
-                      <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('concept_tags') && !this.state.validate.concept_tags ? 'block' : 'none') }}>This is a required field</FormFeedback>
-                    </FormGroup>
-
-                    <FormGroup>
-                      <Label for="keyword_tags">Keyword Tags</Label>
-                      <Tags
-                        className="keyword_tags"
-                        type="keyword"
-                        defaultValues={keywordTags}
-                        loadItemRekognitionTags={!keywordTags.length ? this.state.originalItem.s3_key : ''}
-                        callback={tags => this.changeItem('keyword_tags', tags ? tags.map(tag => tag.id) : [])}
-                      />
-                    </FormGroup>
-
-                    <FormGroup>
-                      <legend>Focus</legend>
-                      <Label for="art">Art</Label>
-                      <Focus id="focus_arts" colour="#0076FF" onChange={e => this.validateLength('focus_arts', e.toString())} />
-                      <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('focus_arts') && !this.state.validate.focus_arts ? 'block' : 'none') }}>This is a required field</FormFeedback>
-
-                      <Label for="scitech">Sci Tech</Label>
-                      <Focus id="focus_scitech" colour="#9013FE" onChange={e => this.validateLength('focus_scitech', e.toString())} />
-                      <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('focus_scitech') && !this.state.validate.focus_scitech ? 'block' : 'none') }}>This is a required field</FormFeedback>
-
-                      <Label for="action">Action</Label>
-                      <Focus id="focus_action" colour="#50E3C2" onChange={e => this.validateLength('focus_action', e.toString())} />
-                      <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('focus_action') && !this.state.validate.focus_action ? 'block' : 'none') }}>This is a required field</FormFeedback>
-
-                    </FormGroup>
-                  </Col>
-                </Row>
               </TabPane>
             </TabContent>
           </Col>

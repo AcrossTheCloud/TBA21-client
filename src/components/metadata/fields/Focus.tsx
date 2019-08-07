@@ -5,7 +5,7 @@ import { CSSProperties } from 'react';
 interface Props {
   id: string;
   colour: string;
-  defaultValue?: number;
+  defaultValue?: number | undefined;
   onChange: Function;
 }
 interface State {
@@ -50,7 +50,7 @@ export default class Focus extends React.Component<Props, State> {
         height : '10px'
       },
       style: CSSProperties = {
-        background : '#eee',
+        background : '#DDDDDD',
         height : '10px'
       },
       { value } = this.state;

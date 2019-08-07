@@ -29,6 +29,7 @@ import YearSelect from './fields/YearSelect';
 import { validateURL } from '../utils/inputs/url';
 import { Items } from './Items';
 import CustomSelect from './fields/CustomSelect';
+import Focus from './fields/Focus';
 
 interface Props {
   collection?: Collection;
@@ -159,7 +160,14 @@ export class CollectionEditor extends React.Component<Props, State> {
 
     const invalidFields = Object.entries(this.state.validate).filter(v => v[1] === false).map(([key, val]) => key);
     if (invalidFields.length > 0) {
-      Object.assign(state, { errorMessage: `Missing required Field(s)` });
+      const message: JSX.Element = (
+        <>
+          Missing required Field(s) <br/>
+          {invalidFields.map( (f, i) => ( <div key={i} style={{ textTransform: 'capitalize' }}>{f.replace(/_/g, ' ')}<br/></div> ) )}
+        </>
+      );
+
+      Object.assign(state, { errorMessage: message });
       this.setState(state);
       return;
     }
@@ -1229,14 +1237,6 @@ export class CollectionEditor extends React.Component<Props, State> {
                   className={this.state.activeTab === '2' ? 'active' : ''}
                   onClick={() => { if (this._isMounted) { this.setState({ activeTab: '2' }); }}}
                 >
-                  Taxonomy
-                </NavLink>
-              </NavItem>
-              <NavItem>
-                <NavLink
-                  className={this.state.activeTab === '3' ? 'active' : ''}
-                  onClick={() => { if (this._isMounted) { this.setState({ activeTab: '3' }); }}}
-                >
                   Items
                 </NavLink>
               </NavItem>
@@ -1315,24 +1315,6 @@ export class CollectionEditor extends React.Component<Props, State> {
                       <FormFeedback>Not a valid URL</FormFeedback>
                     </FormGroup>
 
-                  </Col>
-                </Row>
-
-                {type === Types.Series ? <this.Series /> : <></>}
-                {type === Types.Area_of_Research ? <this.AreaOfResearch /> : <></>}
-                {type === Types.Event ? <this.Event /> : <></>}
-                {type === Types.Event_Series ? <this.EventSeries /> : <></>}
-                {type === Types.Edited_Volume ? <this.EditedVolume /> : <></>}
-                {type === Types.Expedition ? <this.Expedition /> : <></>}
-                {type === Types.Collection ? <this.Collection /> : <></>}
-                {type === Types.Convening ? <this.Convening /> : <></>}
-                {type === Types.Performance ? <this.Performance /> : <></>}
-                {type === Types.Installation ? <this.Installation /> : <></>}
-
-              </TabPane>
-              <TabPane tabId="2">
-                <Row>
-                  <Col>
                     <FormGroup>
                       <Label for="concept_tags">Concept Tags</Label>
                       <Tags
@@ -1357,47 +1339,34 @@ export class CollectionEditor extends React.Component<Props, State> {
                     <FormGroup>
                       <legend>Focus</legend>
                       <Label for="art">Art</Label>
-                      <Input
-                        className="art"
-                        type="range"
-                        step="1"
-                        min="0"
-                        max="3"
-                        value={focus_arts ? focus_arts : 0}
-                        onChange={e => this.validateLength('focus_arts', e.target.value)}
-                        invalid={this.state.validate.hasOwnProperty('focus_arts') && !this.state.validate.focus_arts}
-                      />
-                      <FormFeedback>This is a required field</FormFeedback>
+                      <Focus id="focus_arts" defaultValue={focus_arts ? focus_arts : undefined} colour="#0076FF" onChange={e => this.validateLength('focus_arts', e.toString())} />
+                      <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('focus_arts') && !this.state.validate.focus_arts ? 'block' : 'none') }}>This is a required field</FormFeedback>
 
                       <Label for="scitech">Sci Tech</Label>
-                      <Input
-                        className="scitech"
-                        type="range"
-                        step="1"
-                        min="0"
-                        max="3"
-                        value={focus_scitech ? focus_scitech : 0}
-                        onChange={e => this.validateLength('focus_scitech', e.target.value)}
-                        invalid={this.state.validate.hasOwnProperty('focus_scitech') && !this.state.validate.focus_scitech}
-                      />
-                      <FormFeedback>This is a required field</FormFeedback>
+                      <Focus id="focus_scitech" defaultValue={focus_scitech ? focus_scitech : undefined} colour="#9013FE" onChange={e => this.validateLength('focus_scitech', e.toString())} />
+                      <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('focus_scitech') && !this.state.validate.focus_scitech ? 'block' : 'none') }}>This is a required field</FormFeedback>
+
                       <Label for="action">Action</Label>
-                      <Input
-                        className="action"
-                        type="range"
-                        step="1"
-                        min="0"
-                        max="3"
-                        value={focus_action ? focus_action : 0}
-                        onChange={e => this.validateLength('focus_action', e.target.value)}
-                        invalid={this.state.validate.hasOwnProperty('focus_action') && !this.state.validate.focus_action}
-                      />
-                      <FormFeedback>This is a required field</FormFeedback>
+                      <Focus id="focus_action" defaultValue={focus_action ? focus_action : undefined} colour="#50E3C2" onChange={e => this.validateLength('focus_action', e.toString())} />
+                      <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('focus_action') && !this.state.validate.focus_action ? 'block' : 'none') }}>This is a required field</FormFeedback>
                     </FormGroup>
+
                   </Col>
                 </Row>
+
+                {type === Types.Series ? <this.Series /> : <></>}
+                {type === Types.Area_of_Research ? <this.AreaOfResearch /> : <></>}
+                {type === Types.Event ? <this.Event /> : <></>}
+                {type === Types.Event_Series ? <this.EventSeries /> : <></>}
+                {type === Types.Edited_Volume ? <this.EditedVolume /> : <></>}
+                {type === Types.Expedition ? <this.Expedition /> : <></>}
+                {type === Types.Collection ? <this.Collection /> : <></>}
+                {type === Types.Convening ? <this.Convening /> : <></>}
+                {type === Types.Performance ? <this.Performance /> : <></>}
+                {type === Types.Installation ? <this.Installation /> : <></>}
+
               </TabPane>
-              <TabPane tabId="3">
+              <TabPane tabId="2">
                 <Row>
                   <h5>Add existing items</h5>
                   <Col xs="12">
