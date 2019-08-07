@@ -11,8 +11,6 @@ import {
   FormGroup, FormText,
   Input,
   InputGroup,
-  InputGroupAddon,
-  InputGroupText,
   Label,
   Nav,
   NavItem,
@@ -49,7 +47,6 @@ import { sdkGetObject } from '../utils/s3File';
 import { Alerts, ErrorMessage, SuccessMessage, WarningMessage } from '../utils/alerts';
 import { AudioPlayer } from '../utils/AudioPlayer';
 
-import pencil from 'images/svgs/pencil.svg';
 import CustomSelect from './fields/CustomSelect';
 import { validateURL } from '../utils/inputs/url';
 
@@ -59,7 +56,7 @@ interface Props {
   item: Item;
 }
 
-interface State extends Alerts, UIEditing {
+interface State extends Alerts {
   originalItem: Item;
   changedItem: Item;
   changedFields: {
@@ -70,15 +67,10 @@ interface State extends Alerts, UIEditing {
   hideForm: boolean;
 
   activeTab: string;
-  titleEnabled: boolean;
 
   validate: {
     [key: string]: boolean
   };
-}
-
-interface UIEditing {
-  editingTitle?: boolean;
 }
 
 const defaultRequiredFields = (item: Item) => {
@@ -135,7 +127,6 @@ export class ItemEditor extends React.Component<Props, State> {
       hideForm: false,
       activeTab: '1',
       validate: defaultRequiredFields(props.item),
-      titleEnabled: false
     };
   }
 
@@ -2185,24 +2176,13 @@ export class ItemEditor extends React.Component<Props, State> {
               <Col xs="12">
                 <InputGroup>
                   <Input
-                    className={`${this.state.titleEnabled ? '' : 'border-0'} bg-white`}
                     id="title"
                     defaultValue={item.title ? item.title : ''}
                     placeholder="Please Enter A Title"
                     onChange={e => this.validateLength('title', e.target.value)}
-                    disabled={!this.state.titleEnabled}
                     required
                     invalid={this.state.validate.hasOwnProperty('title') && !this.state.validate.title}
                   />
-                  <InputGroupAddon addonType="append">
-                    <InputGroupText className="border-0 bg-white">
-                      <img
-                        src={pencil}
-                        alt="Edit Item"
-                        onClick={() => this.setState(prevState => ({ titleEnabled: !prevState.titleEnabled }))}
-                      />
-                    </InputGroupText>
-                  </InputGroupAddon>
                   <FormFeedback>This is a required field</FormFeedback>
                 </InputGroup>
               </Col>

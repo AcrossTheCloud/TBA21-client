@@ -7,8 +7,6 @@ import {
   FormGroup, FormText,
   Input,
   InputGroup,
-  InputGroupAddon,
-  InputGroupText,
   Label, Nav, NavItem, NavLink,
   Row, TabContent, TabPane, UncontrolledButtonDropdown
 } from 'reactstrap';
@@ -31,7 +29,6 @@ import YearSelect from './fields/YearSelect';
 import { validateURL } from '../utils/inputs/url';
 import { Items } from './Items';
 import CustomSelect from './fields/CustomSelect';
-import pencil from '../../images/svgs/pencil.svg';
 
 interface Props {
   collection?: Collection;
@@ -56,7 +53,6 @@ interface State extends Alerts {
   isDifferent: boolean;
   loadedItems: Item[];
   loadingItems: boolean;
-  titleEnabled: boolean;
 }
 
 const defaultRequiredFields = (collection: Collection) => {
@@ -115,7 +111,6 @@ export class CollectionEditor extends React.Component<Props, State> {
       validate: defaultRequiredFields(collection),
       activeTab: '1',
       selectInputValue: '',
-      titleEnabled: false
     };
   }
 
@@ -1191,24 +1186,13 @@ export class CollectionEditor extends React.Component<Props, State> {
               <Col xs="12">
                 <InputGroup>
                   <Input
-                    className={`${this.state.titleEnabled ? '' : 'border-0'} bg-white`}
                     id="title"
                     defaultValue={title ? title : ''}
                     placeholder="Please Enter A Title"
                     onChange={e => this.validateLength('title', e.target.value)}
-                    disabled={!this.state.titleEnabled}
                     required
                     invalid={this.state.validate.hasOwnProperty('title') && !this.state.validate.title}
                   />
-                  <InputGroupAddon addonType="append">
-                    <InputGroupText className="border-0 bg-white">
-                      <img
-                        src={pencil}
-                        alt="Edit Item"
-                        onClick={() => this.setState(prevState => ({ titleEnabled: !prevState.titleEnabled }))}
-                      />
-                    </InputGroupText>
-                  </InputGroupAddon>
                   <FormFeedback>This is a required field</FormFeedback>
                 </InputGroup>
               </Col>
