@@ -51,6 +51,7 @@ import CustomSelect from './fields/CustomSelect';
 import { validateURL } from '../utils/inputs/url';
 
 import 'styles/components/metadata/itemEditor.scss';
+import Focus from './fields/Focus';
 
 interface Props {
   item: Item;
@@ -286,7 +287,6 @@ export class ItemEditor extends React.Component<Props, State> {
     console.log(key, value);
 
     if (value) {
-      console.log('here');
       Object.assign(changedFields, { [key]: value });
       Object.assign(changedItem, { [key]: value });
     } else {
@@ -2423,42 +2423,17 @@ export class ItemEditor extends React.Component<Props, State> {
                     <FormGroup>
                       <legend>Focus</legend>
                       <Label for="art">Art</Label>
-                      <Input
-                        className="art"
-                        type="range"
-                        step="1"
-                        min="0"
-                        max="3"
-                        value={item.focus_arts ? item.focus_arts : 0}
-                        onChange={e => this.validateLength('focus_arts', e.target.value)}
-                        invalid={this.state.validate.hasOwnProperty('focus_arts') && !this.state.validate.focus_arts}
-                      />
-                      <FormFeedback>This is a required field</FormFeedback>
+                      <Focus id="focus_arts" colour="#0076FF" onChange={e => this.validateLength('focus_arts', e.toString())} />
+                      <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('focus_arts') && !this.state.validate.focus_arts ? 'block' : 'none') }}>This is a required field</FormFeedback>
 
                       <Label for="scitech">Sci Tech</Label>
-                      <Input
-                        className="scitech"
-                        type="range"
-                        step="1"
-                        min="0"
-                        max="3"
-                        value={item.focus_scitech ? item.focus_scitech : 0}
-                        onChange={e => this.validateLength('focus_scitech', e.target.value)}
-                        invalid={this.state.validate.hasOwnProperty('focus_scitech') && !this.state.validate.focus_scitech}
-                      />
-                      <FormFeedback>This is a required field</FormFeedback>
+                      <Focus id="focus_scitech" colour="#9013FE" onChange={e => this.validateLength('focus_scitech', e.toString())} />
+                      <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('focus_scitech') && !this.state.validate.focus_scitech ? 'block' : 'none') }}>This is a required field</FormFeedback>
+
                       <Label for="action">Action</Label>
-                      <Input
-                        className="action"
-                        type="range"
-                        step="1"
-                        min="0"
-                        max="3"
-                        value={item.focus_action ? item.focus_action : 0}
-                        onChange={e => this.validateLength('focus_action', e.target.value)}
-                        invalid={this.state.validate.hasOwnProperty('focus_action') && !this.state.validate.focus_action}
-                      />
-                      <FormFeedback>This is a required field</FormFeedback>
+                      <Focus id="focus_action" colour="#50E3C2" onChange={e => this.validateLength('focus_action', e.toString())} />
+                      <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('focus_action') && !this.state.validate.focus_action ? 'block' : 'none') }}>This is a required field</FormFeedback>
+
                     </FormGroup>
                   </Col>
                 </Row>
