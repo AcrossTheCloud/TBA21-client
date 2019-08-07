@@ -285,13 +285,17 @@ export class ItemEditor extends React.Component<Props, State> {
    *
    * @param key { string }
    * @param value { any }
+   * @param callback { Function } a callback once the state has finished.
    */
-  changeItem = (key: string, value: any) => { // tslint:disable-line: no-any
+  changeItem = (key: string, value: any, callback?: Function) => { // tslint:disable-line: no-any
     if (!this._isMounted) { return; }
 
     const { changedItem, changedFields } = this.state;
 
+    console.log(key, value);
+
     if (value) {
+      console.log('here');
       Object.assign(changedFields, { [key]: value });
       Object.assign(changedItem, { [key]: value });
     } else {
@@ -306,8 +310,14 @@ export class ItemEditor extends React.Component<Props, State> {
         changedFields: changedFields,
         changedItem: changedItem,
         isDifferent: !isEqual(this.state.originalItem, changedItem)
-      }
-    );
+      },
+      () => {
+        if (callback && typeof callback === 'function') {
+          console.log(this.state.changedFields);
+          console.log(this.state.changedItem.status);
+          callback();
+        }
+      });
   }
 
   SubType = (): JSX.Element => {
@@ -1883,7 +1893,9 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="performers">Performer(s)</Label>
-            <Input type="text" id="performers" defaultValue={item.performers ? item.performers : ''} onChange={e => this.changeItem('performers', e.target.value)}/>
+            <CustomSelect isMulti values={item.performers} callback={values => this.validateLength('performers', values)} />
+            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('performers') && !this.state.validate.performers ? 'block' : 'none') }}>This is a required field</FormFeedback>
+            <FormText>Use tab or enter to add a new Performer.</FormText>
           </FormGroup>
         </Col>
         <Col md="6">
@@ -1914,7 +1926,9 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="performers">Performer(s)</Label>
-            <Input type="text" id="performers" defaultValue={item.performers ? item.performers : ''} onChange={e => this.changeItem('performers', e.target.value)}/>
+            <CustomSelect isMulti values={item.performers} callback={values => this.validateLength('performers', values)} />
+            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('performers') && !this.state.validate.performers ? 'block' : 'none') }}>This is a required field</FormFeedback>
+            <FormText>Use tab or enter to add a new Performer.</FormText>
           </FormGroup>
         </Col>
         <Col md="6">
@@ -2081,7 +2095,9 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="performers">Performer</Label>
-            <Input type="text" id="performers" defaultValue={item.performers ? item.performers : ''} onChange={e => this.changeItem('performers', e.target.value)}/>
+            <CustomSelect isMulti values={item.performers} callback={values => this.validateLength('performers', values)} />
+            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('performers') && !this.state.validate.performers ? 'block' : 'none') }}>This is a required field</FormFeedback>
+            <FormText>Use tab or enter to add a new Performer.</FormText>
           </FormGroup>
         </Col>
         <Col md="6">
@@ -2211,12 +2227,17 @@ export class ItemEditor extends React.Component<Props, State> {
               </Col>
               <Col xs="4">
                 <UncontrolledButtonDropdown className="float-right">
-                  <Button id="caret" onClick={this.updateItem} disabled={!this.state.isDifferent}>Save</Button>
+                  {this.state.changedItem.status === true ?
+                    <Button className="caret" onClick={this.updateItem} disabled={!this.state.isDifferent}>Save</Button>
+                    :
+                    <Button className="caret" onClick={() => { this.changeItem('status', 'true', () => this.updateItem() ); }}>Publish</Button>
+                  }
                   <DropdownToggle caret />
                   <DropdownMenu>
-                    {this.state.originalItem.status ?
-                      <DropdownItem onClick={() => { this.changeItem('status', false); this.updateItem(); }}>Unpublish</DropdownItem> :
-                      <DropdownItem onClick={() => { this.changeItem('status', true); this.updateItem(); }}>Publish</DropdownItem>
+                    {this.state.changedItem.status === true ?
+                      <DropdownItem onClick={() => { this.changeItem('status', 'false', () => this.updateItem() ); }}>Unpublish</DropdownItem>
+                      :
+                      <DropdownItem onClick={() => { this.changeItem('status', 'false', () => this.updateItem() ); }}>Save Draft</DropdownItem>
                     }
                   </DropdownMenu>
                 </UncontrolledButtonDropdown>

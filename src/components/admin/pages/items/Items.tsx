@@ -8,7 +8,6 @@ import { Button, Container, Modal, ModalBody, ModalFooter, Spinner } from 'react
 import { Item } from 'types/Item';
 import { ItemEditor } from 'components/metadata/ItemEditor';
 import { Alerts, ErrorMessage } from 'components/utils/alerts';
-import { Header } from 'components/layout/Header';
 
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css';
@@ -187,7 +186,6 @@ export default class Items extends React.Component<{}, State> {
 
     return (
       <Container>
-        <Header />
         <ErrorMessage message={this.state.errorMessage}/>
         <BootstrapTable
           remote
