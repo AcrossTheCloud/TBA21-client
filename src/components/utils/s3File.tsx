@@ -32,17 +32,12 @@ export const sdkGetObject = async (key: string): Promise<S3File | false> => {
       }
     );
 
-    const
-      params = {
-        Bucket: config.s3.BUCKET,
-        Key: key
-      },
-      head: HeadObjectOutput = await s3.headObject({ Bucket: config.s3.BUCKET , Key: key}).promise();
+    const head: HeadObjectOutput = await s3.headObject({ Bucket: config.s3.BUCKET , Key: key}).promise();
 
     if (head && ( head.ContentType && (head.ContentLength && head.ContentLength < 19865800) )) {
       const
         type = head.ContentType,
-        url = await s3.getSignedUrl('getObject', params);
+        url = `${config.other.BASE_CONTENT_URL}${key}`; // Set the URL as the Cloudfront CDN URL
       if (type.includes('image')) {
         return {
           url: url,
