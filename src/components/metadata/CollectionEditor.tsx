@@ -182,7 +182,6 @@ export class CollectionEditor extends React.Component<Props, State> {
       // if we're in edit more add the id to props
       if (editMode) {
         fields = this.state.changedFields;
-        console.log('this.state.originalCollection.id', this.state.originalCollection.id);
         Object.assign(collectionProperties, { id: this.state.originalCollection.id });
       }
 
@@ -264,7 +263,7 @@ export class CollectionEditor extends React.Component<Props, State> {
    * @param key { string }
    * @param value { any }
    */
-  changeCollection = (key: string, value: any) => { // tslint:disable-line: no-any
+  changeCollection = (key: string, value: any, callback?: Function) => { // tslint:disable-line: no-any
     const { collection, changedFields } = this.state;
 
     if (value) {
@@ -282,8 +281,12 @@ export class CollectionEditor extends React.Component<Props, State> {
         changedFields: changedFields,
         collection: collection,
         isDifferent: !isEqual(this.state.originalCollection, collection)
-      }
-    );
+      },
+      () => {
+        if (callback && typeof callback === 'function') {
+          callback();
+        }
+      });
   }
 
   typeOnChange = (subType: string) => {
@@ -376,7 +379,7 @@ export class CollectionEditor extends React.Component<Props, State> {
             <Label for="start_date">Start Date</Label>
             <Input
               type="date"
-              id="start_date"
+              className="start_date"
               defaultValue={collection.start_date ? new Date(collection.start_date).toISOString().substr(0, 10) : ''}
               invalid={this.state.validate.hasOwnProperty('start_date') && !this.state.validate.start_date}
               onChange={e => this.validateLength('start_date', e.target.value)}
@@ -389,7 +392,7 @@ export class CollectionEditor extends React.Component<Props, State> {
             <Label for="end_date">End Date</Label>
             <Input
               type="date"
-              id="end_date"
+              className="end_date"
               defaultValue={collection.end_date ? new Date(collection.end_date).toISOString().substr(0, 10) : ''}
               onChange={e => this.changeCollection('end_date', e.target.value)}
             />
@@ -451,7 +454,7 @@ export class CollectionEditor extends React.Component<Props, State> {
             <Label for="start_date">Start Date</Label>
             <Input
               type="date"
-              id="start_date"
+              className="start_date"
               defaultValue={collection.start_date ? new Date(collection.start_date).toISOString().substr(0, 10) : ''}
               invalid={this.state.validate.hasOwnProperty('start_date') && !this.state.validate.start_date}
               onChange={e => this.validateLength('start_date', e.target.value)}
@@ -464,7 +467,7 @@ export class CollectionEditor extends React.Component<Props, State> {
             <Label for="end_date">End Date</Label>
             <Input
               type="date"
-              id="end_date"
+              className="end_date"
               defaultValue={collection.end_date ? new Date(collection.end_date).toISOString().substr(0, 10) : ''}
               onChange={e => this.changeCollection('end_date', e.target.value)}
             />
@@ -508,15 +511,20 @@ export class CollectionEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="venues">Venue</Label>
-            <CustomSelect values={!!collection.venues ? collection.venues : null} callback={values => this.validateLength('venues', values)} />
-            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('venues') && !this.state.validate.venues ? 'block' : 'none') }}>This is a required field</FormFeedback>
-            <FormText>Use tab or enter to add a Venue.</FormText>
+            <Input
+              type="text"
+              className="venues"
+              defaultValue={(collection.venues && collection.venues.length) ? collection.venues[0] : ''}
+              invalid={this.state.validate.hasOwnProperty('venues') && !this.state.validate.venues}
+              onChange={e => this.validateLength('venues', [e.target.value])}
+            />
+            <FormFeedback>This is a required field</FormFeedback>
           </FormGroup>
         </Col>
         <Col md="6">
           <FormGroup>
             <Label for="hosted_by">Hosted By</Label>
-            <CustomSelect isMulti values={!!collection.hosted_by ? collection.hosted_by : null} callback={values => this.changeCollection('hosted_by', values)} />
+            <CustomSelect values={!!collection.hosted_by ? collection.hosted_by : null} callback={values => this.changeCollection('hosted_by', values)} />
           </FormGroup>
         </Col>
 
@@ -525,7 +533,7 @@ export class CollectionEditor extends React.Component<Props, State> {
             <Label for="start_date">Start Date</Label>
             <Input
               type="date"
-              id="start_date"
+              className="start_date"
               defaultValue={collection.start_date ? new Date(collection.start_date).toISOString().substr(0, 10) : ''}
               invalid={this.state.validate.hasOwnProperty('start_date') && !this.state.validate.start_date}
               onChange={e => this.validateLength('start_date', e.target.value)}
@@ -538,7 +546,7 @@ export class CollectionEditor extends React.Component<Props, State> {
             <Label for="end_date">End Date</Label>
             <Input
               type="date"
-              id="end_date"
+              className="end_date"
               defaultValue={collection.end_date ? new Date(collection.end_date).toISOString().substr(0, 10) : ''}
               onChange={e => this.changeCollection('end_date', e.target.value)}
             />
@@ -583,7 +591,7 @@ export class CollectionEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="publisher">Publisher</Label>
-            <CustomSelect isMulti values={!!collection.publisher ? [collection.publisher] : []} callback={values => this.changeCollection('publisher', values)} />
+            <CustomSelect values={!!collection.publisher ? [collection.publisher] : []} callback={values => this.changeCollection('publisher', values)} />
           </FormGroup>
         </Col>
         <Col md="6">
@@ -665,7 +673,7 @@ export class CollectionEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="isbn">ISBN</Label>
-            <CustomSelect values={collection.isbn} callback={values => this.changeCollection('isbn', values)} />
+            <Input type="number" className="isbn" defaultValue={collection.isbn ? collection.isbn.toString() : ''} onChange={e => this.changeCollection('isbn', e.target.value)}/>
           </FormGroup>
         </Col>
 
@@ -705,7 +713,7 @@ export class CollectionEditor extends React.Component<Props, State> {
             <Label for="start_date">Start Date</Label>
             <Input
               type="date"
-              id="start_date"
+              className="start_date"
               defaultValue={collection.start_date ? new Date(collection.start_date).toISOString().substr(0, 10) : ''}
               invalid={this.state.validate.hasOwnProperty('start_date') && !this.state.validate.start_date}
               onChange={e => this.validateLength('start_date', e.target.value)}
@@ -718,7 +726,7 @@ export class CollectionEditor extends React.Component<Props, State> {
             <Label for="end_date">End Date</Label>
             <Input
               type="date"
-              id="end_date"
+              className="end_date"
               defaultValue={collection.end_date ? new Date(collection.end_date).toISOString().substr(0, 10) : ''}
               invalid={this.state.validate.hasOwnProperty('end_date') && !this.state.validate.end_date}
               onChange={e => this.validateLength('end_date', e.target.value)}
@@ -820,7 +828,7 @@ export class CollectionEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="participants">Participant(s)</Label>
-            <CustomSelect isMulti values={collection.participants} callback={values => this.validateLength('participants', values)} />
+            <CustomSelect values={collection.participants} callback={values => this.validateLength('participants', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('participants') && !this.state.validate.participants ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Participant.</FormText>
           </FormGroup>
@@ -851,7 +859,7 @@ export class CollectionEditor extends React.Component<Props, State> {
             <Label for="start_date">Start Date</Label>
             <Input
               type="date"
-              id="start_date"
+              className="start_date"
               defaultValue={collection.start_date ? new Date(collection.start_date).toISOString().substr(0, 10) : ''}
               invalid={this.state.validate.hasOwnProperty('start_date') && !this.state.validate.start_date}
               onChange={e => this.validateLength('start_date', e.target.value)}
@@ -864,7 +872,7 @@ export class CollectionEditor extends React.Component<Props, State> {
             <Label for="end_date">End Date</Label>
             <Input
               type="date"
-              id="end_date"
+              className="end_date"
               defaultValue={collection.end_date ? new Date(collection.end_date).toISOString().substr(0, 10) : ''}
               onChange={e => this.changeCollection('end_date', e.target.value)}
             />
@@ -884,7 +892,7 @@ export class CollectionEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="related_material">Related Material</Label>
-            <CustomSelect isMulti values={collection.related_material} callback={values => this.changeCollection('related_material', values)} />
+            <CustomSelect values={collection.related_material} callback={values => this.changeCollection('related_material', values)} />
           </FormGroup>
         </Col>
       </Row>
@@ -970,8 +978,14 @@ export class CollectionEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="venues">Venue</Label>
-            <CustomSelect values={!!collection.venues ? collection.venues : null} callback={values => this.validateLength('venues', values)} />
-            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('venues') && !this.state.validate.venues ? 'block' : 'none') }}>This is a required field</FormFeedback>
+            <Input
+              type="text"
+              className="venues"
+              defaultValue={(collection.venues && collection.venues.length) ? collection.venues[0] : ''}
+              invalid={this.state.validate.hasOwnProperty('venues') && !this.state.validate.venues}
+              onChange={e => this.validateLength('venues', [e.target.value])}
+            />
+            <FormFeedback>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a Venue.</FormText>
           </FormGroup>
         </Col>
@@ -987,7 +1001,7 @@ export class CollectionEditor extends React.Component<Props, State> {
             <Label for="start_date">Start Date</Label>
             <Input
               type="date"
-              id="start_date"
+              className="start_date"
               defaultValue={collection.start_date ? new Date(collection.start_date).toISOString().substr(0, 10) : ''}
               invalid={this.state.validate.hasOwnProperty('start_date') && !this.state.validate.start_date}
               onChange={e => this.validateLength('start_date', e.target.value)}
@@ -1000,7 +1014,7 @@ export class CollectionEditor extends React.Component<Props, State> {
             <Label for="end_date">End Date</Label>
             <Input
               type="date"
-              id="end_date"
+              className="end_date"
               defaultValue={collection.end_date ? new Date(collection.end_date).toISOString().substr(0, 10) : ''}
               onChange={e => this.changeCollection('end_date', e.target.value)}
             />
@@ -1009,7 +1023,7 @@ export class CollectionEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="participants">Participant(s)</Label>
-            <CustomSelect isMulti values={collection.participants} callback={values => this.changeCollection('participants', values)} />
+            <CustomSelect values={collection.participants} callback={values => this.changeCollection('participants', values)} />
           </FormGroup>
         </Col>
       </Row>
@@ -1022,16 +1036,21 @@ export class CollectionEditor extends React.Component<Props, State> {
       <Row>
         <Col md="6">
           <FormGroup>
-            <Label for="venues">Venue</Label>
-            <CustomSelect values={!!collection.venues ? collection.venues : null} callback={values => this.validateLength('venues', values)} />
-            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('venues') && !this.state.validate.venues ? 'block' : 'none') }}>This is a required field</FormFeedback>
-            <FormText>Use tab or enter to add a Venue.</FormText>
+           <Label for="venues">Venue</Label>
+            <Input
+              type="text"
+              className="venues"
+              defaultValue={(collection.venues && collection.venues.length) ? collection.venues[0] : ''}
+              invalid={this.state.validate.hasOwnProperty('venues') && !this.state.validate.venues}
+              onChange={e => this.validateLength('venues', [e.target.value])}
+            />
+            <FormFeedback>This is a required field</FormFeedback>
           </FormGroup>
         </Col>
         <Col md="6">
           <FormGroup>
             <Label for="collaborators">Collaborators</Label>
-            <CustomSelect isMulti values={!!collection.collaborators ? collection.collaborators : null} callback={values => this.changeCollection('collaborators', values)} />
+            <CustomSelect values={!!collection.collaborators ? collection.collaborators : null} callback={values => this.changeCollection('collaborators', values)} />
           </FormGroup>
         </Col>
         <Col md="6">
@@ -1062,8 +1081,14 @@ export class CollectionEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="venues">Venue</Label>
-            <CustomSelect values={!!collection.venues ? collection.venues : null} callback={values => this.validateLength('venues', values)} />
-            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('venues') && !this.state.validate.venues ? 'block' : 'none') }}>This is a required field</FormFeedback>
+            <Input
+              type="text"
+              className="venues"
+              defaultValue={(collection.venues && collection.venues.length) ? collection.venues[0] : ''}
+              invalid={this.state.validate.hasOwnProperty('venues') && !this.state.validate.venues}
+              onChange={e => this.validateLength('venues', [e.target.value])}
+            />
+            <FormFeedback>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a Venue.</FormText>
           </FormGroup>
         </Col>
@@ -1072,7 +1097,7 @@ export class CollectionEditor extends React.Component<Props, State> {
             <Label for="start_date">Start Date</Label>
             <Input
               type="date"
-              id="start_date"
+              className="start_date"
               defaultValue={collection.start_date ? new Date(collection.start_date).toISOString().substr(0, 10) : ''}
               invalid={this.state.validate.hasOwnProperty('start_date') && !this.state.validate.start_date}
               onChange={e => this.validateLength('start_date', e.target.value)}
@@ -1085,7 +1110,7 @@ export class CollectionEditor extends React.Component<Props, State> {
             <Label for="end_date">End Date</Label>
             <Input
               type="date"
-              id="end_date"
+              className="end_date"
               defaultValue={collection.end_date ? new Date(collection.end_date).toISOString().substr(0, 10) : ''}
               onChange={e => this.changeCollection('end_date', e.target.value)}
             />
@@ -1206,13 +1231,19 @@ export class CollectionEditor extends React.Component<Props, State> {
 
             <Row>
               <Col md="12">
+
                 <UncontrolledButtonDropdown className="float-right">
-                  <Button id="caret" onClick={this.putCollection} disabled={!this.state.isDifferent}>Save</Button>
+                  {this.state.collection.status === true ?
+                    <Button className="caret" onClick={this.putCollection} disabled={!this.state.isDifferent}>Save</Button>
+                    :
+                    <Button className="caret" onClick={() => { this.changeCollection('status', 'true', () => this.putCollection() ); }}>Publish</Button>
+                  }
                   <DropdownToggle caret />
                   <DropdownMenu>
-                    {this.state.originalCollection.status ?
-                      <DropdownItem onClick={() => { this.changeCollection('status', false); this.putCollection(); }}>Unpublish</DropdownItem> :
-                      <DropdownItem onClick={() => { this.changeCollection('status', true); this.putCollection(); }}>Publish</DropdownItem>
+                    {this.state.collection.status === true ?
+                      <DropdownItem onClick={() => { this.changeCollection('status', 'false', () => this.putCollection() ); }}>Unpublish</DropdownItem>
+                      :
+                      <DropdownItem onClick={() => { this.changeCollection('status', 'false', () => this.putCollection() ); }}>Save Draft</DropdownItem>
                     }
                   </DropdownMenu>
                 </UncontrolledButtonDropdown>
