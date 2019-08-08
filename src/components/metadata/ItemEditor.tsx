@@ -508,10 +508,9 @@ export class ItemEditor extends React.Component<Props, State> {
       ...imageFields,
       ...videoFields,
     };
-    if (subtypeRequiredFields[subType]) {
-      Object.assign(state, subtypeRequiredFields[subType]);
-      this.setState({ validate: {...state} });
-    }
+
+    Object.assign(state, subtypeRequiredFields[subType]);
+    this.setState({ validate: {...state} });
   }
 
   validateLength = (field: string, inputValue: string | string[]): void => {

@@ -102,18 +102,19 @@ class ViewItems extends React.Component<Props, {}> { // tslint:disable-line: no-
   render() {
     const
       itemsLength = Object.keys(this.props.items).length,
-      count = itemsLength && (this.props.items[0] && this.props.items[0].count) ? this.props.items[0].count : 0;
+      itemsEntries = Object.entries(this.props.items),
+      count = ((itemsEntries && itemsEntries[0]) && (itemsEntries[0][1] && itemsEntries[0][1].count)) ? itemsEntries[0][1].count : 0;
 
     return (
       <Container id="viewItems">
         <CardColumns>
           {
-            Object.entries(this.props.items).map( ([key, item]) => <MasonryItem key={item.s3_key} item={item} /> )
+            itemsEntries.map( ([key, item]) => <MasonryItem key={item.s3_key} item={item} /> )
           }
         </CardColumns>
 
         {
-          itemsLength && Object.keys(this.props.items).length < count ?
+          itemsLength < count ?
             <Button
               block
               color="primary"
