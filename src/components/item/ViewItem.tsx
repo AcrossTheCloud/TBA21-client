@@ -8,6 +8,9 @@ import { Alerts, ErrorMessage } from '../utils/alerts';
 import { Item } from '../../types/Item';
 import { Col, Row } from 'reactstrap';
 
+import 'styles/components/pages/item.scss';
+import { MultiMedia } from '../utils/MultiMedia';
+
 interface Props extends Alerts {
   fetchItem: Function;
   item: Item;
@@ -46,25 +49,23 @@ class ViewItem extends React.Component<Props, State> {
     } = this.props.item;
 
     return (
-      <>
+      <div id="item" className="container-fluid">
         <ErrorMessage message={this.props.errorMessage} />
-        <div className="container-fluid">
-          <Row>
-            <Col>
-              IMAGE / MEDIA HERE
-            </Col>
-          </Row>
-          <Row>
-            <Col md="8">
-              {title} <br />
-              {description}
-            </Col>
-            <Col md="4">
-              {license}
-            </Col>
-          </Row>
-        </div>
-      </>
+        <Row>
+          <Col>
+            {this.props.item.file ? <MultiMedia file={this.props.item.file} /> : 'No File to display.'}
+          </Col>
+        </Row>
+        <Row>
+          <Col md="8">
+            {title} <br />
+            {description}
+          </Col>
+          <Col md="4">
+            {license}
+          </Col>
+        </Row>
+      </div>
     );
   }
 }

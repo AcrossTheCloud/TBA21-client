@@ -10,9 +10,10 @@ import { fetchItems, fetchMoreItems } from '../../actions/items/viewItems';
 import { State } from '../../reducers/items/viewItems';
 import { sdkGetObject } from '../utils/s3File';
 
-import 'styles/components/ViewItems.scss';
 import { S3File } from '../../types/s3File';
 import { AudioPlayer } from '../utils/AudioPlayer';
+
+import 'styles/components/ViewItems.scss';
 
 interface Props extends Alerts {
   fetchItems: Function;
