@@ -350,10 +350,8 @@ export class CollectionEditor extends React.Component<Props, State> {
         }
       };
 
-    if (TypeFields[subType]) {
-      Object.assign(state, TypeFields[subType]);
-      this.setState({ validate: state });
-    }
+    Object.assign(state, TypeFields[subType]);
+    this.setState({ validate: state });
   }
 
   validateLength = (field: string, inputValue: string | string[]): void => {
