@@ -1,6 +1,9 @@
 import { User } from './User';
 import { License } from './License';
 import { S3File } from './s3File';
+import { Languages } from './Languages';
+import { Countries } from './Countries';
+import { Ocean } from './Ocean';
 
 export interface APITag {
   id: number;
@@ -93,7 +96,7 @@ export interface Item {
   aggregated_keyword_tags: APITag[] | null;
 
   place: string[] | null;
-  country_or_ocean: string | null;
+  country_or_ocean: Countries | Ocean | null;
 
   item_type: itemType;
 
@@ -154,7 +157,7 @@ export interface Item {
   article_link: string | null;
 
   translated_from: string | null;
-  language: string | null;
+  language: Languages | null;
 
   birth_date: string | null;
   death_date: string | null;
