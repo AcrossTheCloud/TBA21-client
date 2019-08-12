@@ -60,36 +60,17 @@ class ViewItem extends React.Component<Props, State> {
       focus_scitech
     } = this.props.item;
 
-    console.log('11language', !!language);
-    console.log('language', typeof language, language);
+    let focusTotal = 0;
+    if (!!focus_action && !!focus_arts && !!focus_scitech) {
+      focusTotal = parseInt(focus_action, 0) + parseInt(focus_arts, 0) + parseInt(focus_scitech, 0);
+    }
 
-    const focusPercentage = (level: string | number | null): number => {
-      if (level === null) {
-        return 0;
-      }
-
-      let theLevel = level;
+    const focusPercentage = (level: number | string | undefined | null): string => {
+      if (typeof level === 'undefined' || level === null) { return '0'; }
       if (typeof level === 'string') {
-        theLevel = parseInt(level, 0);
+        level = parseInt(level, 0);
       }
-
-      let percentage = 0;
-      switch (theLevel) {
-        case 3:
-          percentage = 100;
-          break;
-        case 2:
-          percentage = 66.66;
-          break;
-        case 1:
-          percentage = 33.33;
-          break;
-        default:
-          percentage = 0;
-          break;
-      }
-
-      return percentage;
+      return `${ (level / focusTotal) * 100 }`;
     };
 
     const ItemDetails = (props: { label: string, value: string }): JSX.Element => (

@@ -150,9 +150,9 @@ export interface Item {
   description: string | null;
   map_icon: string | null;
 
-  focus_arts: number | null;
-  focus_action: number | null;
-  focus_scitech: number | null;
+  focus_arts: string | null;
+  focus_action: string | null;
+  focus_scitech: string | null;
 
   article_link: string | null;
 

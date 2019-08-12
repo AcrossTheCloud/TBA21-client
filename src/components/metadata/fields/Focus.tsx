@@ -5,7 +5,7 @@ import { CSSProperties } from 'react';
 interface Props {
   id: string;
   colour: string;
-  defaultValue?: number | undefined;
+  defaultValue?: string | number | undefined;
   onChange: Function;
 }
 interface State {
