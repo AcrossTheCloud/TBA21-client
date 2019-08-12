@@ -71,6 +71,7 @@ export default class CustomSelect extends React.Component<Props, State> {
         menuPlacement="auto"
         components={{DropdownIndicator: null}}
         isClearable
+        isMulti
         menuIsOpen={false}
         onInputChange={this.handleInputChange}
         onChange={this.handleChange}
