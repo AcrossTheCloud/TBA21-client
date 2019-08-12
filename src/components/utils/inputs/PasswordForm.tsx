@@ -149,7 +149,7 @@ export class PasswordForm extends React.Component<Props, State> {
               onChange={e => this.onConfirmPasswordChange(e.target.value)}
               placeholder="Confirm Password"
               type="password"
-              className={!this.state.passwordsMatch ? 'invalid' : ''}
+              className={this.state.password.length && !this.state.passwordsMatch ? 'invalid' : ''}
             />
           </FormGroup>
         }

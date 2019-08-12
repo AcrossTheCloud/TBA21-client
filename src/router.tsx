@@ -6,6 +6,7 @@ import { has } from 'lodash';
 
 import history from './history';
 import store from './store';
+import { Header } from 'components/layout/Header';
 
 import {
   Home,
@@ -76,11 +77,24 @@ const AdminRoutes = ({authorisation, ...rest}) => {
 
 export const AppRouter = () => {
   const currentLocation = window.location.pathname;
+
   return (
     <AuthProvider history={history}>
       <Provider store={store}>
         <Router history={history}>
           <div id="body" className={currentLocation === '/' ? 'fixed' : ''}>
+
+            <AuthConsumer>
+              {({authorisation}) => {
+                const hasAuth = has(authorisation, 'collaborator') || has(authorisation, 'editor') || has(authorisation, 'admin');
+                if (hasAuth) {
+                  return <Route path="/" render={() => <Header />} />;
+                } else {
+                  return <></>;
+                }
+              }}
+            </AuthConsumer>
+
             <Route exact path="/" component={Home} />
             <Route exact path="/view" component={ViewItems} />
             <Route path="/view/:itemId" component={ViewItem} />

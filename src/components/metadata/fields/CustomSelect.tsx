@@ -6,7 +6,6 @@ interface Props {
   callback?: Function;
   values?: string[] | null;
   options?: SelectObject[];
-  isMulti?: boolean;
 }
 interface State {
   values: SelectObject[];
@@ -72,7 +71,6 @@ export default class CustomSelect extends React.Component<Props, State> {
         menuPlacement="auto"
         components={{DropdownIndicator: null}}
         isClearable
-        isMulti={!!this.props.isMulti}
         menuIsOpen={false}
         onInputChange={this.handleInputChange}
         onChange={this.handleChange}

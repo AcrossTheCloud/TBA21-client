@@ -43,7 +43,7 @@ export enum itemVideo {
 }
 export enum itemImage {
   Photograph = 'Photograph',
-  ImageResearch = 'Research',
+  Research = 'Research',
   Digital_Art = 'Digital Art',
   Graphics = 'Graphics',
   Map = 'Map',

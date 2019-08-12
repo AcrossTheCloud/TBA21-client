@@ -41,11 +41,13 @@ export default class Logo extends Component<Props, State> {
         $('#body').removeClass('fixed').addClass('logoLoaded');
         if (!this._isMounted) { return; }
         this.setState({ loaded: true });
+      }, 4750);
 
+      setTimeout(() => {
         if (this.props.onChange && typeof this.props.onChange === 'function') {
           this.props.onChange();
         }
-      }, 4750);
+      }, 5750);
     }
   }
 

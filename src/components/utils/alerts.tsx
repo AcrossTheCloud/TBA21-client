@@ -2,12 +2,12 @@ import { Alert } from 'reactstrap';
 import * as React from 'react';
 
 export interface Alerts {
-  errorMessage?: string | undefined;
-  warningMessage?: string | undefined;
-  successMessage?: string | undefined;
+  errorMessage?: string | JSX.Element | undefined;
+  warningMessage?: string | JSX.Element | undefined;
+  successMessage?: string | JSX.Element | undefined;
 }
 
-export const ErrorMessage = (props: {message: string | undefined}): JSX.Element => {
+export const ErrorMessage = (props: {message: string | JSX.Element | undefined}): JSX.Element => {
   return props.message === undefined ? <></> : <Alert color="danger">{props.message}</Alert>;
 };
 
@@ -15,7 +15,7 @@ export const ErrorMessage = (props: {message: string | undefined}): JSX.Element 
  * React hook shows an error alert and removes it after { time } or 2000
  * @param props { message: string, time: number in milliseconds }
  */
-export const TimedErrorMessage = (props: {message: string | undefined, time?: number}): JSX.Element => {
+export const TimedErrorMessage = (props: {message: string | JSX.Element | undefined, time?: number}): JSX.Element => {
   const [ message, setMessage ] = React.useState(props.message);
   const [ time, setTime ] = React.useState(props.time);
 
@@ -33,9 +33,9 @@ export const TimedErrorMessage = (props: {message: string | undefined, time?: nu
 
   return message === undefined ? <></> : <Alert color="danger">{message}</Alert>;
 };
-export const WarningMessage = (props: {message: string | undefined}): JSX.Element => {
+export const WarningMessage = (props: {message: string | JSX.Element | undefined}): JSX.Element => {
   return props.message === undefined ? <></> : <Alert color="warning">{props.message}</Alert>;
 };
-export const SuccessMessage = (props: {message: string | undefined}): JSX.Element => {
+export const SuccessMessage = (props: {message: string | JSX.Element | undefined}): JSX.Element => {
   return props.message === undefined ? <></> : <Alert color="success">{props.message}</Alert>;
 };

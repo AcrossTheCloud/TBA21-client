@@ -7,8 +7,6 @@ import {
   FormGroup, FormText,
   Input,
   InputGroup,
-  InputGroupAddon,
-  InputGroupText,
   Label, Nav, NavItem, NavLink,
   Row, TabContent, TabPane, UncontrolledButtonDropdown
 } from 'reactstrap';
@@ -31,7 +29,7 @@ import YearSelect from './fields/YearSelect';
 import { validateURL } from '../utils/inputs/url';
 import { Items } from './Items';
 import CustomSelect from './fields/CustomSelect';
-import pencil from '../../images/svgs/pencil.svg';
+import Focus from './fields/Focus';
 
 interface Props {
   collection?: Collection;
@@ -56,7 +54,6 @@ interface State extends Alerts {
   isDifferent: boolean;
   loadedItems: Item[];
   loadingItems: boolean;
-  titleEnabled: boolean;
 }
 
 const defaultRequiredFields = (collection: Collection) => {
@@ -115,7 +112,6 @@ export class CollectionEditor extends React.Component<Props, State> {
       validate: defaultRequiredFields(collection),
       activeTab: '1',
       selectInputValue: '',
-      titleEnabled: false
     };
   }
 
@@ -164,7 +160,14 @@ export class CollectionEditor extends React.Component<Props, State> {
 
     const invalidFields = Object.entries(this.state.validate).filter(v => v[1] === false).map(([key, val]) => key);
     if (invalidFields.length > 0) {
-      Object.assign(state, { errorMessage: `Missing required Field(s)` });
+      const message: JSX.Element = (
+        <>
+          Missing required Field(s) <br/>
+          {invalidFields.map( (f, i) => ( <div key={i} style={{ textTransform: 'capitalize' }}>{f.replace(/_/g, ' ')}<br/></div> ) )}
+        </>
+      );
+
+      Object.assign(state, { errorMessage: message });
       this.setState(state);
       return;
     }
@@ -179,7 +182,6 @@ export class CollectionEditor extends React.Component<Props, State> {
       // if we're in edit more add the id to props
       if (editMode) {
         fields = this.state.changedFields;
-        console.log('this.state.originalCollection.id', this.state.originalCollection.id);
         Object.assign(collectionProperties, { id: this.state.originalCollection.id });
       }
 
@@ -261,7 +263,7 @@ export class CollectionEditor extends React.Component<Props, State> {
    * @param key { string }
    * @param value { any }
    */
-  changeCollection = (key: string, value: any) => { // tslint:disable-line: no-any
+  changeCollection = (key: string, value: any, callback?: Function) => { // tslint:disable-line: no-any
     const { collection, changedFields } = this.state;
 
     if (value) {
@@ -279,8 +281,12 @@ export class CollectionEditor extends React.Component<Props, State> {
         changedFields: changedFields,
         collection: collection,
         isDifferent: !isEqual(this.state.originalCollection, collection)
-      }
-    );
+      },
+      () => {
+        if (callback && typeof callback === 'function') {
+          callback();
+        }
+      });
   }
 
   typeOnChange = (subType: string) => {
@@ -347,10 +353,8 @@ export class CollectionEditor extends React.Component<Props, State> {
         }
       };
 
-    if (TypeFields[subType]) {
-      Object.assign(state, TypeFields[subType]);
-      this.setState({ validate: state });
-    }
+    Object.assign(state, TypeFields[subType]);
+    this.setState({ validate: state });
   }
 
   validateLength = (field: string, inputValue: string | string[]): void => {
@@ -375,7 +379,7 @@ export class CollectionEditor extends React.Component<Props, State> {
             <Label for="start_date">Start Date</Label>
             <Input
               type="date"
-              id="start_date"
+              className="start_date"
               defaultValue={collection.start_date ? new Date(collection.start_date).toISOString().substr(0, 10) : ''}
               invalid={this.state.validate.hasOwnProperty('start_date') && !this.state.validate.start_date}
               onChange={e => this.validateLength('start_date', e.target.value)}
@@ -388,7 +392,7 @@ export class CollectionEditor extends React.Component<Props, State> {
             <Label for="end_date">End Date</Label>
             <Input
               type="date"
-              id="end_date"
+              className="end_date"
               defaultValue={collection.end_date ? new Date(collection.end_date).toISOString().substr(0, 10) : ''}
               onChange={e => this.changeCollection('end_date', e.target.value)}
             />
@@ -450,7 +454,7 @@ export class CollectionEditor extends React.Component<Props, State> {
             <Label for="start_date">Start Date</Label>
             <Input
               type="date"
-              id="start_date"
+              className="start_date"
               defaultValue={collection.start_date ? new Date(collection.start_date).toISOString().substr(0, 10) : ''}
               invalid={this.state.validate.hasOwnProperty('start_date') && !this.state.validate.start_date}
               onChange={e => this.validateLength('start_date', e.target.value)}
@@ -463,7 +467,7 @@ export class CollectionEditor extends React.Component<Props, State> {
             <Label for="end_date">End Date</Label>
             <Input
               type="date"
-              id="end_date"
+              className="end_date"
               defaultValue={collection.end_date ? new Date(collection.end_date).toISOString().substr(0, 10) : ''}
               onChange={e => this.changeCollection('end_date', e.target.value)}
             />
@@ -507,15 +511,20 @@ export class CollectionEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="venues">Venue</Label>
-            <CustomSelect values={!!collection.venues ? collection.venues : null} callback={values => this.validateLength('venues', values)} />
-            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('venues') && !this.state.validate.venues ? 'block' : 'none') }}>This is a required field</FormFeedback>
-            <FormText>Use tab or enter to add a Venue.</FormText>
+            <Input
+              type="text"
+              className="venues"
+              defaultValue={(collection.venues && collection.venues.length) ? collection.venues[0] : ''}
+              invalid={this.state.validate.hasOwnProperty('venues') && !this.state.validate.venues}
+              onChange={e => this.validateLength('venues', [e.target.value])}
+            />
+            <FormFeedback>This is a required field</FormFeedback>
           </FormGroup>
         </Col>
         <Col md="6">
           <FormGroup>
             <Label for="hosted_by">Hosted By</Label>
-            <CustomSelect isMulti values={!!collection.hosted_by ? collection.hosted_by : null} callback={values => this.changeCollection('hosted_by', values)} />
+            <CustomSelect values={!!collection.hosted_by ? collection.hosted_by : null} callback={values => this.changeCollection('hosted_by', values)} />
           </FormGroup>
         </Col>
 
@@ -524,7 +533,7 @@ export class CollectionEditor extends React.Component<Props, State> {
             <Label for="start_date">Start Date</Label>
             <Input
               type="date"
-              id="start_date"
+              className="start_date"
               defaultValue={collection.start_date ? new Date(collection.start_date).toISOString().substr(0, 10) : ''}
               invalid={this.state.validate.hasOwnProperty('start_date') && !this.state.validate.start_date}
               onChange={e => this.validateLength('start_date', e.target.value)}
@@ -537,7 +546,7 @@ export class CollectionEditor extends React.Component<Props, State> {
             <Label for="end_date">End Date</Label>
             <Input
               type="date"
-              id="end_date"
+              className="end_date"
               defaultValue={collection.end_date ? new Date(collection.end_date).toISOString().substr(0, 10) : ''}
               onChange={e => this.changeCollection('end_date', e.target.value)}
             />
@@ -582,7 +591,7 @@ export class CollectionEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="publisher">Publisher</Label>
-            <CustomSelect isMulti values={!!collection.publisher ? [collection.publisher] : []} callback={values => this.changeCollection('publisher', values)} />
+            <CustomSelect values={!!collection.publisher ? [collection.publisher] : []} callback={values => this.changeCollection('publisher', values)} />
           </FormGroup>
         </Col>
         <Col md="6">
@@ -664,7 +673,7 @@ export class CollectionEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="isbn">ISBN</Label>
-            <CustomSelect values={collection.isbn} callback={values => this.changeCollection('isbn', values)} />
+            <Input type="number" className="isbn" defaultValue={collection.isbn ? collection.isbn.toString() : ''} onChange={e => this.changeCollection('isbn', e.target.value)}/>
           </FormGroup>
         </Col>
 
@@ -704,7 +713,7 @@ export class CollectionEditor extends React.Component<Props, State> {
             <Label for="start_date">Start Date</Label>
             <Input
               type="date"
-              id="start_date"
+              className="start_date"
               defaultValue={collection.start_date ? new Date(collection.start_date).toISOString().substr(0, 10) : ''}
               invalid={this.state.validate.hasOwnProperty('start_date') && !this.state.validate.start_date}
               onChange={e => this.validateLength('start_date', e.target.value)}
@@ -717,7 +726,7 @@ export class CollectionEditor extends React.Component<Props, State> {
             <Label for="end_date">End Date</Label>
             <Input
               type="date"
-              id="end_date"
+              className="end_date"
               defaultValue={collection.end_date ? new Date(collection.end_date).toISOString().substr(0, 10) : ''}
               invalid={this.state.validate.hasOwnProperty('end_date') && !this.state.validate.end_date}
               onChange={e => this.validateLength('end_date', e.target.value)}
@@ -819,7 +828,7 @@ export class CollectionEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="participants">Participant(s)</Label>
-            <CustomSelect isMulti values={collection.participants} callback={values => this.validateLength('participants', values)} />
+            <CustomSelect values={collection.participants} callback={values => this.validateLength('participants', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('participants') && !this.state.validate.participants ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Participant.</FormText>
           </FormGroup>
@@ -850,7 +859,7 @@ export class CollectionEditor extends React.Component<Props, State> {
             <Label for="start_date">Start Date</Label>
             <Input
               type="date"
-              id="start_date"
+              className="start_date"
               defaultValue={collection.start_date ? new Date(collection.start_date).toISOString().substr(0, 10) : ''}
               invalid={this.state.validate.hasOwnProperty('start_date') && !this.state.validate.start_date}
               onChange={e => this.validateLength('start_date', e.target.value)}
@@ -863,7 +872,7 @@ export class CollectionEditor extends React.Component<Props, State> {
             <Label for="end_date">End Date</Label>
             <Input
               type="date"
-              id="end_date"
+              className="end_date"
               defaultValue={collection.end_date ? new Date(collection.end_date).toISOString().substr(0, 10) : ''}
               onChange={e => this.changeCollection('end_date', e.target.value)}
             />
@@ -883,7 +892,7 @@ export class CollectionEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="related_material">Related Material</Label>
-            <CustomSelect isMulti values={collection.related_material} callback={values => this.changeCollection('related_material', values)} />
+            <CustomSelect values={collection.related_material} callback={values => this.changeCollection('related_material', values)} />
           </FormGroup>
         </Col>
       </Row>
@@ -969,8 +978,14 @@ export class CollectionEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="venues">Venue</Label>
-            <CustomSelect values={!!collection.venues ? collection.venues : null} callback={values => this.validateLength('venues', values)} />
-            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('venues') && !this.state.validate.venues ? 'block' : 'none') }}>This is a required field</FormFeedback>
+            <Input
+              type="text"
+              className="venues"
+              defaultValue={(collection.venues && collection.venues.length) ? collection.venues[0] : ''}
+              invalid={this.state.validate.hasOwnProperty('venues') && !this.state.validate.venues}
+              onChange={e => this.validateLength('venues', [e.target.value])}
+            />
+            <FormFeedback>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a Venue.</FormText>
           </FormGroup>
         </Col>
@@ -986,7 +1001,7 @@ export class CollectionEditor extends React.Component<Props, State> {
             <Label for="start_date">Start Date</Label>
             <Input
               type="date"
-              id="start_date"
+              className="start_date"
               defaultValue={collection.start_date ? new Date(collection.start_date).toISOString().substr(0, 10) : ''}
               invalid={this.state.validate.hasOwnProperty('start_date') && !this.state.validate.start_date}
               onChange={e => this.validateLength('start_date', e.target.value)}
@@ -999,7 +1014,7 @@ export class CollectionEditor extends React.Component<Props, State> {
             <Label for="end_date">End Date</Label>
             <Input
               type="date"
-              id="end_date"
+              className="end_date"
               defaultValue={collection.end_date ? new Date(collection.end_date).toISOString().substr(0, 10) : ''}
               onChange={e => this.changeCollection('end_date', e.target.value)}
             />
@@ -1008,7 +1023,7 @@ export class CollectionEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="participants">Participant(s)</Label>
-            <CustomSelect isMulti values={collection.participants} callback={values => this.changeCollection('participants', values)} />
+            <CustomSelect values={collection.participants} callback={values => this.changeCollection('participants', values)} />
           </FormGroup>
         </Col>
       </Row>
@@ -1021,16 +1036,21 @@ export class CollectionEditor extends React.Component<Props, State> {
       <Row>
         <Col md="6">
           <FormGroup>
-            <Label for="venues">Venue</Label>
-            <CustomSelect values={!!collection.venues ? collection.venues : null} callback={values => this.validateLength('venues', values)} />
-            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('venues') && !this.state.validate.venues ? 'block' : 'none') }}>This is a required field</FormFeedback>
-            <FormText>Use tab or enter to add a Venue.</FormText>
+           <Label for="venues">Venue</Label>
+            <Input
+              type="text"
+              className="venues"
+              defaultValue={(collection.venues && collection.venues.length) ? collection.venues[0] : ''}
+              invalid={this.state.validate.hasOwnProperty('venues') && !this.state.validate.venues}
+              onChange={e => this.validateLength('venues', [e.target.value])}
+            />
+            <FormFeedback>This is a required field</FormFeedback>
           </FormGroup>
         </Col>
         <Col md="6">
           <FormGroup>
             <Label for="collaborators">Collaborators</Label>
-            <CustomSelect isMulti values={!!collection.collaborators ? collection.collaborators : null} callback={values => this.changeCollection('collaborators', values)} />
+            <CustomSelect values={!!collection.collaborators ? collection.collaborators : null} callback={values => this.changeCollection('collaborators', values)} />
           </FormGroup>
         </Col>
         <Col md="6">
@@ -1061,8 +1081,14 @@ export class CollectionEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="venues">Venue</Label>
-            <CustomSelect values={!!collection.venues ? collection.venues : null} callback={values => this.validateLength('venues', values)} />
-            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('venues') && !this.state.validate.venues ? 'block' : 'none') }}>This is a required field</FormFeedback>
+            <Input
+              type="text"
+              className="venues"
+              defaultValue={(collection.venues && collection.venues.length) ? collection.venues[0] : ''}
+              invalid={this.state.validate.hasOwnProperty('venues') && !this.state.validate.venues}
+              onChange={e => this.validateLength('venues', [e.target.value])}
+            />
+            <FormFeedback>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a Venue.</FormText>
           </FormGroup>
         </Col>
@@ -1071,7 +1097,7 @@ export class CollectionEditor extends React.Component<Props, State> {
             <Label for="start_date">Start Date</Label>
             <Input
               type="date"
-              id="start_date"
+              className="start_date"
               defaultValue={collection.start_date ? new Date(collection.start_date).toISOString().substr(0, 10) : ''}
               invalid={this.state.validate.hasOwnProperty('start_date') && !this.state.validate.start_date}
               onChange={e => this.validateLength('start_date', e.target.value)}
@@ -1084,7 +1110,7 @@ export class CollectionEditor extends React.Component<Props, State> {
             <Label for="end_date">End Date</Label>
             <Input
               type="date"
-              id="end_date"
+              className="end_date"
               defaultValue={collection.end_date ? new Date(collection.end_date).toISOString().substr(0, 10) : ''}
               onChange={e => this.changeCollection('end_date', e.target.value)}
             />
@@ -1191,24 +1217,13 @@ export class CollectionEditor extends React.Component<Props, State> {
               <Col xs="12">
                 <InputGroup>
                   <Input
-                    className={`${this.state.titleEnabled ? '' : 'border-0'} bg-white`}
                     id="title"
                     defaultValue={title ? title : ''}
                     placeholder="Please Enter A Title"
                     onChange={e => this.validateLength('title', e.target.value)}
-                    disabled={!this.state.titleEnabled}
                     required
                     invalid={this.state.validate.hasOwnProperty('title') && !this.state.validate.title}
                   />
-                  <InputGroupAddon addonType="append">
-                    <InputGroupText className="border-0 bg-white">
-                      <img
-                        src={pencil}
-                        alt="Edit Item"
-                        onClick={() => this.setState(prevState => ({ titleEnabled: !prevState.titleEnabled }))}
-                      />
-                    </InputGroupText>
-                  </InputGroupAddon>
                   <FormFeedback>This is a required field</FormFeedback>
                 </InputGroup>
               </Col>
@@ -1216,13 +1231,19 @@ export class CollectionEditor extends React.Component<Props, State> {
 
             <Row>
               <Col md="12">
+
                 <UncontrolledButtonDropdown className="float-right">
-                  <Button id="caret" onClick={this.putCollection} disabled={!this.state.isDifferent}>Save</Button>
+                  {this.state.collection.status === true ?
+                    <Button className="caret" onClick={this.putCollection} disabled={!this.state.isDifferent}>Save</Button>
+                    :
+                    <Button className="caret" onClick={() => { this.changeCollection('status', 'true', () => this.putCollection() ); }}>Publish</Button>
+                  }
                   <DropdownToggle caret />
                   <DropdownMenu>
-                    {this.state.originalCollection.status ?
-                      <DropdownItem onClick={() => { this.changeCollection('status', false); this.putCollection(); }}>Unpublish</DropdownItem> :
-                      <DropdownItem onClick={() => { this.changeCollection('status', true); this.putCollection(); }}>Publish</DropdownItem>
+                    {this.state.collection.status === true ?
+                      <DropdownItem onClick={() => { this.changeCollection('status', 'false', () => this.putCollection() ); }}>Unpublish</DropdownItem>
+                      :
+                      <DropdownItem onClick={() => { this.changeCollection('status', 'false', () => this.putCollection() ); }}>Save Draft</DropdownItem>
                     }
                   </DropdownMenu>
                 </UncontrolledButtonDropdown>
@@ -1244,14 +1265,6 @@ export class CollectionEditor extends React.Component<Props, State> {
                 <NavLink
                   className={this.state.activeTab === '2' ? 'active' : ''}
                   onClick={() => { if (this._isMounted) { this.setState({ activeTab: '2' }); }}}
-                >
-                  Taxonomy
-                </NavLink>
-              </NavItem>
-              <NavItem>
-                <NavLink
-                  className={this.state.activeTab === '3' ? 'active' : ''}
-                  onClick={() => { if (this._isMounted) { this.setState({ activeTab: '3' }); }}}
                 >
                   Items
                 </NavLink>
@@ -1331,24 +1344,6 @@ export class CollectionEditor extends React.Component<Props, State> {
                       <FormFeedback>Not a valid URL</FormFeedback>
                     </FormGroup>
 
-                  </Col>
-                </Row>
-
-                {type === Types.Series ? <this.Series /> : <></>}
-                {type === Types.Area_of_Research ? <this.AreaOfResearch /> : <></>}
-                {type === Types.Event ? <this.Event /> : <></>}
-                {type === Types.Event_Series ? <this.EventSeries /> : <></>}
-                {type === Types.Edited_Volume ? <this.EditedVolume /> : <></>}
-                {type === Types.Expedition ? <this.Expedition /> : <></>}
-                {type === Types.Collection ? <this.Collection /> : <></>}
-                {type === Types.Convening ? <this.Convening /> : <></>}
-                {type === Types.Performance ? <this.Performance /> : <></>}
-                {type === Types.Installation ? <this.Installation /> : <></>}
-
-              </TabPane>
-              <TabPane tabId="2">
-                <Row>
-                  <Col>
                     <FormGroup>
                       <Label for="concept_tags">Concept Tags</Label>
                       <Tags
@@ -1373,47 +1368,34 @@ export class CollectionEditor extends React.Component<Props, State> {
                     <FormGroup>
                       <legend>Focus</legend>
                       <Label for="art">Art</Label>
-                      <Input
-                        className="art"
-                        type="range"
-                        step="1"
-                        min="0"
-                        max="3"
-                        value={focus_arts ? focus_arts : 0}
-                        onChange={e => this.validateLength('focus_arts', e.target.value)}
-                        invalid={this.state.validate.hasOwnProperty('focus_arts') && !this.state.validate.focus_arts}
-                      />
-                      <FormFeedback>This is a required field</FormFeedback>
+                      <Focus id="focus_arts" defaultValue={focus_arts ? focus_arts : undefined} colour="#0076FF" onChange={e => this.validateLength('focus_arts', e.toString())} />
+                      <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('focus_arts') && !this.state.validate.focus_arts ? 'block' : 'none') }}>This is a required field</FormFeedback>
 
                       <Label for="scitech">Sci Tech</Label>
-                      <Input
-                        className="scitech"
-                        type="range"
-                        step="1"
-                        min="0"
-                        max="3"
-                        value={focus_scitech ? focus_scitech : 0}
-                        onChange={e => this.validateLength('focus_scitech', e.target.value)}
-                        invalid={this.state.validate.hasOwnProperty('focus_scitech') && !this.state.validate.focus_scitech}
-                      />
-                      <FormFeedback>This is a required field</FormFeedback>
+                      <Focus id="focus_scitech" defaultValue={focus_scitech ? focus_scitech : undefined} colour="#9013FE" onChange={e => this.validateLength('focus_scitech', e.toString())} />
+                      <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('focus_scitech') && !this.state.validate.focus_scitech ? 'block' : 'none') }}>This is a required field</FormFeedback>
+
                       <Label for="action">Action</Label>
-                      <Input
-                        className="action"
-                        type="range"
-                        step="1"
-                        min="0"
-                        max="3"
-                        value={focus_action ? focus_action : 0}
-                        onChange={e => this.validateLength('focus_action', e.target.value)}
-                        invalid={this.state.validate.hasOwnProperty('focus_action') && !this.state.validate.focus_action}
-                      />
-                      <FormFeedback>This is a required field</FormFeedback>
+                      <Focus id="focus_action" defaultValue={focus_action ? focus_action : undefined} colour="#50E3C2" onChange={e => this.validateLength('focus_action', e.toString())} />
+                      <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('focus_action') && !this.state.validate.focus_action ? 'block' : 'none') }}>This is a required field</FormFeedback>
                     </FormGroup>
+
                   </Col>
                 </Row>
+
+                {type === Types.Series ? <this.Series /> : <></>}
+                {type === Types.Area_of_Research ? <this.AreaOfResearch /> : <></>}
+                {type === Types.Event ? <this.Event /> : <></>}
+                {type === Types.Event_Series ? <this.EventSeries /> : <></>}
+                {type === Types.Edited_Volume ? <this.EditedVolume /> : <></>}
+                {type === Types.Expedition ? <this.Expedition /> : <></>}
+                {type === Types.Collection ? <this.Collection /> : <></>}
+                {type === Types.Convening ? <this.Convening /> : <></>}
+                {type === Types.Performance ? <this.Performance /> : <></>}
+                {type === Types.Installation ? <this.Installation /> : <></>}
+
               </TabPane>
-              <TabPane tabId="3">
+              <TabPane tabId="2">
                 <Row>
                   <h5>Add existing items</h5>
                   <Col xs="12">
