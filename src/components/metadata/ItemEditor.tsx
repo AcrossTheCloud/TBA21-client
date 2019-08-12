@@ -150,7 +150,7 @@ export class ItemEditor extends React.Component<Props, State> {
     };
 
     try {
-      const response = await API.get('tba21', 'admin/items/byS3KeyNC', {
+      const response = await API.get('tba21', 'admin/items/getItemNC', {
         queryStringParameters : {
           s3Key: this.props.item.s3_key
         }
