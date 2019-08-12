@@ -185,7 +185,7 @@ export class Items extends React.Component<Props, State> {
           if (!this._isMounted) { clearTimeout(apiTimeout); return; }
           counter --;
 
-          const response = await API.get('tba21', 'admin/items/byS3KeyNC', {
+          const response = await API.get('tba21', 'admin/items/getItemNC', {
             queryStringParameters: {
               s3Key: s3key
             }
