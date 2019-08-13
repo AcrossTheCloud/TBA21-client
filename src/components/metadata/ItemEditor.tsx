@@ -1632,7 +1632,7 @@ export class ItemEditor extends React.Component<Props, State> {
         </Col>
         <Col md="6">
           <FormGroup>
-            <Label for="dimensions">Dimensions</Label>
+            <Label for="dimensions">Physical Dimensions</Label>
             <Input
               type="text"
               id="dimensions"
