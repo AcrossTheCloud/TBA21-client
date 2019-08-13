@@ -30,6 +30,7 @@ import { validateURL } from '../utils/inputs/url';
 import { Items } from './Items';
 import CustomSelect from './fields/CustomSelect';
 import Focus from './fields/Focus';
+import ShortPaths from '../admin/utils/ShortPaths';
 
 interface Props {
   collection?: Collection;
@@ -1185,6 +1186,7 @@ export class CollectionEditor extends React.Component<Props, State> {
 
   render() {
     const {
+      id,
       title,
       description,
       subtitle,
@@ -1236,6 +1238,17 @@ export class CollectionEditor extends React.Component<Props, State> {
                   />
                   <FormFeedback>This is a required field</FormFeedback>
                 </InputGroup>
+                <ShortPaths
+                  type="Item"
+                  id={id ? id : undefined}
+                  onChange={s => { console.log('s', s); if (this._isMounted) { this.setState({ hasShortPath: !!s.length }); }}}
+                />
+                {
+                  this.state.editMode ?
+                    <FormFeedback style={{ display: !this.state.hasShortPath ? 'block' : 'none' }}>Your collection needs a short path if you're going to publish it.</FormFeedback>
+                    :
+                    <FormFeedback style={{ display: !this.state.hasShortPath ? 'block' : 'none' }}>You need to save your collection first before adding a URL slug.</FormFeedback>
+                }
               </Col>
             </Row>
 

@@ -49,9 +49,10 @@ import { AudioPlayer } from '../utils/AudioPlayer';
 
 import CustomSelect from './fields/CustomSelect';
 import { validateURL } from '../utils/inputs/url';
+import Focus from './fields/Focus';
+import ShortPaths from '../admin/utils/ShortPaths';
 
 import 'styles/components/metadata/itemEditor.scss';
-import Focus from './fields/Focus';
 
 interface Props {
   item: Item;
@@ -63,7 +64,9 @@ interface State extends Alerts {
   changedFields: {
     [key: string]: string
   };
+  hasShortPath: boolean;
   isDifferent: boolean;
+
   isLoading: boolean;
   hideForm: boolean;
 
@@ -128,6 +131,7 @@ export class ItemEditor extends React.Component<Props, State> {
       hideForm: false,
       activeTab: '1',
       validate: defaultRequiredFields(props.item),
+      hasShortPath: false
     };
   }
 
@@ -157,20 +161,24 @@ export class ItemEditor extends React.Component<Props, State> {
       });
 
       if (response.item && Object.keys(response.item).length) {
+
+        // Get the items s3 file
         const getFileResult = await sdkGetObject(this.state.originalItem.s3_key);
         const data = {
           originalItem: { ...response.item, file: getFileResult },
           changedItem: { ...response.item, file: getFileResult, item_type: (getFileResult && getFileResult.item_type) ? getFileResult.item_type.substr(0, 1).toUpperCase() : null }
         };
         Object.assign(state, data);
+
       } else {
         Object.assign(state, { errorMessage: 'No item by that name.', hideForm: true });
       }
     } catch (e) {
-      Object.assign(state, { errorMessage: `${e}` });
+      Object.assign(state, { hideForm: true, errorMessage: `${e}` });
     } finally {
-      if (!this._isMounted) { return; }
-      this.setState(state);
+      if (this._isMounted) {
+        this.setState(state);
+      }
     }
   }
 
@@ -207,6 +215,8 @@ export class ItemEditor extends React.Component<Props, State> {
    *
    */
   updateItem = async () => {
+    console.log(this.state.changedItem.status);
+    console.log('this.state.changedItem.status === true');
     if (!this._isMounted) { return; }
 
     this.setState(
@@ -250,7 +260,7 @@ export class ItemEditor extends React.Component<Props, State> {
         .filter( ([key, value]) => {
           return !(
             value === null
-            // || key === 'id' // use this to exclude things, you shouldn't need to (eg don't put them in changedFields...
+            || key === 'id' // use this to exclude things, you shouldn't need to (eg don't put them in changedFields...
           );
         })
         .forEach( tag => {
@@ -266,9 +276,9 @@ export class ItemEditor extends React.Component<Props, State> {
         }
       });
 
-      if (!result.success && result.message && result.message.length > 1) {
-        // If we've failed set ChangedItem back to the original
-        Object.assign(state, { errorMessage: result.message, changedItem: {...this.state.originalItem}, changedFields: {}, status: false, isDifferent: false, validate: defaultRequiredFields(this.state.originalItem)});
+      if (!result.success && result.message && result.message.length) {
+        // If we've failed
+        Object.assign(state, { errorMessage: result.message });
       } else if (result.success) {
         Object.assign(state, { successMessage: 'Updated item!', changedFields: {}, originalItem: {...this.state.changedItem}, isDifferent: false});
       } else {
@@ -527,7 +537,10 @@ export class ItemEditor extends React.Component<Props, State> {
     if (inputValue && inputValue.length > 0) {
       valid = true;
     }
-    this.setState({ validate: { ...this.state.validate, [field]: valid } }, () => {
+
+    const state = { validate: { ...this.state.validate, [field]: valid } };
+
+    this.setState(state, () => {
       if (!isArray(inputValue) && field === 'item_subtype') {
         this.subTypeOnChange(inputValue);
       }
@@ -2195,6 +2208,12 @@ export class ItemEditor extends React.Component<Props, State> {
                   />
                   <FormFeedback>This is a required field</FormFeedback>
                 </InputGroup>
+                <ShortPaths
+                  type="Item"
+                  id={item.id ? item.id : undefined}
+                  onChange={s => { if (this._isMounted) { this.setState({ hasShortPath: !!s.length }); }}}
+                />
+                <FormFeedback style={{ display: !this.state.hasShortPath ? 'block' : 'none' }}>Your item needs a short path if you're going to publish it.</FormFeedback>
               </Col>
             </Row>
             <Row>
@@ -2217,15 +2236,15 @@ export class ItemEditor extends React.Component<Props, State> {
               </Col>
               <Col xs="4">
                 <UncontrolledButtonDropdown className="float-right">
-                  {this.state.changedItem.status === true ?
+                  {this.state.originalItem.status ?
                     <Button className="caret" onClick={this.updateItem} disabled={!this.state.isDifferent}>Save</Button>
                     :
                     <Button className="caret" onClick={() => { this.changeItem('status', true, () => this.updateItem() ); }}>Publish</Button>
                   }
                   <DropdownToggle caret />
                   <DropdownMenu>
-                    {this.state.changedItem.status === true ?
-                      <DropdownItem onClick={() => { this.changeItem('status', 'false', () => this.updateItem() ); }}>Unpublish</DropdownItem>
+                    {this.state.originalItem.status ?
+                      <DropdownItem onClick={() => { this.changeItem('status', false, () => this.updateItem() ); }}>Unpublish</DropdownItem>
                       :
                       <DropdownItem onClick={() => { this.changeItem('status', false, () => this.updateItem() ); }}>Save Draft</DropdownItem>
                     }
