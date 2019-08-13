@@ -1,4 +1,4 @@
-import { itemAudio, itemImage, itemText, itemVideo } from '../../types/Item';
+import { formats as itemFormats, itemAudio, itemImage, itemText, itemVideo } from '../../types/Item';
 import { collectionTypes as Types } from '../../types/Collection';
 import { License } from '../../types/License';
 
@@ -388,6 +388,11 @@ export const licenseType = [
   {value: License.CC_BY_NC_SA, label: 'CC BY-NC-SA'},
   {value: License.CC_BY_NC_ND, label: 'CC BY-NC-ND'},
   {value: License.LOCKED, label: 'Locked'}
+];
+
+export const formats = [
+  {value: itemFormats.cd_rom, label: itemFormats.cd_rom},
+  {value: itemFormats.notebook, label: itemFormats.notebook}
 ];
 
 export const itemTextSubTypes = [

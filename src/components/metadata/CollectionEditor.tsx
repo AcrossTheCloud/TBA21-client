@@ -1212,46 +1212,7 @@ export class CollectionEditor extends React.Component<Props, State> {
         </Row>
 
         <Row>
-          <Col>
-            <Row>
-              <Col xs="12">
-                <InputGroup>
-                  <Input
-                    id="title"
-                    defaultValue={title ? title : ''}
-                    placeholder="Please Enter A Title"
-                    onChange={e => this.validateLength('title', e.target.value)}
-                    required
-                    invalid={this.state.validate.hasOwnProperty('title') && !this.state.validate.title}
-                  />
-                  <FormFeedback>This is a required field</FormFeedback>
-                </InputGroup>
-              </Col>
-            </Row>
-
-            <Row>
-              <Col md="12">
-
-                <UncontrolledButtonDropdown className="float-right">
-                  {this.state.collection.status === true ?
-                    <Button className="caret" onClick={this.putCollection} disabled={!this.state.isDifferent}>Save</Button>
-                    :
-                    <Button className="caret" onClick={() => { this.changeCollection('status', 'true', () => this.putCollection() ); }}>Publish</Button>
-                  }
-                  <DropdownToggle caret />
-                  <DropdownMenu>
-                    {this.state.collection.status === true ?
-                      <DropdownItem onClick={() => { this.changeCollection('status', 'false', () => this.putCollection() ); }}>Unpublish</DropdownItem>
-                      :
-                      <DropdownItem onClick={() => { this.changeCollection('status', 'false', () => this.putCollection() ); }}>Save Draft</DropdownItem>
-                    }
-                  </DropdownMenu>
-                </UncontrolledButtonDropdown>
-              </Col>
-            </Row>
-          </Col>
-
-          <Col md="8">
+          <Col md="12">
             <Nav tabs>
               <NavItem>
                 <NavLink
@@ -1273,7 +1234,36 @@ export class CollectionEditor extends React.Component<Props, State> {
             <TabContent activeTab={this.state.activeTab}>
               <TabPane tabId="1">
                 <Row>
+                  <Col md="12">
+                    <UncontrolledButtonDropdown className="float-right">
+                      {this.state.collection.status === true ?
+                        <Button className="caret" onClick={this.putCollection} disabled={!this.state.isDifferent}>Save</Button>
+                        :
+                        <Button className="caret" onClick={() => { this.changeCollection('status', 'true', () => this.putCollection() ); }}>Publish</Button>
+                      }
+                      <DropdownToggle caret />
+                      <DropdownMenu>
+                        {this.state.collection.status === true ?
+                          <DropdownItem onClick={() => { this.changeCollection('status', 'false', () => this.putCollection() ); }}>Unpublish</DropdownItem>
+                          :
+                          <DropdownItem onClick={() => { this.changeCollection('status', 'false', () => this.putCollection() ); }}>Save Draft</DropdownItem>
+                        }
+                      </DropdownMenu>
+                    </UncontrolledButtonDropdown>
+                  </Col>
                   <Col>
+                    <FormGroup>
+                      <Label for="title">Title</Label>
+                      <Input
+                        id="title"
+                        defaultValue={title ? title : ''}
+                        placeholder="Please Enter A Title"
+                        onChange={e => this.validateLength('title', e.target.value)}
+                        required
+                        invalid={this.state.validate.hasOwnProperty('title') && !this.state.validate.title}
+                      />
+                      <FormFeedback>This is a required field</FormFeedback>
+                    </FormGroup>
                     <FormGroup>
                       <Label for="subtitle">Subtitle</Label>
                       <Input
@@ -1306,7 +1296,7 @@ export class CollectionEditor extends React.Component<Props, State> {
                     </FormGroup>
 
                     <FormGroup>
-                      <Label for="type">Type</Label>
+                      <Label for="type">Collection Category</Label>
                       <Select menuPlacement="auto" id="type" options={collectionTypes} value={[collectionTypes.find( o => o.value === type)]} onChange={e => this.validateLength('type', e.value)} isSearchable/>
                       <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('type') && !this.state.validate.type ? 'block' : 'none') }}>This is a required field</FormFeedback>
                     </FormGroup>
@@ -1345,7 +1335,7 @@ export class CollectionEditor extends React.Component<Props, State> {
                     </FormGroup>
 
                     <FormGroup>
-                      <Label for="concept_tags">Concept Tags</Label>
+                      <Label for="concept_tags">Subject Area(s)</Label>
                       <Tags
                         className="concept_tags"
                         type="concept"
