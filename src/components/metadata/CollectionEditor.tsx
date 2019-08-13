@@ -47,6 +47,7 @@ interface State extends Alerts {
     [key: string]: boolean
   };
 
+  hasShortPath: boolean;
   editMode: boolean;
   activeTab: string;
   selectInputValue: string;
@@ -107,6 +108,7 @@ export class CollectionEditor extends React.Component<Props, State> {
       loadingItems: !!props.collection,
 
       editMode: this.props.editMode ? this.props.editMode : false,
+      hasShortPath: false,
 
       isDifferent: false,
       validate: defaultRequiredFields(collection),
@@ -172,6 +174,12 @@ export class CollectionEditor extends React.Component<Props, State> {
       return;
     }
 
+    // If we don't have a short path and we've published our collection
+    if (!this.state.hasShortPath && this.state.collection.status) {
+      this.setState({ errorMessage: <>The collection needs a url slug</> });
+      return;
+    }
+
     try {
       const collectionProperties = {};
 
@@ -214,12 +222,14 @@ export class CollectionEditor extends React.Component<Props, State> {
       } else if (result.success) {
         const
           modeMessage = editMode ? 'Updated collection!' : 'Created collection!',
-          originalCollection = {...this.state.collection, id: result.id || this.state.collection.id || this.state.originalCollection.id};
+          id = result.id || this.state.collection.id || this.state.originalCollection.id,
+          originalCollection = {...this.state.collection, id: id},
+          collection = {...this.state.collection, id: id};
         // We're in create mode, once we've created add the ID to the original collection and change the form to update
         if (!editMode) {
           editMode = true;
         }
-        Object.assign(state, { editMode: editMode, successMessage: modeMessage, changedFields: {}, originalCollection: originalCollection, isDifferent: false });
+        Object.assign(state, { editMode: editMode, successMessage: modeMessage, changedFields: {}, originalCollection: originalCollection, collection: collection, isDifferent: false });
       } else {
         Object.assign(state, { warningMessage: result });
       }
@@ -266,7 +276,7 @@ export class CollectionEditor extends React.Component<Props, State> {
   changeCollection = (key: string, value: any, callback?: Function) => { // tslint:disable-line: no-any
     const { collection, changedFields } = this.state;
 
-    if (value) {
+    if (value.toString().length) {
       Object.assign(changedFields, { [key]: value });
       Object.assign(collection, { [key]: value });
     } else {
@@ -1233,19 +1243,26 @@ export class CollectionEditor extends React.Component<Props, State> {
               <Col md="12">
 
                 <UncontrolledButtonDropdown className="float-right">
-                  {this.state.collection.status === true ?
+
+                  {!this.state.editMode ?
                     <Button className="caret" onClick={this.putCollection} disabled={!this.state.isDifferent}>Save</Button>
                     :
-                    <Button className="caret" onClick={() => { this.changeCollection('status', 'true', () => this.putCollection() ); }}>Publish</Button>
+                    <>
+                      {this.state.originalCollection.status ?
+                        <Button className="caret" onClick={this.putCollection} disabled={!this.state.isDifferent}>Save</Button>
+                        :
+                        <Button className="caret" onClick={() => { this.changeCollection('status', true, () => this.putCollection() ); }}>Publish</Button>
+                      }
+                      <DropdownToggle caret />
+                      <DropdownMenu>
+                        {this.state.originalCollection.status ?
+                          <DropdownItem onClick={() => { this.changeCollection('status', false, () => this.putCollection() ); }}>Unpublish</DropdownItem>
+                          :
+                          <DropdownItem onClick={() => { this.changeCollection('status', false, () => this.putCollection() ); }}>Save Draft</DropdownItem>
+                        }
+                      </DropdownMenu>
+                    </>
                   }
-                  <DropdownToggle caret />
-                  <DropdownMenu>
-                    {this.state.collection.status === true ?
-                      <DropdownItem onClick={() => { this.changeCollection('status', 'false', () => this.putCollection() ); }}>Unpublish</DropdownItem>
-                      :
-                      <DropdownItem onClick={() => { this.changeCollection('status', 'false', () => this.putCollection() ); }}>Save Draft</DropdownItem>
-                    }
-                  </DropdownMenu>
                 </UncontrolledButtonDropdown>
               </Col>
             </Row>

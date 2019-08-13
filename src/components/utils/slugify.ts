@@ -1,6 +1,6 @@
 // https://gist.github.com/hagemann/382adfc57adbd5af078dc93feef01fe1
 
-export const slugify = (value: string) => {
+export const slugify = (value: string, trim: boolean = true) => {
   const a = 'àáäâãåăæąçćčđďèéěėëêęğǵḧìíïîįłḿǹńňñòóöôœøṕŕřßşśšșťțùúüûǘůűūųẃẍÿýźžż·/_,:;';
   const b = 'aaaaaaaaacccddeeeeeeegghiiiiilmnnnnooooooprrsssssttuuuuuuuuuwxyyzzz------';
   const p = new RegExp(a.split('').join('|'), 'g')

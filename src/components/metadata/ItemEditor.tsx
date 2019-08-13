@@ -236,6 +236,12 @@ export class ItemEditor extends React.Component<Props, State> {
       return;
     }
 
+    // If we don't have a short path and we've published our item
+    if (!this.state.hasShortPath && this.state.changedItem.status) {
+      this.setState({ isLoading: false, errorMessage: <>The item needs a url slug</> });
+      return;
+    }
+
     try {
       const itemsProperties = {};
 
@@ -291,7 +297,7 @@ export class ItemEditor extends React.Component<Props, State> {
 
     const { changedItem, changedFields } = this.state;
 
-    if (value) {
+    if (value.toString().length) {
       Object.assign(changedFields, { [key]: value });
       Object.assign(changedItem, { [key]: value });
     } else {
@@ -2151,6 +2157,8 @@ export class ItemEditor extends React.Component<Props, State> {
       keywordTags = item.aggregated_keyword_tags ? item.aggregated_keyword_tags.map( t => ({ id: t.id, value: t.id, label: t.tag_name }) ) : [],
       countryOrOcean = item.country_or_ocean ? countries.find( c => c.value === item.country_or_ocean ) || oceans.find( c => c.value === item.country_or_ocean ) : null;
 
+    console.log('render', this.state.changedItem.status);
+
     if (this.state.hideForm) {
       return (
         <>
@@ -2212,14 +2220,14 @@ export class ItemEditor extends React.Component<Props, State> {
                   {this.state.changedItem.status === true ?
                     <Button className="caret" onClick={this.updateItem} disabled={!this.state.isDifferent}>Save</Button>
                     :
-                    <Button className="caret" onClick={() => { this.changeItem('status', 'true', () => this.updateItem() ); }}>Publish</Button>
+                    <Button className="caret" onClick={() => { this.changeItem('status', true, () => this.updateItem() ); }}>Publish</Button>
                   }
                   <DropdownToggle caret />
                   <DropdownMenu>
                     {this.state.changedItem.status === true ?
                       <DropdownItem onClick={() => { this.changeItem('status', 'false', () => this.updateItem() ); }}>Unpublish</DropdownItem>
                       :
-                      <DropdownItem onClick={() => { this.changeItem('status', 'false', () => this.updateItem() ); }}>Save Draft</DropdownItem>
+                      <DropdownItem onClick={() => { this.changeItem('status', false, () => this.updateItem() ); }}>Save Draft</DropdownItem>
                     }
                   </DropdownMenu>
                 </UncontrolledButtonDropdown>
