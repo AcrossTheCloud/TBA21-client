@@ -85,8 +85,7 @@ const defaultRequiredFields = (item: Item) => {
     focus_action,
     focus_scitech,
     aggregated_concept_tags,
-    concept_tags,
-    credit
+    concept_tags
   } = item;
 
   let conceptTags: boolean = false;
@@ -106,8 +105,7 @@ const defaultRequiredFields = (item: Item) => {
     'focus_arts': (focus_arts !== null && focus_arts.toString().length > 0),
     'focus_action': (focus_action !== null && focus_action.toString().length > 0),
     'focus_scitech': (focus_scitech !== null && focus_scitech.toString().length > 0),
-    'concept_tags': conceptTags,
-    'credit': (credit !== null && credit.length > 0)
+    'concept_tags': conceptTags
   };
 };
 
@@ -2293,18 +2291,6 @@ export class ItemEditor extends React.Component<Props, State> {
                     <FormGroup>
                       <Label for="license_type">License</Label>
                       <Select menuPlacement="auto" id="license_type" options={licenseType} value={item.license ? {value: item.license, label: item.license} : []} onChange={e => this.changeItem('license', e.label)} isSearchable/>
-                    </FormGroup>
-
-                    <FormGroup>
-                      <Label for="credit">Credit</Label>
-                      <Input
-                        type="text"
-                        id="credit"
-                        defaultValue={item.credit ? item.credit : ''}
-                        onChange={e => this.validateLength('credit', e.target.value)}
-                        invalid={this.state.validate.hasOwnProperty('credit') && !this.state.validate.credit}
-                      />
-                      <FormFeedback>This is a required field</FormFeedback>
                     </FormGroup>
 
                     <FormGroup>

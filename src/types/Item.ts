@@ -208,7 +208,6 @@ export interface Item {
   lecturer: string | null;
 
   authors: string[] | null;
-  credit: string | null;
 
   copyright_holder: string | null;
   copyright_country: string | null;
