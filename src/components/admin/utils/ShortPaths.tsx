@@ -37,7 +37,7 @@ export default class ShortPaths extends React.Component<Props, State> {
 
     this.state = {
       id: !!this.props.id ? this.props.id : undefined,
-      isLoading: !this.props.id,
+      isLoading: true,
       invalid: !this.props.id,
       loadedShortPaths: [],
       inputValue: '',
@@ -53,6 +53,8 @@ export default class ShortPaths extends React.Component<Props, State> {
       const response: { short_paths: ShortPath[] } = await this.getShortPath('', this.props.id);
       if (response && response.short_paths && response.short_paths.length && response.short_paths[0]) {
         const loadedValues = response.short_paths.map(sp => createOption(sp.short_path));
+
+        if (!this._isMounted) { return; }
         this.setState({ isLoading: false, value: createOption(response.short_paths[0].short_path), loadedShortPaths: loadedValues });
 
         if (typeof this.props.onChange === 'function') {
@@ -60,6 +62,7 @@ export default class ShortPaths extends React.Component<Props, State> {
         }
 
       } else {
+        if (!this._isMounted) { return; }
         this.setState({ isLoading: false });
       }
     }
@@ -72,7 +75,6 @@ export default class ShortPaths extends React.Component<Props, State> {
   componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>): void {
     if (this._isMounted) {
       if (!!this.props.id && prevProps.id !== this.props.id) {
-        console.log('HI!', prevProps, this.props.id);
         this.setState( { id: this.props.id, isLoading: false, invalid: false } );
       }
     }
@@ -147,6 +149,7 @@ export default class ShortPaths extends React.Component<Props, State> {
           Object.assign(state, { invalid: true, invalidFeedback: <>The url slug <b>{value.label}</b> has already been taken</> });
         }
       } finally {
+        if (!this._isMounted) { return; }
         this.setState(state);
       }
     }
@@ -162,8 +165,10 @@ export default class ShortPaths extends React.Component<Props, State> {
     if (this.onChangeTimeout) { clearTimeout(this.onChangeTimeout); }
 
     const slugifyValue = slugify(value, false);
+    if (!this._isMounted) { return; }
     this.setState({ inputValue: slugifyValue, invalid: false }, () => {
       this.onChangeTimeout = setTimeout( () => {
+        if (!this._isMounted) { return; }
         this.setState({ inputValue: slugify(slugifyValue, true) });
       }, 400);
     });

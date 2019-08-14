@@ -216,8 +216,6 @@ export class ItemEditor extends React.Component<Props, State> {
    *
    */
   updateItem = async () => {
-    console.log(this.state.changedItem.status);
-    console.log('this.state.changedItem.status === true');
     if (!this._isMounted) { return; }
 
     this.setState(
@@ -2170,8 +2168,6 @@ export class ItemEditor extends React.Component<Props, State> {
       conceptTags = item.aggregated_concept_tags ? item.aggregated_concept_tags.map( t => ({ id: t.id, value: t.id, label: t.tag_name }) ) : [],
       keywordTags = item.aggregated_keyword_tags ? item.aggregated_keyword_tags.map( t => ({ id: t.id, value: t.id, label: t.tag_name }) ) : [],
       countryOrOcean = item.country_or_ocean ? countries.find( c => c.value === item.country_or_ocean ) || oceans.find( c => c.value === item.country_or_ocean ) : null;
-
-    console.log('render', this.state.changedItem.status);
 
     if (this.state.hideForm) {
       return (

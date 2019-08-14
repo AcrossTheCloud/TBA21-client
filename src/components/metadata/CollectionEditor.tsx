@@ -1248,17 +1248,17 @@ export class CollectionEditor extends React.Component<Props, State> {
                 <Row>
                   <Col md="12">
                     <UncontrolledButtonDropdown className="float-right">
-                      {this.state.collection.status === true ?
+                      {this.state.originalCollection.status === true ?
                         <Button className="caret" onClick={this.putCollection} disabled={!this.state.isDifferent}>Save</Button>
                         :
-                        <Button className="caret" onClick={() => { this.changeCollection('status', 'true', () => this.putCollection() ); }}>Publish</Button>
+                        <Button className="caret" onClick={() => { this.changeCollection('status', true, () => this.putCollection() ); }}>Publish</Button>
                       }
                       <DropdownToggle caret />
                       <DropdownMenu>
-                        {this.state.collection.status === true ?
-                          <DropdownItem onClick={() => { this.changeCollection('status', 'false', () => this.putCollection() ); }}>Unpublish</DropdownItem>
+                        {this.state.originalCollection.status === true ?
+                          <DropdownItem onClick={() => { this.changeCollection('status', false, () => this.putCollection() ); }}>Unpublish</DropdownItem>
                           :
-                          <DropdownItem onClick={() => { this.changeCollection('status', 'false', () => this.putCollection() ); }}>Save Draft</DropdownItem>
+                          <DropdownItem onClick={() => { this.changeCollection('status', false, () => this.putCollection() ); }}>Save Draft</DropdownItem>
                         }
                       </DropdownMenu>
                     </UncontrolledButtonDropdown>
@@ -1278,7 +1278,7 @@ export class CollectionEditor extends React.Component<Props, State> {
                       <ShortPaths
                         type="Item"
                         id={id ? id : undefined}
-                        onChange={s => { console.log('s', s); if (this._isMounted) { this.setState({ hasShortPath: !!s.length }); }}}
+                        onChange={s => { if (this._isMounted) { this.setState({ hasShortPath: !!s.length }); }}}
                       />
                       {
                         this.state.editMode ?
