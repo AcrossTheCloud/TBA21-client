@@ -35,8 +35,6 @@ export default class ShortPaths extends React.Component<Props, State> {
     super(props);
     this._isMounted = false;
 
-    console.log('!!this.props.id', !!this.props.id);
-
     this.state = {
       id: !!this.props.id ? this.props.id : undefined,
       isLoading: !this.props.id,

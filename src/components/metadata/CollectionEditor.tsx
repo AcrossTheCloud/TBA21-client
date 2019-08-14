@@ -1275,7 +1275,19 @@ export class CollectionEditor extends React.Component<Props, State> {
                         invalid={this.state.validate.hasOwnProperty('title') && !this.state.validate.title}
                       />
                       <FormFeedback>This is a required field</FormFeedback>
+                      <ShortPaths
+                        type="Item"
+                        id={id ? id : undefined}
+                        onChange={s => { console.log('s', s); if (this._isMounted) { this.setState({ hasShortPath: !!s.length }); }}}
+                      />
+                      {
+                        this.state.editMode ?
+                          <FormFeedback style={{ display: !this.state.hasShortPath ? 'block' : 'none' }}>Your collection needs a short path if you're going to publish it.</FormFeedback>
+                          :
+                          <FormFeedback style={{ display: !this.state.hasShortPath ? 'block' : 'none' }}>You need to save your collection first before adding a URL slug.</FormFeedback>
+                      }
                     </FormGroup>
+
                     <FormGroup>
                       <Label for="subtitle">Subtitle</Label>
                       <Input
