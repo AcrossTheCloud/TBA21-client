@@ -3,3 +3,9 @@ $simple-line-font-family: "simple-line-icons" !default;
 $simple-line-icon-prefix: "simple-icon-" !default;
 
 @import "~simple-line-icons/scss/simple-line-icons";
+
+
+// Gives the wrapping element a 0 line-height, useful for aligning center (middle)
+.iconWrapper {
+  line-height: 0;
+}
