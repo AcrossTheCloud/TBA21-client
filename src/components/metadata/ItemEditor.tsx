@@ -34,6 +34,7 @@ import {
 } from '../../types/Item';
 import {
   countries,
+  formats,
   itemAudioSubTypes,
   itemImageSubTypes,
   itemTextSubTypes,
@@ -1542,7 +1543,7 @@ export class ItemEditor extends React.Component<Props, State> {
       <Row>
         <Col md="4">
           <FormGroup>
-            <Label for="produced_by">Exhibited At</Label>
+            <Label for="produced_by">Exhibition History</Label>
             <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('exhibited_at') && !this.state.validate.exhibited_at ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Exhibit.</FormText>
@@ -2196,27 +2197,6 @@ export class ItemEditor extends React.Component<Props, State> {
         <Row>
           <Col>
             <Row>
-              <Col xs="12">
-                <InputGroup>
-                  <Input
-                    id="title"
-                    defaultValue={item.title ? item.title : ''}
-                    placeholder="Please Enter A Title"
-                    onChange={e => this.validateLength('title', e.target.value)}
-                    required
-                    invalid={this.state.validate.hasOwnProperty('title') && !this.state.validate.title}
-                  />
-                  <FormFeedback>This is a required field</FormFeedback>
-                </InputGroup>
-                <ShortPaths
-                  type="Item"
-                  id={item.id ? item.id : undefined}
-                  onChange={s => { if (this._isMounted) { this.setState({ hasShortPath: !!s.length }); }}}
-                />
-                <FormFeedback style={{ display: !this.state.hasShortPath ? 'block' : 'none' }}>Your item needs a short path if you're going to publish it.</FormFeedback>
-              </Col>
-            </Row>
-            <Row>
               <Col xs="12" className="text-center">
                 <this.filePreview />
               </Col>
@@ -2268,7 +2248,30 @@ export class ItemEditor extends React.Component<Props, State> {
             <TabContent activeTab={this.state.activeTab}>
               <TabPane tabId="1">
                 <Row>
-                  <Col>
+                  <Col xs="12">
+                    <FormGroup>
+                      <Label for="title">Title</Label>
+                      <Input
+                        id="title"
+                        defaultValue={item.title ? item.title : ''}
+                        placeholder="Please Enter A Title"
+                        onChange={e => this.validateLength('title', e.target.value)}
+                        required
+                        invalid={this.state.validate.hasOwnProperty('title') && !this.state.validate.title}
+                      />
+                      <FormFeedback>This is a required field</FormFeedback>
+
+                      <ShortPaths
+                        type="Item"
+                        id={item.id ? item.id : undefined}
+                        onChange={s => { if (this._isMounted) { this.setState({ hasShortPath: !!s.length }); }}}
+                      />
+                      <FormFeedback style={{ display: !this.state.hasShortPath ? 'block' : 'none' }}>Your item needs a short path if you're going to publish it.</FormFeedback>
+
+                    </FormGroup>
+                  </Col>
+
+                  <Col xs="12">
                     <FormGroup>
                       <Label for="description">Description</Label>
                       <Input
@@ -2282,7 +2285,7 @@ export class ItemEditor extends React.Component<Props, State> {
                     </FormGroup>
 
                     <FormGroup>
-                      <Label for="time_produced">Date Produced</Label>
+                      <Label for="time_produced">Date</Label>
                       <Input
                         type="date"
                         id="time_produced"
@@ -2294,7 +2297,14 @@ export class ItemEditor extends React.Component<Props, State> {
                     </FormGroup>
 
                     <FormGroup>
-                      <Label for="country_or_ocean">Region (Country/Ocean)</Label>
+                      <Label for="creators">Creator(s)</Label>
+                      <CustomSelect values={!!item.creators ? item.creators : []} callback={values => this.validateLength('creators', values)} />
+                      {/*<FormFeedback style={{ display: (this.state.validate.hasOwnProperty('creators') && !this.state.validate.creators ? 'block' : 'none') }}>This is a required field</FormFeedback>*/}
+                      <FormText>Use tab or enter to add a new Creator.</FormText>
+                    </FormGroup>
+
+                    <FormGroup>
+                      <Label for="country_or_ocean">Location</Label>
                       <Select menuPlacement="auto" id="country_or_ocean" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries }]} value={[countryOrOcean]} onChange={e => this.validateLength('country_or_ocean', e.value)} isSearchable/>
                       <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('country_or_ocean') && !this.state.validate.country_or_ocean ? 'block' : 'none') }}>This is a required field</FormFeedback>
                     </FormGroup>
@@ -2305,7 +2315,7 @@ export class ItemEditor extends React.Component<Props, State> {
                     </FormGroup>
 
                     <FormGroup>
-                      <Label for="sub_type">Sub Type</Label>
+                      <Label for="sub_type">Object Category</Label>
                       <this.SubType />
                       <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('item_subtype') && !this.state.validate.item_subtype ? 'block' : 'none') }}>This is a required field</FormFeedback>
                     </FormGroup>
@@ -2338,6 +2348,11 @@ export class ItemEditor extends React.Component<Props, State> {
                     </FormGroup>
 
                     <FormGroup>
+                      <Label for="format">Format</Label>
+                      <Select menuPlacement="auto" id="format" options={formats} value={[item.format ? formats.find(c => c.value === item.format) : null]} onChange={e => this.changeItem('format', e.value)} isSearchable/>
+                    </FormGroup>
+
+                    <FormGroup>
                       <Label for="url">Original URL</Label>
                       <Input
                         type="url"
@@ -2356,7 +2371,7 @@ export class ItemEditor extends React.Component<Props, State> {
                     </FormGroup>
 
                     <FormGroup>
-                      <Label for="concept_tags">Concept Tags</Label>
+                      <Label for="concept_tags">Subject Area(s)</Label>
                       <Tags
                         className="concept_tags"
                         type="concept"
