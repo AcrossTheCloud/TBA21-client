@@ -30,6 +30,7 @@ import { validateURL } from '../utils/inputs/url';
 import { Items } from './Items';
 import CustomSelect from './fields/CustomSelect';
 import Focus from './fields/Focus';
+import ShortPaths from '../admin/utils/ShortPaths';
 
 interface Props {
   collection?: Collection;
@@ -47,6 +48,7 @@ interface State extends Alerts {
     [key: string]: boolean
   };
 
+  hasShortPath: boolean;
   editMode: boolean;
   activeTab: string;
   selectInputValue: string;
@@ -107,6 +109,7 @@ export class CollectionEditor extends React.Component<Props, State> {
       loadingItems: !!props.collection,
 
       editMode: this.props.editMode ? this.props.editMode : false,
+      hasShortPath: false,
 
       isDifferent: false,
       validate: defaultRequiredFields(collection),
@@ -172,6 +175,12 @@ export class CollectionEditor extends React.Component<Props, State> {
       return;
     }
 
+    // If we don't have a short path and we've published our collection
+    if (!this.state.hasShortPath && this.state.collection.status) {
+      this.setState({ errorMessage: <>The collection needs a url slug</> });
+      return;
+    }
+
     try {
       const collectionProperties = {};
 
@@ -214,12 +223,14 @@ export class CollectionEditor extends React.Component<Props, State> {
       } else if (result.success) {
         const
           modeMessage = editMode ? 'Updated collection!' : 'Created collection!',
-          originalCollection = {...this.state.collection, id: result.id || this.state.collection.id || this.state.originalCollection.id};
+          id = result.id || this.state.collection.id || this.state.originalCollection.id,
+          originalCollection = {...this.state.collection, id: id},
+          collection = {...this.state.collection, id: id};
         // We're in create mode, once we've created add the ID to the original collection and change the form to update
         if (!editMode) {
           editMode = true;
         }
-        Object.assign(state, { editMode: editMode, successMessage: modeMessage, changedFields: {}, originalCollection: originalCollection, isDifferent: false });
+        Object.assign(state, { editMode: editMode, successMessage: modeMessage, changedFields: {}, originalCollection: originalCollection, collection: collection, isDifferent: false });
       } else {
         Object.assign(state, { warningMessage: result });
       }
@@ -266,7 +277,7 @@ export class CollectionEditor extends React.Component<Props, State> {
   changeCollection = (key: string, value: any, callback?: Function) => { // tslint:disable-line: no-any
     const { collection, changedFields } = this.state;
 
-    if (value) {
+    if (value.toString().length) {
       Object.assign(changedFields, { [key]: value });
       Object.assign(collection, { [key]: value });
     } else {
@@ -1175,6 +1186,7 @@ export class CollectionEditor extends React.Component<Props, State> {
 
   render() {
     const {
+      id,
       title,
       description,
       subtitle,
@@ -1236,17 +1248,17 @@ export class CollectionEditor extends React.Component<Props, State> {
                 <Row>
                   <Col md="12">
                     <UncontrolledButtonDropdown className="float-right">
-                      {this.state.collection.status === true ?
+                      {this.state.originalCollection.status === true ?
                         <Button className="caret" onClick={this.putCollection} disabled={!this.state.isDifferent}>Save</Button>
                         :
-                        <Button className="caret" onClick={() => { this.changeCollection('status', 'true', () => this.putCollection() ); }}>Publish</Button>
+                        <Button className="caret" onClick={() => { this.changeCollection('status', true, () => this.putCollection() ); }}>Publish</Button>
                       }
                       <DropdownToggle caret />
                       <DropdownMenu>
-                        {this.state.collection.status === true ?
-                          <DropdownItem onClick={() => { this.changeCollection('status', 'false', () => this.putCollection() ); }}>Unpublish</DropdownItem>
+                        {this.state.originalCollection.status === true ?
+                          <DropdownItem onClick={() => { this.changeCollection('status', false, () => this.putCollection() ); }}>Unpublish</DropdownItem>
                           :
-                          <DropdownItem onClick={() => { this.changeCollection('status', 'false', () => this.putCollection() ); }}>Save Draft</DropdownItem>
+                          <DropdownItem onClick={() => { this.changeCollection('status', false, () => this.putCollection() ); }}>Save Draft</DropdownItem>
                         }
                       </DropdownMenu>
                     </UncontrolledButtonDropdown>
@@ -1263,7 +1275,19 @@ export class CollectionEditor extends React.Component<Props, State> {
                         invalid={this.state.validate.hasOwnProperty('title') && !this.state.validate.title}
                       />
                       <FormFeedback>This is a required field</FormFeedback>
+                      <ShortPaths
+                        type="Item"
+                        id={id ? id : undefined}
+                        onChange={s => { if (this._isMounted) { this.setState({ hasShortPath: !!s.length }); }}}
+                      />
+                      {
+                        this.state.editMode ?
+                          <FormFeedback style={{ display: !this.state.hasShortPath ? 'block' : 'none' }}>Your collection needs a short path if you're going to publish it.</FormFeedback>
+                          :
+                          <FormFeedback style={{ display: !this.state.hasShortPath ? 'block' : 'none' }}>You need to save your collection first before adding a URL slug.</FormFeedback>
+                      }
                     </FormGroup>
+
                     <FormGroup>
                       <Label for="subtitle">Subtitle</Label>
                       <Input
