@@ -65,7 +65,7 @@ class Tags extends React.Component<Props, State> {
 
   /**
    *
-   * Pools the DB for the Items Machine Rekognition Tags
+   * Polls the DB for the Items Machine Rekognition Tags
    *
    * @param s3key { string }
    */

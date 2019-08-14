@@ -9,6 +9,7 @@ export interface AuthorisationList {
 export interface Authorisation {
   isAuthenticated: boolean;
   authorisation?: AuthorisationList;
+  uuid?: string;
 }
 
 /**
@@ -41,7 +42,9 @@ export const checkAuth = async (bypassCache: boolean = false): Promise<Authorisa
           authorisation[group] = true;
         });
       }
-      return Object.keys(authorisation).length ? { authorisation: authorisation, isAuthenticated: true } : { isAuthenticated: true };
+      const uuid = currentUser.getUsername();
+
+      return Object.keys(authorisation).length ? { authorisation: authorisation, isAuthenticated: true, uuid } : { isAuthenticated: true, uuid };
     } else {
       return { isAuthenticated: false };
     }

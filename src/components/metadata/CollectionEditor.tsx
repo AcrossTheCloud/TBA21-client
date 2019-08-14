@@ -30,6 +30,8 @@ import { validateURL } from '../utils/inputs/url';
 import { Items } from './Items';
 import CustomSelect from './fields/CustomSelect';
 import Focus from './fields/Focus';
+import Contributors from './fields/Contributors';
+import { AuthContext } from '../../providers/AuthProvider';
 
 interface Props {
   collection?: Collection;
@@ -46,6 +48,8 @@ interface State extends Alerts {
   validate: {
     [key: string]: boolean
   };
+
+  userUUID: string;
 
   editMode: boolean;
   activeTab: string;
@@ -88,6 +92,8 @@ const defaultRequiredFields = (collection: Collection) => {
 };
 
 export class CollectionEditor extends React.Component<Props, State> {
+  static contextType = AuthContext;
+
   _isMounted;
   selectQueryItemsTimeout;
 
@@ -103,6 +109,8 @@ export class CollectionEditor extends React.Component<Props, State> {
       collection: {...collection},
       changedFields: {},
 
+      userUUID: '',
+
       loadedItems: [],
       loadingItems: !!props.collection,
 
@@ -117,6 +125,13 @@ export class CollectionEditor extends React.Component<Props, State> {
 
   async componentDidMount(): Promise<void> {
     this._isMounted = true;
+
+    const context: React.ContextType<typeof AuthContext> = this.context;
+    console.log('context.uuid' , context.uuid);
+    console.log('context.uuid.length' , context.uuid.length);
+    if (context && (context.uuid && context.uuid.length)) {
+      this.setState({ userUUID: context.uuid });
+    }
 
     if (this.props.collection) {
       const getItemsInCollection = async (id) => {
@@ -1192,6 +1207,8 @@ export class CollectionEditor extends React.Component<Props, State> {
       aggregated_keyword_tags,
       aggregated_concept_tags,
 
+      contributors,
+
       type
 
     } = this.state.collection;
@@ -1199,7 +1216,8 @@ export class CollectionEditor extends React.Component<Props, State> {
     const
       conceptTags = aggregated_concept_tags ? aggregated_concept_tags.map( t => ({ id: t.id, value: t.id, label: t.tag_name }) ) : [],
       keywordTags = aggregated_keyword_tags ? aggregated_keyword_tags.map( t => ({ id: t.id, value: t.id, label: t.tag_name }) ) : [],
-      countryOrOcean = country_or_ocean ? countries.find( c => c.value === country_or_ocean ) || oceans.find( c => c.value === country_or_ocean ) : null;
+      countryOrOcean = country_or_ocean ? countries.find( c => c.value === country_or_ocean ) || oceans.find( c => c.value === country_or_ocean ) : null,
+      locationField = location ? countries.find( c => c.value === location ) || oceans.find( c => c.value === location ) : null;
 
     return (
       <div className="container-fluid collectionEditor">
@@ -1286,13 +1304,18 @@ export class CollectionEditor extends React.Component<Props, State> {
                     </FormGroup>
 
                     <FormGroup>
+                      <Label for="contributors">Contributor(s)</Label>
+                      <Contributors callback={e => console.log('cb', e)} defaultValues={contributors ? contributors : ( this.state.userUUID ? [this.state.userUUID] : [] )} />
+                    </FormGroup>
+
+                    <FormGroup>
                       <Label for="country_or_ocean">Region (Country/Ocean)</Label>
                       <Select menuPlacement="auto" id="country_or_ocean" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries }]} value={[countryOrOcean]} onChange={e => this.changeCollection('country_or_ocean', e.value)} isSearchable/>
                     </FormGroup>
 
                     <FormGroup>
                       <Label for="location">Location</Label>
-                      <Input type="text" id="location" defaultValue={location ? location : ''} onChange={e => this.changeCollection('location', e.target.value)}/>
+                      <Select menuPlacement="auto" id="location" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries }]} value={[locationField]} onChange={e => this.changeCollection('location', e.value)} isSearchable/>
                     </FormGroup>
 
                     <FormGroup>
