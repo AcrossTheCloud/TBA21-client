@@ -1,5 +1,6 @@
-import { itemAudio, itemImage } from '../../types/Item';
+import { itemAudio, itemImage, itemText, itemVideo } from '../../types/Item';
 import { collectionTypes as Types } from '../../types/Collection';
+import { License } from '../../types/License';
 
 export const oceans = [
   {value: 'Atlantic Ocean', label: 'Atlantic Ocean'},
@@ -380,41 +381,41 @@ export const languages = [
 ];
 
 export const licenseType = [
-  {value: 'CC_BY', label: 'CC BY'},
-  {value: 'CC_BY_SA', label: 'CC BY-SA'},
-  {value: 'CC_BY_ND', label: 'CC BY-ND'},
-  {value: 'CC_BY_NC', label: 'CC BY-NC'},
-  {value: 'CC_BY_NC_SA', label: 'CC BY-NC-SA'},
-  {value: 'CC_BY_NC_ND', label: 'CC BY-NC-ND'},
-  {value: 'LOCKED', label: 'Locked'}
+  {value: License.CC_BY, label: 'CC BY'},
+  {value: License.CC_BY_SA, label: 'CC BY-SA'},
+  {value: License.CC_BY_ND, label: 'CC BY-ND'},
+  {value: License.CC_BY_NC, label: 'CC BY-NC'},
+  {value: License.CC_BY_NC_SA, label: 'CC BY-NC-SA'},
+  {value: License.CC_BY_NC_ND, label: 'CC BY-NC-ND'},
+  {value: License.LOCKED, label: 'Locked'}
 ];
 
 export const itemTextSubTypes = [
-  {value: 'Academic_Publication', label: 'Academic Publication'},
-  {value: 'Article', label: 'Article'},
-  {value: 'News', label: 'News'},
-  {value: 'Policy_Paper', label: 'Policy Paper'},
-  {value: 'Report', label: 'Report'},
-  {value: 'Book', label: 'Book'},
-  {value: 'Essay', label: 'Essay'},
-  {value: 'Historical_Text', label: 'Historical Text'},
-  {value: 'Event_Press', label: 'Event Press'},
-  {value: 'Toolkit', label: 'Toolkit'},
-  {value: 'Other', label: 'Other'}
+  {value: itemText.Academic_Publication, label: 'Academic Publication'},
+  {value: itemText.Article, label: 'Article'},
+  {value: itemText.News, label: 'News'},
+  {value: itemText.Policy_Paper, label: 'Policy Paper'},
+  {value: itemText.Report, label: 'Report'},
+  {value: itemText.Book, label: 'Book'},
+  {value: itemText.Essay, label: 'Essay'},
+  {value: itemText.Historical_Text, label: 'Historical Text'},
+  {value: itemText.Event_Press, label: 'Event Press'},
+  {value: itemText.Toolkit, label: 'Toolkit'},
+  {value: itemText.Other, label: 'Other'}
 ];
 export const itemVideoSubTypes = [
-  {value: 'Movie', label: 'Movie'},
-  {value: 'Documentary', label: 'Documentary'},
-  {value: 'Research', label: 'Research'},
-  {value: 'Interview', label: 'Interview'},
-  {value: 'Art', label: 'Art'},
-  {value: 'News_Journalism', label: 'News / Journalism'},
-  {value: 'Event_Recording', label: 'Event Recording'},
-  {value: 'Informational_Video', label: 'Informational Video'},
-  {value: 'Trailer', label: 'Trailer'},
-  {value: 'Artwork_Documentation', label: 'Artwork Documentation'},
-  {value: 'Raw_Footage', label: 'Raw Footage'},
-  {value: 'Other', label: 'Other'}
+  {value: itemVideo.Movie, label: 'Movie'},
+  {value: itemVideo.Documentary, label: 'Documentary'},
+  {value: itemVideo.Research, label: 'Research'},
+  {value: itemVideo.Interview, label: 'Interview'},
+  {value: itemVideo.Art, label: 'Art'},
+  {value: itemVideo.News_Journalism, label: 'News / Journalism'},
+  {value: itemVideo.Event_Recording, label: 'Event Recording'},
+  {value: itemVideo.Informational_Video, label: 'Informational Video'},
+  {value: itemVideo.Trailer, label: 'Trailer'},
+  {value: itemVideo.Artwork_Documentation, label: 'Artwork Documentation'},
+  {value: itemVideo.Raw_Footage, label: 'Raw Footage'},
+  {value: itemVideo.Other, label: 'Other'}
 ];
 export const itemImageSubTypes = [
   {value: itemImage.Photograph, label: 'Photograph'},

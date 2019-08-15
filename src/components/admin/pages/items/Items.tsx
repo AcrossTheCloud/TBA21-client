@@ -8,7 +8,6 @@ import { Button, Container, Modal, ModalBody, ModalFooter, Spinner } from 'react
 import { Item } from 'types/Item';
 import { ItemEditor } from 'components/metadata/ItemEditor';
 import { Alerts, ErrorMessage } from 'components/utils/alerts';
-import { Header } from 'components/layout/Header';
 
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css';
@@ -17,7 +16,7 @@ import 'styles/components/admin/tables/modal.scss';
 
 interface State extends Alerts {
   items: Item[];
-  editingItem?: Item;
+  editingItemIndex?: number;
 
   componentModalOpen: boolean;
 
@@ -70,7 +69,7 @@ export default class Items extends React.Component<{}, State> {
         formatter: (e, row, rowIndex) => {
           return (
             <>
-              <Button color="warning" size="sm" onClick={() => this.onEditButtonClick(row)}>Edit</Button>
+              <Button color="warning" size="sm" onClick={() => this.onEditButtonClick(rowIndex)}>Edit</Button>
             </>
           );
         }
@@ -110,7 +109,9 @@ export default class Items extends React.Component<{}, State> {
 
   getItems = async (): Promise<void> => {
     try {
-      const response = await this.getItemsQuery(0);
+      const
+        currentIndex = (this.state.page - 1) * this.state.sizePerPage,
+        response = await this.getItemsQuery(currentIndex);
 
       if (response) {
         const { items, totalSize } = response;
@@ -130,12 +131,12 @@ export default class Items extends React.Component<{}, State> {
     }
   }
 
-  onEditButtonClick = (item: Item) => {
+  onEditButtonClick = (itemIndex: number) => {
     if (!this._isMounted) { return; }
     this.setState(
       {
         componentModalOpen: true,
-        editingItem: item,
+        editingItemIndex: itemIndex,
       }
     );
   }
@@ -185,7 +186,6 @@ export default class Items extends React.Component<{}, State> {
 
     return (
       <Container>
-        <Header />
         <ErrorMessage message={this.state.errorMessage}/>
         <BootstrapTable
           remote
@@ -203,7 +203,19 @@ export default class Items extends React.Component<{}, State> {
           <ModalBody>
 
             {
-              this.state.editingItem ? <ItemEditor item={this.state.editingItem}/> : <></>
+              typeof this.state.editingItemIndex !== 'undefined' && this.state.editingItemIndex >= 0 ?
+                <ItemEditor
+                  item={this.state.items[this.state.editingItemIndex]}
+                  onChange={c => {
+                    if (this._isMounted && typeof this.state.editingItemIndex !== 'undefined' && this.state.editingItemIndex >= 0) {
+                      const stateItems = this.state.items;
+                      stateItems[this.state.editingItemIndex] = c;
+                      this.setState({ items: stateItems });
+                    }
+                  }}
+                />
+                :
+                <></>
             }
 
           </ModalBody>

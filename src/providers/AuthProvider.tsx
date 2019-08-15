@@ -11,6 +11,7 @@ export interface Props {
 
 const authContextDefaultValues = {
   isLoading: true,
+  uuid: '',
   isAuthenticated: false,
   authorisation: {},
   login: (email: string, password: string) => { return; },
@@ -93,6 +94,7 @@ export class AuthProvider extends React.Component<Props, State> {
           isLoading: this.state.isLoading,
           isAuthenticated: this.state.isAuthenticated,
           authorisation: this.state.authorisation ? this.state.authorisation : {},
+          uuid: this.state.uuid ? this.state.uuid : '',
           login: this.login,
           logout: this.logout,
           facebookLogin: this.facebookLogin

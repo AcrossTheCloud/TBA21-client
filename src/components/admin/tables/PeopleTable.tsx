@@ -172,7 +172,6 @@ export default class UserTable extends React.Component<{}, State> {
       let data: ListUsersInGroupResponse | AWSError | undefined = await cognitoIdentityServiceProvider.listUsersInGroup(params).promise();
 
       if (data) {
-        console.log('data', data);
         // If we have a token return it, otherwise we assume we're at the end of the list os our users.
         if (has(data, 'NextToken')) {
           responsePaginationToken = data.NextToken;

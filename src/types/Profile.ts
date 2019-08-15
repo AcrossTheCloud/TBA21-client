@@ -1,5 +1,3 @@
-import { User } from './User';
-
 enum profileType {
   Individual = 'Individual',
   Collective = 'Collective',
@@ -8,10 +6,12 @@ enum profileType {
 
 export interface Profile {
   id: string;
-  contributors: User[] | null;
+  cognito_uuid: string | null;
+  contributors: string[] | null;
   profile_image: string | null;
   featured_image: string | null;
   full_name: string | null;
+  field_expertise: string;
   city: string | null;
   country: string | null;
   biography: string | null;

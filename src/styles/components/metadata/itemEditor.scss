@@ -14,4 +14,11 @@
       opacity: 1;
     }
   }
+
+  input {
+    &.form-control {
+      border: 1px solid hsl(0,0%,80%);
+    }
+  }
+
 }

@@ -7,6 +7,7 @@ import $ from 'jquery';
 
 import DeleteAccount from 'components/utils/user/DeleteAccount';
 import ChangePassword from 'components/utils/user/ChangePassword';
+import { AuthContext } from '../../../providers/AuthProvider';
 import { checkAuth, getCurrentAuthenticatedUser } from 'components/utils/Auth';
 import { deleteAccount, dispatchError, updateAttributes, changePassword } from 'actions/user/profile';
 import { Alerts, ErrorMessage, SuccessMessage } from '../../utils/alerts';
@@ -14,7 +15,6 @@ import { Alerts, ErrorMessage, SuccessMessage } from '../../utils/alerts';
 import MailChimp from '../../utils/MailChimp';
 
 import 'styles/components/user/profile/profile.scss';
-import { AuthContext } from '../../../providers/AuthProvider';
 
 interface Props extends RouteComponentProps, Alerts {
   deleteAccount: Function;
@@ -31,6 +31,8 @@ interface State {
 }
 
 class Profile extends React.Component<Props, State> {
+  static contextType = AuthContext;
+
   private emailInput;
   private _isMounted;
 
@@ -48,8 +50,12 @@ class Profile extends React.Component<Props, State> {
     await this.getUserCredentials();
   }
 
+  componentWillUnmount(): void {
+    this._isMounted = false;
+  }
+
   async componentDidUpdate(): Promise<void> {
-    const context = this.context;
+    const context: React.ContextType<typeof AuthContext> = this.context;
 
     if (this.props.accountDeleted) {
       try {
@@ -165,7 +171,5 @@ const mapDispatchToProps = {
   updateAttributes,
   changePassword,
 };
-
-Profile.contextType = AuthContext;
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Profile));

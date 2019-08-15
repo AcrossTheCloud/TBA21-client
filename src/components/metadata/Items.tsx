@@ -43,13 +43,13 @@ const ItemsDisplay = (props: { removeItem: Function | undefined, s3Key: string, 
     if (props.item.isLoading) {
       return (
         <Row onClick={() => props.callback(props.s3Key)}>
-          Loading....
+          <Col xs="12">Loading....</Col>
         </Row>
       );
     } else {
       return (
         <Row onClick={() => props.callback(props.s3Key)}>
-          Click here to load this item's details.
+          <Col xs="12">Click here to load this item's details.</Col>
         </Row>
       );
     }
@@ -77,10 +77,10 @@ export class Items extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>): void {
-    if (!this._isMounted) {
-      if (prevProps.items !== this.props.items) {
-        this.setState({ items: this.checkPropsItems() });
-      }
+    if (!this._isMounted) { return; }
+
+    if (prevProps.items !== this.props.items) {
+      this.setState({ items: this.checkPropsItems() });
     }
   }
 
@@ -117,8 +117,6 @@ export class Items extends React.Component<Props, State> {
       }
     });
 
-    console.log('fileUploadCallback', s3Key);
-
     // Load item
     this.loadItem(s3Key);
 
@@ -142,11 +140,7 @@ export class Items extends React.Component<Props, State> {
         isLoading: false,
       };
     try {
-      console.log('loadItem test', s3Key, this._isMounted);
-
       const result: Item | null = await this.getItemByKey(s3Key);
-
-      console.log('loadItem', result);
 
       if (result) {
         Object.assign(itemState, { details: result, loaded: true });
@@ -191,7 +185,7 @@ export class Items extends React.Component<Props, State> {
           if (!this._isMounted) { clearTimeout(apiTimeout); return; }
           counter --;
 
-          const response = await API.get('tba21', 'admin/items/byS3KeyNC', {
+          const response = await API.get('tba21', 'admin/items/getItemNC', {
             queryStringParameters: {
               s3Key: s3key
             }

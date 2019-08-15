@@ -58,8 +58,6 @@ export class FileUpload extends React.Component<Props, State> {
   onDrop = async (acceptedFiles: Array<any>, rejectedFiles: any) => {  // tslint:disable-line:no-any
     const files: Files = {};
 
-    console.log('acceptedFiles', acceptedFiles);
-
     acceptedFiles.forEach( file => {
       if (file && !this.state.files.hasOwnProperty(file.name)) {
         const
