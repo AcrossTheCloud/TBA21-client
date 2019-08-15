@@ -1,5 +1,6 @@
 import * as React from 'react';
-import Async from 'react-select/async';
+import { createFilter } from 'react-select';
+import AsyncSelect from 'react-select/async';
 import { API } from 'aws-amplify';
 import { find } from 'lodash';
 import { Profile } from '../../../types/Profile';
@@ -8,7 +9,6 @@ import { SelectObject } from '../../utils/react-select';
 interface State {
   profiles: SelectObject[];
   selectedProfiles: SelectObject[];
-  defaultValues?: SelectObject[];
   isLoading: boolean;
 }
 
@@ -36,8 +36,11 @@ export default class Contributors extends React.Component<Props, State> {
 
   async componentDidMount(): Promise<void> {
     this._isMounted = true;
+
     if (this.props.defaultValues && this.props.defaultValues.length) {
-      this.getProfiles();
+      await this.getProfiles();
+    } else {
+      this.setState({ isLoading: false });
     }
   }
 
@@ -45,9 +48,15 @@ export default class Contributors extends React.Component<Props, State> {
     this._isMounted = false;
   }
 
-  componentDidUpdate(prevProps: Props, prevState: State): void {
-    if (prevProps.defaultValues !== this.props.defaultValues) {
-      this.getProfiles();
+  callback = () => {
+    if ((this.props.callback && typeof this.props.callback === 'function')) {
+
+      let selected: string[] = [];
+      if (this.state.selectedProfiles && this.state.selectedProfiles.length) {
+        selected = this.state.selectedProfiles.map(profile => profile.value);
+      }
+
+      this.props.callback(selected);
     }
   }
 
@@ -58,20 +67,33 @@ export default class Contributors extends React.Component<Props, State> {
 
     if (defaultValues && defaultValues.length) {
       for (const uuid of defaultValues) {
-        const profile = await this.getProfile(uuid);
-        if (profile && profile.cognito_uuid && profile.full_name) {
-          selectOptions.push({ value: profile.cognito_uuid, label: profile.full_name });
+        const results = await this.getProfile(uuid);
+        if ((results && results[0]) && (results[0].cognito_uuid && results[0].full_name)) {
+          selectOptions.push(
+            {
+              value: results[0].cognito_uuid,
+              label: results[0].full_name
+            }
+          );
         }
       }
 
-      this.setState({ isLoading: false, defaultValues: selectOptions });
+      if (this._isMounted) {
+        this.setState({isLoading: false, profiles: selectOptions, selectedProfiles: selectOptions}, () => this.callback());
+      }
+    } else {
+      if (this._isMounted) {
+        this.setState({isLoading: false});
+      }
     }
   }
 
-  getProfile = async (uuid: string): Promise<Profile | false> => {
+  getProfile = async (uuid: string): Promise<Profile[] | false> => {
     try {
-      const queryStringParameters = { uuid: uuid };
-      return await API.get('tba21', 'profiles', { queryStringParameters: queryStringParameters });
+      const
+        queryStringParameters = { uuid: uuid },
+        results = await API.get('tba21', 'admin/profiles', { queryStringParameters: queryStringParameters });
+      return results.profiles;
     } catch (e) {
       return false;
     }
@@ -96,8 +118,8 @@ export default class Contributors extends React.Component<Props, State> {
         clearTimeout(this.loadTimeout);
 
         const
-          queryStringParameters = ( inputValue ? { query: inputValue } : {} ),
-          results = await API.get('tba21', 'profiles', { queryStringParameters: queryStringParameters }),
+          queryStringParameters = ( inputValue ? { fullname: inputValue } : {} ),
+          results = await API.get('tba21', 'admin/profiles', { queryStringParameters: queryStringParameters }),
 
           profiles = results.profiles.map((t: Profile) => ({value: t.cognito_uuid, label: t.full_name})),
           filteredProfiles = profiles.filter(profile => !find(this.state.profiles, { value: profile.value }));
@@ -111,7 +133,7 @@ export default class Contributors extends React.Component<Props, State> {
         );
 
         // Return the profiles to React Select
-        resolve(filteredProfiles.filter(tag => tag.label.includes(inputValue)));
+        resolve(profiles);
       }, 500);
     });
   }
@@ -128,19 +150,15 @@ export default class Contributors extends React.Component<Props, State> {
     if (!this._isMounted) { return; }
 
     if (actionMeta.action === 'clear') {
-      this.setState({ selectedProfiles: [] });
+      this.setState({ selectedProfiles: [] }, () => this.callback());
     }
 
     if (actionMeta.action === 'select-option') {
-      this.setState({isLoading: false, selectedProfiles: profilesList});
+      this.setState({isLoading: false, selectedProfiles: profilesList}, () => this.callback());
     }
 
     if (actionMeta.action === 'remove-value') {
-      this.setState({selectedProfiles: profilesList});
-    }
-
-    if ((this.props.callback && typeof this.props.callback === 'function') && (this.state.selectedProfiles && this.state.selectedProfiles.length > 0)) {
-      this.props.callback(this.state.selectedProfiles.map(profile => profile.value));
+      this.setState({selectedProfiles: profilesList}, () => this.callback());
     }
   }
 
@@ -151,15 +169,22 @@ export default class Contributors extends React.Component<Props, State> {
 
     return (
       <div className={className ? className : ''}>
-        <Async
+        <AsyncSelect
           isMulti
+          isClearable
           isDisabled={this.state.isLoading}
           isLoading={this.state.isLoading}
           cacheOptions
-          options={this.state.profiles}
-          defaultValue={this.state.defaultValues}
+
+          // options={this.state.profiles}
+          defaultOptions={this.state.profiles}
+
+          value={this.state.selectedProfiles}
+
           loadOptions={this.loadProfiles}
           onChange={this.onChange}
+
+          filterOption={createFilter({ ignoreCase: true })}
         />
       </div>
     );

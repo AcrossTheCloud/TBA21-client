@@ -244,8 +244,7 @@ class Tags extends React.Component<Props, State> {
 
           defaultValue={this.state.defaultValues}
           defaultOptions={[ { label: 'Generated Suggestions', options: [...this.state.rekognitionTags] } , ...this.state.tags]}
-
-          options={this.state.tags}
+          options={[ { label: 'Generated Suggestions', options: [...this.state.rekognitionTags] } , ...this.state.tags]}
 
           loadOptions={this.loadTags}
 
