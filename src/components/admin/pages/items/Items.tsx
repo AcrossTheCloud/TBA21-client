@@ -16,7 +16,7 @@ import 'styles/components/admin/tables/modal.scss';
 
 interface State extends Alerts {
   items: Item[];
-  editingItem?: Item;
+  editingItemIndex?: number;
 
   componentModalOpen: boolean;
 
@@ -69,7 +69,7 @@ export default class Items extends React.Component<{}, State> {
         formatter: (e, row, rowIndex) => {
           return (
             <>
-              <Button color="warning" size="sm" onClick={() => this.onEditButtonClick(row)}>Edit</Button>
+              <Button color="warning" size="sm" onClick={() => this.onEditButtonClick(rowIndex)}>Edit</Button>
             </>
           );
         }
@@ -131,12 +131,12 @@ export default class Items extends React.Component<{}, State> {
     }
   }
 
-  onEditButtonClick = (item: Item) => {
+  onEditButtonClick = (itemIndex: number) => {
     if (!this._isMounted) { return; }
     this.setState(
       {
         componentModalOpen: true,
-        editingItem: item,
+        editingItemIndex: itemIndex,
       }
     );
   }
@@ -203,7 +203,19 @@ export default class Items extends React.Component<{}, State> {
           <ModalBody>
 
             {
-              this.state.editingItem ? <ItemEditor item={this.state.editingItem}/> : <></>
+              typeof this.state.editingItemIndex !== 'undefined' && this.state.editingItemIndex >= 0 ?
+                <ItemEditor
+                  item={this.state.items[this.state.editingItemIndex]}
+                  onChange={c => {
+                    if (this._isMounted && typeof this.state.editingItemIndex !== 'undefined' && this.state.editingItemIndex >= 0) {
+                      const stateItems = this.state.items;
+                      stateItems[this.state.editingItemIndex] = c;
+                      this.setState({ items: stateItems });
+                    }
+                  }}
+                />
+                :
+                <></>
             }
 
           </ModalBody>

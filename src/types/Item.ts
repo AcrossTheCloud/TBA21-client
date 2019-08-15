@@ -1,4 +1,3 @@
-import { User } from './User';
 import { License } from './License';
 import { S3File } from './s3File';
 import { Languages } from './Languages';
@@ -69,6 +68,11 @@ export enum itemAudio {
   Other = 'Other'
 }
 
+export enum formats {
+  cd_rom = 'CD ROM',
+  notebook = 'Notebook'
+}
+
 export interface Item {
   file: S3File;
   count?: number;
@@ -101,7 +105,7 @@ export interface Item {
   item_type: itemType;
 
   item_subtype: itemAudio | itemImage | itemText | itemVideo;
-  creators:  User[] | null;
+  creators: string[] | null;
 
   contributor: string | null;
   directors: string[] | null;
@@ -207,7 +211,6 @@ export interface Item {
   lecturer: string | null;
 
   authors: string[] | null;
-  credit: string | null;
 
   copyright_holder: string | null;
   copyright_country: string | null;
