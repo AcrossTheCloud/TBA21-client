@@ -2303,8 +2303,8 @@ export class ItemEditor extends React.Component<Props, State> {
                     <FormGroup>
                       <Label for="creators">Creator(s)</Label>
                       <CustomSelect values={!!item.creators ? item.creators : []} callback={values => this.validateLength('creators', values)} />
-                      {/*<FormFeedback style={{ display: (this.state.validate.hasOwnProperty('creators') && !this.state.validate.creators ? 'block' : 'none') }}>This is a required field</FormFeedback>*/}
-                      <FormText>Use tab or enter to add a new Creator.</FormText>
+                      <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('creators') && !this.state.validate.creators ? 'block' : 'none') }}>This is a required field</FormFeedback>
+                      <FormText>Use tab Creator or enter to add a new Creator.</FormText>
                     </FormGroup>
 
                     <FormGroup>
