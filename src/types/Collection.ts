@@ -1,6 +1,5 @@
 import { APITag } from './Item';
 
-import { User } from './User';
 import { Ocean } from './Ocean';
 import { License } from './License';
 
@@ -42,7 +41,7 @@ export interface Collection {
   country_or_ocean?: Ocean | string | null;
 
   creators?: string[] | null;
-  contributors?: User[] | string | null;
+  contributors?: string[] | null;
 
   directors?: string[] | null;
   writers?: string | null;

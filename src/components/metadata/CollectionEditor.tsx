@@ -31,10 +31,13 @@ import { Items } from './Items';
 import CustomSelect from './fields/CustomSelect';
 import Focus from './fields/Focus';
 import ShortPaths from '../admin/utils/ShortPaths';
+import Contributors from './fields/Contributors';
+import { AuthContext } from '../../providers/AuthProvider';
 
 interface Props {
   collection?: Collection;
   editMode: boolean;
+  onChange?: Function;
 }
 
 interface State extends Alerts {
@@ -47,6 +50,8 @@ interface State extends Alerts {
   validate: {
     [key: string]: boolean
   };
+
+  userUUID: string;
 
   hasShortPath: boolean;
   editMode: boolean;
@@ -67,6 +72,7 @@ const defaultRequiredFields = (collection: Collection) => {
     focus_scitech,
     concept_tags,
     aggregated_concept_tags,
+    contributors,
     type,
   } = collection;
 
@@ -85,11 +91,14 @@ const defaultRequiredFields = (collection: Collection) => {
     'focus_action': (!!focus_action && !!focus_action.toString().length),
     'focus_scitech': (!!focus_scitech && !!focus_scitech.toString().length),
     'concept_tags': conceptTags,
+    'contributors': (!!contributors && !!contributors.toString().length),
     'type': (!!type && !!type.length)
   };
 };
 
 export class CollectionEditor extends React.Component<Props, State> {
+  static contextType = AuthContext;
+
   _isMounted;
   selectQueryItemsTimeout;
 
@@ -104,6 +113,8 @@ export class CollectionEditor extends React.Component<Props, State> {
       originalCollection: collection,
       collection: {...collection},
       changedFields: {},
+
+      userUUID: '',
 
       loadedItems: [],
       loadingItems: !!props.collection,
@@ -121,6 +132,13 @@ export class CollectionEditor extends React.Component<Props, State> {
   async componentDidMount(): Promise<void> {
     this._isMounted = true;
 
+    const context: React.ContextType<typeof AuthContext> = this.context;
+
+    if (context && (context.uuid && context.uuid.length)) {
+      if (!this._isMounted) { return; }
+      this.setState({ userUUID: context.uuid });
+    }
+
     if (this.props.collection) {
       const getItemsInCollection = async (id) => {
         const results = await API.get('tba21', 'admin/collections/getItemsInCollection', {
@@ -129,7 +147,7 @@ export class CollectionEditor extends React.Component<Props, State> {
           }
         });
 
-        if (results && results.items) {
+        if (results && results.items && this._isMounted) {
           this.setState(
             {
               collection: {...this.state.collection, items: results.items.map( i => i.s3_key)},
@@ -151,6 +169,7 @@ export class CollectionEditor extends React.Component<Props, State> {
   }
 
   putCollection = async () =>  {
+    if (!this._isMounted) { return; }
     this.setState(
       {
         errorMessage: undefined,
@@ -171,12 +190,13 @@ export class CollectionEditor extends React.Component<Props, State> {
       );
 
       Object.assign(state, { errorMessage: message });
+      if (!this._isMounted) { return; }
       this.setState(state);
       return;
     }
 
     // If we don't have a short path and we've published our collection
-    if (!this.state.hasShortPath && this.state.collection.status) {
+    if (!this.state.hasShortPath && this.state.collection.status && this._isMounted) {
       this.setState({ errorMessage: <>The collection needs a url slug</> });
       return;
     }
@@ -239,7 +259,12 @@ export class CollectionEditor extends React.Component<Props, State> {
       console.log('ERROR - ', e);
       Object.assign(state, { errorMessage: 'We had an issue updating this collection.' });
     } finally {
-      this.setState(state);
+      if (!this._isMounted) { return; }
+      this.setState(state, () => {
+        if (this.props.onChange && typeof this.props.onChange === 'function') {
+          this.props.onChange(this.state.originalCollection);
+        }
+      });
     }
   }
 
@@ -250,6 +275,7 @@ export class CollectionEditor extends React.Component<Props, State> {
 
     if (itemsList.indexOf(s3key) === -1) {
       const items: string[] = [...itemsList, s3key];
+      if (!this._isMounted) { return; }
       this.setState({ collection: {...this.state.collection, items: items}, isDifferent: true });
     } else if (!!removeItem && itemsList.length) {
 
@@ -261,7 +287,7 @@ export class CollectionEditor extends React.Component<Props, State> {
       if (loadedItems[s3key]) {
         delete loadedItems[s3key];
       }
-
+      if (!this._isMounted) { return; }
       this.setState({ collection: {...this.state.collection, items: itemsList}, loadedItems: loadedItems, isDifferent: true });
     }
   }
@@ -287,6 +313,7 @@ export class CollectionEditor extends React.Component<Props, State> {
         Object.assign(collection, { [key]: this.state.originalCollection[key] });
       }
     }
+    if (!this._isMounted) { return; }
     this.setState(
       {
         changedFields: changedFields,
@@ -365,6 +392,7 @@ export class CollectionEditor extends React.Component<Props, State> {
       };
 
     Object.assign(state, TypeFields[subType]);
+    if (!this._isMounted) { return; }
     this.setState({ validate: state });
   }
 
@@ -374,6 +402,7 @@ export class CollectionEditor extends React.Component<Props, State> {
     if (inputValue && inputValue.length > 0) {
       valid = true;
     }
+    if (!this._isMounted) { return; }
     this.setState({ validate: { ...this.state.validate, [field]: valid } }, () => {
       if (!isArray(inputValue) && field === 'type') {
         this.typeOnChange(inputValue);
@@ -830,6 +859,7 @@ export class CollectionEditor extends React.Component<Props, State> {
                 let valid = validateURL(value);
                 if (!value) { valid = true; } // set valid to true for no content
                 if (valid) { this.changeCollection('url', value); } // if valid set the data in changedItem
+                if (!this._isMounted) { return; }
                 this.setState({ validate: { ...this.state.validate, url: valid } });
               }}
             />
@@ -1162,7 +1192,7 @@ export class CollectionEditor extends React.Component<Props, State> {
     if (actionMeta.action === 'select-option') {
 
       // Item is already attached to the collection.
-      if (!!this.state.collection.items && this.state.collection.items.indexOf(itemList.item.s3_key) > -1) {
+      if (!!this.state.collection.items && this.state.collection.items.indexOf(itemList.item.s3_key) > -1 && this._isMounted) {
         this.setState({ warningMessage: 'Item is already attached to Collection.', selectInputValue: '' });
         return;
       }
@@ -1173,6 +1203,7 @@ export class CollectionEditor extends React.Component<Props, State> {
 
       collectionItemList.push(item.s3_key);
 
+      if (!this._isMounted) { return; }
       this.setState(
         {
           loadedItems: [...this.state.loadedItems, item],
@@ -1204,6 +1235,8 @@ export class CollectionEditor extends React.Component<Props, State> {
       aggregated_keyword_tags,
       aggregated_concept_tags,
 
+      contributors,
+
       type
 
     } = this.state.collection;
@@ -1211,7 +1244,8 @@ export class CollectionEditor extends React.Component<Props, State> {
     const
       conceptTags = aggregated_concept_tags ? aggregated_concept_tags.map( t => ({ id: t.id, value: t.id, label: t.tag_name }) ) : [],
       keywordTags = aggregated_keyword_tags ? aggregated_keyword_tags.map( t => ({ id: t.id, value: t.id, label: t.tag_name }) ) : [],
-      countryOrOcean = country_or_ocean ? countries.find( c => c.value === country_or_ocean ) || oceans.find( c => c.value === country_or_ocean ) : null;
+      countryOrOcean = country_or_ocean ? countries.find( c => c.value === country_or_ocean ) || oceans.find( c => c.value === country_or_ocean ) : null,
+      locationField = location ? countries.find( c => c.value === location ) || oceans.find( c => c.value === location ) : null;
 
     return (
       <div className="container-fluid collectionEditor">
@@ -1248,19 +1282,25 @@ export class CollectionEditor extends React.Component<Props, State> {
                 <Row>
                   <Col md="12">
                     <UncontrolledButtonDropdown className="float-right">
-                      {this.state.originalCollection.status === true ?
+                      {this.state.originalCollection.status === true || !this.state.hasShortPath ?
                         <Button className="caret" onClick={this.putCollection} disabled={!this.state.isDifferent}>Save</Button>
-                        :
+                      :
                         <Button className="caret" onClick={() => { this.changeCollection('status', true, () => this.putCollection() ); }}>Publish</Button>
                       }
-                      <DropdownToggle caret />
-                      <DropdownMenu>
-                        {this.state.originalCollection.status === true ?
-                          <DropdownItem onClick={() => { this.changeCollection('status', false, () => this.putCollection() ); }}>Unpublish</DropdownItem>
-                          :
-                          <DropdownItem onClick={() => { this.changeCollection('status', false, () => this.putCollection() ); }}>Save Draft</DropdownItem>
-                        }
-                      </DropdownMenu>
+                      {this.state.hasShortPath ?
+                        <>
+                          <DropdownToggle caret />
+                          <DropdownMenu>
+                            {this.state.originalCollection.status === true ?
+                              <DropdownItem onClick={() => { this.changeCollection('status', false, () => this.putCollection() ); }}>Unpublish</DropdownItem>
+                            :
+                              <DropdownItem onClick={() => { this.changeCollection('status', false, () => this.putCollection() ); }}>Save Draft</DropdownItem>
+                            }
+                          </DropdownMenu>
+                        </>
+                      :
+                        <></>
+                      }
                     </UncontrolledButtonDropdown>
                   </Col>
                   <Col>
@@ -1310,13 +1350,23 @@ export class CollectionEditor extends React.Component<Props, State> {
                     </FormGroup>
 
                     <FormGroup>
+                      <Label for="contributors">Contributor(s)</Label>
+                      { !this.state.userUUID ? <><br/>Loading..</> :
+                        <>
+                          <Contributors callback={e => this.validateLength('contributors', e)} defaultValues={this.state.originalCollection.contributors ? this.state.originalCollection.contributors : ( this.state.userUUID && !this.props.editMode ? [this.state.userUUID] : [] )} />
+                          <FormFeedback style={{ display: !contributors || !contributors.length ? 'block' : 'none' }}>A collection needs a contributor, select yourself or another user.</FormFeedback>
+                        </>
+                      }
+                    </FormGroup>
+
+                    <FormGroup>
                       <Label for="country_or_ocean">Region (Country/Ocean)</Label>
                       <Select menuPlacement="auto" id="country_or_ocean" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries }]} value={[countryOrOcean]} onChange={e => this.changeCollection('country_or_ocean', e.value)} isSearchable/>
                     </FormGroup>
 
                     <FormGroup>
                       <Label for="location">Location</Label>
-                      <Input type="text" id="location" defaultValue={location ? location : ''} onChange={e => this.changeCollection('location', e.target.value)}/>
+                      <Select menuPlacement="auto" id="location" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries }]} value={[locationField]} onChange={e => this.changeCollection('location', e.value)} isSearchable/>
                     </FormGroup>
 
                     <FormGroup>
@@ -1352,6 +1402,7 @@ export class CollectionEditor extends React.Component<Props, State> {
                           let valid = validateURL(value);
                           if (!value) { valid = true; } // set valid to true for no content
                           if (valid) { this.changeCollection('url', value); } // if valid set the data in collection
+                          if (!this._isMounted) { return; }
                           this.setState({ validate: { ...this.state.validate, url: valid } });
                         }}
                       />
@@ -1418,7 +1469,7 @@ export class CollectionEditor extends React.Component<Props, State> {
                       isClearable
                       loadOptions={this.selectQueryItems}
                       onChange={this.selectItemOnChange}
-                      onInputChange={v => this.setState({ selectInputValue: v })}
+                      onInputChange={v => { if (this._isMounted) { this.setState({ selectInputValue: v }); } }}
                       inputValue={this.state.selectInputValue}
                       value={this.state.selectInputValue}
                     />
