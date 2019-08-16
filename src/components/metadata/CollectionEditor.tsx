@@ -20,7 +20,8 @@ import {
   collectionTypes,
   countries,
   licenseType,
-  oceans
+  oceans,
+  regions as selectableRegions
 } from './SelectOptions';
 import { Collection, collectionTypes as Types } from '../../types/Collection';
 import { Item } from '../../types/Item';
@@ -1229,7 +1230,7 @@ export class CollectionEditor extends React.Component<Props, State> {
       focus_scitech,
       focus_action,
 
-      country_or_ocean,
+      regions,
       license,
 
       aggregated_keyword_tags,
@@ -1244,8 +1245,8 @@ export class CollectionEditor extends React.Component<Props, State> {
     const
       conceptTags = aggregated_concept_tags ? aggregated_concept_tags.map( t => ({ id: t.id, value: t.id, label: t.tag_name }) ) : [],
       keywordTags = aggregated_keyword_tags ? aggregated_keyword_tags.map( t => ({ id: t.id, value: t.id, label: t.tag_name }) ) : [],
-      countryOrOcean = country_or_ocean ? countries.find( c => c.value === country_or_ocean ) || oceans.find( c => c.value === country_or_ocean ) : null,
-      locationField = location ? countries.find( c => c.value === location ) || oceans.find( c => c.value === location ) : null;
+      locationField = location ? countries.find( c => c.value === location ) || oceans.find( c => c.value === location ) : null,
+      selectedRegions = !!regions ? selectableRegions.filter(s => !!regions ? regions.find(a => a === s.value) : false) : [];
 
     return (
       <div className="container-fluid collectionEditor">
@@ -1360,8 +1361,8 @@ export class CollectionEditor extends React.Component<Props, State> {
                     </FormGroup>
 
                     <FormGroup>
-                      <Label for="country_or_ocean">Region (Country/Ocean)</Label>
-                      <Select menuPlacement="auto" id="country_or_ocean" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries }]} value={[countryOrOcean]} onChange={e => this.changeCollection('country_or_ocean', e.value)} isSearchable/>
+                      <Label for="regions">Region (Country/Ocean)</Label>
+                      <Select isMulti isSearchable menuPlacement="auto" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries } ]} defaultValue={selectedRegions} onChange={e => this.validateLength('regions', !!e && e.length ? e.map(r => r.value) : [])} />
                     </FormGroup>
 
                     <FormGroup>

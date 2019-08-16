@@ -1,0 +1,30 @@
+@import '../../base/variables';
+
+#item {
+  min-height: 100vh;
+  background-color: $dark-blue;
+  color: #fff;
+
+  h1 {
+    font-size: 40px;
+  }
+
+  .subline {
+    color: $subline-gray;
+    font-size: 14px;
+  }
+
+  .left {
+    border-color: $item-details-border !important;
+  }
+
+  .right {
+    .details {
+      border-color: $item-details-border !important;
+
+      div {
+        padding: 10px;
+      }
+    }
+  }
+}
