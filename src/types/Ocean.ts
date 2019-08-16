@@ -1,6 +1,8 @@
 // enums as strings allows string comparisons. :)
 export enum Ocean {
-  PACIFIC = 'Pacific',
-  ATLANTIC = 'Atlantic',
-  INDIAN = 'Indian'
+  ATLANTIC = 'Atlantic Ocean',
+  ARCTIC = 'Arctic Ocean',
+  INDIAN = 'Indian Ocean',
+  PACIFIC = 'Pacific Ocean',
+  SOUTHERN = 'Southern Ocean',
 }

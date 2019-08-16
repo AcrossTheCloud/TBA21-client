@@ -6,12 +6,10 @@ import { fetchItem } from 'actions/items/viewItem';
 import { State } from 'reducers/items/viewItem';
 import { Alerts, ErrorMessage } from '../utils/alerts';
 
-import { Item } from '../../types/Item';
+import { Item, Regions } from '../../types/Item';
 import { MultiMedia } from '../utils/MultiMedia';
 
 import 'styles/components/pages/item.scss';
-import { Countries } from '../../types/Countries';
-import { Ocean } from '../../types/Ocean';
 import { Languages } from '../../types/Languages';
 
 interface Props extends Alerts {
@@ -49,7 +47,7 @@ class ViewItem extends React.Component<Props, State> {
       title,
       description,
       item_subtype,
-      country_or_ocean,
+      regions,
       language,
       license,
       aggregated_concept_tags,
@@ -106,7 +104,13 @@ class ViewItem extends React.Component<Props, State> {
             </Row>
           </Col>
           <Col md="4" className="right">
-            {!!country_or_ocean ? <ItemDetails label="Region" value={Countries[country_or_ocean] || Ocean[country_or_ocean]} /> : ''}
+            {!!regions ?
+              regions.map( (region, i) => (
+                <ItemDetails key={i} label="Region" value={Regions[region]} />
+              ))
+            :
+              ''
+            }
             {!!license ? <ItemDetails label="License" value={license} /> : ''}
             {!!language ? <ItemDetails label="Language" value={Languages[language]} /> : ''}
 

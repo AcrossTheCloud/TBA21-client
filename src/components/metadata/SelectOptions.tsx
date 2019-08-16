@@ -3,11 +3,11 @@ import { collectionTypes as Types } from '../../types/Collection';
 import { License } from '../../types/License';
 
 export const oceans = [
-  {value: 'Atlantic Ocean', label: 'Atlantic Ocean'},
-  {value: 'Arctic Ocean', label: 'Arctic Ocean'},
-  {value: 'Indian Ocean', label: 'Indian Ocean'},
-  {value: 'Pacific Ocean', label: 'Pacific Ocean'},
-  {value: 'Southern Ocean', label: 'Southern Ocean'}
+  {value: 'ATLANTIC', label: 'Atlantic Ocean'},
+  {value: 'ARCTIC', label: 'Arctic Ocean'},
+  {value: 'INDIAN', label: 'Indian Ocean'},
+  {value: 'PACIFIC', label: 'Pacific Ocean'},
+  {value: 'SOUTHERN', label: 'Southern Ocean'}
 ];
 
 export const countries = [
@@ -260,6 +260,11 @@ export const countries = [
   {value: 'YE', label: 'Yemen'},
   {value: 'ZM', label: 'Zambia'},
   {value: 'ZW', label: 'Zimbabwe'}
+];
+
+export const regions = [
+  ...oceans,
+  ...countries
 ];
 
 export const languages = [

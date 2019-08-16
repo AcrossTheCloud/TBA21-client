@@ -32,6 +32,7 @@ import {
   itemText,
   itemVideo
 } from '../../types/Item';
+
 import {
   countries,
   itemAudioSubTypes,
@@ -39,7 +40,8 @@ import {
   itemTextSubTypes,
   itemVideoSubTypes, languages,
   licenseType,
-  oceans
+  oceans,
+  regions as selectableRegions
 } from './SelectOptions';
 
 import Tags from './Tags';
@@ -84,7 +86,7 @@ const defaultRequiredFields = (item: Item) => {
     description,
     time_produced,
     item_subtype,
-    country_or_ocean,
+    regions,
     focus_arts,
     focus_action,
     focus_scitech,
@@ -101,14 +103,14 @@ const defaultRequiredFields = (item: Item) => {
   }
 
   return {
-    'title': (title !== null && title.length > 0),
-    'description': (description !== null && description.length > 0),
-    'time_produced': (time_produced !== null && time_produced.length > 0),
-    'item_subtype': (item_subtype !== null && item_subtype.length > 0),
-    'country_or_ocean': (country_or_ocean !== null && country_or_ocean.length > 0),
-    'focus_arts': (focus_arts !== null && focus_arts.toString().length > 0),
-    'focus_action': (focus_action !== null && focus_action.toString().length > 0),
-    'focus_scitech': (focus_scitech !== null && focus_scitech.toString().length > 0),
+    'title': (!!title && title.length > 0),
+    'description': (!!description && description.length > 0),
+    'time_produced': (!!time_produced && time_produced.length > 0),
+    'item_subtype': (!!item_subtype && item_subtype.length > 0),
+    'regions': (!!regions && regions.length > 0),
+    'focus_arts': (!!focus_arts && focus_arts.toString().length > 0),
+    'focus_action': (!!focus_action && focus_action.toString().length > 0),
+    'focus_scitech': (!!focus_scitech && focus_scitech.toString().length > 0),
     'concept_tags': conceptTags
   };
 };
@@ -2175,7 +2177,7 @@ export class ItemEditor extends React.Component<Props, State> {
       item = this.state.changedItem,
       conceptTags = item.aggregated_concept_tags ? item.aggregated_concept_tags.map( t => ({ id: t.id, value: t.id, label: t.tag_name }) ) : [],
       keywordTags = item.aggregated_keyword_tags ? item.aggregated_keyword_tags.map( t => ({ id: t.id, value: t.id, label: t.tag_name }) ) : [],
-      countryOrOcean = item.country_or_ocean ? countries.find( c => c.value === item.country_or_ocean ) || oceans.find( c => c.value === item.country_or_ocean ) : null;
+      selectedRegions = !!item.regions ? selectableRegions.filter(s => !!item.regions ? item.regions.find(a => a === s.value) : false) : [];
 
     if (this.state.hideForm) {
       return (
@@ -2308,9 +2310,9 @@ export class ItemEditor extends React.Component<Props, State> {
                     </FormGroup>
 
                     <FormGroup>
-                      <Label for="country_or_ocean">Location</Label>
-                      <Select menuPlacement="auto" className="country_or_ocean" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries }]} value={[countryOrOcean]} onChange={e => this.validateLength('country_or_ocean', e.value)} isSearchable/>
-                      <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('country_or_ocean') && !this.state.validate.country_or_ocean ? 'block' : 'none') }}>This is a required field</FormFeedback>
+                      <Label for="regions">Location</Label>
+                      <Select isMulti isSearchable menuPlacement="auto" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries } ]} defaultValue={selectedRegions} onChange={e => this.validateLength('regions', !!e && e.length ? e.map(r => r.value) : [])} />
+                      <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('regions') && !this.state.validate.regions ? 'block' : 'none') }}>This is a required field</FormFeedback>
                     </FormGroup>
 
                     <FormGroup>

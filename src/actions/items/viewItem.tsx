@@ -1,5 +1,5 @@
 import { API } from 'aws-amplify';
-import { sdkGetObject } from '../../components/utils/s3File';
+import { getCDNObject } from '../../components/utils/s3File';
 import { Item } from '../../types/Item';
 import { S3File } from '../../types/s3File';
 
@@ -20,7 +20,7 @@ export const fetchItem = (s3key: string) => async (dispatch, getState) => {
   const checkFile = async (item: Item): Promise<S3File | false> => {
     try {
       if (item.file && item.file.url) { return item.file; }
-      return await sdkGetObject(item.s3_key);
+      return await getCDNObject(item.s3_key);
     } catch (e) {
       return false;
     }
