@@ -11,7 +11,7 @@ export const fetchItems = () => async dispatch => {
   try {
     const response = await API.get('tba21', 'items/get', {
       queryStringParameters : {
-        limit: 2
+        limit: 10
       }});
     if (!response || response.items) {
       dispatch({

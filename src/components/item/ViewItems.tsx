@@ -8,11 +8,12 @@ import { Alerts } from '../utils/alerts';
 import { Item } from '../../types/Item';
 import { fetchItems, fetchMoreItems } from '../../actions/items/viewItems';
 import { State } from '../../reducers/items/viewItems';
-import { sdkGetObject } from '../utils/s3File';
+import { getCDNObject } from '../utils/s3File';
 
-import 'styles/components/ViewItems.scss';
 import { S3File } from '../../types/s3File';
 import { AudioPlayer } from '../utils/AudioPlayer';
+
+import 'styles/components/ViewItems.scss';
 
 interface Props extends Alerts {
   fetchItems: Function;
@@ -47,8 +48,10 @@ const MasonryItem = ( props: { item: Item } ): JSX.Element => {
 
   React.useEffect(() => {
     const getFile = async (key: string) => {
-      const result = await sdkGetObject(props.item.s3_key);
-      if (result && result.url && result.type && mounted.current) {
+      const result = await getCDNObject(props.item.s3_key);
+
+      // const result = await sdkGetObject(props.item.s3_key);
+      if (result && mounted.current) {
         setItem({ ...props.item, file: result });
       }
     };
