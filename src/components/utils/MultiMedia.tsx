@@ -13,13 +13,13 @@ export class MultiMedia extends React.Component<MultiMediaProps, {}> {
   render () {
     let element: JSX.Element;
 
-    if (this.props.file.item_type === 'Video') {
+    if (this.props.file.type === 'video') {
       element = (
           <div className="embed-responsive embed-responsive-4by3">
             <ReactPlayer className="embed-responsive-item" url={this.props.file.url} width="400px" height="auto" playing={true} loop={true} vertical-align="top" />
           </div>
       );
-    } else if (this.props.file.item_type === 'Image') {
+    } else if (this.props.file.type === 'image') {
       element = <img alt="" className="img-fluid" src={this.props.file.url} />;
     } else {
       element = <a href={this.props.file.url} target="_blank" rel="noopener noreferrer">link</a>;

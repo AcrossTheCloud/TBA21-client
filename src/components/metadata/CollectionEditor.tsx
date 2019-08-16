@@ -1434,7 +1434,7 @@ export class CollectionEditor extends React.Component<Props, State> {
                     <FormGroup>
                       <legend>Focus</legend>
                       <Label for="art">Art</Label>
-                      <Focus id="focus_arts" defaultValue={focus_arts ? focus_arts : undefined} colour="#0076FF" onChange={e => this.validateLength('focus_arts', e.toString())} />
+                      <Focus id="focus_arts" defaultValue={focus_arts ? focus_arts : undefined} colour="#0076FF<Con" onChange={e => this.validateLength('focus_arts', e.toString())} />
                       <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('focus_arts') && !this.state.validate.focus_arts ? 'block' : 'none') }}>This is a required field</FormFeedback>
 
                       <Label for="scitech">Sci Tech</Label>

@@ -167,7 +167,7 @@ export class ItemEditor extends React.Component<Props, State> {
         const getFileResult = await sdkGetObject(this.state.originalItem.s3_key);
         const data = {
           originalItem: { ...response.item, file: getFileResult },
-          changedItem: { ...response.item, file: getFileResult, item_type: (getFileResult && getFileResult.item_type) ? getFileResult.item_type.substr(0, 1).toUpperCase() : null }
+          changedItem: { ...response.item, file: getFileResult, type: (getFileResult && getFileResult.type) ? getFileResult.type.substr(0, 1).toUpperCase() : null }
         };
         Object.assign(state, data);
 
@@ -2305,7 +2305,7 @@ export class ItemEditor extends React.Component<Props, State> {
                     <FormGroup>
                       <Label for="creators">Creator(s)</Label>
                       <CustomSelect values={!!item.creators ? item.creators : []} callback={values => this.validateLength('creators', values)} />
-                      {/*<FormFeedback style={{ display: (this.state.validate.hasOwnProperty('creators') && !this.state.validate.creators ? 'block' : 'none') }}>This is a required field</FormFeedback>*/}
+                      <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('creators') && !this.state.validate.creators ? 'block' : 'none') }}>This is a required field</FormFeedback>
                       <FormText>Use tab or enter to add a new Creator.</FormText>
                     </FormGroup>
 
@@ -2411,12 +2411,12 @@ export class ItemEditor extends React.Component<Props, State> {
                 {item.item_subtype === itemText.Historical_Text ? <this.TextHistoricalText /> : <></>}
                 {item.item_subtype === itemText.Event_Press ? <this.TextEventPress /> : <></>}
                 {item.item_subtype === itemText.Toolkit ? <this.TextToolkit /> : <></>}
-                {(!!item.file && item.file.item_type === 'Text') && item.item_subtype === itemText.Other ? <this.TextOther /> : <></>}
+                {(!!item.file && item.file.type === 'text') && item.item_subtype === itemText.Other ? <this.TextOther /> : <></>}
 
                 {/* Item Video */}
                 {item.item_subtype === itemVideo.Movie ? <this.VideoMovieTrailer /> : <></>}
                 {item.item_subtype === itemVideo.Documentary ? <this.VideoDocumentaryArt /> : <></>}
-                {(!!item.file && item.file.item_type === 'Video') && item.item_subtype === itemVideo.Research ? <this.VideoResearch /> : <></>}
+                {(!!item.file && item.file.type === 'video') && item.item_subtype === itemVideo.Research ? <this.VideoResearch /> : <></>}
                 {item.item_subtype === itemVideo.Interview ? <this.VideoInterview /> : <></>}
                 {item.item_subtype === itemVideo.Art ? <this.VideoDocumentaryArt /> : <></>}
                 {item.item_subtype === itemVideo.News_Journalism ? <this.VideoNewsJournalism /> : <></>}
@@ -2425,7 +2425,7 @@ export class ItemEditor extends React.Component<Props, State> {
                 {item.item_subtype === itemVideo.Trailer ? <this.VideoMovieTrailer /> : <></>}
                 {item.item_subtype === itemVideo.Artwork_Documentation ? <this.VideoArtworkDocumentation /> : <></>}
                 {item.item_subtype === itemVideo.Raw_Footage ? <this.VideoRawFootage /> : <></>}
-                {(!!item.file && item.file.item_type === 'Video') && item.item_subtype === itemVideo.Other ? <this.VideoOther /> : <></>}
+                {(!!item.file && item.file.type === 'video') && item.item_subtype === itemVideo.Other ? <this.VideoOther /> : <></>}
 
                 { // Item Image
                   item.item_subtype === itemImage.Photograph ||
@@ -2437,11 +2437,11 @@ export class ItemEditor extends React.Component<Props, State> {
 
                 {
                   item.item_subtype === itemImage.Digital_Art ||
-                  (!!item.file && item.file.item_type === 'Image' && item.item_subtype === itemImage.Other) ? <this.ItemDigitalArtOther />
+                  (!!item.file && item.file.type === 'image' && item.item_subtype === itemImage.Other) ? <this.ItemDigitalArtOther />
                   : <></>
                 }
 
-                {(!!item.file && item.file.item_type === 'Image') && item.item_subtype === itemImage.Research ? <this.ImageResearch /> : <></>}
+                {(!!item.file && item.file.type === 'image') && item.item_subtype === itemImage.Research ? <this.ImageResearch /> : <></>}
                 {item.item_subtype === itemImage.Graphics ? <this.ImageGraphics /> : <></>}
                 {item.item_subtype === itemImage.Map ? <this.ImageMap /> : <></>}
                 {item.item_subtype === itemImage.Film_Still ? <this.ImageFilmStill /> : <></>}
@@ -2455,7 +2455,7 @@ export class ItemEditor extends React.Component<Props, State> {
                 {item.item_subtype === itemAudio.Interview ? <this.AudioInterview /> : <></>}
                 {item.item_subtype === itemAudio.Radio ? <this.AudioRadio /> : <></>}
                 {item.item_subtype === itemAudio.Performance_Poetry ? <this.AudioPerformancePoetry /> : <></>}
-                {(!!item.file && item.file.item_type === 'Audio') && item.item_subtype === itemAudio.Other ? <this.AudioOther /> : <></>}
+                {(!!item.file && item.file.type === 'audio') && item.item_subtype === itemAudio.Other ? <this.AudioOther /> : <></>}
 
               </TabPane>
             </TabContent>

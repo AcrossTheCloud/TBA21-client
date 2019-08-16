@@ -265,10 +265,10 @@ export interface APITag {
 }
 
 enum itemType {
-  Video = 'Video',
-  Text = 'Text',
-  Audio = 'Audio',
-  Image = 'Image'
+  video = 'Video',
+  text = 'Text',
+  audio = 'Audio',
+  image = 'Image'
 }
 
 export enum itemText {
