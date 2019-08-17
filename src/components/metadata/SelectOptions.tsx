@@ -3,11 +3,11 @@ import { collectionTypes as Types } from '../../types/Collection';
 import { License } from '../../types/License';
 
 export const oceans = [
-  {value: 'Atlantic Ocean', label: 'Atlantic Ocean'},
-  {value: 'Arctic Ocean', label: 'Arctic Ocean'},
-  {value: 'Indian Ocean', label: 'Indian Ocean'},
-  {value: 'Pacific Ocean', label: 'Pacific Ocean'},
-  {value: 'Southern Ocean', label: 'Southern Ocean'}
+  {value: 'ATLANTIC', label: 'Atlantic Ocean'},
+  {value: 'ARCTIC', label: 'Arctic Ocean'},
+  {value: 'INDIAN', label: 'Indian Ocean'},
+  {value: 'PACIFIC', label: 'Pacific Ocean'},
+  {value: 'SOUTHERN', label: 'Southern Ocean'}
 ];
 
 export const countries = [
@@ -262,6 +262,11 @@ export const countries = [
   {value: 'ZW', label: 'Zimbabwe'}
 ];
 
+export const regions = [
+  ...oceans,
+  ...countries
+];
+
 export const languages = [
   {value: 'AR', label: 'Arabic'},
   {value: 'BG', label: 'Bulgarian'},
@@ -387,7 +392,7 @@ export const licenseType = [
   {value: License.CC_BY_NC, label: 'CC BY-NC'},
   {value: License.CC_BY_NC_SA, label: 'CC BY-NC-SA'},
   {value: License.CC_BY_NC_ND, label: 'CC BY-NC-ND'},
-  {value: License.LOCKED, label: 'Locked'}
+  {value: License.LOCKED, label: 'Ocean Archive'}
 ];
 
 export const itemTextSubTypes = [

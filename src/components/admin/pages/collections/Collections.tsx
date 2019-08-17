@@ -17,7 +17,7 @@ import 'styles/components/admin/tables/modal.scss';
 
 interface State extends Alerts {
   collections: Collection[];
-  editingCollection?: Collection;
+  editingCollectionIndex?: number;
   // items?: items[];
 
   componentModalOpen: boolean;
@@ -72,7 +72,7 @@ export default class Collections extends React.Component<{}, State> {
         formatter: (e, row, rowIndex) => {
           return (
             <>
-              <Button color="warning" size="sm" onClick={() => this.onEditButtonClick(row)}>Edit</Button>
+              <Button color="warning" size="sm" onClick={() => this.onEditButtonClick(rowIndex)}>Edit</Button>
             </>
           );
         }
@@ -129,16 +129,18 @@ export default class Collections extends React.Component<{}, State> {
     }
   }
 
-  onEditButtonClick = (collections: Collection) => {
+  onEditButtonClick = (collectionIndex: number) => {
+    if (!this._isMounted) { return; }
     this.setState(
       {
         componentModalOpen: true,
-        editingCollection: collections,
+        editingCollectionIndex: collectionIndex,
       }
     );
   }
 
   componentModalToggle = () => {
+    if (!this._isMounted) { return; }
     this.setState( prevState => ({
        ...prevState,
        componentModalOpen: !prevState.componentModalOpen
@@ -149,6 +151,7 @@ export default class Collections extends React.Component<{}, State> {
   handleTableChange = async (type, { page, sizePerPage }): Promise<void> => {
     if (type === 'pagination') {
       const currentIndex = (page - 1) * sizePerPage;
+      if (!this._isMounted) { return; }
       this.setState({ tableIsLoading: true });
 
       try {
@@ -166,6 +169,7 @@ export default class Collections extends React.Component<{}, State> {
         }
 
       } catch (e) {
+        if (!this._isMounted) { return; }
         this.setState({page: this.state.page - 1, errorMessage: `We've had some trouble getting the list of collections.`, tableIsLoading: false});
       }
     }
@@ -196,7 +200,20 @@ export default class Collections extends React.Component<{}, State> {
         <Modal isOpen={this.state.componentModalOpen} className="tableModal fullwidth">
           <ModalBody>
             {
-              this.state.editingCollection ? <CollectionEditor editMode={true} collection={this.state.editingCollection}/> : <></>
+              typeof this.state.editingCollectionIndex !== 'undefined' && this.state.editingCollectionIndex >= 0 ?
+                <CollectionEditor
+                    editMode={true}
+                    collection={this.state.collections[this.state.editingCollectionIndex]}
+                    onChange={c => {
+                      if (this._isMounted && typeof this.state.editingCollectionIndex !== 'undefined' && this.state.editingCollectionIndex >= 0) {
+                        const stateCollections = this.state.collections;
+                        stateCollections[this.state.editingCollectionIndex] = c;
+                        this.setState({ collections: stateCollections });
+                      }
+                    }}
+                />
+            :
+              <></>
             }
 
           </ModalBody>

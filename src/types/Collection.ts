@@ -1,7 +1,4 @@
-import { APITag } from './Item';
-
-import { User } from './User';
-import { Ocean } from './Ocean';
+import { APITag, Regions } from './Item';
 import { License } from './License';
 
 export enum collectionTypes {
@@ -39,10 +36,10 @@ export interface Collection {
   place?: string | null;
 
   regional_focus?: string | null;
-  country_or_ocean?: Ocean | string | null;
+  regions?: Regions[] | null;
 
   creators?: string[] | null;
-  contributors?: User[] | string | null;
+  contributors?: string[] | null;
 
   directors?: string[] | null;
   writers?: string | null;

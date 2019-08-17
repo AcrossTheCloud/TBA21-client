@@ -1,6 +1,6 @@
 import * as React from 'react';
 import CreatableSelect from 'react-select/creatable';
-import { SelectObject } from '../../utils/react-select';
+import { createOption, SelectObject } from '../../utils/react-select';
 import { range } from 'lodash';
 
 interface Props {
@@ -11,11 +11,6 @@ interface State {
   value: SelectObject;
   inputValue: string;
 }
-
-const createOption = (label: string): SelectObject => ({
-  label,
-  value: label,
-});
 
 export default class YearSelect extends React.Component<Props, State> {
   listOfYears;

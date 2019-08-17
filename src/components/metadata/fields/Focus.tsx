@@ -5,7 +5,7 @@ import { CSSProperties } from 'react';
 interface Props {
   id: string;
   colour: string;
-  defaultValue?: number | undefined;
+  defaultValue?: string | number | undefined;
   onChange: Function;
 }
 interface State {
@@ -19,7 +19,11 @@ export default class Focus extends React.Component<Props, State> {
     super(props);
     this._isMounted = false;
 
-    const { defaultValue } = this.props;
+    let { defaultValue } = this.props;
+
+    if (typeof defaultValue === 'string') {
+      defaultValue = parseInt(defaultValue, 0);
+    }
 
     this.state = {
       value: !!defaultValue ? defaultValue : null

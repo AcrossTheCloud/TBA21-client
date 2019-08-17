@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { Button } from 'reactstrap';
+import { debounce } from 'lodash';
 
 import { AuthConsumer } from '../providers/AuthProvider';
 import { logoDispatch } from 'actions/home';
@@ -15,6 +16,33 @@ export interface Props {
 }
 
 class HomePage extends React.Component<Props, {}> {
+  _isMounted;
+  scrollDebounce;
+
+  constructor(props: Props) {
+    super(props);
+    this._isMounted = false;
+
+    this.scrollDebounce = debounce( () => this.handleScroll(), 300);
+  }
+
+  componentDidMount(): void {
+    this._isMounted = true;
+    window.addEventListener('scroll', this.scrollDebounce, false);
+  }
+
+  componentWillUnmount = () => {
+    this._isMounted = false;
+    window.removeEventListener('scroll', this.scrollDebounce, false);
+  }
+
+  handleScroll = () => {
+    console.log('scrolled');
+    if (window.innerHeight + document.documentElement.scrollTop === document.documentElement.offsetHeight) {
+      console.log('At the bottom');
+    }
+  }
+
   render() {
     return (
       <div id="home" className="flex-fill">
