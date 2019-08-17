@@ -34,6 +34,7 @@ import Focus from './fields/Focus';
 import ShortPaths from '../admin/utils/ShortPaths';
 import Contributors from './fields/Contributors';
 import { AuthContext } from '../../providers/AuthProvider';
+import { License } from '../../types/License';
 
 interface Props {
   collection?: Collection;
@@ -228,9 +229,14 @@ export class CollectionEditor extends React.Component<Props, State> {
             // || key === 'id' // use this to exclude things, you shouldn't need to (eg don't put them in changedFields...
           );
         })
-        .forEach( tag => {
-          Object.assign(collectionProperties, { [tag[0]]: tag[1] });
+        .forEach( field => {
+          Object.assign(collectionProperties, { [field[0]]: field[1] });
         });
+
+      // If no license assign OA
+      if (!collectionProperties.hasOwnProperty('license')) {
+        Object.assign(collectionProperties, { 'license': 'Ocean Archive' });
+      }
 
       const result = await API.put('tba21', `admin/collections/${editMode ? 'update' : 'create'}`, {
         body: {
@@ -1378,7 +1384,7 @@ export class CollectionEditor extends React.Component<Props, State> {
 
                     <FormGroup>
                       <Label for="license_type">License</Label>
-                      <Select menuPlacement="auto" id="license_type" options={licenseType} value={license ? {value: license, label: license} : []} onChange={e => this.changeCollection('license', e.label)} isSearchable/>
+                      <Select menuPlacement="auto" className="license_type" options={licenseType} value={license ? {value: license, label: license} : { value: License.LOCKED, label: License.LOCKED }} onChange={e => this.changeCollection('license', e.label)} isSearchable/>
                     </FormGroup>
 
                     <FormGroup>

@@ -55,6 +55,7 @@ import Focus from './fields/Focus';
 import ShortPaths from '../admin/utils/ShortPaths';
 
 import 'styles/components/metadata/itemEditor.scss';
+import { License } from '../../types/License';
 
 interface Props {
   item: Item;
@@ -263,9 +264,14 @@ export class ItemEditor extends React.Component<Props, State> {
             || key === 'id' // use this to exclude things, you shouldn't need to (eg don't put them in changedFields...
           );
         })
-        .forEach( tag => {
-          Object.assign(itemsProperties, { [tag[0]]: tag[1] });
+        .forEach( field => {
+          Object.assign(itemsProperties, { [field[0]]: field[1] });
         });
+
+      // If no license assign OA
+      if (!itemsProperties.hasOwnProperty('license')) {
+        Object.assign(itemsProperties, { 'license': 'Ocean Archive' });
+      }
 
       // Assign s3_key
       Object.assign(itemsProperties, { 's3_key': this.state.originalItem.s3_key });
@@ -2328,7 +2334,7 @@ export class ItemEditor extends React.Component<Props, State> {
 
                     <FormGroup>
                       <Label for="license_type">License</Label>
-                      <Select menuPlacement="auto" className="license_type" options={licenseType} value={item.license ? {value: item.license, label: item.license} : []} onChange={e => this.changeItem('license', e.label)} isSearchable/>
+                      <Select menuPlacement="auto" className="license_type" options={licenseType} value={item.license ? {value: item.license, label: item.license} : { value: License.LOCKED, label: License.LOCKED }} onChange={e => this.changeItem('license', e.label)} isSearchable/>
                     </FormGroup>
 
                     <FormGroup>

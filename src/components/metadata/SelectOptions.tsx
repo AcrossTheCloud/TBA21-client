@@ -392,7 +392,7 @@ export const licenseType = [
   {value: License.CC_BY_NC, label: 'CC BY-NC'},
   {value: License.CC_BY_NC_SA, label: 'CC BY-NC-SA'},
   {value: License.CC_BY_NC_ND, label: 'CC BY-NC-ND'},
-  {value: License.LOCKED, label: 'Locked'}
+  {value: License.LOCKED, label: 'Ocean Archive'}
 ];
 
 export const itemTextSubTypes = [
