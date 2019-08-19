@@ -51,6 +51,7 @@ import ShortPaths from '../admin/utils/ShortPaths';
 
 import 'styles/components/metadata/itemEditor.scss';
 import { License } from '../../types/License';
+import { Link } from 'react-router-dom';
 
 interface Props {
   item: Item;
@@ -2132,6 +2133,17 @@ export class ItemEditor extends React.Component<Props, State> {
                 </UncontrolledButtonDropdown>
               </Col>
             </Row>
+            <Row>
+              <Col>
+                By checking this box you agree to the Ocean Archives <Link to="/terms-and-conditions">Terms and Conditions</Link>
+                <FormGroup check>
+                  <Label check>
+                    <Input type="checkbox" />{' '}
+                    I agree
+                  </Label>
+                </FormGroup>
+              </Col>
+            </Row>
           </Col>
 
           <Col md="8">
@@ -2228,11 +2240,6 @@ export class ItemEditor extends React.Component<Props, State> {
                     <FormGroup>
                       <Label for="copyright_holder">Copyright Owner</Label>
                       <Input type="text" className="copyright_holder" defaultValue={item.copyright_holder ? item.copyright_holder : ''} onChange={e => this.changeItem('copyright_holder', e.target.value)}/>
-                    </FormGroup>
-
-                    <FormGroup>
-                      <Label for="copyright_country">Copyright Country</Label>
-                      <Select menuPlacement="auto" className="copyright_country" options={countries} value={[item.copyright_country ? countries.find(c => c.value === item.copyright_country) : null]} onChange={e => this.changeItem('copyright_country', e.value)} isSearchable/>
                     </FormGroup>
 
                     <FormGroup>
