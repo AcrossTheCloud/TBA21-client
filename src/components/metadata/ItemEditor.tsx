@@ -2133,17 +2133,6 @@ export class ItemEditor extends React.Component<Props, State> {
                 </UncontrolledButtonDropdown>
               </Col>
             </Row>
-            <Row>
-              <Col>
-                By checking this box you agree to the Ocean Archives <Link to="/terms-and-conditions">Terms and Conditions</Link>
-                <FormGroup check>
-                  <Label check>
-                    <Input type="checkbox" />{' '}
-                    I agree
-                  </Label>
-                </FormGroup>
-              </Col>
-            </Row>
           </Col>
 
           <Col md="8">
