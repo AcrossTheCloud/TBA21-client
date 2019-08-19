@@ -44,14 +44,13 @@ import Tags from './Tags';
 import { sdkGetObject } from '../utils/s3File';
 import { Alerts, ErrorMessage, SuccessMessage, WarningMessage } from '../utils/alerts';
 import { AudioPlayer } from '../utils/AudioPlayer';
+import { License } from '../../types/License';
 
 import CustomSelect from './fields/CustomSelect';
 import { validateURL } from '../utils/inputs/url';
 import ShortPaths from '../admin/utils/ShortPaths';
 
 import 'styles/components/metadata/itemEditor.scss';
-import { License } from '../../types/License';
-import { Link } from 'react-router-dom';
 
 interface Props {
   item: Item;
