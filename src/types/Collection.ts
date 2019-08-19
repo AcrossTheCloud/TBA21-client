@@ -93,10 +93,10 @@ export interface Collection {
   installation_name?: string[] | null;
 
   host_organisation?: string[] | null;
-  focus_arts?: number | null;
 
-  focus_action?: number | null;
-  focus_scitech?: number | null;
+  focus_arts?: string | null;
+  focus_action?: string | null;
+  focus_scitech?: string | null;
 
   city_of_publication?: string | null;
   media_type?: string | null;

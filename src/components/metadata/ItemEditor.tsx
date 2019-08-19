@@ -8,7 +8,8 @@ import {
   DropdownToggle,
   Form,
   FormFeedback,
-  FormGroup, FormText,
+  FormGroup,
+  FormText,
   Input,
   InputGroup,
   Label,
@@ -23,22 +24,17 @@ import {
 
 import { API } from 'aws-amplify';
 import Select from 'react-select';
-import { isEqual, isArray } from 'lodash';
+import { isArray, isEqual } from 'lodash';
 
-import {
-  Item,
-  itemAudio,
-  itemImage,
-  itemText,
-  itemVideo
-} from '../../types/Item';
+import { Item, itemAudio, itemImage, itemText, itemVideo } from '../../types/Item';
 
 import {
   countries,
   itemAudioSubTypes,
   itemImageSubTypes,
   itemTextSubTypes,
-  itemVideoSubTypes, languages,
+  itemVideoSubTypes,
+  languages,
   licenseType,
   oceans,
   regions as selectableRegions
@@ -51,7 +47,6 @@ import { AudioPlayer } from '../utils/AudioPlayer';
 
 import CustomSelect from './fields/CustomSelect';
 import { validateURL } from '../utils/inputs/url';
-import Focus from './fields/Focus';
 import ShortPaths from '../admin/utils/ShortPaths';
 
 import 'styles/components/metadata/itemEditor.scss';
@@ -88,9 +83,6 @@ const defaultRequiredFields = (item: Item) => {
     time_produced,
     item_subtype,
     regions,
-    focus_arts,
-    focus_action,
-    focus_scitech,
     aggregated_concept_tags,
     concept_tags
   } = item;
@@ -109,9 +101,6 @@ const defaultRequiredFields = (item: Item) => {
     'time_produced': (!!time_produced && time_produced.length > 0),
     'item_subtype': (!!item_subtype && item_subtype.length > 0),
     'regions': (!!regions && regions.length > 0),
-    'focus_arts': (!!focus_arts && focus_arts.toString().length > 0),
-    'focus_action': (!!focus_action && focus_action.toString().length > 0),
-    'focus_scitech': (!!focus_scitech && focus_scitech.toString().length > 0),
     'concept_tags': conceptTags
   };
 };
@@ -228,11 +217,13 @@ export class ItemEditor extends React.Component<Props, State> {
       }
     );
 
-    const state = {
-      isLoading: false
-    };
+    const
+      state = {
+        isLoading: false
+      },
+      item = this.state.changedFields,
+      invalidFields = Object.entries(this.state.validate).filter(v => v[1] === false).map(([key, val]) => key);
 
-    const invalidFields = Object.entries(this.state.validate).filter(v => v[1] === false).map(([key, val]) => key);
     if (invalidFields.length > 0) {
       const message: JSX.Element = (
         <>
@@ -247,6 +238,24 @@ export class ItemEditor extends React.Component<Props, State> {
       return;
     }
 
+    if (
+      // If no Focus has been checked
+      !this.state.changedItem.focus_arts &&
+      !this.state.changedItem.focus_scitech &&
+      !this.state.changedItem.focus_action
+    ) {
+      Object.assign(state, { errorMessage: <>You need to select at least one Focus area.</> });
+      if (!this._isMounted) { return; }
+      this.setState(state);
+      return;
+    } else {
+      Object.assign(item, {
+        focus_arts: !this.state.changedItem.focus_arts ? 0 : 1,
+        focus_scitech: !this.state.changedItem.focus_scitech ? 0 : 1,
+        focus_action: !this.state.changedItem.focus_action ? 0 : 1
+      });
+    }
+
     // If we don't have a short path and we've published our item
     if (!this.state.hasShortPath && this.state.changedItem.status && this._isMounted) {
       this.setState({ isLoading: false, errorMessage: <>The item needs a url slug</> });
@@ -257,7 +266,7 @@ export class ItemEditor extends React.Component<Props, State> {
       const itemsProperties = {};
 
       // We filter out specific values here as the API doesn't accept them, but returns them in the Item object.
-      Object.entries(this.state.changedFields)
+      Object.entries(item)
         .filter( ([key, value]) => {
           return !(
             value === null
@@ -328,6 +337,7 @@ export class ItemEditor extends React.Component<Props, State> {
         Object.assign(changedItem, { [key]: this.state.originalItem[key] });
       }
     }
+
     if (!this._isMounted) { return; }
     this.setState(
       {
@@ -2259,18 +2269,32 @@ export class ItemEditor extends React.Component<Props, State> {
                     </FormGroup>
 
                     <FormGroup>
-                      <legend>Focus</legend>
-                      <Label for="art">Art</Label>
-                      <Focus id="focus_arts" defaultValue={item.focus_arts ? item.focus_arts : undefined} colour="#0076FF" onChange={e => this.validateLength('focus_arts', e.toString())} />
-                      <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('focus_arts') && !this.state.validate.focus_arts ? 'block' : 'none') }}>This is a required field</FormFeedback>
-
-                      <Label for="scitech">Sci Tech</Label>
-                      <Focus id="focus_scitech" defaultValue={item.focus_scitech ? item.focus_scitech : undefined} colour="#9013FE" onChange={e => this.validateLength('focus_scitech', e.toString())} />
-                      <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('focus_scitech') && !this.state.validate.focus_scitech ? 'block' : 'none') }}>This is a required field</FormFeedback>
-
-                      <Label for="action">Action</Label>
-                      <Focus id="focus_action" defaultValue={item.focus_action ? item.focus_action : undefined} colour="#50E3C2" onChange={e => this.validateLength('focus_action', e.toString())} />
-                      <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('focus_action') && !this.state.validate.focus_action ? 'block' : 'none') }}>This is a required field</FormFeedback>
+                        <legend>Focus</legend>
+                        {
+                          !item.focus_arts &&
+                          !item.focus_scitech &&
+                          !item.focus_action ?
+                            <FormFeedback style={{display: 'block'}}>You need to select at least one Focus area.</FormFeedback>
+                            : <></>
+                        }
+                    </FormGroup>
+                    <FormGroup row className="my-0 align-items-center">
+                      <Label for={`${item.s3_key}_focus_arts`} sm="2">Art</Label>
+                      <Col sm="10">
+                        <CustomInput type="checkbox" id={`${item.s3_key}_focus_arts`} defaultChecked={!!item.focus_arts && parseInt(item.focus_arts, 0) > 0} onChange={e => this.changeItem('focus_arts', e.target.checked)}/>
+                      </Col>
+                    </FormGroup>
+                    <FormGroup row className="my-0 align-items-center">
+                      <Label for={`${item.s3_key}_focus_scitech`} sm="2">Sci Tech</Label>
+                      <Col sm="10">
+                        <CustomInput type="checkbox" id={`${item.s3_key}_focus_scitech`} defaultChecked={!!item.focus_scitech && parseInt(item.focus_scitech, 0) > 0} onChange={e => this.changeItem('focus_scitech', e.target.checked)}/>
+                      </Col>
+                    </FormGroup>
+                    <FormGroup row className="my-0 align-items-center">
+                      <Label for={`${item.s3_key}_focus_action`} sm="2">Action</Label>
+                      <Col sm="10">
+                        <CustomInput type="checkbox" id={`${item.s3_key}_focus_action`} defaultChecked={!!item.focus_action && parseInt(item.focus_action, 0) > 0} onChange={e => this.changeItem('focus_action', e.target.checked)}/>
+                      </Col>
                     </FormGroup>
 
                   </Col>

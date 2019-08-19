@@ -30,7 +30,6 @@ import YearSelect from './fields/YearSelect';
 import { validateURL } from '../utils/inputs/url';
 import { Items } from './Items';
 import CustomSelect from './fields/CustomSelect';
-import Focus from './fields/Focus';
 import ShortPaths from '../admin/utils/ShortPaths';
 import Contributors from './fields/Contributors';
 import { AuthContext } from '../../providers/AuthProvider';
@@ -69,9 +68,6 @@ const defaultRequiredFields = (collection: Collection) => {
   const {
     title,
     description,
-    focus_arts,
-    focus_action,
-    focus_scitech,
     concept_tags,
     aggregated_concept_tags,
     contributors,
@@ -89,9 +85,6 @@ const defaultRequiredFields = (collection: Collection) => {
   return {
     'title': (!!title && !!title.length),
     'description': (!!description && !!description.length),
-    'focus_arts': (!!focus_arts && !!focus_arts.toString().length),
-    'focus_action': (!!focus_action && !!focus_action.toString().length),
-    'focus_scitech': (!!focus_scitech && !!focus_scitech.toString().length),
     'concept_tags': conceptTags,
     'contributors': (!!contributors && !!contributors.toString().length),
     'type': (!!type && !!type.length)
@@ -197,6 +190,18 @@ export class CollectionEditor extends React.Component<Props, State> {
       return;
     }
 
+    if (
+      // If no Focus has been checked
+      !this.state.collection.focus_arts &&
+      !this.state.collection.focus_scitech &&
+      !this.state.collection.focus_action
+    ) {
+      Object.assign(state, { errorMessage: <>You need to select at least one Focus area.</> });
+      if (!this._isMounted) { return; }
+      this.setState(state);
+      return;
+    }
+
     // If we don't have a short path and we've published our collection
     if (!this.state.hasShortPath && this.state.collection.status && this._isMounted) {
       this.setState({ errorMessage: <>The collection needs a url slug</> });
@@ -220,6 +225,12 @@ export class CollectionEditor extends React.Component<Props, State> {
       if (this.state.collection.items) {
         Object.assign(collectionProperties, { items: this.state.collection.items });
       }
+
+      Object.assign(fields, {
+        focus_arts: this.state.collection.focus_arts ? 1 : 0,
+        focus_scitech: this.state.collection.focus_scitech ? 1 : 0,
+        focus_action: this.state.collection.focus_action ? 1 : 0
+      });
 
       // We filter out specific values here as the API doesn't accept them, but returns them in the Item object.
       Object.entries(fields)
@@ -1232,12 +1243,13 @@ export class CollectionEditor extends React.Component<Props, State> {
       location,
       copyright_holder,
       copyright_country,
-      focus_arts,
-      focus_scitech,
-      focus_action,
 
       regions,
       license,
+
+      focus_arts,
+      focus_scitech,
+      focus_action,
 
       aggregated_keyword_tags,
       aggregated_concept_tags,
@@ -1439,17 +1451,31 @@ export class CollectionEditor extends React.Component<Props, State> {
 
                     <FormGroup>
                       <legend>Focus</legend>
-                      <Label for="art">Art</Label>
-                      <Focus id="focus_arts" defaultValue={focus_arts ? focus_arts : undefined} colour="#0076FF" onChange={e => this.validateLength('focus_arts', e.toString())} />
-                      <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('focus_arts') && !this.state.validate.focus_arts ? 'block' : 'none') }}>This is a required field</FormFeedback>
-
-                      <Label for="scitech">Sci Tech</Label>
-                      <Focus id="focus_scitech" defaultValue={focus_scitech ? focus_scitech : undefined} colour="#9013FE" onChange={e => this.validateLength('focus_scitech', e.toString())} />
-                      <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('focus_scitech') && !this.state.validate.focus_scitech ? 'block' : 'none') }}>This is a required field</FormFeedback>
-
-                      <Label for="action">Action</Label>
-                      <Focus id="focus_action" defaultValue={focus_action ? focus_action : undefined} colour="#50E3C2" onChange={e => this.validateLength('focus_action', e.toString())} />
-                      <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('focus_action') && !this.state.validate.focus_action ? 'block' : 'none') }}>This is a required field</FormFeedback>
+                      {
+                        !focus_arts &&
+                        !focus_scitech &&
+                        !focus_action ?
+                          <FormFeedback style={{display: 'block'}}>You need to select at least one Focus area.</FormFeedback>
+                          : <></>
+                      }
+                    </FormGroup>
+                    <FormGroup row className="my-0 align-items-center">
+                      <Label for={`${id}_focus_arts`} sm="2">Art</Label>
+                      <Col sm="10">
+                        <CustomInput type="checkbox" id={`${id}_focus_arts`} defaultChecked={!!focus_arts && parseInt(focus_arts, 0) > 0} onChange={e => this.changeCollection('focus_arts', e.target.checked)}/>
+                      </Col>
+                    </FormGroup>
+                    <FormGroup row className="my-0 align-items-center">
+                      <Label for={`${id}_focus_scitech`} sm="2">Sci Tech</Label>
+                      <Col sm="10">
+                        <CustomInput type="checkbox" id={`${id}_focus_scitech`} defaultChecked={!!focus_scitech && parseInt(focus_scitech, 0) > 0} onChange={e => this.changeCollection('focus_scitech', e.target.checked)}/>
+                      </Col>
+                    </FormGroup>
+                    <FormGroup row className="my-0 align-items-center">
+                      <Label for={`${id}_focus_action`} sm="2">Action</Label>
+                      <Col sm="10">
+                        <CustomInput type="checkbox" id={`${id}_focus_action`} defaultChecked={!!focus_action && parseInt(focus_action, 0) > 0} onChange={e => this.changeCollection('focus_action', e.target.checked)}/>
+                      </Col>
                     </FormGroup>
 
                   </Col>
