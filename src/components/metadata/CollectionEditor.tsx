@@ -192,9 +192,9 @@ export class CollectionEditor extends React.Component<Props, State> {
 
     if (
       // If no Focus has been checked
-      !this.state.collection.focus_arts &&
-      !this.state.collection.focus_scitech &&
-      !this.state.collection.focus_action
+      (typeof this.state.collection.focus_arts === 'undefined' || this.state.collection.focus_arts === '0') &&
+      (typeof this.state.collection.focus_scitech === 'undefined' || this.state.collection.focus_scitech === '0') &&
+      (typeof this.state.collection.focus_action === 'undefined' || this.state.collection.focus_action === '0')
     ) {
       Object.assign(state, { errorMessage: <>You need to select at least one Focus area.</> });
       if (!this._isMounted) { return; }
@@ -227,9 +227,9 @@ export class CollectionEditor extends React.Component<Props, State> {
       }
 
       Object.assign(fields, {
-        focus_arts: this.state.collection.focus_arts ? 1 : 0,
-        focus_scitech: this.state.collection.focus_scitech ? 1 : 0,
-        focus_action: this.state.collection.focus_action ? 1 : 0
+        focus_arts: this.state.collection.focus_arts === '1' ? '1' : '0',
+        focus_scitech: this.state.collection.focus_scitech === '1' ? '1' : '0',
+        focus_action: this.state.collection.focus_action === '1' ? '1' : '0'
       });
 
       // We filter out specific values here as the API doesn't accept them, but returns them in the Item object.
@@ -1452,9 +1452,9 @@ export class CollectionEditor extends React.Component<Props, State> {
                     <FormGroup>
                       <legend>Focus</legend>
                       {
-                        !focus_arts &&
-                        !focus_scitech &&
-                        !focus_action ?
+                        (typeof focus_arts === 'undefined' || focus_arts === '0') &&
+                        (typeof focus_scitech === 'undefined' || focus_scitech === '0') &&
+                        (typeof focus_action === 'undefined' || focus_action === '0') ?
                           <FormFeedback style={{display: 'block'}}>You need to select at least one Focus area.</FormFeedback>
                           : <></>
                       }
@@ -1462,19 +1462,19 @@ export class CollectionEditor extends React.Component<Props, State> {
                     <FormGroup row className="my-0 align-items-center">
                       <Label for={`${id}_focus_arts`} sm="2">Art</Label>
                       <Col sm="10">
-                        <CustomInput type="checkbox" id={`${id}_focus_arts`} defaultChecked={!!focus_arts && parseInt(focus_arts, 0) > 0} onChange={e => this.changeCollection('focus_arts', e.target.checked)}/>
+                        <CustomInput type="checkbox" id={`${id}_focus_arts`} defaultChecked={(typeof focus_arts !== 'undefined' && focus_arts !== null) && parseInt(focus_arts, 0) > 0} onChange={e => this.changeCollection('focus_arts', e.target.checked ? '1' : '0')}/>
                       </Col>
                     </FormGroup>
                     <FormGroup row className="my-0 align-items-center">
                       <Label for={`${id}_focus_scitech`} sm="2">Sci Tech</Label>
                       <Col sm="10">
-                        <CustomInput type="checkbox" id={`${id}_focus_scitech`} defaultChecked={!!focus_scitech && parseInt(focus_scitech, 0) > 0} onChange={e => this.changeCollection('focus_scitech', e.target.checked)}/>
+                        <CustomInput type="checkbox" id={`${id}_focus_scitech`} defaultChecked={(typeof focus_scitech !== 'undefined' && focus_scitech !== null) && parseInt(focus_scitech, 0) > 0} onChange={e => this.changeCollection('focus_scitech', e.target.checked ? '1' : '0')}/>
                       </Col>
                     </FormGroup>
                     <FormGroup row className="my-0 align-items-center">
                       <Label for={`${id}_focus_action`} sm="2">Action</Label>
                       <Col sm="10">
-                        <CustomInput type="checkbox" id={`${id}_focus_action`} defaultChecked={!!focus_action && parseInt(focus_action, 0) > 0} onChange={e => this.changeCollection('focus_action', e.target.checked)}/>
+                        <CustomInput type="checkbox" id={`${id}_focus_action`} defaultChecked={(typeof focus_action !== 'undefined' && focus_action !== null) && parseInt(focus_action, 0) > 0} onChange={e => this.changeCollection('focus_action', e.target.checked ? '1' : '0')}/>
                       </Col>
                     </FormGroup>
 
