@@ -66,8 +66,8 @@ export default class Tags extends React.Component<Props, State> {
           }
         }),
         tags = response.tags.map(t => ({id: t.id, value: t.id, label: t.tag_name})),
-        filterTags = tags.filter( tag => !find(this.state.tags, { label: tag.label })),
-        filterSelected = filterTags.filter( tag => !find(this.state.selectedTags, { label: tag.label }) );
+        // filterTags = tags.filter( tag => !find(this.state.tags, { label: tag.label })),
+        filterSelected = tags.filter( tag => !find(this.state.selectedTags, { label: tag.label }) );
 
       this.setState({tags: [...this.state.tags, ...filterSelected] });
     }
@@ -163,7 +163,7 @@ export default class Tags extends React.Component<Props, State> {
           queriedTags = await API.get('tba21', 'tags', { queryStringParameters: queryStringParameters }),
 
           tags = queriedTags.tags.map(t => ({id: t.id, value: t.id, label: t.tag_name})),
-          filteredTags = tags.filter( tag => !find(this.state.tags, { label: tag.label }) );
+          filteredTags = tags.filter( tag => !find(this.state.selectedTags, { label: tag.label }) );
 
         if (!this._isMounted) { clearTimeout(this.loadTagsTimeout); return; }
         this.setState(
