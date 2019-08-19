@@ -241,9 +241,9 @@ export class ItemEditor extends React.Component<Props, State> {
 
     if (
       // If no Focus has been checked
-      !this.state.changedItem.focus_arts &&
-      !this.state.changedItem.focus_scitech &&
-      !this.state.changedItem.focus_action
+      this.state.changedItem.focus_arts === '0' &&
+      this.state.changedItem.focus_scitech === '0' &&
+      this.state.changedItem.focus_action === '0'
     ) {
       Object.assign(state, { errorMessage: <>You need to select at least one Focus area.</> });
       if (!this._isMounted) { return; }
@@ -251,9 +251,9 @@ export class ItemEditor extends React.Component<Props, State> {
       return;
     } else {
       Object.assign(item, {
-        focus_arts: !this.state.changedItem.focus_arts ? 0 : 1,
-        focus_scitech: !this.state.changedItem.focus_scitech ? 0 : 1,
-        focus_action: !this.state.changedItem.focus_action ? 0 : 1
+        focus_arts: this.state.changedItem.focus_arts === '1' ? '1' : '0',
+        focus_scitech: this.state.changedItem.focus_scitech === '1' ? '1' : '0',
+        focus_action: this.state.changedItem.focus_action === '1' ? '1' : '0'
       });
     }
 
@@ -2279,9 +2279,9 @@ export class ItemEditor extends React.Component<Props, State> {
                     <FormGroup>
                         <legend>Focus</legend>
                         {
-                          !item.focus_arts &&
-                          !item.focus_scitech &&
-                          !item.focus_action ?
+                          item.focus_arts === '0' &&
+                          item.focus_scitech === '0' &&
+                          item.focus_action === '0' ?
                             <FormFeedback style={{display: 'block'}}>You need to select at least one Focus area.</FormFeedback>
                             : <></>
                         }
@@ -2289,19 +2289,19 @@ export class ItemEditor extends React.Component<Props, State> {
                     <FormGroup row className="my-0 align-items-center">
                       <Label for={`${item.s3_key}_focus_arts`} sm="2">Art</Label>
                       <Col sm="10">
-                        <CustomInput type="checkbox" id={`${item.s3_key}_focus_arts`} defaultChecked={!!item.focus_arts && parseInt(item.focus_arts, 0) > 0} onChange={e => this.changeItem('focus_arts', e.target.checked)}/>
+                        <CustomInput type="checkbox" id={`${item.s3_key}_focus_arts`} defaultChecked={item.focus_arts !== null && parseInt(item.focus_arts, 0) > 0} onChange={e => this.changeItem('focus_arts', e.target.checked ? '1' : '0')}/>
                       </Col>
                     </FormGroup>
                     <FormGroup row className="my-0 align-items-center">
                       <Label for={`${item.s3_key}_focus_scitech`} sm="2">Sci Tech</Label>
                       <Col sm="10">
-                        <CustomInput type="checkbox" id={`${item.s3_key}_focus_scitech`} defaultChecked={!!item.focus_scitech && parseInt(item.focus_scitech, 0) > 0} onChange={e => this.changeItem('focus_scitech', e.target.checked)}/>
+                        <CustomInput type="checkbox" id={`${item.s3_key}_focus_scitech`} defaultChecked={item.focus_scitech !== null && parseInt(item.focus_scitech, 0) > 0} onChange={e => this.changeItem('focus_scitech', !e.target.checked ? '0' : '1')}/>
                       </Col>
                     </FormGroup>
                     <FormGroup row className="my-0 align-items-center">
                       <Label for={`${item.s3_key}_focus_action`} sm="2">Action</Label>
                       <Col sm="10">
-                        <CustomInput type="checkbox" id={`${item.s3_key}_focus_action`} defaultChecked={!!item.focus_action && parseInt(item.focus_action, 0) > 0} onChange={e => this.changeItem('focus_action', e.target.checked)}/>
+                        <CustomInput type="checkbox" id={`${item.s3_key}_focus_action`} defaultChecked={item.focus_action !== null && parseInt(item.focus_action, 0) > 0} onChange={e => this.changeItem('focus_action', !e.target.checked ? '0' : '1')}/>
                       </Col>
                     </FormGroup>
 
