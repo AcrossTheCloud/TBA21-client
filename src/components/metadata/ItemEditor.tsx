@@ -241,9 +241,9 @@ export class ItemEditor extends React.Component<Props, State> {
 
     if (
       // If no Focus has been checked
-      this.state.changedItem.focus_arts === '0' &&
-      this.state.changedItem.focus_scitech === '0' &&
-      this.state.changedItem.focus_action === '0'
+      (this.state.changedItem.focus_arts === null || this.state.changedItem.focus_arts === '0') &&
+      (this.state.changedItem.focus_scitech === null || this.state.changedItem.focus_scitech === '0') &&
+      (this.state.changedItem.focus_action === null || this.state.changedItem.focus_action === '0')
     ) {
       Object.assign(state, { errorMessage: <>You need to select at least one Focus area.</> });
       if (!this._isMounted) { return; }
@@ -2272,14 +2272,14 @@ export class ItemEditor extends React.Component<Props, State> {
                     </FormGroup>
 
                     <FormGroup>
-                        <legend>Focus</legend>
-                        {
-                          item.focus_arts === '0' &&
-                          item.focus_scitech === '0' &&
-                          item.focus_action === '0' ?
-                            <FormFeedback style={{display: 'block'}}>You need to select at least one Focus area.</FormFeedback>
-                            : <></>
-                        }
+                      <legend>Focus</legend>
+                      {
+                        (item.focus_arts === null || item.focus_arts === '0') &&
+                        (item.focus_scitech === null || item.focus_scitech === '0') &&
+                        (item.focus_action === null || item.focus_action === '0') ?
+                          <FormFeedback style={{display: 'block'}}>You need to select at least one Focus area.</FormFeedback>
+                          : <></>
+                      }
                     </FormGroup>
                     <FormGroup row className="my-0 align-items-center">
                       <Label for={`${item.s3_key}_focus_arts`} sm="2">Art</Label>
@@ -2342,7 +2342,7 @@ export class ItemEditor extends React.Component<Props, State> {
                 {
                   item.item_subtype === itemImage.Digital_Art ||
                   (!!item.file && item.file.type === 'image' && item.item_subtype === itemImage.Other) ? <this.ItemDigitalArtOther />
-                  : <></>
+                    : <></>
                 }
 
                 {(!!item.file && item.file.type === 'image') && item.item_subtype === itemImage.Research ? <this.ImageResearch /> : <></>}
