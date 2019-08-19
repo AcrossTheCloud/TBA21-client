@@ -1,5 +1,6 @@
 import * as React from 'react';
 import AsyncCreatableSelect from 'react-select/async-creatable';
+import AsyncSelect from 'react-select/async';
 import { API } from 'aws-amplify';
 import { find } from 'lodash';
 
@@ -12,7 +13,6 @@ export interface Tag {
 interface State {
   tags: Tag[];
   selectedTags: Tag[];
-  defaultValues?: Tag[] | [];
   isLoading: boolean;
 
   rekognitionTags: Tag[] | [];
@@ -30,7 +30,7 @@ interface Props {
   loadItemRekognitionTags?: string; // the items s3_key
 }
 
-class Tags extends React.Component<Props, State> {
+export default class Tags extends React.Component<Props, State> {
   _isMounted;
   loadTagsTimeout;
 
@@ -43,19 +43,33 @@ class Tags extends React.Component<Props, State> {
 
     this.state = {
       tags: [],
-      selectedTags: [],
-      defaultValues: defaultValues ? defaultValues : [],
+      selectedTags: defaultValues ? defaultValues : [],
       isLoading: !!loadItemRekognitionTags,
       rekognitionTags: []
     };
   }
 
-  componentDidMount(): void {
+  async componentDidMount(): Promise<void> {
     this._isMounted = true;
     const { loadItemRekognitionTags } = this.props;
 
-    if (loadItemRekognitionTags && loadItemRekognitionTags.length) {
+    if (this.props.type === 'keyword' && loadItemRekognitionTags && loadItemRekognitionTags.length) {
       this.getItemRekognitionTags(loadItemRekognitionTags);
+    }
+
+    if (this.props.type === 'concept') {
+      const
+        response = await API.get('tba21', 'tags', {
+          queryStringParameters: {
+            type: 'concept',
+            limit: 20
+          }
+        }),
+        tags = response.tags.map(t => ({id: t.id, value: t.id, label: t.tag_name})),
+        filterTags = tags.filter( tag => !find(this.state.tags, { label: tag.label })),
+        filterSelected = filterTags.filter( tag => !find(this.state.selectedTags, { label: tag.label }) );
+
+      this.setState({tags: [...this.state.tags, ...filterSelected] });
     }
   }
 
@@ -145,11 +159,11 @@ class Tags extends React.Component<Props, State> {
         clearTimeout(this.loadTagsTimeout);
 
         const
-          queryStringParameters = ( inputValue ? { query: inputValue, type: this.props.type } : {} ),
-          queriedTags = await API.get('tba21', 'tags/search', { queryStringParameters: queryStringParameters }),
+          queryStringParameters = ( inputValue ? { query: inputValue, type: this.props.type, limit: 50} : {} ),
+          queriedTags = await API.get('tba21', 'tags', { queryStringParameters: queryStringParameters }),
 
           tags = queriedTags.tags.map(t => ({id: t.id, value: t.id, label: t.tag_name})),
-          filteredTags = tags.filter( tag => !find(this.state.tags, { tag_name: tag.tag_name }) );
+          filteredTags = tags.filter( tag => !find(this.state.tags, { label: tag.label }) );
 
         if (!this._isMounted) { clearTimeout(this.loadTagsTimeout); return; }
         this.setState(
@@ -236,23 +250,39 @@ class Tags extends React.Component<Props, State> {
 
     return (
       <div className={className ? className : ''}>
-        <AsyncCreatableSelect
-          isMulti
-          isDisabled={this.state.isLoading}
-          isLoading={this.state.isLoading}
-          cacheOptions
+        {this.props.type === 'keyword' ?
+          <AsyncCreatableSelect
+            isMulti
+            isDisabled={this.state.isLoading}
+            isLoading={this.state.isLoading}
+            cacheOptions
 
-          defaultValue={this.state.defaultValues}
-          defaultOptions={[ { label: 'Generated Suggestions', options: [...this.state.rekognitionTags] } , ...this.state.tags]}
-          options={[ { label: 'Generated Suggestions', options: [...this.state.rekognitionTags] } , ...this.state.tags]}
+            defaultValue={this.state.selectedTags}
+            defaultOptions={[{
+              label: 'Generated Suggestions',
+              options: [...this.state.rekognitionTags]
+            }, ...this.state.tags]}
+            options={[{label: 'Generated Suggestions', options: [...this.state.rekognitionTags]}, ...this.state.tags]}
 
-          loadOptions={this.loadTags}
+            loadOptions={this.loadTags}
+            onChange={this.onChange}
+          />
+          :
+          <AsyncSelect
+            isMulti
+            isDisabled={this.state.isLoading}
+            isLoading={this.state.isLoading}
+            cacheOptions
 
-          onChange={this.onChange}
-        />
+            defaultValue={this.state.selectedTags}
+            defaultOptions={this.state.tags}
+            options={this.state.tags}
+
+            loadOptions={this.loadTags}
+            onChange={this.onChange}
+          />
+        }
       </div>
     );
   }
 }
-
-export default Tags;

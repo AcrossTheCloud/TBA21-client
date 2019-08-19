@@ -8,7 +8,8 @@ import {
   DropdownToggle,
   Form,
   FormFeedback,
-  FormGroup, FormText,
+  FormGroup,
+  FormText,
   Input,
   InputGroup,
   Label,
@@ -23,22 +24,17 @@ import {
 
 import { API } from 'aws-amplify';
 import Select from 'react-select';
-import { isEqual, isArray } from 'lodash';
+import { isArray, isEqual } from 'lodash';
 
-import {
-  Item,
-  itemAudio,
-  itemImage,
-  itemText,
-  itemVideo
-} from '../../types/Item';
+import { Item, itemAudio, itemImage, itemText, itemVideo } from '../../types/Item';
 
 import {
   countries,
   itemAudioSubTypes,
   itemImageSubTypes,
   itemTextSubTypes,
-  itemVideoSubTypes, languages,
+  itemVideoSubTypes,
+  languages,
   licenseType,
   oceans,
   regions as selectableRegions
@@ -51,7 +47,6 @@ import { AudioPlayer } from '../utils/AudioPlayer';
 
 import CustomSelect from './fields/CustomSelect';
 import { validateURL } from '../utils/inputs/url';
-import Focus from './fields/Focus';
 import ShortPaths from '../admin/utils/ShortPaths';
 
 import 'styles/components/metadata/itemEditor.scss';
@@ -88,9 +83,6 @@ const defaultRequiredFields = (item: Item) => {
     time_produced,
     item_subtype,
     regions,
-    focus_arts,
-    focus_action,
-    focus_scitech,
     aggregated_concept_tags,
     concept_tags
   } = item;
@@ -109,9 +101,6 @@ const defaultRequiredFields = (item: Item) => {
     'time_produced': (!!time_produced && time_produced.length > 0),
     'item_subtype': (!!item_subtype && item_subtype.length > 0),
     'regions': (!!regions && regions.length > 0),
-    'focus_arts': (!!focus_arts && focus_arts.toString().length > 0),
-    'focus_action': (!!focus_action && focus_action.toString().length > 0),
-    'focus_scitech': (!!focus_scitech && focus_scitech.toString().length > 0),
     'concept_tags': conceptTags
   };
 };
@@ -228,11 +217,13 @@ export class ItemEditor extends React.Component<Props, State> {
       }
     );
 
-    const state = {
-      isLoading: false
-    };
+    const
+      state = {
+        isLoading: false
+      },
+      item = this.state.changedFields,
+      invalidFields = Object.entries(this.state.validate).filter(v => v[1] === false).map(([key, val]) => key);
 
-    const invalidFields = Object.entries(this.state.validate).filter(v => v[1] === false).map(([key, val]) => key);
     if (invalidFields.length > 0) {
       const message: JSX.Element = (
         <>
@@ -247,6 +238,24 @@ export class ItemEditor extends React.Component<Props, State> {
       return;
     }
 
+    if (
+      // If no Focus has been checked
+      !this.state.changedItem.focus_arts &&
+      !this.state.changedItem.focus_scitech &&
+      !this.state.changedItem.focus_action
+    ) {
+      Object.assign(state, { errorMessage: <>You need to select at least one Focus area.</> });
+      if (!this._isMounted) { return; }
+      this.setState(state);
+      return;
+    } else {
+      Object.assign(item, {
+        focus_arts: !this.state.changedItem.focus_arts ? 0 : 1,
+        focus_scitech: !this.state.changedItem.focus_scitech ? 0 : 1,
+        focus_action: !this.state.changedItem.focus_action ? 0 : 1
+      });
+    }
+
     // If we don't have a short path and we've published our item
     if (!this.state.hasShortPath && this.state.changedItem.status && this._isMounted) {
       this.setState({ isLoading: false, errorMessage: <>The item needs a url slug</> });
@@ -257,7 +266,7 @@ export class ItemEditor extends React.Component<Props, State> {
       const itemsProperties = {};
 
       // We filter out specific values here as the API doesn't accept them, but returns them in the Item object.
-      Object.entries(this.state.changedFields)
+      Object.entries(item)
         .filter( ([key, value]) => {
           return !(
             value === null
@@ -328,6 +337,7 @@ export class ItemEditor extends React.Component<Props, State> {
         Object.assign(changedItem, { [key]: this.state.originalItem[key] });
       }
     }
+
     if (!this._isMounted) { return; }
     this.setState(
       {
@@ -492,8 +502,7 @@ export class ItemEditor extends React.Component<Props, State> {
           'dimensions': (dimensions || false)
         },
         'Artwork Documentation': {
-          'medium': (medium || false),
-          'dimensions': (dimensions || false)
+          'exhibited_at': (exhibited_at || false)
         }
       },
       videoFields = {
@@ -676,13 +685,6 @@ export class ItemEditor extends React.Component<Props, State> {
             <Input type="number" className="isbn" defaultValue={this.state.changedItem.isbn ? this.state.changedItem.isbn.toString() : ''} onChange={e => this.changeItem('isbn', e.target.value)}/>
           </FormGroup>
         </Col>
-
-        <Col md="4">
-          <FormGroup>
-            <Label for="other_metadata">Other</Label>
-            <Input type="number" className="other_metadata" defaultValue={item.other_metadata ? item.other_metadata.toString() : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
-          </FormGroup>
-        </Col>
       </Row>
     );
   }
@@ -711,12 +713,7 @@ export class ItemEditor extends React.Component<Props, State> {
           </FormGroup>
         </Col>
 
-        <Col md="4">
-          <FormGroup>
-            <Label for="other_metadata">Other</Label>
-            <Input type="number" className="other_metadata" defaultValue={item.other_metadata ? item.other_metadata.toString() : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
-          </FormGroup>
-        </Col>
+
       </Row>
     );
   }
@@ -759,12 +756,7 @@ export class ItemEditor extends React.Component<Props, State> {
             <FormFeedback>This is a required field</FormFeedback>
           </FormGroup>
         </Col>
-        <Col md="4">
-          <FormGroup>
-            <Label for="other_metadata">Other</Label>
-            <Input type="number" className="other_metadata" defaultValue={item.other_metadata ? item.other_metadata.toString() : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
-          </FormGroup>
-        </Col>
+
       </Row>
     );
   }
@@ -814,12 +806,7 @@ export class ItemEditor extends React.Component<Props, State> {
           </FormGroup>
         </Col>
 
-        <Col md="4">
-          <FormGroup>
-            <Label for="other_metadata">Other</Label>
-            <Input type="number" className="other_metadata" defaultValue={item.other_metadata ? item.other_metadata.toString() : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
-          </FormGroup>
-        </Col>
+
       </Row>
     );
   }
@@ -952,12 +939,7 @@ export class ItemEditor extends React.Component<Props, State> {
           </FormGroup>
         </Col>
 
-        <Col md="4">
-          <FormGroup>
-            <Label for="other_metadata">Other</Label>
-            <Input type="number" className="other_metadata" defaultValue={item.other_metadata ? item.other_metadata.toString() : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
-          </FormGroup>
-        </Col>
+
       </Row>
     );
   }
@@ -1007,12 +989,7 @@ export class ItemEditor extends React.Component<Props, State> {
           </FormGroup>
         </Col>
 
-        <Col md="4">
-          <FormGroup>
-            <Label for="other_metadata">Other</Label>
-            <Input type="number" className="other_metadata" defaultValue={item.other_metadata ? item.other_metadata.toString() : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
-          </FormGroup>
-        </Col>
+
       </Row>
     );
   }
@@ -1363,13 +1340,6 @@ export class ItemEditor extends React.Component<Props, State> {
             <Input type="text" className="genre" defaultValue={item.genre ? item.genre : ''} onChange={e => this.changeItem('genre', e.target.value)}/>
           </FormGroup>
         </Col>
-
-        <Col md="4">
-          <FormGroup>
-            <Label for="other_metadata">Other</Label>
-            <Input type="text" className="other_metadata" defaultValue={item.other_metadata ? item.other_metadata : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
-          </FormGroup>
-        </Col>
       </Row>
     );
   }
@@ -1406,12 +1376,7 @@ export class ItemEditor extends React.Component<Props, State> {
           </FormGroup>
         </Col>
 
-        <Col md="4">
-          <FormGroup>
-            <Label for="other_metadata">Other</Label>
-            <Input type="text" className="other_metadata" defaultValue={item.other_metadata ? item.other_metadata : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
-          </FormGroup>
-        </Col>
+
       </Row>
     );
   }
@@ -1426,12 +1391,7 @@ export class ItemEditor extends React.Component<Props, State> {
             <FormText>Use tab or enter to add a new Collaborator.</FormText>
           </FormGroup>
         </Col>
-        <Col md="4">
-          <FormGroup>
-            <Label for="other_metadata">Other</Label>
-            <Input type="text" className="other_metadata" defaultValue={item.other_metadata ? item.other_metadata : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
-          </FormGroup>
-        </Col>
+
       </Row>
     );
   }
@@ -1455,12 +1415,7 @@ export class ItemEditor extends React.Component<Props, State> {
             <FormText>Use tab or enter to add a new Interviewee(s).</FormText>
           </FormGroup>
         </Col>
-        <Col md="4">
-          <FormGroup>
-            <Label for="other_metadata">Other</Label>
-            <Input type="text" className="other_metadata" defaultValue={item.other_metadata ? item.other_metadata : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
-          </FormGroup>
-        </Col>
+
       </Row>
     );
   }
@@ -1481,12 +1436,7 @@ export class ItemEditor extends React.Component<Props, State> {
             <FormText>Use tab or enter to add a new Author.</FormText>
           </FormGroup>
         </Col>
-        <Col md="4">
-          <FormGroup>
-            <Label for="other_metadata">Other</Label>
-            <Input type="text" className="other_metadata" defaultValue={item.other_metadata ? item.other_metadata : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
-          </FormGroup>
-        </Col>
+
       </Row>
     );
   }
@@ -1514,12 +1464,7 @@ export class ItemEditor extends React.Component<Props, State> {
             <Input type="text" className="event_title" defaultValue={item.event_title ? item.event_title : ''} onChange={e => this.changeItem('event_title', e.target.value)}/>
           </FormGroup>
         </Col>
-        <Col md="4">
-          <FormGroup>
-            <Label for="other_metadata">Other</Label>
-            <Input type="text" className="other_metadata" defaultValue={item.other_metadata ? item.other_metadata : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
-          </FormGroup>
-        </Col>
+
       </Row>
     );
   }
@@ -1542,12 +1487,6 @@ export class ItemEditor extends React.Component<Props, State> {
             <FormText>Use tab or enter to add a new item.</FormText>
           </FormGroup>
         </Col>
-        <Col md="4">
-          <FormGroup>
-            <Label for="other_metadata">Other</Label>
-            <Input type="text" className="other_metadata" defaultValue={item.other_metadata ? item.other_metadata : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
-          </FormGroup>
-        </Col>
       </Row>
     );
   }
@@ -1561,26 +1500,6 @@ export class ItemEditor extends React.Component<Props, State> {
             <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('exhibited_at') && !this.state.validate.exhibited_at ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Exhibit.</FormText>
-          </FormGroup>
-        </Col>
-
-        <Col md="4">
-          <FormGroup>
-            <Label for="other_metadata">Other</Label>
-            <Input type="text" className="other_metadata" defaultValue={item.other_metadata ? item.other_metadata : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
-          </FormGroup>
-        </Col>
-      </Row>
-    );
-  }
-  VideoRawFootage = (): JSX.Element => {
-    const item = this.state.changedItem;
-    return (
-      <Row>
-        <Col md="12">
-          <FormGroup>
-            <Label for="other_metadata">Other</Label>
-            <Input type="text" className="other_metadata" defaultValue={item.other_metadata ? item.other_metadata : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
           </FormGroup>
         </Col>
       </Row>
@@ -1615,12 +1534,6 @@ export class ItemEditor extends React.Component<Props, State> {
               defaultValue={item.organisation ? item.organisation : ''}
               onChange={e => this.changeItem('organisation', [e.target.value])}
             />
-          </FormGroup>
-        </Col>
-        <Col md="6">
-          <FormGroup>
-            <Label for="other_metadata">Other</Label>
-            <Input type="text" className="other_metadata" defaultValue={item.other_metadata ? item.other_metadata : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
           </FormGroup>
         </Col>
       </Row>
@@ -1664,10 +1577,49 @@ export class ItemEditor extends React.Component<Props, State> {
             <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
           </FormGroup>
         </Col>
+      </Row>
+    );
+  }
+  ItemImagePhotographSculpturePainting = (): JSX.Element => {
+    const item = this.state.changedItem;
+    return (
+      <Row>
         <Col md="6">
           <FormGroup>
-            <Label for="other_metadata">Other</Label>
-            <Input type="text" className="other_metadata" defaultValue={item.other_metadata ? item.other_metadata : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
+            <Label for="medium">Medium</Label>
+            <Input
+              type="text"
+              className="medium"
+              defaultValue={item.medium ? item.medium : ''}
+              onChange={e => this.validateLength('medium', e.target.value)}
+              invalid={this.state.validate.hasOwnProperty('medium') && !this.state.validate.medium}
+            />
+            <FormFeedback>This is a required field</FormFeedback>
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="dimensions">Physical Dimensions</Label>
+            <Input
+              type="text"
+              className="dimensions"
+              defaultValue={item.dimensions ? item.dimensions : ''}
+              onChange={e => this.validateLength('dimensions', e.target.value)}
+              invalid={this.state.validate.hasOwnProperty('dimensions') && !this.state.validate.dimensions}
+            />
+            <FormFeedback>This is a required field</FormFeedback>
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="exhibited_at">Exhibited At</Label>
+            <CustomSelect values={item.exhibited_at} callback={values => this.changeItem('exhibited_at', values)} />
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="Provenance">Provenance</Label>
+            <CustomSelect values={item.provenance} callback={values => this.changeItem('provenance', values)} />
           </FormGroup>
         </Col>
       </Row>
@@ -1693,12 +1645,6 @@ export class ItemEditor extends React.Component<Props, State> {
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
             <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
-          </FormGroup>
-        </Col>
-        <Col md="6">
-          <FormGroup>
-            <Label for="other_metadata">Other</Label>
-            <Input type="text" className="other_metadata" defaultValue={item.other_metadata ? item.other_metadata : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
           </FormGroup>
         </Col>
       </Row>
@@ -1772,12 +1718,6 @@ export class ItemEditor extends React.Component<Props, State> {
             <Input type="text" className="created_for" defaultValue={item.created_for ? item.created_for : ''} onChange={e => this.changeItem('created_for', e.target.value)}/>
           </FormGroup>
         </Col>
-        <Col md="6">
-          <FormGroup>
-            <Label for="other_metadata">Other</Label>
-            <Input type="text" className="other_metadata" defaultValue={item.other_metadata ? item.other_metadata : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
-          </FormGroup>
-        </Col>
       </Row>
     );
   }
@@ -1814,12 +1754,6 @@ export class ItemEditor extends React.Component<Props, State> {
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
             <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
-          </FormGroup>
-        </Col>
-        <Col md="6">
-          <FormGroup>
-            <Label for="other_metadata">Other</Label>
-            <Input type="text" className="other_metadata" defaultValue={item.other_metadata ? item.other_metadata : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
           </FormGroup>
         </Col>
       </Row>
@@ -1877,12 +1811,6 @@ export class ItemEditor extends React.Component<Props, State> {
             <Input type="text" className="screened_at" defaultValue={item.screened_at ? item.screened_at : ''} onChange={e => this.changeItem('screened_at', e.target.value)}/>
           </FormGroup>
         </Col>
-        <Col md="6">
-          <FormGroup>
-            <Label for="other_metadata">Other</Label>
-            <Input type="text" className="other_metadata" defaultValue={item.other_metadata ? item.other_metadata : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
-          </FormGroup>
-        </Col>
       </Row>
     );
   }
@@ -1902,12 +1830,6 @@ export class ItemEditor extends React.Component<Props, State> {
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
             <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
-          </FormGroup>
-        </Col>
-        <Col md="6">
-          <FormGroup>
-            <Label for="other_metadata">Other</Label>
-            <Input type="text" className="other_metadata" defaultValue={item.other_metadata ? item.other_metadata : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
           </FormGroup>
         </Col>
       </Row>
@@ -1937,12 +1859,6 @@ export class ItemEditor extends React.Component<Props, State> {
             <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
           </FormGroup>
         </Col>
-        <Col md="6">
-          <FormGroup>
-            <Label for="other_metadata">Other</Label>
-            <Input type="text" className="other_metadata" defaultValue={item.other_metadata ? item.other_metadata : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
-          </FormGroup>
-        </Col>
       </Row>
     );
   }
@@ -1968,12 +1884,6 @@ export class ItemEditor extends React.Component<Props, State> {
           <FormGroup>
             <Label for="recording_studio">Recording Label</Label>
             <Input type="text" className="recording_studio" defaultValue={item.recording_studio ? item.recording_studio : ''} onChange={e => this.changeItem('recording_studio', e.target.value)}/>
-          </FormGroup>
-        </Col>
-        <Col md="6">
-          <FormGroup>
-            <Label for="other_metadata">Other</Label>
-            <Input type="text" className="other_metadata" defaultValue={item.other_metadata ? item.other_metadata : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
           </FormGroup>
         </Col>
       </Row>
@@ -2007,12 +1917,6 @@ export class ItemEditor extends React.Component<Props, State> {
             <Input type="text" className="speakers" defaultValue={item.speakers ? item.speakers.join(',') : ''} onChange={e => this.changeItem('speakers', e.target.value)}/>
           </FormGroup>
         </Col>
-        <Col md="6">
-          <FormGroup>
-            <Label for="other_metadata">Other</Label>
-            <Input type="text" className="other_metadata" defaultValue={item.other_metadata ? item.other_metadata : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
-          </FormGroup>
-        </Col>
       </Row>
     );
   }
@@ -2032,12 +1936,6 @@ export class ItemEditor extends React.Component<Props, State> {
             <CustomSelect values={item.host_organisation} callback={values => this.validateLength('host_organisation', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('host_organisation') && !this.state.validate.host_organisation ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Organization.</FormText>
-          </FormGroup>
-        </Col>
-        <Col md="6">
-          <FormGroup>
-            <Label for="other_metadata">Other</Label>
-            <Input type="text" className="other_metadata" defaultValue={item.other_metadata ? item.other_metadata : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
           </FormGroup>
         </Col>
       </Row>
@@ -2061,12 +1959,6 @@ export class ItemEditor extends React.Component<Props, State> {
             <CustomSelect values={item.interviewees} callback={values => this.validateLength('interviewees', values)} />
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('interviewees') && !this.state.validate.interviewees ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Interviewee(s).</FormText>
-          </FormGroup>
-        </Col>
-        <Col md="6">
-          <FormGroup>
-            <Label for="other_metadata">Other</Label>
-            <Input type="text" className="other_metadata" defaultValue={item.other_metadata ? item.other_metadata : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
           </FormGroup>
         </Col>
       </Row>
@@ -2104,12 +1996,6 @@ export class ItemEditor extends React.Component<Props, State> {
           <FormGroup>
             <Label for="radio_station">Radio Station</Label>
             <Input type="text" className="radio_station" defaultValue={item.radio_station ? item.radio_station.join(',') : ''} onChange={e => this.changeItem('radio_station', e.target.value)}/>
-          </FormGroup>
-        </Col>
-        <Col md="6">
-          <FormGroup>
-            <Label for="other_metadata">Other</Label>
-            <Input type="text" className="other_metadata" defaultValue={item.other_metadata ? item.other_metadata : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
           </FormGroup>
         </Col>
       </Row>
@@ -2166,12 +2052,6 @@ export class ItemEditor extends React.Component<Props, State> {
           <FormGroup>
             <Label for="organisation">Organisation(s)</Label>
             <Input type="text" className="organisation" defaultValue={item.organisation ? item.organisation : ''} onChange={e => this.changeItem('organisation', e.target.value)}/>
-          </FormGroup>
-        </Col>
-        <Col md="6">
-          <FormGroup>
-            <Label for="other_metadata">Other</Label>
-            <Input type="text" className="other_metadata" defaultValue={item.other_metadata ? item.other_metadata : ''} onChange={e => this.changeItem('other_metadata', e.target.value)}/>
           </FormGroup>
         </Col>
       </Row>
@@ -2389,18 +2269,32 @@ export class ItemEditor extends React.Component<Props, State> {
                     </FormGroup>
 
                     <FormGroup>
-                      <legend>Focus</legend>
-                      <Label for="art">Art</Label>
-                      <Focus id="focus_arts" defaultValue={item.focus_arts ? item.focus_arts : undefined} colour="#0076FF" onChange={e => this.validateLength('focus_arts', e.toString())} />
-                      <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('focus_arts') && !this.state.validate.focus_arts ? 'block' : 'none') }}>This is a required field</FormFeedback>
-
-                      <Label for="scitech">Sci Tech</Label>
-                      <Focus id="focus_scitech" defaultValue={item.focus_scitech ? item.focus_scitech : undefined} colour="#9013FE" onChange={e => this.validateLength('focus_scitech', e.toString())} />
-                      <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('focus_scitech') && !this.state.validate.focus_scitech ? 'block' : 'none') }}>This is a required field</FormFeedback>
-
-                      <Label for="action">Action</Label>
-                      <Focus id="focus_action" defaultValue={item.focus_action ? item.focus_action : undefined} colour="#50E3C2" onChange={e => this.validateLength('focus_action', e.toString())} />
-                      <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('focus_action') && !this.state.validate.focus_action ? 'block' : 'none') }}>This is a required field</FormFeedback>
+                        <legend>Focus</legend>
+                        {
+                          !item.focus_arts &&
+                          !item.focus_scitech &&
+                          !item.focus_action ?
+                            <FormFeedback style={{display: 'block'}}>You need to select at least one Focus area.</FormFeedback>
+                            : <></>
+                        }
+                    </FormGroup>
+                    <FormGroup row className="my-0 align-items-center">
+                      <Label for={`${item.s3_key}_focus_arts`} sm="2">Art</Label>
+                      <Col sm="10">
+                        <CustomInput type="checkbox" id={`${item.s3_key}_focus_arts`} defaultChecked={!!item.focus_arts && parseInt(item.focus_arts, 0) > 0} onChange={e => this.changeItem('focus_arts', e.target.checked)}/>
+                      </Col>
+                    </FormGroup>
+                    <FormGroup row className="my-0 align-items-center">
+                      <Label for={`${item.s3_key}_focus_scitech`} sm="2">Sci Tech</Label>
+                      <Col sm="10">
+                        <CustomInput type="checkbox" id={`${item.s3_key}_focus_scitech`} defaultChecked={!!item.focus_scitech && parseInt(item.focus_scitech, 0) > 0} onChange={e => this.changeItem('focus_scitech', e.target.checked)}/>
+                      </Col>
+                    </FormGroup>
+                    <FormGroup row className="my-0 align-items-center">
+                      <Label for={`${item.s3_key}_focus_action`} sm="2">Action</Label>
+                      <Col sm="10">
+                        <CustomInput type="checkbox" id={`${item.s3_key}_focus_action`} defaultChecked={!!item.focus_action && parseInt(item.focus_action, 0) > 0} onChange={e => this.changeItem('focus_action', e.target.checked)}/>
+                      </Col>
                     </FormGroup>
 
                   </Col>
@@ -2430,15 +2324,16 @@ export class ItemEditor extends React.Component<Props, State> {
                 {item.item_subtype === itemVideo.Informational_Video ? <this.VideoInformationalVideo /> : <></>}
                 {item.item_subtype === itemVideo.Trailer ? <this.VideoMovieTrailer /> : <></>}
                 {item.item_subtype === itemVideo.Artwork_Documentation ? <this.VideoArtworkDocumentation /> : <></>}
-                {item.item_subtype === itemVideo.Raw_Footage ? <this.VideoRawFootage /> : <></>}
                 {(!!item.file && item.file.type === 'video') && item.item_subtype === itemVideo.Other ? <this.VideoOther /> : <></>}
 
                 { // Item Image
-                  item.item_subtype === itemImage.Photograph ||
-                  item.item_subtype === itemImage.Sculpture ||
-                  item.item_subtype === itemImage.Painting ||
                   item.item_subtype === itemImage.Illustration ||
                   item.item_subtype === itemImage.Artwork_Documentation ? <this.ItemImage /> : <></>
+                }
+                {
+                  item.item_subtype === itemImage.Photograph ||
+                  item.item_subtype === itemImage.Sculpture ||
+                  item.item_subtype === itemImage.Painting ? <this.ItemImagePhotographSculpturePainting /> : <></>
                 }
 
                 {
