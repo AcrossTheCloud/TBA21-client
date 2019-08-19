@@ -487,4 +487,5 @@ export interface Item {
 
   original_text_credit: string | null;
   location: string | null;
+  provenance: string[] | null;
 }
