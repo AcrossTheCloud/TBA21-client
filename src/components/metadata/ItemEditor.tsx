@@ -54,6 +54,7 @@ import { License } from '../../types/License';
 
 interface Props {
   item: Item;
+  index?: number;
   onChange?: Function;
 }
 
@@ -296,6 +297,17 @@ export class ItemEditor extends React.Component<Props, State> {
         Object.assign(state, { errorMessage: result.message });
       } else if (result.success) {
         Object.assign(state, { successMessage: 'Updated item!', changedFields: {}, originalItem: {...this.state.changedItem}, isDifferent: false});
+
+        if (this.props.onChange && typeof this.props.onChange === 'function') {
+          const onChangeResult = {
+            item: this.state.changedItem
+          };
+          if (typeof this.props.index !== 'undefined') {
+            Object.assign(onChangeResult, { index: this.props.index });
+          }
+          this.props.onChange(onChangeResult);
+        }
+
       } else {
         Object.assign(state, { warningMessage: result });
       }
@@ -305,11 +317,7 @@ export class ItemEditor extends React.Component<Props, State> {
       Object.assign(state, { errorMessage: 'We had an issue updating this item.' });
     } finally {
       if (!this._isMounted) { return; }
-      this.setState(state, () => {
-        if (this.props.onChange && typeof this.props.onChange === 'function') {
-          this.props.onChange(this.state.originalItem);
-        }
-      });
+      this.setState(state);
     }
   }
 

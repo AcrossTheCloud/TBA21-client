@@ -206,10 +206,11 @@ export default class Items extends React.Component<{}, State> {
               typeof this.state.editingItemIndex !== 'undefined' && this.state.editingItemIndex >= 0 ?
                 <ItemEditor
                   item={this.state.items[this.state.editingItemIndex]}
+                  index={this.state.editingItemIndex}
                   onChange={c => {
                     if (this._isMounted && typeof this.state.editingItemIndex !== 'undefined' && this.state.editingItemIndex >= 0) {
                       const stateItems = this.state.items;
-                      stateItems[this.state.editingItemIndex] = c;
+                      stateItems[c.index] = c.item;
                       this.setState({ items: stateItems });
                     }
                   }}
