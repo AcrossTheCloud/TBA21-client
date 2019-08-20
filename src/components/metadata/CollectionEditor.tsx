@@ -1262,7 +1262,6 @@ export class CollectionEditor extends React.Component<Props, State> {
     const
       conceptTags = aggregated_concept_tags ? aggregated_concept_tags.map( t => ({ id: t.id, value: t.id, label: t.tag_name }) ) : [],
       keywordTags = aggregated_keyword_tags ? aggregated_keyword_tags.map( t => ({ id: t.id, value: t.id, label: t.tag_name }) ) : [],
-      locationField = location ? countries.find( c => c.value === location ) || oceans.find( c => c.value === location ) : null,
       selectedRegions = !!regions ? selectableRegions.filter(s => !!regions ? regions.find(a => a === s.value) : false) : [];
 
     return (
