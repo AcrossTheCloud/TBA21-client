@@ -159,7 +159,7 @@ export default class Tags extends React.Component<Props, State> {
         clearTimeout(this.loadTagsTimeout);
 
         const
-          queryStringParameters = ( inputValue ? { query: inputValue, type: this.props.type, limit: 50} : {} ),
+          queryStringParameters = ( inputValue ? { query: inputValue, limit: 50} : {} ),
           queriedTags = await API.get('tba21', 'tags', { queryStringParameters: queryStringParameters }),
 
           tags = queriedTags.tags.map(t => ({id: t.id, value: t.id, label: t.tag_name})),
