@@ -1240,7 +1240,6 @@ export class CollectionEditor extends React.Component<Props, State> {
       description,
       subtitle,
       url,
-      location,
       copyright_holder,
 
       regions,
