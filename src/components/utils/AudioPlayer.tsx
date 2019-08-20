@@ -1,13 +1,16 @@
 import * as React from 'react';
+import { FaPlay, FaPause } from 'react-icons/fa';
 import WaveSurfer from 'wavesurfer.js';
 
 interface Props {
   url: string;
   id: string;
+  date?: string;
+  title?: string;
+  type?: string;
 }
 
 interface State {
-  url: string;
   id: string;
   paused: boolean;
   wavesurfer?: WaveSurfer;
@@ -23,7 +26,6 @@ export class AudioPlayer extends React.Component<Props, State> {
     this._isMounted = false;
 
     this.state = {
-      url: props.url,
       id: this.props.id.replace(/[^\w\s]/gi, ''),
       paused: true,
       loaded: false,
@@ -52,12 +54,43 @@ export class AudioPlayer extends React.Component<Props, State> {
         },
         wavesurfer = WaveSurfer.create(options);
 
-      wavesurfer.load(this.state.url);
+      wavesurfer.load(this.props.url);
       this.setState( { wavesurfer: wavesurfer, loaded: true } );
+    }
+  }
+  componentWillUnmount(): void {
+    this._isMounted = false;
+    this.state.wavesurfer.pause();
+  }
+
+  playPause = (paused: boolean) => {
+    if (this._isMounted) {
+      if (!paused) {
+        this.state.wavesurfer.play();
+      } else {
+        this.state.wavesurfer.pause();
+      }
+
+      this.setState({ paused });
     }
   }
 
   render() {
-    return <div id={`wave_${this.state.id}`}/>;
+    return (
+      <div className="audioplayer">
+        <div className="container-fluid">
+          <div className="content row">
+            <div className="play">
+              {this.state.paused ?
+                <FaPlay onClick={() => this.playPause(false)}/>
+              :
+                <FaPause onClick={() => this.playPause(true)}/>
+              }
+            </div>
+          </div>
+          <div id={`wave_${this.state.id}`}/>
+        </div>
+      </div>
+    );
   }
 }

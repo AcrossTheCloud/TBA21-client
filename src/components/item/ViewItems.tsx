@@ -61,17 +61,17 @@ const MasonryItem = ( props: { item: Item } ): JSX.Element => {
 
   return (
     <Card>
-      <Link
-        // to={`/view/${props.items.s3_key.split('/').slice(2).join('/')}`} // remove /private/UUID
-        to={`/view/${item.s3_key}`}
-        className="item"
-      >
-        {item.file ? <FileType id={item.s3_key} file={item.file} /> : <></>}
-        <CardBody>
+      {item.file ? <FileType id={item.s3_key} file={item.file} /> : <></>}
+      <CardBody>
+        <Link
+          // to={`/view/${props.items.s3_key.split('/').slice(2).join('/')}`} // remove /private/UUID
+          to={`/view/${item.s3_key}`}
+          className="item"
+        >
           <CardTitle>{item.title}</CardTitle>
-          <CardText>{item.description}</CardText>
-        </CardBody>
-      </Link>
+        </Link>
+        <CardText>{item.description}</CardText>
+      </CardBody>
     </Card>
   );
 };
