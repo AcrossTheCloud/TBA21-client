@@ -1242,7 +1242,6 @@ export class CollectionEditor extends React.Component<Props, State> {
       url,
       location,
       copyright_holder,
-      copyright_country,
 
       regions,
       license,
@@ -1402,11 +1401,6 @@ export class CollectionEditor extends React.Component<Props, State> {
                     <FormGroup>
                       <Label for="copyright_holder">Copyright Holder</Label>
                       <Input type="text" id="copyright_holder" defaultValue={copyright_holder ? copyright_holder : ''} onChange={e => this.changeCollection('copyright_holder', e.target.value)}/>
-                    </FormGroup>
-
-                    <FormGroup>
-                      <Label for="copyright_country">Copyright Country</Label>
-                      <Select menuPlacement="auto" id="copyright_country" options={countries} value={[copyright_country ? countries.find(c => c.value === copyright_country) : null]} onChange={e => this.changeCollection('copyright_country', e.value)} isSearchable/>
                     </FormGroup>
 
                     <FormGroup>
