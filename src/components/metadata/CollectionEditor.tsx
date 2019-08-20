@@ -1240,7 +1240,6 @@ export class CollectionEditor extends React.Component<Props, State> {
       description,
       subtitle,
       url,
-      location,
       copyright_holder,
 
       regions,
@@ -1262,7 +1261,6 @@ export class CollectionEditor extends React.Component<Props, State> {
     const
       conceptTags = aggregated_concept_tags ? aggregated_concept_tags.map( t => ({ id: t.id, value: t.id, label: t.tag_name }) ) : [],
       keywordTags = aggregated_keyword_tags ? aggregated_keyword_tags.map( t => ({ id: t.id, value: t.id, label: t.tag_name }) ) : [],
-      locationField = location ? countries.find( c => c.value === location ) || oceans.find( c => c.value === location ) : null,
       selectedRegions = !!regions ? selectableRegions.filter(s => !!regions ? regions.find(a => a === s.value) : false) : [];
 
     return (
@@ -1378,13 +1376,8 @@ export class CollectionEditor extends React.Component<Props, State> {
                     </FormGroup>
 
                     <FormGroup>
-                      <Label for="regions">Region (Country/Ocean)</Label>
+                      <Label for="regions">Region(s) (Country/Ocean)</Label>
                       <Select isMulti isSearchable menuPlacement="auto" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries } ]} defaultValue={selectedRegions} onChange={e => this.validateLength('regions', !!e && e.length ? e.map(r => r.value) : [])} />
-                    </FormGroup>
-
-                    <FormGroup>
-                      <Label for="location">Location</Label>
-                      <Select menuPlacement="auto" id="location" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries }]} value={[locationField]} onChange={e => this.changeCollection('location', e.value)} isSearchable/>
                     </FormGroup>
 
                     <FormGroup>
