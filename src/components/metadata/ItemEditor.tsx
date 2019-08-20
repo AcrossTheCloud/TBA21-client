@@ -2250,7 +2250,7 @@ export class ItemEditor extends React.Component<Props, State> {
                     </FormGroup>
 
                     <FormGroup>
-                      <Label for="concept_tags">Subject Area(s)</Label>
+                      <Label for="concept_tags">Concept Tag(s)</Label>
                       <Tags
                         className="concept_tags"
                         type="concept"
