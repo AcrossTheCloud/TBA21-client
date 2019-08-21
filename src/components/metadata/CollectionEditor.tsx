@@ -202,12 +202,6 @@ export class CollectionEditor extends React.Component<Props, State> {
       return;
     }
 
-    // If we don't have a short path and we've published our collection
-    if (!this.state.hasShortPath && this.state.collection.status && this._isMounted) {
-      this.setState({ errorMessage: <>The collection needs a url slug</> });
-      return;
-    }
-
     try {
       const collectionProperties = {};
 
@@ -1297,26 +1291,16 @@ export class CollectionEditor extends React.Component<Props, State> {
               <TabPane tabId="1">
                 <Row>
                   <Col md="12">
-                    <UncontrolledButtonDropdown className="float-right">
-                      {this.state.originalCollection.status === true || !this.state.hasShortPath ?
-                        <Button className="caret" onClick={this.putCollection} disabled={!this.state.isDifferent}>Save</Button>
-                      :
-                        <Button className="caret" onClick={() => { this.changeCollection('status', true, () => this.putCollection() ); }}>Publish</Button>
-                      }
-                      {this.state.hasShortPath ?
-                        <>
-                          <DropdownToggle caret />
-                          <DropdownMenu>
-                            {this.state.originalCollection.status === true ?
-                              <DropdownItem onClick={() => { this.changeCollection('status', false, () => this.putCollection() ); }}>Unpublish</DropdownItem>
-                            :
-                              <DropdownItem onClick={() => { this.changeCollection('status', false, () => this.putCollection() ); }}>Save Draft</DropdownItem>
-                            }
-                          </DropdownMenu>
-                        </>
-                      :
-                        <></>
-                      }
+                    <UncontrolledButtonDropdown className="float-right">  
+                      <Button className="caret" onClick={this.putCollection} disabled={!this.state.isDifferent}>Save</Button>
+                      <DropdownToggle caret />
+                      <DropdownMenu>
+                        {this.state.originalCollection.status === true ?
+                          <DropdownItem onClick={() => { this.changeCollection('status', false, () => this.putCollection() ); }}>Unpublish</DropdownItem>
+                        :
+                          <DropdownItem onClick={() => { this.changeCollection('status', true, () => this.putCollection() ); }}>Publish</DropdownItem>
+                        }
+                      </DropdownMenu>
                     </UncontrolledButtonDropdown>
                   </Col>
                   <Col>
@@ -1338,7 +1322,7 @@ export class CollectionEditor extends React.Component<Props, State> {
                       />
                       {
                         this.state.editMode ?
-                          <FormFeedback style={{ display: !this.state.hasShortPath ? 'block' : 'none' }}>Your collection needs a short path if you're going to publish it.</FormFeedback>
+                          <></>
                           :
                           <FormFeedback style={{ display: !this.state.hasShortPath ? 'block' : 'none' }}>You need to save your collection first before adding a URL slug.</FormFeedback>
                       }
@@ -1416,7 +1400,7 @@ export class CollectionEditor extends React.Component<Props, State> {
                     </FormGroup>
 
                     <FormGroup>
-                      <Label for="concept_tags">Subject Area(s)</Label>
+                      <Label for="concept_tags">Concept Tag(s)</Label>
                       <Tags
                         className="concept_tags"
                         type="concept"
