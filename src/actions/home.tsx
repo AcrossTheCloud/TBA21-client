@@ -2,7 +2,7 @@ import { API } from 'aws-amplify';
 import { HomepageData } from '../reducers/home';
 import { AudioPlayer } from '../components/utils/AudioPlayer';
 import * as React from 'react';
-import { random } from 'lodash';
+import { random, shuffle } from 'lodash';
 import { getCDNObject } from '../components/utils/s3File';
 import { Col } from 'reactstrap';
 import ReactPlayer from 'react-player';
@@ -24,39 +24,46 @@ export const loadHomepage = () => async dispatch => {
   threeMonthsEarlier.setMonth(threeMonthsEarlier.getMonth() - 3);
 
   const
+    oaHighlights: {oa_highlight: HomepageData[]} = await API.get('tba21', 'items/homepages', { queryStringParameters: {date: threeMonthsEarlier.toISOString(), oa_highlight: true}}),
     queryStringParams = {
-      date: threeMonthsEarlier.toISOString() // Minus 3 months.
+      date: threeMonthsEarlier.toISOString(), // Minus 3 months.
+      oa_highlight: false,
+      id: (oaHighlights.oa_highlight && oaHighlights.oa_highlight.length ? oaHighlights.oa_highlight.map(o => o.id) : [])
     },
-    response = await API.get('tba21', 'items/homepages', { queryStringParameters: queryStringParams });
+    response: {items: HomepageData[], collections: HomepageData[]} = await API.get('tba21', 'items/homepages', { queryStringParameters: queryStringParams });
 
   dispatch({
     type: LOAD_HOMEPAGE,
-    items: response.oa_highlight[0],
+    items: response.items,
     collections: response.collections,
-    loaded_highlights: await loadOAHighlights(response.oa_highlight[0])
+    loaded_highlights: await loadOAHighlights(oaHighlights.oa_highlight)
   });
 };
 
-const loadOAHighlights = async (data: HomepageData[]) => {
-  for (let i = 0; i < data.length; i++) {
-    if (!data[i].hasOwnProperty('file')) {
-      const getFile = async (key: string): Promise<void> => {
-        const result = await getCDNObject(key);
-        if (result) {
-          Object.assign(data[i], { file: result });
-        }
-      };
+const loadOAHighlights = async (data: HomepageData[]): Promise<JSX.Element[] | void> => {
+  if (data && data.length) {
 
-      await getFile(data[i].s3_key);
+    // Loop through each object in the array and get it's File from CloudFront
+    for (let i = 0; i < data.length; i++) {
+      if (!data[i].hasOwnProperty('file')) {
+        const getFile = async (key: string): Promise<void> => {
+          const result = await getCDNObject(key);
+          if (result) {
+            Object.assign(data[i], {file: result});
+          }
+        };
+
+        await getFile(data[i].s3_key);
+      }
     }
-  }
 
-  return data.map ((e, i) => (
-    <Col key={i} md={i === 0 ? '8' : '4'}>
-      {!!e.file ? <FileType data={e} /> : <></>}
-      <div className="title">{e.title}</div>
-    </Col>
-  ));
+    return data.map((e, i) => (
+      <Col key={i} md={i === 0 ? '8' : '4'}>
+        {!!e.file ? <FileType data={e}/> : <></>}
+        <div className="title">{e.title}</div>
+      </Col>
+    ));
+  }
 };
 
 export const loadMore = (items: [], collections: [], alreadyLoaded: JSX.Element[]) => async dispatch => {
@@ -77,7 +84,16 @@ export const loadMore = (items: [], collections: [], alreadyLoaded: JSX.Element[
     });
   };
 
-  const results = displayResults([...items.splice(0, itemRand), ...collections.splice(0, collectionRand)]);
+  const itemsResults = items.splice(0, itemRand);
+  if (items.length <= 1 && itemRand > 0) {
+    items = [];
+  }
+  const collectionsResults = collections.splice(0, collectionRand);
+  if (collections.length <= 1 && collectionRand > 0) {
+    collections = [];
+  }
+
+  const results = displayResults(shuffle([...itemsResults, ...collectionsResults]));
 
   Promise.all(results).then(res => {
     dispatch({
@@ -112,10 +128,11 @@ export const FileType = (props: { data: HomepageData }): JSX.Element => {
 };
 
 const display = async (data: HomepageData): Promise<JSX.Element> => {
+  const { file } = data;
   return (
-    <div key={data.id}>
-      {data.file ? <FileType data={data} /> : <></>}
+    <Col key={data.id} xs="12" md={!!file && file.type === 'audio' ? '12' : '4'}>
+      {file ? <FileType data={data} /> : <></>}
       <div>{data.title}</div>
-    </div>
+    </Col>
   );
 };

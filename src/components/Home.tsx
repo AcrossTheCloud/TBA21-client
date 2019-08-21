@@ -27,7 +27,7 @@ class HomePage extends React.Component<Props, {}> {
     super(props);
     this._isMounted = false;
 
-    this.scrollDebounce = debounce( () => this.handleScroll(), 300);
+    this.scrollDebounce = debounce( async () => await this.handleScroll(), 300);
   }
 
   async componentDidMount(): Promise<void> {
@@ -46,9 +46,9 @@ class HomePage extends React.Component<Props, {}> {
     window.removeEventListener('scroll', this.scrollDebounce, false);
   }
 
-  handleScroll = () => {
+  handleScroll = async () => {
     if (window.innerHeight + document.documentElement.scrollTop === document.documentElement.offsetHeight) {
-      this.props.loadMore(this.props.items, this.props.collections, this.props.loadedItems);
+      await this.props.loadMore(this.props.items, this.props.collections, this.props.loadedItems);
     }
   }
 
