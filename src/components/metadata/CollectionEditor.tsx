@@ -202,12 +202,6 @@ export class CollectionEditor extends React.Component<Props, State> {
       return;
     }
 
-    // If we don't have a short path and we've published our collection
-    if (!this.state.hasShortPath && this.state.collection.status && this._isMounted) {
-      this.setState({ errorMessage: <>The collection needs a url slug</> });
-      return;
-    }
-
     try {
       const collectionProperties = {};
 
@@ -1338,7 +1332,7 @@ export class CollectionEditor extends React.Component<Props, State> {
                       />
                       {
                         this.state.editMode ?
-                          <FormFeedback style={{ display: !this.state.hasShortPath ? 'block' : 'none' }}>Your collection needs a short path if you're going to publish it.</FormFeedback>
+                          <></>
                           :
                           <FormFeedback style={{ display: !this.state.hasShortPath ? 'block' : 'none' }}>You need to save your collection first before adding a URL slug.</FormFeedback>
                       }
