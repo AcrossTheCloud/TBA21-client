@@ -54,6 +54,8 @@ export class AudioPlayer extends React.Component<Props, State> {
         },
         wavesurfer = WaveSurfer.create(options);
 
+      //filter: blur(0.7px);
+
       wavesurfer.load(this.props.url);
       this.setState( { wavesurfer: wavesurfer, loaded: true } );
     }
