@@ -2108,17 +2108,13 @@ export class ItemEditor extends React.Component<Props, State> {
               </Col>
               <Col xs="4">
                 <UncontrolledButtonDropdown className="float-right">
-                  {this.state.originalItem.status ?
-                    <Button className="caret" onClick={this.updateItem} disabled={!this.state.isDifferent}>Save</Button>
-                    :
-                    <Button className="caret" onClick={() => { this.changeItem('status', true, () => this.updateItem() ); }}>Publish</Button>
-                  }
+                  <Button className="caret" onClick={this.updateItem} disabled={!this.state.isDifferent}>Save</Button>           
                   <DropdownToggle caret />
                   <DropdownMenu>
                     {this.state.originalItem.status ?
                       <DropdownItem onClick={() => { this.changeItem('status', false, () => this.updateItem() ); }}>Unpublish</DropdownItem>
                       :
-                      <DropdownItem onClick={() => { this.changeItem('status', false, () => this.updateItem() ); }}>Save Draft</DropdownItem>
+                      <DropdownItem onClick={() => { this.changeItem('status', true, () => this.updateItem() ); }}>Publish</DropdownItem>
                     }
                   </DropdownMenu>
                 </UncontrolledButtonDropdown>
