@@ -296,6 +296,7 @@ export enum itemVideo {
   Trailer = 'Trailer',
   Artwork_Documentation = 'Artwork Documentation',
   Raw_Footage = 'Raw Footage',
+  Video = 'Video',
   Other = 'Other'
 }
 export enum itemImage {
@@ -309,6 +310,7 @@ export enum itemImage {
   Painting = 'Painting',
   Illustration = 'Illustration',
   Artwork_Documentation = 'Artwork Documentation',
+  Drawing = 'Drawing',
   Other = 'Other'
 }
 export enum itemAudio {

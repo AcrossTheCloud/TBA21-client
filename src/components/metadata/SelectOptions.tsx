@@ -420,6 +420,7 @@ export const itemVideoSubTypes = [
   {value: itemVideo.Trailer, label: 'Trailer'},
   {value: itemVideo.Artwork_Documentation, label: 'Artwork Documentation'},
   {value: itemVideo.Raw_Footage, label: 'Raw Footage'},
+  {value: itemVideo.Video, label: 'Video'},
   {value: itemVideo.Other, label: 'Other'}
 ];
 export const itemImageSubTypes = [
@@ -433,6 +434,7 @@ export const itemImageSubTypes = [
   {value: itemImage.Painting, label: 'Painting'},
   {value: itemImage.Illustration, label: 'Illustration'},
   {value: itemImage.Artwork_Documentation, label: 'Artwork Documentation'},
+  {value: itemImage.Drawing, label: 'Drawing'},
   {value: itemImage.Other, label: 'Other'}
 ];
 export const itemAudioSubTypes = [

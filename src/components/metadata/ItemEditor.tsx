@@ -1290,6 +1290,28 @@ export class ItemEditor extends React.Component<Props, State> {
   }
 
   // ITEM VIDEO
+  Video = (): JSX.Element => {
+    const item = this.state.changedItem;
+    return (
+      <Row>
+        <Col md="4">
+          <FormGroup>
+            <Label for="collaborators">Collaborators</Label>
+            <CustomSelect values={item.collaborators} callback={values => this.changeItem('collaborators', values)} />
+            <FormText>Use tab or enter to add a new Collaborator.</FormText>
+          </FormGroup>
+        </Col>
+        <Col md="4">
+          <FormGroup>
+            <Label for="screened_at">Screened At</Label>
+            <Input type="text" className="screened_at" defaultValue={item.screened_at ? item.screened_at : ''} onChange={e => this.changeItem('screened_at', e.target.value)}/>
+          </FormGroup>
+        </Col>
+
+
+      </Row>
+    );
+  }
   VideoMovieTrailer = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
@@ -1541,6 +1563,32 @@ export class ItemEditor extends React.Component<Props, State> {
   }
 
   // ITEM IMAGE
+  ItemImageDrawing = (): JSX.Element => {
+    const item = this.state.changedItem;
+    return (
+      <Row>
+        <Col md="6">
+          <FormGroup>
+            <Label for="dimensions">Physical Dimensions</Label>
+            <Input
+              type="text"
+              className="dimensions"
+              defaultValue={item.dimensions ? item.dimensions : ''}
+              onChange={e => this.validateLength('dimensions', e.target.value)}
+              invalid={this.state.validate.hasOwnProperty('dimensions') && !this.state.validate.dimensions}
+            />
+            <FormFeedback>This is a required field</FormFeedback>
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="exhibited_at">Exhibited At</Label>
+            <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+          </FormGroup>
+        </Col>
+      </Row>
+    );
+  }
   ItemImage = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
@@ -2307,6 +2355,7 @@ export class ItemEditor extends React.Component<Props, State> {
                 {(!!item.file && item.file.type === 'text') && item.item_subtype === itemText.Other ? <this.TextOther /> : <></>}
 
                 {/* Item Video */}
+                {item.item_subtype === itemVideo.Video ? <this.Video /> : <></>}
                 {item.item_subtype === itemVideo.Movie ? <this.VideoMovieTrailer /> : <></>}
                 {item.item_subtype === itemVideo.Documentary ? <this.VideoDocumentaryArt /> : <></>}
                 {(!!item.file && item.file.type === 'video') && item.item_subtype === itemVideo.Research ? <this.VideoResearch /> : <></>}
@@ -2322,6 +2371,9 @@ export class ItemEditor extends React.Component<Props, State> {
                 { // Item Image
                   item.item_subtype === itemImage.Illustration ||
                   item.item_subtype === itemImage.Artwork_Documentation ? <this.ItemImage /> : <></>
+                }
+                {
+                  item.item_subtype === itemImage.Drawing ? <this.ItemImageDrawing /> : <></>
                 }
                 {
                   item.item_subtype === itemImage.Photograph ||
