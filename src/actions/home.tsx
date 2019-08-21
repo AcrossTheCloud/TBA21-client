@@ -34,13 +34,13 @@ export const loadHomepage = () => async dispatch => {
 
   dispatch({
     type: LOAD_HOMEPAGE,
-    items: response.items,
-    collections: response.collections,
-    loaded_highlights: await addFilesToOaHighlights(oaHighlights.oa_highlight)
+    items: await addFilesToData(response.items),
+    collections: await addFilesToData(response.collections),
+    loaded_highlights: await addFilesToData(oaHighlights.oa_highlight)
   });
 };
 
-const addFilesToOaHighlights = async (data: HomepageData[]): Promise<HomepageData[] | void> => {
+const addFilesToData = async (data: HomepageData[]): Promise<HomepageData[] | void> => {
   if (data && data.length) {
     // Loop through each object in the array and get it's File from CloudFront
     for (let i = 0; i < data.length; i++) {
@@ -61,19 +61,16 @@ const addFilesToOaHighlights = async (data: HomepageData[]): Promise<HomepageDat
 
 export const loadMore = (items: [], collections: [], alreadyLoaded: JSX.Element[]) => async dispatch => {
   const
-    itemRand = random(items.length >= 1 ? 1 : 0, items.length >= 5 ? 4 : (items.length - 1)),
-    collectionRand = random(collections.length >= 1 ? 1 : 0, collections.length >= 5 ? 4 : (items.length - 1));
+    itemRand = random(2, 4),
+    collectionRand = random(2, 4);
 
-  const displayResults = async (data: HomepageData[]): Promise<JSX.Element> => {
+  const displayResults = async (): Promise<JSX.Element> => {
     const layout: JSX.Element[] = [];
-    for (const info of data) {
-      const result = await getCDNObject(info.s3_key);
-      if (result) {
-        Object.assign(info, { file: result });
-      }
+    const data: HomepageData[] = [...items.splice(0, itemRand), ...collections.splice(0, collectionRand)];
 
+    for (const info of data) {
       layout.push((
-        <Col key={info.s3_key}>
+        <Col key={`${info.s3_key}-${!!info.count ? 'collection' : 'item'}`}>
           <div className="item">
             <div className="file">
               {info.file ? <FileType data={info}/> : <></>}
@@ -92,24 +89,14 @@ export const loadMore = (items: [], collections: [], alreadyLoaded: JSX.Element[
     }
 
     return (
-      <Row>
+      <Row key={Date.now()}>
         {layout}
       </Row>
     );
   };
 
-  const itemsResults = items.splice(0, itemRand);
-  if (items.length <= 1) {
-    items = [];
-  }
-  const collectionsResults = collections.splice(0, collectionRand);
-  if (collections.length <= 1) {
-    collections = [];
-  }
-
   const
-    concat = [...itemsResults, ...collectionsResults],
-    results = await displayResults(concat);
+    results = await displayResults();
 
   dispatch({
    type: LOAD_MORE_HOMEPAGE,
