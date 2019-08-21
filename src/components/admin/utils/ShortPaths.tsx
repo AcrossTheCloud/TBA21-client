@@ -146,7 +146,7 @@ export default class ShortPaths extends React.Component<Props, State> {
       } catch (e) {
         // If the short path exists already, tell the user.
         if (e.response && e.response.data && !!e.response.data.conflict) {
-          Object.assign(state, { invalid: true, invalidFeedback: <>The url slug <b>{value.label}</b> has already been taken</> });
+          Object.assign(state, { invalid: true, invalidFeedback: <>The path <b>{value.label}</b> has already been taken</> });
         }
       } finally {
         if (!this._isMounted) { return; }
@@ -179,11 +179,11 @@ export default class ShortPaths extends React.Component<Props, State> {
       <FormGroup>
         <Row className="align-items-center">
           <Col xs="12">
-            <small>URL Slug</small>
+            <small>Short URL Path</small>
           </Col>
           <Col>
             <CreatableSelect
-              placeholder="URL Slug"
+              placeholder="Short URL Path"
               menuPlacement="auto"
               isClearable
 

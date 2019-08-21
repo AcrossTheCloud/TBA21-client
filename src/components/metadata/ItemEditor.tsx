@@ -64,7 +64,6 @@ interface State extends Alerts {
   changedFields: {
     [key: string]: string
   };
-  hasShortPath: boolean;
   isDifferent: boolean;
 
   isLoading: boolean;
@@ -123,7 +122,6 @@ export class ItemEditor extends React.Component<Props, State> {
       hideForm: false,
       activeTab: '1',
       validate: defaultRequiredFields(props.item),
-      hasShortPath: false
     };
   }
 
@@ -255,12 +253,6 @@ export class ItemEditor extends React.Component<Props, State> {
         focus_scitech: this.state.changedItem.focus_scitech === '1' ? '1' : '0',
         focus_action: this.state.changedItem.focus_action === '1' ? '1' : '0'
       });
-    }
-
-    // If we don't have a short path and we've published our item
-    if (!this.state.hasShortPath && this.state.changedItem.status && this._isMounted) {
-      this.setState({ isLoading: false, errorMessage: <>The item needs a url slug</> });
-      return;
     }
 
     try {
@@ -2164,9 +2156,7 @@ export class ItemEditor extends React.Component<Props, State> {
                       <ShortPaths
                         type="Item"
                         id={item.id ? item.id : undefined}
-                        onChange={s => { if (this._isMounted) { this.setState({ hasShortPath: !!s.length }); }}}
                       />
-                      <FormFeedback style={{ display: !this.state.hasShortPath ? 'block' : 'none' }}>Your item needs a short path if you're going to publish it.</FormFeedback>
 
                     </FormGroup>
                   </Col>
