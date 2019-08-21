@@ -2,10 +2,10 @@ import { API } from 'aws-amplify';
 import { HomepageData } from '../reducers/home';
 import { AudioPlayer } from '../components/utils/AudioPlayer';
 import * as React from 'react';
-import { random, shuffle } from 'lodash';
+import { random } from 'lodash';
 import { getCDNObject } from '../components/utils/s3File';
-import { Col } from 'reactstrap';
 import ReactPlayer from 'react-player';
+import { Col, Row } from 'reactstrap';
 
 // Defining our Actions for the reducers
 export const LOGO_STATE_HOMEPAGE = 'LOGO_STATE_HOMEPAGE';
@@ -24,25 +24,24 @@ export const loadHomepage = () => async dispatch => {
   threeMonthsEarlier.setMonth(threeMonthsEarlier.getMonth() - 3);
 
   const
-    oaHighlights: {oa_highlight: HomepageData[]} = await API.get('tba21', 'items/homepages', { queryStringParameters: {date: threeMonthsEarlier.toISOString(), oa_highlight: true}}),
+    oaHighlights: {oa_highlight: HomepageData[]} = await API.get('tba21', 'pages/homepage', { queryStringParameters: {date: threeMonthsEarlier.toISOString(), oa_highlight: true}}),
     queryStringParams = {
       date: threeMonthsEarlier.toISOString(), // Minus 3 months.
       oa_highlight: false,
       id: (oaHighlights.oa_highlight && oaHighlights.oa_highlight.length ? oaHighlights.oa_highlight.map(o => o.id) : [])
     },
-    response: {items: HomepageData[], collections: HomepageData[]} = await API.get('tba21', 'items/homepages', { queryStringParameters: queryStringParams });
+    response: {items: HomepageData[], collections: HomepageData[]} = await API.get('tba21', 'pages/homepage', { queryStringParameters: queryStringParams });
 
   dispatch({
     type: LOAD_HOMEPAGE,
     items: response.items,
     collections: response.collections,
-    loaded_highlights: await loadOAHighlights(oaHighlights.oa_highlight)
+    loaded_highlights: await addFilesToOaHighlights(oaHighlights.oa_highlight)
   });
 };
 
-const loadOAHighlights = async (data: HomepageData[]): Promise<JSX.Element[] | void> => {
+const addFilesToOaHighlights = async (data: HomepageData[]): Promise<HomepageData[] | void> => {
   if (data && data.length) {
-
     // Loop through each object in the array and get it's File from CloudFront
     for (let i = 0; i < data.length; i++) {
       if (!data[i].hasOwnProperty('file')) {
@@ -56,56 +55,71 @@ const loadOAHighlights = async (data: HomepageData[]): Promise<JSX.Element[] | v
         await getFile(data[i].s3_key);
       }
     }
-
-    return data.map((e, i) => (
-      <Col key={i} md={i === 0 ? '8' : '4'}>
-        {!!e.file ? <FileType data={e}/> : <></>}
-        <div className="title">{e.title}</div>
-      </Col>
-    ));
+    return data;
   }
 };
 
 export const loadMore = (items: [], collections: [], alreadyLoaded: JSX.Element[]) => async dispatch => {
   const
-    itemRand = random(items.length >= 1 ? 1 : 0, items.length >= 5 ? 4 : items.length - 1),
-    collectionRand = random(collections.length >= 1 ? 1 : 0, collections.length >= 5 ? 4 : collections.length - 1);
+    itemRand = random(items.length >= 1 ? 1 : 0, items.length >= 5 ? 4 : (items.length - 1)),
+    collectionRand = random(collections.length >= 1 ? 1 : 0, collections.length >= 5 ? 4 : (items.length - 1));
 
-  const displayResults = (data: HomepageData[]) => {
-    return data.map((info: HomepageData) => {
-      return new Promise (async resolve => {
-        const result = await getCDNObject(info.s3_key);
-        if (result) {
-          Object.assign(info, { file: result});
-        }
+  const displayResults = async (data: HomepageData[]): Promise<JSX.Element> => {
+    const layout: JSX.Element[] = [];
+    for (const info of data) {
+      const result = await getCDNObject(info.s3_key);
+      if (result) {
+        Object.assign(info, { file: result });
+      }
 
-        resolve(display(info));
-      });
-    });
+      layout.push((
+        <Col key={info.s3_key}>
+          <div className="item">
+            <div className="file">
+              {info.file ? <FileType data={info}/> : <></>}
+            </div>
+            <div className="overlay">
+              <div className="type">
+                {info.type}
+              </div>
+              <div className="title">
+                {info.title}
+              </div>
+            </div>
+          </div>
+        </Col>
+      ));
+    }
+
+    return (
+      <Row>
+        {layout}
+      </Row>
+    );
   };
 
   const itemsResults = items.splice(0, itemRand);
-  if (items.length <= 1 && itemRand > 0) {
+  if (items.length <= 1) {
     items = [];
   }
   const collectionsResults = collections.splice(0, collectionRand);
-  if (collections.length <= 1 && collectionRand > 0) {
+  if (collections.length <= 1) {
     collections = [];
   }
 
-  const results = displayResults(shuffle([...itemsResults, ...collectionsResults]));
+  const
+    concat = [...itemsResults, ...collectionsResults],
+    results = await displayResults(concat);
 
-  Promise.all(results).then(res => {
-    dispatch({
-     type: LOAD_MORE_HOMEPAGE,
-     items: items,
-     collections: collections,
-     loadedItems: [
-       ...alreadyLoaded,
-       ...res
-     ]
-    });
-  });
+  dispatch({
+   type: LOAD_MORE_HOMEPAGE,
+   items: items,
+   collections: collections,
+   loadedItems: [
+     ...alreadyLoaded,
+     results
+   ]
+ });
 };
 
 export const FileType = (props: { data: HomepageData }): JSX.Element => {
@@ -118,21 +132,11 @@ export const FileType = (props: { data: HomepageData }): JSX.Element => {
     }
     if (props.data.file.type === 'video') {
       return (
-        <div className="embed-responsive embed-responsive-4by3">
-          <ReactPlayer className="embed-responsive-item" url={props.data.file.url} width="400px" height="auto" playing={true} loop={true} vertical-align="top" />
+        <div className="embed-responsive embed-responsive-16by9">
+          <ReactPlayer className="embed-responsive-item" url={props.data.file.url} height="auto" width="100%" vertical-align="top" />
         </div>
       );
     }
   }
   return <></>;
-};
-
-const display = async (data: HomepageData): Promise<JSX.Element> => {
-  const { file } = data;
-  return (
-    <Col key={data.id} xs="12" md={!!file && file.type === 'audio' ? '12' : '4'}>
-      {file ? <FileType data={data} /> : <></>}
-      <div>{data.title}</div>
-    </Col>
-  );
 };

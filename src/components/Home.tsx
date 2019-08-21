@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { Button, Row } from 'reactstrap';
+import { Button, Col, Container, Row } from 'reactstrap';
 import { debounce } from 'lodash';
 
 import { AuthConsumer } from '../providers/AuthProvider';
-import { logoDispatch, loadHomepage, loadMore } from 'actions/home';
+import { logoDispatch, loadHomepage, loadMore, FileType } from 'actions/home';
 
 import { HomePageState } from '../reducers/home';
 
@@ -53,9 +53,11 @@ class HomePage extends React.Component<Props, {}> {
   }
 
   render() {
+    const { loaded_highlights, logoLoaded, loadedItems } = this.props;
+
     return (
       <div id="home" className="flex-fill">
-        <section id="header" className="container-fluid">
+        <Container fluid id="header">
           <AuthConsumer>
             {({ isAuthenticated, logout }) => (
               isAuthenticated ?
@@ -66,13 +68,83 @@ class HomePage extends React.Component<Props, {}> {
           </AuthConsumer>
 
           <Row>
-            {this.props.loaded_highlights}
+            {!!loaded_highlights[0] ?
+              <Col xs="12" md={loaded_highlights.length > 1 ? 8 : 12}>
+                <div className="file">
+                  <FileType data={loaded_highlights[0]}/>
+                </div>
+              </Col>
+              :
+              <></>
+            }
+            {!!loaded_highlights[1] ?
+              <Col xs="12" md="4">
+                <Row>
+                  <Col xs="12">
+                    <div className="file">
+                      <FileType data={loaded_highlights[1]}/>
+                    </div>
+                    <div className="title">
+                      {loaded_highlights[1].title}
+                    </div>
+                  </Col>
+                </Row>
+              </Col>
+              :
+              <></>
+            }
+
           </Row>
-        </section>
+          <Row>
+            {!!loaded_highlights[0] ?
+              <Col md="6">
+                <div className="title">
+                  {loaded_highlights[0].title}
+                </div>
+                <div className="type">
+                  {loaded_highlights[0].type}, {new Date(loaded_highlights[0].date).getFullYear()}
+                </div>
+                {/*{!!loaded_highlights[0].tags ?*/}
+                {/*  <div className="type">*/}
+                {/*    loaded_highlights[0].tags : <></>}*/}
+                {/*  </div>*/}
+                {/*  : <></>*/}
+                {/*}*/}
+              </Col>
+              : <></>
+            }
 
-        <Logo loaded={this.props.logoLoaded} onChange={() => this.props.logoDispatch(true)}/>
+            {!!loaded_highlights[2] ?
+              <Col md="2">
+                <div className="left">
+                  <FileType data={loaded_highlights[2]} />
+                </div>
+              </Col>
+              : <></>
+            }
 
-        {this.props.loadedItems}
+            {!!loaded_highlights[2] ?
+              <Col md="4">
+                <div>
+                  {loaded_highlights[2].type}
+                </div>
+                <div>
+                  {loaded_highlights[2].title}
+                </div>
+                <div>
+                  {loaded_highlights[0].type}, {new Date(loaded_highlights[0].date).getFullYear()}
+                </div>
+              </Col>
+              : <></>
+            }
+          </Row>
+        </Container>
+
+        <Logo loaded={logoLoaded} onChange={() => this.props.logoDispatch(true)}/>
+
+        <Container fluid>
+          {loadedItems}
+        </Container>
 
       </div>
     );

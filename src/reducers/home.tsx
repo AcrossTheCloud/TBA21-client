@@ -8,6 +8,7 @@ export interface HomepageData {
   title: string;
   s3_key: string;
   type: string;
+  date: string;
 }
 
 export interface HomePageState {
@@ -17,7 +18,7 @@ export interface HomePageState {
   collections: HomepageData[];
   oa_highlight: HomepageData[];
 
-  loaded_highlights: JSX.Element[][];
+  loaded_highlights: HomepageData[];
   loadedItems: JSX.Element[];
 }
 const initialState: HomePageState = {
