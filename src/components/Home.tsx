@@ -5,7 +5,7 @@ import { Button, Col, Container, Row } from 'reactstrap';
 import { debounce } from 'lodash';
 
 import { AuthConsumer } from '../providers/AuthProvider';
-import { logoDispatch, loadHomepage, loadMore, FileType } from 'actions/home';
+import { logoDispatch, loadHomepage, loadMore, FilePreview } from 'actions/home';
 
 import { HomePageState } from '../reducers/home';
 
@@ -37,6 +37,7 @@ class HomePage extends React.Component<Props, {}> {
     // If we have no items go get em.
     if (this.props.items && !this.props.items.length) {
       await this.props.loadHomepage();
+      console.log(this.props.items, this.props.collections);
       await this.props.loadMore(this.props.items, this.props.collections, this.props.loadedItems);
     }
   }
@@ -71,18 +72,18 @@ class HomePage extends React.Component<Props, {}> {
             {!!loaded_highlights[0] ?
               <Col xs="12" md={loaded_highlights.length > 1 ? 8 : 12}>
                 <div className="file">
-                  <FileType data={loaded_highlights[0]}/>
+                  <FilePreview data={loaded_highlights[0]}/>
                 </div>
               </Col>
               :
               <></>
             }
             {!!loaded_highlights[1] ?
-              <Col xs="12" md="4">
+              <Col xs="12" md="4" className="item">
                 <Row>
                   <Col xs="12">
                     <div className="file">
-                      <FileType data={loaded_highlights[1]}/>
+                      <FilePreview data={loaded_highlights[1]}/>
                     </div>
                     <div className="title">
                       {loaded_highlights[1].title}
@@ -97,12 +98,16 @@ class HomePage extends React.Component<Props, {}> {
           </Row>
           <Row>
             {!!loaded_highlights[0] ?
-              <Col md="6">
+              <Col md="6" className="item">
                 <div className="title">
-                  {loaded_highlights[0].title}
+                  <Link to={`/view/${loaded_highlights[0].s3_key}`}>
+                    {loaded_highlights[0].title}
+                  </Link>
                 </div>
                 <div className="type">
-                  {loaded_highlights[0].type}, {new Date(loaded_highlights[0].date).getFullYear()}
+                  <Link to={`/view/${loaded_highlights[0].s3_key}`}>
+                    {loaded_highlights[0].type}, {new Date(loaded_highlights[0].date).getFullYear()}
+                  </Link>
                 </div>
                 {/*{!!loaded_highlights[0].tags ?*/}
                 {/*  <div className="type">*/}
@@ -117,14 +122,14 @@ class HomePage extends React.Component<Props, {}> {
             {!!loaded_highlights[2] ?
               <Col md="2">
                 <div className="left">
-                  <FileType data={loaded_highlights[2]} />
+                  <FilePreview data={loaded_highlights[2]} />
                 </div>
               </Col>
               : <></>
             }
 
             {!!loaded_highlights[2] ?
-              <Col md="4">
+              <Col md="4" className="item">
                 <div>
                   {loaded_highlights[2].type}
                 </div>
@@ -143,7 +148,9 @@ class HomePage extends React.Component<Props, {}> {
         <Logo loaded={logoLoaded} onChange={() => this.props.logoDispatch(true)}/>
 
         <Container fluid>
-          {loadedItems}
+          <Row>
+            {loadedItems}
+          </Row>
         </Container>
 
       </div>
@@ -154,9 +161,9 @@ class HomePage extends React.Component<Props, {}> {
 const mapStateToProps = (state: { home: Props }) => ({
   logoLoaded: state.home.logoLoaded,
 
-  items: state.home.items,
-  collections: state.home.collections,
-  oa_highlight: state.home.oa_highlight,
+  items: state.home.items ? state.home.items : [],
+  collections: state.home.collections ? state.home.collections : [],
+  oa_highlight: state.home.oa_highlight ? state.home.oa_highlight : [],
   loadedItems: state.home.loadedItems,
   loaded_highlights: state.home.loaded_highlights
 });

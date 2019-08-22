@@ -2,10 +2,13 @@ import { API } from 'aws-amplify';
 import { HomepageData } from '../reducers/home';
 import { AudioPlayer } from '../components/utils/AudioPlayer';
 import * as React from 'react';
-import { random } from 'lodash';
+import { random, findIndex, matchesProperty } from 'lodash';
 import { getCDNObject } from '../components/utils/s3File';
 import ReactPlayer from 'react-player';
-import { Col, Row } from 'reactstrap';
+// import { Document, pdfjs } from 'react-pdf';
+import { Col } from 'reactstrap';
+//
+// pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 // Defining our Actions for the reducers
 export const LOGO_STATE_HOMEPAGE = 'LOGO_STATE_HOMEPAGE';
@@ -20,83 +23,88 @@ export const logoDispatch = (state: boolean) => dispatch => {
 };
 
 export const loadHomepage = () => async dispatch => {
-  const threeMonthsEarlier: Date = new Date();
-  threeMonthsEarlier.setMonth(threeMonthsEarlier.getMonth() - 3);
-
   const
-    oaHighlights: {oa_highlight: HomepageData[]} = await API.get('tba21', 'pages/homepage', { queryStringParameters: {date: threeMonthsEarlier.toISOString(), oa_highlight: true}}),
+    oaHighlights: {oa_highlight: HomepageData[]} = await API.get('tba21', 'pages/homepage', { queryStringParameters: {oa_highlight: true}}),
     queryStringParams = {
-      date: threeMonthsEarlier.toISOString(), // Minus 3 months.
       oa_highlight: false,
       id: (oaHighlights.oa_highlight && oaHighlights.oa_highlight.length ? oaHighlights.oa_highlight.map(o => o.id) : [])
     },
     response: {items: HomepageData[], collections: HomepageData[]} = await API.get('tba21', 'pages/homepage', { queryStringParameters: queryStringParams });
 
+  const
+    items = await addFilesToData(response.items),
+    collections = await addFilesToData(response.collections),
+    loadedHighlights = await addFilesToData(oaHighlights.oa_highlight);
+
   dispatch({
     type: LOAD_HOMEPAGE,
-    items: await addFilesToData(response.items),
-    collections: await addFilesToData(response.collections),
-    loaded_highlights: await addFilesToData(oaHighlights.oa_highlight)
+    items,
+    collections,
+    loaded_highlights: loadedHighlights
   });
 };
 
-const addFilesToData = async (data: HomepageData[]): Promise<HomepageData[] | void> => {
+/**
+ * HEADS all files and inserts a file key value pair into the item/collection.
+ * @param data
+ */
+const addFilesToData = async (data: HomepageData[]): Promise<HomepageData[]> => {
   if (data && data.length) {
     // Loop through each object in the array and get it's File from CloudFront
     for (let i = 0; i < data.length; i++) {
-      if (!data[i].hasOwnProperty('file')) {
-        const getFile = async (key: string): Promise<void> => {
-          const result = await getCDNObject(key);
-          if (result) {
-            Object.assign(data[i], {file: result});
-          }
-        };
-
-        await getFile(data[i].s3_key);
+      const result = await getCDNObject(data[i].s3_key);
+      if (result) {
+        Object.assign(data[i], {file: result});
       }
     }
     return data;
+  } else {
+    return [];
   }
 };
 
-export const loadMore = (items: [], collections: [], alreadyLoaded: JSX.Element[]) => async dispatch => {
+export const loadMore = (items: HomepageData[], collections: HomepageData[], alreadyLoaded: JSX.Element[]) => async dispatch => {
   const
     itemRand = random(2, 4),
     collectionRand = random(2, 4);
 
-  const displayResults = async (): Promise<JSX.Element> => {
-    const layout: JSX.Element[] = [];
-    const data: HomepageData[] = [...items.splice(0, itemRand), ...collections.splice(0, collectionRand)];
+  const layout: JSX.Element[] = [];
 
-    for (const info of data) {
-      layout.push((
-        <Col key={`${info.s3_key}-${!!info.count ? 'collection' : 'item'}`}>
-          <div className="item">
-            <div className="file">
-              {info.file ? <FileType data={info}/> : <></>}
-            </div>
-            <div className="overlay">
-              <div className="type">
-                {info.type}
-              </div>
-              <div className="title">
-                {info.title}
-              </div>
-            </div>
-          </div>
-        </Col>
-      ));
+  let data: HomepageData[] = [
+    ...items.length > itemRand ? items.splice(0, itemRand) : items.splice(0, items.length),
+    ...collections.length > itemRand ? collections.splice(0, collectionRand) : collections.splice(0, items.length)
+  ];
+
+  if (data.length) {
+    for (let i = 0; i < data.length; i++) {
+      const
+        file = data[i].file,
+        columnSizing = colSize(!!file ? file.type : 'image');
+
+      let
+        nextCount = i,
+        nextFile = data[nextCount++];
+
+      let result: JSX.Element | undefined = await displayLayout(data[i], columnSizing);
+      if (result) {
+        layout.push(result);
+
+        if (file && file.type === 'audio' && nextFile && nextFile.file && nextFile.file.type !== 'audio' && columnSizing <= 8) {
+          const
+            image: number = findIndex(items, matchesProperty('file.type', 'image')),
+            sliced: HomepageData[] = image ? items.slice(0, image) : [];
+
+          if (sliced && sliced.length) {
+            console.log('EXTRA!');
+            result = await displayLayout(sliced[0], 12 - columnSizing);
+            if (result) {
+              layout.push(result);
+            }
+          }
+        }
+      }
     }
-
-    return (
-      <Row key={Date.now()}>
-        {layout}
-      </Row>
-    );
-  };
-
-  const
-    results = await displayResults();
+  }
 
   dispatch({
    type: LOAD_MORE_HOMEPAGE,
@@ -104,12 +112,53 @@ export const loadMore = (items: [], collections: [], alreadyLoaded: JSX.Element[
    collections: collections,
    loadedItems: [
      ...alreadyLoaded,
-     results
+     ...layout
    ]
  });
 };
 
-export const FileType = (props: { data: HomepageData }): JSX.Element => {
+const displayLayout = (data: HomepageData, columnSize: number) => {
+  if (!data) { return; }
+  const {
+    s3_key,
+    count,
+    type,
+    title,
+    file,
+  } = data;
+
+  return (
+    <Col key={`${s3_key}-${!!count ? 'collection' : 'item'}`} md={columnSize}>
+      <div className="item">
+        <div className="file">
+          {file ? <FilePreview data={data}/> : <></>}
+        </div>
+        <div className="overlay">
+          <div className="type">
+            {type}
+          </div>
+          <div className="title">
+            {title}
+          </div>
+        </div>
+      </div>
+    </Col>
+  );
+};
+const colSize = (fileType: string): number => {
+  switch (fileType) {
+    case 'audio':
+      return 12;
+
+    case 'video':
+      return 8;
+
+    default:
+      return 4;
+  }
+};
+
+export const FilePreview = (props: { data: HomepageData }): JSX.Element => {
   if (props.data.file && props.data.file.url) {
     if (props.data.file.type === 'image') {
       return <img src={props.data.file.url} alt={props.data.title}/>;
@@ -120,8 +169,25 @@ export const FileType = (props: { data: HomepageData }): JSX.Element => {
     if (props.data.file.type === 'video') {
       return (
         <div className="embed-responsive embed-responsive-16by9">
-          <ReactPlayer className="embed-responsive-item" url={props.data.file.url} height="auto" width="100%" vertical-align="top" />
+          <ReactPlayer controls light className="embed-responsive-item" url={props.data.file.url} height="auto" width="100%" vertical-align="top" />
         </div>
+      );
+    }
+    if (props.data.file.type === 'pdf') {
+      return (
+        <div className="embed-responsive embed-responsive-4by3">
+          <iframe title={props.data.title} className="embed-responsive-item" src={props.data.file.url} />
+        </div>
+      );
+    }
+
+    //         {/*<Document file={`${props.data.file.url}`} />*/}
+
+    if (props.data.file.type === 'downloadText' || props.data.file.type === 'text') {
+      return (
+        <a href={props.data.file.url} target="_blank" rel="noopener noreferrer">
+          <img alt={props.data.title} src="https://upload.wikimedia.org/wikipedia/commons/2/22/Unscharfe_Zeitung.jpg" className="image-fluid"/>
+        </a>
       );
     }
   }

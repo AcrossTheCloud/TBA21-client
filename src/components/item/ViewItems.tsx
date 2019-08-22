@@ -23,7 +23,7 @@ interface Props extends Alerts {
   };
 }
 
-const FileType = (props: { id: string, file: S3File }): JSX.Element => {
+const FilePreview = (props: { id: string, file: S3File }): JSX.Element => {
   if (props.file.url) {
     if (props.file.type === 'image') {
       return <CardImg src={props.file.url}/>;
@@ -61,7 +61,7 @@ const MasonryItem = ( props: { item: Item } ): JSX.Element => {
 
   return (
     <Card>
-      {item.file ? <FileType id={item.s3_key} file={item.file} /> : <></>}
+      {item.file ? <FilePreview id={item.s3_key} file={item.file} /> : <></>}
       <CardBody>
         <Link
           // to={`/view/${props.items.s3_key.split('/').slice(2).join('/')}`} // remove /private/UUID

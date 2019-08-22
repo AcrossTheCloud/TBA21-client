@@ -29,6 +29,12 @@
 
   .item {
     position: relative;
+    a {
+      color: #fff;
+      &:visited, &:focus {
+        color: #fff;
+      }
+    }
     .overlay {
       position: absolute;
       top: 0;
