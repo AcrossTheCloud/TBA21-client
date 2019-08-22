@@ -153,7 +153,7 @@ class HomePage extends React.Component<Props, {}> {
 
         <Logo loaded={logoLoaded} onChange={() => this.props.logoDispatch(true)}/>
 
-        <Container fluid>
+        <Container fluid id="main">
           <Row>
             {loadedItems}
           </Row>
