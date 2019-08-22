@@ -355,16 +355,18 @@ export class ItemEditor extends React.Component<Props, State> {
   SubType = (): JSX.Element => {
     let options: {[value: string]: string}[] = [];
 
+    const { file } = this.state.originalItem;
+
     // If we can't get the file at all, for whatever reason, show all types.
-    if (!this.state.originalItem.file) {
+    if (!file) {
       options.push(...itemTextSubTypes, ...itemVideoSubTypes, ...itemImageSubTypes, ...itemAudioSubTypes);
-    } else if (this.state.originalItem.file.type === 'text') {
+    } else if (file.type === 'text' || file.type === 'pdf' || file.type === 'downloadText') {
       options = itemTextSubTypes;
-    } else if (this.state.originalItem.file.type === 'video') {
+    } else if (file.type === 'video') {
       options = itemVideoSubTypes;
-    } else if (this.state.originalItem.file.type === 'audio') {
+    } else if (file.type === 'audio') {
       options = itemAudioSubTypes;
-    } else if (this.state.originalItem.file.type === 'image') {
+    } else if (file.type === 'image') {
       options = itemImageSubTypes;
     }
 
@@ -2156,7 +2158,7 @@ export class ItemEditor extends React.Component<Props, State> {
               </Col>
               <Col xs="4">
                 <UncontrolledButtonDropdown className="float-right">
-                  <Button className="caret" onClick={this.updateItem} disabled={!this.state.isDifferent}>Save</Button>           
+                  <Button className="caret" onClick={this.updateItem} disabled={!this.state.isDifferent}>Save</Button>
                   <DropdownToggle caret />
                   <DropdownMenu>
                     {this.state.originalItem.status ?
@@ -2348,7 +2350,7 @@ export class ItemEditor extends React.Component<Props, State> {
                 {item.item_subtype === itemText.Historical_Text ? <this.TextHistoricalText /> : <></>}
                 {item.item_subtype === itemText.Event_Press ? <this.TextEventPress /> : <></>}
                 {item.item_subtype === itemText.Toolkit ? <this.TextToolkit /> : <></>}
-                {(!!item.file && item.file.type === 'text') && item.item_subtype === itemText.Other ? <this.TextOther /> : <></>}
+                {(!!item.file && (item.file.type === 'text' || item.file.type === 'pdf' || item.file.type === 'downloadText')) && item.item_subtype === itemText.Other ? <this.TextOther /> : <></>}
 
                 {/* Item Video */}
                 {item.item_subtype === itemVideo.Video ? <this.Video /> : <></>}

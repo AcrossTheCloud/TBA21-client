@@ -15,9 +15,9 @@ interface State {
 
 export default class Logo extends Component<Props, State> {
   _isMounted;
+
   constructor(props: Props) {
     super(props);
-
     this._isMounted = false;
 
     this.state = {
