@@ -1294,21 +1294,39 @@ export class ItemEditor extends React.Component<Props, State> {
     const item = this.state.changedItem;
     return (
       <Row>
-        <Col md="4">
+
+        <Col md="6">
           <FormGroup>
-            <Label for="collaborators">Collaborators</Label>
-            <CustomSelect values={item.collaborators} callback={values => this.changeItem('collaborators', values)} />
-            <FormText>Use tab or enter to add a new Collaborator.</FormText>
+            <Label for="medium">Medium</Label>
+            <Input
+              type="text"
+              className="medium"
+              defaultValue={item.medium ? item.medium : ''}
+              onChange={e => this.validateLength('medium', e.target.value)}
+              invalid={this.state.validate.hasOwnProperty('medium') && !this.state.validate.medium}
+            />
+            <FormFeedback>This is a required field</FormFeedback>
           </FormGroup>
         </Col>
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
-            <Label for="screened_at">Screened At</Label>
-            <Input type="text" className="screened_at" defaultValue={item.screened_at ? item.screened_at : ''} onChange={e => this.changeItem('screened_at', e.target.value)}/>
+            <Label for="duration">Minute : Second</Label>
+            <Input type="time" defaultValue={item.duration ? item.duration.toString() : ''} onChange={e => this.changeItem('duration', e.target.value)}/>
           </FormGroup>
         </Col>
 
-
+        <Col md="6">
+          <FormGroup>
+            <Label for="exhibited_at">Exhibited At</Label>
+            <CustomSelect values={item.exhibited_at} callback={values => this.changeItem('exhibited_at', values)} />
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="Provenance">Provenance</Label>
+            <CustomSelect values={item.provenance} callback={values => this.changeItem('provenance', values)} />
+          </FormGroup>
+        </Col>
       </Row>
     );
   }
@@ -1413,7 +1431,44 @@ export class ItemEditor extends React.Component<Props, State> {
             <FormText>Use tab or enter to add a new Collaborator.</FormText>
           </FormGroup>
         </Col>
-
+        <Col md="6">
+          <FormGroup>
+            <Label for="medium">Medium</Label>
+            <Input
+              type="text"
+              className="medium"
+              defaultValue={item.medium ? item.medium : ''}
+              onChange={e => this.validateLength('medium', e.target.value)}
+              invalid={this.state.validate.hasOwnProperty('medium') && !this.state.validate.medium}
+            />
+            <FormFeedback>This is a required field</FormFeedback>
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="dimensions">Physical Dimensions</Label>
+            <Input
+              type="text"
+              className="dimensions"
+              defaultValue={item.dimensions ? item.dimensions : ''}
+              onChange={e => this.validateLength('dimensions', e.target.value)}
+              invalid={this.state.validate.hasOwnProperty('dimensions') && !this.state.validate.dimensions}
+            />
+            <FormFeedback>This is a required field</FormFeedback>
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="exhibited_at">Exhibited At</Label>
+            <CustomSelect values={item.exhibited_at} callback={values => this.changeItem('exhibited_at', values)} />
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="Provenance">Provenance</Label>
+            <CustomSelect values={item.provenance} callback={values => this.changeItem('provenance', values)} />
+          </FormGroup>
+        </Col>
       </Row>
     );
   }
@@ -1628,7 +1683,7 @@ export class ItemEditor extends React.Component<Props, State> {
       </Row>
     );
   }
-  ItemImagePhotographSculpturePainting = (): JSX.Element => {
+  ItemImagePhotographSculpturePaintingDrawing = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
       <Row>
@@ -2368,13 +2423,12 @@ export class ItemEditor extends React.Component<Props, State> {
                   item.item_subtype === itemImage.Illustration ||
                   item.item_subtype === itemImage.Artwork_Documentation ? <this.ItemImage /> : <></>
                 }
-                {
-                  item.item_subtype === itemImage.Drawing ? <this.ItemImageDrawing /> : <></>
-                }
+
                 {
                   item.item_subtype === itemImage.Photograph ||
                   item.item_subtype === itemImage.Sculpture ||
-                  item.item_subtype === itemImage.Painting ? <this.ItemImagePhotographSculpturePainting /> : <></>
+                  item.item_subtype === itemImage.Drawing ||
+                  item.item_subtype === itemImage.Painting ? <this.ItemImagePhotographSculpturePaintingDrawing /> : <></>
                 }
 
                 {

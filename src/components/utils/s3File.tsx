@@ -109,7 +109,7 @@ export const sdkGetObject = async (key: string): Promise<S3File | false> => {
       },
       head: HeadObjectOutput = await s3.headObject({ Bucket: config.s3.BUCKET , Key: key}).promise();
 
-    if (head && ( head.ContentType && (head.ContentLength && head.ContentLength < 19865800) )) {
+    if (head && head.ContentType ) {
       const url = await s3.getSignedUrl('getObject', params);
 
       const type = fileType(head.ContentType);
