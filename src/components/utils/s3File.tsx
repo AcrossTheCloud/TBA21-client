@@ -3,12 +3,11 @@ import { config as AWSConfig, S3 } from 'aws-sdk';
 import { HeadObjectOutput } from 'aws-sdk/clients/s3';
 
 import config from 'config';
-import { S3File } from '../../types/s3File';
+import { FileTypes, S3File } from '../../types/s3File';
 
-export const fileType = (type: string): 'video' | 'text' | 'audio' | 'image' | null => {
+export const fileType = (type: string): FileTypes | null => {
   // https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types
-  const textTypes = [
-    'text',
+  const downloadTextTypes = [
     'msword',
     'vnd.openxmlformats-officedocument.wordprocessingml.document', // docx
     'vnd.ms-', // vnd.ms-powerpoint , excel etc
@@ -20,13 +19,17 @@ export const fileType = (type: string): 'video' | 'text' | 'audio' | 'image' | n
     'vnd.amazon',
   ];
   if (type.includes('image')) {
-    return 'image';
+    return FileTypes.image;
   } else if (type.includes('audio')) {
-    return 'audio';
+    return FileTypes.audio;
   } else if (type.includes('video')) {
-    return 'video';
-  } else if (textTypes.some(el => type.includes(el))) {
-    return 'text';
+    return FileTypes.video;
+  } else if (downloadTextTypes.some(el => type.includes(el))) {
+    return FileTypes.downloadText;
+  } else if (type.includes('text')) {
+    return FileTypes.text;
+  }  else if (type.includes('pdf')) {
+    return FileTypes.pdf;
   } else {
     return null;
   }
@@ -57,13 +60,23 @@ export const getCDNObject = async (key: string): Promise<S3File | false> => {
     }
 
     if (result && contentType !== null) {
-      const type = fileType(contentType);
-      if (type) {
-        return {
+      const
+        type = fileType(contentType),
+        response: S3File = {
           url,
-          type
+          type: FileTypes.downloadText
         };
+
+      if (type) {
+        Object.assign(response, {type});
+
+        if (type === 'text') {
+          const body = await fetch(url);
+          Object.assign(response, {body});
+        }
       }
+
+      return response;
     }
 
     return false;
