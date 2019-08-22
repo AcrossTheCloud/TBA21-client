@@ -2274,7 +2274,7 @@ export class ItemEditor extends React.Component<Props, State> {
                     </FormGroup>
 
                     <FormGroup>
-                      <Label for="time_produced">Date</Label>
+                      <Label for="time_produced">Date Produced</Label>
                       <Input
                         type="date"
                         className="time_produced"
