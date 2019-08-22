@@ -86,7 +86,9 @@ class HomePage extends React.Component<Props, {}> {
                       <FilePreview data={loaded_highlights[1]}/>
                     </div>
                     <div className="title">
-                      {loaded_highlights[1].title}
+                      <Link to={`/view/${loaded_highlights[1].s3_key}`}>
+                        {loaded_highlights[1].title}
+                      </Link>
                     </div>
                   </Col>
                 </Row>
@@ -131,10 +133,14 @@ class HomePage extends React.Component<Props, {}> {
             {!!loaded_highlights[2] ?
               <Col md="4" className="item">
                 <div>
-                  {loaded_highlights[2].type}
+                  <Link to={`/view/${loaded_highlights[2].s3_key}`}>
+                    {loaded_highlights[2].type}
+                  </Link>
                 </div>
                 <div>
-                  {loaded_highlights[2].title}
+                  <Link to={`/view/${loaded_highlights[2].s3_key}`}>
+                    {loaded_highlights[2].title}
+                  </Link>
                 </div>
                 <div>
                   {loaded_highlights[0].type}, {new Date(loaded_highlights[0].date).getFullYear()}

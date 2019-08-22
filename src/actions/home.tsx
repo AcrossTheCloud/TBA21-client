@@ -7,6 +7,7 @@ import { getCDNObject } from '../components/utils/s3File';
 import ReactPlayer from 'react-player';
 // import { Document, pdfjs } from 'react-pdf';
 import { Col } from 'reactstrap';
+import { Link } from 'react-router-dom';
 //
 // pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -135,10 +136,14 @@ const displayLayout = (data: HomepageData, columnSize: number) => {
         </div>
         <div className="overlay">
           <div className="type">
-            {type}
+            <Link to={`/view/${data.s3_key}`}>
+              {type}
+            </Link>
           </div>
           <div className="title">
-            {title}
+            <Link to={`/view/${data.s3_key}`}>
+              {title}
+            </Link>
           </div>
         </div>
       </div>
