@@ -35,27 +35,21 @@
         color: #fff;
       }
     }
-    .overlay {
+    .title {
+      font-family: "Recta W01 Regular", sans-serif;
+      font-size: 20px;
+
       position: absolute;
-      top: 0;
-      height: 100%;
-      width: 100%;
-      .title {
-        font-family: "Recta W01 Regular", sans-serif;
-        font-size: 20px;
+      bottom: 20px;
+      left: 20px;
+    }
+    .type {
+      font-family: "Recta W01 Regular", sans-serif;
+      font-size: 20px;
 
-        position: absolute;
-        bottom: 20px;
-        left: 20px;
-      }
-      .type {
-        font-family: "Recta W01 Regular", sans-serif;
-        font-size: 20px;
-
-        position: absolute;
-        top: 20px;
-        left: 20px;
-      }
+      position: absolute;
+      top: 20px;
+      left: 20px;
     }
   }
 }

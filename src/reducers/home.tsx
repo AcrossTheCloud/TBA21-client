@@ -9,6 +9,7 @@ export interface HomepageData {
   s3_key: string;
   type: string;
   date: string;
+  file_dimensions: number[];
 }
 
 export interface HomePageState {

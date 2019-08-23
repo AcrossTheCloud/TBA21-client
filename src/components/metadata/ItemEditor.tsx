@@ -403,7 +403,7 @@ export class ItemEditor extends React.Component<Props, State> {
       writers,
       exhibited_at,
       location,
-      participants,
+      event_title,
       produced_by
     } = this.state.changedItem;
 
@@ -523,11 +523,11 @@ export class ItemEditor extends React.Component<Props, State> {
         },
         'News / Journalism': {
           'authors': (authors || false),
-          'news outlet': (news_outlet || false)
+          'news_outlet': (news_outlet || false)
         },
         'Event Recording': {
           'location': (location || false),
-          'participants ': (participants  || false)
+          'event_title': (event_title  || false)
         },
         'Trailer': {
           'directors': (directors || false)
@@ -1526,21 +1526,22 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="4">
           <FormGroup>
             <Label for="location">Location</Label>
-            <Input type="text" className="location" defaultValue={item.location ? item.location : ''} onChange={e => this.changeItem('location', e.target.value)}/>
+            <Input required invalid={this.state.validate.hasOwnProperty('location') && !this.state.validate.location} type="text" className="location" defaultValue={item.location ? item.location : ''} onChange={e => this.validateLength('location', e.target.value)}/>
+            <FormFeedback>This is a required field</FormFeedback>
           </FormGroup>
         </Col>
         <Col md="4">
           <FormGroup>
             <Label for="participants">Participant(s)</Label>
             <CustomSelect values={item.participants} callback={values => this.validateLength('participants', values)} />
-            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('participants') && !this.state.validate.participants ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Participant.</FormText>
           </FormGroup>
         </Col>
         <Col md="4">
           <FormGroup>
             <Label for="event_title">Event Title</Label>
-            <Input type="text" className="event_title" defaultValue={item.event_title ? item.event_title : ''} onChange={e => this.changeItem('event_title', e.target.value)}/>
+            <Input required invalid={this.state.validate.hasOwnProperty('event_title') && !this.state.validate.event_title} type="text" className="event_title" defaultValue={item.event_title ? item.event_title : ''} onChange={e => this.validateLength('event_title', e.target.value)}/>
+            <FormFeedback>This is a required field</FormFeedback>
           </FormGroup>
         </Col>
 

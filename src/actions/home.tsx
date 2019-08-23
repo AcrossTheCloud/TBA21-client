@@ -8,6 +8,8 @@ import ReactPlayer from 'react-player';
 // import { Document, pdfjs } from 'react-pdf';
 import { Col } from 'reactstrap';
 import { Link } from 'react-router-dom';
+import config from '../dev-config';
+import { S3File } from '../types/s3File';
 //
 // pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -27,10 +29,14 @@ export const loadHomepage = () => async dispatch => {
   const
     oaHighlights: {oa_highlight: HomepageData[]} = await API.get('tba21', 'pages/homepage', { queryStringParameters: {oa_highlight: true}}),
     queryStringParams = {
-      oa_highlight: false,
-      id: (oaHighlights.oa_highlight && oaHighlights.oa_highlight.length ? oaHighlights.oa_highlight.map(o => o.id) : [])
-    },
-    response: {items: HomepageData[], collections: HomepageData[]} = await API.get('tba21', 'pages/homepage', { queryStringParameters: queryStringParams });
+      oa_highlight: false
+    };
+
+  if (oaHighlights.oa_highlight && oaHighlights.oa_highlight.length) {
+    Object.assign(queryStringParams, { id: oaHighlights.oa_highlight.map(o => o.id) });
+  }
+
+  const response: {items: HomepageData[], collections: HomepageData[]} = await API.get('tba21', 'pages/homepage', { queryStringParameters: queryStringParams });
 
   const
     items = await addFilesToData(response.items),
@@ -53,9 +59,34 @@ const addFilesToData = async (data: HomepageData[]): Promise<HomepageData[]> => 
   if (data && data.length) {
     // Loop through each object in the array and get it's File from CloudFront
     for (let i = 0; i < data.length; i++) {
-      const result = await getCDNObject(data[i].s3_key);
+      const s3Key = data[i].s3_key;
+      const result = await getCDNObject(s3Key);
       if (result) {
-        Object.assign(data[i], {file: result});
+        const file: S3File = result;
+
+        if (result.type === 'image') {
+          const thumbnailUrl = `${config.other.THUMBNAIL_URL}${s3Key}`;
+          let thumbnails = ``;
+
+          if (data[i].file_dimensions[0] > 540) {
+            thumbnails = thumbnails + `${thumbnailUrl}.thumbnail540.png 540w`;
+          }
+          if (data[i].file_dimensions[0] > 720) {
+            thumbnails = thumbnails + `,${thumbnailUrl}.thumbnail720.png 720w`;
+          }
+          if (data[i].file_dimensions[0] > 960) {
+            thumbnails = thumbnails + `,${thumbnailUrl}.thumbnail960.png 960w`;
+          }
+          if (data[i].file_dimensions[0] > 1140) {
+            thumbnails = thumbnails + `,${thumbnailUrl}.thumbnail1140.png 1140w`;
+          }
+
+          if (thumbnails.length > 1) {
+            Object.assign(file, {thumbnails});
+          }
+        }
+
+        Object.assign(data[i], {file : { ...data[i].file, ...file }});
       }
     }
     return data;
@@ -131,20 +162,20 @@ const displayLayout = (data: HomepageData, columnSize: number) => {
   return (
     <Col key={`${s3_key}-${!!count ? 'collection' : 'item'}`} md={columnSize}>
       <div className="item">
-        <div className="file">
-          {file ? <FilePreview data={data}/> : <></>}
+        {file ?
+          <div className="file">
+            <FilePreview data={data}/>
+          </div>
+        : <></> }
+        <div className="type">
+          <Link to={`/view/${data.s3_key}`}>
+            {type}
+          </Link>
         </div>
-        <div className="overlay">
-          <div className="type">
-            <Link to={`/view/${data.s3_key}`}>
-              {type}
-            </Link>
-          </div>
-          <div className="title">
-            <Link to={`/view/${data.s3_key}`}>
-              {title}
-            </Link>
-          </div>
+        <div className="title">
+          <Link to={`/view/${data.s3_key}`}>
+            {title}
+          </Link>
         </div>
       </div>
     </Col>
@@ -166,15 +197,30 @@ const colSize = (fileType: string): number => {
 export const FilePreview = (props: { data: HomepageData }): JSX.Element => {
   if (props.data.file && props.data.file.url) {
     if (props.data.file.type === 'image') {
-      return <img src={props.data.file.url} alt={props.data.title}/>;
+      return (
+        <img
+          srcSet={props.data.file.thumbnails ? props.data.file.thumbnails : ''}
+          src={props.data.file.url}
+          alt={props.data.title}
+        />
+      );
     }
     if (props.data.file.type === 'audio') {
       return <AudioPlayer url={props.data.file.url} id={props.data.id} />;
     }
     if (props.data.file.type === 'video') {
+      console.log(!!props.data.file.poster, props.data.file.poster);
       return (
         <div className="embed-responsive embed-responsive-16by9">
-          <ReactPlayer controls light className="embed-responsive-item" url={props.data.file.url} height="auto" width="100%" vertical-align="top" />
+          <ReactPlayer
+            controls
+            light={props.data.file.poster}
+            className="embed-responsive-item"
+            url={!!props.data.file.playlist ? props.data.file.playlist : props.data.file.url}
+            height="auto"
+            width="100%"
+            vertical-align="top"
+          />
         </div>
       );
     }
