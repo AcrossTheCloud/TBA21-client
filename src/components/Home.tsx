@@ -36,10 +36,10 @@ class HomePage extends React.Component<Props, {}> {
     this._isMounted = true;
     window.addEventListener('scroll', this.scrollDebounce, false);
 
+    console.log(this.props.items);
     // If we have no items go get em.
-    if (this.props.items && !this.props.items.length) {
+    if (!this.props.loadedItems.length) {
       await this.props.loadHomepage();
-      console.log(this.props.items, this.props.collections);
       await this.props.loadMore(this.props.items, this.props.collections, this.props.loadedItems);
     }
   }
@@ -57,8 +57,6 @@ class HomePage extends React.Component<Props, {}> {
 
   render() {
     const { loaded_highlights, logoLoaded, loadedItems } = this.props;
-
-    console.log('loaded_highlights[0]', loaded_highlights[0]);
 
     return (
       <div id="home" className="flex-fill">
@@ -115,7 +113,7 @@ class HomePage extends React.Component<Props, {}> {
                 </div>
                 {!!loaded_highlights[0].concept_tags ?
                   <div className="tags">
-                    {loaded_highlights[0].concept_tags.toString()}
+                    {loaded_highlights[0].concept_tags.map(t => t.tag_name).join(', ').toString()}
                   </div>
                   : <></>
                 }

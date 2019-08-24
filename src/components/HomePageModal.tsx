@@ -96,8 +96,8 @@ class HomePageModal extends React.Component<Props, State> {
                 {
                   [type, regions.map(r => Regions[r])].toString()
                 }
-                {!!keyword_tags ? keyword_tags.toString() : <></>}
-                {!!concept_tags ? concept_tags.toString() : <></>}
+                {!!keyword_tags ? keyword_tags.map(t => t.tag_name).join(', ').toString() : <></>}
+                {!!concept_tags ? concept_tags.map(t => t.tag_name).join(', ').toString() : <></>}
               </div>
             </Row>
           </Container>
