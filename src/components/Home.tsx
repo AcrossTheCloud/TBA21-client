@@ -5,9 +5,10 @@ import { Button, Col, Container, Row } from 'reactstrap';
 import { debounce } from 'lodash';
 
 import { AuthConsumer } from '../providers/AuthProvider';
-import { logoDispatch, loadHomepage, loadMore, FilePreview } from 'actions/home';
+import { logoDispatch, loadHomepage, loadMore, FilePreview, openModal, VideoPoster } from 'actions/home';
 
 import { HomePageState } from '../reducers/home';
+import HomePageModal from './HomePageModal';
 
 import Logo from './layout/Logo';
 import 'styles/components/home.scss';
@@ -17,6 +18,7 @@ interface Props extends HomePageState {
   loadHomepage: Function;
   loadMore: Function;
   oaHighlights: Function;
+  openModal: Function;
 }
 
 class HomePage extends React.Component<Props, {}> {
@@ -34,10 +36,10 @@ class HomePage extends React.Component<Props, {}> {
     this._isMounted = true;
     window.addEventListener('scroll', this.scrollDebounce, false);
 
+    console.log(this.props.items);
     // If we have no items go get em.
-    if (this.props.items && !this.props.items.length) {
+    if (!this.props.loadedItems.length) {
       await this.props.loadHomepage();
-      console.log(this.props.items, this.props.collections);
       await this.props.loadMore(this.props.items, this.props.collections, this.props.loadedItems);
     }
   }
@@ -70,25 +72,23 @@ class HomePage extends React.Component<Props, {}> {
 
           <Row>
             {!!loaded_highlights[0] ?
-              <Col xs="12" md={loaded_highlights.length > 1 ? 8 : 12}>
+              <Col xs="12" md={loaded_highlights.length > 1 ? 8 : 12} className="item" onClick={() => this.props.openModal(loaded_highlights[0])}>
                 <div className="file">
-                  <FilePreview data={loaded_highlights[0]}/>
+                  {!!loaded_highlights[0].file && loaded_highlights[0].file.type !== 'video' ? <FilePreview data={loaded_highlights[0]}/> : <VideoPoster data={loaded_highlights[0]}/>}
                 </div>
               </Col>
               :
               <></>
             }
             {!!loaded_highlights[1] ?
-              <Col xs="12" md="4" className="item">
+              <Col xs="12" md="4" className="item" onClick={() => this.props.openModal(loaded_highlights[1])}>
                 <Row>
                   <Col xs="12">
                     <div className="file">
-                      <FilePreview data={loaded_highlights[1]}/>
+                      {!!loaded_highlights[1].file && loaded_highlights[1].file.type !== 'video' ? <FilePreview data={loaded_highlights[1]}/> : <VideoPoster data={loaded_highlights[1]}/>}
                     </div>
                     <div className="title">
-                      <Link to={`/view/${loaded_highlights[1].s3_key}`}>
-                        {loaded_highlights[1].title}
-                      </Link>
+                      {loaded_highlights[1].title}
                     </div>
                   </Col>
                 </Row>
@@ -100,7 +100,7 @@ class HomePage extends React.Component<Props, {}> {
           </Row>
           <Row>
             {!!loaded_highlights[0] ?
-              <Col md="6" className="item">
+              <Col md="6" className="item" onClick={() => this.props.openModal(loaded_highlights[0])}>
                 <div className="title">
                   <Link to={`/view/${loaded_highlights[0].s3_key}`}>
                     {loaded_highlights[0].title}
@@ -111,20 +111,20 @@ class HomePage extends React.Component<Props, {}> {
                     {loaded_highlights[0].type}, {new Date(loaded_highlights[0].date).getFullYear()}
                   </Link>
                 </div>
-                {/*{!!loaded_highlights[0].tags ?*/}
-                {/*  <div className="type">*/}
-                {/*    loaded_highlights[0].tags : <></>}*/}
-                {/*  </div>*/}
-                {/*  : <></>*/}
-                {/*}*/}
+                {!!loaded_highlights[0].concept_tags ?
+                  <div className="tags">
+                    {loaded_highlights[0].concept_tags.map(t => t.tag_name).join(', ').toString()}
+                  </div>
+                  : <></>
+                }
               </Col>
               : <></>
             }
 
             {!!loaded_highlights[2] ?
-              <Col md="2">
+              <Col md="2" className="item" onClick={() => this.props.openModal(loaded_highlights[2])}>
                 <div className="left">
-                  <FilePreview data={loaded_highlights[2]} />
+                  {!!loaded_highlights[2].file && loaded_highlights[2].file.type !== 'video' ? <FilePreview data={loaded_highlights[2]}/> : <VideoPoster data={loaded_highlights[2]}/>}
                 </div>
               </Col>
               : <></>
@@ -132,17 +132,13 @@ class HomePage extends React.Component<Props, {}> {
 
             {!!loaded_highlights[2] ?
               <Col md="4" className="item">
-                <div>
-                  <Link to={`/view/${loaded_highlights[2].s3_key}`}>
-                    {loaded_highlights[2].type}
-                  </Link>
+                <div onClick={() => this.props.openModal(loaded_highlights[2])}>
+                  {loaded_highlights[2].type}
                 </div>
-                <div>
-                  <Link to={`/view/${loaded_highlights[2].s3_key}`}>
-                    {loaded_highlights[2].title}
-                  </Link>
+                <div onClick={() => this.props.openModal(loaded_highlights[2])}>
+                  {loaded_highlights[2].title}
                 </div>
-                <div>
+                <div onClick={() => this.props.openModal(loaded_highlights[0])}>
                   {loaded_highlights[0].type}, {new Date(loaded_highlights[0].date).getFullYear()}
                 </div>
               </Col>
@@ -153,12 +149,13 @@ class HomePage extends React.Component<Props, {}> {
 
         <Logo loaded={logoLoaded} onChange={() => this.props.logoDispatch(true)}/>
 
-        <Container fluid>
+        <Container fluid id="main">
           <Row>
             {loadedItems}
           </Row>
         </Container>
 
+        <HomePageModal data={this.props.modalData} open={this.props.isModalOpen} />
       </div>
     );
   }
@@ -171,7 +168,10 @@ const mapStateToProps = (state: { home: Props }) => ({
   collections: state.home.collections ? state.home.collections : [],
   oa_highlight: state.home.oa_highlight ? state.home.oa_highlight : [],
   loadedItems: state.home.loadedItems,
-  loaded_highlights: state.home.loaded_highlights
+  loaded_highlights: state.home.loaded_highlights,
+
+  modalData: state.home.modalData,
+  isModalOpen: state.home.isModalOpen
 });
 
-export default connect(mapStateToProps, { logoDispatch, loadHomepage, loadMore })(HomePage);
+export default connect(mapStateToProps, { logoDispatch, loadHomepage, loadMore, openModal })(HomePage);

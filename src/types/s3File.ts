@@ -2,6 +2,9 @@ export interface S3File {
   url: string;
   type: FileTypes;
   body?: string;
+  thumbnails?: string;
+  poster?: string;
+  playlist?: string;
 }
 
 export enum FileTypes {
