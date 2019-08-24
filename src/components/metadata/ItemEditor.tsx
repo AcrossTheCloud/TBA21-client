@@ -21,6 +21,7 @@ import {
   TabPane,
   UncontrolledButtonDropdown
 } from 'reactstrap';
+import TimeField from 'react-simple-timefield';
 
 import { API } from 'aws-amplify';
 import Select from 'react-select';
@@ -1312,13 +1313,6 @@ export class ItemEditor extends React.Component<Props, State> {
         </Col>
         <Col md="6">
           <FormGroup>
-            <Label for="duration">Minute : Second</Label>
-            <Input type="time" defaultValue={item.duration ? item.duration.toString() : ''} onChange={e => this.changeItem('duration', e.target.value)}/>
-          </FormGroup>
-        </Col>
-
-        <Col md="6">
-          <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
             <CustomSelect values={item.exhibited_at} callback={values => this.changeItem('exhibited_at', values)} />
           </FormGroup>
@@ -1327,6 +1321,7 @@ export class ItemEditor extends React.Component<Props, State> {
           <FormGroup>
             <Label for="Provenance">Provenance</Label>
             <CustomSelect values={item.provenance} callback={values => this.changeItem('provenance', values)} />
+            <FormText>Use tab or enter to add a new Provenance.</FormText>
           </FormGroup>
         </Col>
       </Row>
@@ -1469,6 +1464,7 @@ export class ItemEditor extends React.Component<Props, State> {
           <FormGroup>
             <Label for="Provenance">Provenance</Label>
             <CustomSelect values={item.provenance} callback={values => this.changeItem('provenance', values)} />
+            <FormText>Use tab or enter to add a new Provenance.</FormText>
           </FormGroup>
         </Col>
       </Row>
@@ -1726,6 +1722,7 @@ export class ItemEditor extends React.Component<Props, State> {
           <FormGroup>
             <Label for="Provenance">Provenance</Label>
             <CustomSelect values={item.provenance} callback={values => this.changeItem('provenance', values)} />
+            <FormText>Use tab or enter to add a new Provenance.</FormText>
           </FormGroup>
         </Col>
       </Row>
@@ -1867,6 +1864,15 @@ export class ItemEditor extends React.Component<Props, State> {
   }
   ImageFilmStill = (): JSX.Element => {
     const item = this.state.changedItem;
+
+    let duration = '';
+    if (!!this.state.changedItem.duration) {
+      // @ts-ignore
+      duration = this.state.changedItem.duration.toString().match(/.{1,2}/g).join(':');
+      console.log(this.state.changedItem.duration.toString());
+
+    }
+
     return (
       <Row>
         <Col md="6">
@@ -1908,7 +1914,13 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="duration">Minute : Second</Label>
-            <Input type="time" defaultValue={item.duration ? item.duration.toString() : ''} onChange={e => this.changeItem('duration', e.target.value)}/>
+            <TimeField
+              value={duration}
+              colon=":"
+              showSeconds
+              onChange={e => this.changeItem('duration', e.split(':').join(''))}
+              input={<Input type="text" placeholder="HH:MM:SS" />}
+            />
           </FormGroup>
         </Col>
         <Col md="6">

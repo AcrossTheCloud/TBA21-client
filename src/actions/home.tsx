@@ -68,21 +68,23 @@ const addFilesToData = async (data: HomepageData[]): Promise<HomepageData[]> => 
           const thumbnailUrl = `${config.other.THUMBNAIL_URL}${s3Key}`;
           let thumbnails = ``;
 
-          if (data[i].file_dimensions[0] > 540) {
-            thumbnails = thumbnails + `${thumbnailUrl}.thumbnail540.png 540w`;
-          }
-          if (data[i].file_dimensions[0] > 720) {
-            thumbnails = thumbnails + `,${thumbnailUrl}.thumbnail720.png 720w`;
-          }
-          if (data[i].file_dimensions[0] > 960) {
-            thumbnails = thumbnails + `,${thumbnailUrl}.thumbnail960.png 960w`;
-          }
-          if (data[i].file_dimensions[0] > 1140) {
-            thumbnails = thumbnails + `,${thumbnailUrl}.thumbnail1140.png 1140w`;
-          }
+          if (!!data[i].file_dimensions) {
+            if (data[i].file_dimensions[0] > 540) {
+              thumbnails = thumbnails + `${thumbnailUrl}.thumbnail540.png 540w`;
+            }
+            if (data[i].file_dimensions[0] > 720) {
+              thumbnails = thumbnails + `,${thumbnailUrl}.thumbnail720.png 720w`;
+            }
+            if (data[i].file_dimensions[0] > 960) {
+              thumbnails = thumbnails + `,${thumbnailUrl}.thumbnail960.png 960w`;
+            }
+            if (data[i].file_dimensions[0] > 1140) {
+              thumbnails = thumbnails + `,${thumbnailUrl}.thumbnail1140.png 1140w`;
+            }
 
-          if (thumbnails.length > 1) {
-            Object.assign(file, {thumbnails});
+            if (thumbnails.length > 1) {
+              Object.assign(file, {thumbnails});
+            }
           }
         }
 
@@ -157,6 +159,8 @@ const displayLayout = (data: HomepageData, columnSize: number) => {
     type,
     title,
     file,
+    duration,
+    creators
   } = data;
 
   return (
@@ -174,9 +178,16 @@ const displayLayout = (data: HomepageData, columnSize: number) => {
         </div>
         <div className="title">
           <Link to={`/view/${data.s3_key}`}>
-            {title}
+            {!!creators ? creators.map(c => `${c} - `) : <></>}{title}
           </Link>
         </div>
+        {duration ?
+          <div className="duration">
+            <Link to={`/view/${data.s3_key}`}>
+              {duration}
+            </Link>
+          </div>
+        : <></> }
       </div>
     </Col>
   );
@@ -209,7 +220,6 @@ export const FilePreview = (props: { data: HomepageData }): JSX.Element => {
       return <AudioPlayer url={props.data.file.url} id={props.data.id} />;
     }
     if (props.data.file.type === 'video') {
-      console.log(!!props.data.file.poster, props.data.file.poster);
       return (
         <div className="embed-responsive embed-responsive-16by9">
           <ReactPlayer

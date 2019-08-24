@@ -9,7 +9,13 @@ export interface HomepageData {
   s3_key: string;
   type: string;
   date: string;
+  duration: string;
   file_dimensions: number[];
+  creators: string[];
+
+  // OA Highlight specific
+  concept_tags?: {id: number, tag_name: string}[] | null;
+  keyword_tags?: {id: number, tag_name: string}[] | null;
 }
 
 export interface HomePageState {
