@@ -4,8 +4,8 @@
   &.fixed {
     max-height: 100vh;
     height: 100vh;
-    overflow: hidden;
     background: #fff;
+    overflow: hidden;
   }
   &.logoLoaded {
     #home {
@@ -24,5 +24,63 @@
 
     transform: translate3d(0,-60vw,0);
     transition: transform .5s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+
+
+  .item {
+    position: relative;
+    cursor: pointer;
+    a {
+      color: #fff;
+      &:visited, &:focus {
+        color: #fff;
+      }
+    }
+    .title {
+      font-family: "Recta W01 Regular", sans-serif;
+      font-size: 20px;
+
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+    }
+    .type {
+      font-family: "Recta W01 Regular", sans-serif;
+      font-size: 20px;
+
+      position: absolute;
+      top: 20px;
+      left: 20px;
+    }
+    .duration {
+      font-family: "Recta W01 Regular", sans-serif;
+      font-size: 15px;
+
+      position: absolute;
+      top: 20px;
+      right: 20px;
+    }
+    .playButton {
+      line-height: 0;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      font-size: 50px;
+      transform: translate(-50%, -50%);
+    }
+  }
+}
+
+#homePageModal {
+  background: $dark-blue;
+  color: #fff;
+  .modal-content {
+    background-color: $dark-blue;
+    color: #fff;
+    border: none;
+
+    .closeButton, .openButton {
+      cursor: pointer;
+    }
   }
 }

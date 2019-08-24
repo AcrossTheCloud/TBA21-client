@@ -1,3 +1,7 @@
-#navigation {
-}
 
+// Hide nav on fixed body (When the logo is loading)
+#body.fixed {
+  #navigation {
+    display: none;
+  }
+}

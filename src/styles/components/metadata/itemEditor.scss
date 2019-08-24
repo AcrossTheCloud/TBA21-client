@@ -19,6 +19,10 @@
     &.form-control {
       border: 1px solid hsl(0,0%,80%);
     }
+
+    &.noampm::-webkit-datetime-edit-ampm-field {
+      display: none;
+    }
   }
 
 }

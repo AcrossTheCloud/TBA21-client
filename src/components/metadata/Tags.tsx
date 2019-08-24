@@ -69,7 +69,9 @@ export default class Tags extends React.Component<Props, State> {
         // filterTags = tags.filter( tag => !find(this.state.tags, { label: tag.label })),
         filterSelected = tags.filter( tag => !find(this.state.selectedTags, { label: tag.label }) );
 
-      this.setState({tags: [...this.state.tags, ...filterSelected] });
+      if (this._isMounted) {
+        this.setState({tags: [...this.state.tags, ...filterSelected]});
+      }
     }
   }
 

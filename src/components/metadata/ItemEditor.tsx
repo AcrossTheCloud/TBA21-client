@@ -21,6 +21,7 @@ import {
   TabPane,
   UncontrolledButtonDropdown
 } from 'reactstrap';
+import TimeField from 'react-simple-timefield';
 
 import { API } from 'aws-amplify';
 import Select from 'react-select';
@@ -355,16 +356,18 @@ export class ItemEditor extends React.Component<Props, State> {
   SubType = (): JSX.Element => {
     let options: {[value: string]: string}[] = [];
 
+    const { file } = this.state.originalItem;
+
     // If we can't get the file at all, for whatever reason, show all types.
-    if (!this.state.originalItem.file) {
+    if (!file) {
       options.push(...itemTextSubTypes, ...itemVideoSubTypes, ...itemImageSubTypes, ...itemAudioSubTypes);
-    } else if (this.state.originalItem.file.type === 'text') {
+    } else if (file.type === 'text' || file.type === 'pdf' || file.type === 'downloadText') {
       options = itemTextSubTypes;
-    } else if (this.state.originalItem.file.type === 'video') {
+    } else if (file.type === 'video') {
       options = itemVideoSubTypes;
-    } else if (this.state.originalItem.file.type === 'audio') {
+    } else if (file.type === 'audio') {
       options = itemAudioSubTypes;
-    } else if (this.state.originalItem.file.type === 'image') {
+    } else if (file.type === 'image') {
       options = itemImageSubTypes;
     }
 
@@ -401,7 +404,7 @@ export class ItemEditor extends React.Component<Props, State> {
       writers,
       exhibited_at,
       location,
-      participants,
+      event_title,
       produced_by
     } = this.state.changedItem;
 
@@ -521,11 +524,11 @@ export class ItemEditor extends React.Component<Props, State> {
         },
         'News / Journalism': {
           'authors': (authors || false),
-          'news outlet': (news_outlet || false)
+          'news_outlet': (news_outlet || false)
         },
         'Event Recording': {
           'location': (location || false),
-          'participants ': (participants  || false)
+          'event_title': (event_title  || false)
         },
         'Trailer': {
           'directors': (directors || false)
@@ -1290,6 +1293,40 @@ export class ItemEditor extends React.Component<Props, State> {
   }
 
   // ITEM VIDEO
+  Video = (): JSX.Element => {
+    const item = this.state.changedItem;
+    return (
+      <Row>
+
+        <Col md="6">
+          <FormGroup>
+            <Label for="medium">Medium</Label>
+            <Input
+              type="text"
+              className="medium"
+              defaultValue={item.medium ? item.medium : ''}
+              onChange={e => this.validateLength('medium', e.target.value)}
+              invalid={this.state.validate.hasOwnProperty('medium') && !this.state.validate.medium}
+            />
+            <FormFeedback>This is a required field</FormFeedback>
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="exhibited_at">Exhibited At</Label>
+            <CustomSelect values={item.exhibited_at} callback={values => this.changeItem('exhibited_at', values)} />
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="Provenance">Provenance</Label>
+            <CustomSelect values={item.provenance} callback={values => this.changeItem('provenance', values)} />
+            <FormText>Use tab or enter to add a new Provenance.</FormText>
+          </FormGroup>
+        </Col>
+      </Row>
+    );
+  }
   VideoMovieTrailer = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
@@ -1391,7 +1428,45 @@ export class ItemEditor extends React.Component<Props, State> {
             <FormText>Use tab or enter to add a new Collaborator.</FormText>
           </FormGroup>
         </Col>
-
+        <Col md="6">
+          <FormGroup>
+            <Label for="medium">Medium</Label>
+            <Input
+              type="text"
+              className="medium"
+              defaultValue={item.medium ? item.medium : ''}
+              onChange={e => this.validateLength('medium', e.target.value)}
+              invalid={this.state.validate.hasOwnProperty('medium') && !this.state.validate.medium}
+            />
+            <FormFeedback>This is a required field</FormFeedback>
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="dimensions">Physical Dimensions</Label>
+            <Input
+              type="text"
+              className="dimensions"
+              defaultValue={item.dimensions ? item.dimensions : ''}
+              onChange={e => this.validateLength('dimensions', e.target.value)}
+              invalid={this.state.validate.hasOwnProperty('dimensions') && !this.state.validate.dimensions}
+            />
+            <FormFeedback>This is a required field</FormFeedback>
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="exhibited_at">Exhibited At</Label>
+            <CustomSelect values={item.exhibited_at} callback={values => this.changeItem('exhibited_at', values)} />
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="Provenance">Provenance</Label>
+            <CustomSelect values={item.provenance} callback={values => this.changeItem('provenance', values)} />
+            <FormText>Use tab or enter to add a new Provenance.</FormText>
+          </FormGroup>
+        </Col>
       </Row>
     );
   }
@@ -1447,21 +1522,22 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="4">
           <FormGroup>
             <Label for="location">Location</Label>
-            <Input type="text" className="location" defaultValue={item.location ? item.location : ''} onChange={e => this.changeItem('location', e.target.value)}/>
+            <Input required invalid={this.state.validate.hasOwnProperty('location') && !this.state.validate.location} type="text" className="location" defaultValue={item.location ? item.location : ''} onChange={e => this.validateLength('location', e.target.value)}/>
+            <FormFeedback>This is a required field</FormFeedback>
           </FormGroup>
         </Col>
         <Col md="4">
           <FormGroup>
             <Label for="participants">Participant(s)</Label>
             <CustomSelect values={item.participants} callback={values => this.validateLength('participants', values)} />
-            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('participants') && !this.state.validate.participants ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Participant.</FormText>
           </FormGroup>
         </Col>
         <Col md="4">
           <FormGroup>
             <Label for="event_title">Event Title</Label>
-            <Input type="text" className="event_title" defaultValue={item.event_title ? item.event_title : ''} onChange={e => this.changeItem('event_title', e.target.value)}/>
+            <Input required invalid={this.state.validate.hasOwnProperty('event_title') && !this.state.validate.event_title} type="text" className="event_title" defaultValue={item.event_title ? item.event_title : ''} onChange={e => this.validateLength('event_title', e.target.value)}/>
+            <FormFeedback>This is a required field</FormFeedback>
           </FormGroup>
         </Col>
 
@@ -1541,6 +1617,32 @@ export class ItemEditor extends React.Component<Props, State> {
   }
 
   // ITEM IMAGE
+  ItemImageDrawing = (): JSX.Element => {
+    const item = this.state.changedItem;
+    return (
+      <Row>
+        <Col md="6">
+          <FormGroup>
+            <Label for="dimensions">Physical Dimensions</Label>
+            <Input
+              type="text"
+              className="dimensions"
+              defaultValue={item.dimensions ? item.dimensions : ''}
+              onChange={e => this.validateLength('dimensions', e.target.value)}
+              invalid={this.state.validate.hasOwnProperty('dimensions') && !this.state.validate.dimensions}
+            />
+            <FormFeedback>This is a required field</FormFeedback>
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="exhibited_at">Exhibited At</Label>
+            <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+          </FormGroup>
+        </Col>
+      </Row>
+    );
+  }
   ItemImage = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
@@ -1580,7 +1682,7 @@ export class ItemEditor extends React.Component<Props, State> {
       </Row>
     );
   }
-  ItemImagePhotographSculpturePainting = (): JSX.Element => {
+  ItemImagePhotographSculpturePaintingDrawing = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
       <Row>
@@ -1620,6 +1722,7 @@ export class ItemEditor extends React.Component<Props, State> {
           <FormGroup>
             <Label for="Provenance">Provenance</Label>
             <CustomSelect values={item.provenance} callback={values => this.changeItem('provenance', values)} />
+            <FormText>Use tab or enter to add a new Provenance.</FormText>
           </FormGroup>
         </Col>
       </Row>
@@ -1761,6 +1864,14 @@ export class ItemEditor extends React.Component<Props, State> {
   }
   ImageFilmStill = (): JSX.Element => {
     const item = this.state.changedItem;
+
+    let duration = '';
+    if (!!item.duration) {
+      // we have to ignore this as it complains that it might be null ... even though we're checking..
+      // @ts-ignore
+      duration = item.duration.toString().match(/.{1,2}/g).join(':');
+    }
+
     return (
       <Row>
         <Col md="6">
@@ -1802,7 +1913,13 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="duration">Minute : Second</Label>
-            <Input type="time" defaultValue={item.duration ? item.duration.toString() : ''} onChange={e => this.changeItem('duration', e.target.value)}/>
+            <TimeField
+              value={duration}
+              colon=":"
+              showSeconds
+              onChange={e => this.changeItem('duration', e.split(':').join(''))}
+              input={<Input type="text" placeholder="HH:MM:SS" />}
+            />
           </FormGroup>
         </Col>
         <Col md="6">
@@ -2108,7 +2225,7 @@ export class ItemEditor extends React.Component<Props, State> {
               </Col>
               <Col xs="4">
                 <UncontrolledButtonDropdown className="float-right">
-                  <Button className="caret" onClick={this.updateItem} disabled={!this.state.isDifferent}>Save</Button>           
+                  <Button className="caret" onClick={this.updateItem} disabled={!this.state.isDifferent}>Save</Button>
                   <DropdownToggle caret />
                   <DropdownMenu>
                     {this.state.originalItem.status ?
@@ -2171,7 +2288,7 @@ export class ItemEditor extends React.Component<Props, State> {
                     </FormGroup>
 
                     <FormGroup>
-                      <Label for="time_produced">Date</Label>
+                      <Label for="time_produced">Date Produced</Label>
                       <Input
                         type="date"
                         className="time_produced"
@@ -2300,9 +2417,10 @@ export class ItemEditor extends React.Component<Props, State> {
                 {item.item_subtype === itemText.Historical_Text ? <this.TextHistoricalText /> : <></>}
                 {item.item_subtype === itemText.Event_Press ? <this.TextEventPress /> : <></>}
                 {item.item_subtype === itemText.Toolkit ? <this.TextToolkit /> : <></>}
-                {(!!item.file && item.file.type === 'text') && item.item_subtype === itemText.Other ? <this.TextOther /> : <></>}
+                {(!!item.file && (item.file.type === 'text' || item.file.type === 'pdf' || item.file.type === 'downloadText')) && item.item_subtype === itemText.Other ? <this.TextOther /> : <></>}
 
                 {/* Item Video */}
+                {item.item_subtype === itemVideo.Video ? <this.Video /> : <></>}
                 {item.item_subtype === itemVideo.Movie ? <this.VideoMovieTrailer /> : <></>}
                 {item.item_subtype === itemVideo.Documentary ? <this.VideoDocumentaryArt /> : <></>}
                 {(!!item.file && item.file.type === 'video') && item.item_subtype === itemVideo.Research ? <this.VideoResearch /> : <></>}
@@ -2319,10 +2437,12 @@ export class ItemEditor extends React.Component<Props, State> {
                   item.item_subtype === itemImage.Illustration ||
                   item.item_subtype === itemImage.Artwork_Documentation ? <this.ItemImage /> : <></>
                 }
+
                 {
                   item.item_subtype === itemImage.Photograph ||
                   item.item_subtype === itemImage.Sculpture ||
-                  item.item_subtype === itemImage.Painting ? <this.ItemImagePhotographSculpturePainting /> : <></>
+                  item.item_subtype === itemImage.Drawing ||
+                  item.item_subtype === itemImage.Painting ? <this.ItemImagePhotographSculpturePaintingDrawing /> : <></>
                 }
 
                 {
