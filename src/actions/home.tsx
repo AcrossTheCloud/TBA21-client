@@ -166,17 +166,11 @@ const displayLayout = (data: HomepageData, columnSize: number, dispatch: Functio
 
   return (
     <Col key={`${s3_key}-${!!count ? 'collection' : 'item'}`} md={columnSize}>
-      <div className="item" onClick={() => openModal(data, dispatch)}>
+      <div className="item" onClick={() => openModalWithoutDispatch(data, dispatch)}>
         {file ?
           <div className="file">
             {
-              file.type !== 'video' ? <FilePreview data={data}/> :
-                <div className="videoPreview">
-                  <img src={file.poster} alt={''}/>
-                  <div className="playButton">
-                    <FaPlay />
-                  </div>
-                </div>
+              file.type !== 'video' ? <FilePreview data={data}/> : <VideoPoster data={data}/>
             }
           </div>
         : <></> }
@@ -257,7 +251,14 @@ export const FilePreview = (props: { data: HomepageData }): JSX.Element => {
   }
   return <></>;
 };
-
+export const VideoPoster = (props: { data: HomepageData }) => (
+  <div className="videoPreview">
+    {!!props.data.file ? <img src={props.data.file.poster} alt={''}/> : <></>}
+    <div className="playButton">
+      <FaPlay />
+    </div>
+  </div>
+);
 // Modal
 export const closeModal = () => dispatch => {
   dispatch({
@@ -267,7 +268,14 @@ export const closeModal = () => dispatch => {
   });
 };
 
-export const openModal = (data: HomepageData, dispatch: Function) => {
+const openModalWithoutDispatch = (data: HomepageData, dispatch: Function) => {
+  dispatch({
+    type: MODAL_STATE_HOMEPAGE,
+     isModalOpen: true,
+     modalData: data
+  });
+};
+export const openModal = (data: HomepageData) => dispatch => {
   dispatch({
     type: MODAL_STATE_HOMEPAGE,
      isModalOpen: true,

@@ -43,7 +43,6 @@ class HomePageModal extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Readonly<Props>): void {
-    console.log('UPDATED');
     if (this._isMounted) {
       const state = {};
 

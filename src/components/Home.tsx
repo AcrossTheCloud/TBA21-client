@@ -5,7 +5,7 @@ import { Button, Col, Container, Row } from 'reactstrap';
 import { debounce } from 'lodash';
 
 import { AuthConsumer } from '../providers/AuthProvider';
-import { logoDispatch, loadHomepage, loadMore, FilePreview, openModal } from 'actions/home';
+import { logoDispatch, loadHomepage, loadMore, FilePreview, openModal, VideoPoster } from 'actions/home';
 
 import { HomePageState } from '../reducers/home';
 import HomePageModal from './HomePageModal';
@@ -58,6 +58,8 @@ class HomePage extends React.Component<Props, {}> {
   render() {
     const { loaded_highlights, logoLoaded, loadedItems } = this.props;
 
+    console.log('loaded_highlights[0]', loaded_highlights[0]);
+
     return (
       <div id="home" className="flex-fill">
         <Container fluid id="header">
@@ -72,25 +74,23 @@ class HomePage extends React.Component<Props, {}> {
 
           <Row>
             {!!loaded_highlights[0] ?
-              <Col xs="12" md={loaded_highlights.length > 1 ? 8 : 12}>
+              <Col xs="12" md={loaded_highlights.length > 1 ? 8 : 12} className="item" onClick={() => this.props.openModal(loaded_highlights[0])}>
                 <div className="file">
-                  <FilePreview data={loaded_highlights[0]}/>
+                  {!!loaded_highlights[0].file && loaded_highlights[0].file.type !== 'video' ? <FilePreview data={loaded_highlights[0]}/> : <VideoPoster data={loaded_highlights[0]}/>}
                 </div>
               </Col>
               :
               <></>
             }
             {!!loaded_highlights[1] ?
-              <Col xs="12" md="4" className="item">
+              <Col xs="12" md="4" className="item" onClick={() => this.props.openModal(loaded_highlights[1])}>
                 <Row>
                   <Col xs="12">
                     <div className="file">
-                      <FilePreview data={loaded_highlights[1]}/>
+                      {!!loaded_highlights[1].file && loaded_highlights[1].file.type !== 'video' ? <FilePreview data={loaded_highlights[1]}/> : <VideoPoster data={loaded_highlights[1]}/>}
                     </div>
                     <div className="title">
-                      <Link to={`/view/${loaded_highlights[1].s3_key}`}>
-                        {loaded_highlights[1].title}
-                      </Link>
+                      {loaded_highlights[1].title}
                     </div>
                   </Col>
                 </Row>
@@ -102,7 +102,7 @@ class HomePage extends React.Component<Props, {}> {
           </Row>
           <Row>
             {!!loaded_highlights[0] ?
-              <Col md="6" className="item">
+              <Col md="6" className="item" onClick={() => this.props.openModal(loaded_highlights[0])}>
                 <div className="title">
                   <Link to={`/view/${loaded_highlights[0].s3_key}`}>
                     {loaded_highlights[0].title}
@@ -113,20 +113,20 @@ class HomePage extends React.Component<Props, {}> {
                     {loaded_highlights[0].type}, {new Date(loaded_highlights[0].date).getFullYear()}
                   </Link>
                 </div>
-                {/*{!!loaded_highlights[0].tags ?*/}
-                {/*  <div className="type">*/}
-                {/*    loaded_highlights[0].tags : <></>}*/}
-                {/*  </div>*/}
-                {/*  : <></>*/}
-                {/*}*/}
+                {!!loaded_highlights[0].concept_tags ?
+                  <div className="tags">
+                    {loaded_highlights[0].concept_tags.toString()}
+                  </div>
+                  : <></>
+                }
               </Col>
               : <></>
             }
 
             {!!loaded_highlights[2] ?
-              <Col md="2">
+              <Col md="2" className="item" onClick={() => this.props.openModal(loaded_highlights[2])}>
                 <div className="left">
-                  <FilePreview data={loaded_highlights[2]} />
+                  {!!loaded_highlights[2].file && loaded_highlights[2].file.type !== 'video' ? <FilePreview data={loaded_highlights[2]}/> : <VideoPoster data={loaded_highlights[2]}/>}
                 </div>
               </Col>
               : <></>
@@ -134,17 +134,13 @@ class HomePage extends React.Component<Props, {}> {
 
             {!!loaded_highlights[2] ?
               <Col md="4" className="item">
-                <div>
-                  <Link to={`/view/${loaded_highlights[2].s3_key}`}>
-                    {loaded_highlights[2].type}
-                  </Link>
+                <div onClick={() => this.props.openModal(loaded_highlights[2])}>
+                  {loaded_highlights[2].type}
                 </div>
-                <div>
-                  <Link to={`/view/${loaded_highlights[2].s3_key}`}>
-                    {loaded_highlights[2].title}
-                  </Link>
+                <div onClick={() => this.props.openModal(loaded_highlights[2])}>
+                  {loaded_highlights[2].title}
                 </div>
-                <div>
+                <div onClick={() => this.props.openModal(loaded_highlights[0])}>
                   {loaded_highlights[0].type}, {new Date(loaded_highlights[0].date).getFullYear()}
                 </div>
               </Col>
