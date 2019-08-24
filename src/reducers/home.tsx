@@ -1,4 +1,4 @@
-import { LOAD_HOMEPAGE, LOGO_STATE_HOMEPAGE, LOAD_MORE_HOMEPAGE } from 'actions/home';
+import { LOAD_HOMEPAGE, LOGO_STATE_HOMEPAGE, LOAD_MORE_HOMEPAGE, MODAL_STATE_HOMEPAGE } from 'actions/home';
 import { S3File } from '../types/s3File';
 
 export interface HomepageData {
@@ -12,6 +12,7 @@ export interface HomepageData {
   duration: string;
   file_dimensions: number[];
   creators: string[];
+  regions: string[];
 
   // OA Highlight specific
   concept_tags?: {id: number, tag_name: string}[] | null;
@@ -27,6 +28,9 @@ export interface HomePageState {
 
   loaded_highlights: HomepageData[];
   loadedItems: JSX.Element[];
+
+  isModalOpen: boolean;
+  modalData?: HomepageData;
 }
 const initialState: HomePageState = {
   logoLoaded: false,
@@ -36,7 +40,9 @@ const initialState: HomePageState = {
   oa_highlight: [],
 
   loaded_highlights: [],
-  loadedItems: []
+  loadedItems: [],
+
+  isModalOpen: false,
 };
 
 export default (state: HomePageState | null = initialState, action) => {
@@ -61,6 +67,12 @@ export default (state: HomePageState | null = initialState, action) => {
         loadedItems: action.loadedItems,
         items: action.items,
         collections: action.collections,
+      };
+    case MODAL_STATE_HOMEPAGE:
+      return {
+        ...state,
+        modalData: action.modalData ? action.modalData : undefined,
+        isModalOpen: action.isModalOpen,
       };
 
     default:

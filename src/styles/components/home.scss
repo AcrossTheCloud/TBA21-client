@@ -29,6 +29,7 @@
 
   .item {
     position: relative;
+    cursor: pointer;
     a {
       color: #fff;
       &:visited, &:focus {
@@ -58,6 +59,27 @@
       position: absolute;
       top: 20px;
       right: 20px;
+    }
+    .playButton {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      font-size: 50px;
+      transform: translateY(-50%);
+    }
+  }
+}
+
+#homePageModal {
+  background: $dark-blue;
+  color: #fff;
+  .modal-content {
+    background-color: $dark-blue;
+    color: #fff;
+    border: none;
+
+    .closeButton, .openButton {
+      cursor: pointer;
     }
   }
 }

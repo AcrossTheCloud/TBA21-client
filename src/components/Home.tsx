@@ -5,9 +5,10 @@ import { Button, Col, Container, Row } from 'reactstrap';
 import { debounce } from 'lodash';
 
 import { AuthConsumer } from '../providers/AuthProvider';
-import { logoDispatch, loadHomepage, loadMore, FilePreview } from 'actions/home';
+import { logoDispatch, loadHomepage, loadMore, FilePreview, openModal } from 'actions/home';
 
 import { HomePageState } from '../reducers/home';
+import HomePageModal from './HomePageModal';
 
 import Logo from './layout/Logo';
 import 'styles/components/home.scss';
@@ -17,6 +18,7 @@ interface Props extends HomePageState {
   loadHomepage: Function;
   loadMore: Function;
   oaHighlights: Function;
+  openModal: Function;
 }
 
 class HomePage extends React.Component<Props, {}> {
@@ -159,6 +161,7 @@ class HomePage extends React.Component<Props, {}> {
           </Row>
         </Container>
 
+        <HomePageModal data={this.props.modalData} open={this.props.isModalOpen} />
       </div>
     );
   }
@@ -171,7 +174,10 @@ const mapStateToProps = (state: { home: Props }) => ({
   collections: state.home.collections ? state.home.collections : [],
   oa_highlight: state.home.oa_highlight ? state.home.oa_highlight : [],
   loadedItems: state.home.loadedItems,
-  loaded_highlights: state.home.loaded_highlights
+  loaded_highlights: state.home.loaded_highlights,
+
+  modalData: state.home.modalData,
+  isModalOpen: state.home.isModalOpen
 });
 
-export default connect(mapStateToProps, { logoDispatch, loadHomepage, loadMore })(HomePage);
+export default connect(mapStateToProps, { logoDispatch, loadHomepage, loadMore, openModal })(HomePage);

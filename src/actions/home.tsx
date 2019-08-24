@@ -7,9 +7,9 @@ import { getCDNObject } from '../components/utils/s3File';
 import ReactPlayer from 'react-player';
 // import { Document, pdfjs } from 'react-pdf';
 import { Col } from 'reactstrap';
-import { Link } from 'react-router-dom';
 import config from '../dev-config';
 import { S3File } from '../types/s3File';
+import { FaPlay } from 'react-icons/fa';
 //
 // pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -17,6 +17,7 @@ import { S3File } from '../types/s3File';
 export const LOGO_STATE_HOMEPAGE = 'LOGO_STATE_HOMEPAGE';
 export const LOAD_HOMEPAGE = 'LOAD_HOMEPAGE';
 export const LOAD_MORE_HOMEPAGE = 'LOAD_MORE_HOMEPAGE';
+export const MODAL_STATE_HOMEPAGE = 'MODAL_STATE_HOMEPAGE';
 
 export const logoDispatch = (state: boolean) => dispatch => {
   dispatch({
@@ -119,7 +120,7 @@ export const loadMore = (items: HomepageData[], collections: HomepageData[], alr
         nextCount = i,
         nextFile = data[nextCount++];
 
-      let result: JSX.Element | undefined = await displayLayout(data[i], columnSizing);
+      let result: JSX.Element | undefined = await displayLayout(data[i], columnSizing, dispatch);
       if (result) {
         layout.push(result);
 
@@ -130,7 +131,7 @@ export const loadMore = (items: HomepageData[], collections: HomepageData[], alr
 
           if (sliced && sliced.length) {
             console.log('EXTRA!');
-            result = await displayLayout(sliced[0], 12 - columnSizing);
+            result = await displayLayout(sliced[0], 12 - columnSizing, dispatch);
             if (result) {
               layout.push(result);
             }
@@ -151,7 +152,7 @@ export const loadMore = (items: HomepageData[], collections: HomepageData[], alr
  });
 };
 
-const displayLayout = (data: HomepageData, columnSize: number) => {
+const displayLayout = (data: HomepageData, columnSize: number, dispatch: Function) => {
   if (!data) { return; }
   const {
     s3_key,
@@ -165,27 +166,29 @@ const displayLayout = (data: HomepageData, columnSize: number) => {
 
   return (
     <Col key={`${s3_key}-${!!count ? 'collection' : 'item'}`} md={columnSize}>
-      <div className="item">
+      <div className="item" onClick={() => openModal(data, dispatch)}>
         {file ?
           <div className="file">
-            <FilePreview data={data}/>
+            {
+              file.type !== 'video' ? <FilePreview data={data}/> :
+                <div className="videoPreview">
+                  <img src={file.poster} alt={''}/>
+                  <div className="playButton">
+                    <FaPlay />
+                  </div>
+                </div>
+            }
           </div>
         : <></> }
         <div className="type">
-          <Link to={`/view/${data.s3_key}`}>
-            {type}
-          </Link>
+          {type}
         </div>
         <div className="title">
-          <Link to={`/view/${data.s3_key}`}>
-            {!!creators ? creators.map(c => `${c} - `) : <></>}{title}
-          </Link>
+          {!!creators ? creators.map(c => `${c} - `) : <></>}{title}
         </div>
         {duration ?
           <div className="duration">
-            <Link to={`/view/${data.s3_key}`}>
-              {duration}
-            </Link>
+            {duration}
           </div>
         : <></> }
       </div>
@@ -253,4 +256,21 @@ export const FilePreview = (props: { data: HomepageData }): JSX.Element => {
     }
   }
   return <></>;
+};
+
+// Modal
+export const closeModal = () => dispatch => {
+  dispatch({
+    type: MODAL_STATE_HOMEPAGE,
+     isModalOpen: false,
+    data: undefined
+  });
+};
+
+export const openModal = (data: HomepageData, dispatch: Function) => {
+  dispatch({
+    type: MODAL_STATE_HOMEPAGE,
+     isModalOpen: true,
+     modalData: data
+  });
 };
