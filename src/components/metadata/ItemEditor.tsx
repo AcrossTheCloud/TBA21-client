@@ -1866,11 +1866,10 @@ export class ItemEditor extends React.Component<Props, State> {
     const item = this.state.changedItem;
 
     let duration = '';
-    if (!!this.state.changedItem.duration) {
+    if (!!item.duration) {
+      // we have to ignore this as it complains that it might be null ... even though we're checking..
       // @ts-ignore
-      duration = this.state.changedItem.duration.toString().match(/.{1,2}/g).join(':');
-      console.log(this.state.changedItem.duration.toString());
-
+      duration = item.duration.toString().match(/.{1,2}/g).join(':');
     }
 
     return (
