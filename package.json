@@ -43,8 +43,8 @@
     "wavesurfer.js": "^3.0.0"
   },
   "scripts": {
-    "start": "bash src/link_config.sh && react-scripts start",
-    "build": "bash src/link_config.sh && react-scripts build",
+    "start": "bash src/link_config.sh && craco start",
+    "build": "bash src/link_config.sh && craco build",
     "test": "jest --coverage",
     "eject": "react-scripts eject",
     "winstart": "react-scripts start",
