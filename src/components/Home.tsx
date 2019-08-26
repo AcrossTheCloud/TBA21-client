@@ -5,7 +5,7 @@ import { Button, Col, Container, Row } from 'reactstrap';
 import { debounce } from 'lodash';
 
 import { AuthConsumer } from '../providers/AuthProvider';
-import { logoDispatch, loadHomepage, loadMore, FilePreview, openModal, VideoPoster } from 'actions/home';
+import { logoDispatch, loadHomepage, loadMore, FilePreviewHome, openModal, closeModal } from 'actions/home';
 
 import { HomePageState } from '../reducers/home';
 import HomePageModal from './HomePageModal';
@@ -19,6 +19,7 @@ interface Props extends HomePageState {
   loadMore: Function;
   oaHighlights: Function;
   openModal: Function;
+  closeModal: Function;
 }
 
 class HomePage extends React.Component<Props, {}> {
@@ -47,6 +48,7 @@ class HomePage extends React.Component<Props, {}> {
   componentWillUnmount = () => {
     this._isMounted = false;
     window.removeEventListener('scroll', this.scrollDebounce, false);
+    this.props.closeModal();
   }
 
   handleScroll = async () => {
@@ -74,7 +76,7 @@ class HomePage extends React.Component<Props, {}> {
             {!!loaded_highlights[0] ?
               <Col xs="12" md={loaded_highlights.length > 1 ? 8 : 12} className="item" onClick={() => this.props.openModal(loaded_highlights[0])}>
                 <div className="file">
-                  {!!loaded_highlights[0].file && loaded_highlights[0].file.type !== 'video' ? <FilePreview data={loaded_highlights[0]}/> : <VideoPoster data={loaded_highlights[0]}/>}
+                  <FilePreviewHome data={loaded_highlights[0]}/>
                 </div>
               </Col>
               :
@@ -85,7 +87,7 @@ class HomePage extends React.Component<Props, {}> {
                 <Row>
                   <Col xs="12">
                     <div className="file">
-                      {!!loaded_highlights[1].file && loaded_highlights[1].file.type !== 'video' ? <FilePreview data={loaded_highlights[1]}/> : <VideoPoster data={loaded_highlights[1]}/>}
+                      <FilePreviewHome data={loaded_highlights[1]}/>
                     </div>
                     <div className="title">
                       {loaded_highlights[1].title}
@@ -124,7 +126,7 @@ class HomePage extends React.Component<Props, {}> {
             {!!loaded_highlights[2] ?
               <Col md="2" className="item" onClick={() => this.props.openModal(loaded_highlights[2])}>
                 <div className="left">
-                  {!!loaded_highlights[2].file && loaded_highlights[2].file.type !== 'video' ? <FilePreview data={loaded_highlights[2]}/> : <VideoPoster data={loaded_highlights[2]}/>}
+                  <FilePreviewHome data={loaded_highlights[2]}/>
                 </div>
               </Col>
               : <></>
@@ -174,4 +176,4 @@ const mapStateToProps = (state: { home: Props }) => ({
   isModalOpen: state.home.isModalOpen
 });
 
-export default connect(mapStateToProps, { logoDispatch, loadHomepage, loadMore, openModal })(HomePage);
+export default connect(mapStateToProps, { logoDispatch, loadHomepage, loadMore, openModal, closeModal })(HomePage);
