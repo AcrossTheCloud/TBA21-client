@@ -135,12 +135,8 @@
       padding: 0 15px;
 
       .file {
-        flex: 1 0 90%;
+        flex: 1 0;
         overflow: hidden;
-      }
-
-      .image {
-        z-index: 0;
         .background {
           filter: blur(6px);
           z-index: -1;
@@ -150,11 +146,19 @@
           height: 100%;
           width: 100%;
         }
-        img {
-          max-height: 100%;
-          z-index: 1;
+
+        .video {
+          z-index: 0
+        }
+        .image {
+          z-index: 0;
+          img {
+            max-height: 100%;
+            z-index: 1;
+          }
         }
       }
+
     }
 
     .body {

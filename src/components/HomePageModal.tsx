@@ -28,35 +28,28 @@ interface State {
 const FilePreview = (props: { file: S3File }): JSX.Element => {
   switch (props.file.type) {
     case 'image':
-      let thumbnail: string | undefined = props.file.url;
-      if (props.file.thumbnails) {
-        thumbnail = props.file.thumbnails['1140'] || props.file.thumbnails['960'] || props.file.thumbnails['720'] || props.file.thumbnails['540'];
-      }
-
-      const style = {
-        background: `url(${thumbnail})`,
-      };
+      const thumbnail: string | undefined = !!props.file.thumbnails ? props.file.thumbnails['1140'] || props.file.thumbnails['960'] || props.file.thumbnails['720'] || props.file.thumbnails['540'] : props.file.url;
 
       return (
-        <>
-          <Col md="12" className="px-0 image text-center h-100">
-            <img src={thumbnail} alt="" />
-            <div className="background" style={style} />
-          </Col>
-        </>
+        <Col className="px-0 image text-center h-100">
+          <img src={!!thumbnail ? thumbnail : props.file.url} alt="" />
+          <div className="background" style={{ background: `url(${!!thumbnail ? thumbnail : props.file.url})` }} />
+        </Col>
       );
     case 'video':
+      const poster = !!props.file.poster ? props.file.poster : '';
+
       return (
-        <div className="embed-responsive embed-responsive-16by9">
+        <Col className="px-0 h-100 video">
+          {!!poster ? <div className="background" style={{background: `url(${poster})` }} /> : <></>}
           <ReactPlayer
             controls
-            className="embed-responsive-item"
             url={props.file.playlist || props.file.url}
-            height="auto"
+            height="100%"
             width="100%"
             vertical-align="top"
           />
-        </div>
+        </Col>
       );
     case 'pdf':
       return (
@@ -154,7 +147,7 @@ class HomePageModal extends React.Component<Props, State> {
                     }
                   </div>
                   <div className="tags">
-                    {!!keyword_tags ? keyword_tags.map(t => `#${t.tag_name}`).join(', ').toString() : <></>}
+                    {!!keyword_tags ? keyword_tags.map(t => `#${t.tag_name}`).join(', ').toString() : <></>}{' '}
                     {!!concept_tags ? concept_tags.map(t => `#${t.tag_name}`).join(', ').toString() : <></>}
                   </div>
                 </div>
