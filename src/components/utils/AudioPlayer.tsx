@@ -47,7 +47,7 @@ export class AudioPlayer extends React.Component<Props, State> {
           responsive: true,
 
           progressColor: '#4a74a5',
-          waveColor: '#cc0023',
+          waveColor: 'rgba(34, 168, 175, 19)',
           cursorColor: '#4a74a5',
           hideScrollbar: true,
           forceDecode: true

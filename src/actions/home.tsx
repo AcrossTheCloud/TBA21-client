@@ -5,13 +5,13 @@ import * as React from 'react';
 import { random, findIndex, matchesProperty } from 'lodash';
 import { getCDNObject } from '../components/utils/s3File';
 import ReactPlayer from 'react-player';
-// import { Document, pdfjs } from 'react-pdf';
 import { Col } from 'reactstrap';
 import config from '../dev-config';
 import { S3File } from '../types/s3File';
 import { FaPlay } from 'react-icons/fa';
-//
-// pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+import { Document, Page, pdfjs } from 'react-pdf';
+
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 // Defining our Actions for the reducers
 export const LOGO_STATE_HOMEPAGE = 'LOGO_STATE_HOMEPAGE';
@@ -67,23 +67,23 @@ const addFilesToData = async (data: HomepageData[]): Promise<HomepageData[]> => 
 
         if (result.type === 'image') {
           const thumbnailUrl = `${config.other.THUMBNAIL_URL}${s3Key}`;
-          let thumbnails = ``;
+          let thumbnails = {};
 
           if (!!data[i].file_dimensions) {
             if (data[i].file_dimensions[0] > 540) {
-              thumbnails = thumbnails + `${thumbnailUrl}.thumbnail540.png 540w`;
+              Object.assign(thumbnails, {540: `${thumbnailUrl}.thumbnail540.png`});
             }
             if (data[i].file_dimensions[0] > 720) {
-              thumbnails = thumbnails + `,${thumbnailUrl}.thumbnail720.png 720w`;
+              Object.assign(thumbnails, {720: `${thumbnailUrl}.thumbnail720.png`});
             }
             if (data[i].file_dimensions[0] > 960) {
-              thumbnails = thumbnails + `,${thumbnailUrl}.thumbnail960.png 960w`;
+              Object.assign(thumbnails, {960: `${thumbnailUrl}.thumbnail960.png`});
             }
             if (data[i].file_dimensions[0] > 1140) {
-              thumbnails = thumbnails + `,${thumbnailUrl}.thumbnail1140.png 1140w`;
+              Object.assign(thumbnails, {1140: `${thumbnailUrl}.thumbnail1140.png`});
             }
 
-            if (thumbnails.length > 1) {
+            if (Object.keys(thumbnails).length > 1) {
               Object.assign(file, {thumbnails});
             }
           }
@@ -169,9 +169,7 @@ const displayLayout = (data: HomepageData, columnSize: number, dispatch: Functio
       <div className="item" onClick={() => openModalWithoutDispatch(data, dispatch)}>
         {file ?
           <div className="file">
-            {
-              file.type !== 'video' ? <FilePreview data={data}/> : <VideoPoster data={data}/>
-            }
+            <FilePreviewHome data={data}/>
           </div>
         : <></> }
         <div className="type">
@@ -205,9 +203,16 @@ const colSize = (fileType: string): number => {
 export const FilePreview = (props: { data: HomepageData }): JSX.Element => {
   if (props.data.file && props.data.file.url) {
     if (props.data.file.type === 'image') {
+      let thumbnails: string = '';
+      if (props.data.file.thumbnails) {
+        Object.entries(props.data.file.thumbnails).forEach( ([key, value]) => {
+          thumbnails = `${thumbnails} ${value} ${key}w`;
+        } );
+      }
+
       return (
         <img
-          srcSet={props.data.file.thumbnails ? props.data.file.thumbnails : ''}
+          srcSet={thumbnails}
           src={props.data.file.url}
           alt={props.data.title}
         />
@@ -239,7 +244,48 @@ export const FilePreview = (props: { data: HomepageData }): JSX.Element => {
       );
     }
 
-    //         {/*<Document file={`${props.data.file.url}`} />*/}
+    if (props.data.file.type === 'downloadText' || props.data.file.type === 'text') {
+      return (
+        <a href={props.data.file.url} target="_blank" rel="noopener noreferrer">
+          <img alt={props.data.title} src="https://upload.wikimedia.org/wikipedia/commons/2/22/Unscharfe_Zeitung.jpg" className="image-fluid"/>
+        </a>
+      );
+    }
+  }
+  return <></>;
+};
+export const FilePreviewHome = (props: { data: HomepageData }): JSX.Element => {
+  if (props.data.file && props.data.file.url) {
+    if (props.data.file.type === 'image') {
+      let thumbnails: string = '';
+      if (props.data.file.thumbnails) {
+        Object.entries(props.data.file.thumbnails).forEach( ([key, value]) => {
+          thumbnails = `${thumbnails}, ${value} ${key}w`;
+        } );
+      }
+      return (
+        <img
+          srcSet={thumbnails}
+          src={props.data.file.url}
+          alt={props.data.title}
+        />
+      );
+    }
+    if (props.data.file.type === 'audio') {
+      return <AudioPlayer url={props.data.file.url} id={props.data.id} />;
+    }
+    if (props.data.file.type === 'video') {
+      return (
+        <VideoPoster data={props.data} />
+      );
+    }
+    if (props.data.file.type === 'pdf') {
+      return (
+        <Document file={{ url: props.data.file.url }} >
+          <Page pageNumber={1}/>
+        </Document>
+      );
+    }
 
     if (props.data.file.type === 'downloadText' || props.data.file.type === 'text') {
       return (
