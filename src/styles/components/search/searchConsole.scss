@@ -1,0 +1,95 @@
+@import '../../base/variables';
+
+%searchFont {
+  color: #fff;
+  opacity: .5;
+}
+
+#searchConsole {
+  background: $dark-blue;
+
+  min-height: 25px;
+
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  z-index: 3;
+
+  transition: transform .35s cubic-bezier(0.22, 0.61, 0.36, 1), opacity .3s linear .5s;
+
+  .legend {
+    background: rgba(120, 120, 120, 50);
+    height: 0;
+    font-family: 'Roboto Mono', sans-serif;
+    font-size: 12px;
+    overflow: hidden;
+    @extend %searchFont;
+    div[class *= 'col-'] {
+      padding: 15px;
+    }
+    .border_right {
+      border-right: 1px solid $dark-blue;
+    }
+
+    &.hover {
+      height: auto;
+    }
+  }
+
+
+  .line {
+    width: 2.5em;
+    height: 4px;
+    background-color: #fff;
+    border-radius: 1em;
+    margin-top: 12.5px;
+
+    &.hover {
+      height: 0;
+      margin-top: 0;
+    }
+  }
+
+  .options {
+    overflow: hidden;
+
+    .padding {
+      padding: 0;
+    }
+
+    div[class *= 'col-'] {
+      height: 0;
+    }
+
+    &.hover {
+      .padding {
+        padding: 15px;
+      }
+      div[class *= 'col-'] {
+        @extend %searchFont;
+        height: auto;
+      }
+    }
+  }
+
+  .icon {
+    overflow: hidden;
+    span {
+      @extend %searchFont;
+      font-size: 16px;
+      transform: scaleX(-1);
+      display: inline-block;
+    }
+  }
+
+  .focus {
+    min-height: 25px;
+    padding: 0 !important;
+    opacity: 1 !important;
+    div {
+      height: 100%;
+      background: linear-gradient(to right, #0076FF 0%, #9013FE 20%, #50E3C2 50%);
+    }
+  }
+
+}
