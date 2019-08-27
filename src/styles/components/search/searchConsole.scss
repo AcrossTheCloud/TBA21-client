@@ -1,0 +1,195 @@
+@import '../../base/variables';
+
+%searchFont {
+  color: #fff;
+  opacity: .5;
+}
+
+#searchConsole {
+  background: $dark-blue;
+  color: #fff;
+
+  min-height: 25px;
+
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  z-index: 3;
+
+  transition: min-height .1s cubic-bezier(0.22, 0.61, 0.36, 1), opacity .3s linear .5s;
+
+  .legend {
+    background: rgba(120, 120, 120, 50);
+    height: 0;
+    max-height: 200px;
+    font-family: 'Roboto Mono', sans-serif;
+    font-size: 12px;
+    overflow: hidden;
+    transition: max-height 1s;
+    @extend %searchFont;
+    div[class *= 'col-'] {
+      padding: 15px;
+    }
+    .border_right {
+      border-right: 1px solid $dark-blue;
+    }
+
+    &.hover {
+      height: auto;
+    }
+
+    &.open {
+      max-height: 0;
+      transition: max-height 1s;
+    }
+  }
+
+  &.open {
+    z-index: 9999;
+    min-height: 100%;
+    transition: min-height .1s cubic-bezier(0.22, 0.61, 0.36, 1), opacity .3s linear .5s;
+  }
+
+}
+
+.options {
+  overflow: hidden;
+
+  .padding {
+    padding: 0;
+  }
+
+  div[class *= 'col-'] {
+    height: 0;
+  }
+
+  .line {
+    width: 2.5em;
+    height: 4px;
+    background-color: #fff;
+    border-radius: 1em;
+    margin-top: 12.5px;
+  }
+
+  .mid {
+    height: 0;
+    overflow: hidden;
+    @extend %searchFont;
+    transition: max-width 2s;
+  }
+
+  .view {
+    .row {
+      height: 0;
+      overflow: hidden;
+      .option {
+        @extend %searchFont;
+        &.active {
+          opacity: 1;
+        }
+      }
+    }
+  }
+
+  &.hover {
+    .padding {
+      padding: 15px;
+    }
+    div[class *= 'col-'] {
+      height: auto;
+    }
+
+    .opacity5 {
+      @extend %searchFont;
+    }
+
+    .view {
+      .line {
+        height: 0;
+        margin-top: 0;
+      }
+      .option {
+        cursor: pointer;
+        &:hover {
+          opacity: 1;
+        }
+      }
+    }
+
+    .view .row, .mid {
+      height: auto;
+    }
+  }
+
+  &.open {
+    .padding {
+      padding: 15px;
+    }
+    input.searchInput {
+      border: 0;
+      color: #fff;
+      background: #787878;
+      border-radius: 0;
+      height: 100%;
+      width: 100%;
+      padding: 0 10px;
+      &:focus {
+        outline: none;
+      }
+    }
+  }
+
+  .icon {
+    overflow: hidden;
+    font-size: 16px;
+
+    span {
+      &.simple-icon-magnifier {
+        color: #fff;
+        transform: scaleX(-1);
+        display: inline-block;
+      }
+    }
+
+    .closeButton {
+      height: 0;
+      max-width: 0;
+      color: #fff;
+      opacity: 1;
+      overflow: hidden;
+      padding: 0;
+      &.open {
+        height: auto;
+        max-width: unset;
+      }
+    }
+  }
+
+  .focus {
+    min-height: 25px;
+    padding: 0 !important;
+    max-width: 100%;
+
+    &.open {
+      max-width: 0;
+      overflow: hidden;
+      transition: max-width 1.2s;
+
+      div {
+        left: 100% !important;
+        transition: left 1s !important;
+      }
+    }
+
+    div {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(to right, #0076FF 0%, #9013FE 20%, #50E3C2 50%);
+      transition: left 1s !important;
+    }
+  }
+
+}

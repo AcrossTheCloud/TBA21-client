@@ -1,11 +1,12 @@
 @import '../base/variables';
 
+// Styles to help the logo animation.
 #body {
   &.fixed {
     max-height: 100vh;
     height: 100vh;
-    overflow: hidden;
     background: #fff;
+    overflow: hidden;
   }
   &.logoLoaded {
     #home {
@@ -18,10 +19,14 @@
 
 #home {
   color: #fff;
+  min-height: 100vh;
+
+  #main {
+    overflow: hidden;
+  }
+
   #header {
     background: $dark-blue;
-    min-height: 100vh;
-
     transform: translate3d(0,-60vw,0);
     transition: transform .5s cubic-bezier(0.22, 0.61, 0.36, 1);
   }
@@ -29,33 +34,137 @@
 
   .item {
     position: relative;
+    cursor: pointer;
     a {
       color: #fff;
       &:visited, &:focus {
         color: #fff;
       }
     }
-    .overlay {
+    .title {
+      font-family: "Recta W01 Regular", sans-serif;
+      font-size: 20px;
+
       position: absolute;
-      top: 0;
+      bottom: 20px;
+      left: 20px;
+    }
+    .type {
+      font-family: "Recta W01 Regular", sans-serif;
+      font-size: 20px;
+
+      position: absolute;
+      top: 20px;
+      left: 20px;
+    }
+    .duration {
+      font-family: "Recta W01 Regular", sans-serif;
+      font-size: 15px;
+
+      position: absolute;
+      top: 20px;
+      right: 20px;
+    }
+    .playButton {
+      line-height: 0;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      font-size: 50px;
+      transform: translate(-50%, -50%);
+    }
+
+    .file {
+      // PDF file constraints
+      .react-pdf__Page__canvas {
+        max-width: 100% !important;
+        height: auto !important;
+      }
+    }
+  }
+}
+
+#homePageModal {
+  color: #fff;
+  &.fullwidth {
+    max-width: 98vw;
+    overflow: hidden;
+  }
+
+  .wrapper {
+    margin: 0 15px;
+  }
+
+  .modal-content {
+    background-color: $dark-blue;
+    color: #fff;
+    border: none;
+    border-radius: 0;
+    overflow: hidden;
+
+    height: calc(100vh - (0.5rem * 2));
+    @media (min-width: 576px) {
+      height: calc(100vh - (1.75rem * 2));
+    }
+
+    .closeButton, .openButton {
+      cursor: pointer;
+    }
+
+    .header {
+      background: $dark-blue;
+      padding: 15px 15px;
+
+      .gray {
+        color: #fff;
+        font-family: 'Roboto Mono', sans-serif;
+        font-size: 14px;
+        opacity: .5;
+      }
+
+      .dot {
+        line-height: 0;
+        font-size: 10px;
+      }
+    }
+
+    .info {
+      overflow-y: scroll;
       height: 100%;
-      width: 100%;
-      .title {
-        font-family: "Recta W01 Regular", sans-serif;
-        font-size: 20px;
+      overflow-x: hidden;
+      padding: 0 15px;
 
-        position: absolute;
-        bottom: 20px;
-        left: 20px;
-      }
-      .type {
-        font-family: "Recta W01 Regular", sans-serif;
-        font-size: 20px;
+      .file {
+        flex: 1 0;
+        overflow: hidden;
+        .background {
+          filter: blur(6px);
+          z-index: -1;
+          position: absolute;
+          left: 0;
+          top: 0;
+          height: 100%;
+          width: 100%;
+        }
 
-        position: absolute;
-        top: 20px;
-        left: 20px;
+        .video {
+          z-index: 0
+        }
+        .image {
+          z-index: 0;
+          img {
+            max-height: 100%;
+            z-index: 1;
+          }
+        }
       }
+
+    }
+
+    .body {
+      padding: 15px 15px;
+      font-family: 'Roboto Mono', sans-serif;
+      opacity: .4;
     }
   }
 }

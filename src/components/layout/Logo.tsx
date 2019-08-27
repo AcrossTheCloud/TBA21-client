@@ -15,6 +15,7 @@ interface State {
 
 export default class Logo extends Component<Props, State> {
   _isMounted;
+  detectScroll;
 
   constructor(props: Props) {
     super(props);
@@ -23,10 +24,22 @@ export default class Logo extends Component<Props, State> {
     this.state = {
       loaded: this.props.loaded || false
     };
+
+    this.detectScroll = () => {
+      const $main = $('#main');
+      if (window.scrollY > $main!.offset()!.top - 43) {
+      // if (window.innerHeight + document.documentElement.scrollTop === document.documentElement.offsetHeight) {
+        $('#logo').addClass('inv');
+      } else {
+        $('#logo').removeClass('inv');
+      }
+    };
   }
 
   componentDidMount(): void {
     this._isMounted = true;
+
+    window.addEventListener('scroll', this.detectScroll, false);
 
     if (!this.props.loaded) {
       setTimeout(() => {
@@ -53,6 +66,7 @@ export default class Logo extends Component<Props, State> {
 
   componentWillUnmount(): void {
     this._isMounted = false;
+    window.removeEventListener('scroll', this.detectScroll, false);
   }
 
   render() {

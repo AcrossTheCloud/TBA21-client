@@ -21,6 +21,7 @@ import {
   TabPane,
   UncontrolledButtonDropdown
 } from 'reactstrap';
+import TimeField from 'react-simple-timefield';
 
 import { API } from 'aws-amplify';
 import Select from 'react-select';
@@ -403,7 +404,7 @@ export class ItemEditor extends React.Component<Props, State> {
       writers,
       exhibited_at,
       location,
-      participants,
+      event_title,
       produced_by
     } = this.state.changedItem;
 
@@ -523,11 +524,11 @@ export class ItemEditor extends React.Component<Props, State> {
         },
         'News / Journalism': {
           'authors': (authors || false),
-          'news outlet': (news_outlet || false)
+          'news_outlet': (news_outlet || false)
         },
         'Event Recording': {
           'location': (location || false),
-          'participants ': (participants  || false)
+          'event_title': (event_title  || false)
         },
         'Trailer': {
           'directors': (directors || false)
@@ -1312,13 +1313,6 @@ export class ItemEditor extends React.Component<Props, State> {
         </Col>
         <Col md="6">
           <FormGroup>
-            <Label for="duration">Minute : Second</Label>
-            <Input type="time" defaultValue={item.duration ? item.duration.toString() : ''} onChange={e => this.changeItem('duration', e.target.value)}/>
-          </FormGroup>
-        </Col>
-
-        <Col md="6">
-          <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
             <CustomSelect values={item.exhibited_at} callback={values => this.changeItem('exhibited_at', values)} />
           </FormGroup>
@@ -1327,6 +1321,7 @@ export class ItemEditor extends React.Component<Props, State> {
           <FormGroup>
             <Label for="Provenance">Provenance</Label>
             <CustomSelect values={item.provenance} callback={values => this.changeItem('provenance', values)} />
+            <FormText>Use tab or enter to add a new Provenance.</FormText>
           </FormGroup>
         </Col>
       </Row>
@@ -1469,6 +1464,7 @@ export class ItemEditor extends React.Component<Props, State> {
           <FormGroup>
             <Label for="Provenance">Provenance</Label>
             <CustomSelect values={item.provenance} callback={values => this.changeItem('provenance', values)} />
+            <FormText>Use tab or enter to add a new Provenance.</FormText>
           </FormGroup>
         </Col>
       </Row>
@@ -1526,21 +1522,22 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="4">
           <FormGroup>
             <Label for="location">Location</Label>
-            <Input type="text" className="location" defaultValue={item.location ? item.location : ''} onChange={e => this.changeItem('location', e.target.value)}/>
+            <Input required invalid={this.state.validate.hasOwnProperty('location') && !this.state.validate.location} type="text" className="location" defaultValue={item.location ? item.location : ''} onChange={e => this.validateLength('location', e.target.value)}/>
+            <FormFeedback>This is a required field</FormFeedback>
           </FormGroup>
         </Col>
         <Col md="4">
           <FormGroup>
             <Label for="participants">Participant(s)</Label>
             <CustomSelect values={item.participants} callback={values => this.validateLength('participants', values)} />
-            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('participants') && !this.state.validate.participants ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Participant.</FormText>
           </FormGroup>
         </Col>
         <Col md="4">
           <FormGroup>
             <Label for="event_title">Event Title</Label>
-            <Input type="text" className="event_title" defaultValue={item.event_title ? item.event_title : ''} onChange={e => this.changeItem('event_title', e.target.value)}/>
+            <Input required invalid={this.state.validate.hasOwnProperty('event_title') && !this.state.validate.event_title} type="text" className="event_title" defaultValue={item.event_title ? item.event_title : ''} onChange={e => this.validateLength('event_title', e.target.value)}/>
+            <FormFeedback>This is a required field</FormFeedback>
           </FormGroup>
         </Col>
 
@@ -1725,6 +1722,7 @@ export class ItemEditor extends React.Component<Props, State> {
           <FormGroup>
             <Label for="Provenance">Provenance</Label>
             <CustomSelect values={item.provenance} callback={values => this.changeItem('provenance', values)} />
+            <FormText>Use tab or enter to add a new Provenance.</FormText>
           </FormGroup>
         </Col>
       </Row>
@@ -1866,6 +1864,14 @@ export class ItemEditor extends React.Component<Props, State> {
   }
   ImageFilmStill = (): JSX.Element => {
     const item = this.state.changedItem;
+
+    let duration = '';
+    if (!!item.duration) {
+      // we have to ignore this as it complains that it might be null ... even though we're checking..
+      // @ts-ignore
+      duration = item.duration.toString().match(/.{1,2}/g).join(':');
+    }
+
     return (
       <Row>
         <Col md="6">
@@ -1907,7 +1913,13 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="duration">Minute : Second</Label>
-            <Input type="time" defaultValue={item.duration ? item.duration.toString() : ''} onChange={e => this.changeItem('duration', e.target.value)}/>
+            <TimeField
+              value={duration}
+              colon=":"
+              showSeconds
+              onChange={e => this.changeItem('duration', e.split(':').join(''))}
+              input={<Input type="text" placeholder="HH:MM:SS" />}
+            />
           </FormGroup>
         </Col>
         <Col md="6">
