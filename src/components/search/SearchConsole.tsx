@@ -5,6 +5,7 @@ import Container from 'reactstrap/lib/Container';
 import 'styles/components/search/searchConsole.scss';
 import { Col, Row } from 'reactstrap';
 import { SearchConsoleState } from '../../reducers/searchConsole'; // Props from Redux.
+import { FaTimes } from 'react-icons/fa';
 
 interface State {
   hover: boolean;
@@ -31,6 +32,10 @@ class SearchConsole extends React.Component<SearchConsoleState, State> {
     this.setState({isOpen: !this.state.isOpen});
   }
 
+  search = () => {
+
+  }
+
   render() {
     const
       { hover, isOpen } = this.state,
@@ -38,7 +43,7 @@ class SearchConsole extends React.Component<SearchConsoleState, State> {
       hoveredClass = hover ? 'hover' : '';
 
     return (
-      <div id="searchConsole">
+      <div id="searchConsole" className={isOpenClass}>
         <Container fluid className={`console`} onMouseEnter={this.toggleHover} onMouseLeave={this.toggleHover} >
 
           <Row className={`legend ${hoveredClass} ${isOpenClass}`}>
@@ -48,23 +53,37 @@ class SearchConsole extends React.Component<SearchConsoleState, State> {
             <Col xs="4">Focus</Col>
           </Row>
 
-          <Row className={`options ${hoveredClass}`}>
-            <Col xs="2">
-              <div className={`line ${hoveredClass}`} />
+          <Row className={`options ${hoveredClass} ${isOpenClass}`}>
+
+            <Col className={`view ${isOpen ? `${isOpenClass} col` : `col-2 opacity5`}`}>
+              <div className="line" />
               <Row>
-                <Col xs="4" className="padding option">Grid</Col>
-                <Col xs="4" className="padding option px-0">List</Col>
+                <Col xs="6" className="padding option">Grid</Col>
+                <Col xs="6" className="padding option px-0">List</Col>
               </Row>
             </Col>
 
-            <Col xs="5" className="padding">
-              A list of concept tags.
+            <Col className={`mid ${hoveredClass} ${isOpen ? 'px-0 col-9' : 'padding col-5'}`}>
+              {isOpen ?
+                <input type="text" className="searchInput"/>
+                :
+                <div className="opacity5">A list of concept tags.</div>
+              }
             </Col>
 
-            <Col xs="1" className="icon padding" onClick={this.toggleOpen}>
-              <span className="simple-icon-magnifier"/>
+            <Col className={`icon padding ${isOpen ? `${isOpenClass} col` : `col-1 opacity5`}`} onClick={isOpen ? this.search : this.toggleOpen}>
+              <Row>
+                <Col>
+                  <span className="simple-icon-magnifier"/>
+                </Col>
+                {/*{ Is only shown when opened fully. }*/}
+                <Col className={`closeButton ${isOpenClass}`} onClick={this.toggleOpen}>
+                  <FaTimes />
+                </Col>
+              </Row>
             </Col>
 
+            {/*{ Is hidden when open (max-width: 0) }*/}
             <Col sm="4" className={`d-none d-sm-block focus px-0 ${isOpenClass}`}>
               <div />
             </Col>
