@@ -4,34 +4,44 @@ import Container from 'reactstrap/lib/Container';
 
 import 'styles/components/search/searchConsole.scss';
 import { Col, Row } from 'reactstrap';
+import { SearchConsoleState } from '../../reducers/searchConsole'; // Props from Redux.
 
 interface State {
   hover: boolean;
+  isOpen: boolean;
 }
 
-class SearchConsole extends React.Component<{}, State> {
-  constructor(props: {}) {
+class SearchConsole extends React.Component<SearchConsoleState, State> {
+  constructor(props: SearchConsoleState) {
     super(props);
 
     this.state = {
-      hover: false
+      hover: false,
+      isOpen: false
     };
   }
 
   toggleHover = () => {
-    this.setState({hover: !this.state.hover});
+    if (!this.state.isOpen) {
+      this.setState({hover: !this.state.hover});
+    }
+  }
+
+  toggleOpen = () => {
+    this.setState({isOpen: !this.state.isOpen});
   }
 
   render() {
     const
-      { hover } = this.state,
+      { hover, isOpen } = this.state,
+      isOpenClass = isOpen ? 'open' : '',
       hoveredClass = hover ? 'hover' : '';
 
     return (
       <div id="searchConsole">
         <Container fluid className={`console`} onMouseEnter={this.toggleHover} onMouseLeave={this.toggleHover} >
 
-          <Row className={`legend ${hoveredClass}`}>
+          <Row className={`legend ${hoveredClass} ${isOpenClass}`}>
             <Col xs="2" className="border_right">View</Col>
             <Col xs="5" className="border_right">Conceptual Tags</Col>
             <Col xs="1" className="border_right">Search</Col>
@@ -51,11 +61,11 @@ class SearchConsole extends React.Component<{}, State> {
               A list of concept tags.
             </Col>
 
-            <Col xs="1" className="icon padding">
+            <Col xs="1" className="icon padding" onClick={this.toggleOpen}>
               <span className="simple-icon-magnifier"/>
             </Col>
 
-            <Col xs="hidden" sm="4" className="focus px-0">
+            <Col sm="4" className={`d-none d-sm-block focus px-0 ${isOpenClass}`}>
               <div />
             </Col>
           </Row>
@@ -66,7 +76,13 @@ class SearchConsole extends React.Component<{}, State> {
   }
 }
 
-const mapStateToProps = (state: { search: {} }) => ({
+const mapStateToProps = (state: { searchConsole: SearchConsoleState }) => ({
+
+  search_query: state.searchConsole.search_query,
+  concept_tags: state.searchConsole.concept_tags,
+  selected_tags: state.searchConsole.selected_tags,
+  view: state.searchConsole.view,
+  results: state.searchConsole.results,
 
 });
 

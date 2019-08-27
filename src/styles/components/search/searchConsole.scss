@@ -20,9 +20,11 @@
   .legend {
     background: rgba(120, 120, 120, 50);
     height: 0;
+    max-height: 200px;
     font-family: 'Roboto Mono', sans-serif;
     font-size: 12px;
     overflow: hidden;
+    transition: max-height 1s;
     @extend %searchFont;
     div[class *= 'col-'] {
       padding: 15px;
@@ -34,8 +36,12 @@
     &.hover {
       height: auto;
     }
-  }
 
+    &.open {
+      max-height: 0;
+      transition: max-height 1s;
+    }
+  }
 
   .line {
     width: 2.5em;
@@ -83,12 +89,24 @@
   }
 
   .focus {
+    &.open {
+      overflow: hidden;
+      div {
+        left: 100% !important;
+      }
+    }
     min-height: 25px;
     padding: 0 !important;
     opacity: 1 !important;
+
     div {
+      position: absolute;
+      top: 0;
+      left: 0;
       height: 100%;
+      width: 100%;
       background: linear-gradient(to right, #0076FF 0%, #9013FE 20%, #50E3C2 50%);
+      transition: left 1s;
     }
   }
 
