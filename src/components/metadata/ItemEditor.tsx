@@ -2352,7 +2352,7 @@ export class ItemEditor extends React.Component<Props, State> {
                     </FormGroup>
 
                     <FormGroup>
-                      <Label for="keyword_tags">Keyword Tags</Label>
+                      <Label for="keyword_tags">Keyword Tag(s)</Label>
                       <Tags
                         className="keyword_tags"
                         type="keyword"
