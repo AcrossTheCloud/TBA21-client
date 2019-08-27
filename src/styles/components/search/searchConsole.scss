@@ -82,7 +82,12 @@
     .row {
       height: 0;
       overflow: hidden;
-      @extend %searchFont;
+      .option {
+        @extend %searchFont;
+        &.active {
+          opacity: 1;
+        }
+      }
     }
   }
 
@@ -103,11 +108,10 @@
         height: 0;
         margin-top: 0;
       }
-      .row {
-        div {
-          &:hover {
-            opacity: 1;
-          }
+      .option {
+        cursor: pointer;
+        &:hover {
+          opacity: 1;
         }
       }
     }
