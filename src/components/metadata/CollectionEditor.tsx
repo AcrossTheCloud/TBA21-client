@@ -1291,7 +1291,7 @@ export class CollectionEditor extends React.Component<Props, State> {
               <TabPane tabId="1">
                 <Row>
                   <Col md="12">
-                    <UncontrolledButtonDropdown className="float-right">  
+                    <UncontrolledButtonDropdown className="float-right">
                       <Button className="caret" onClick={this.putCollection} disabled={!this.state.isDifferent}>Save</Button>
                       <DropdownToggle caret />
                       <DropdownMenu>
@@ -1369,6 +1369,17 @@ export class CollectionEditor extends React.Component<Props, State> {
                       <Select menuPlacement="auto" id="type" options={collectionTypes} value={[collectionTypes.find( o => o.value === type)]} onChange={e => this.validateLength('type', e.value)} isSearchable/>
                       <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('type') && !this.state.validate.type ? 'block' : 'none') }}>This is a required field</FormFeedback>
                     </FormGroup>
+
+                    {type === Types.Series ? <this.Series /> : <></>}
+                    {type === Types.Area_of_Research ? <this.AreaOfResearch /> : <></>}
+                    {type === Types.Event ? <this.Event /> : <></>}
+                    {type === Types.Event_Series ? <this.EventSeries /> : <></>}
+                    {type === Types.Edited_Volume ? <this.EditedVolume /> : <></>}
+                    {type === Types.Expedition ? <this.Expedition /> : <></>}
+                    {type === Types.Collection ? <this.Collection /> : <></>}
+                    {type === Types.Convening ? <this.Convening /> : <></>}
+                    {type === Types.Performance ? <this.Performance /> : <></>}
+                    {type === Types.Installation ? <this.Installation /> : <></>}
 
                     <FormGroup>
                       <Label for="license_type">License</Label>
@@ -1451,17 +1462,6 @@ export class CollectionEditor extends React.Component<Props, State> {
 
                   </Col>
                 </Row>
-
-                {type === Types.Series ? <this.Series /> : <></>}
-                {type === Types.Area_of_Research ? <this.AreaOfResearch /> : <></>}
-                {type === Types.Event ? <this.Event /> : <></>}
-                {type === Types.Event_Series ? <this.EventSeries /> : <></>}
-                {type === Types.Edited_Volume ? <this.EditedVolume /> : <></>}
-                {type === Types.Expedition ? <this.Expedition /> : <></>}
-                {type === Types.Collection ? <this.Collection /> : <></>}
-                {type === Types.Convening ? <this.Convening /> : <></>}
-                {type === Types.Performance ? <this.Performance /> : <></>}
-                {type === Types.Installation ? <this.Installation /> : <></>}
 
               </TabPane>
               <TabPane tabId="2">

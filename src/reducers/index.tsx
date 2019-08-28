@@ -6,6 +6,7 @@ import Home from '../reducers/home';
 import Profile from '../reducers/user/profile';
 import manageUsers from '../reducers/admin/user/manageUsers';
 import searchConsole from '../reducers/searchConsole';
+import audioPlayer from '../reducers/audioPlayer';
 
 const reducers: ReducersMapObject = {
   viewItems: ViewItems,
@@ -20,7 +21,9 @@ const reducers: ReducersMapObject = {
   // Admin
   manageUsers: manageUsers,
 
-  searchConsole: searchConsole
+  searchConsole: searchConsole,
+
+  audioPlayer: audioPlayer
 };
 
 export default combineReducers(reducers);

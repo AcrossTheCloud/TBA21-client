@@ -1,6 +1,6 @@
 import { API } from 'aws-amplify';
 import { HomepageData } from '../reducers/home';
-import { AudioPlayer } from '../components/utils/AudioPlayer';
+import AudioPreview from 'components/layout/audio/AudioPreview';
 import * as React from 'react';
 import { random, findIndex, matchesProperty } from 'lodash';
 import { getCDNObject } from '../components/utils/s3File';
@@ -121,6 +121,12 @@ export const loadMore = (items: HomepageData[], collections: HomepageData[], alr
         nextFile = data[nextCount++];
 
       let result: JSX.Element | undefined = await displayLayout(data[i], columnSizing, dispatch);
+
+      if (file && file.type === 'audio') {
+        const {title, id, creators, type, date} = data[i];
+        result = (<Col xs="12" key={id}><AudioPreview data={{title, id, url: file.url, date, creators, type }} /></Col>);
+      }
+
       if (result) {
         layout.push(result);
 
@@ -218,8 +224,9 @@ export const FilePreview = (props: { data: HomepageData }): JSX.Element => {
         />
       );
     }
-    if (props.data.file.type === 'audio') {
-      return <AudioPlayer url={props.data.file.url} id={props.data.id} />;
+    if (props.data.file && props.data.file.type === 'audio') {
+      const {title, id, creators, type, date} = props.data;
+      return <AudioPreview data={{title, id, url: props.data.file.url, date, creators, type }} />;
     }
     if (props.data.file.type === 'video') {
       return (
@@ -270,9 +277,6 @@ export const FilePreviewHome = (props: { data: HomepageData }): JSX.Element => {
           alt={props.data.title}
         />
       );
-    }
-    if (props.data.file.type === 'audio') {
-      return <AudioPlayer url={props.data.file.url} id={props.data.id} />;
     }
     if (props.data.file.type === 'video') {
       return (

@@ -11,7 +11,6 @@ import { State } from '../../reducers/items/viewItems';
 import { getCDNObject } from '../utils/s3File';
 
 import { S3File } from '../../types/s3File';
-import { AudioPlayer } from '../utils/AudioPlayer';
 
 import 'styles/components/ViewItems.scss';
 
@@ -27,9 +26,6 @@ const FilePreview = (props: { id: string, file: S3File }): JSX.Element => {
   if (props.file.url) {
     if (props.file.type === 'image') {
       return <CardImg src={props.file.url}/>;
-    }
-    if (props.file.type === 'audio') {
-      return <AudioPlayer url={props.file.url} id={props.id} />
     }
   }
   return <></>;

@@ -8,6 +8,7 @@ import { search as dispatchSearch, changeView } from '../../actions/searchConsol
 import { FaTimes } from 'react-icons/fa';
 
 import 'styles/components/search/searchConsole.scss';
+import AudioPlayer from '../layout/audio/AudioPlayer';
 
 interface Props extends SearchConsoleState {
   changeView: Function;
@@ -98,18 +99,20 @@ class SearchConsole extends React.Component<Props, State> {
 
     return (
       <div id="searchConsole" className={isOpenClass}>
+
+        <AudioPlayer className="audioPlayerSticky" />
+
         <Container fluid className="console" onMouseEnter={this.toggleHover} onMouseLeave={this.toggleHover} >
 
           <Row className={`legend ${hoveredClass} ${isOpenClass}`}>
             <Col xs="2" className="border_right">View</Col>
-            <Col xs="5" className="border_right">Conceptual Tags</Col>
-            <Col xs="1" className="border_right">Search</Col>
+            <Col xs="6" className="border_right">Search</Col>
             <Col xs="4">Focus</Col>
           </Row>
 
           <Row className={`options ${hoveredClass} ${isOpenClass}`}>
 
-            <Col className={`view ${isOpen ? `${isOpenClass} col` : `col-2 opacity5`}`}>
+            <Col className={`view col-2 ${isOpen ? isOpenClass : `opacity5`}`}>
               <div className="line" />
               <Row>
                 <Col
@@ -141,20 +144,15 @@ class SearchConsole extends React.Component<Props, State> {
               </Row>
             </Col>
 
-            <Col className={`mid ${hoveredClass} ${isOpen ? 'px-0 col-9' : 'padding col-5'}`}>
-              {isOpen ?
-                <input
-                  type="text"
-                  className="searchInput"
-                  ref={this.searchInputRef}
-                  defaultValue={this.props.search_query}
-                  onKeyDown={e => this.onSearchKeyDown(e.key)}
-                  onChange={e => this.search(e.target.value)
-                  }
-                />
-                :
-                <div className="opacity5">A list of concept tags.</div>
-              }
+            <Col className={`mid ${hoveredClass} ${isOpen ? 'px-0 col-9' : 'col-5'}`}>
+              <input
+                type="text"
+                className="searchInput"
+                ref={this.searchInputRef}
+                defaultValue={this.props.search_query}
+                onKeyDown={e => this.onSearchKeyDown(e.key)}
+                onChange={e => this.search(e.target.value)}
+              />
             </Col>
 
             <Col
