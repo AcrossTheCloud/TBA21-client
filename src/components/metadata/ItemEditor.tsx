@@ -371,7 +371,7 @@ export class ItemEditor extends React.Component<Props, State> {
     if (!file) {
       options.push(...itemTextSubTypes, ...itemVideoSubTypes, ...itemImageSubTypes, ...itemAudioSubTypes);
     } else if (file.type === 'pdf') {
-      options.push(...itemTextSubTypes, ...itemImageSubTypes);
+      options.push(...itemTextSubTypes, ...itemImageSubTypes.filter(t => t.label !== 'Other'));
     } else if (file.type === 'text' || file.type === 'downloadText') {
       options = itemTextSubTypes;
     } else if (file.type === 'video') {
@@ -2334,6 +2334,68 @@ export class ItemEditor extends React.Component<Props, State> {
                       <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('item_subtype') && !this.state.validate.item_subtype ? 'block' : 'none') }}>This is a required field</FormFeedback>
                     </FormGroup>
 
+                    {/* Item Text */}
+                    {item.item_subtype === itemText.Academic_Publication ? <this.TextAcademicPublication /> : <></>}
+                    {item.item_subtype === itemText.Article ? <this.TextArticle /> : <></>}
+                    {item.item_subtype === itemText.News ? <this.TextNews /> : <></>}
+                    {item.item_subtype === itemText.Policy_Paper ? <this.TextPolicyPaperReport /> : <></>}
+                    {item.item_subtype === itemText.Report ? <this.TextPolicyPaperReport /> : <></>}
+                    {item.item_subtype === itemText.Book ? <this.TextBook /> : <></>}
+                    {item.item_subtype === itemText.Essay ? <this.TextEssay /> : <></>}
+                    {item.item_subtype === itemText.Historical_Text ? <this.TextHistoricalText /> : <></>}
+                    {item.item_subtype === itemText.Event_Press ? <this.TextEventPress /> : <></>}
+                    {item.item_subtype === itemText.Toolkit ? <this.TextToolkit /> : <></>}
+                    {(!!item.file && (item.file.type === 'text' || item.file.type === 'pdf' || item.file.type === 'downloadText')) && item.item_subtype === itemText.Other ? <this.TextOther /> : <></>}
+
+                    {/* Item Video */}
+                    {item.item_subtype === itemVideo.Video ? <this.Video /> : <></>}
+                    {item.item_subtype === itemVideo.Movie ? <this.VideoMovieTrailer /> : <></>}
+                    {item.item_subtype === itemVideo.Documentary ? <this.VideoDocumentaryArt /> : <></>}
+                    {(!!item.file && item.file.type === 'video') && item.item_subtype === itemVideo.Research ? <this.VideoResearch /> : <></>}
+                    {item.item_subtype === itemVideo.Interview ? <this.VideoInterview /> : <></>}
+                    {item.item_subtype === itemVideo.Art ? <this.VideoDocumentaryArt /> : <></>}
+                    {item.item_subtype === itemVideo.News_Journalism ? <this.VideoNewsJournalism /> : <></>}
+                    {item.item_subtype === itemVideo.Event_Recording ? <this.VideoEventRecording /> : <></>}
+                    {item.item_subtype === itemVideo.Informational_Video ? <this.VideoInformationalVideo /> : <></>}
+                    {item.item_subtype === itemVideo.Trailer ? <this.VideoMovieTrailer /> : <></>}
+                    {item.item_subtype === itemVideo.Artwork_Documentation ? <this.VideoArtworkDocumentation /> : <></>}
+                    {(!!item.file && item.file.type === 'video') && item.item_subtype === itemVideo.Other ? <this.VideoOther /> : <></>}
+
+                    { // Item Image
+                      item.item_subtype === itemImage.Illustration ||
+                      item.item_subtype === itemImage.Artwork_Documentation ? <this.ItemImage /> : <></>
+                    }
+
+                    {
+                      item.item_subtype === itemImage.Photograph ||
+                      item.item_subtype === itemImage.Sculpture ||
+                      item.item_subtype === itemImage.Drawing ||
+                      item.item_subtype === itemImage.Painting ? <this.ItemImagePhotographSculpturePaintingDrawing /> : <></>
+                    }
+
+                    {
+                      item.item_subtype === itemImage.Digital_Art ||
+                      (!!item.file && item.file.type === 'image' && item.item_subtype === itemImage.Other) ? <this.ItemDigitalArtOther />
+                        : <></>
+                    }
+
+                    {(!!item.file && item.file.type === 'image') && item.item_subtype === itemImage.Research ? <this.ImageResearch /> : <></>}
+                    {item.item_subtype === itemImage.Graphics ? <this.ImageGraphics /> : <></>}
+                    {item.item_subtype === itemImage.Map ? <this.ImageMap /> : <></>}
+                    {item.item_subtype === itemImage.Film_Still ? <this.ImageFilmStill /> : <></>}
+
+                    {/* Item Audio */}
+                    {item.item_subtype === itemAudio.Field_Recording ? <this.AudioFieldRecording /> : <></>}
+                    {item.item_subtype === itemAudio.Sound_Art ? <this.AudioSoundArt /> : <></>}
+                    {item.item_subtype === itemAudio.Music ? <this.AudioMusic /> : <></>}
+                    {item.item_subtype === itemAudio.Podcast ? <this.AudioPodcast /> : <></>}
+                    {item.item_subtype === itemAudio.Lecture ? <this.AudioLecture /> : <></>}
+                    {item.item_subtype === itemAudio.Interview ? <this.AudioInterview /> : <></>}
+                    {item.item_subtype === itemAudio.Radio ? <this.AudioRadio /> : <></>}
+                    {item.item_subtype === itemAudio.Performance_Poetry ? <this.AudioPerformancePoetry /> : <></>}
+                    {(!!item.file && item.file.type === 'audio') && item.item_subtype === itemAudio.Other ? <this.AudioOther /> : <></>}
+
+
                     <FormGroup>
                       <Label for="license_type">License</Label>
                       <Select menuPlacement="auto" className="license_type" options={licenseType} value={item.license ? {value: item.license, label: item.license} : { value: License.LOCKED, label: License.LOCKED }} onChange={e => this.changeItem('license', e.label)} isSearchable/>
@@ -2416,67 +2478,6 @@ export class ItemEditor extends React.Component<Props, State> {
 
                   </Col>
                 </Row>
-
-                {/* Item Text */}
-                {item.item_subtype === itemText.Academic_Publication ? <this.TextAcademicPublication /> : <></>}
-                {item.item_subtype === itemText.Article ? <this.TextArticle /> : <></>}
-                {item.item_subtype === itemText.News ? <this.TextNews /> : <></>}
-                {item.item_subtype === itemText.Policy_Paper ? <this.TextPolicyPaperReport /> : <></>}
-                {item.item_subtype === itemText.Report ? <this.TextPolicyPaperReport /> : <></>}
-                {item.item_subtype === itemText.Book ? <this.TextBook /> : <></>}
-                {item.item_subtype === itemText.Essay ? <this.TextEssay /> : <></>}
-                {item.item_subtype === itemText.Historical_Text ? <this.TextHistoricalText /> : <></>}
-                {item.item_subtype === itemText.Event_Press ? <this.TextEventPress /> : <></>}
-                {item.item_subtype === itemText.Toolkit ? <this.TextToolkit /> : <></>}
-                {(!!item.file && (item.file.type === 'text' || item.file.type === 'pdf' || item.file.type === 'downloadText')) && item.item_subtype === itemText.Other ? <this.TextOther /> : <></>}
-
-                {/* Item Video */}
-                {item.item_subtype === itemVideo.Video ? <this.Video /> : <></>}
-                {item.item_subtype === itemVideo.Movie ? <this.VideoMovieTrailer /> : <></>}
-                {item.item_subtype === itemVideo.Documentary ? <this.VideoDocumentaryArt /> : <></>}
-                {(!!item.file && item.file.type === 'video') && item.item_subtype === itemVideo.Research ? <this.VideoResearch /> : <></>}
-                {item.item_subtype === itemVideo.Interview ? <this.VideoInterview /> : <></>}
-                {item.item_subtype === itemVideo.Art ? <this.VideoDocumentaryArt /> : <></>}
-                {item.item_subtype === itemVideo.News_Journalism ? <this.VideoNewsJournalism /> : <></>}
-                {item.item_subtype === itemVideo.Event_Recording ? <this.VideoEventRecording /> : <></>}
-                {item.item_subtype === itemVideo.Informational_Video ? <this.VideoInformationalVideo /> : <></>}
-                {item.item_subtype === itemVideo.Trailer ? <this.VideoMovieTrailer /> : <></>}
-                {item.item_subtype === itemVideo.Artwork_Documentation ? <this.VideoArtworkDocumentation /> : <></>}
-                {(!!item.file && item.file.type === 'video') && item.item_subtype === itemVideo.Other ? <this.VideoOther /> : <></>}
-
-                { // Item Image
-                  item.item_subtype === itemImage.Illustration ||
-                  item.item_subtype === itemImage.Artwork_Documentation ? <this.ItemImage /> : <></>
-                }
-
-                {
-                  item.item_subtype === itemImage.Photograph ||
-                  item.item_subtype === itemImage.Sculpture ||
-                  item.item_subtype === itemImage.Drawing ||
-                  item.item_subtype === itemImage.Painting ? <this.ItemImagePhotographSculpturePaintingDrawing /> : <></>
-                }
-
-                {
-                  item.item_subtype === itemImage.Digital_Art ||
-                  (!!item.file && item.file.type === 'image' && item.item_subtype === itemImage.Other) ? <this.ItemDigitalArtOther />
-                    : <></>
-                }
-
-                {(!!item.file && item.file.type === 'image') && item.item_subtype === itemImage.Research ? <this.ImageResearch /> : <></>}
-                {item.item_subtype === itemImage.Graphics ? <this.ImageGraphics /> : <></>}
-                {item.item_subtype === itemImage.Map ? <this.ImageMap /> : <></>}
-                {item.item_subtype === itemImage.Film_Still ? <this.ImageFilmStill /> : <></>}
-
-                {/* Item Audio */}
-                {item.item_subtype === itemAudio.Field_Recording ? <this.AudioFieldRecording /> : <></>}
-                {item.item_subtype === itemAudio.Sound_Art ? <this.AudioSoundArt /> : <></>}
-                {item.item_subtype === itemAudio.Music ? <this.AudioMusic /> : <></>}
-                {item.item_subtype === itemAudio.Podcast ? <this.AudioPodcast /> : <></>}
-                {item.item_subtype === itemAudio.Lecture ? <this.AudioLecture /> : <></>}
-                {item.item_subtype === itemAudio.Interview ? <this.AudioInterview /> : <></>}
-                {item.item_subtype === itemAudio.Radio ? <this.AudioRadio /> : <></>}
-                {item.item_subtype === itemAudio.Performance_Poetry ? <this.AudioPerformancePoetry /> : <></>}
-                {(!!item.file && item.file.type === 'audio') && item.item_subtype === itemAudio.Other ? <this.AudioOther /> : <></>}
 
               </TabPane>
             </TabContent>
