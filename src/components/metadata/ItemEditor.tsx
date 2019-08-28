@@ -370,7 +370,9 @@ export class ItemEditor extends React.Component<Props, State> {
     // If we can't get the file at all, for whatever reason, show all types.
     if (!file) {
       options.push(...itemTextSubTypes, ...itemVideoSubTypes, ...itemImageSubTypes, ...itemAudioSubTypes);
-    } else if (file.type === 'text' || file.type === 'pdf' || file.type === 'downloadText') {
+    } else if (file.type === 'pdf') {
+      options.push(...itemTextSubTypes, ...itemImageSubTypes);
+    } else if (file.type === 'text' || file.type === 'downloadText') {
       options = itemTextSubTypes;
     } else if (file.type === 'video') {
       options = itemVideoSubTypes;
