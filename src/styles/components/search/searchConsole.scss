@@ -76,7 +76,13 @@
     height: 0;
     overflow: hidden;
     @extend %searchFont;
-    transition: max-width 2s;
+    .row {
+      margin: 0;
+      height: 100%;
+      .inputwrapper {
+        flex: 1 1 auto;
+      }
+    }
   }
 
   .view {
@@ -140,6 +146,9 @@
   }
 
   &.open {
+    .margin {
+      margin: 0 15px;
+    }
     .padding {
       padding: 15px;
     }
@@ -148,6 +157,8 @@
   .icon {
     overflow: hidden;
     font-size: 16px;
+    flex: 0 1 10%;
+    text-align: center;
 
     span {
       &.simple-icon-magnifier {

@@ -144,33 +144,36 @@ class SearchConsole extends React.Component<Props, State> {
               </Row>
             </Col>
 
-            <Col className={`mid ${hoveredClass} ${isOpen ? 'px-0 col-9' : 'col-5'}`}>
-              <input
-                type="text"
-                className="searchInput"
-                ref={this.searchInputRef}
-                defaultValue={this.props.search_query}
-                onKeyDown={e => this.onSearchKeyDown(e.key)}
-                onChange={e => this.search(e.target.value)}
-              />
-            </Col>
-
-            <Col
-              className={`icon padding ${isOpen ? `${isOpenClass} col` : `col-1 opacity5`}`}
-              onClick={ isOpen ?
-                () => { this.onSearchIconClick(); }
-              : this.toggleOpen}
-            >
-              <Row>
-                <Col>
-                  <span className="simple-icon-magnifier"/>
-                </Col>
-                {/*{ Is only shown when opened fully. }*/}
-                <Col className={`closeButton ${isOpenClass}`} onClick={this.toggleOpen}>
-                  <FaTimes />
-                </Col>
+            <div className={`mid px-0 col ${hoveredClass}`}>
+              <Row className="align-items-center">
+                <div className={`inputwrapper ${isOpen ? 'flex-grow-1' : ''} h-100`}>
+                  <input
+                    type="text"
+                    className="searchInput"
+                    ref={this.searchInputRef}
+                    defaultValue={this.props.search_query}
+                    onKeyDown={e => this.onSearchKeyDown(e.key)}
+                    onChange={e => this.search(e.target.value)}
+                  />
+                </div>
+                <div
+                  className={`icon margin ${isOpen ? `${isOpenClass}` : `opacity5`}`}
+                  onClick={ isOpen ?
+                    () => { this.onSearchIconClick(); }
+                    : this.toggleOpen}
+                >
+                  <Row>
+                    <Col>
+                      <span className="simple-icon-magnifier"/>
+                    </Col>
+                    {/*{ Is only shown when opened fully. }*/}
+                    <Col className={`closeButton ${isOpenClass}`} onClick={this.toggleOpen}>
+                      <FaTimes />
+                    </Col>
+                  </Row>
+                </div>
               </Row>
-            </Col>
+            </div>
 
             {/*{ Is hidden when open (max-width: 0) }*/}
             <Col sm="4" className={`d-none d-sm-block focus px-0 ${isOpenClass}`}>
