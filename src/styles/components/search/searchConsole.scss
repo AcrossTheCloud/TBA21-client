@@ -14,7 +14,7 @@
   position: fixed;
   bottom: 0;
   width: 100%;
-  z-index: 3;
+  z-index: 10;
 
   transition: min-height .1s cubic-bezier(0.22, 0.61, 0.36, 1), opacity .3s linear .5s;
 
@@ -26,6 +26,7 @@
     font-size: 12px;
     overflow: hidden;
     transition: max-height 1s;
+    cursor: default;
     @extend %searchFont;
     div[class *= 'col-'] {
       padding: 15px;
@@ -99,6 +100,10 @@
       height: auto;
     }
 
+    input.searchInput {
+      border-top: 1px solid $dark-blue;
+    }
+
     .opacity5 {
       @extend %searchFont;
     }
@@ -121,21 +126,22 @@
     }
   }
 
+  input.searchInput {
+    border: 0;
+    color: #fff;
+    background: #787878;
+    border-radius: 0;
+    height: 100%;
+    width: 100%;
+    padding: 0 10px;
+    &:focus {
+      outline: none;
+    }
+  }
+
   &.open {
     .padding {
       padding: 15px;
-    }
-    input.searchInput {
-      border: 0;
-      color: #fff;
-      background: #787878;
-      border-radius: 0;
-      height: 100%;
-      width: 100%;
-      padding: 0 10px;
-      &:focus {
-        outline: none;
-      }
     }
   }
 
@@ -145,6 +151,7 @@
 
     span {
       &.simple-icon-magnifier {
+        cursor: pointer;
         color: #fff;
         transform: scaleX(-1);
         display: inline-block;
@@ -152,6 +159,7 @@
     }
 
     .closeButton {
+      cursor: pointer;
       height: 0;
       max-width: 0;
       color: #fff;

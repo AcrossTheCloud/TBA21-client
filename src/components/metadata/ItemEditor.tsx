@@ -44,7 +44,7 @@ import {
 import Tags from './Tags';
 import { sdkGetObject } from '../utils/s3File';
 import { Alerts, ErrorMessage, SuccessMessage, WarningMessage } from '../utils/alerts';
-import { AudioPlayer } from '../utils/AudioPlayer';
+import AudioPreview from 'components/layout/audio/AudioPreview';
 import { License } from '../../types/License';
 
 import CustomSelect from './fields/CustomSelect';
@@ -181,13 +181,22 @@ export class ItemEditor extends React.Component<Props, State> {
   filePreview = (): JSX.Element => {
     if (!this.state.isLoading) {
       const
-        { file, title, s3_key, image_hash } = this.state.originalItem,
+        { file, title, s3_key, created_at, id, creators, item_type } = this.state.originalItem,
         warning = <WarningMessage message={'Unable to load file.'}/>;
       if (file && file.url) {
         if (file.type === 'image') {
           return <img className="img-fluid" src={file.url} alt={title ? title : s3_key}/>;
         } else if (file.type === 'audio') {
-          return <AudioPlayer id={image_hash || s3_key} url={file.url} />;
+          const audioData = {
+            title: !!title ? title : '',
+            id: (id || s3_key),
+            url: file.url,
+            date: !!created_at ? created_at : '',
+            creators: !!creators ? creators : [],
+            type: item_type
+
+          };
+          return <AudioPreview data={audioData} />;
         } else {
           return warning;
         }
