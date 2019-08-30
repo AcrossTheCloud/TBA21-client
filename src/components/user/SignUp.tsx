@@ -5,11 +5,11 @@ import {
   FormGroup,
   Input, Row
 } from 'reactstrap';
-import { Auth } from 'aws-amplify';
+import { API, Auth } from 'aws-amplify';
 import { ISignUpResult } from 'amazon-cognito-identity-js';
 
 import LoaderButton from 'components/utils/LoaderButton';
-import FacebookButton from 'components/utils/facebook/FacebookButton';
+// import FacebookButton from 'components/utils/facebook/FacebookButton';
 import { AccountConfirmation } from './AccountConfirmation';
 import { PasswordForm } from 'components/utils/inputs/PasswordForm';
 import { Alerts, ErrorMessage, WarningMessage } from '../utils/alerts';
@@ -26,6 +26,8 @@ interface State extends Alerts {
   confirmationCode: string;
   newUser: null | ISignUpResult;
 
+  fullName: string;
+
   hasFbLoaded: boolean;
   hasMessage?: boolean;
 
@@ -33,14 +35,19 @@ interface State extends Alerts {
 }
 
 export class SignUp extends React.Component<{}, State> {
+  _isMounted;
+
   constructor(props: {}) {
     super(props);
+
+    this._isMounted = false;
 
     this.state = {
       formValid: false,
       passwordValid: false,
 
       isLoading: false,
+      fullName: '',
       email: '',
       password: '',
       confirmationCode: '',
@@ -49,11 +56,21 @@ export class SignUp extends React.Component<{}, State> {
     };
   }
 
+  componentDidMount(): void {
+    this._isMounted = true;
+  }
+
+  componentWillUnmount(): void {
+    this._isMounted = false;
+  }
+
   /**
    * We pass this to FacebookButton as props to access the users information
    * @param response an object returned from Facebook FB.api
    */
   setUserDetails = (response: any) => {// tslint:disable-line: no-any
+    if (!this._isMounted) { return; }
+
     if (response.email) {
       this.setState({
         email: response.email,
@@ -76,12 +93,22 @@ export class SignUp extends React.Component<{}, State> {
    */
   handleSubmit = async (event: React.FormEvent): Promise<void> => {
     event.preventDefault();
+    if (!this._isMounted) { return; }
     this.setState({ errorMessage: undefined, isLoading: true });
 
     try {
-      const newUser = await Auth.signUp({
-        username: this.state.email,
-        password: this.state.password
+      const
+        userDetails = {
+          username: this.state.email,
+          password: this.state.password
+        },
+        newUser = await Auth.signUp(userDetails);
+
+      await API.put('tba21', 'profiles', {
+        body: {
+          uuid: newUser.userSub,
+          full_name: this.state.fullName
+        }
       });
 
       this.setState({ newUser });
@@ -104,6 +131,7 @@ export class SignUp extends React.Component<{}, State> {
    * @param error {string}
    */
   passwordCallback = (password: string, error?: string) => {
+    if (!this._isMounted) { return; }
     if (error && error.length) {
       this.setState({ passwordValid: false, formValid: false });
     } else {
@@ -131,6 +159,36 @@ export class SignUp extends React.Component<{}, State> {
     );
   }
 
+  isFormValid = () => {
+    const state = {};
+    let
+      errorMessage: JSX.Element = <></>,
+      hasError: boolean = false;
+
+    if (!validateEmail(this.state.email)) {
+      errorMessage = <>Email is not valid.</>;
+      hasError = true;
+    }
+    if (this.state.fullName.length < 2) {
+      errorMessage = (
+        <>
+          {errorMessage}
+          <div>Please enter your full name.</div>
+        </>
+      );
+      hasError = true;
+    }
+
+    if (hasError) {
+      Object.assign(state, {errorMessage: errorMessage});
+    } else {
+      Object.assign(state, {errorMessage: undefined});
+    }
+
+    this.setState(state);
+
+  }
+
   render() {
     if (!this.state.newUser) {
       return (
@@ -146,17 +204,38 @@ export class SignUp extends React.Component<{}, State> {
                 <FormGroup>
                   <Input
                     autoFocus
+                    type="text"
+                    placeholder="Full Name"
+                    value={this.state.fullName}
+                    onChange={e => {
+                      const value = e.target.value;
+                      if (this._isMounted) {
+                        if (value.length) {
+                          this.setState({ fullName: e.target.value }, () => this.isFormValid());
+                        }
+                      }
+                    }}
+                    disabled={this.state.hasFbLoaded}
+                  />
+                </FormGroup>
+                <FormGroup>
+                  <Input
                     type="email"
                     placeholder="Email Address"
                     value={this.state.email}
-                    onChange={e => this.setState({ email: e.target.value, formValid: validateEmail(e.target.value) })}
+                    onChange={e => {
+                      if (this._isMounted) {
+                        console.log('is mounted');
+                        this.setState({ email: e.target.value }, () => this.isFormValid());
+                      }
+                    }}
                     disabled={this.state.hasFbLoaded}
                   />
                 </FormGroup>
 
                 <PasswordForm callback={this.passwordCallback} confirmPasswordWrapper={this.confirmPassword} />
 
-                <>{!this.state.hasFbLoaded ? <FacebookButton isSignUp={true} setUserDetails={this.setUserDetails} /> : <></>}</>
+                {/*<>{!this.state.hasFbLoaded ? <FacebookButton isSignUp={true} setUserDetails={this.setUserDetails} /> : <></>}</>*/}
               </Form>
             </Col>
           </Row>
