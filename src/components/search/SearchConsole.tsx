@@ -42,6 +42,7 @@ class SearchConsole extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
+    this.searchInputRef = React.createRef();
     this._isMounted = false;
 
     this.state = {
@@ -53,7 +54,6 @@ class SearchConsole extends React.Component<Props, State> {
       selectedCriteria: []
     };
 
-    this.searchInputRef = React.createRef();
   }
 
   componentDidMount(): void {
@@ -144,8 +144,13 @@ class SearchConsole extends React.Component<Props, State> {
   onSearchKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
     if (!this.state.searchMenuOpen && event.key === 'Enter') {
       event.preventDefault();
-      this.searchDispatch()
+      this.searchDispatch();
     }
+  }
+
+  focusSearchInput = () => {
+    if (!this._isMounted) { return; }
+    this.setState({isOpen: !this.state.isOpen}, () => this.searchInputRef.current.select.select.focus());
   }
 
   render() {
@@ -204,7 +209,7 @@ class SearchConsole extends React.Component<Props, State> {
 
             <div
               className={`mid px-0 col ${hoveredClass}`}
-              onClick={() => { if (!isOpen) { this.toggleOpen(); this.searchInputRef.current.focus();  console.log(this.searchInputRef.current.select.select); this.searchInputRef.current.select.select.focus(); } }}
+              onClick={this.focusSearchInput}
             >
               <Row className="align-items-center">
                 <div className={`inputwrapper ${isOpen ? 'flex-grow-1' : ''} h-100`}>
