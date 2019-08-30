@@ -1,29 +1,27 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
-import { Button, Container, Form, FormGroup, Input, Label } from 'reactstrap';
+import { Button, Container, Form, FormGroup, Input, Label, Spinner } from 'reactstrap';
 import { get, has } from 'lodash';
 import $ from 'jquery';
 
 import DeleteAccount from 'components/utils/user/DeleteAccount';
 import ChangePassword from 'components/utils/user/ChangePassword';
 import { AuthContext } from '../../../providers/AuthProvider';
-import { checkAuth, getCurrentAuthenticatedUser } from 'components/utils/Auth';
-import { deleteAccount, dispatchError, updateAttributes, changePassword } from 'actions/user/profile';
-import { Alerts, ErrorMessage, SuccessMessage } from '../../utils/alerts';
+import { deleteAccount, dispatchError, updateAttributes, changePassword, getProfileDetails } from 'actions/user/profile';
+import { ErrorMessage, SuccessMessage } from '../../utils/alerts';
 
 import MailChimp from '../../utils/MailChimp';
+import { ProfileState } from '../../../reducers/user/profile';
 
 import 'styles/components/user/profile/profile.scss';
 
-interface Props extends RouteComponentProps, Alerts {
+interface Props extends RouteComponentProps, ProfileState {
   deleteAccount: Function;
   dispatchError: Function;
   updateAttributes: Function;
   changePassword: Function;
-
-  accountDeleted: boolean;
-  overlay: boolean;
+  getProfileDetails: Function;
 }
 
 interface State {
@@ -68,18 +66,22 @@ class Profile extends React.Component<Props, State> {
   }
 
   getUserCredentials = async (): Promise<void> => {
-    const
-      userDetails = await getCurrentAuthenticatedUser(true),
-      auth = await checkAuth();
+    const context: React.ContextType<typeof AuthContext> = this.context;
+
+    const auth = context.authorisation;
+
+    if (!this.props.details) {
+      await this.props.getProfileDetails(context.uuid);
+    }
 
     // Redirect to login page if not authenticated.
-    if (!userDetails) {
+    if (!auth) {
       this.props.history.push(`/login`);
     } else {
 
       let userCredentials = {
-        email: get(userDetails, 'attributes.email'),
-        auth: get(auth, 'authorisation')
+        email: context.email,
+        auth: auth
       };
 
       if (this._isMounted) {
@@ -104,22 +106,27 @@ class Profile extends React.Component<Props, State> {
     }
   }
 
+  overlay = (toggle: boolean = false) => {
+    if (toggle) {
+      $('.overlay')
+        .addClass('on')
+        .css('z-index', 99999)
+        .fadeIn(300);
+    } else {
+      $('.overlay.on')
+        .removeClass('on')
+        .fadeOut(300, () => {
+          $(this).css('z-index', -100);
+        });
+    }
+  }
+
   render() {
     const credentials = this.state.credentials;
+    const { details } = this.props;
 
     if (this._isMounted) {
-      if (this.props.overlay) {
-        $('.overlay')
-          .addClass('on')
-          .css('z-index', 99999)
-          .fadeIn(300);
-      } else {
-        $('.overlay.on')
-          .removeClass('on')
-          .fadeOut(300, () => {
-            $(this).css('z-index', -100);
-          });
-      }
+      this.overlay(this.props.overlay);
     }
 
     return(
@@ -128,8 +135,12 @@ class Profile extends React.Component<Props, State> {
         <ErrorMessage message={this.props.errorMessage} />
         <SuccessMessage message={this.props.successMessage} />
 
-        <div className="overlay" style={{display: 'none'}} />
-        <h1>Your Profile</h1>
+        <div className="overlay">
+          <div className="middle">
+            <Spinner type="grow" />
+          </div>
+        </div>
+        <h1>{details ? `Hey, ${details.full_name}` : 'Your Profile'}</h1>
 
         <Form onSubmit={(e) => { e.preventDefault(); this.submitForm(); }} autoComplete="off">
           <FormGroup>
@@ -162,7 +173,9 @@ const mapStateToProps = (state: { profile: Props }) => ({
 
   updateAttributes: state.profile.updateAttributes,
   accountDeleted: state.profile.accountDeleted,
-  overlay: state.profile.overlay
+  overlay: state.profile.overlay,
+
+  details: state.profile.details
 });
 
 const mapDispatchToProps = {
@@ -170,6 +183,7 @@ const mapDispatchToProps = {
   dispatchError,
   updateAttributes,
   changePassword,
+  getProfileDetails
 };
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Profile));

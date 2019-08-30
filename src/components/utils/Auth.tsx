@@ -6,10 +6,14 @@ import { get } from 'lodash';
 export interface AuthorisationList {
   [key: string]: boolean;
 }
+// export interface Attributes {
+//   email
+// }
 export interface Authorisation {
   isAuthenticated: boolean;
   authorisation?: AuthorisationList;
-  uuid?: string;
+  uuid: string;
+  email: string;
 }
 
 /**
@@ -43,17 +47,20 @@ export const checkAuth = async (bypassCache: boolean = false): Promise<Authorisa
         });
       }
       const uuid = currentUser.getUsername();
+      const email = get(currentUser, 'attributes.email');
 
-      return Object.keys(authorisation).length ? { authorisation: authorisation, isAuthenticated: true, uuid } : { isAuthenticated: true, uuid };
+      console.log('email', email, currentUser);
+
+      return Object.keys(authorisation).length ? { authorisation: authorisation, isAuthenticated: true, uuid, email } : { isAuthenticated: true, uuid, email };
     } else {
-      return { isAuthenticated: false };
+      return { isAuthenticated: false, email: '', uuid: '' };
     }
   } catch (e) {
     if (e !== 'not authenticated') {
       console.log('checkAuth -- ERROR -- ', e);
     }
 
-    return { isAuthenticated: false };
+    return { isAuthenticated: false, email: '', uuid: '' };
   }
 };
 

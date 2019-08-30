@@ -1,17 +1,21 @@
-import { OVERLAY, DELETED_ACCOUNT, PROFILE_ERROR, PROFILE_SUCCESS } from '../../actions/user/profile';
+import { OVERLAY, DELETED_ACCOUNT, PROFILE_ERROR, PROFILE_SUCCESS, PROFILE_GET_DETAILS } from '../../actions/user/profile';
+import { Profile } from '../../types/Profile';
+import { Alerts } from '../../components/utils/alerts';
 
-interface State {
-  errorMessage?: string | boolean;
-  successMessage?: string | boolean;
+export interface ProfileState extends Alerts {
   accountDeleted: boolean;
   deletingAccount: boolean;
+  overlay: boolean;
+  details: Profile | undefined;
 }
-const initialState: State = {
+const initialState: ProfileState = {
   accountDeleted: false,
   deletingAccount: false,
+  overlay: false,
+  details: undefined
 };
 
-export default (state: State|null = initialState, action) => {
+export default (state: ProfileState|null = initialState, action) => {
   if (state === undefined) { state = initialState; }
 
   switch (action.type) {
@@ -55,6 +59,13 @@ export default (state: State|null = initialState, action) => {
       }
 
       return profileSuccessState;
+
+    case PROFILE_GET_DETAILS:
+      return {
+        ...initialState,
+        details: action.details,
+        overlay: false
+      };
 
     default:
       return state;
