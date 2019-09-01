@@ -2216,38 +2216,40 @@ export class ItemEditor extends React.Component<Props, State> {
 
         <Row>
           <Col>
-            <Row>
-              <Col xs="12" className="text-center">
-                <this.filePreview />
-              </Col>
-            </Row>
+            <div className="sticky">
+              <Row>
+                <Col xs="12" className="text-center">
+                  <this.filePreview />
+                </Col>
+              </Row>
 
-            <Row>
-              <Col xs="8">
-                <InputGroup>
-                  <CustomInput type="switch" id={`${this.state.originalItem.s3_key}_oa_highlight`} name="OA_highlight" label="OA Highlight" checked={this.state.changedItem.oa_highlight || false} onChange={e => this.changeItem('oa_highlight', e.target.checked)} />
-                </InputGroup>
-                <InputGroup>
-                  <CustomInput type="switch" id={`${this.state.originalItem.s3_key}_oa_original`} name="OA_original" label="OA Original" checked={this.state.changedItem.oa_original || false} onChange={e => this.changeItem('oa_original', e.target.checked)} />
-                </InputGroup>
-                <InputGroup>
-                  <CustomInput type="switch" id={`${this.state.originalItem.s3_key}_tba21_material`} name="TBA21_material" label="TBA21 Material" checked={this.state.changedItem.tba21_material || false} onChange={e => this.changeItem('tba21_material', e.target.checked)} />
-                </InputGroup>
-              </Col>
-              <Col xs="4">
-                <UncontrolledButtonDropdown className="float-right">
-                  <Button className="caret" onClick={this.updateItem} disabled={!this.state.isDifferent}>Save</Button>
-                  <DropdownToggle caret />
-                  <DropdownMenu>
-                    {this.state.originalItem.status ?
-                      <DropdownItem onClick={() => { this.changeItem('status', false, () => this.updateItem() ); }}>Unpublish</DropdownItem>
-                      :
-                      <DropdownItem onClick={() => { this.changeItem('status', true, () => this.updateItem() ); }}>Publish</DropdownItem>
-                    }
-                  </DropdownMenu>
-                </UncontrolledButtonDropdown>
-              </Col>
-            </Row>
+              <Row>
+                <Col xs="8">
+                  <InputGroup>
+                    <CustomInput type="switch" id={`${this.state.originalItem.s3_key}_oa_highlight`} name="OA_highlight" label="OA Highlight" checked={this.state.changedItem.oa_highlight || false} onChange={e => this.changeItem('oa_highlight', e.target.checked)} />
+                  </InputGroup>
+                  <InputGroup>
+                    <CustomInput type="switch" id={`${this.state.originalItem.s3_key}_oa_original`} name="OA_original" label="OA Original" checked={this.state.changedItem.oa_original || false} onChange={e => this.changeItem('oa_original', e.target.checked)} />
+                  </InputGroup>
+                  <InputGroup>
+                    <CustomInput type="switch" id={`${this.state.originalItem.s3_key}_tba21_material`} name="TBA21_material" label="TBA21 Material" checked={this.state.changedItem.tba21_material || false} onChange={e => this.changeItem('tba21_material', e.target.checked)} />
+                  </InputGroup>
+                </Col>
+                <Col xs="4">
+                  <UncontrolledButtonDropdown className="float-right">
+                    <Button className="caret" onClick={this.updateItem} disabled={!this.state.isDifferent}>Save</Button>
+                    <DropdownToggle caret />
+                    <DropdownMenu>
+                      {this.state.originalItem.status ?
+                        <DropdownItem onClick={() => { this.changeItem('status', false, () => this.updateItem() ); }}>Unpublish</DropdownItem>
+                        :
+                        <DropdownItem onClick={() => { this.changeItem('status', true, () => this.updateItem() ); }}>Publish</DropdownItem>
+                      }
+                    </DropdownMenu>
+                  </UncontrolledButtonDropdown>
+                </Col>
+              </Row>
+            </div>
           </Col>
 
           <Col md="8">
