@@ -15,6 +15,11 @@
     }
   }
 
+  .sticky {
+    position: sticky;
+    top: 0;
+  }
+
   input {
     &.form-control {
       border: 1px solid hsl(0,0%,80%);
