@@ -128,7 +128,7 @@ class SearchConsole extends React.Component<Props, State> {
   }
 
   focusSearchInput = () => {
-    if (!this._isMounted) { return; }
+    if (!this._isMounted || this.state.isOpen) { return; }
     this.setState({isOpen: !this.state.isOpen}, () => this.searchInputRef.current.select.select.focus());
   }
 
