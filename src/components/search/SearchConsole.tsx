@@ -13,6 +13,7 @@ import { FaTimes } from 'react-icons/fa';
 
 import 'styles/components/search/searchConsole.scss';
 import AudioPlayer from '../layout/audio/AudioPlayer';
+import { API } from 'aws-amplify';
 
 interface Props extends SearchConsoleState {
   changeView: Function;
@@ -84,29 +85,7 @@ class SearchConsole extends React.Component<Props, State> {
       this.searchTimeout = setTimeout(async () => {
         if (!this._isMounted) { clearTimeout(this.searchTimeout); return; }
 
-        let results: CriteriaOption[] = [
-          {
-            value: '123',
-            label: '123',
-            field: 'title'
-          },
-          {
-            value: '888',
-            label: '888',
-            field: 'concept tag'
-          }
-        ];
-
-        for (let i = 0; i < 50; i++) {
-          results.push(
-            {
-              value: i.toString(),
-              label: i.toString(),
-              field: 'title'
-            }
-          );
-        }
-
+        let results = await API.get('tba21', 'pages/search', { queryStringParameters: { query: input }});
         results = results.map(t => createCriteriaOption(t.value, t.field));
 
         this.setState({ criteria: results, searchMenuOpen: true });
