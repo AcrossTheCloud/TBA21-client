@@ -9,7 +9,6 @@ import { Auth } from 'aws-amplify';
 import { ISignUpResult } from 'amazon-cognito-identity-js';
 
 import LoaderButton from 'components/utils/LoaderButton';
-import FacebookButton from 'components/utils/facebook/FacebookButton';
 import { AccountConfirmation } from './AccountConfirmation';
 import { PasswordForm } from 'components/utils/inputs/PasswordForm';
 import { Alerts, ErrorMessage, WarningMessage } from '../utils/alerts';
@@ -156,7 +155,6 @@ export class SignUp extends React.Component<{}, State> {
 
                 <PasswordForm callback={this.passwordCallback} confirmPasswordWrapper={this.confirmPassword} />
 
-                <>{!this.state.hasFbLoaded ? <FacebookButton isSignUp={true} setUserDetails={this.setUserDetails} /> : <></>}</>
               </Form>
             </Col>
           </Row>
