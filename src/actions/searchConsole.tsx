@@ -23,7 +23,7 @@ export const search = (criteria: CriteriaOption[]) => async dispatch => {
   const results: string[] = [];
 
   for (let i = 0; i < criteria.length; i++) {
-    const result = await API.get('tba21', 'search', { queryStringParameters: { searchQuery: criteria[i].value, limit: 50} });
+    const result = await API.get('tba21', 'pages/search', { queryStringParameters: { searchQuery: criteria[i].value, limit: 50} });
     results.push(result);
   }
 
