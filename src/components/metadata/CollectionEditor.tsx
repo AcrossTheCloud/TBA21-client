@@ -408,16 +408,16 @@ export class CollectionEditor extends React.Component<Props, State> {
     this.setState({ validate: state });
   }
 
-  validateLength = (field: string, inputValue: string | string[]): void => {
+  validateLength = (field: string, inputValue: string | string[] | number | number[]): void => {
     let valid = false;
     this.changeCollection(field, inputValue);
-    if (inputValue && inputValue.length > 0) {
+    if (inputValue && inputValue.toString().length > 0) {
       valid = true;
     }
     if (!this._isMounted) { return; }
     this.setState({ validate: { ...this.state.validate, [field]: valid } }, () => {
       if (!isArray(inputValue) && field === 'type') {
-        this.typeOnChange(inputValue);
+        this.typeOnChange(inputValue.toString());
       }
     });
   }

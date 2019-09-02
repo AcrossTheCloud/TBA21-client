@@ -65,7 +65,7 @@ export default class Tags extends React.Component<Props, State> {
             limit: 20
           }
         }),
-        tags = response.tags.map(t => ({id: t.id, value: t.id, label: t.tag_name})),
+        tags = response.tags.map(t => ({id: parseInt(t.id, 0), value: parseInt(t.id, 0), label: t.tag_name})),
         // filterTags = tags.filter( tag => !find(this.state.tags, { label: tag.label })),
         filterSelected = tags.filter( tag => !find(this.state.selectedTags, { label: tag.label }) );
 
@@ -164,7 +164,7 @@ export default class Tags extends React.Component<Props, State> {
           queryStringParameters = ( inputValue ? { query: inputValue, type: this.props.type, limit: 50} : {} ),
           queriedTags = await API.get('tba21', 'tags', { queryStringParameters: queryStringParameters }),
 
-          tags = queriedTags.tags.map(t => ({id: t.id, value: t.id, label: t.tag_name})),
+          tags = queriedTags.tags.map(t => ({id: parseInt(t.id, 0), value: parseInt(t.id, 0), label: t.tag_name})),
           filteredTags = tags.filter( tag => !find(this.state.selectedTags, { label: tag.label }) );
 
         if (!this._isMounted) { clearTimeout(this.loadTagsTimeout); return; }
@@ -199,7 +199,7 @@ export default class Tags extends React.Component<Props, State> {
       }
     });
 
-    return results.tags.map( t => ({ id: t.id, value: t.id, label: t.tag_name}) );
+    return results.tags.map( t => ({ id: parseInt(t.id), value: parseInt(t.id), label: t.tag_name}) );
   }
 
   /**
@@ -224,9 +224,9 @@ export default class Tags extends React.Component<Props, State> {
         // If the tag has no id it's more than likely a Rekognition tag, so we'll attempt to create it
         if (!tag.id) {
           const results = await this.createTag(tag.label);
-          tags.push({ id: results[0].id, value: results[0].id, label: results[0].label });
+          tags.push({ id: parseInt(results[0].id), value: parseInt(results[0].id), label: results[0].label });
         } else {
-          tags.push({ id: tag.id, value: tag.id, label: tag.label });
+          tags.push({ id: parseInt(tag.id), value: parseInt(tag.id), label: tag.label });
         }
       }
       return tags;
