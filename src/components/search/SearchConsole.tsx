@@ -85,8 +85,8 @@ class SearchConsole extends React.Component<Props, State> {
       this.searchTimeout = setTimeout(async () => {
         if (!this._isMounted) { clearTimeout(this.searchTimeout); return; }
 
-        let results = await API.get('tba21', 'pages/search', { queryStringParameters: { query: input }});
-        results = results.map(t => createCriteriaOption(t.value, t.field));
+        const query = await API.get('tba21', 'pages/search', { queryStringParameters: { query: input }});
+        const results = !!query.results ? query.results.map(t => createCriteriaOption(t.value, t.field)) : [];
 
         this.setState({ criteria: results, searchMenuOpen: true });
         resolve(results);
