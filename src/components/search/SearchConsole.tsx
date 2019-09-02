@@ -1,14 +1,19 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import Container from 'reactstrap/lib/Container';
+import AsyncSelect from 'react-select/async';
 
-import { Col, Row } from 'reactstrap';
+import { Col, Row, Container } from 'reactstrap';
 import { SearchConsoleState } from '../../reducers/searchConsole'; // Props from Redux.
-import { search as dispatchSearch, changeView } from '../../actions/searchConsole'; // Props from Redux.
+import {
+  search as dispatchSearch,
+  changeView,
+  CriteriaOption
+} from '../../actions/searchConsole'; // Props from Redux.
 import { FaTimes } from 'react-icons/fa';
 
 import 'styles/components/search/searchConsole.scss';
 import AudioPlayer from '../layout/audio/AudioPlayer';
+import { API } from 'aws-amplify';
 
 interface Props extends SearchConsoleState {
   changeView: Function;
@@ -18,7 +23,17 @@ interface Props extends SearchConsoleState {
 interface State {
   hover: boolean;
   isOpen: boolean;
+  searchMenuOpen: boolean;
+  searchInputValue: string;
+  criteria: CriteriaOption[];
+  selectedCriteria: CriteriaOption[];
 }
+
+const createCriteriaOption = (label: string, field: string): CriteriaOption => ({
+  label,
+  value: label,
+  field
+});
 
 class SearchConsole extends React.Component<Props, State> {
   _isMounted;
@@ -28,14 +43,18 @@ class SearchConsole extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
+    this.searchInputRef = React.createRef();
     this._isMounted = false;
 
     this.state = {
       hover: false,
-      isOpen: false
+      isOpen: false,
+      searchMenuOpen: false,
+      searchInputValue: '',
+      criteria: [],
+      selectedCriteria: []
     };
 
-    this.searchInputRef = React.createRef();
   }
 
   componentDidMount(): void {
@@ -58,36 +77,59 @@ class SearchConsole extends React.Component<Props, State> {
     this.setState({isOpen: !this.state.isOpen});
   }
 
-  search = (input: string) => {
-    // If the input and the previous search are the same, just switch to the list view.
-    if (input === this.props.search_query) {
-      this.props.changeView('list');
-      return;
-    }
-
-    if (input && input.length <= 1) { clearTimeout(this.searchTimeout); return; }
-
+  searchSuggestions = (input: string) => {
+    if (!this._isMounted) { clearTimeout(this.searchTimeout); return; }
     if (this.searchTimeout) { clearTimeout(this.searchTimeout); }
 
-    this.searchTimeout = setTimeout(async () => {
+    return new Promise( resolve => {
+      this.searchTimeout = setTimeout(async () => {
+        if (!this._isMounted) { clearTimeout(this.searchTimeout); return; }
 
-      await this.props.dispatchSearch(input);
+        let results = await API.get('tba21', 'pages/search', { queryStringParameters: { query: input }});
+        results = results.map(t => createCriteriaOption(t.value, t.field));
 
-      if (!this._isMounted) { clearTimeout(this.searchTimeout); return; }
+        this.setState({ criteria: results, searchMenuOpen: true });
+        resolve(results);
+        // Return the results to React Select
+      }, 500);
 
-      // Return the tags to React Select
-    }, 500);
+    });
 
   }
 
-  onSearchIconClick = () => {
-    this.search(this.searchInputRef.current.value);
-  }
-
-  onSearchKeyDown = (e: string) => {
-    if (e === 'Enter') {
-      this.search(this.searchInputRef.current.value);
+  /**
+   * Pulls the values from the search input ref. So we don't rely on waiting for state to update.
+   * Then dispatches the redux action.
+  */
+  searchDispatch = () => {
+    const selectRefState = this.searchInputRef.current.select.state;
+    if (selectRefState.value && selectRefState.value.length) {
+      this.props.dispatchSearch(selectRefState.value);
     }
+  }
+
+  onSearchChange = (tagsList: any, actionMeta: any) => { // tslint:disable-line: no-any
+    if (!this._isMounted) { return; }
+
+    if (actionMeta.action === 'clear') {
+      this.setState({ selectedCriteria: [], searchMenuOpen: false });
+    }
+
+    if (actionMeta.action === 'remove-value' || actionMeta.action === 'select-option' || actionMeta.action === 'create-option') {
+      this.setState({ selectedCriteria: tagsList, searchMenuOpen: false });
+    }
+  }
+
+  onSearchKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
+    if (!this.state.searchMenuOpen && event.key === 'Enter') {
+      event.preventDefault();
+      this.searchDispatch();
+    }
+  }
+
+  focusSearchInput = () => {
+    if (!this._isMounted) { return; }
+    this.setState({isOpen: !this.state.isOpen}, () => this.searchInputRef.current.select.select.focus());
   }
 
   render() {
@@ -144,33 +186,62 @@ class SearchConsole extends React.Component<Props, State> {
               </Row>
             </Col>
 
-            <Col className={`mid ${hoveredClass} ${isOpen ? 'px-0 col-9' : 'col-5'}`}>
-              <input
-                type="text"
-                className="searchInput"
-                ref={this.searchInputRef}
-                defaultValue={this.props.search_query}
-                onKeyDown={e => this.onSearchKeyDown(e.key)}
-                onChange={e => this.search(e.target.value)}
-              />
-            </Col>
-
-            <Col
-              className={`icon padding ${isOpen ? `${isOpenClass} col` : `col-1 opacity5`}`}
-              onClick={ isOpen ?
-                () => { this.onSearchIconClick(); }
-              : this.toggleOpen}
+            <div
+              className={`mid px-0 col ${hoveredClass}`}
+              onClick={this.focusSearchInput}
             >
-              <Row>
-                <Col>
-                  <span className="simple-icon-magnifier"/>
-                </Col>
-                {/*{ Is only shown when opened fully. }*/}
-                <Col className={`closeButton ${isOpenClass}`} onClick={this.toggleOpen}>
-                  <FaTimes />
-                </Col>
+              <Row className="align-items-center">
+                <div className={`inputwrapper ${isOpen ? 'flex-grow-1' : ''} h-100`}>
+
+                  <AsyncSelect
+                    className="searchInput"
+                    classNamePrefix="search"
+                    placeholder="Search ..."
+                    noOptionsMessage={() => 'No Search Results'}
+                    menuIsOpen={this.state.searchMenuOpen}
+                    isDisabled={!isOpen}
+                    ref={this.searchInputRef}
+
+                    isMulti
+                    cacheOptions
+                    loadOptions={this.searchSuggestions}
+                    options={this.state.criteria}
+
+                    components={{DropdownIndicator: null}}
+
+                    onChange={this.onSearchChange}
+                    onKeyDown={this.onSearchKeyDown}
+
+                    onInputChange={(s: string) => { if (this._isMounted) { this.setState({ searchInputValue: s }); } }}
+                    onBlur={() => { if (this._isMounted) { this.setState({ searchMenuOpen: false }); } }}
+
+                    formatOptionLabel={(t, o) => {
+                      if (o.context === 'menu') {
+                        return (<><>{t.value}</> <div className="float-right">{t.field}</div></>);
+                      } else {
+                        return <>{t.value}</>;
+                      }
+                    }}
+                  />
+                </div>
+                <div
+                  className={`icon margin ${isOpen ? `${isOpenClass}` : `opacity5`}`}
+                  onClick={ isOpen ?
+                    () => { this.searchDispatch(); }
+                    : this.toggleOpen}
+                >
+                  <Row>
+                    <Col>
+                      <span className="simple-icon-magnifier"/>
+                    </Col>
+                    {/*{ Is only shown when opened fully. }*/}
+                    <Col className={`closeButton ${isOpenClass}`} onClick={this.toggleOpen}>
+                      <FaTimes />
+                    </Col>
+                  </Row>
+                </div>
               </Row>
-            </Col>
+            </div>
 
             {/*{ Is hidden when open (max-width: 0) }*/}
             <Col sm="4" className={`d-none d-sm-block focus px-0 ${isOpenClass}`}>
@@ -194,9 +265,9 @@ class SearchConsole extends React.Component<Props, State> {
 
 const mapStateToProps = (state: { searchConsole: SearchConsoleState }) => ({
 
-  search_query: state.searchConsole.search_query,
   concept_tags: state.searchConsole.concept_tags,
   selected_tags: state.searchConsole.selected_tags,
+
   view: state.searchConsole.view,
   results: state.searchConsole.results,
 

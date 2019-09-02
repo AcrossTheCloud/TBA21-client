@@ -565,12 +565,12 @@ export class ItemEditor extends React.Component<Props, State> {
     this.setState({ validate: {...state} });
   }
 
-  validateLength = (field: string, inputValue: string | string[]): void => {
+  validateLength = (field: string, inputValue: string | string[] | number | number[]): void => {
     if (!this._isMounted) { return; }
 
     let valid = false;
     this.changeItem(field, inputValue);
-    if (inputValue && inputValue.length > 0) {
+    if (inputValue && inputValue.toString().length > 0) {
       valid = true;
     }
 
@@ -579,7 +579,7 @@ export class ItemEditor extends React.Component<Props, State> {
     if (!this._isMounted) { return; }
     this.setState(state, () => {
       if (!isArray(inputValue) && field === 'item_subtype') {
-        this.subTypeOnChange(inputValue);
+        this.subTypeOnChange(inputValue.toString());
       }
     });
   }

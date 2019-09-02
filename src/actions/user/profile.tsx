@@ -1,5 +1,5 @@
 import CognitoIdentityServiceProvider from 'aws-sdk/clients/cognitoidentityserviceprovider';
-import { Auth } from 'aws-amplify';
+import { API, Auth } from 'aws-amplify';
 import { AWSError } from 'aws-sdk';
 import { get } from 'lodash';
 
@@ -11,6 +11,7 @@ export const OVERLAY = 'OVERLAY';
 export const DELETED_ACCOUNT = 'DELETED_ACCOUNT';
 export const PROFILE_ERROR = 'PROFILE_ERROR';
 export const PROFILE_SUCCESS = 'PROFILE_SUCCESS';
+export const PROFILE_GET_DETAILS = 'PROFILE_GET_DETAILS';
 
 /**
  * Dispatches to the PROFILE_ERROR reducer action.type
@@ -105,4 +106,20 @@ export const changePassword = (oldPassword: string, newPassword: string) => asyn
       dispatch({type: PROFILE_ERROR, message: message});
     }
    }
+};
+
+export const getProfileDetails = (uuid: string) => async dispatch => {
+  try {
+    dispatch({
+       type: OVERLAY,
+       overlay: true
+     });
+    const results = await API.get('tba21', 'profiles', { queryStringParameters: { uuid } });
+    dispatch({
+      type: PROFILE_GET_DETAILS,
+       details: results.profile[0]
+    });
+  } catch (e) {
+    return;
+  }
 };

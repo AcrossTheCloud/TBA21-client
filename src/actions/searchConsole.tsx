@@ -6,6 +6,12 @@ import { API } from 'aws-amplify';
 export const CHANGE_VIEW = 'CHANGE_VIEW';
 export const SEARCH_RESULTS = 'SEARCH_RESULTS';
 
+export interface CriteriaOption {
+  label: string;
+  value: string;
+  field: string;
+}
+
 export const changeView = (view: 'grid' | 'list') => dispatch => {
   dispatch({
      type: CHANGE_VIEW,
@@ -13,15 +19,16 @@ export const changeView = (view: 'grid' | 'list') => dispatch => {
    });
 };
 
-export const search = (input: string) => async dispatch => {
-  const queryStringParameters = { query: input, limit: 50, type: 'concept'};
+export const search = (criteria: CriteriaOption[]) => async dispatch => {
+  const results: string[] = [];
 
-  const results = await API.get('tba21', 'tags', { queryStringParameters: queryStringParameters });
+  for (let i = 0; i < criteria.length; i++) {
+    const result = await API.get('tba21', 'search', { queryStringParameters: { searchQuery: criteria[i].value, limit: 50} });
+    results.push(result);
+  }
 
   dispatch({
-    type: SEARCH_RESULTS,
-    results: results.tags,
-    search_query: input
-  });
-
+     type: SEARCH_RESULTS,
+     results: results,
+   });
 };

@@ -80,9 +80,9 @@ export const AppRouter = () => {
   const currentLocation = window.location.pathname;
 
   return (
-    <AuthProvider history={history}>
-      <Provider store={store}>
-        <Router history={history}>
+    <Provider store={store}>
+      <Router history={history}>
+        <AuthProvider>
           <div id="body" className={currentLocation === '/' ? 'fixed' : ''}>
 
             <Route
@@ -132,8 +132,8 @@ export const AppRouter = () => {
             </AuthConsumer>
 
           </div>
-        </Router>
-      </Provider>
-    </AuthProvider>
+        </AuthProvider>
+      </Router>
+    </Provider>
   );
 };
