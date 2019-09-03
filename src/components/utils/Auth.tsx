@@ -49,8 +49,6 @@ export const checkAuth = async (bypassCache: boolean = false): Promise<Authorisa
       const uuid = currentUser.getUsername();
       const email = get(currentUser, 'attributes.email');
 
-      console.log('email', email, currentUser);
-
       return Object.keys(authorisation).length ? { authorisation: authorisation, isAuthenticated: true, uuid, email } : { isAuthenticated: true, uuid, email };
     } else {
       return { isAuthenticated: false, email: '', uuid: '' };
