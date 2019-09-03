@@ -161,7 +161,7 @@ export default class Tags extends React.Component<Props, State> {
         clearTimeout(this.loadTagsTimeout);
 
         const
-          queryStringParameters = ( inputValue ? { query: inputValue, type: this.props.type, limit: 50} : {} ),
+          queryStringParameters = ( inputValue ? { query: inputValue, type: this.props.type, limit: 1000} : {} ),
           queriedTags = await API.get('tba21', 'tags', { queryStringParameters: queryStringParameters }),
 
           tags = queriedTags.tags.map(t => ({id: parseInt(t.id, 0), value: parseInt(t.id, 0), label: t.tag_name})),
@@ -199,7 +199,7 @@ export default class Tags extends React.Component<Props, State> {
       }
     });
 
-    return results.tags.map( t => ({ id: parseInt(t.id), value: parseInt(t.id), label: t.tag_name}) );
+    return results.tags.map( t => ({ id: parseInt(t.id, 0), value: parseInt(t.id, 0), label: t.tag_name}) );
   }
 
   /**
@@ -224,9 +224,9 @@ export default class Tags extends React.Component<Props, State> {
         // If the tag has no id it's more than likely a Rekognition tag, so we'll attempt to create it
         if (!tag.id) {
           const results = await this.createTag(tag.label);
-          tags.push({ id: parseInt(results[0].id), value: parseInt(results[0].id), label: results[0].label });
+          tags.push({ id: parseInt(results[0].id, 0), value: parseInt(results[0].id, 0), label: results[0].label });
         } else {
-          tags.push({ id: parseInt(tag.id), value: parseInt(tag.id), label: tag.label });
+          tags.push({ id: parseInt(tag.id, 0), value: parseInt(tag.id, 0), label: tag.label });
         }
       }
       return tags;
