@@ -258,6 +258,8 @@ export default class Tags extends React.Component<Props, State> {
             isDisabled={this.state.isLoading}
             isLoading={this.state.isLoading}
             cacheOptions
+            className="select"
+            classNamePrefix="select"
 
             defaultValue={this.state.selectedTags}
             defaultOptions={[{
@@ -275,6 +277,8 @@ export default class Tags extends React.Component<Props, State> {
             isDisabled={this.state.isLoading}
             isLoading={this.state.isLoading}
             cacheOptions
+            className="select"
+            classNamePrefix="select"
 
             defaultValue={this.state.selectedTags}
             defaultOptions={this.state.tags}

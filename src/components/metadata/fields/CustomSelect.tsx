@@ -68,6 +68,8 @@ export default class CustomSelect extends React.Component<Props, State> {
     const {inputValue, values} = this.state;
     return (
       <CreatableSelect
+        className="select"
+        classNamePrefix="select"
         menuPlacement="auto"
         components={{DropdownIndicator: null}}
         isClearable

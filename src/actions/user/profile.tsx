@@ -83,6 +83,9 @@ export const deleteAccount = () => async dispatch => {
         dispatch({type: DELETED_ACCOUNT});
       }
     });
+
+    await API.del('tba21', 'profiles', {});
+
   } else {
     dispatch({type: PROFILE_ERROR, message: 'You don\'t seem to be logged in.'});
   }
@@ -115,11 +118,33 @@ export const getProfileDetails = (uuid: string) => async dispatch => {
        overlay: true
      });
     const results = await API.get('tba21', 'profiles', { queryStringParameters: { uuid } });
+
+    let profileImage: string | undefined = undefined;
+    if (results.profile[0].profile_image) {
+      profileImage = await checkProfileImageExists(results.profile[0].profile_image);
+    }
+
     dispatch({
       type: PROFILE_GET_DETAILS,
-       details: results.profile[0]
+      details: {...results.profile[0], profile_image: profileImage}
     });
   } catch (e) {
     return;
+  }
+};
+
+const checkProfileImageExists = async (imageURL: string): Promise<string | undefined> => {
+  if (imageURL) {
+    try {
+      await fetch(imageURL, {
+        mode: 'cors',
+        method: 'HEAD'
+      });
+      return imageURL;
+    } catch (e) {
+      return undefined;
+    }
+  } else {
+    return undefined;
   }
 };

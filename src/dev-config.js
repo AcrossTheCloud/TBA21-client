@@ -1,7 +1,8 @@
 export default {
   s3: {
     REGION: "eu-central-1",
-    BUCKET: "oceanarchive-demo-dev"
+    BUCKET: "oceanarchive-demo-dev",
+    PROFILE_PIC_BUCKET: "profile-pics.ocean-archive.org"
   },
   apiGateway: {
     REGION: "eu-central-1",
@@ -19,6 +20,7 @@ export default {
   other: {
     BASE_CONTENT_URL: "https://demo-dev-content.ocean-archive.org/",
     THUMBNAIL_URL: "https://thumbnails.ocean-archive.org/",
-    VIDEO_STREAMING_URL: "https://video-streaming.ocean-archive.org/"
+    VIDEO_STREAMING_URL: "https://video-streaming.ocean-archive.org/",
+    PROFILE_URL: "https://profile-pics.ocean-archive.org/"
   }
 };
