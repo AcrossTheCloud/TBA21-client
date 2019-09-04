@@ -2,7 +2,7 @@ import { API } from 'aws-amplify';
 import { getCDNObject } from '../../components/utils/s3File';
 import { Item } from '../../types/Item';
 import { S3File } from '../../types/s3File';
-import config from '../../dev-config';
+import config from 'config';
 
 // Defining our Actions for the reducers.
 export const FETCH_ITEM = 'FETCH_ITEM';

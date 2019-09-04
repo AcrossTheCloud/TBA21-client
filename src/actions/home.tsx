@@ -6,7 +6,7 @@ import { random, findIndex, matchesProperty } from 'lodash';
 import { getCDNObject } from '../components/utils/s3File';
 import ReactPlayer from 'react-player';
 import { Col } from 'reactstrap';
-import config from '../dev-config';
+import config from 'config';
 import { S3File } from '../types/s3File';
 import { FaCircle, FaPlay } from 'react-icons/fa';
 import { Document, Page, pdfjs } from 'react-pdf';
