@@ -176,6 +176,8 @@ export default class Contributors extends React.Component<Props, State> {
           isDisabled={this.state.isLoading}
           isLoading={this.state.isLoading}
           cacheOptions
+          className="select"
+          classNamePrefix="select"
 
           // options={this.state.profiles}
           defaultOptions={this.state.profiles}

@@ -3,10 +3,26 @@
 #item {
   min-height: 100vh;
   background-color: $dark-blue;
-  color: #fff;
 
   h1 {
     font-size: 40px;
+  }
+
+  .image {
+    overflow: hidden;
+    z-index: 0;
+    img {
+      width: 100vh;
+    }
+    .background {
+      filter: blur(6px);
+      z-index: -1;
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 100%;
+    }
   }
 
   .subline {

@@ -26,7 +26,7 @@ import TimeField from 'react-simple-timefield';
 import { API } from 'aws-amplify';
 import Select from 'react-select';
 import { isArray, isEqual } from 'lodash';
-
+import ReactPlayer from 'react-player';
 import { Item, itemAudio, itemImage, itemText, itemVideo } from '../../types/Item';
 
 import {
@@ -181,26 +181,41 @@ export class ItemEditor extends React.Component<Props, State> {
   filePreview = (): JSX.Element => {
     if (!this.state.isLoading) {
       const
-        { file, title, s3_key, created_at, id, creators, item_type } = this.state.originalItem,
+        { file, title, created_at, id, creators, item_type } = this.state.originalItem,
         warning = <WarningMessage message={'Unable to load file.'}/>;
+
       if (file && file.url) {
         if (file.type === 'image') {
-          return <img className="img-fluid" src={file.url} alt={title ? title : s3_key}/>;
-        } else if (file.type === 'audio') {
-          const audioData = {
-            title: !!title ? title : '',
-            id: (id || s3_key),
-            url: file.url,
-            date: !!created_at ? created_at : '',
-            creators: !!creators ? creators : [],
-            type: item_type
-
-          };
-          return <AudioPreview data={audioData} />;
-        } else {
-          return warning;
-        }
-        // Handle other file types here.
+          return <img src={file.url} alt=""/>;
+        } else if (file && file.type === 'audio') {
+          return <AudioPreview data={{title: !!title ? title : '', id, url: file.url, date: !!created_at ? created_at : '', creators: !!creators ? creators : [], item_type }} />;
+        } else if (file.type === 'video') {
+          return (
+            <div className="embed-responsive embed-responsive-16by9">
+              <ReactPlayer
+                controls
+                light={file.poster}
+                className="embed-responsive-item"
+                url={!!file.playlist ? file.playlist : file.url}
+                height="auto"
+                width="100%"
+                vertical-align="top"
+              />
+            </div>
+          );
+        } else if (file.type === 'pdf') {
+          return (
+            <div className="embed-responsive embed-responsive-4by3">
+              <iframe title={!!title ? title : file.url} className="embed-responsive-item" src={file.url} />
+            </div>
+          );
+        } else if (file.type === 'downloadText' || file.type === 'text') {
+          return (
+            <a href={file.url} target="_blank" rel="noopener noreferrer">
+              <img alt="" src="https://upload.wikimedia.org/wikipedia/commons/2/22/Unscharfe_Zeitung.jpg" className="image-fluid"/>
+            </a>
+          );
+        } else { return warning; }
       } else {
         return warning;
       }
@@ -382,7 +397,7 @@ export class ItemEditor extends React.Component<Props, State> {
       options = itemImageSubTypes;
     }
 
-    return <Select menuPlacement="auto" className="item_subtype" options={options} value={[options.find( o => o.value === this.state.changedItem.item_subtype)]} onChange={e => this.validateLength('item_subtype', e.value)} isSearchable/>;
+    return <Select menuPlacement="auto" className="select item_subtype" classNamePrefix="select" options={options} value={[options.find( o => o.value === this.state.changedItem.item_subtype)]} onChange={e => this.validateLength('item_subtype', e.value)} isSearchable/>;
   }
 
   subTypeOnChange = (subType: string) => {
@@ -726,8 +741,6 @@ export class ItemEditor extends React.Component<Props, State> {
             />
           </FormGroup>
         </Col>
-
-
       </Row>
     );
   }
@@ -819,8 +832,6 @@ export class ItemEditor extends React.Component<Props, State> {
             />
           </FormGroup>
         </Col>
-
-
       </Row>
     );
   }
@@ -923,7 +934,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="4">
           <FormGroup>
             <Label for="translated_from">Translated From</Label>
-            <Select menuPlacement="auto" className="translated_from" options={languages} value={item.language ? languages.find( c => c.value === item.language ) : []} onChange={e => this.changeItem('translated_from', e.value)} isSearchable/>
+            <Select menuPlacement="auto" className="select translated_from" classNamePrefix="select" options={languages} value={item.language ? languages.find( c => c.value === item.language ) : []} onChange={e => this.changeItem('translated_from', e.value)} isSearchable/>
           </FormGroup>
         </Col>
 
@@ -952,8 +963,6 @@ export class ItemEditor extends React.Component<Props, State> {
             <Input type="number" className="related_isbn" defaultValue={this.state.changedItem.related_isbn ? this.state.changedItem.related_isbn.toString() : ''} onChange={e => this.changeItem('related_isbn', e.target.value)}/>
           </FormGroup>
         </Col>
-
-
       </Row>
     );
   }
@@ -1002,8 +1011,6 @@ export class ItemEditor extends React.Component<Props, State> {
             />
           </FormGroup>
         </Col>
-
-
       </Row>
     );
   }
@@ -1145,7 +1152,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="4">
           <FormGroup>
             <Label for="translated_from">Translated From</Label>
-            <Select menuPlacement="auto" className="translated_from" options={languages} value={item.language ? languages.find( c => c.value === item.language ) : []} onChange={e => this.changeItem('translated_from', e.value)} isSearchable/>
+            <Select menuPlacement="auto" className="select translated_from" classNamePrefix="select" options={languages} value={item.language ? languages.find( c => c.value === item.language ) : []} onChange={e => this.changeItem('translated_from', e.value)} isSearchable/>
           </FormGroup>
         </Col>
 
@@ -1423,8 +1430,6 @@ export class ItemEditor extends React.Component<Props, State> {
             <Input type="text" className="screened_at" defaultValue={item.screened_at ? item.screened_at : ''} onChange={e => this.changeItem('screened_at', e.target.value)}/>
           </FormGroup>
         </Col>
-
-
       </Row>
     );
   }
@@ -2321,13 +2326,13 @@ export class ItemEditor extends React.Component<Props, State> {
 
                     <FormGroup>
                       <Label for="regions">Region(s) (Country/Ocean)</Label>
-                      <Select isMulti isSearchable menuPlacement="auto" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries } ]} defaultValue={selectedRegions} onChange={e => this.validateLength('regions', !!e && e.length ? e.map(r => r.value) : [])} />
+                      <Select className="select" classNamePrefix="select" isMulti isSearchable menuPlacement="auto" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries } ]} defaultValue={selectedRegions} onChange={e => this.validateLength('regions', !!e && e.length ? e.map(r => r.value) : [])} />
                       <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('regions') && !this.state.validate.regions ? 'block' : 'none') }}>This is a required field</FormFeedback>
                     </FormGroup>
 
                     <FormGroup>
                       <Label for="language">Language</Label>
-                      <Select menuPlacement="auto" className="language" options={languages} value={item.language ? languages.find( c => c.value === item.language ) : []} onChange={e => this.changeItem('language', e.value)} isSearchable/>
+                      <Select menuPlacement="auto" className="select language" classNamePrefix="select" options={languages} value={item.language ? languages.find( c => c.value === item.language ) : []} onChange={e => this.changeItem('language', e.value)} isSearchable/>
                     </FormGroup>
 
                     <FormGroup>
@@ -2397,10 +2402,9 @@ export class ItemEditor extends React.Component<Props, State> {
                     {item.item_subtype === itemAudio.Performance_Poetry ? <this.AudioPerformancePoetry /> : <></>}
                     {(!!item.file && item.file.type === 'audio') && item.item_subtype === itemAudio.Other ? <this.AudioOther /> : <></>}
 
-
                     <FormGroup>
                       <Label for="license_type">License</Label>
-                      <Select menuPlacement="auto" className="license_type" options={licenseType} value={item.license ? {value: item.license, label: item.license} : { value: License.LOCKED, label: License.LOCKED }} onChange={e => this.changeItem('license', e.label)} isSearchable/>
+                      <Select menuPlacement="auto" className="select license_type" classNamePrefix="select" options={licenseType} value={item.license ? {value: item.license, label: item.license} : { value: License.LOCKED, label: License.LOCKED }} onChange={e => this.changeItem('license', e.label)} isSearchable/>
                     </FormGroup>
 
                     <FormGroup>

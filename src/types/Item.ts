@@ -334,6 +334,8 @@ export interface Item {
   file: S3File;
   count?: number;
 
+  file_dimensions?: number[] | null;
+
   exif: {  [name: string]: any } | null; // tslint:disable-line: no-any
   machine_recognition_tags: { [name: string]: any } | null; // tslint:disable-line: no-any
 

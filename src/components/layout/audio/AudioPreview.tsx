@@ -88,7 +88,7 @@ class AudioPreview extends React.Component<Props, State> {
               <div className="type_date">
                 {type}, {date ? new Date(date).getFullYear() : <></>}
               </div>
-              {creators ?
+              {creators && creators.length ?
                 <div className="creator">
                   {creators[0]}
                 </div>

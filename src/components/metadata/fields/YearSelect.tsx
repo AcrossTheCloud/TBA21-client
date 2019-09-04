@@ -80,6 +80,8 @@ export default class YearSelect extends React.Component<Props, State> {
     const { inputValue, value } = this.state;
     return (
       <CreatableSelect
+        className="select"
+        classNamePrefix="select"
         menuPlacement="auto"
         isClearable
         onInputChange={this.handleInputChange}

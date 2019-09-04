@@ -7,10 +7,11 @@ import { State } from 'reducers/items/viewItem';
 import { Alerts, ErrorMessage } from '../utils/alerts';
 
 import { Item, Regions } from '../../types/Item';
-import { MultiMedia } from '../utils/MultiMedia';
+
+import { Languages } from '../../types/Languages';
 
 import 'styles/components/pages/item.scss';
-import { Languages } from '../../types/Languages';
+import { FilePreview } from '../utils/FilePreview';
 
 interface Props extends Alerts {
   fetchItem: Function;
@@ -44,6 +45,7 @@ class ViewItem extends React.Component<Props, State> {
     }
 
     const {
+      file,
       title,
       description,
       item_subtype,
@@ -81,11 +83,14 @@ class ViewItem extends React.Component<Props, State> {
     return (
       <div id="item" className="container-fluid">
         <ErrorMessage message={this.props.errorMessage} />
-        <Row>
-          <Col>
-            {this.props.item.file ? <MultiMedia file={this.props.item.file} /> : 'No File to display.'}
-          </Col>
-        </Row>
+        {file && file.url ?
+          <Row>
+            <Col className="px-0">
+              <FilePreview file={file}/>
+            </Col>
+          </Row>
+          : <></>
+        }
         <Row>
           <Col md="8" className="left border-right border-bottom">
             <Row>

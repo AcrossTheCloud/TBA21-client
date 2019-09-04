@@ -11,26 +11,61 @@
   &.logoLoaded {
     #home {
       #header {
+        height: auto;
         transform: translate3d(0,0,0);
       }
     }
   }
 }
 
+#home, #homePageModal {
+  .dot {
+    line-height: 0;
+    font-size: 5px;
+    margin: 0 10px;
+  }
+
+  .d-flex.title-wrapper {
+    overflow: hidden;
+    .creators {
+      flex: 0 1 auto;
+      height: 20px;
+      max-width: 60%;
+      span {
+        text-transform: capitalize;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        max-width: 100%;
+        overflow: hidden;
+        display: inline-block;
+      }
+    }
+    .title {
+      flex: 1 0 auto;
+    }
+  }
+}
+
 #home {
-  color: #fff;
   min-height: 100vh;
+
+  .d-flex.title-wrapper {
+    flex-wrap: wrap;
+  }
 
   #main {
     overflow: hidden;
+    margin-top: 25px;
   }
 
   #header {
+    margin-bottom: 10px;
+    height: 0;
+    padding-bottom: 40px;
     background: $dark-blue;
     transform: translate3d(0,-60vw,0);
     transition: transform .5s cubic-bezier(0.22, 0.61, 0.36, 1);
   }
-
 
   .item {
     position: relative;
@@ -41,40 +76,54 @@
         color: #fff;
       }
     }
-    .title {
-      font-family: "Recta W01 Regular", sans-serif;
-      font-size: 20px;
 
-      position: absolute;
-      bottom: 20px;
-      left: 20px;
+    .d-flex.title-wrapper .title {
+      flex: 1 1 auto;
     }
-    .type {
-      font-family: "Recta W01 Regular", sans-serif;
-      font-size: 20px;
 
+    .overlay {
       position: absolute;
-      top: 20px;
-      left: 20px;
-    }
-    .duration {
-      font-family: "Recta W01 Regular", sans-serif;
-      font-size: 15px;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      top: 0;
+      left: 0;
 
-      position: absolute;
-      top: 20px;
-      right: 20px;
-    }
-    .playButton {
-      line-height: 0;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      font-size: 50px;
-      transform: translate(-50%, -50%);
+      .bottom {
+        font-family: "Recta W01 Regular", sans-serif;
+        font-size: 20px;
+
+        position: absolute;
+        bottom: 10px;
+        left: 10px;
+        width: 100%;
+      }
+      .type {
+        font-size: 20px;
+
+        position: absolute;
+        top: 20px;
+        left: 20px;
+      }
+      .duration {
+        font-size: 15px;
+
+        position: absolute;
+        top: 20px;
+        right: 20px;
+      }
+      .playButton {
+        line-height: 0;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        font-size: 50px;
+        transform: translate(-50%, -50%);
+      }
     }
 
     .file {
+      text-align: center;
       // PDF file constraints
       .react-pdf__Page__canvas {
         max-width: 100% !important;
@@ -85,19 +134,13 @@
 }
 
 #homePageModal {
-  color: #fff;
   &.fullwidth {
     max-width: 98vw;
     overflow: hidden;
   }
 
-  .wrapper {
-    margin: 0 15px;
-  }
-
   .modal-content {
     background-color: $dark-blue;
-    color: #fff;
     border: none;
     border-radius: 0;
     overflow: hidden;
@@ -107,24 +150,29 @@
       height: calc(100vh - (1.75rem * 2));
     }
 
-    .closeButton, .openButton {
-      cursor: pointer;
-    }
-
     .header {
       background: $dark-blue;
       padding: 15px 15px;
 
-      .gray {
-        color: #fff;
+      a.gray {
+        color: $soft-gray;
         font-family: 'Roboto Mono', sans-serif;
         font-size: 14px;
         opacity: .5;
+        &.openButton {
+          line-height: 1.2;
+          display: inline-block;
+          margin-right: 10px;
+          font-size: 17px;
+        }
+
+        &:hover {
+          opacity: 1;
+        }
       }
 
-      .dot {
-        line-height: 0;
-        font-size: 10px;
+      .closeButton, .openButton {
+        cursor: pointer;
       }
     }
 
@@ -164,7 +212,10 @@
     .body {
       padding: 15px 15px;
       font-family: 'Roboto Mono', sans-serif;
-      opacity: .4;
+
+      .tags {
+        color: $soft-blue;
+      }
     }
   }
 }

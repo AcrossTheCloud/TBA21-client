@@ -183,6 +183,8 @@ export default class ShortPaths extends React.Component<Props, State> {
           </Col>
           <Col>
             <CreatableSelect
+              className="select"
+              classNamePrefix="select"
               placeholder="Short URL Path"
               menuPlacement="auto"
               isClearable
