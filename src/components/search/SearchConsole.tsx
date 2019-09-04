@@ -115,13 +115,8 @@ class SearchConsole extends React.Component<Props, State> {
    * Then dispatches the redux action.
   */
   searchDispatch = () => {
-    const selectRefState = this.searchInputRef.current.select.state;
-
-    console.log(selectRefState.value);
-    console.log(selectRefState);
-
-    if (selectRefState.value && selectRefState.value.length) {
-      this.props.dispatchSearch(selectRefState.originalValue);
+    if (this.state.criteria && this.state.criteria.length) {
+      this.props.dispatchSearch(this.state.criteria);
     }
   }
 
