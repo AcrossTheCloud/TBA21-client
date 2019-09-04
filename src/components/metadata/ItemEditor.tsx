@@ -181,26 +181,41 @@ export class ItemEditor extends React.Component<Props, State> {
   filePreview = (): JSX.Element => {
     if (!this.state.isLoading) {
       const
-        { file, title, s3_key, created_at, id, creators, item_type } = this.state.originalItem,
+        { file, title, created_at, id, creators, item_type } = this.state.originalItem,
         warning = <WarningMessage message={'Unable to load file.'}/>;
+
       if (file && file.url) {
         if (file.type === 'image') {
-          return <img className="img-fluid" src={file.url} alt={title ? title : s3_key}/>;
-        } else if (file.type === 'audio') {
-          const audioData = {
-            title: !!title ? title : '',
-            id: (id || s3_key),
-            url: file.url,
-            date: !!created_at ? created_at : '',
-            creators: !!creators ? creators : [],
-            type: item_type
-
-          };
-          return <AudioPreview data={audioData} />;
-        } else {
-          return warning;
-        }
-        // Handle other file types here.
+          return <img src={file.url} alt=""/>;
+        } else if (file && file.type === 'audio') {
+          return <AudioPreview data={{title: !!title ? title : '', id, url: file.url, date: !!created_at ? created_at : '', creators: !!creators ? creators : [], item_type }} />;
+        } else if (file.type === 'video') {
+          return (
+            <div className="embed-responsive embed-responsive-16by9">
+              <ReactPlayer
+                controls
+                light={file.poster}
+                className="embed-responsive-item"
+                url={!!file.playlist ? file.playlist : file.url}
+                height="auto"
+                width="100%"
+                vertical-align="top"
+              />
+            </div>
+          );
+        } else if (file.type === 'pdf') {
+          return (
+            <div className="embed-responsive embed-responsive-4by3">
+              <iframe title={!!title ? title : file.url} className="embed-responsive-item" src={file.url} />
+            </div>
+          );
+        } else if (file.type === 'downloadText' || file.type === 'text') {
+          return (
+            <a href={file.url} target="_blank" rel="noopener noreferrer">
+              <img alt="" src="https://upload.wikimedia.org/wikipedia/commons/2/22/Unscharfe_Zeitung.jpg" className="image-fluid"/>
+            </a>
+          );
+        } else { return warning; }
       } else {
         return warning;
       }
@@ -726,8 +741,6 @@ export class ItemEditor extends React.Component<Props, State> {
             />
           </FormGroup>
         </Col>
-
-
       </Row>
     );
   }
@@ -819,8 +832,6 @@ export class ItemEditor extends React.Component<Props, State> {
             />
           </FormGroup>
         </Col>
-
-
       </Row>
     );
   }
@@ -952,8 +963,6 @@ export class ItemEditor extends React.Component<Props, State> {
             <Input type="number" className="related_isbn" defaultValue={this.state.changedItem.related_isbn ? this.state.changedItem.related_isbn.toString() : ''} onChange={e => this.changeItem('related_isbn', e.target.value)}/>
           </FormGroup>
         </Col>
-
-
       </Row>
     );
   }
@@ -1002,8 +1011,6 @@ export class ItemEditor extends React.Component<Props, State> {
             />
           </FormGroup>
         </Col>
-
-
       </Row>
     );
   }
@@ -1423,8 +1430,6 @@ export class ItemEditor extends React.Component<Props, State> {
             <Input type="text" className="screened_at" defaultValue={item.screened_at ? item.screened_at : ''} onChange={e => this.changeItem('screened_at', e.target.value)}/>
           </FormGroup>
         </Col>
-
-
       </Row>
     );
   }
@@ -2396,7 +2401,6 @@ export class ItemEditor extends React.Component<Props, State> {
                     {item.item_subtype === itemAudio.Radio ? <this.AudioRadio /> : <></>}
                     {item.item_subtype === itemAudio.Performance_Poetry ? <this.AudioPerformancePoetry /> : <></>}
                     {(!!item.file && item.file.type === 'audio') && item.item_subtype === itemAudio.Other ? <this.AudioOther /> : <></>}
-
 
                     <FormGroup>
                       <Label for="license_type">License</Label>

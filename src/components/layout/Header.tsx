@@ -4,7 +4,6 @@ import {
   Collapse,
   Navbar,
   NavbarToggler,
-  NavbarBrand,
   Nav,
   NavItem,
   NavLink,
@@ -101,7 +100,7 @@ class HeaderClass extends React.Component<RouteComponentProps, State> { // tslin
           return (
             <div id="navigation">
               <Navbar color="light" light expand="md">
-                <NavbarBrand href="/">TBA21</NavbarBrand>
+                {/*<NavbarBrand href="/">TBA21</NavbarBrand>*/}
                 <NavbarToggler onClick={this.toggle}/>
                 <Collapse isOpen={this.state.isOpen} navbar>
                   <Nav className="ml-auto" navbar>
@@ -118,17 +117,6 @@ class HeaderClass extends React.Component<RouteComponentProps, State> { // tslin
                       <this.ColllaboratorRoutes />
                       : <></>
                     }
-
-                    <NavItem>
-                      <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/view">View Items</NavLink>
-                    </NavItem>
-                    <NavItem>
-                      <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/map">Map View</NavLink>
-                    </NavItem>
-
-                    <NavItem>
-                      <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/viewGraph">View Items and People Graph</NavLink>
-                    </NavItem>
 
                     {isAuthenticated ?
                       <>

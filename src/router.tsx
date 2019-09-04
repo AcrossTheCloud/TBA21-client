@@ -90,9 +90,8 @@ export const AppRouter = () => {
               render={() => (
                 <>
                   <AuthConsumer>
-                    {({authorisation}) => {
-                      const hasAuth = has(authorisation, 'collaborator') || has(authorisation, 'editor') || has(authorisation, 'admin');
-                      if (hasAuth) {
+                    {({isAuthenticated}) => {
+                      if (isAuthenticated) {
                         return <Header />;
                       } else {
                         return  <></>;

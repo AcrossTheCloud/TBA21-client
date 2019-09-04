@@ -8,8 +8,9 @@ import ReactPlayer from 'react-player';
 import { Col } from 'reactstrap';
 import config from '../dev-config';
 import { S3File } from '../types/s3File';
-import { FaPlay } from 'react-icons/fa';
+import { FaCircle, FaPlay } from 'react-icons/fa';
 import { Document, Page, pdfjs } from 'react-pdf';
+import { Link } from 'react-router-dom';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -178,17 +179,44 @@ const displayLayout = (data: HomepageData, columnSize: number, dispatch: Functio
             <FilePreviewHome data={data}/>
           </div>
         : <></> }
-        <div className="type">
-          {type}
-        </div>
-        <div className="title">
-          {!!creators ? creators.map(c => `${c} - `) : <></>}{title}
-        </div>
-        {duration ?
-          <div className="duration">
-            {duration}
+        <div className="overlay">
+          <div className="type">
+            {type}
           </div>
-        : <></> }
+          <div className="bottom">
+            <div className="title-wrapper d-flex">
+              {creators && creators.length ?
+                <>
+                  <div className="creators d-none d-md-block">
+                    <Link to={`/view/${s3_key}`}>
+                      <span>{creators.join(', ')}</span>
+                    </Link>
+                  </div>
+                  <div className="d-none d-md-block">
+                    <FaCircle className="dot"/>
+                  </div>
+                </>
+                : <></>
+              }
+              <div className="title">
+                <Link to={`/view/${s3_key}`}>
+                  {title}
+                </Link>
+              </div>
+            </div>
+          </div>
+          {duration ?
+            <div className="duration">
+              {duration}
+            </div>
+          : <></> }
+          {file && file.type === 'video' ?
+            <div className="playButton">
+              <FaPlay />
+            </div>
+          : <></>
+          }
+        </div>
       </div>
     </Col>
   );
@@ -212,7 +240,7 @@ export const FilePreview = (props: { data: HomepageData }): JSX.Element => {
       let thumbnails: string = '';
       if (props.data.file.thumbnails) {
         Object.entries(props.data.file.thumbnails).forEach( ([key, value]) => {
-          thumbnails = `${thumbnails} ${value} ${key}w`;
+          thumbnails = `${thumbnails} ${value} ${key}w,`;
         } );
       }
 
@@ -267,7 +295,7 @@ export const FilePreviewHome = (props: { data: HomepageData }): JSX.Element => {
       let thumbnails: string = '';
       if (props.data.file.thumbnails) {
         Object.entries(props.data.file.thumbnails).forEach( ([key, value]) => {
-          thumbnails = `${thumbnails}, ${value} ${key}w`;
+          thumbnails = `${thumbnails}, ${value} ${key}w,`;
         } );
       }
       return (
@@ -304,9 +332,6 @@ export const FilePreviewHome = (props: { data: HomepageData }): JSX.Element => {
 export const VideoPoster = (props: { data: HomepageData }) => (
   <div className="videoPreview">
     {!!props.data.file ? <img src={props.data.file.poster} alt={''}/> : <></>}
-    <div className="playButton">
-      <FaPlay />
-    </div>
   </div>
 );
 // Modal
