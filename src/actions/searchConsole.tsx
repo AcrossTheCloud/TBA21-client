@@ -24,13 +24,21 @@ export const changeView = (view: 'grid' | 'list') => dispatch => {
 export const search = (criteria: CriteriaOption[]) => async dispatch => {
   const results: string[] = [];
 
-  for (let i = 0; i < criteria.length; i++) {
-    const result = await API.get('tba21', 'pages/search', { queryStringParameters: { searchQuery: criteria[i].value, limit: 50} });
-    results.push(result);
-  }
+  if (criteria) {
 
-  dispatch({
+    for (let i = 0; i < criteria.length; i++) {
+      const result = await API.get('tba21', 'pages/search', {
+        queryStringParameters: {
+          searchQuery: criteria[i].value,
+          limit: 50
+        }
+      });
+      results.push(result);
+    }
+
+    dispatch({
      type: SEARCH_RESULTS,
      results: results,
    });
+  }
 };
