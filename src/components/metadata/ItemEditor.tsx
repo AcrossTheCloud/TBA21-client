@@ -26,7 +26,7 @@ import TimeField from 'react-simple-timefield';
 import { API } from 'aws-amplify';
 import Select from 'react-select';
 import { isArray, isEqual } from 'lodash';
-
+import ReactPlayer from 'react-player';
 import { Item, itemAudio, itemImage, itemText, itemVideo } from '../../types/Item';
 
 import {

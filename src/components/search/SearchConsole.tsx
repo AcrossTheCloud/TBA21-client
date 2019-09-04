@@ -29,11 +29,15 @@ interface State {
   selectedCriteria: CriteriaOption[];
 }
 
-const createCriteriaOption = (label: string, field: string): CriteriaOption => ({
-  label,
-  value: label,
-  field
-});
+const createCriteriaOption = (label: string, field: string, displayField?: string): CriteriaOption => {
+  return {
+    label: `${label} - (${displayField || field})`,
+    value: `${label} - (${displayField || field})`,
+    originalValue: label,
+    field,
+    displayField: displayField || field
+  };
+};
 
 class SearchConsole extends React.Component<Props, State> {
   _isMounted;
@@ -83,14 +87,23 @@ class SearchConsole extends React.Component<Props, State> {
 
     return new Promise( resolve => {
       this.searchTimeout = setTimeout(async () => {
-        if (!this._isMounted) { clearTimeout(this.searchTimeout); return; }
+        clearTimeout(this.searchTimeout);
+        if (!this._isMounted) { return; }
 
-        const query = await API.get('tba21', 'pages/search', { queryStringParameters: { query: input }});
-        const results = !!query.results ? query.results.map(t => createCriteriaOption(t.value, t.field)) : [];
+        const suggestions = await API.get('tba21', 'pages/search', { queryStringParameters: { query: input }});
+        const keywordTags = await API.get('tba21', 'tags', { queryStringParameters: { query: input, limit: 50, type: 'keyword'} });
+        const conceptTags = await API.get('tba21', 'tags', { queryStringParameters: { query: input, limit: 50, type: 'concept'} });
 
-        this.setState({ criteria: results, searchMenuOpen: true });
-        resolve(results);
+        const results = [
+          ...suggestions.results.map( t => createCriteriaOption(t.value, t.field) ),
+          ...keywordTags.tags.map( t => createCriteriaOption(t.tag_name, 'keyword_tag', 'Keyword Tag') ),
+          ...conceptTags.tags.map( t => createCriteriaOption(t.tag_name, 'concept_tag', 'Concept Tag') )
+        ];
+
         // Return the results to React Select
+        this.setState({ criteria: results}, () => console.log(this.state.criteria));
+        resolve(results);
+
       }, 500);
 
     });
@@ -103,8 +116,12 @@ class SearchConsole extends React.Component<Props, State> {
   */
   searchDispatch = () => {
     const selectRefState = this.searchInputRef.current.select.state;
+
+    console.log(selectRefState.value);
+    console.log(selectRefState);
+
     if (selectRefState.value && selectRefState.value.length) {
-      this.props.dispatchSearch(selectRefState.value);
+      this.props.dispatchSearch(selectRefState.originalValue);
     }
   }
 
@@ -203,7 +220,6 @@ class SearchConsole extends React.Component<Props, State> {
                     ref={this.searchInputRef}
 
                     isMulti
-                    cacheOptions
                     loadOptions={this.searchSuggestions}
                     options={this.state.criteria}
 
@@ -212,14 +228,17 @@ class SearchConsole extends React.Component<Props, State> {
                     onChange={this.onSearchChange}
                     onKeyDown={this.onSearchKeyDown}
 
+                    onMenuOpen={() => { if (this._isMounted) { this.setState({ searchMenuOpen: true }); } }}
+                    onMenuClose={() => { if (this._isMounted) { this.setState({ searchMenuOpen: false }); } }}
+
                     onInputChange={(s: string) => { if (this._isMounted) { this.setState({ searchInputValue: s }); } }}
                     onBlur={() => { if (this._isMounted) { this.setState({ searchMenuOpen: false }); } }}
 
                     formatOptionLabel={(t, o) => {
                       if (o.context === 'menu') {
-                        return (<><>{t.value}</> <div className="float-right">{t.field}</div></>);
+                        return (<div className="option"><span className="value">{t.originalValue}</span> <span className="field float-right">{t.displayField}</span></div>);
                       } else {
-                        return <>{t.value}</>;
+                        return <div className="tag-option">{t.label}</div>;
                       }
                     }}
                   />

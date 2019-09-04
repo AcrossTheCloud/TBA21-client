@@ -9,7 +9,9 @@ export const SEARCH_RESULTS = 'SEARCH_RESULTS';
 export interface CriteriaOption {
   label: string;
   value: string;
+  originalValue: string;
   field: string;
+  displayField: string;
 }
 
 export const changeView = (view: 'grid' | 'list') => dispatch => {
