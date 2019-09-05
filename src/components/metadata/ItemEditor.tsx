@@ -1612,7 +1612,6 @@ export class ItemEditor extends React.Component<Props, State> {
           <FormGroup>
             <Label for="produced_by">Exhibition History</Label>
             <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
-            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('exhibited_at') && !this.state.validate.exhibited_at ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
