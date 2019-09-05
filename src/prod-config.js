@@ -1,7 +1,7 @@
 export default {
   s3: {
     REGION: "eu-central-1",
-    BUCKET: "oceanarchive-demo",
+    BUCKET: "ocean-archive-prod-content",
     PROFILE_PIC_BUCKET: "profile-pics.ocean-archive.org"
   },
   apiGateway: {
