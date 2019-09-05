@@ -78,7 +78,9 @@ export const getCDNObject = async (key: string): Promise<S3File | false> => {
         }
 
         if (type === 'video') {
+          console.log('IS VIDEO');
           const videoFiles = await getVideoFiles(key);
+          console.log(videoFiles);
           // We always have a poster.
           Object.assign(response, { poster: videoFiles.poster });
 
@@ -156,8 +158,8 @@ export const sdkGetObject = async (key: string): Promise<S3File | false> => {
 
 export const getVideoFiles = async (key: string): Promise<{poster: string, playlist?: string}> => {
   const response = {
-      poster: defaultVideoImage
-    };
+    poster: defaultVideoImage
+  };
   try {
     const
       steamingURL = config.other.VIDEO_STREAMING_URL,
@@ -173,12 +175,14 @@ export const getVideoFiles = async (key: string): Promise<{poster: string, playl
 
     // Fetch the thumbnail to see if it exists.
     const poster = await fetch(posterURL, {method: 'HEAD', mode: 'cors'});
-    if (poster) {
+    if (poster && poster.status === 200) {
+      // check response and status
       Object.assign(response, {poster: posterURL});
     }
-    // Fetch the thumbnail to see if it exists.
+    // Fetch the playlist to see if it exists.
     const playlist = await fetch(playlistURL, {method: 'HEAD', mode: 'cors'});
-    if (playlist) {
+    // check response and status
+    if (playlist && playlist.status === 200) {
       Object.assign(response, {playlist: playlistURL});
     }
 
