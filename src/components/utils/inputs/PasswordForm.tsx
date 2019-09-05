@@ -24,9 +24,12 @@ interface State {
 
 export class PasswordForm extends React.Component<Props, State> {
   confirmPasswordTimeout;
+  _isMounted;
 
   constructor(props: Props) {
     super(props);
+
+    this._isMounted = false;
 
     this.state = {
       password: '',
@@ -38,6 +41,14 @@ export class PasswordForm extends React.Component<Props, State> {
       passwordHasNumberCase: false,
       passwordHasSymbolCase: false
     };
+  }
+
+  componentDidMount(): void {
+    this._isMounted = true;
+  }
+
+  componentWillUnmount(): void {
+    this._isMounted = false;
   }
 
   /**
@@ -79,6 +90,8 @@ export class PasswordForm extends React.Component<Props, State> {
    * @param password {string}
    */
   onPasswordChange = (password: string) => {
+    if (!this._isMounted) { return; }
+
     const passwordsMatch: boolean = (password === this.state.confirmPassword);
     this.setState(
       {
@@ -104,12 +117,15 @@ export class PasswordForm extends React.Component<Props, State> {
    * @param password {string}
    */
   onConfirmPasswordChange = (password: string) => {
+    if (!this._isMounted) { return; }
+
     this.setState({ confirmPassword: password });
     if (this.confirmPasswordTimeout) {
       clearTimeout(this.confirmPasswordTimeout);
     }
 
     this.confirmPasswordTimeout = setTimeout( () => {
+      if (!this._isMounted) { return; }
       if (password !== this.state.password) {
         this.setState({ confirmPassword: password, passwordsMatch: false });
         this.props.callback('', 'Passwords don\'t match');

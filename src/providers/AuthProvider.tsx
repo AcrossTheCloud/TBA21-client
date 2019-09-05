@@ -1,17 +1,21 @@
 import * as React from 'react';
 import { Auth } from 'aws-amplify';
+import { connect } from 'react-redux';
+import { getProfileDetails } from 'actions/user/profile';
 import { Authorisation, checkAuth } from '../components/utils/Auth';
+import { RouteComponentProps, withRouter } from 'react-router';
 
 interface State extends Authorisation {
   isLoading: boolean;
 }
-export interface Props {
-  history: any; // tslint:disable-line: no-any
+export interface Props extends RouteComponentProps {
+  getProfileDetails: Function;
 }
 
 const authContextDefaultValues = {
   isLoading: true,
   uuid: '',
+  email: '',
   isAuthenticated: false,
   authorisation: {},
   login: (email: string, password: string) => { return; },
@@ -21,14 +25,17 @@ const authContextDefaultValues = {
 
 export const AuthContext = React.createContext(authContextDefaultValues);
 export const AuthConsumer = AuthContext.Consumer;
-export class AuthProvider extends React.Component<Props, State> {
+
+class AuthProviderClass extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
     this.state = {
       isLoading: true,
       isAuthenticated: false,
-      authorisation: {}
+      authorisation: {},
+      uuid: '',
+      email: ''
     };
   }
 
@@ -49,6 +56,10 @@ export class AuthProvider extends React.Component<Props, State> {
         await Auth.signIn(email, password);
 
         const auth: Authorisation = await checkAuth();
+
+        // Get the users profile details and hold on to the them for as long as possible.
+        await this.props.getProfileDetails(auth.uuid);
+
         this.setState({ ...auth });
 
         this.props.history.push('/');
@@ -95,6 +106,7 @@ export class AuthProvider extends React.Component<Props, State> {
           isAuthenticated: this.state.isAuthenticated,
           authorisation: this.state.authorisation ? this.state.authorisation : {},
           uuid: this.state.uuid ? this.state.uuid : '',
+          email: this.state.email ? this.state.email : '',
           login: this.login,
           logout: this.logout,
           facebookLogin: this.facebookLogin
@@ -105,3 +117,5 @@ export class AuthProvider extends React.Component<Props, State> {
     );
   }
 }
+
+export const AuthProvider = withRouter(connect(undefined, { getProfileDetails })(AuthProviderClass));

@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { Button, Modal, ModalBody, ModalHeader, ModalFooter } from 'reactstrap';
+import { Button, Modal, ModalBody, ModalFooter } from 'reactstrap';
+import { AuthContext } from '../../../providers/AuthProvider';
 
 interface Props {
   deleteAccountAction: Function;
@@ -10,6 +11,7 @@ interface State {
 }
 
 export default class DeleteAccount extends React.Component<Props, State> {
+  static contextType = AuthContext;
 
   constructor(props: Props) {
     super(props);
@@ -42,14 +44,24 @@ export default class DeleteAccount extends React.Component<Props, State> {
   }
 
   render() {
+    const context: React.ContextType<typeof AuthContext> = this.context;
+
     return (
       <div className="deleteAccount">
         <Button color="danger" size="sm" onClick={this.toggleModal}>Delete Account</Button>
 
         <Modal isOpen={this.state.modalOpen} toggle={this.toggleModal} backdrop={true}>
-          <ModalHeader toggle={this.toggleModal}>Modal title</ModalHeader>
           <ModalBody>
-            Are you sure you want to delete your account?
+            <div><b>Are you sure you want to delete your account?</b></div>
+            {
+              context.authorisation.hasOwnProperty('contributor') || context.authorisation.hasOwnProperty('admin') ?
+              <div>
+                <br/>
+                Please note deleting your account will also delete any items contributed by you, or any collections for which you are the sole contributor.
+              </div>
+                :
+              <></>
+            }
           </ModalBody>
           <ModalFooter>
             <Button color="danger" onClick={this.deleteAccount}>Delete Account</Button>{' '}

@@ -1,0 +1,296 @@
+@import '../../base/variables';
+
+%searchFont {
+  color: #fff;
+  opacity: .5;
+}
+
+#searchConsole {
+  background: $dark-blue;
+  color: #fff;
+
+  min-height: 25px;
+
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  z-index: 10;
+
+  transition: min-height .5s cubic-bezier(0.22, 0.61, 0.36, 1), opacity .3s linear .5s;
+
+  .legend {
+    background: rgba(120, 120, 120, 50);
+    height: 0;
+    max-height: 200px;
+    font-family: 'Roboto Mono', sans-serif;
+    font-size: 12px;
+    overflow: hidden;
+    transition: max-height 1s;
+    cursor: default;
+    @extend %searchFont;
+    div[class *= 'col-'] {
+      padding: 15px;
+    }
+    .border_right {
+      border-right: 1px solid $dark-blue;
+    }
+
+    &.hover {
+      height: auto;
+    }
+
+    &.open {
+      max-height: 0;
+      transition: max-height 1s;
+    }
+  }
+
+  &.open {
+    z-index: 9999;
+    min-height: 100%;
+    transition: min-height .1s cubic-bezier(0.22, 0.61, 0.36, 1), opacity .3s linear .5s;
+  }
+
+}
+
+.options {
+  overflow: hidden;
+
+  .padding {
+    padding: 0;
+  }
+
+  div[class *= 'col-'] {
+    height: 0;
+  }
+
+  .line {
+    width: 2.5em;
+    height: 4px;
+    background-color: #fff;
+    border-radius: 1em;
+    margin-top: 12.5px;
+  }
+
+  .mid {
+    height: 0;
+    overflow: hidden;
+    .row {
+      margin: 0;
+      height: 100%;
+      .inputwrapper {
+        flex: 1 1 auto;
+      }
+    }
+  }
+
+  .view {
+    .row {
+      height: 0;
+      overflow: hidden;
+      .option {
+        @extend %searchFont;
+        &.active {
+          opacity: 1;
+        }
+      }
+    }
+  }
+
+  .searchInput {
+    height: 100%;
+    border-top: 1px solid $dark-blue;
+    .search__control {
+      height: 100%;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+      background: transparent;
+      .search__value-container {
+        border: 0;
+        color: #fff;
+        background: rgba(120, 120, 120, .5);
+        border-radius: 0;
+        height: 100%;
+        width: 100%;
+        padding: 0 10px;
+
+
+        .search__placeholder {
+          color: #fff;
+        }
+        .search__input {
+          color: #fff;
+        }
+
+        .search__indicators {
+          background: rgba(120, 120, 120, .5);
+          .search__indicator {
+            color: #fff;
+            &.search__loading-indicator {
+              color: #fff;
+            }
+          }
+        }
+
+        .search__multi-value {
+          background: transparent;
+          border: 1px solid #fff;
+          border-radius: 0;
+          .search__multi-value__label {
+            color: #fff;
+          }
+          .search__multi-value__remove {
+            &:hover {
+              background-color: transparent;
+              color: #DE350B;
+              cursor: pointer;
+            }
+          }
+        }
+
+        &.search__value-container--has-value {
+          background: #001218;
+        }
+      }
+
+
+      &.search__control--is-focused {
+        border: none;
+        .search__value-container {
+          background: #001218;
+        }
+      }
+    }
+
+    .search__indicators {
+      background: #001218;
+      .search__indicator {
+        color: #fff;
+        &.search__loading-indicator {
+          span {
+            background-color: #fff !important;
+          }
+        }
+      }
+    }
+
+    .search__menu {
+      margin: 0;
+      border-radius: 0;
+      background: rgba(0, 18 ,24 , 0.65);
+
+      .search__option {
+        background: transparent;
+        &.search__option--is-focused {
+          background: rgba($dark-blue, 0.3);
+        }
+      }
+    }
+  }
+
+  &.hover {
+    .padding {
+      padding: 15px;
+    }
+    div[class *= 'col-'] {
+      height: auto;
+    }
+
+    .opacity5 {
+      @extend %searchFont;
+    }
+
+    .view {
+      .line {
+        height: 0;
+        margin-top: 0;
+      }
+      .option {
+        cursor: pointer;
+        &:hover {
+          opacity: 1;
+        }
+      }
+    }
+
+    .view .row, .mid {
+      height: auto;
+    }
+  }
+
+  &.open {
+    overflow: unset !important;
+    .mid {
+      overflow: unset !important;
+    }
+  }
+
+  &.open {
+    .margin {
+      margin: 0 15px;
+    }
+    .padding {
+      padding: 15px;
+    }
+  }
+
+  .icon {
+    overflow: hidden;
+    font-size: 16px;
+    flex: 0 1 10%;
+    text-align: center;
+    @extend %searchFont;
+
+    span {
+      &.simple-icon-magnifier {
+        cursor: pointer;
+        color: #fff;
+        transform: scaleX(-1);
+        display: inline-block;
+      }
+    }
+
+    .closeButton {
+      cursor: pointer;
+      height: 0;
+      max-width: 0;
+      color: #fff;
+      opacity: 1;
+      overflow: hidden;
+      padding: 0;
+      &.open {
+        height: auto;
+        max-width: unset;
+      }
+    }
+  }
+
+  .focus {
+    min-height: 25px;
+    padding: 0 !important;
+    max-width: 100%;
+
+    &.open {
+      max-width: 0;
+      overflow: hidden;
+      transition: max-width 1.2s;
+
+      div {
+        left: 100% !important;
+        transition: left 1s !important;
+      }
+    }
+
+    div {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(to right, #0076FF 0%, #9013FE 20%, #50E3C2 50%);
+      transition: left 1s !important;
+    }
+  }
+
+}

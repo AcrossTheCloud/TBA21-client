@@ -2,7 +2,7 @@
   background: #fff;
   width: 100%;
   height: 100vh;
-  transform: translate3d(0, calc(-50% - 21.5px), 0); // Minus half the size of the logo (43)
+  transform: translate(0, 20px);
   transition: transform .5s cubic-bezier(0.22, 0.61, 0.36, 1), opacity .2s linear;
   overflow-x: hidden;
 
@@ -42,7 +42,8 @@
     .right {
       opacity: 0;
       right: -16em;
-      margin-right: 58vw;
+      margin-right: calc(58vw + 21.5px); // Plus half the size of the logo (43);
+
       &.op {
         opacity: 1;
       }
@@ -58,7 +59,6 @@
       filter: invert(1);
       width: 16em;
       position: absolute;
-      top: .5em;
       transition: margin 1s cubic-bezier(0.22, 0.61, 0.36, 1) .1s, opacity .8s linear;
     }
   }

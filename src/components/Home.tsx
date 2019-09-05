@@ -12,6 +12,7 @@ import HomePageModal from './HomePageModal';
 
 import Logo from './layout/Logo';
 import 'styles/components/home.scss';
+import { FaCircle } from 'react-icons/all';
 
 interface Props extends HomePageState {
   logoDispatch: Function;
@@ -60,13 +61,54 @@ class HomePage extends React.Component<Props, {}> {
   render() {
     const { loaded_highlights, logoLoaded, loadedItems } = this.props;
 
+    const HighlightsItemDetails = (props: { index: number }) => {
+      const tags = !!loaded_highlights[props.index].concept_tags ? loaded_highlights[props.index].concept_tags : [];
+      const creators = !!loaded_highlights[props.index].creators ? loaded_highlights[props.index].creators : [];
+
+      return (
+        <>
+          <div className="title-wrapper d-flex">
+            {creators && creators.length ?
+              <>
+                <div className="creators d-none d-md-block">
+                  <Link to={`/view/${loaded_highlights[props.index].s3_key}`}>
+                    <span>{creators.join(', ')}</span>
+                  </Link>
+                </div>
+                <div className="d-none d-md-block">
+                  <FaCircle className="dot"/>
+                </div>
+              </>
+              : <></>
+            }
+            <div className="title">
+              <Link to={`/view/${loaded_highlights[props.index].s3_key}`}>
+                {loaded_highlights[props.index].title}
+              </Link>
+            </div>
+          </div>
+          <div className="type">
+            <Link to={`/view/${loaded_highlights[props.index].s3_key}`}>
+              {loaded_highlights[props.index].type}, {new Date(loaded_highlights[props.index].date).getFullYear()}
+            </Link>
+          </div>
+          {!!tags && tags.length ?
+            <div className="tags d-none d-sm-block">
+              {tags.map(t => `#${t.tag_name}`).join(' ').toString()}
+            </div>
+            : <></>
+          }
+        </>
+      );
+    }
+
     return (
       <div id="home" className="flex-fill">
         <Container fluid id="header">
           <AuthConsumer>
             {({ isAuthenticated, logout }) => (
               isAuthenticated ?
-                <Button color="link" onClick={() => logout()}><span className="simple-icon-logout"/> Logout</Button>
+                <></>
                 :
                 <Button color="link" tag={Link} to="/login"><span className="simple-icon-login"/> Login</Button>
             )}
@@ -78,22 +120,33 @@ class HomePage extends React.Component<Props, {}> {
                 <div className="file">
                   <FilePreviewHome data={loaded_highlights[0]}/>
                 </div>
+
+                <div className="d-sm-none overlay">
+                  <HighlightsItemDetails index={0}/>
+                </div>
+
               </Col>
               :
               <></>
             }
             {!!loaded_highlights[1] ?
               <Col xs="12" md="4" className="item" onClick={() => this.props.openModal(loaded_highlights[1])}>
-                <Row>
+                <Row className="d-none d-sm-block">
                   <Col xs="12">
                     <div className="file">
                       <FilePreviewHome data={loaded_highlights[1]}/>
                     </div>
-                    <div className="title">
-                      {loaded_highlights[1].title}
-                    </div>
+                    <HighlightsItemDetails index={1}/>
                   </Col>
                 </Row>
+                <div className="d-sm-none">
+                  <div className="file">
+                    <FilePreviewHome data={loaded_highlights[1]}/>
+                  </div>
+                  <div className="overlay">
+                    <HighlightsItemDetails index={1}/>
+                  </div>
+                </div>
               </Col>
               :
               <></>
@@ -102,23 +155,8 @@ class HomePage extends React.Component<Props, {}> {
           </Row>
           <Row>
             {!!loaded_highlights[0] ?
-              <Col md="6" className="item" onClick={() => this.props.openModal(loaded_highlights[0])}>
-                <div className="title">
-                  <Link to={`/view/${loaded_highlights[0].s3_key}`}>
-                    {loaded_highlights[0].title}
-                  </Link>
-                </div>
-                <div className="type">
-                  <Link to={`/view/${loaded_highlights[0].s3_key}`}>
-                    {loaded_highlights[0].type}, {new Date(loaded_highlights[0].date).getFullYear()}
-                  </Link>
-                </div>
-                {!!loaded_highlights[0].concept_tags ?
-                  <div className="tags">
-                    {loaded_highlights[0].concept_tags.map(t => t.tag_name).join(', ').toString()}
-                  </div>
-                  : <></>
-                }
+              <Col md="6" className="d-none d-sm-block item" onClick={() => this.props.openModal(loaded_highlights[0])}>
+                <HighlightsItemDetails index={0} />
               </Col>
               : <></>
             }

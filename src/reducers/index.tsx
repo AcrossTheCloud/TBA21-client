@@ -5,6 +5,8 @@ import Map from '../reducers/map/map';
 import Home from '../reducers/home';
 import Profile from '../reducers/user/profile';
 import manageUsers from '../reducers/admin/user/manageUsers';
+import searchConsole from '../reducers/searchConsole';
+import audioPlayer from '../reducers/audioPlayer';
 
 const reducers: ReducersMapObject = {
   viewItems: ViewItems,
@@ -17,7 +19,11 @@ const reducers: ReducersMapObject = {
   profile: Profile,
 
   // Admin
-  manageUsers: manageUsers
+  manageUsers: manageUsers,
+
+  searchConsole: searchConsole,
+
+  audioPlayer: audioPlayer
 };
 
 export default combineReducers(reducers);

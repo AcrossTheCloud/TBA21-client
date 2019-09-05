@@ -2,7 +2,7 @@ import * as React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
 import { Button, Col, Container, Form, FormGroup, Input, Row } from 'reactstrap';
 
-import FacebookButton from 'components/utils/facebook/FacebookButton';
+// import FacebookButton from 'components/utils/facebook/FacebookButton';
 import { AuthContext } from 'providers/AuthProvider';
 
 import { AccountConfirmation } from './AccountConfirmation';
@@ -163,7 +163,7 @@ class LoginClass extends React.Component<RouteComponentProps, State> {
               >
                 Reset password
               </Button>
-              <FacebookButton isSignUp={false} />
+              {/*<FacebookButton isSignUp={false} />*/}
             </Form>
           </Col>
         </Row>

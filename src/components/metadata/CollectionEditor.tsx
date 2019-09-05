@@ -408,16 +408,16 @@ export class CollectionEditor extends React.Component<Props, State> {
     this.setState({ validate: state });
   }
 
-  validateLength = (field: string, inputValue: string | string[]): void => {
+  validateLength = (field: string, inputValue: string | string[] | number | number[]): void => {
     let valid = false;
     this.changeCollection(field, inputValue);
-    if (inputValue && inputValue.length > 0) {
+    if (inputValue && inputValue.toString().length > 0) {
       valid = true;
     }
     if (!this._isMounted) { return; }
     this.setState({ validate: { ...this.state.validate, [field]: valid } }, () => {
       if (!isArray(inputValue) && field === 'type') {
-        this.typeOnChange(inputValue);
+        this.typeOnChange(inputValue.toString());
       }
     });
   }
@@ -463,7 +463,7 @@ export class CollectionEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="regional_focus">Regional Focus</Label>
-            <Select menuPlacement="auto" id="regional_focus" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries }]} value={[regionalFocus]} onChange={e => this.validateLength('regional_focus', e.value)} isSearchable/>
+            <Select className="select" classNamePrefix="select" menuPlacement="auto" id="regional_focus" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries }]} value={[regionalFocus]} onChange={e => this.validateLength('regional_focus', e.value)} isSearchable/>
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('regional_focus') && !this.state.validate.regional_focus ? 'block' : 'none') }}>This is a required field</FormFeedback>
           </FormGroup>
         </Col>
@@ -543,6 +543,8 @@ export class CollectionEditor extends React.Component<Props, State> {
           <FormGroup>
             <Label for="event_type">Type Of Event</Label>
             <Select
+              className="select"
+              classNamePrefix="select"
               menuPlacement="auto"
               id="event_type"
               options={eventTypes}
@@ -1291,7 +1293,7 @@ export class CollectionEditor extends React.Component<Props, State> {
               <TabPane tabId="1">
                 <Row>
                   <Col md="12">
-                    <UncontrolledButtonDropdown className="float-right">  
+                    <UncontrolledButtonDropdown className="float-right">
                       <Button className="caret" onClick={this.putCollection} disabled={!this.state.isDifferent}>Save</Button>
                       <DropdownToggle caret />
                       <DropdownMenu>
@@ -1361,18 +1363,29 @@ export class CollectionEditor extends React.Component<Props, State> {
 
                     <FormGroup>
                       <Label for="regions">Region(s) (Country/Ocean)</Label>
-                      <Select isMulti isSearchable menuPlacement="auto" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries } ]} defaultValue={selectedRegions} onChange={e => this.validateLength('regions', !!e && e.length ? e.map(r => r.value) : [])} />
+                      <Select className="select" classNamePrefix="select" isMulti isSearchable menuPlacement="auto" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries } ]} defaultValue={selectedRegions} onChange={e => this.validateLength('regions', !!e && e.length ? e.map(r => r.value) : [])} />
                     </FormGroup>
 
                     <FormGroup>
                       <Label for="type">Collection Category</Label>
-                      <Select menuPlacement="auto" id="type" options={collectionTypes} value={[collectionTypes.find( o => o.value === type)]} onChange={e => this.validateLength('type', e.value)} isSearchable/>
+                      <Select className="select" classNamePrefix="select" menuPlacement="auto" id="type" options={collectionTypes} value={[collectionTypes.find( o => o.value === type)]} onChange={e => this.validateLength('type', e.value)} isSearchable/>
                       <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('type') && !this.state.validate.type ? 'block' : 'none') }}>This is a required field</FormFeedback>
                     </FormGroup>
 
+                    {type === Types.Series ? <this.Series /> : <></>}
+                    {type === Types.Area_of_Research ? <this.AreaOfResearch /> : <></>}
+                    {type === Types.Event ? <this.Event /> : <></>}
+                    {type === Types.Event_Series ? <this.EventSeries /> : <></>}
+                    {type === Types.Edited_Volume ? <this.EditedVolume /> : <></>}
+                    {type === Types.Expedition ? <this.Expedition /> : <></>}
+                    {type === Types.Collection ? <this.Collection /> : <></>}
+                    {type === Types.Convening ? <this.Convening /> : <></>}
+                    {type === Types.Performance ? <this.Performance /> : <></>}
+                    {type === Types.Installation ? <this.Installation /> : <></>}
+
                     <FormGroup>
                       <Label for="license_type">License</Label>
-                      <Select menuPlacement="auto" className="license_type" options={licenseType} value={license ? {value: license, label: license} : { value: License.LOCKED, label: License.LOCKED }} onChange={e => this.changeCollection('license', e.label)} isSearchable/>
+                      <Select menuPlacement="auto" className="select license_type" classNamePrefix="select" options={licenseType} value={license ? {value: license, label: license} : { value: License.LOCKED, label: License.LOCKED }} onChange={e => this.changeCollection('license', e.label)} isSearchable/>
                     </FormGroup>
 
                     <FormGroup>
@@ -1411,7 +1424,7 @@ export class CollectionEditor extends React.Component<Props, State> {
                     </FormGroup>
 
                     <FormGroup>
-                      <Label for="keyword_tags">Keyword Tags</Label>
+                      <Label for="keyword_tags">Keyword Tag(s)</Label>
                       <Tags
                         className="keyword_tags"
                         type="keyword"
@@ -1452,17 +1465,6 @@ export class CollectionEditor extends React.Component<Props, State> {
                   </Col>
                 </Row>
 
-                {type === Types.Series ? <this.Series /> : <></>}
-                {type === Types.Area_of_Research ? <this.AreaOfResearch /> : <></>}
-                {type === Types.Event ? <this.Event /> : <></>}
-                {type === Types.Event_Series ? <this.EventSeries /> : <></>}
-                {type === Types.Edited_Volume ? <this.EditedVolume /> : <></>}
-                {type === Types.Expedition ? <this.Expedition /> : <></>}
-                {type === Types.Collection ? <this.Collection /> : <></>}
-                {type === Types.Convening ? <this.Convening /> : <></>}
-                {type === Types.Performance ? <this.Performance /> : <></>}
-                {type === Types.Installation ? <this.Installation /> : <></>}
-
               </TabPane>
               <TabPane tabId="2">
                 <Row>
@@ -1470,6 +1472,8 @@ export class CollectionEditor extends React.Component<Props, State> {
                   <Col xs="12">
                     <AsyncSelect
                       cacheOptions
+                      className="select"
+                      classNamePrefix="select"
                       isClearable
                       loadOptions={this.selectQueryItems}
                       onChange={this.selectItemOnChange}

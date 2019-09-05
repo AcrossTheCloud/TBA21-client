@@ -1,5 +1,5 @@
 import CognitoIdentityServiceProvider from 'aws-sdk/clients/cognitoidentityserviceprovider';
-import { Auth } from 'aws-amplify';
+import { API, Auth } from 'aws-amplify';
 import { AWSError } from 'aws-sdk';
 import { get } from 'lodash';
 
@@ -11,6 +11,7 @@ export const OVERLAY = 'OVERLAY';
 export const DELETED_ACCOUNT = 'DELETED_ACCOUNT';
 export const PROFILE_ERROR = 'PROFILE_ERROR';
 export const PROFILE_SUCCESS = 'PROFILE_SUCCESS';
+export const PROFILE_GET_DETAILS = 'PROFILE_GET_DETAILS';
 
 /**
  * Dispatches to the PROFILE_ERROR reducer action.type
@@ -82,6 +83,9 @@ export const deleteAccount = () => async dispatch => {
         dispatch({type: DELETED_ACCOUNT});
       }
     });
+
+    await API.del('tba21', 'profiles', {});
+
   } else {
     dispatch({type: PROFILE_ERROR, message: 'You don\'t seem to be logged in.'});
   }
@@ -105,4 +109,42 @@ export const changePassword = (oldPassword: string, newPassword: string) => asyn
       dispatch({type: PROFILE_ERROR, message: message});
     }
    }
+};
+
+export const getProfileDetails = (uuid: string) => async dispatch => {
+  try {
+    dispatch({
+       type: OVERLAY,
+       overlay: true
+     });
+    const results = await API.get('tba21', 'profiles', { queryStringParameters: { uuid } });
+
+    let profileImage: string | undefined = undefined;
+    if (results.profile[0].profile_image) {
+      profileImage = await checkProfileImageExists(results.profile[0].profile_image);
+    }
+
+    dispatch({
+      type: PROFILE_GET_DETAILS,
+      details: {...results.profile[0], profile_image: profileImage}
+    });
+  } catch (e) {
+    return;
+  }
+};
+
+const checkProfileImageExists = async (imageURL: string): Promise<string | undefined> => {
+  if (imageURL) {
+    try {
+      await fetch(imageURL, {
+        mode: 'cors',
+        method: 'HEAD'
+      });
+      return imageURL;
+    } catch (e) {
+      return undefined;
+    }
+  } else {
+    return undefined;
+  }
 };

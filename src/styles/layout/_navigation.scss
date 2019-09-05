@@ -1,7 +1,16 @@
 
 // Hide nav on fixed body (When the logo is loading)
 #body.fixed {
+  margin-bottom: 0;
   #navigation {
-    display: none;
+    max-height: 0;
+    overflow: hidden;
   }
+}
+
+
+#navigation {
+  max-height: unset;
+  transition: max-height 5s;
+  overflow: unset;
 }

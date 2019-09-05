@@ -14,6 +14,7 @@
       url("./fonts/recta/1097237/f8add38e-a896-487f-9d2a-16c1bbe9e81f.woff") format("woff"),
       url("./fonts/recta/1097237/371f3dd5-d261-450a-939b-27fe39a1dbae.ttf") format("truetype");
 }
+
 @font-face {
   font-family: 'Roboto Mono';
   font-style: normal;
@@ -23,3 +24,14 @@
        local('RobotoMono-Regular'),
        url('./fonts/roboto-mono/RobotoMono-Regular.ttf') format('truetype');
 }
+
+@font-face {
+  font-family: 'Roboto Mono';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Roboto Mono'),
+       local('RobotoMono-Italic'),
+       url('./fonts/roboto-mono/RobotoMono-RegularItalic.ttf') format('truetype');
+}
+

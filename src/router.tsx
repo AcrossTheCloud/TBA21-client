@@ -43,6 +43,7 @@ import {
 } from './components/';
 
 import { AuthConsumer, AuthProvider } from './providers/AuthProvider';
+import SearchConsole from './components/search/SearchConsole';
 
 const LoggedInRoutes = ({isAuthenticated, ...rest}) => {
   const isLoggedIn = isAuthenticated;
@@ -79,21 +80,28 @@ export const AppRouter = () => {
   const currentLocation = window.location.pathname;
 
   return (
-    <AuthProvider history={history}>
-      <Provider store={store}>
-        <Router history={history}>
+    <Provider store={store}>
+      <Router history={history}>
+        <AuthProvider>
           <div id="body" className={currentLocation === '/' ? 'fixed' : ''}>
 
-            <AuthConsumer>
-              {({authorisation}) => {
-                const hasAuth = has(authorisation, 'collaborator') || has(authorisation, 'editor') || has(authorisation, 'admin');
-                if (hasAuth) {
-                  return <Route path="/" render={() => <Header />} />;
-                } else {
-                  return <></>;
-                }
-              }}
-            </AuthConsumer>
+            <Route
+              path="/"
+              render={() => (
+                <>
+                  <AuthConsumer>
+                    {({isAuthenticated}) => {
+                      if (isAuthenticated) {
+                        return <Header />;
+                      } else {
+                        return  <></>;
+                      }
+                    }}
+                  </AuthConsumer>
+                  <SearchConsole />
+                </>
+              )}
+            />
 
             <Route exact path="/" component={Home} />
             <Route exact path="/view" component={ViewItems} />
@@ -123,8 +131,8 @@ export const AppRouter = () => {
             </AuthConsumer>
 
           </div>
-        </Router>
-      </Provider>
-    </AuthProvider>
+        </AuthProvider>
+      </Router>
+    </Provider>
   );
 };

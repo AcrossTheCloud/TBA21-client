@@ -1,7 +1,8 @@
 enum profileType {
   Individual = 'Individual',
   Collective = 'Collective',
-  Institution = 'Institution'
+  Institution = 'Institution',
+  Public = 'Public'
 }
 
 export interface Profile {
@@ -23,5 +24,5 @@ export interface Profile {
   contact_person: string | null;
   contact_position: string | null;
   contact_email: string | null;
-  profile: profileType;
+  profile_type: profileType | null;
 }

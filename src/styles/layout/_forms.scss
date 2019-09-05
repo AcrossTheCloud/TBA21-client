@@ -22,7 +22,7 @@ form {
     }
   }
 
-  input {
+  input, textarea {
     &.form-control {
       font-family: 'Roboto Mono', sans-serif;
       font-size: 18px;
@@ -42,6 +42,21 @@ form {
         color: #fff;
         background-color: $input-error;
       }
+    }
+  }
+
+  .select {
+    .select__control {
+      border-radius: 0;
+      .select__value-container {
+        padding: 10px 15px;
+        font-family: 'Roboto Mono', sans-serif;
+        font-size: 18px;
+      }
+    }
+    .select__menu {
+      border-radius: 0;
+      margin: 0;
     }
   }
 }
