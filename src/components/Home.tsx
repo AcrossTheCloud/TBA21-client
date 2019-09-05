@@ -38,7 +38,6 @@ class HomePage extends React.Component<Props, {}> {
     this._isMounted = true;
     window.addEventListener('scroll', this.scrollDebounce, false);
 
-    console.log(this.props.items);
     // If we have no items go get em.
     if (!this.props.loadedItems.length) {
       await this.props.loadHomepage();
@@ -62,7 +61,7 @@ class HomePage extends React.Component<Props, {}> {
     const { loaded_highlights, logoLoaded, loadedItems } = this.props;
 
     const HighlightsItemDetails = (props: { index: number }) => {
-      const tags = !!loaded_highlights[props.index].concept_tags ? loaded_highlights[props.index].concept_tags : [];
+      const tags = loaded_highlights[props.index].concept_tags;
       const creators = !!loaded_highlights[props.index].creators ? loaded_highlights[props.index].creators : [];
 
       return (
@@ -94,7 +93,7 @@ class HomePage extends React.Component<Props, {}> {
           </div>
           {!!tags && tags.length ?
             <div className="tags d-none d-sm-block">
-              {tags.map(t => `#${t.tag_name}`).join(' ').toString()}
+              {tags.map(t => `#${t}`).join(' ').toString()}
             </div>
             : <></>
           }

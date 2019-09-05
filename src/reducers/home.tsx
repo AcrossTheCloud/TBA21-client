@@ -15,8 +15,8 @@ export interface HomepageData {
   regions: string[];
 
   // OA Highlight specific
-  concept_tags?: {id: number, tag_name: string}[] | null;
-  keyword_tags?: {id: number, tag_name: string}[] | null;
+  concept_tags: {id: number, tag_name: string}[];
+  keyword_tags: {id: number, tag_name: string}[];
 }
 
 export interface HomePageState {
