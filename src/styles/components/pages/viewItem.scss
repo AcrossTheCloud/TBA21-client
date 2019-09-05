@@ -32,14 +32,28 @@
 
   .left {
     border-color: $item-details-border !important;
+    padding: 15px 15px 100px;
+
+
+    .creators {
+      font-size: 21px
+    }
+
+    .description {
+      white-space: pre-wrap;
+    }
   }
 
   .right {
+    padding: 15px;
     .details {
       border-color: $item-details-border !important;
-
-      div {
-        padding: 10px;
+      padding: 15px;
+      &:first-child {
+        padding-top: 0;
+      }
+      &:last-child {
+        padding-bottom: 0;
       }
     }
   }

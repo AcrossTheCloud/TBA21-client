@@ -1,5 +1,6 @@
 .itemEditor {
   position: relative;
+  color: #fff;
   .overlay {
     position: absolute;
     height: 100%;
@@ -18,16 +19,6 @@
   .sticky {
     position: sticky;
     top: 0;
+    z-index: 999;
   }
-
-  input {
-    &.form-control {
-      border: 1px solid hsl(0,0%,80%);
-    }
-
-    &.noampm::-webkit-datetime-edit-ampm-field {
-      display: none;
-    }
-  }
-
 }

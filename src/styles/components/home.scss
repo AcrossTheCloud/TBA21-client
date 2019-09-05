@@ -27,21 +27,19 @@
 
   .d-flex.title-wrapper {
     overflow: hidden;
-    .creators {
-      flex: 0 1 auto;
-      height: 20px;
-      max-width: 60%;
-      span {
-        text-transform: capitalize;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        max-width: 100%;
-        overflow: hidden;
-        display: inline-block;
-      }
+    .creators, .title {
+      max-width: 45%;
+    }
+    span.ellipsis {
+      text-transform: capitalize;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      max-width: 100%;
+      overflow: hidden;
+      display: inline-block;
     }
     .title {
-      flex: 1 0 auto;
+      flex: 1 1 50%;
     }
   }
 }
@@ -56,6 +54,7 @@
   #main {
     overflow: hidden;
     margin-top: 25px;
+    padding-bottom: 100px;
   }
 
   #header {
@@ -79,6 +78,9 @@
 
     .d-flex.title-wrapper .title {
       flex: 1 1 auto;
+      span {
+
+      }
     }
 
     .overlay {

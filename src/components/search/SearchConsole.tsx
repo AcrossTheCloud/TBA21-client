@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import AsyncSelect from 'react-select/async';
+import $ from 'jquery';
 
 import { Col, Row, Container } from 'reactstrap';
 import { SearchConsoleState } from '../../reducers/searchConsole'; // Props from Redux.
@@ -69,14 +70,38 @@ class SearchConsole extends React.Component<Props, State> {
     this._isMounted = false;
   }
 
+  componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>, ): void {
+    if (this.state.isOpen !== prevState.isOpen) {
+      if (this.state.isOpen) {
+        $('#body').addClass('searchOpen');
+      } else {
+        $('#body').removeClass('searchOpen');
+      }
+    }
+  }
+
   toggleHover = (open?: boolean) => {
     if (!this._isMounted) { return; }
-    this.setState({hover: open || !this.state.hover});
+    if (!this.state.isOpen) {
+      if (window.innerWidth < 540) {
+        this.toggleOpen();
+      } else {
+        this.setState({hover: open || !this.state.hover});
+      }
+    }
   }
 
   toggleOpen = () => {
     if (!this._isMounted) { return; }
-    this.setState({isOpen: true});
+    console.log('Hi', !this.state.isOpen);
+    this.setState({isOpen: !this.state.isOpen, hover: false});
+  }
+
+  touchDeviceOpen = () => {
+    if (!this._isMounted) { return; }
+    if (!this.state.isOpen && window.innerWidth <= 540) {
+      this.setState({isOpen: true, hover: false});
+    }
   }
 
   searchSuggestions = (input: string) => {
@@ -154,7 +179,7 @@ class SearchConsole extends React.Component<Props, State> {
 
         <AudioPlayer className="audioPlayerSticky" />
 
-        <Container fluid className="console" onMouseEnter={() => this.toggleHover(true)} onMouseLeave={() => this.toggleHover(false)} >
+        <Container fluid className="console" onMouseEnter={() => this.toggleHover(true)} onMouseLeave={() => this.toggleHover(false)} onClick={this.touchDeviceOpen} >
 
           <Row className={`legend ${hoveredClass} ${isOpenClass}`}>
             <Col xs="2" className="border_right">View</Col>
@@ -164,7 +189,7 @@ class SearchConsole extends React.Component<Props, State> {
 
           <Row className={`options ${hoveredClass} ${isOpenClass}`}>
 
-            <Col className={`view col-2 ${isOpen ? isOpenClass : `opacity5`}`}>
+            <div className={`view col-2 ${isOpen ? isOpenClass : `opacity5`} ${isOpen && window.innerWidth < 540 ? 'd-none' : ''}`}>
               <div className="line" />
               <Row>
                 <Col
@@ -194,14 +219,14 @@ class SearchConsole extends React.Component<Props, State> {
                   List
                 </Col>
               </Row>
-            </Col>
+            </div>
 
             <div
               className={`mid px-0 col ${hoveredClass}`}
               onClick={this.focusSearchInput}
             >
               <Row className="align-items-center">
-                <div className={`inputwrapper ${isOpen ? 'flex-grow-1' : ''} h-100`}>
+                <div className={`inputwrapper ${isOpen ? 'flex-grow-1' : ''}`}>
 
                   <AsyncSelect
                     className="searchInput"

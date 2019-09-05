@@ -70,9 +70,11 @@ class HomePage extends React.Component<Props, {}> {
             {creators && creators.length ?
               <>
                 <div className="creators d-none d-md-block">
-                  <Link to={`/view/${loaded_highlights[props.index].s3_key}`}>
-                    <span>{creators.join(', ')}</span>
-                  </Link>
+                  <span className="ellipsis">
+                    <Link to={`/view/${loaded_highlights[props.index].s3_key}`}>
+                      <span>{creators.join(', ')}</span>
+                    </Link>
+                  </span>
                 </div>
                 <div className="d-none d-md-block">
                   <FaCircle className="dot"/>
@@ -81,9 +83,11 @@ class HomePage extends React.Component<Props, {}> {
               : <></>
             }
             <div className="title">
-              <Link to={`/view/${loaded_highlights[props.index].s3_key}`}>
-                {loaded_highlights[props.index].title}
-              </Link>
+              <span className="ellipsis">
+                <Link to={`/view/${loaded_highlights[props.index].s3_key}`}>
+                  {loaded_highlights[props.index].title}
+                </Link>
+              </span>
             </div>
           </div>
           <div className="type">
