@@ -2,7 +2,7 @@ import { API } from 'aws-amplify';
 import { HomepageData } from '../reducers/home';
 import AudioPreview from 'components/layout/audio/AudioPreview';
 import * as React from 'react';
-import { random, findIndex, matchesProperty } from 'lodash';
+import { random } from 'lodash';
 import { getCDNObject } from '../components/utils/s3File';
 import ReactPlayer from 'react-player';
 import { Col } from 'reactstrap';
@@ -117,34 +117,15 @@ export const loadMore = (items: HomepageData[], collections: HomepageData[], alr
         file = data[i].file,
         columnSizing = colSize(!!file ? file.type : 'image');
 
-      let
-        nextCount = i,
-        nextFile = data[nextCount++];
-
-      let result: JSX.Element | undefined = await displayLayout(data[i], columnSizing, dispatch);
+      let result: JSX.Element = await displayLayout(data[i], columnSizing, dispatch);
 
       if (file && file.type === 'audio') {
         const {title, id, creators, type, date} = data[i];
         result = (<Col xs="12" key={id}><AudioPreview data={{title, id, url: file.url, date, creators, type }} /></Col>);
       }
 
-      if (result) {
-        layout.push(result);
+      layout.push(result);
 
-        if (file && file.type === 'audio' && nextFile && nextFile.file && nextFile.file.type !== 'audio' && columnSizing <= 8) {
-          const
-            image: number = findIndex(items, matchesProperty('file.type', 'image')),
-            sliced: HomepageData[] = image ? items.slice(0, image) : [];
-
-          if (sliced && sliced.length) {
-            console.log('EXTRA!');
-            result = await displayLayout(sliced[0], 12 - columnSizing, dispatch);
-            if (result) {
-              layout.push(result);
-            }
-          }
-        }
-      }
     }
   }
 
@@ -160,7 +141,6 @@ export const loadMore = (items: HomepageData[], collections: HomepageData[], alr
 };
 
 const displayLayout = (data: HomepageData, columnSize: number, dispatch: Function) => {
-  if (!data) { return; }
   const {
     s3_key,
     count,

@@ -21,6 +21,7 @@ interface Props {
 
 interface State {
   data?: HomepageData;
+  backData?: HomepageData;
   isOpen: boolean;
 }
 
@@ -81,20 +82,22 @@ class HomePageModal extends React.Component<Props, State> {
           <div className="d-flex flex-column mh-100">
             <Row className="header align-content-center">
               <div className="col-10 col-sm-11 title-wrapper d-flex align-content-center">
-                <Link to={`view/${id}`} className="gray openButton"><FaExternalLinkAlt className="white" /></Link>
+                <Link to={`view/${id}`} className="gray openButton flex-grow-0 flex-shrink-0"><FaExternalLinkAlt className="white" /></Link>
                 {creators && creators.length ?
                   <>
                     <div className="creators d-none d-md-block">
-                      <span>{creators.join(', ')}</span>
+                      <span className="ellipsis">{creators.join(', ')}</span>
                     </div>
-                    <div className="d-none d-md-block">
+                    <div className="d-none d-md-block flex-grow-0 flex-shrink-0">
                       <FaCircle className="dot"/>
                     </div>
                   </>
                   : <></>
                 }
                 <div className="title">
-                  {title}
+                  <span className="ellipsis">
+                    {title}
+                  </span>
                 </div>
               </div>
               <Col xs="1">

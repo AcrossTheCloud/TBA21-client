@@ -22,7 +22,7 @@ export const FilePreview = (props: { file: S3File }): JSX.Element => {
             src={props.file.url}
             alt=""
           />
-          <div className="background" style={{ background: `url(${background && background.length ? background : props.file.url})` }} />
+          <div className="background" style={{ background: `url(${background && background.length ? background : props.file.url})`, backgroundSize: 'contain' }} />
         </Col>
       );
     case 'video':
@@ -30,14 +30,15 @@ export const FilePreview = (props: { file: S3File }): JSX.Element => {
 
       return (
         <Col className="px-0 h-100 video">
-          {!!poster ? <div className="background" style={{background: `url(${poster})` }} /> : <></>}
           <ReactPlayer
             controls
             url={props.file.playlist || props.file.url}
             height="100%"
             width="100%"
             vertical-align="top"
+            className="player"
           />
+          {!!poster ? <div className="background" style={{background: `url(${poster})`, backgroundSize: 'contain'}} /> : <></>}
         </Col>
       );
     case 'pdf':

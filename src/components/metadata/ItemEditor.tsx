@@ -48,9 +48,10 @@ import { License } from '../../types/License';
 import CustomSelect from './fields/CustomSelect';
 import { validateURL } from '../utils/inputs/url';
 import ShortPaths from '../admin/utils/ShortPaths';
+import YearSelect from './fields/YearSelect';
 
 import 'styles/components/metadata/itemEditor.scss';
-import YearSelect from './fields/YearSelect';
+import 'styles/components/metadata/editors.scss';
 
 interface Props {
   item: Item;

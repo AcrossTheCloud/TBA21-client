@@ -13,6 +13,7 @@ export interface HomepageData {
   file_dimensions: number[];
   creators: string[];
   regions: string[];
+  items?: HomepageData[];
 
   // OA Highlight specific
   concept_tags: {id: number, tag_name: string}[];
