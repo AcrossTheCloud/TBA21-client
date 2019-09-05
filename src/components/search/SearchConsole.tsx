@@ -69,16 +69,14 @@ class SearchConsole extends React.Component<Props, State> {
     this._isMounted = false;
   }
 
-  toggleHover = () => {
+  toggleHover = (open?: boolean) => {
     if (!this._isMounted) { return; }
-    if (!this.state.isOpen) {
-      this.setState({hover: !this.state.hover});
-    }
+    this.setState({hover: open || !this.state.hover});
   }
 
   toggleOpen = () => {
     if (!this._isMounted) { return; }
-    this.setState({isOpen: !this.state.isOpen});
+    this.setState({isOpen: true});
   }
 
   searchSuggestions = (input: string) => {
@@ -156,7 +154,7 @@ class SearchConsole extends React.Component<Props, State> {
 
         <AudioPlayer className="audioPlayerSticky" />
 
-        <Container fluid className="console" onMouseEnter={this.toggleHover} onMouseLeave={this.toggleHover} >
+        <Container fluid className="console" onMouseEnter={() => this.toggleHover(true)} onMouseLeave={() => this.toggleHover(false)} >
 
           <Row className={`legend ${hoveredClass} ${isOpenClass}`}>
             <Col xs="2" className="border_right">View</Col>
