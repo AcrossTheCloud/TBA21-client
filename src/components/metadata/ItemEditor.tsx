@@ -26,7 +26,6 @@ import TimeField from 'react-simple-timefield';
 import { API } from 'aws-amplify';
 import Select from 'react-select';
 import { isArray, isEqual } from 'lodash';
-import ReactPlayer from 'react-player';
 import { Item, itemAudio, itemImage, itemText, itemVideo } from '../../types/Item';
 
 import {
@@ -44,7 +43,6 @@ import {
 import Tags from './Tags';
 import { sdkGetObject } from '../utils/s3File';
 import { Alerts, ErrorMessage, SuccessMessage, WarningMessage } from '../utils/alerts';
-import AudioPreview from 'components/layout/audio/AudioPreview';
 import { License } from '../../types/License';
 
 import CustomSelect from './fields/CustomSelect';
@@ -52,6 +50,7 @@ import { validateURL } from '../utils/inputs/url';
 import ShortPaths from '../admin/utils/ShortPaths';
 
 import 'styles/components/metadata/itemEditor.scss';
+import YearSelect from './fields/YearSelect';
 
 interface Props {
   item: Item;
@@ -81,7 +80,6 @@ const defaultRequiredFields = (item: Item) => {
   const {
     title,
     description,
-    time_produced,
     item_subtype,
     regions,
     aggregated_concept_tags,
@@ -99,7 +97,6 @@ const defaultRequiredFields = (item: Item) => {
   return {
     'title': (!!title && title.length > 0),
     'description': (!!description && description.length > 0),
-    'time_produced': (!!time_produced && time_produced.length > 0),
     'item_subtype': (!!item_subtype && item_subtype.length > 0),
     'regions': (!!regions && regions.length > 0),
     'concept_tags': conceptTags
@@ -181,28 +178,12 @@ export class ItemEditor extends React.Component<Props, State> {
   filePreview = (): JSX.Element => {
     if (!this.state.isLoading) {
       const
-        { file, title, created_at, id, creators, item_type } = this.state.originalItem,
+        { file, title } = this.state.originalItem,
         warning = <WarningMessage message={'Unable to load file.'}/>;
 
       if (file && file.url) {
         if (file.type === 'image') {
           return <img src={file.url} alt=""/>;
-        } else if (file && file.type === 'audio') {
-          return <AudioPreview data={{title: !!title ? title : '', id, url: file.url, date: !!created_at ? created_at : '', creators: !!creators ? creators : [], item_type }} />;
-        } else if (file.type === 'video') {
-          return (
-            <div className="embed-responsive embed-responsive-16by9">
-              <ReactPlayer
-                controls
-                light={file.poster}
-                className="embed-responsive-item"
-                url={!!file.playlist ? file.playlist : file.url}
-                height="auto"
-                width="100%"
-                vertical-align="top"
-              />
-            </div>
-          );
         } else if (file.type === 'pdf') {
           return (
             <div className="embed-responsive embed-responsive-4by3">
@@ -247,6 +228,13 @@ export class ItemEditor extends React.Component<Props, State> {
       },
       item = this.state.changedFields,
       invalidFields = Object.entries(this.state.validate).filter(v => v[1] === false).map(([key, val]) => key);
+
+    // If we don't have one of time_produced or year_produced, show an error.
+    if (
+      (!this.state.validate.hasOwnProperty('time_produced') && !this.state.validate.time_produced) && (!this.state.validate.hasOwnProperty('year_produced') && !this.state.validate.year_produced)
+    ) {
+      Object.assign(invalidFields, {'time_produced or year_produced': ''});
+    }
 
     if (invalidFields.length > 0) {
       const message: JSX.Element = (
@@ -628,7 +616,7 @@ export class ItemEditor extends React.Component<Props, State> {
           </FormGroup>
         </Col>
 
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="in_title">In (title of book or journal)</Label>
             <Input
@@ -640,14 +628,14 @@ export class ItemEditor extends React.Component<Props, State> {
           </FormGroup>
         </Col>
 
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="volume">Volume #</Label>
             <Input type="number" className="volume" defaultValue={this.state.changedItem.volume ? this.state.changedItem.volume.toString() : ''} onChange={e => this.changeItem('volume', e.target.value)}/>
           </FormGroup>
         </Col>
 
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="issue">Issue #</Label>
             <Input
@@ -659,7 +647,7 @@ export class ItemEditor extends React.Component<Props, State> {
           </FormGroup>
         </Col>
 
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="edition">Edition #</Label>
             <Input
@@ -671,7 +659,7 @@ export class ItemEditor extends React.Component<Props, State> {
           </FormGroup>
         </Col>
 
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="pages">Pages (Count)</Label>
             <Input
@@ -683,7 +671,7 @@ export class ItemEditor extends React.Component<Props, State> {
           </FormGroup>
         </Col>
 
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="doi">DOI</Label>
             <Input
@@ -708,7 +696,7 @@ export class ItemEditor extends React.Component<Props, State> {
           </FormGroup>
         </Col>
 
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="isbn">ISBN</Label>
             <Input type="number" className="isbn" defaultValue={this.state.changedItem.isbn ? this.state.changedItem.isbn.toString() : ''} onChange={e => this.changeItem('isbn', e.target.value)}/>
@@ -770,7 +758,7 @@ export class ItemEditor extends React.Component<Props, State> {
             <FormFeedback>This is a required field</FormFeedback>
           </FormGroup>
         </Col>
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="news_outlet">News Outlet</Label>
             <Input
@@ -885,14 +873,14 @@ export class ItemEditor extends React.Component<Props, State> {
           </FormGroup>
         </Col>
 
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="volume">Volume In Series</Label>
             <Input type="number" className="volume" defaultValue={this.state.changedItem.volume ? this.state.changedItem.volume.toString() : ''} onChange={e => this.changeItem('volume', e.target.value)}/>
           </FormGroup>
         </Col>
 
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="publisher">Publisher</Label>
             <CustomSelect values={item.publisher} callback={values => this.validateLength('publisher', values)} />
@@ -901,7 +889,7 @@ export class ItemEditor extends React.Component<Props, State> {
           </FormGroup>
         </Col>
 
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="city_of_publication">City</Label>
             <Input
@@ -916,7 +904,7 @@ export class ItemEditor extends React.Component<Props, State> {
           </FormGroup>
         </Col>
 
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="edition">Edition #</Label>
             <Input
@@ -931,14 +919,14 @@ export class ItemEditor extends React.Component<Props, State> {
           </FormGroup>
         </Col>
 
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="translated_from">Translated From</Label>
             <Select menuPlacement="auto" className="select translated_from" classNamePrefix="select" options={languages} value={item.language ? languages.find( c => c.value === item.language ) : []} onChange={e => this.changeItem('translated_from', e.value)} isSearchable/>
           </FormGroup>
         </Col>
 
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="pages">Pages (Count)</Label>
             <Input
@@ -950,14 +938,14 @@ export class ItemEditor extends React.Component<Props, State> {
           </FormGroup>
         </Col>
 
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="isbn">ISBN</Label>
             <Input type="number" className="isbn" defaultValue={this.state.changedItem.isbn ? this.state.changedItem.isbn.toString() : ''} onChange={e => this.changeItem('isbn', e.target.value)}/>
           </FormGroup>
         </Col>
 
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="related_isbn">Related ISBN</Label>
             <Input type="number" className="related_isbn" defaultValue={this.state.changedItem.related_isbn ? this.state.changedItem.related_isbn.toString() : ''} onChange={e => this.changeItem('related_isbn', e.target.value)}/>
@@ -1087,7 +1075,7 @@ export class ItemEditor extends React.Component<Props, State> {
           </FormGroup>
         </Col>
 
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="volume">Volume In Series</Label>
             <Input
@@ -1099,7 +1087,7 @@ export class ItemEditor extends React.Component<Props, State> {
           </FormGroup>
         </Col>
 
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="publisher">Publisher</Label>
             <CustomSelect values={item.publisher} callback={values => this.validateLength('publisher', values)} />
@@ -1108,7 +1096,7 @@ export class ItemEditor extends React.Component<Props, State> {
           </FormGroup>
         </Col>
 
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="city_of_publication">City</Label>
             <Input
@@ -1123,7 +1111,7 @@ export class ItemEditor extends React.Component<Props, State> {
           </FormGroup>
         </Col>
 
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="first_edition">First Edition</Label>
             <Input
@@ -1134,7 +1122,7 @@ export class ItemEditor extends React.Component<Props, State> {
             />
           </FormGroup>
         </Col>
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="edition">Edition</Label>
             <Input
@@ -1149,14 +1137,14 @@ export class ItemEditor extends React.Component<Props, State> {
           </FormGroup>
         </Col>
 
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="translated_from">Translated From</Label>
             <Select menuPlacement="auto" className="select translated_from" classNamePrefix="select" options={languages} value={item.language ? languages.find( c => c.value === item.language ) : []} onChange={e => this.changeItem('translated_from', e.value)} isSearchable/>
           </FormGroup>
         </Col>
 
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="original_title">Original Title</Label>
             <Input
@@ -1168,7 +1156,7 @@ export class ItemEditor extends React.Component<Props, State> {
           </FormGroup>
         </Col>
 
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="pages">Page Count</Label>
             <Input
@@ -1180,14 +1168,14 @@ export class ItemEditor extends React.Component<Props, State> {
           </FormGroup>
         </Col>
 
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="isbn">ISBN</Label>
             <Input type="number" className="isbn" defaultValue={this.state.changedItem.isbn ? this.state.changedItem.isbn.toString() : ''} onChange={e => this.changeItem('isbn', e.target.value)}/>
           </FormGroup>
         </Col>
 
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="related_isbn">Related ISBN</Label>
             <Input type="number" className="related_isbn" defaultValue={this.state.changedItem.related_isbn ? this.state.changedItem.related_isbn.toString() : ''} onChange={e => this.changeItem('related_isbn', e.target.value)}/>
@@ -1349,7 +1337,7 @@ export class ItemEditor extends React.Component<Props, State> {
     const item = this.state.changedItem;
     return (
       <Row>
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="directors">Directors</Label>
             <CustomSelect values={item.directors} callback={values => this.validateLength('directors', values)} />
@@ -1358,7 +1346,7 @@ export class ItemEditor extends React.Component<Props, State> {
           </FormGroup>
         </Col>
 
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="collaborators">Collaborators</Label>
             <CustomSelect values={item.collaborators} callback={values => this.changeItem('collaborators', values)} />
@@ -1366,7 +1354,7 @@ export class ItemEditor extends React.Component<Props, State> {
           </FormGroup>
         </Col>
 
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="writers">Writer</Label>
             <CustomSelect values={item.writers} callback={values => this.changeItem('writers', values)} />
@@ -1374,7 +1362,7 @@ export class ItemEditor extends React.Component<Props, State> {
           </FormGroup>
         </Col>
 
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="cast_">Cast</Label>
             <CustomSelect values={item.cast_} callback={values => this.changeItem('cast_', values)} />
@@ -1382,14 +1370,14 @@ export class ItemEditor extends React.Component<Props, State> {
           </FormGroup>
         </Col>
 
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="screened_at">Screened At</Label>
             <Input type="text" className="screened_at" defaultValue={item.screened_at ? item.screened_at : ''} onChange={e => this.changeItem('screened_at', e.target.value)}/>
           </FormGroup>
         </Col>
 
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="genre">Genre</Label>
             <Input type="text" className="genre" defaultValue={item.genre ? item.genre : ''} onChange={e => this.changeItem('genre', e.target.value)}/>
@@ -1402,7 +1390,7 @@ export class ItemEditor extends React.Component<Props, State> {
     const item = this.state.changedItem;
     return (
       <Row>
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="directors">Director</Label>
             <CustomSelect values={item.directors} callback={values => this.validateLength('directors', values)} />
@@ -1410,21 +1398,21 @@ export class ItemEditor extends React.Component<Props, State> {
             <FormText>Use tab or enter to add a new Director.</FormText>
           </FormGroup>
         </Col>
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="collaborators">Collaborators</Label>
             <CustomSelect values={item.collaborators} callback={values => this.changeItem('collaborators', values)} />
             <FormText>Use tab or enter to add a new Collaborator.</FormText>
           </FormGroup>
         </Col>
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="cast_">Cast</Label>
             <CustomSelect values={item.cast_} callback={values => this.changeItem('cast_', values)} />
             <FormText>Use tab or enter to add a new cast member.</FormText>
           </FormGroup>
         </Col>
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="screened_at">Screened At</Label>
             <Input type="text" className="screened_at" defaultValue={item.screened_at ? item.screened_at : ''} onChange={e => this.changeItem('screened_at', e.target.value)}/>
@@ -1437,7 +1425,7 @@ export class ItemEditor extends React.Component<Props, State> {
     const item = this.state.changedItem;
     return (
       <Row>
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="collaborators">Collaborators</Label>
             <CustomSelect values={item.collaborators} callback={values => this.changeItem('collaborators', values)} />
@@ -1490,7 +1478,7 @@ export class ItemEditor extends React.Component<Props, State> {
     const item = this.state.changedItem;
     return (
       <Row>
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="interviewers">Interviewer</Label>
             <CustomSelect values={item.interviewers} callback={values => this.validateLength('interviewers', values)} />
@@ -1498,7 +1486,7 @@ export class ItemEditor extends React.Component<Props, State> {
             <FormText>Use tab or enter to add a new Interviewer.</FormText>
           </FormGroup>
         </Col>
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="interviewees">Interviewee(s)</Label>
             <CustomSelect values={item.interviewees} callback={values => this.validateLength('interviewees', values)} />
@@ -1514,7 +1502,7 @@ export class ItemEditor extends React.Component<Props, State> {
     const item = this.state.changedItem;
     return (
       <Row>
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="news_outlet">News Outlet</Label>
             <Input type="text" className="news_outlet" defaultValue={item.news_outlet ? item.news_outlet : ''} onChange={e => this.changeItem('news_outlet', e.target.value)}/>
@@ -1535,21 +1523,21 @@ export class ItemEditor extends React.Component<Props, State> {
     const item = this.state.changedItem;
     return (
       <Row>
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="location">Location</Label>
             <Input required invalid={this.state.validate.hasOwnProperty('location') && !this.state.validate.location} type="text" className="location" defaultValue={item.location ? item.location : ''} onChange={e => this.validateLength('location', e.target.value)}/>
             <FormFeedback>This is a required field</FormFeedback>
           </FormGroup>
         </Col>
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="participants">Participant(s)</Label>
             <CustomSelect values={item.participants} callback={values => this.validateLength('participants', values)} />
             <FormText>Use tab or enter to add a new Participant.</FormText>
           </FormGroup>
         </Col>
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="event_title">Event Title</Label>
             <Input required invalid={this.state.validate.hasOwnProperty('event_title') && !this.state.validate.event_title} type="text" className="event_title" defaultValue={item.event_title ? item.event_title : ''} onChange={e => this.validateLength('event_title', e.target.value)}/>
@@ -1564,14 +1552,14 @@ export class ItemEditor extends React.Component<Props, State> {
     const item = this.state.changedItem;
     return (
       <Row>
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="collaborators">Collaborators</Label>
             <CustomSelect values={item.collaborators} callback={values => this.changeItem('collaborators', values)} />
             <FormText>Use tab or enter to add a new Collaborator.</FormText>
           </FormGroup>
         </Col>
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="produced_by">Produced By</Label>
             <CustomSelect values={item.produced_by} callback={values => this.validateLength('produced_by', values)} />
@@ -1586,7 +1574,7 @@ export class ItemEditor extends React.Component<Props, State> {
     const item = this.state.changedItem;
     return (
       <Row>
-        <Col md="4">
+        <Col md="6">
           <FormGroup>
             <Label for="produced_by">Exhibition History</Label>
             <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
@@ -2310,11 +2298,30 @@ export class ItemEditor extends React.Component<Props, State> {
                       <Input
                         type="date"
                         className="time_produced"
-                        value={item.time_produced ? new Date(item.time_produced).toISOString().substr(0, 10) : ''}
-                        onChange={e => this.validateLength('time_produced', e.target.value)}
-                        invalid={this.state.validate.hasOwnProperty('time_produced') && !this.state.validate.time_produced}
+                        defaultValue={item.time_produced ? new Date(item.time_produced).toISOString().substr(0, 10) : ''}
+                        onChange={e => {
+                          this.validateLength('time_produced', e.target.value);
+                          if (e.target.value && e.target.value.length) {
+                            this.validateLength('year_produced', new Date(e.target.value).getFullYear());
+                          }
+                        }}
                       />
-                      <FormFeedback>This is a required field</FormFeedback>
+
+                      <Label for="year_produced">Year Produced</Label>
+                      <YearSelect
+                        value={item.year_produced}
+                        callback={e => this.validateLength('year_produced', e)}
+                      />
+
+                      <FormFeedback
+                        style={
+                          (this.state.validate.hasOwnProperty('time_produced') && this.state.validate.time_produced) ||
+                          (this.state.validate.hasOwnProperty('year_produced') && this.state.validate.year_produced) ? {display: 'none'}
+                            : {display: 'block'}
+                        }
+                      >
+                        You must select either a Date and/or a Year produced.
+                      </FormFeedback>
                     </FormGroup>
 
                     <FormGroup>
