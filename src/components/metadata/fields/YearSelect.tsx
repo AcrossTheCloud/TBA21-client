@@ -41,6 +41,12 @@ export default class YearSelect extends React.Component<Props, State> {
     }
   }
 
+  componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>): void {
+    if (prevProps.value !== this.props.value && this.props.value) {
+      this.setState({value: { label: this.props.value, value: this.props.value }});
+    }
+  }
+
   handleInputChange = (inputValue: string) => {
     const numbersOnly = /^[0-9\b]+$/.test(inputValue);
     if (inputValue.length > 4 || !numbersOnly) {
@@ -83,7 +89,6 @@ export default class YearSelect extends React.Component<Props, State> {
         className="select"
         classNamePrefix="select"
         menuPlacement="auto"
-        isClearable
         onInputChange={this.handleInputChange}
         onChange={this.handleChange}
         onKeyDown={this.handleKeyDown}
