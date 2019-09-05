@@ -18,7 +18,7 @@ export default {
     FB: "370805207078211"
   },
   other: {
-    BASE_CONTENT_URL: 'https://demo-content.ocean-archive.org/',
+    BASE_CONTENT_URL: 'https://prod-content.ocean-archive.org/',
     THUMBNAIL_URL: "https://thumbnails.ocean-archive.org/",
     VIDEO_STREAMING_URL: "https://video-streaming.ocean-archive.org/",
     PROFILE_URL: "https://profile-pics.ocean-archive.org/"
