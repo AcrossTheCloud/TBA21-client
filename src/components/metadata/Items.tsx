@@ -204,7 +204,7 @@ export class Items extends React.Component<Props, State> {
               return resolve(await doAPICall(s3key));
             }
           }
-        }, timeoutSeconds);
+        },                             timeoutSeconds);
       });
     };
 
