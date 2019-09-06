@@ -292,6 +292,7 @@ export enum itemVideo {
   Art = 'Art',
   News_Journalism = 'News / Journalism',
   Event_Recording = 'Event Recording',
+  Lecture_Recording = 'Lecture Recording',
   Informational_Video = 'Informational Video',
   Trailer = 'Trailer',
   Artwork_Documentation = 'Artwork Documentation',

@@ -3,11 +3,11 @@ import { API } from 'aws-amplify';
 import * as React from 'react';
 import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
-import { Button, Container, Modal, ModalBody, ModalFooter, Spinner } from 'reactstrap';
+import { Button, Container, Modal, ModalBody, ModalFooter, ModalHeader, Spinner } from 'reactstrap';
 
 import { Item } from 'types/Item';
 import { ItemEditor } from 'components/metadata/ItemEditor';
-import { Alerts, ErrorMessage } from 'components/utils/alerts';
+import { Alerts, ErrorMessage, SuccessMessage } from 'components/utils/alerts';
 
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css';
@@ -16,14 +16,17 @@ import 'styles/components/admin/tables/modal.scss';
 
 interface State extends Alerts {
   items: Item[];
-  editingItemIndex?: number;
+  itemIndex?: number;
 
   componentModalOpen: boolean;
+  deleteModalOpen: boolean;
 
   tableIsLoading: boolean;
   page: number;
   sizePerPage: number;
   totalSize: number;
+
+  deleteErrorMessage: string | JSX.Element | undefined;
 }
 
 export default class Items extends React.Component<{}, State> {
@@ -36,12 +39,14 @@ export default class Items extends React.Component<{}, State> {
 
     this.state = {
       componentModalOpen: false,
+      deleteModalOpen: false,
       items: [],
 
       tableIsLoading: true,
       page: 1,
       sizePerPage: 15,
       totalSize: 0,
+      deleteErrorMessage: undefined
     };
 
     this.tableColumns = [
@@ -70,6 +75,7 @@ export default class Items extends React.Component<{}, State> {
           return (
             <>
               <Button color="warning" size="sm" onClick={() => this.onEditButtonClick(rowIndex)}>Edit</Button>
+              <Button color="danger" size="sm" onClick={() => this.onDeleteButtonClick(rowIndex)}>Delete</Button>
             </>
           );
         }
@@ -136,7 +142,16 @@ export default class Items extends React.Component<{}, State> {
     this.setState(
       {
         componentModalOpen: true,
-        editingItemIndex: itemIndex,
+        itemIndex: itemIndex,
+      }
+    );
+  }
+  onDeleteButtonClick = (itemIndex: number) => {
+    if (!this._isMounted) { return; }
+    this.setState(
+      {
+        deleteModalOpen: true,
+        itemIndex: itemIndex,
       }
     );
   }
@@ -148,6 +163,52 @@ export default class Items extends React.Component<{}, State> {
        componentModalOpen: !prevState.componentModalOpen
      })
     );
+  }
+
+  deleteModalToggle = () => {
+    if (!this._isMounted) { return; }
+    this.setState( prevState => ({
+       ...prevState,
+      deleteModalOpen: !prevState.deleteModalOpen,
+      deleteErrorMessage: '',
+      successMessage: ''
+     })
+    );
+  }
+
+  deleteItem = async () => {
+    const state = {
+      deleteErrorMessage: '',
+      successMessage: ''
+    };
+    try {
+      const itemIndex: number | undefined = this.state.itemIndex;
+      if (typeof itemIndex !== 'undefined' && itemIndex > -1) {
+        await API.del('tba21', 'admin/items', {
+          queryStringParameters: {
+            s3Key: this.state.items[itemIndex].s3_key
+          }
+        });
+        this.getItems();
+        Object.assign(state, {
+          deleteModalOpen: false,
+          successMessage: 'Item deleted'
+        });
+      } else {
+        Object.assign(state, {
+          deleteErrorMessage: 'This item may have already been deleted.',
+          deleteModalOpen: false
+        });
+        this.getItems();
+      }
+
+    } catch (e) {
+        Object.assign(state, {
+          deleteErrorMessage: 'We had some trouble deleting this item. Please try again later.'
+        });
+    } finally {
+      this.setState(state);
+    }
   }
 
   handleTableChange = async (type, { page, sizePerPage }): Promise<void> => {
@@ -187,6 +248,7 @@ export default class Items extends React.Component<{}, State> {
     return (
       <Container>
         <ErrorMessage message={this.state.errorMessage}/>
+        <SuccessMessage message={this.state.successMessage}/>
         <BootstrapTable
           remote
           bootstrap4
@@ -198,17 +260,17 @@ export default class Items extends React.Component<{}, State> {
           onTableChange={this.handleTableChange}
           noDataIndication={() => !this.state.tableIsLoading && !slicedItems.length ? 'No data to display.' : <Spinner style={{ width: '10rem', height: '10rem' }} type="grow" />}
         />
-
+        {/* Edit Item Modal */}
         <Modal isOpen={this.state.componentModalOpen} className="tableModal fullwidth">
           <ModalBody>
 
             {
-              typeof this.state.editingItemIndex !== 'undefined' && this.state.editingItemIndex >= 0 ?
+              typeof this.state.itemIndex !== 'undefined' && this.state.itemIndex >= 0 ?
                 <ItemEditor
-                  item={this.state.items[this.state.editingItemIndex]}
-                  index={this.state.editingItemIndex}
+                  item={this.state.items[this.state.itemIndex]}
+                  index={this.state.itemIndex}
                   onChange={c => {
-                    if (this._isMounted && typeof this.state.editingItemIndex !== 'undefined' && this.state.editingItemIndex >= 0) {
+                    if (this._isMounted && typeof this.state.itemIndex !== 'undefined' && this.state.itemIndex >= 0) {
                       const stateItems = this.state.items;
                       stateItems[c.index] = c.item;
                       this.setState({ items: stateItems });
@@ -223,6 +285,20 @@ export default class Items extends React.Component<{}, State> {
           <ModalFooter>
             <Button className="mr-auto" color="secondary" onClick={this.componentModalToggle}>Close</Button>
           </ModalFooter>
+        </Modal>
+
+        {/* Delete Item Modal */}
+        <Modal isOpen={this.state.deleteModalOpen} className="tableModal">
+          <ErrorMessage message={this.state.deleteErrorMessage}/>
+          <ModalHeader>Delete Item?</ModalHeader>
+          <ModalBody>Are you 100% sure you want to delete this item?
+
+          </ModalBody>
+
+            <ModalFooter>
+              <Button color="danger" className="mr-auto" onClick={this.deleteItem}>I'm Sure</Button>{' '}
+              <Button color="secondary" onClick={this.deleteModalToggle}>Cancel</Button>
+            </ModalFooter>
         </Modal>
       </Container>
     );
