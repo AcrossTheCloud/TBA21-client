@@ -2,7 +2,8 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import AsyncSelect from 'react-select/async';
 import $ from 'jquery';
-
+import { API } from 'aws-amplify';
+import { FaTimes } from 'react-icons/fa';
 import { Col, Row, Container } from 'reactstrap';
 import { SearchConsoleState } from '../../reducers/searchConsole'; // Props from Redux.
 import {
@@ -10,11 +11,11 @@ import {
   changeView,
   CriteriaOption
 } from '../../actions/searchConsole'; // Props from Redux.
-import { FaTimes } from 'react-icons/fa';
+
+import AudioPlayer from '../layout/audio/AudioPlayer';
+import { Bubble } from './Bubble';
 
 import 'styles/components/search/searchConsole.scss';
-import AudioPlayer from '../layout/audio/AudioPlayer';
-import { API } from 'aws-amplify';
 
 interface Props extends SearchConsoleState {
   changeView: Function;
@@ -93,7 +94,6 @@ class SearchConsole extends React.Component<Props, State> {
 
   toggleOpen = () => {
     if (!this._isMounted) { return; }
-    console.log('Hi', !this.state.isOpen);
     this.setState({isOpen: !this.state.isOpen, hover: false});
   }
 
@@ -124,7 +124,7 @@ class SearchConsole extends React.Component<Props, State> {
         ];
 
         // Return the results to React Select
-        this.setState({ criteria: results}, () => console.log(this.state.criteria));
+        this.setState({ criteria: results});
         resolve(results);
 
       }, 500);
@@ -138,8 +138,8 @@ class SearchConsole extends React.Component<Props, State> {
    * Then dispatches the redux action.
   */
   searchDispatch = () => {
-    if (this.state.criteria && this.state.criteria.length) {
-      this.props.dispatchSearch(this.state.criteria);
+    if (this.state.selectedCriteria && this.state.selectedCriteria.length) {
+      this.props.dispatchSearch(this.state.selectedCriteria);
     }
   }
 
@@ -179,15 +179,15 @@ class SearchConsole extends React.Component<Props, State> {
 
         <AudioPlayer className="audioPlayerSticky" />
 
-        <Container fluid className="console" onMouseEnter={() => this.toggleHover(true)} onMouseLeave={() => this.toggleHover(false)} onClick={this.touchDeviceOpen} >
+        <Container fluid className={`${hoveredClass} ${isOpenClass} console`} onMouseEnter={() => this.toggleHover(true)} onMouseLeave={() => this.toggleHover(false)} onTouchStart={this.touchDeviceOpen} >
 
-          <Row className={`legend ${hoveredClass} ${isOpenClass}`}>
+          <Row className="legend">
             <Col xs="2" className="border_right">View</Col>
             <Col xs="6" className="border_right">Search</Col>
             <Col xs="4">Focus</Col>
           </Row>
 
-          <Row className={`options ${hoveredClass} ${isOpenClass}`}>
+          <Row className="options">
 
             <div className={`view col-2 ${isOpen ? isOpenClass : `opacity5`} ${isOpen && window.innerWidth < 540 ? 'd-none' : ''}`}>
               <div className="line" />
@@ -284,6 +284,13 @@ class SearchConsole extends React.Component<Props, State> {
             <Col sm="4" className={`d-none d-sm-block focus px-0 ${isOpenClass}`}>
               <div />
             </Col>
+          </Row>
+
+          <Row className="bubbleRow">
+            {this.state.isOpen ?
+              <Bubble callback={e => { if (this._isMounted) { this.setState(e); }}} />
+            : <></>
+            }
           </Row>
 
         </Container>

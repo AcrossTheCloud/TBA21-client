@@ -125,6 +125,7 @@
     }
 
     .file {
+      position: relative;
       text-align: center;
       // PDF file constraints
       .react-pdf__Page__canvas {

@@ -84,7 +84,6 @@ class AudioPlayer extends React.Component<Props, State> {
 
   componentDidUpdate(prevProps: Readonly<Props>): void {
     if (this.props.data) {
-      console.log(this.props.data);
       if (this.props.data.url !== (prevProps.data ? prevProps.data.url : false)) {
 
         this.wavesurfer.load(this.props.data.url);

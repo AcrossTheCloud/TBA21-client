@@ -225,7 +225,6 @@ export class SignUp extends React.Component<{}, State> {
                     value={this.state.email}
                     onChange={e => {
                       if (this._isMounted) {
-                        console.log('is mounted');
                         this.setState({ email: e.target.value }, () => this.isFormValid());
                       }
                     }}

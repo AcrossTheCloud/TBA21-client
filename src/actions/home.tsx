@@ -154,48 +154,46 @@ const displayLayout = (data: HomepageData, columnSize: number, dispatch: Functio
   return (
     <Col key={`${s3_key}-${!!count ? 'collection' : 'item'}`} md={columnSize}>
       <div className="item" onClick={() => openModalWithoutDispatch(data, dispatch)}>
-        {file ?
-          <div className="file">
-            <FilePreviewHome data={data}/>
-          </div>
-        : <></> }
-        <div className="overlay">
-          <div className="type">
-            {type}
-          </div>
-          <div className="bottom">
-            <div className="title-wrapper d-flex">
-              {creators && creators.length ?
-                <>
-                  <div className="creators d-none d-md-block">
-                    <Link to={`/view/${s3_key}`}>
-                      <span>{creators.join(', ')}</span>
-                    </Link>
-                  </div>
-                  <div className="d-none d-md-block">
-                    <FaCircle className="dot"/>
-                  </div>
-                </>
-                : <></>
-              }
-              <div className="title">
-                <Link to={`/view/${s3_key}`}>
-                  {title}
-                </Link>
+        <div className="file">
+          {file ? <FilePreviewHome data={data}/> : <></>}
+          <div className="overlay">
+            <div className="type">
+              {type}
+            </div>
+            <div className="bottom">
+              <div className="title-wrapper d-flex">
+                {creators && creators.length ?
+                  <>
+                    <div className="creators d-none d-md-block">
+                      <Link to={`/view/${s3_key}`}>
+                        <span>{creators.join(', ')}</span>
+                      </Link>
+                    </div>
+                    <div className="d-none d-md-block">
+                      <FaCircle className="dot"/>
+                    </div>
+                  </>
+                  : <></>
+                }
+                <div className="title">
+                  <Link to={`/view/${s3_key}`}>
+                    {title}
+                  </Link>
+                </div>
               </div>
             </div>
+            {duration ?
+              <div className="duration">
+                {duration}
+              </div>
+              : <></> }
+            {file && file.type === 'video' ?
+              <div className="playButton">
+                <FaPlay />
+              </div>
+              : <></>
+            }
           </div>
-          {duration ?
-            <div className="duration">
-              {duration}
-            </div>
-          : <></> }
-          {file && file.type === 'video' ?
-            <div className="playButton">
-              <FaPlay />
-            </div>
-          : <></>
-          }
         </div>
       </div>
     </Col>
@@ -293,7 +291,7 @@ export const FilePreviewHome = (props: { data: HomepageData }): JSX.Element => {
     }
     if (props.data.file.type === 'pdf') {
       return (
-        <Document file={{ url: props.data.file.url }} >
+        <Document file={{ url: props.data.file.url }} style={{width: '100%', height: '100%'}} >
           <Page pageNumber={1}/>
         </Document>
       );
