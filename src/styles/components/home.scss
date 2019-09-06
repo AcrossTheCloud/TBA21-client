@@ -19,6 +19,8 @@
 }
 
 #home, #homePageModal {
+  color: $soft-gray;
+
   .dot {
     line-height: 0;
     font-size: 5px;
@@ -125,6 +127,7 @@
     }
 
     .file {
+      position: relative;
       text-align: center;
       // PDF file constraints
       .react-pdf__Page__canvas {
