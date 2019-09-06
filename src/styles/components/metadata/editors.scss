@@ -1,0 +1,10 @@
+.itemEditor, .collectionEditor {
+  position: relative;
+  color: #000;
+
+  input, textarea{
+    &.form-control {
+      border: 1px solid hsl(0,0%,80%);
+    }
+  }
+}

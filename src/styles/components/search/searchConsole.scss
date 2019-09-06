@@ -1,5 +1,10 @@
 @import '../../base/variables';
 
+#body.searchOpen {
+  position: fixed;
+  overflow: hidden;
+}
+
 %searchFont {
   color: #fff;
   opacity: .5;
@@ -10,6 +15,7 @@
   color: #fff;
 
   min-height: 25px;
+  max-width: 100vw;
 
   position: fixed;
   bottom: 0;
@@ -64,6 +70,10 @@
     height: 0;
   }
 
+  .view {
+    height: auto !important;
+  }
+
   .line {
     width: 2.5em;
     height: 4px;
@@ -79,6 +89,7 @@
       margin: 0;
       height: 100%;
       .inputwrapper {
+        height: 100%;
         flex: 1 1 auto;
       }
     }
@@ -93,6 +104,14 @@
         &.active {
           opacity: 1;
         }
+      }
+    }
+    &.open {
+      .line {
+        margin: 0;
+      }
+      .row {
+        height: auto
       }
     }
   }
@@ -223,22 +242,29 @@
     overflow: unset !important;
     .mid {
       overflow: unset !important;
+      height: 60px;
+      .inputwrapper {
+        height: 100%;
+      }
     }
-  }
-
-  &.open {
     .margin {
       margin: 0 15px;
     }
     .padding {
       padding: 15px;
     }
+    .view {
+      .line {
+        height: 0 !important;
+        width: 0 !important;
+      }
+    }
   }
 
   .icon {
     overflow: hidden;
     font-size: 16px;
-    flex: 0 1 10%;
+    flex: 0 1 auto;
     text-align: center;
     @extend %searchFont;
 

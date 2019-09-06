@@ -7,11 +7,11 @@ import { State } from 'reducers/items/viewItem';
 import { Alerts, ErrorMessage } from '../utils/alerts';
 
 import { Item, Regions } from '../../types/Item';
-
+import { FilePreview } from '../utils/FilePreview';
 import { Languages } from '../../types/Languages';
 
-import 'styles/components/pages/item.scss';
-import { FilePreview } from '../utils/FilePreview';
+import 'styles/components/pages/viewItem.scss';
+import { browser } from '../utils/browser';
 
 interface Props extends Alerts {
   fetchItem: Function;
@@ -20,9 +20,12 @@ interface Props extends Alerts {
 
 class ViewItem extends React.Component<Props, State> {
   matchedItemId: string = '';
+  browser: string;
 
   constructor(props: any) { // tslint:disable-line: no-any
     super(props);
+
+    this.browser = browser();
 
     // Get our itemId passed through from URL props
     if (props.location && props.location.pathname) {
@@ -46,6 +49,7 @@ class ViewItem extends React.Component<Props, State> {
 
     const {
       file,
+      creators,
       title,
       description,
       item_subtype,
@@ -84,27 +88,34 @@ class ViewItem extends React.Component<Props, State> {
       <div id="item" className="container-fluid">
         <ErrorMessage message={this.props.errorMessage} />
         {file && file.url ?
-          <Row>
-            <Col className="px-0">
-              <FilePreview file={file}/>
-            </Col>
+          <Row className="file">
+            <FilePreview file={file}/>
           </Row>
           : <></>
         }
         <Row>
-          <Col md="8" className="left border-right border-bottom">
+          <Col md="8" className="left border-right">
             <Row>
-              <Col xs={{ size: 12, order: 2 }} md={{ size: 8, order: 1 }}>
-                <h1>{title}</h1>
+              <Col xs={{ size: 12, order: 2 }} md={{ size: 8, order: 1 }} className="creators">
+                {creators ? creators.join(', ') : <></>}
               </Col>
               <Col xs={{ size: 12, order: 1 }} md={{ size: 4, order: 2 }} className="subline text-right">
                 {item_subtype}
               </Col>
             </Row>
-
             <Row>
               <Col>
-                {description}
+                <h1>{title}</h1>
+              </Col>
+            </Row>
+
+            <Row>
+              <Col className="description">
+                {
+                  description ?
+                    this.browser === 'ie6-11' ? description.split('\n').map((d, i) => <p key={i}>{d}</p>) : description
+                  : <></>
+                }
               </Col>
             </Row>
           </Col>

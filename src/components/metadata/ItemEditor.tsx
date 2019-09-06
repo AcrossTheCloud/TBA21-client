@@ -48,9 +48,10 @@ import { License } from '../../types/License';
 import CustomSelect from './fields/CustomSelect';
 import { validateURL } from '../utils/inputs/url';
 import ShortPaths from '../admin/utils/ShortPaths';
+import YearSelect from './fields/YearSelect';
 
 import 'styles/components/metadata/itemEditor.scss';
-import YearSelect from './fields/YearSelect';
+import 'styles/components/metadata/editors.scss';
 
 interface Props {
   item: Item;
@@ -541,6 +542,10 @@ export class ItemEditor extends React.Component<Props, State> {
           'news_outlet': (news_outlet || false)
         },
         'Event Recording': {
+          'location': (location || false),
+          'event_title': (event_title  || false)
+        },
+        'Lecture Recording': {
           'location': (location || false),
           'event_title': (event_title  || false)
         },
@@ -1548,6 +1553,35 @@ export class ItemEditor extends React.Component<Props, State> {
       </Row>
     );
   }
+  VideoLectureRecording = (): JSX.Element => {
+    const item = this.state.changedItem;
+    return (
+      <Row>
+        <Col md="6">
+          <FormGroup>
+            <Label for="location">Location</Label>
+            <Input required invalid={this.state.validate.hasOwnProperty('location') && !this.state.validate.location} type="text" className="location" defaultValue={item.location ? item.location : ''} onChange={e => this.validateLength('location', e.target.value)}/>
+            <FormFeedback>This is a required field</FormFeedback>
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="participants">Participant(s)</Label>
+            <CustomSelect values={item.participants} callback={values => this.validateLength('participants', values)} />
+            <FormText>Use tab or enter to add a new Participant.</FormText>
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="program_title">Program Title</Label>
+            <Input required invalid={this.state.validate.hasOwnProperty('event_title') && !this.state.validate.event_title} type="text" className="event_title" defaultValue={item.event_title ? item.event_title : ''} onChange={e => this.validateLength('event_title', e.target.value)}/>
+            <FormFeedback>This is a required field</FormFeedback>
+          </FormGroup>
+        </Col>
+
+      </Row>
+    );
+  }
   VideoInformationalVideo = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
@@ -1578,7 +1612,6 @@ export class ItemEditor extends React.Component<Props, State> {
           <FormGroup>
             <Label for="produced_by">Exhibition History</Label>
             <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
-            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('exhibited_at') && !this.state.validate.exhibited_at ? 'block' : 'none') }}>This is a required field</FormFeedback>
             <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
@@ -2370,6 +2403,7 @@ export class ItemEditor extends React.Component<Props, State> {
                     {item.item_subtype === itemVideo.Art ? <this.VideoDocumentaryArt /> : <></>}
                     {item.item_subtype === itemVideo.News_Journalism ? <this.VideoNewsJournalism /> : <></>}
                     {item.item_subtype === itemVideo.Event_Recording ? <this.VideoEventRecording /> : <></>}
+                    {item.item_subtype === itemVideo.Lecture_Recording ? <this.VideoLectureRecording /> : <></>}
                     {item.item_subtype === itemVideo.Informational_Video ? <this.VideoInformationalVideo /> : <></>}
                     {item.item_subtype === itemVideo.Trailer ? <this.VideoMovieTrailer /> : <></>}
                     {item.item_subtype === itemVideo.Artwork_Documentation ? <this.VideoArtworkDocumentation /> : <></>}

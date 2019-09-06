@@ -35,6 +35,8 @@ import Contributors from './fields/Contributors';
 import { AuthContext } from '../../providers/AuthProvider';
 import { License } from '../../types/License';
 
+import 'styles/components/metadata/editors.scss';
+
 interface Props {
   collection?: Collection;
   editMode: boolean;
