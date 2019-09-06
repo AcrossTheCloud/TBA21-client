@@ -145,9 +145,9 @@ class HomePage extends React.Component<Props, {}> {
                 <div className="d-sm-none">
                   <div className="file">
                     <FilePreviewHome data={loaded_highlights[1]}/>
-                  </div>
-                  <div className="overlay">
-                    <HighlightsItemDetails index={1}/>
+                    <div className="overlay">
+                      <HighlightsItemDetails index={1}/>
+                    </div>
                   </div>
                 </div>
               </Col>

@@ -78,9 +78,7 @@ export const getCDNObject = async (key: string): Promise<S3File | false> => {
         }
 
         if (type === 'video') {
-          console.log('IS VIDEO');
           const videoFiles = await getVideoFiles(key);
-          console.log(videoFiles);
           // We always have a poster.
           Object.assign(response, { poster: videoFiles.poster });
 

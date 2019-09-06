@@ -24,7 +24,6 @@ export default (state: State = initialState, action) => {
 
   switch (action.type) {
     case FETCH_ITEM:
-      console.log('action.item', action.item);
       return {
         ...state,
         item: action.item,

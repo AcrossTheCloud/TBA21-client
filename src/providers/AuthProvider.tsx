@@ -27,8 +27,11 @@ export const AuthContext = React.createContext(authContextDefaultValues);
 export const AuthConsumer = AuthContext.Consumer;
 
 class AuthProviderClass extends React.Component<Props, State> {
+  _isMounted;
   constructor(props: Props) {
     super(props);
+
+    this._isMounted = false;
 
     this.state = {
       isLoading: true,
@@ -40,14 +43,20 @@ class AuthProviderClass extends React.Component<Props, State> {
   }
 
   async componentDidMount(): Promise<void> {
+    this._isMounted = true;
     if (!this.state.isAuthenticated) {
       try {
         const auth = await checkAuth(true);
+        if (!this._isMounted) { return; }
         this.setState(prevState => ({...prevState, ...auth, isLoading: false}));
       } catch (e) {
         await this.logout();
       }
     }
+  }
+
+  componentWillUnmount(): void {
+    this._isMounted = false;
   }
 
   login = async (email: string, password: string): Promise<void> => {
@@ -60,6 +69,7 @@ class AuthProviderClass extends React.Component<Props, State> {
         // Get the users profile details and hold on to the them for as long as possible.
         await this.props.getProfileDetails(auth.uuid);
 
+        if (!this._isMounted) { return; }
         this.setState({ ...auth });
 
         this.props.history.push('/');
@@ -74,6 +84,7 @@ class AuthProviderClass extends React.Component<Props, State> {
   logout = async (): Promise<void> => {
     await Auth.signOut();
     // Fail or not, wipe the state.
+    if (!this._isMounted) { return; }
     this.setState({ isAuthenticated: false, authorisation: {} });
   }
 
@@ -90,6 +101,7 @@ class AuthProviderClass extends React.Component<Props, State> {
         user
       );
       const auth: Authorisation = await checkAuth();
+      if (!this._isMounted) { return; }
       this.setState({ ...auth });
       this.props.history.push('/');
 

@@ -25,11 +25,10 @@ export const search = (criteria: CriteriaOption[]) => async dispatch => {
   const results: string[] = [];
 
   if (criteria) {
-
     for (let i = 0; i < criteria.length; i++) {
       const result = await API.get('tba21', 'pages/search', {
         queryStringParameters: {
-          searchQuery: criteria[i].value,
+          searchQuery: criteria[i].originalValue,
           limit: 50
         }
       });
