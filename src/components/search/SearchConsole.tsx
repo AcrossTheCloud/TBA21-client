@@ -4,8 +4,10 @@ import AsyncSelect from 'react-select/async';
 import $ from 'jquery';
 import { API } from 'aws-amplify';
 import { FaTimes } from 'react-icons/fa';
+import { uniqBy } from 'lodash';
 import { Col, Row, Container } from 'reactstrap';
 import { SearchConsoleState } from '../../reducers/searchConsole'; // Props from Redux.
+
 import {
   search as dispatchSearch,
   changeView,
@@ -29,15 +31,16 @@ interface State {
   searchInputValue: string;
   criteria: CriteriaOption[];
   selectedCriteria: CriteriaOption[];
+  focus_arts: boolean;
+  focus_action: boolean;
+  focus_scitech: boolean;
 }
 
-const createCriteriaOption = (label: string, field: string, displayField?: string): CriteriaOption => {
+const createCriteriaOption = (label: string, field: string): CriteriaOption => {
   return {
-    label: `${label} - (${displayField || field})`,
-    value: `${label} - (${displayField || field})`,
-    originalValue: label,
-    field,
-    displayField: displayField || field
+    label: `${label} (${field})`,
+    value: label,
+    field
   };
 };
 
@@ -58,7 +61,11 @@ class SearchConsole extends React.Component<Props, State> {
       searchMenuOpen: false,
       searchInputValue: '',
       criteria: [],
-      selectedCriteria: []
+      selectedCriteria: [],
+
+      focus_arts: false,
+      focus_action: false,
+      focus_scitech: false,
     };
 
   }
@@ -113,14 +120,16 @@ class SearchConsole extends React.Component<Props, State> {
         clearTimeout(this.searchTimeout);
         if (!this._isMounted) { return; }
 
-        const suggestions = await API.get('tba21', 'pages/search', { queryStringParameters: { query: input }});
+        let suggestions = await API.get('tba21', 'pages/search', { queryStringParameters: { query: input }});
         const keywordTags = await API.get('tba21', 'tags', { queryStringParameters: { query: input, limit: 50, type: 'keyword'} });
         const conceptTags = await API.get('tba21', 'tags', { queryStringParameters: { query: input, limit: 50, type: 'concept'} });
 
+        suggestions = suggestions.results.map( t => createCriteriaOption(t.value, t.field) );
+        suggestions = uniqBy(suggestions, (e: CriteriaOption) => e.field);
         const results = [
-          ...suggestions.results.map( t => createCriteriaOption(t.value, t.field) ),
-          ...keywordTags.tags.map( t => createCriteriaOption(t.tag_name, 'keyword_tag', 'Keyword Tag') ),
-          ...conceptTags.tags.map( t => createCriteriaOption(t.tag_name, 'concept_tag', 'Concept Tag') )
+          ...suggestions,
+          ...keywordTags.tags.map( t => createCriteriaOption(t.tag_name, 'keyword_tag') ),
+          ...conceptTags.tags.map( t => createCriteriaOption(t.tag_name, 'concept_tag') )
         ];
 
         // Return the results to React Select
@@ -139,7 +148,7 @@ class SearchConsole extends React.Component<Props, State> {
   */
   searchDispatch = () => {
     if (this.state.selectedCriteria && this.state.selectedCriteria.length) {
-      this.props.dispatchSearch(this.state.selectedCriteria);
+      this.props.dispatchSearch(this.state.selectedCriteria, this.state.focus_arts, this.state.focus_action, this.state.focus_scitech);
     }
   }
 
@@ -232,7 +241,7 @@ class SearchConsole extends React.Component<Props, State> {
                     className="searchInput"
                     classNamePrefix="search"
                     placeholder="Search ..."
-                    noOptionsMessage={() => 'No Search Results'}
+                    noOptionsMessage={() => 'Search Suggestions'}
                     menuIsOpen={this.state.searchMenuOpen}
                     isDisabled={!isOpen}
                     ref={this.searchInputRef}
@@ -254,7 +263,7 @@ class SearchConsole extends React.Component<Props, State> {
 
                     formatOptionLabel={(t, o) => {
                       if (o.context === 'menu') {
-                        return (<div className="option"><span className="value">{t.originalValue}</span> <span className="field float-right">{t.displayField}</span></div>);
+                        return (<div className="option"><span className="value">{t.value}</span> <span className="field float-right">{t.field.split('_').join(' ')}</span></div>);
                       } else {
                         return <div className="tag-option">{t.label}</div>;
                       }
@@ -286,6 +295,35 @@ class SearchConsole extends React.Component<Props, State> {
             </Col>
           </Row>
 
+          <div className="results">
+            {
+              results.map((t, i) => {
+                if (t.full_name) {
+                  return (
+                    <Row className="result" key={i}>
+                      {t.profile_image ?
+                        <Col xs="4">
+                          <img src={t.profile_image} alt=""/>
+                        </Col>
+                        : ''}
+                      <Col xs={t.profile_image ? '8' : '12'}>
+                        {t.full_name}
+                      </Col>
+                    </Row>
+                  );
+                } else {
+                  return (
+                    <Row className="result" key={i}>
+                      <Col xs="6">
+                        {t.title}
+                      </Col>
+                    </Row>
+                  );
+                }
+              })
+            }
+          </div>
+
           <Row className="bubbleRow">
             {this.state.isOpen ?
               <Bubble callback={e => { if (this._isMounted) { this.setState(e); }}} />
@@ -294,14 +332,6 @@ class SearchConsole extends React.Component<Props, State> {
           </Row>
 
         </Container>
-
-        {isOpen && view === 'list' ?
-          <Container fluid className="results">
-            {results.map((t, i) => <div key={i}> {t.toString()} </div>)}
-          </Container>
-          : <></>
-        }
-
       </div>
     );
   }

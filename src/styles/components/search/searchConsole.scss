@@ -228,6 +228,12 @@
       }
     }
 
+
+    .results {
+      max-height: 0;
+      overflow: hidden;
+    }
+
     &.open {
       .legend {
         max-height: 0;
@@ -277,6 +283,12 @@
           }
         }
       }
+
+      .results {
+        max-height: unset;
+        overflow: scroll;
+      }
+
     }
 
     &.hover {

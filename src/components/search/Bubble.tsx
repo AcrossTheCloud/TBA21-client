@@ -53,8 +53,11 @@ export class Bubble extends React.Component<Props, {}> {
   touchX;
   touchY;
 
+  _isMounted;
+
   constructor(props: Props) {
     super(props);
+    this._isMounted = false;
 
     this.points = [];
     this.ctx = null;
@@ -70,8 +73,6 @@ export class Bubble extends React.Component<Props, {}> {
         this.touchY = pageY;
         this.moveBubble(pageX, pageY);
 
-        this.getFocus(pageX, pageY);
-
       } else {
         return;
       }
@@ -79,13 +80,24 @@ export class Bubble extends React.Component<Props, {}> {
 
     // On Click
     $body.on('click', '#bubble', e => {
-      if (e) {
+      if (e && this._isMounted) {
         const eX: number = !!e.pageX ? e.pageX : 0;
         const eY: number = !!e.pageY ? e.pageY : 0;
 
+
         if (typeof this.props.callback === 'function') {
-          this.props.callback(this.getFocus(eX, eY));
+          if (this.state.canMove) {
+            this.props.callback(this.getFocus(eX, eY));
+          } else {
+            this.props.callback({
+              focus_art: false,
+              focus_action: false,
+              focus_scitech: false
+            });
+          }
         }
+
+        this.setState({ canMove: !this.state.canMove }, () => this.moveBubble(eX, eY) );
 
         this.moveBubble(eX, eY);
       } else {
@@ -95,12 +107,16 @@ export class Bubble extends React.Component<Props, {}> {
 
     // On Click or On touch
     $body.on('touchend', '#bubble', e => {
-      this.getFocus(this.touchX , this.touchY);
+      if (this._isMounted) {
+        this.getFocus(this.touchX, this.touchY);
+      }
     });
 
   }
 
   componentDidMount(): void {
+    this._isMounted = true;
+
     this.init();
 
     window.addEventListener('resize', () => {
@@ -113,6 +129,7 @@ export class Bubble extends React.Component<Props, {}> {
   }
 
   componentWillUnmount(): void {
+    this._isMounted = false;
     window.removeEventListener('resize', () => { return; });
   }
 
