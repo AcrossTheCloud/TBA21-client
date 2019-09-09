@@ -349,25 +349,33 @@ class SearchConsole extends React.Component<Props, State> {
                     </Row>
                   );
                 } else {
-                  return (
-                    <Row className="result" key={i}>
-                      {!!t.file ?
-                        <Col xs="2">
-                          <FilePreview data={t}/>
-                        </Col> : <></>
-                      }
-                      <Col xs="10">
-                        <Row>
-                          <Col xs="10">
-                            {t.title}
-                          </Col>
-                          <Col xs="10">
-                            {t.title}
-                          </Col>
-                        </Row>
+                  if (!!t.file && t.file.type === 'audio') {
+                    return (
+                      <Col xs="12">
+                        <FilePreview data={t}/>
                       </Col>
-                    </Row>
-                  );
+                    );
+                  } else {
+                    return (
+                      <Row className="result" key={i}>
+                        {!!t.file ?
+                          <Col xs="2">
+                            <FilePreview data={t}/>
+                          </Col> : <></>
+                        }
+                        <Col xs="10">
+                          <Row>
+                            <Col xs="10">
+                              {t.title}
+                            </Col>
+                            <Col xs="10">
+                              {t.title}
+                            </Col>
+                          </Row>
+                        </Col>
+                      </Row>
+                    );
+                  }
                 }
               })
             }

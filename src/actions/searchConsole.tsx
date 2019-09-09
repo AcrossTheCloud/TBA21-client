@@ -44,8 +44,6 @@ export const search = (criteria: CriteriaOption[], focusArts: boolean = false, f
       }
     }
 
-    console.log('Dispatch');
-
     dispatch({
      type: SEARCH_RESULTS,
      results: result.results,
