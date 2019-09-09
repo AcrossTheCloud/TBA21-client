@@ -351,9 +351,11 @@ class SearchConsole extends React.Component<Props, State> {
                 } else {
                   if (!!t.file && t.file.type === 'audio') {
                     return (
-                      <Col xs="12">
-                        <FilePreview data={t}/>
-                      </Col>
+                      <Row className="result" key={i}>
+                        <Col xs="12">
+                          <FilePreview data={t}/>
+                        </Col>
+                      </Row>
                     );
                   } else {
                     return (
