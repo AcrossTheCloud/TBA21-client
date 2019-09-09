@@ -3,12 +3,12 @@ import { API } from 'aws-amplify';
 import * as React from 'react';
 import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
-import { Button, Container, Modal, ModalBody, ModalFooter, Spinner } from 'reactstrap';
+import { Button, Container, Modal, ModalBody, ModalFooter, ModalHeader, Spinner } from 'reactstrap';
 
 import { Collection } from 'types/Collection';
 import { CollectionEditor } from 'components/metadata/CollectionEditor';
 
-import { Alerts, ErrorMessage } from 'components/utils/alerts';
+import { Alerts, ErrorMessage, SuccessMessage } from 'components/utils/alerts';
 
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css';
@@ -21,11 +21,14 @@ interface State extends Alerts {
   // items?: items[];
 
   componentModalOpen: boolean;
+  deleteModalOpen: boolean;
 
   tableIsLoading: boolean;
   page: number;
   sizePerPage: number;
   totalSize: number;
+
+  deleteErrorMessage: string | JSX.Element | undefined;
 }
 
 export default class Collections extends React.Component<{}, State> {
@@ -38,6 +41,7 @@ export default class Collections extends React.Component<{}, State> {
 
     this.state = {
       componentModalOpen: false,
+      deleteModalOpen: false,
       collections: [],
       // items: [],
 
@@ -45,6 +49,7 @@ export default class Collections extends React.Component<{}, State> {
       page: 1,
       sizePerPage: 15,
       totalSize: 0,
+      deleteErrorMessage: undefined
     };
 
     this.tableColumns = [
@@ -73,6 +78,7 @@ export default class Collections extends React.Component<{}, State> {
           return (
             <>
               <Button color="warning" size="sm" onClick={() => this.onEditButtonClick(rowIndex)}>Edit</Button>
+              <Button color="danger" size="sm" onClick={() => this.onDeleteButtonClick(rowIndex)}>Delete</Button>
             </>
           );
         }
@@ -138,6 +144,15 @@ export default class Collections extends React.Component<{}, State> {
       }
     );
   }
+  onDeleteButtonClick = (collectionIndex: number) => {
+    if (!this._isMounted) { return; }
+    this.setState(
+      {
+        deleteModalOpen: true,
+        editingCollectionIndex: collectionIndex,
+      }
+    );
+  }
 
   componentModalToggle = () => {
     if (!this._isMounted) { return; }
@@ -146,6 +161,50 @@ export default class Collections extends React.Component<{}, State> {
        componentModalOpen: !prevState.componentModalOpen
      })
     );
+  }
+  deleteModalToggle = () => {
+    if (!this._isMounted) { return; }
+    this.setState( prevState => ({
+       ...prevState,
+       deleteModalOpen: !prevState.deleteModalOpen,
+       deleteErrorMessage: '',
+       successMessage: ''
+     })
+    );
+  }
+  deleteCollection = async () => {
+    const state = {
+      deleteErrorMessage: '',
+      successMessage: ''
+    };
+    try {
+      const collectionIndex: number | undefined = this.state.editingCollectionIndex;
+      if (typeof collectionIndex !== 'undefined' && collectionIndex > -1) {
+        await API.del('tba21', 'admin/collections', {
+          queryStringParameters: {
+            id: this.state.collections[collectionIndex].id
+          }
+        });
+        this.getCollections();
+        Object.assign(state, {
+          deleteModalOpen: false,
+          successMessage: 'Collection deleted'
+        });
+      } else {
+        Object.assign(state, {
+          deleteErrorMessage: 'This collection may have already been deleted.',
+          deleteModalOpen: false
+        });
+        this.getCollections();
+      }
+
+    } catch (e) {
+      Object.assign(state, {
+        deleteErrorMessage: 'We had some trouble deleting this collection. Please try again later.'
+      });
+    } finally {
+      this.setState(state);
+    }
   }
 
   handleTableChange = async (type, { page, sizePerPage }): Promise<void> => {
@@ -185,6 +244,7 @@ export default class Collections extends React.Component<{}, State> {
     return (
       <Container>
         <ErrorMessage message={this.state.errorMessage}/>
+        <SuccessMessage message={this.state.successMessage}/>
         <BootstrapTable
           remote
           bootstrap4
@@ -219,6 +279,19 @@ export default class Collections extends React.Component<{}, State> {
           </ModalBody>
           <ModalFooter>
             <Button className="mr-auto" color="secondary" onClick={this.componentModalToggle}>Close</Button>
+          </ModalFooter>
+        </Modal>
+        {/* Delete Collection Modal */}
+        <Modal isOpen={this.state.deleteModalOpen} className="tableModal">
+          <ErrorMessage message={this.state.deleteErrorMessage}/>
+          <ModalHeader>Delete Collection?</ModalHeader>
+          <ModalBody>Are you 100% sure you want to delete this collection?
+
+          </ModalBody>
+
+          <ModalFooter>
+            <Button color="danger" className="mr-auto" onClick={this.deleteCollection}>I'm Sure</Button>{' '}
+            <Button color="secondary" onClick={this.deleteModalToggle}>Cancel</Button>
           </ModalFooter>
         </Modal>
       </Container>

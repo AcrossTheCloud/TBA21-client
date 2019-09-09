@@ -552,9 +552,6 @@ export class ItemEditor extends React.Component<Props, State> {
         'Trailer': {
           'directors': (directors || false)
         },
-        'Artwork Documentation': {
-          'exhibited_at': (exhibited_at || false)
-        },
         'Informational Video': {
           'produced_by': (produced_by || false)
         }
@@ -1615,6 +1612,29 @@ export class ItemEditor extends React.Component<Props, State> {
             <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="medium">Medium</Label>
+            <Input
+              type="text"
+              className="medium"
+              defaultValue={item.medium ? item.medium : ''}
+              onChange={e => this.validateLength('medium', e.target.value)}
+            />
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="duration">Duration (Hour : Minute : Second)</Label>
+            <TimeField
+              colon=":"
+              showSeconds
+              onChange={e => this.changeItem('duration', e.split(':').join(''))}
+              input={<Input type="text" placeholder="HH:MM:SS" />}
+            />
+          </FormGroup>
+        </Col>
+
       </Row>
     );
   }
@@ -2406,13 +2426,12 @@ export class ItemEditor extends React.Component<Props, State> {
                     {item.item_subtype === itemVideo.Lecture_Recording ? <this.VideoLectureRecording /> : <></>}
                     {item.item_subtype === itemVideo.Informational_Video ? <this.VideoInformationalVideo /> : <></>}
                     {item.item_subtype === itemVideo.Trailer ? <this.VideoMovieTrailer /> : <></>}
-                    {item.item_subtype === itemVideo.Artwork_Documentation ? <this.VideoArtworkDocumentation /> : <></>}
+                    {((item.item_subtype === itemVideo.Artwork_Documentation) && item.file.type === 'video') ? <this.VideoArtworkDocumentation /> : <></>}
                     {(!!item.file && item.file.type === 'video') && item.item_subtype === itemVideo.Other ? <this.VideoOther /> : <></>}
 
-                    { // Item Image
-                      item.item_subtype === itemImage.Illustration ||
-                      item.item_subtype === itemImage.Artwork_Documentation ? <this.ItemImage /> : <></>
-                    }
+                    {/*Item Image */}
+                    {item.item_subtype === itemImage.Illustration ?  <this.ItemImage /> : <></>}
+                    {(item.item_subtype === itemImage.Artwork_Documentation) && item.file.type === 'image' ?  <this.ItemImage /> : <></>}
 
                     {
                       item.item_subtype === itemImage.Photograph ||

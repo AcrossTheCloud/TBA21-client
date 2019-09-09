@@ -48,8 +48,8 @@
     "build": "bash src/link_config.sh && craco build",
     "test": "jest --coverage",
     "eject": "react-scripts eject",
-    "winstart": "react-scripts start",
-    "winbuild": "react-scripts build"
+    "winstart": "craco start",
+    "winbuild": "craco build"
   },
   "devDependencies": {
     "@types/cropperjs": "^1.1.5",
