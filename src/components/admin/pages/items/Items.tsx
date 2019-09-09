@@ -11,6 +11,7 @@ import { Alerts, ErrorMessage, SuccessMessage } from 'components/utils/alerts';
 
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css';
+import { RouteComponentProps, withRouter } from 'react-router';
 
 import 'styles/components/admin/tables/modal.scss';
 
@@ -29,11 +30,11 @@ interface State extends Alerts {
   deleteErrorMessage: string | JSX.Element | undefined;
 }
 
-export default class Items extends React.Component<{}, State> {
+class Items extends React.Component<RouteComponentProps, State> {
   _isMounted;
   tableColumns;
 
-  constructor(props: {}) {
+  constructor(props: RouteComponentProps) {
     super(props);
     this._isMounted = false;
 
@@ -98,8 +99,9 @@ export default class Items extends React.Component<{}, State> {
         queryStringParameters = {
           offset: offset,
           limit: this.state.sizePerPage
-        },
-        response = await API.get('tba21', 'admin/items', { queryStringParameters: queryStringParameters });
+        };
+      const isContributorPath = this.props.location.pathname === '/contributor/items';
+      const response = await API.get('tba21', `${ isContributorPath ? 'contributor/items/getByPerson' :  'admin/items' }`, { queryStringParameters: queryStringParameters });
 
       if (!this._isMounted) { return; }
       return {
@@ -304,3 +306,5 @@ export default class Items extends React.Component<{}, State> {
     );
   }
 }
+
+export default withRouter(Items);

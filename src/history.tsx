@@ -10,7 +10,7 @@ const history = createBrowserHistory();
 
 const historyListener = (location) => {
   ReactGA.set({ page: location.pathname });
-	ReactGA.pageview(location.pathname);
+  ReactGA.pageview(location.pathname);
 }
 
 history.listen(historyListener);
