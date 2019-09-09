@@ -3,6 +3,10 @@ import $ from 'jquery';
 
 import 'styles/components/search/bubble.scss';
 
+interface State {
+  canMove: boolean;
+}
+
 interface Props {
   callback?: Function;
 }
@@ -42,7 +46,7 @@ class Easing {
   }
 }
 
-export class Bubble extends React.Component<Props, {}> {
+export class Bubble extends React.Component<Props, State> {
   resizeTimeout;
   bounds;
   pointRadius;
@@ -64,9 +68,13 @@ export class Bubble extends React.Component<Props, {}> {
 
     const $body = $('body');
 
+    this.state = {
+      canMove: true
+    };
+
     // On Move
     $body.on('mousemove touchmove', '#bubble', e => {
-      if (e) {
+      if (e && this.state.canMove && this._isMounted) {
         const pageX: number = !!e.touches ? e.touches[0].pageX : (!!e.pageX ? e.pageX : 0);
         const pageY: number = !!e.touches ? e.touches[0].pageY : (!!e.pageY ? e.pageY : 0);
         this.touchX = pageX;
@@ -99,7 +107,6 @@ export class Bubble extends React.Component<Props, {}> {
 
         this.setState({ canMove: !this.state.canMove }, () => this.moveBubble(eX, eY) );
 
-        this.moveBubble(eX, eY);
       } else {
         return;
       }
@@ -172,12 +179,6 @@ export class Bubble extends React.Component<Props, {}> {
     this.toggleLabelHighlight('art', focusArts);
     this.toggleLabelHighlight('action', focusAction);
     this.toggleLabelHighlight('scitech', focusScitech);
-
-    console.log(
-      'focusArts', focusArts, Math.fround(w2),
-      'focusAction', focusAction, Math.fround(w3),
-      'focusScitech', focusScitech, Math.fround(w1),
-    );
 
     return {
       focus_arts: focusArts,
@@ -313,7 +314,7 @@ export class Bubble extends React.Component<Props, {}> {
 
   render() {
     return (
-      <div id="bubbleWrapper">
+      <div id="bubbleWrapper" className={this.state.canMove ? 'active' : ''}>
         <div className="art active">
           <div className="focus">Art</div>
         </div>
