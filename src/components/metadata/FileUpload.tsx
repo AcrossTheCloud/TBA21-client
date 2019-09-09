@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Col, Progress, Row } from 'reactstrap';
 import $ from 'jquery';
-import { Storage } from 'aws-amplify';
+import { Auth, Storage } from 'aws-amplify';
 import Dropzone from 'react-dropzone';
 import { v1 as uuid } from 'uuid';
 
@@ -97,8 +97,9 @@ export class FileUpload extends React.Component<Props, State> {
   uploadToS3 = async (files: Files): Promise<void> => {
     Object.values(files).forEach( async (file: File) => {
       const
-        filename = file.uuid + `-${file.name}`,
-        context: React.ContextType<typeof AuthContext> = this.context;
+        context: React.ContextType<typeof AuthContext> = this.context,
+        filename = `${context.uuid}/${file.uuid}-${file.name}`,
+        userCredentials = await Auth.currentCredentials();
 
       try {
         const result: any = await Storage.put(filename, file.original, {// tslint:disable-line: no-any
@@ -111,7 +112,7 @@ export class FileUpload extends React.Component<Props, State> {
         file.uploaded = true;
         // Add private/UUID to the s3key as we only get the files key back
         // We store the s3key as private/uuid in the database.
-        file.s3key = `private/${context.uuid}/${result.key}`;
+        file.s3key = `private/${userCredentials.identityId}/${result.key}`;
 
         $(`#${file.uuid}`).fadeOut(async () => {
           this.setState({ files: {...this.state.files, ...files}});
