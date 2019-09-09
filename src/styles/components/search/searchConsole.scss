@@ -171,6 +171,7 @@
         }
 
         .search__menu {
+          z-index: 99999;
           margin: 0;
           border-radius: 0;
           background: rgba(0, 18 ,24 , 0.65);
@@ -236,6 +237,8 @@
 
     &.open {
       max-height: 100vh;
+      overflow-y: scroll;
+      overflow-x: hidden;
       .legend {
         max-height: 0;
         transition: max-height 1s;
@@ -290,6 +293,9 @@
         overflow: scroll;
         padding: 20px 0 ;
         .result {
+          position: relative;
+          max-height: 200px;
+          overflow: hidden;
           border-bottom: 1px solid #fff;
           padding-bottom: 5px;
           margin-bottom: 5px;
