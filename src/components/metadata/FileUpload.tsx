@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { Col, Progress, Row } from 'reactstrap';
 import $ from 'jquery';
-
 import { Auth, Storage } from 'aws-amplify';
-
 import Dropzone from 'react-dropzone';
 import { v1 as uuid } from 'uuid';
+
+import { AuthContext } from 'providers/AuthProvider';
 
 import 'styles/components/_dropzone.scss';
 import 'styles/components/_reactTags.scss';
@@ -46,6 +46,8 @@ interface File {
 // };
 
 export class FileUpload extends React.Component<Props, State> {
+  static contextType = AuthContext;
+
   constructor(props: Props) {
     super(props);
 
@@ -95,7 +97,8 @@ export class FileUpload extends React.Component<Props, State> {
   uploadToS3 = async (files: Files): Promise<void> => {
     Object.values(files).forEach( async (file: File) => {
       const
-        filename = file.uuid + `-${file.name}`,
+        context: React.ContextType<typeof AuthContext> = this.context,
+        filename = `${context.uuid}/${file.uuid}-${file.name}`,
         userCredentials = await Auth.currentCredentials();
 
       try {
