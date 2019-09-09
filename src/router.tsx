@@ -77,7 +77,7 @@ const AdminRoutes = ({ authorisation, ...rest }) => {
 };
 
 const NoMatch = ({ location }) => {
-  return (
+  return (location.pathname.match(/(\/admin\/|\/collection|\/items\/upload)/i)) ? <></> : (
     <div>
       <h3>
         Your requested path <code>{location.pathname}</code> is not found.
