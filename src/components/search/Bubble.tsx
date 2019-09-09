@@ -81,6 +81,8 @@ export class Bubble extends React.Component<Props, State> {
         this.touchY = pageY;
         this.moveBubble(pageX, pageY);
 
+        this.getFocus(pageX, pageY);
+
       } else {
         return;
       }
