@@ -9,6 +9,7 @@ import { v1 as uuid } from 'uuid';
 
 import 'styles/components/_dropzone.scss';
 import 'styles/components/_reactTags.scss';
+import { AuthContext } from 'providers/AuthProvider';
 
 interface State {
   files: Files;
@@ -96,7 +97,7 @@ export class FileUpload extends React.Component<Props, State> {
     Object.values(files).forEach( async (file: File) => {
       const
         filename = file.uuid + `-${file.name}`,
-        userCredentials = await Auth.currentCredentials();
+        context: React.ContextType<typeof AuthContext> = this.context;
 
       try {
         const result: any = await Storage.put(filename, file.original, {// tslint:disable-line: no-any
@@ -109,7 +110,7 @@ export class FileUpload extends React.Component<Props, State> {
         file.uploaded = true;
         // Add private/UUID to the s3key as we only get the files key back
         // We store the s3key as private/uuid in the database.
-        file.s3key = `private/${userCredentials.identityId}/${result.key}`;
+        file.s3key = `private/${context.uuid}/${result.key}`;
 
         $(`#${file.uuid}`).fadeOut(async () => {
           this.setState({ files: {...this.state.files, ...files}});
