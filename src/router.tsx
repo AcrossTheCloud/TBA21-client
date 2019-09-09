@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Route } from 'react-router';
+import { Route, Switch } from 'react-router';
 import { Router, Redirect } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { has } from 'lodash';
@@ -45,36 +45,46 @@ import {
 import { AuthConsumer, AuthProvider } from './providers/AuthProvider';
 import SearchConsole from './components/search/SearchConsole';
 
-const LoggedInRoutes = ({isAuthenticated, ...rest}) => {
+const LoggedInRoutes = ({ isAuthenticated, ...rest }) => {
   const isLoggedIn = isAuthenticated;
   return (
     <>
-      <Route exact path="/Profile" render={routeProps => isLoggedIn ? <Profile {...history} {...routeProps} {...rest}/> : <Redirect to="/"/>}/>
+      <Route exact path="/Profile" render={routeProps => isLoggedIn ? <Profile {...history} {...routeProps} {...rest} /> : <Redirect to="/" />} />
     </>
   );
 };
 
-const CollaboratorRoutes = ({authorisation, ...rest}) => {
+const CollaboratorRoutes = ({ authorisation, ...rest }) => {
   const hasAuth = has(authorisation, 'collaborator') || has(authorisation, 'editor') || has(authorisation, 'admin');
   return (
     <>
-      <Route exact path="/items/upload" render={routeProps => hasAuth ? <Items {...history} {...routeProps} {...rest}/> : <Redirect to="/"/>}/>
-      <Route exact path="/collection" render={routeProps => hasAuth ? <CollectionEditor editMode={false} {...history} {...routeProps} {...rest}/> : <Redirect to="/"/>}/>
+      <Route exact path="/items/upload" render={routeProps => hasAuth ? <Items {...history} {...routeProps} {...rest} /> : <Redirect to="/" />} />
+      <Route exact path="/collection" render={routeProps => hasAuth ? <CollectionEditor editMode={false} {...history} {...routeProps} {...rest} /> : <Redirect to="/" />} />
     </>
   );
 };
 
-const AdminRoutes = ({authorisation, ...rest}) => {
+const AdminRoutes = ({ authorisation, ...rest }) => {
   const isAdmin = has(authorisation, 'admin');
   return (
     <>
-      <Route exact path="/admin/ManageUsers" render={routeProps => isAdmin ? <AdminManageUsers {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
-      <Route exact path="/admin/Collections" render={routeProps => isAdmin ? <AdminCollections {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
-      <Route exact path="/admin/Items" render={routeProps => isAdmin ? <AdminItems {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
-      <Route exact path="/admin/People" render={routeProps => isAdmin ? <AdminPeople {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
+      <Route exact path="/admin/ManageUsers" render={routeProps => isAdmin ? <AdminManageUsers {...routeProps} {...rest} /> : <Redirect to="/" />} />
+      <Route exact path="/admin/Collections" render={routeProps => isAdmin ? <AdminCollections {...routeProps} {...rest} /> : <Redirect to="/" />} />
+      <Route exact path="/admin/Items" render={routeProps => isAdmin ? <AdminItems {...routeProps} {...rest} /> : <Redirect to="/" />} />
+      <Route exact path="/admin/People" render={routeProps => isAdmin ? <AdminPeople {...routeProps} {...rest} /> : <Redirect to="/" />} />
     </>
   );
 };
+
+const NoMatch = ({ location }) => {
+  return (
+    <div>
+      <h3>
+        Your requested path <code>{location.pathname}</code> is not found.
+      </h3>
+    </div>
+  );
+}
 
 export const AppRouter = () => {
   const currentLocation = window.location.pathname;
@@ -84,17 +94,16 @@ export const AppRouter = () => {
       <Router history={history}>
         <AuthProvider>
           <div id="body" className={currentLocation === '/' ? 'fixed' : ''}>
-
             <Route
               path="/"
               render={() => (
                 <>
                   <AuthConsumer>
-                    {({isAuthenticated}) => {
+                    {({ isAuthenticated }) => {
                       if (isAuthenticated) {
                         return <Header />;
                       } else {
-                        return  <></>;
+                        return <></>;
                       }
                     }}
                   </AuthConsumer>
@@ -103,32 +112,38 @@ export const AppRouter = () => {
               )}
             />
 
-            <Route exact path="/" component={Home} />
-            <Route exact path="/view" component={ViewItems} />
-            <Route path="/view/:itemId" component={ViewItem} />
-            <Route exact path="/map" component={MapView} />
-            <Route exact path="/login" component={Login} />
-            <Route exact path="/signup" component={SignUp} />
-            <Route exact path="/resetPassword/" component={ResetPassword} />
-            <Route exact path="/viewGraph" component={NetworkGraph} />
+            <Switch>
 
-            <Route exact path="/confirm/:email" component={AccountConfirmation} />
+              <Route exact path="/" component={Home} />
+              <Route exact path="/view" component={ViewItems} />
+              <Route path="/view/:itemId" component={ViewItem} />
+              <Route exact path="/map" component={MapView} />
+              <Route exact path="/login" component={Login} />
+              <Route exact path="/signup" component={SignUp} />
+              <Route exact path="/resetPassword/" component={ResetPassword} />
+              <Route exact path="/viewGraph" component={NetworkGraph} />
 
-            <AuthConsumer>
-              {({isLoading, authorisation, isAuthenticated}) => {
-                if (!isLoading) {
-                  return (
-                    <>
-                      <AdminRoutes authorisation={authorisation} history={history} />
-                      <CollaboratorRoutes authorisation={authorisation} history={history} />
-                      <LoggedInRoutes isAuthenticated={isAuthenticated} history={history} />
-                    </>
-                  );
-                } else {
-                  return <></>;
-                }
-              }}
-            </AuthConsumer>
+              <Route exact path="/confirm/:email" component={AccountConfirmation} />
+              <Route component={NoMatch} />
+            </Switch>
+
+              <AuthConsumer>
+                {({ isLoading, authorisation, isAuthenticated }) => {
+                  if (!isLoading) {
+                    return (
+                      <>
+                        <AdminRoutes authorisation={authorisation} history={history} />
+                        <CollaboratorRoutes authorisation={authorisation} history={history} />
+                        <LoggedInRoutes isAuthenticated={isAuthenticated} history={history} />
+                      </>
+                    );
+                  } else {
+                    return <></>;
+                  }
+                }}
+              </AuthConsumer>
+
+
 
           </div>
         </AuthProvider>
