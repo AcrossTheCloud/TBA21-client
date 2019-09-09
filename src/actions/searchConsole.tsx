@@ -32,12 +32,14 @@ export const search = (criteria: CriteriaOption[], focusArts: boolean = false, f
       }
     });
 
-    for (let i = 0; i < result.results ; i++) {
-      if (Array.isArray(result[i].s3_key)) {
-        result[i].file = await getCDNObject(result[i].s3_key[1]);
-      } else {
-        if (result[i].s3_key) {
-          result[i].file = await getCDNObject(result[i].s3_key);
+    for (let i = 0; i < result.results.length ; i++) {
+      if (result.results[i].s3_key) {
+        if (Array.isArray(result.results[i].s3_key) && result.results[i].s3_key.length) {
+          if (result.results[i].s3_key[0]) {
+            result.results[i].file = await getCDNObject(result.results[i].s3_key[0]);
+          }
+        } else {
+          result.results[i].file = await getCDNObject(result.results[i].s3_key);
         }
       }
     }
