@@ -44,6 +44,7 @@ import {
 
 import { AuthConsumer, AuthProvider } from './providers/AuthProvider';
 import SearchConsole from './components/search/SearchConsole';
+import { ErrorMessage } from './components/utils/alerts';
 
 const LoggedInRoutes = ({ isAuthenticated, ...rest }) => {
   const isLoggedIn = isAuthenticated;
@@ -77,13 +78,7 @@ const AdminRoutes = ({ authorisation, ...rest }) => {
 };
 
 const NoMatch = ({ location }) => {
-  return (location.pathname.match(/(\/admin\/|\/collection|\/items\/upload|\/Profile)/i)) ? <></> : (
-    <div>
-      <h3>
-        Your requested path <code>{location.pathname}</code> is not found.
-      </h3>
-    </div>
-  );
+  return (location.pathname.match(/(\/admin\/|\/collection|\/items\/upload|\/Profile)/i)) ? <></> : ( <ErrorMessage message={'404: Your requested path '+location.pathname+' is not found.'} />);
 }
 
 export const AppRouter = () => {
