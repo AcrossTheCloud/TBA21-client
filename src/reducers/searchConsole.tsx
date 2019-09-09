@@ -1,14 +1,12 @@
 import { SEARCH_RESULTS, CHANGE_VIEW } from 'actions/searchConsole';
 
 import { Tag } from '../components/metadata/Tags';
-import { Item } from '../types/Item';
-import { Collection } from '../types/Collection';
 
 export interface SearchConsoleState {
   concept_tags: Tag[];
   selected_tags: Tag[];
   view: 'grid' | 'list';
-  results: (Item | Collection)[];
+  results: any[];  // tslint:disable-line: no-any
 }
 const initialState: SearchConsoleState = {
   concept_tags: [],

@@ -2,6 +2,7 @@
 
 // Defining our Actions for the reducers.
 import { API } from 'aws-amplify';
+import { getCDNObject } from '../components/utils/s3File';
 
 export const CHANGE_VIEW = 'CHANGE_VIEW';
 export const SEARCH_RESULTS = 'SEARCH_RESULTS';
@@ -9,9 +10,7 @@ export const SEARCH_RESULTS = 'SEARCH_RESULTS';
 export interface CriteriaOption {
   label: string;
   value: string;
-  originalValue: string;
   field: string;
-  displayField: string;
 }
 
 export const changeView = (view: 'grid' | 'list') => dispatch => {
@@ -21,23 +20,31 @@ export const changeView = (view: 'grid' | 'list') => dispatch => {
    });
 };
 
-export const search = (criteria: CriteriaOption[]) => async dispatch => {
-  const results: string[] = [];
+export const search = (criteria: CriteriaOption[], focusArts: boolean = false, focusAction: boolean = false, focusScitech: boolean = false) => async dispatch => {
+  if (criteria && criteria.length) {
+    const result = await API.post('tba21', 'pages/search', {
+      body: {
+        criteria: criteria.map(e => ({'field': e.field, 'value': e.value})),
+        limit: 50,
+        focus_arts: focusArts,
+        focus_action: focusAction,
+        focus_scitech: focusScitech
+      }
+    });
 
-  if (criteria) {
-    for (let i = 0; i < criteria.length; i++) {
-      const result = await API.get('tba21', 'pages/search', {
-        queryStringParameters: {
-          searchQuery: criteria[i].originalValue,
-          limit: 50
+    for (let i = 0; i < result.results ; i++) {
+      if (Array.isArray(result[i].s3_key)) {
+        result[i].file = await getCDNObject(result[i].s3_key[1]);
+      } else {
+        if (result[i].s3_key) {
+          result[i].file = await getCDNObject(result[i].s3_key);
         }
-      });
-      results.push(result);
+      }
     }
 
     dispatch({
      type: SEARCH_RESULTS,
-     results: results,
+     results: result.results,
    });
   }
 };
