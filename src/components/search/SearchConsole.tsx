@@ -7,6 +7,7 @@ import { FaTimes } from 'react-icons/fa';
 import { uniqBy } from 'lodash';
 import { Col, Row, Container } from 'reactstrap';
 import { SearchConsoleState } from '../../reducers/searchConsole'; // Props from Redux.
+import { Document, Page, pdfjs } from 'react-pdf';
 
 import {
   search as dispatchSearch,
@@ -18,6 +19,9 @@ import AudioPlayer from '../layout/audio/AudioPlayer';
 import { Bubble } from './Bubble';
 
 import 'styles/components/search/searchConsole.scss';
+import AudioPreview from '../layout/audio/AudioPreview';
+
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 interface Props extends SearchConsoleState {
   changeView: Function;
@@ -42,6 +46,39 @@ const createCriteriaOption = (label: string, field: string): CriteriaOption => {
     value: label,
     field
   };
+};
+
+const FilePreview = (props: { data: any }) => { // tslint:disable-line: no-any
+  if (props.data.file.type === 'image') {
+    let thumbnails: string = '';
+    if (props.data.file.thumbnails) {
+      Object.entries(props.data.file.thumbnails).forEach( ([key, value]) => {
+        thumbnails = `${thumbnails}, ${value} ${key}w,`;
+      } );
+    }
+    return (
+      <img
+        srcSet={thumbnails}
+        src={props.data.file.url}
+        alt=""
+      />
+    );
+  } else if (props.data.file.type === 'video') {
+    return <img src={props.data.file.poster} alt={''}/>;
+  } else if (props.data.file.type === 'pdf') {
+    return (
+      <Document file={{ url: props.data.file.url }} style={{width: '100%', height: '100%'}} >
+        <Page pageNumber={1}/>
+      </Document>
+    );
+  } else if (props.data.file.type === 'downloadText' || props.data.file.type === 'text') {
+    return <img alt="" src="https://upload.wikimedia.org/wikipedia/commons/2/22/Unscharfe_Zeitung.jpg" className="image-fluid"/>;
+  } else if (props.data.file.type === 'audio') {
+    const {title, id, creators, type, date} = props.data;
+    return <AudioPreview data={{title, id, url: props.data.file.url, date, creators, type }} />;
+  } else {
+    return <></>;
+  }
 };
 
 class SearchConsole extends React.Component<Props, State> {
@@ -314,8 +351,20 @@ class SearchConsole extends React.Component<Props, State> {
                 } else {
                   return (
                     <Row className="result" key={i}>
-                      <Col xs="6">
-                        {t.title}
+                      {!!t.file ?
+                        <Col xs="2">
+                          <FilePreview data={t}/>
+                        </Col> : <></>
+                      }
+                      <Col xs="10">
+                        <Row>
+                          <Col xs="10">
+                            {t.title}
+                          </Col>
+                          <Col xs="10">
+                            {t.title}
+                          </Col>
+                        </Row>
                       </Col>
                     </Row>
                   );

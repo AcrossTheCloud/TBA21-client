@@ -235,6 +235,7 @@
     }
 
     &.open {
+      max-height: 100vh;
       .legend {
         max-height: 0;
         transition: max-height 1s;
@@ -287,6 +288,12 @@
       .results {
         max-height: unset;
         overflow: scroll;
+        padding: 20px 0 ;
+        .result {
+          border-bottom: 1px solid #fff;
+          padding-bottom: 5px;
+          margin-bottom: 5px;
+        }
       }
 
     }
