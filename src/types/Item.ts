@@ -362,9 +362,9 @@ export interface Item {
   place: string[] | null;
   regions: Regions[] | null;
 
-  item_type: itemType;
+  item_type: itemType | null;
 
-  item_subtype: itemAudio | itemImage | itemText | itemVideo;
+  item_subtype: itemAudio | itemImage | itemText | itemVideo | null;
   creators: string[] | null;
 
   contributor: string | null;
