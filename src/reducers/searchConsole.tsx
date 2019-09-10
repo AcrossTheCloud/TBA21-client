@@ -1,4 +1,4 @@
-import { SEARCH_RESULTS, CHANGE_VIEW } from 'actions/searchConsole';
+import { SEARCH_RESULTS, CHANGE_VIEW, SEARCH_LOADING } from 'actions/searchConsole';
 
 import { Tag } from '../components/metadata/Tags';
 
@@ -7,12 +7,14 @@ export interface SearchConsoleState {
   selected_tags: Tag[];
   view: 'grid' | 'list';
   results: any[];  // tslint:disable-line: no-any
+  loading: boolean;
 }
 const initialState: SearchConsoleState = {
   concept_tags: [],
   selected_tags: [],
   view: 'grid',
   results: [],
+  loading: false
 };
 
 export default (state: SearchConsoleState | null = initialState, action) => {
@@ -23,13 +25,19 @@ export default (state: SearchConsoleState | null = initialState, action) => {
     case CHANGE_VIEW:
       return {
         ...state,
-        view: action.view,
+        view: action.view
       }
     case SEARCH_RESULTS:
       return {
         ...state,
         results: action.results,
         view: 'list',
+        loading: action.loading
+      }
+    case SEARCH_LOADING:
+      return {
+        ...state,
+        loading: action.loading
       }
 
     default:
