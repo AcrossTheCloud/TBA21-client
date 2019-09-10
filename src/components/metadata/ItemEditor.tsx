@@ -2445,12 +2445,12 @@ export class ItemEditor extends React.Component<Props, State> {
                     {item.item_subtype === itemVideo.Lecture_Recording ? <this.VideoLectureRecording /> : <></>}
                     {item.item_subtype === itemVideo.Informational_Video ? <this.VideoInformationalVideo /> : <></>}
                     {item.item_subtype === itemVideo.Trailer ? <this.VideoMovieTrailer /> : <></>}
-                    {((item.item_subtype === itemVideo.Artwork_Documentation) && item.file.type === 'video') ? <this.VideoArtworkDocumentation /> : <></>}
+                    {((item.item_subtype === itemVideo.Artwork_Documentation) && (!!item.file && item.file.type === 'video')) ? <this.VideoArtworkDocumentation /> : <></>}
                     {(!!item.file && item.file.type === 'video') && item.item_subtype === itemVideo.Other ? <this.VideoOther /> : <></>}
 
                     {/*Item Image */}
                     {item.item_subtype === itemImage.Illustration ?  <this.ItemImage /> : <></>}
-                    {(item.item_subtype === itemImage.Artwork_Documentation) && item.file.type === 'image' ?  <this.ItemImage /> : <></>}
+                    {(item.item_subtype === itemImage.Artwork_Documentation) && (!!item.file && item.file.type === 'image') ?  <this.ItemImage /> : <></>}
 
                     {
                       item.item_subtype === itemImage.Photograph ||
