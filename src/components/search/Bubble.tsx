@@ -323,7 +323,7 @@ export class Bubble extends React.Component<Props, State> {
         <div className="action active">
           <div className="focus">Action</div></div>
         <div className="scitech active">
-          <div className="focus">Scitech</div></div>
+          <div className="focus">Sci-Tech</div></div>
         <canvas id="bubble" />
       </div>
     );

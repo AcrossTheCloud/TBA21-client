@@ -2530,7 +2530,7 @@ export class ItemEditor extends React.Component<Props, State> {
                       </Col>
                     </FormGroup>
                     <FormGroup row className="my-0 align-items-center">
-                      <Label for={`${item.s3_key}_focus_scitech`} sm="2">Sci Tech</Label>
+                      <Label for={`${item.s3_key}_focus_scitech`} sm="2">Sci-Tech</Label>
                       <Col sm="10">
                         <CustomInput type="checkbox" id={`${item.s3_key}_focus_scitech`} defaultChecked={item.focus_scitech !== null && parseInt(item.focus_scitech, 0) > 0} onChange={e => this.changeItem('focus_scitech', !e.target.checked ? '0' : '1')}/>
                       </Col>
