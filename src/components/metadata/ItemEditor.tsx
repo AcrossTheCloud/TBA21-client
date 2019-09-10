@@ -1603,6 +1603,12 @@ export class ItemEditor extends React.Component<Props, State> {
   }
   VideoArtworkDocumentation = (): JSX.Element => {
     const item = this.state.changedItem;
+    let duration = '';
+    if (!!item.duration) {
+      // we have to ignore this as it complains that it might be null ... even though we're checking..
+      // @ts-ignore
+      duration = item.duration.toString().match(/.{1,2}/g).join(':');
+    }
     return (
       <Row>
         <Col md="6">
@@ -1627,6 +1633,7 @@ export class ItemEditor extends React.Component<Props, State> {
           <FormGroup>
             <Label for="duration">Duration (Hour : Minute : Second)</Label>
             <TimeField
+              value={duration}
               colon=":"
               showSeconds
               onChange={e => this.changeItem('duration', e.split(':').join(''))}
