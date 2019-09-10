@@ -291,9 +291,11 @@ export const FilePreviewHome = (props: { data: HomepageData }): JSX.Element => {
     }
     if (props.data.file.type === 'pdf') {
       return (
-        <Document file={{ url: props.data.file.url }} style={{width: '100%', height: '100%'}} >
-          <Page pageNumber={1}/>
-        </Document>
+        <div className="pdf">
+          <Document file={{ url: props.data.file.url }} style={{width: '100%', height: '100%'}} >
+            <Page pageNumber={1}/>
+          </Document>
+        </div>
       );
     }
 
