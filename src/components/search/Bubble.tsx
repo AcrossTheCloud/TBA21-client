@@ -3,6 +3,10 @@ import $ from 'jquery';
 
 import 'styles/components/search/bubble.scss';
 
+interface State {
+  canMove: boolean;
+}
+
 interface Props {
   callback?: Function;
 }
@@ -42,7 +46,7 @@ class Easing {
   }
 }
 
-export class Bubble extends React.Component<Props, {}> {
+export class Bubble extends React.Component<Props, State> {
   resizeTimeout;
   bounds;
   pointRadius;
@@ -53,17 +57,24 @@ export class Bubble extends React.Component<Props, {}> {
   touchX;
   touchY;
 
+  _isMounted;
+
   constructor(props: Props) {
     super(props);
+    this._isMounted = false;
 
     this.points = [];
     this.ctx = null;
 
     const $body = $('body');
 
+    this.state = {
+      canMove: true
+    };
+
     // On Move
     $body.on('mousemove touchmove', '#bubble', e => {
-      if (e) {
+      if (e && this.state.canMove && this._isMounted) {
         const pageX: number = !!e.touches ? e.touches[0].pageX : (!!e.pageX ? e.pageX : 0);
         const pageY: number = !!e.touches ? e.touches[0].pageY : (!!e.pageY ? e.pageY : 0);
         this.touchX = pageX;
@@ -79,15 +90,26 @@ export class Bubble extends React.Component<Props, {}> {
 
     // On Click
     $body.on('click', '#bubble', e => {
-      if (e) {
+      if (e && this._isMounted) {
         const eX: number = !!e.pageX ? e.pageX : 0;
         const eY: number = !!e.pageY ? e.pageY : 0;
 
+
         if (typeof this.props.callback === 'function') {
-          this.props.callback(this.getFocus(eX, eY));
+          if (this.state.canMove) {
+            this.props.callback(this.getFocus(eX, eY));
+          } else {
+            this.getFocus(eX, eY);
+            this.props.callback({
+              focus_art: false,
+              focus_action: false,
+              focus_scitech: false
+            });
+          }
         }
 
-        this.moveBubble(eX, eY);
+        this.setState({ canMove: !this.state.canMove }, () => this.moveBubble(eX, eY) );
+
       } else {
         return;
       }
@@ -95,12 +117,16 @@ export class Bubble extends React.Component<Props, {}> {
 
     // On Click or On touch
     $body.on('touchend', '#bubble', e => {
-      this.getFocus(this.touchX , this.touchY);
+      if (this._isMounted) {
+        this.getFocus(this.touchX, this.touchY);
+      }
     });
 
   }
 
   componentDidMount(): void {
+    this._isMounted = true;
+
     this.init();
 
     window.addEventListener('resize', () => {
@@ -111,8 +137,9 @@ export class Bubble extends React.Component<Props, {}> {
       }, 500);
     });
   }
-
+item
   componentWillUnmount(): void {
+    this._isMounted = false;
     window.removeEventListener('resize', () => { return; });
   }
 
@@ -155,12 +182,6 @@ export class Bubble extends React.Component<Props, {}> {
     this.toggleLabelHighlight('art', focusArts);
     this.toggleLabelHighlight('action', focusAction);
     this.toggleLabelHighlight('scitech', focusScitech);
-
-    console.log(
-      'focusArts', focusArts, Math.fround(w2),
-      'focusAction', focusAction, Math.fround(w3),
-      'focusScitech', focusScitech, Math.fround(w1),
-    );
 
     return {
       focus_arts: focusArts,
@@ -296,14 +317,14 @@ export class Bubble extends React.Component<Props, {}> {
 
   render() {
     return (
-      <div id="bubbleWrapper">
+      <div id="bubbleWrapper" className={this.state.canMove ? 'active' : ''}>
         <div className="art active">
           <div className="focus">Art</div>
         </div>
         <div className="action active">
           <div className="focus">Action</div></div>
         <div className="scitech active">
-          <div className="focus">Scitech</div></div>
+          <div className="focus">Sci-Tech</div></div>
         <canvas id="bubble" />
       </div>
     );

@@ -134,6 +134,11 @@
         max-width: 100% !important;
         height: auto !important;
       }
+
+      .pdf {
+        position: relative;
+        max-width: 300px;
+      }
     }
   }
 }

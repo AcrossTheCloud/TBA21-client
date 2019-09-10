@@ -56,14 +56,14 @@
 
       .view {
         height: auto !important;
-      }
-
-      .line {
-        width: 2.5em;
-        height: 4px;
-        background-color: #fff;
-        border-radius: 1em;
-        margin-top: 12.5px;
+        .line {
+          width: 2.5em;
+          height: 4px;
+          background-color: #fff;
+          border-radius: 1em;
+          margin-top: 12.5px;
+          margin-left: 15px;
+        }
       }
 
       .mid {
@@ -108,7 +108,7 @@
             border-radius: 0;
             height: 100%;
             width: 100%;
-            padding: 0 10px;
+            padding: 10px;
 
 
             .search__placeholder {
@@ -171,6 +171,7 @@
         }
 
         .search__menu {
+          z-index: 99999;
           margin: 0;
           border-radius: 0;
           background: rgba(0, 18 ,24 , 0.65);
@@ -179,6 +180,10 @@
             background: transparent;
             &.search__option--is-focused {
               background: rgba($dark-blue, 0.3);
+            }
+
+            .field {
+              text-transform: capitalize;
             }
           }
         }
@@ -228,7 +233,16 @@
       }
     }
 
+
+    .results {
+      max-height: 0;
+      overflow: hidden;
+    }
+
     &.open {
+      max-height: 100vh;
+      overflow-y: scroll;
+      overflow-x: hidden;
       .legend {
         max-height: 0;
         transition: max-height 1s;
@@ -238,6 +252,7 @@
         overflow: unset !important;
 
         .view {
+          width: 0;
           .line {
             margin: 0;
             height: 0 !important;
@@ -277,6 +292,30 @@
           }
         }
       }
+
+      .results {
+        position: relative;
+        max-height: unset;
+        overflow: scroll;
+        padding: 20px 0 ;
+        .result {
+          position: relative;
+          max-height: 200px;
+          overflow: hidden;
+          border-bottom: 1px solid #fff;
+          padding-bottom: 5px;
+          margin-bottom: 5px;
+          .pdf {
+            position: relative;
+            max-width: 200px;
+            canvas {
+              max-width: 100%;
+              height: auto !important;
+            }
+          }
+        }
+      }
+
     }
 
     &.hover {
@@ -302,6 +341,7 @@
         }
 
         .view {
+          width: 0;
           .line {
             height: 0;
             margin-top: 0;

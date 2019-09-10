@@ -79,14 +79,17 @@ class HeaderClass extends React.Component<RouteComponentProps, State> { // tslin
     );
   }
 
-  ColllaboratorRoutes(): JSX.Element {
+  ContributorRoutes(): JSX.Element {
     return (
       <>
         <NavItem>
-          <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/items/upload">Add Items</NavLink>
+          <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/contributor/items/upload">Add Items</NavLink>
         </NavItem>
         <NavItem>
-          <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/collection">Add Collection</NavLink>
+          <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/contributor/collection">Add Collection</NavLink>
+        </NavItem>
+        <NavItem>
+          <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/contributor/items">Contributions</NavLink>
         </NavItem>
       </>
     );
@@ -113,8 +116,8 @@ class HeaderClass extends React.Component<RouteComponentProps, State> { // tslin
                       : <></>
                     }
 
-                    {isAuthenticated && (has(authorisation, 'collaborator') || has(authorisation, 'editor') || has(authorisation, 'admin')) ?
-                      <this.ColllaboratorRoutes />
+                    {isAuthenticated && (has(authorisation, 'contributor') || has(authorisation, 'admin')) ?
+                      <this.ContributorRoutes />
                       : <></>
                     }
 

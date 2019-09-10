@@ -1452,7 +1452,7 @@ export class CollectionEditor extends React.Component<Props, State> {
                       </Col>
                     </FormGroup>
                     <FormGroup row className="my-0 align-items-center">
-                      <Label for={`${id}_focus_scitech`} sm="2">Sci Tech</Label>
+                      <Label for={`${id}_focus_scitech`} sm="2">Sci-Tech</Label>
                       <Col sm="10">
                         <CustomInput type="checkbox" id={`${id}_focus_scitech`} defaultChecked={(typeof focus_scitech !== 'undefined' && focus_scitech !== null) && parseInt(focus_scitech, 0) > 0} onChange={e => this.changeCollection('focus_scitech', e.target.checked ? '1' : '0')}/>
                       </Col>

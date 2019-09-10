@@ -58,8 +58,9 @@ const CollaboratorRoutes = ({authorisation, ...rest}) => {
   const hasAuth = has(authorisation, 'collaborator') || has(authorisation, 'editor') || has(authorisation, 'admin');
   return (
     <>
-      <Route exact path="/items/upload" render={routeProps => hasAuth ? <Items {...history} {...routeProps} {...rest}/> : <Redirect to="/"/>}/>
-      <Route exact path="/collection" render={routeProps => hasAuth ? <CollectionEditor editMode={false} {...history} {...routeProps} {...rest}/> : <Redirect to="/"/>}/>
+      <Route exact path="/contributor/items/upload" render={routeProps => hasAuth ? <Items {...history} {...routeProps} {...rest}/> : <Redirect to="/"/>}/>
+      <Route exact path="/contributor/collection" render={routeProps => hasAuth ? <CollectionEditor editMode={false} {...history} {...routeProps} {...rest}/> : <Redirect to="/"/>}/>
+      <Route exact path="/contributor/items" render={routeProps => hasAuth ? <AdminItems {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
     </>
   );
 };
@@ -104,31 +105,33 @@ export const AppRouter = () => {
             />
 
             <Route exact path="/" component={Home} />
-            <Route exact path="/view" component={ViewItems} />
-            <Route path="/view/:itemId" component={ViewItem} />
-            <Route exact path="/map" component={MapView} />
-            <Route exact path="/login" component={Login} />
-            <Route exact path="/signup" component={SignUp} />
-            <Route exact path="/resetPassword/" component={ResetPassword} />
-            <Route exact path="/viewGraph" component={NetworkGraph} />
+            <div id="content">
+              <Route exact path="/view" component={ViewItems} />
+              <Route path="/view/:itemId" component={ViewItem} />
+              <Route exact path="/map" component={MapView} />
+              <Route exact path="/login" component={Login} />
+              <Route exact path="/signup" component={SignUp} />
+              <Route exact path="/resetPassword/" component={ResetPassword} />
+              <Route exact path="/viewGraph" component={NetworkGraph} />
 
-            <Route exact path="/confirm/:email" component={AccountConfirmation} />
+              <Route exact path="/confirm/:email" component={AccountConfirmation} />
 
-            <AuthConsumer>
-              {({isLoading, authorisation, isAuthenticated}) => {
-                if (!isLoading) {
-                  return (
-                    <>
-                      <AdminRoutes authorisation={authorisation} history={history} />
-                      <CollaboratorRoutes authorisation={authorisation} history={history} />
-                      <LoggedInRoutes isAuthenticated={isAuthenticated} history={history} />
-                    </>
-                  );
-                } else {
-                  return <></>;
-                }
-              }}
-            </AuthConsumer>
+              <AuthConsumer>
+                {({isLoading, authorisation, isAuthenticated}) => {
+                  if (!isLoading) {
+                    return (
+                      <>
+                        <AdminRoutes authorisation={authorisation} history={history} />
+                        <CollaboratorRoutes authorisation={authorisation} history={history} />
+                        <LoggedInRoutes isAuthenticated={isAuthenticated} history={history} />
+                      </>
+                    );
+                  } else {
+                    return <></>;
+                  }
+                }}
+              </AuthConsumer>
+            </div>
 
           </div>
         </AuthProvider>

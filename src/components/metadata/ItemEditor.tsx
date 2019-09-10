@@ -2076,7 +2076,15 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="episode_name">Episode Name</Label>
-            <Input type="text" className="episode_name" defaultValue={item.episode_name ? item.episode_name : ''} onChange={e => this.changeItem('episode_name', e.target.value)}/>
+            <Input
+              type="text"
+              className="episode_name"
+              defaultValue={item.episode_name ? item.episode_name : ''}
+              onChange={e => this.validateLength('episode_name', e.target.value)}
+              invalid={this.state.validate.hasOwnProperty('episode_name') && !this.state.validate.episode_name}
+            />
+            <FormFeedback>This is a required field</FormFeedback>
+
           </FormGroup>
         </Col>
         <Col md="6">
@@ -2087,8 +2095,12 @@ export class ItemEditor extends React.Component<Props, State> {
         </Col>
         <Col md="6">
           <FormGroup>
-            <Label for="speakers">Speakers</Label>
-            <Input type="text" className="speakers" defaultValue={item.speakers ? item.speakers.join(',') : ''} onChange={e => this.changeItem('speakers', e.target.value)}/>
+            <FormGroup>
+              <Label for="speakers">Speakers(s)</Label>
+              <CustomSelect values={item.speakers} callback={values => this.validateLength('speakers', values)} />
+              <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('speakers') && !this.state.validate.speakers ? 'block' : 'none') }}>This is a required field</FormFeedback>
+              <FormText>Use tab or enter to add a new Speaker.</FormText>
+            </FormGroup>
           </FormGroup>
         </Col>
       </Row>
@@ -2151,7 +2163,14 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="recording_name">Recording Name</Label>
-            <Input type="text" className="recording_name" defaultValue={item.recording_name ? item.recording_name : ''} onChange={e => this.changeItem('recording_name', e.target.value)}/>
+            <Input
+              type="text"
+              className="recording_name"
+              defaultValue={item.recording_name ? item.recording_name : ''}
+              onChange={e => this.validateLength('recording_name', e.target.value)}
+              invalid={this.state.validate.hasOwnProperty('recording_name') && !this.state.validate.recording_name}
+            />
+            <FormFeedback>This is a required field</FormFeedback>
           </FormGroup>
         </Col>
         <Col md="6">
@@ -2162,8 +2181,8 @@ export class ItemEditor extends React.Component<Props, State> {
         </Col>
         <Col md="6">
           <FormGroup>
-            <Label for="speakers">Speakers</Label>
-            <Input type="text" className="speakers" defaultValue={item.speakers ? item.speakers.join(',') : ''} onChange={e => this.changeItem('speakers', e.target.value)}/>
+            <Label for="speakers">Speakers(s)</Label>
+            <CustomSelect values={item.speakers} callback={values => this.changeItem('speakers', values)} />
           </FormGroup>
         </Col>
         <Col md="6">
@@ -2530,7 +2549,7 @@ export class ItemEditor extends React.Component<Props, State> {
                       </Col>
                     </FormGroup>
                     <FormGroup row className="my-0 align-items-center">
-                      <Label for={`${item.s3_key}_focus_scitech`} sm="2">Sci Tech</Label>
+                      <Label for={`${item.s3_key}_focus_scitech`} sm="2">Sci-Tech</Label>
                       <Col sm="10">
                         <CustomInput type="checkbox" id={`${item.s3_key}_focus_scitech`} defaultChecked={item.focus_scitech !== null && parseInt(item.focus_scitech, 0) > 0} onChange={e => this.changeItem('focus_scitech', !e.target.checked ? '0' : '1')}/>
                       </Col>

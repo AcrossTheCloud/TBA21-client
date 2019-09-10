@@ -4,8 +4,11 @@ import AsyncSelect from 'react-select/async';
 import $ from 'jquery';
 import { API } from 'aws-amplify';
 import { FaTimes } from 'react-icons/fa';
-import { Col, Row, Container } from 'reactstrap';
+import { uniqBy } from 'lodash';
+import { Col, Row, Container, Spinner } from 'reactstrap';
 import { SearchConsoleState } from '../../reducers/searchConsole'; // Props from Redux.
+import { Document, Page, pdfjs } from 'react-pdf';
+
 import {
   search as dispatchSearch,
   changeView,
@@ -16,6 +19,9 @@ import AudioPlayer from '../layout/audio/AudioPlayer';
 import { Bubble } from './Bubble';
 
 import 'styles/components/search/searchConsole.scss';
+import AudioPreview from '../layout/audio/AudioPreview';
+
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 interface Props extends SearchConsoleState {
   changeView: Function;
@@ -29,16 +35,56 @@ interface State {
   searchInputValue: string;
   criteria: CriteriaOption[];
   selectedCriteria: CriteriaOption[];
+  focus_arts: boolean;
+  focus_action: boolean;
+  focus_scitech: boolean;
 }
 
-const createCriteriaOption = (label: string, field: string, displayField?: string): CriteriaOption => {
+const createCriteriaOption = (label: string, field: string): CriteriaOption => {
+  let displayField = field.split('_').join(' ');
+  if (field === 'full_name') {
+    displayField = 'Profile';
+  }
   return {
-    label: `${label} - (${displayField || field})`,
-    value: `${label} - (${displayField || field})`,
-    originalValue: label,
-    field,
-    displayField: displayField || field
+    label: `${label} (${displayField})`,
+    value: label,
+    field
   };
+};
+
+const FilePreview = (props: { data: any }) => { // tslint:disable-line: no-any
+  if (props.data.file.type === 'image') {
+    let thumbnails: string = '';
+    if (props.data.file.thumbnails) {
+      Object.entries(props.data.file.thumbnails).forEach( ([key, value]) => {
+        thumbnails = `${thumbnails}, ${value} ${key}w,`;
+      } );
+    }
+    return (
+      <img
+        srcSet={thumbnails}
+        src={props.data.file.url}
+        alt=""
+      />
+    );
+  } else if (props.data.file.type === 'video') {
+    return <img src={props.data.file.poster} alt={''}/>;
+  } else if (props.data.file.type === 'pdf') {
+    return (
+      <div className="pdf">
+        <Document file={{ url: props.data.file.url }} style={{width: '100%', height: '100%'}} >
+          <Page pageNumber={1}/>
+        </Document>
+      </div>
+    );
+  } else if (props.data.file.type === 'downloadText' || props.data.file.type === 'text') {
+    return <img alt="" src="https://upload.wikimedia.org/wikipedia/commons/2/22/Unscharfe_Zeitung.jpg" className="image-fluid"/>;
+  } else if (props.data.file.type === 'audio') {
+    const {title, id, creators, type, date} = props.data;
+    return <AudioPreview data={{title, id, url: props.data.file.url, date, creators, type }} />;
+  } else {
+    return <></>;
+  }
 };
 
 class SearchConsole extends React.Component<Props, State> {
@@ -58,7 +104,11 @@ class SearchConsole extends React.Component<Props, State> {
       searchMenuOpen: false,
       searchInputValue: '',
       criteria: [],
-      selectedCriteria: []
+      selectedCriteria: [],
+
+      focus_arts: false,
+      focus_action: false,
+      focus_scitech: false,
     };
 
   }
@@ -113,14 +163,16 @@ class SearchConsole extends React.Component<Props, State> {
         clearTimeout(this.searchTimeout);
         if (!this._isMounted) { return; }
 
-        const suggestions = await API.get('tba21', 'pages/search', { queryStringParameters: { query: input }});
+        let suggestions = await API.get('tba21', 'pages/search', { queryStringParameters: { query: input }});
         const keywordTags = await API.get('tba21', 'tags', { queryStringParameters: { query: input, limit: 50, type: 'keyword'} });
         const conceptTags = await API.get('tba21', 'tags', { queryStringParameters: { query: input, limit: 50, type: 'concept'} });
 
+        suggestions = suggestions.results.map( t => createCriteriaOption(t.value, t.field) );
+        suggestions = uniqBy(suggestions, (e: CriteriaOption) => e.field);
         const results = [
-          ...suggestions.results.map( t => createCriteriaOption(t.value, t.field) ),
-          ...keywordTags.tags.map( t => createCriteriaOption(t.tag_name, 'keyword_tag', 'Keyword Tag') ),
-          ...conceptTags.tags.map( t => createCriteriaOption(t.tag_name, 'concept_tag', 'Concept Tag') )
+          ...suggestions,
+          ...keywordTags.tags.map( t => createCriteriaOption(t.tag_name, 'keyword_tag') ),
+          ...conceptTags.tags.map( t => createCriteriaOption(t.tag_name, 'concept_tag') )
         ];
 
         // Return the results to React Select
@@ -138,8 +190,10 @@ class SearchConsole extends React.Component<Props, State> {
    * Then dispatches the redux action.
   */
   searchDispatch = () => {
-    if (this.state.selectedCriteria && this.state.selectedCriteria.length) {
-      this.props.dispatchSearch(this.state.selectedCriteria);
+    console.log('searchDispatch 1');
+    if (this.state.isOpen && this.state.selectedCriteria && this.state.selectedCriteria.length) {
+      console.log('searchDispatch 2');
+      this.props.dispatchSearch(this.state.selectedCriteria, this.state.focus_arts, this.state.focus_action, this.state.focus_scitech);
     }
   }
 
@@ -169,7 +223,8 @@ class SearchConsole extends React.Component<Props, State> {
 
   render() {
     const
-      { view, results } = this.props,
+      // { view, results } = this.props,
+      { results } = this.props,
       { hover, isOpen } = this.state,
       isOpenClass = isOpen ? 'open' : '',
       hoveredClass = hover ? 'hover' : '';
@@ -180,45 +235,44 @@ class SearchConsole extends React.Component<Props, State> {
         <AudioPlayer className="audioPlayerSticky" />
 
         <Container fluid className={`${hoveredClass} ${isOpenClass} console`} onMouseEnter={() => this.toggleHover(true)} onMouseLeave={() => this.toggleHover(false)} onTouchStart={this.touchDeviceOpen} >
-
           <Row className="legend">
-            <Col xs="2" className="border_right">View</Col>
+            {/*<Col xs="2" className="border_right">View</Col>*/}
             <Col xs="6" className="border_right">Search</Col>
             <Col xs="4">Focus</Col>
           </Row>
 
           <Row className="options">
-
-            <div className={`view col-2 ${isOpen ? isOpenClass : `opacity5`} ${isOpen && window.innerWidth < 540 ? 'd-none' : ''}`}>
+            {/*<div className={`view col-2 ${isOpen ? isOpenClass : `opacity5`} ${isOpen && window.innerWidth < 540 ? 'd-none' : ''}`}>*/}
+            <div className={`view ${isOpen ? isOpenClass : `opacity5`} ${isOpen && window.innerWidth < 540 ? 'd-none' : ''}`}>
               <div className="line" />
-              <Row>
-                <Col
-                  xs="6"
-                  className={`padding option ${isOpen && view === 'grid' ? 'active' : ''}`}
-                  onClick={() => {
-                    if (isOpen) {
-                      this.props.changeView('grid');
-                    } else {
-                      this.toggleOpen();
-                    }
-                  }}
-                >
-                  Grid
-                </Col>
-                <Col
-                  xs="6"
-                  className={`padding option px-0 ${isOpen && view === 'list' ? 'active' : ''}`}
-                  onClick={() => {
-                    if (isOpen) {
-                      this.props.changeView('list');
-                    } else {
-                      this.toggleOpen();
-                    }
-                  }}
-                >
-                  List
-                </Col>
-              </Row>
+              {/*<Row>*/}
+              {/*  <Col*/}
+              {/*    xs="6"*/}
+              {/*    className={`padding option ${isOpen && view === 'grid' ? 'active' : ''}`}*/}
+              {/*    onClick={() => {*/}
+              {/*      if (isOpen) {*/}
+              {/*        this.props.changeView('grid');*/}
+              {/*      } else {*/}
+              {/*        this.toggleOpen();*/}
+              {/*      }*/}
+              {/*    }}*/}
+              {/*  >*/}
+              {/*    Grid*/}
+              {/*  </Col>*/}
+              {/*  <Col*/}
+              {/*    xs="6"*/}
+              {/*    className={`padding option px-0 ${isOpen && view === 'list' ? 'active' : ''}`}*/}
+              {/*    onClick={() => {*/}
+              {/*      if (isOpen) {*/}
+              {/*        this.props.changeView('list');*/}
+              {/*      } else {*/}
+              {/*        this.toggleOpen();*/}
+              {/*      }*/}
+              {/*    }}*/}
+              {/*  >*/}
+              {/*    List*/}
+              {/*  </Col>*/}
+              {/*</Row>*/}
             </div>
 
             <div
@@ -232,7 +286,7 @@ class SearchConsole extends React.Component<Props, State> {
                     className="searchInput"
                     classNamePrefix="search"
                     placeholder="Search ..."
-                    noOptionsMessage={() => 'No Search Results'}
+                    noOptionsMessage={() => 'Search Suggestions'}
                     menuIsOpen={this.state.searchMenuOpen}
                     isDisabled={!isOpen}
                     ref={this.searchInputRef}
@@ -254,7 +308,11 @@ class SearchConsole extends React.Component<Props, State> {
 
                     formatOptionLabel={(t, o) => {
                       if (o.context === 'menu') {
-                        return (<div className="option"><span className="value">{t.originalValue}</span> <span className="field float-right">{t.displayField}</span></div>);
+                        let field = t.field.split('_').join(' ');
+                        if (t.field === 'full_name') {
+                          field = 'Profile';
+                        }
+                        return (<div className="option"><span className="value">{t.value}</span> <span className="field float-right">{field}</span></div>);
                       } else {
                         return <div className="tag-option">{t.label}</div>;
                       }
@@ -263,12 +321,10 @@ class SearchConsole extends React.Component<Props, State> {
                 </div>
                 <div
                   className={`icon margin ${isOpen ? `${isOpenClass}` : `opacity5`}`}
-                  onClick={ isOpen ?
-                    () => { this.searchDispatch(); }
-                    : this.toggleOpen}
+                  onClick={isOpen ? () => { return; } : this.toggleOpen}
                 >
                   <Row>
-                    <Col>
+                    <Col onClick={isOpen ? this.searchDispatch : this.toggleOpen}>
                       <span className="simple-icon-magnifier"/>
                     </Col>
                     {/*{ Is only shown when opened fully. }*/}
@@ -286,6 +342,57 @@ class SearchConsole extends React.Component<Props, State> {
             </Col>
           </Row>
 
+          <div className="results">
+            {
+              results.map((t, i) => {
+                if (t.full_name) {
+                  return (
+                    <Row className="result" key={i}>
+                      {t.profile_image ?
+                        <Col xs="4">
+                          <img src={t.profile_image} alt=""/>
+                        </Col>
+                        : ''}
+                      <Col xs={t.profile_image ? '8' : '12'}>
+                        {t.full_name}
+                      </Col>
+                    </Row>
+                  );
+                } else {
+                  if (!!t.file && t.file.type === 'audio') {
+                    return (
+                      <Row className="result" key={i}>
+                        <Col xs="12">
+                          <FilePreview data={t}/>
+                        </Col>
+                      </Row>
+                    );
+                  } else {
+                    return (
+                      <Row className="result" key={i}>
+                        {!!t.file ?
+                          <Col xs="2">
+                            <FilePreview data={t}/>
+                          </Col> : <></>
+                        }
+                        <Col xs="10">
+                          <Row>
+                            <Col xs="10">
+                              {t.title}
+                            </Col>
+                            <Col xs="10">
+                              {t.title}
+                            </Col>
+                          </Row>
+                        </Col>
+                      </Row>
+                    );
+                  }
+                }
+              })
+            }
+          </div>
+
           <Row className="bubbleRow">
             {this.state.isOpen ?
               <Bubble callback={e => { if (this._isMounted) { this.setState(e); }}} />
@@ -294,14 +401,11 @@ class SearchConsole extends React.Component<Props, State> {
           </Row>
 
         </Container>
-
-        {isOpen && view === 'list' ?
-          <Container fluid className="results">
-            {results.map((t, i) => <div key={i}> {t.toString()} </div>)}
-          </Container>
-          : <></>
-        }
-
+        <div className="overlay_fixed_middle" style={this.props.loading ? {} : {display: 'none'}}>
+          <div className="middle">
+            <Spinner type="grow"/>
+          </div>
+        </div>
       </div>
     );
   }
@@ -314,6 +418,8 @@ const mapStateToProps = (state: { searchConsole: SearchConsoleState }) => ({
 
   view: state.searchConsole.view,
   results: state.searchConsole.results,
+
+  loading: state.searchConsole.loading
 
 });
 
