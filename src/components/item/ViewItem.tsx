@@ -9,11 +9,12 @@ import { Alerts, ErrorMessage } from '../utils/alerts';
 import { Item, Regions } from '../../types/Item';
 import { FilePreview } from '../utils/FilePreview';
 import { Languages } from '../../types/Languages';
+import { browser } from '../utils/browser';
+import { RouteComponentProps, withRouter } from 'react-router';
 
 import 'styles/components/pages/viewItem.scss';
-import { browser } from '../utils/browser';
 
-interface Props extends Alerts {
+interface Props extends RouteComponentProps, Alerts {
   fetchItem: Function;
   item: Item;
 }
@@ -85,79 +86,78 @@ class ViewItem extends React.Component<Props, State> {
     );
 
     return (
-      <div id="item" className="container-fluid">
+      <Row id="item" >
         <ErrorMessage message={this.props.errorMessage} />
         {file && file.url ?
-          <Row className="file">
+          <Col xs="12" className="file">
             <FilePreview file={file}/>
-          </Row>
+          </Col>
           : <></>
         }
-        <Row>
-          <Col md="8" className="left border-right">
-            <Row>
-              <Col xs={{ size: 12, order: 2 }} md={{ size: 8, order: 1 }} className="creators">
-                {creators ? creators.join(', ') : <></>}
-              </Col>
-              <Col xs={{ size: 12, order: 1 }} md={{ size: 4, order: 2 }} className="subline text-right">
-                {item_subtype}
-              </Col>
-            </Row>
-            <Row>
-              <Col>
-                <h1>{title}</h1>
-              </Col>
-            </Row>
 
-            <Row>
-              <Col className="description">
+        <Col xs="12" md="8" className="left border-right">
+          <Row>
+            <Col xs={{ size: 12, order: 2 }} md={{ size: 8, order: 1 }} className="creators">
+              {creators ? creators.join(', ') : <></>}
+            </Col>
+            <Col xs={{ size: 12, order: 1 }} md={{ size: 4, order: 2 }} className="subline text-right">
+              {item_subtype}
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <h1>{title}</h1>
+            </Col>
+          </Row>
+
+          <Row>
+            <Col className="description">
+              {
+                description ?
+                  this.browser === 'ie6-11' ? description.split('\n').map((d, i) => <p key={i}>{d}</p>) : description
+                : <></>
+              }
+            </Col>
+          </Row>
+        </Col>
+        <Col xs="12" md="4" className="right">
+          {!!regions ?
+            regions.map( (region, i) => (
+              <ItemDetails key={i} label="Region" value={Regions[region]} />
+            ))
+          :
+            ''
+          }
+          {!!license ? <ItemDetails label="License" value={license} /> : ''}
+          {!!language ? <ItemDetails label="Language" value={Languages[language]} /> : ''}
+
+          {!!aggregated_concept_tags ?
+            <Row className="border-bottom subline details">
+              <Col xs="12">Concept Tags</Col>
+              <Col xs="12">
                 {
-                  description ?
-                    this.browser === 'ie6-11' ? description.split('\n').map((d, i) => <p key={i}>{d}</p>) : description
-                  : <></>
+                  aggregated_concept_tags.map(t => t.tag_name)
                 }
               </Col>
             </Row>
-          </Col>
-          <Col md="4" className="right">
-            {!!regions ?
-              regions.map( (region, i) => (
-                <ItemDetails key={i} label="Region" value={Regions[region]} />
-              ))
-            :
-              ''
-            }
-            {!!license ? <ItemDetails label="License" value={license} /> : ''}
-            {!!language ? <ItemDetails label="Language" value={Languages[language]} /> : ''}
-
-            {!!aggregated_concept_tags ?
-              <Row className="border-bottom subline details">
-                <Col xs="12">Concept Tags</Col>
-                <Col xs="12">
-                  {
-                    aggregated_concept_tags.map(t => t.tag_name)
-                  }
-                </Col>
-              </Row>
-            : ''}
-            {!!aggregated_keyword_tags ?
-              <Row className="subline details">
-                <Col xs="12">Keyword Tags</Col>
-                <Col xs="12">
-                  {
-                    aggregated_keyword_tags.map(t => t.tag_name)
-                  }
-                </Col>
-              </Row>
-            : ''}
-            <Row>
-              <Col className="px-0">
-                <div style={{ height: '15px', background: `linear-gradient(to right, #0076FF ${focusPercentage(focus_arts)}%, #9013FE ${focusPercentage(focus_scitech)}%, #50E3C2 ${focusPercentage(focus_action)}%)` }} />
+          : ''}
+          {!!aggregated_keyword_tags ?
+            <Row className="subline details">
+              <Col xs="12">Keyword Tags</Col>
+              <Col xs="12">
+                {
+                  aggregated_keyword_tags.map(t => t.tag_name)
+                }
               </Col>
             </Row>
-          </Col>
-        </Row>
-      </div>
+          : ''}
+          <Row>
+            <Col className="px-0">
+              <div style={{ height: '15px', background: `linear-gradient(to right, #0076FF ${focusPercentage(focus_arts)}%, #9013FE ${focusPercentage(focus_scitech)}%, #50E3C2 ${focusPercentage(focus_action)}%)` }} />
+            </Col>
+          </Row>
+        </Col>
+      </Row>
     );
   }
 }
@@ -171,4 +171,4 @@ const mapStateToProps = (state: { viewItem: State }) => { // tslint:disable-line
 };
 
 // Connect our redux store State to Props, and pass through the fetchItem function.
-export default connect(mapStateToProps, { fetchItem })(ViewItem);
+export default withRouter(connect(mapStateToProps, { fetchItem })(ViewItem));

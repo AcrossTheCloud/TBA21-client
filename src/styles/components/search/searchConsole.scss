@@ -299,6 +299,7 @@
         overflow: scroll;
         padding: 20px 0 ;
         .result {
+          cursor: pointer;
           position: relative;
           max-height: 200px;
           overflow: hidden;

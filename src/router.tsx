@@ -107,7 +107,14 @@ export const AppRouter = () => {
             <Route exact path="/" component={Home} />
             <div id="content">
               <Route exact path="/view" component={ViewItems} />
-              <Route path="/view/:itemId" component={ViewItem} />
+              <Route
+                path="/view/:itemId"
+                render={() => (
+                  <div className="container-fluid">
+                    <ViewItem />
+                  </div> )
+                }
+              />
               <Route exact path="/map" component={MapView} />
               <Route exact path="/login" component={Login} />
               <Route exact path="/signup" component={SignUp} />
