@@ -99,6 +99,7 @@ export class Bubble extends React.Component<Props, State> {
           if (this.state.canMove) {
             this.props.callback(this.getFocus(eX, eY));
           } else {
+            this.getFocus(eX, eY);
             this.props.callback({
               focus_art: false,
               focus_action: false,
@@ -136,7 +137,7 @@ export class Bubble extends React.Component<Props, State> {
       }, 500);
     });
   }
-
+item
   componentWillUnmount(): void {
     this._isMounted = false;
     window.removeEventListener('resize', () => { return; });

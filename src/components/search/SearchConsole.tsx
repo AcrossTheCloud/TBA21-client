@@ -5,7 +5,7 @@ import $ from 'jquery';
 import { API } from 'aws-amplify';
 import { FaTimes } from 'react-icons/fa';
 import { uniqBy } from 'lodash';
-import { Col, Row, Container } from 'reactstrap';
+import { Col, Row, Container, Spinner } from 'reactstrap';
 import { SearchConsoleState } from '../../reducers/searchConsole'; // Props from Redux.
 import { Document, Page, pdfjs } from 'react-pdf';
 
@@ -41,8 +41,12 @@ interface State {
 }
 
 const createCriteriaOption = (label: string, field: string): CriteriaOption => {
+  let displayField = field.split('_').join(' ');
+  if (field === 'full_name') {
+    displayField = 'Profile';
+  }
   return {
-    label: `${label} (${field})`,
+    label: `${label} (${displayField})`,
     value: label,
     field
   };
@@ -67,9 +71,11 @@ const FilePreview = (props: { data: any }) => { // tslint:disable-line: no-any
     return <img src={props.data.file.poster} alt={''}/>;
   } else if (props.data.file.type === 'pdf') {
     return (
-      <Document file={{ url: props.data.file.url }} style={{width: '100%', height: '100%'}} >
-        <Page pageNumber={1}/>
-      </Document>
+      <div className="pdf">
+        <Document file={{ url: props.data.file.url }} style={{width: '100%', height: '100%'}} >
+          <Page pageNumber={1}/>
+        </Document>
+      </div>
     );
   } else if (props.data.file.type === 'downloadText' || props.data.file.type === 'text') {
     return <img alt="" src="https://upload.wikimedia.org/wikipedia/commons/2/22/Unscharfe_Zeitung.jpg" className="image-fluid"/>;
@@ -184,7 +190,9 @@ class SearchConsole extends React.Component<Props, State> {
    * Then dispatches the redux action.
   */
   searchDispatch = () => {
-    if (this.state.selectedCriteria && this.state.selectedCriteria.length) {
+    console.log('searchDispatch 1');
+    if (this.state.isOpen && this.state.selectedCriteria && this.state.selectedCriteria.length) {
+      console.log('searchDispatch 2');
       this.props.dispatchSearch(this.state.selectedCriteria, this.state.focus_arts, this.state.focus_action, this.state.focus_scitech);
     }
   }
@@ -215,7 +223,8 @@ class SearchConsole extends React.Component<Props, State> {
 
   render() {
     const
-      { view, results } = this.props,
+      // { view, results } = this.props,
+      { results } = this.props,
       { hover, isOpen } = this.state,
       isOpenClass = isOpen ? 'open' : '',
       hoveredClass = hover ? 'hover' : '';
@@ -226,45 +235,44 @@ class SearchConsole extends React.Component<Props, State> {
         <AudioPlayer className="audioPlayerSticky" />
 
         <Container fluid className={`${hoveredClass} ${isOpenClass} console`} onMouseEnter={() => this.toggleHover(true)} onMouseLeave={() => this.toggleHover(false)} onTouchStart={this.touchDeviceOpen} >
-
           <Row className="legend">
-            <Col xs="2" className="border_right">View</Col>
+            {/*<Col xs="2" className="border_right">View</Col>*/}
             <Col xs="6" className="border_right">Search</Col>
             <Col xs="4">Focus</Col>
           </Row>
 
           <Row className="options">
-
-            <div className={`view col-2 ${isOpen ? isOpenClass : `opacity5`} ${isOpen && window.innerWidth < 540 ? 'd-none' : ''}`}>
+            {/*<div className={`view col-2 ${isOpen ? isOpenClass : `opacity5`} ${isOpen && window.innerWidth < 540 ? 'd-none' : ''}`}>*/}
+            <div className={`view ${isOpen ? isOpenClass : `opacity5`} ${isOpen && window.innerWidth < 540 ? 'd-none' : ''}`}>
               <div className="line" />
-              <Row>
-                <Col
-                  xs="6"
-                  className={`padding option ${isOpen && view === 'grid' ? 'active' : ''}`}
-                  onClick={() => {
-                    if (isOpen) {
-                      this.props.changeView('grid');
-                    } else {
-                      this.toggleOpen();
-                    }
-                  }}
-                >
-                  Grid
-                </Col>
-                <Col
-                  xs="6"
-                  className={`padding option px-0 ${isOpen && view === 'list' ? 'active' : ''}`}
-                  onClick={() => {
-                    if (isOpen) {
-                      this.props.changeView('list');
-                    } else {
-                      this.toggleOpen();
-                    }
-                  }}
-                >
-                  List
-                </Col>
-              </Row>
+              {/*<Row>*/}
+              {/*  <Col*/}
+              {/*    xs="6"*/}
+              {/*    className={`padding option ${isOpen && view === 'grid' ? 'active' : ''}`}*/}
+              {/*    onClick={() => {*/}
+              {/*      if (isOpen) {*/}
+              {/*        this.props.changeView('grid');*/}
+              {/*      } else {*/}
+              {/*        this.toggleOpen();*/}
+              {/*      }*/}
+              {/*    }}*/}
+              {/*  >*/}
+              {/*    Grid*/}
+              {/*  </Col>*/}
+              {/*  <Col*/}
+              {/*    xs="6"*/}
+              {/*    className={`padding option px-0 ${isOpen && view === 'list' ? 'active' : ''}`}*/}
+              {/*    onClick={() => {*/}
+              {/*      if (isOpen) {*/}
+              {/*        this.props.changeView('list');*/}
+              {/*      } else {*/}
+              {/*        this.toggleOpen();*/}
+              {/*      }*/}
+              {/*    }}*/}
+              {/*  >*/}
+              {/*    List*/}
+              {/*  </Col>*/}
+              {/*</Row>*/}
             </div>
 
             <div
@@ -300,7 +308,11 @@ class SearchConsole extends React.Component<Props, State> {
 
                     formatOptionLabel={(t, o) => {
                       if (o.context === 'menu') {
-                        return (<div className="option"><span className="value">{t.value}</span> <span className="field float-right">{t.field.split('_').join(' ')}</span></div>);
+                        let field = t.field.split('_').join(' ');
+                        if (t.field === 'full_name') {
+                          field = 'Profile';
+                        }
+                        return (<div className="option"><span className="value">{t.value}</span> <span className="field float-right">{field}</span></div>);
                       } else {
                         return <div className="tag-option">{t.label}</div>;
                       }
@@ -309,12 +321,10 @@ class SearchConsole extends React.Component<Props, State> {
                 </div>
                 <div
                   className={`icon margin ${isOpen ? `${isOpenClass}` : `opacity5`}`}
-                  onClick={ isOpen ?
-                    () => { this.searchDispatch(); }
-                    : this.toggleOpen}
+                  onClick={isOpen ? () => { return; } : this.toggleOpen}
                 >
                   <Row>
-                    <Col>
+                    <Col onClick={isOpen ? this.searchDispatch : this.toggleOpen}>
                       <span className="simple-icon-magnifier"/>
                     </Col>
                     {/*{ Is only shown when opened fully. }*/}
@@ -391,6 +401,11 @@ class SearchConsole extends React.Component<Props, State> {
           </Row>
 
         </Container>
+        <div className="overlay_fixed_middle" style={this.props.loading ? {} : {display: 'none'}}>
+          <div className="middle">
+            <Spinner type="grow"/>
+          </div>
+        </div>
       </div>
     );
   }
@@ -403,6 +418,8 @@ const mapStateToProps = (state: { searchConsole: SearchConsoleState }) => ({
 
   view: state.searchConsole.view,
   results: state.searchConsole.results,
+
+  loading: state.searchConsole.loading
 
 });
 

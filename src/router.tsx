@@ -58,8 +58,9 @@ const CollaboratorRoutes = ({authorisation, ...rest}) => {
   const hasAuth = has(authorisation, 'collaborator') || has(authorisation, 'editor') || has(authorisation, 'admin');
   return (
     <>
-      <Route exact path="/items/upload" render={routeProps => hasAuth ? <Items {...history} {...routeProps} {...rest}/> : <Redirect to="/"/>}/>
-      <Route exact path="/collection" render={routeProps => hasAuth ? <CollectionEditor editMode={false} {...history} {...routeProps} {...rest}/> : <Redirect to="/"/>}/>
+      <Route exact path="/contributor/items/upload" render={routeProps => hasAuth ? <Items {...history} {...routeProps} {...rest}/> : <Redirect to="/"/>}/>
+      <Route exact path="/contributor/collection" render={routeProps => hasAuth ? <CollectionEditor editMode={false} {...history} {...routeProps} {...rest}/> : <Redirect to="/"/>}/>
+      <Route exact path="/contributor/items" render={routeProps => hasAuth ? <AdminItems {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
     </>
   );
 };
