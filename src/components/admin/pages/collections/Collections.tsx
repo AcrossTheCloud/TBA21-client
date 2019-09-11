@@ -9,6 +9,7 @@ import { Collection } from 'types/Collection';
 import { CollectionEditor } from 'components/metadata/CollectionEditor';
 
 import { Alerts, ErrorMessage, SuccessMessage } from 'components/utils/alerts';
+import { RouteComponentProps, withRouter } from 'react-router';
 
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css';
@@ -31,11 +32,11 @@ interface State extends Alerts {
   deleteErrorMessage: string | JSX.Element | undefined;
 }
 
-export default class Collections extends React.Component<{}, State> {
+class Collections extends React.Component<RouteComponentProps, State> {
   _isMounted;
   tableColumns;
 
-  constructor(props: {}) {
+  constructor(props: RouteComponentProps) {
     super(props);
     this._isMounted = false;
 
@@ -97,8 +98,10 @@ export default class Collections extends React.Component<{}, State> {
         queryStringParameters = {
           offset: offset,
           limit: this.state.sizePerPage
-        },
-        response = await API.get('tba21', 'admin/collections/get', { queryStringParameters: queryStringParameters });
+        };
+
+      const isContributorPath = (this.props.location.pathname.match(/contributor/i));
+      const response = await API.get('tba21', `${ isContributorPath ? 'contributor/collections/getByPerson' :  'admin/collections/get' }`, { queryStringParameters: queryStringParameters });
 
       return {
         collections: response.collections,
@@ -298,3 +301,5 @@ export default class Collections extends React.Component<{}, State> {
     );
   }
 }
+
+export default withRouter(Collections);
