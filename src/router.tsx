@@ -60,14 +60,14 @@ const ContributorsRoutes = ({authorisation, ...rest}) => {
   const hasAuth = has(authorisation, 'contributor') || has(authorisation, 'editor') || has(authorisation, 'admin');
   return (
     <>
-      <Route exact path="/contributor/items/upload" render={routeProps => hasAuth ? <Items {...history} {...routeProps} {...rest}/> : <Redirect to="/"/>}/>
+      <Route exact path="/contributor/items/add" render={routeProps => hasAuth ? <Items {...history} {...routeProps} {...rest}/> : <Redirect to="/"/>}/>
       <Route exact path="/contributor/items" render={routeProps => hasAuth ? <AdminItems {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
 
-      <Route exact path="/contributor/collections/upload" render={routeProps => hasAuth ? <CollectionEditor editMode={false} {...history} {...routeProps} {...rest}/> : <Redirect to="/"/>}/>
+      <Route exact path="/contributor/collections/add" render={routeProps => hasAuth ? <CollectionEditor editMode={false} {...history} {...routeProps} {...rest}/> : <Redirect to="/"/>}/>
       <Route exact path="/contributor/collections" render={routeProps => hasAuth ? <AdminCollections {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
 
       <Route exact path="/contributor/announcements" render={() => hasAuth ? <Announcements {...rest} /> : <Redirect to="/"/>}/>
-      <Route exact path="/contributor/announcements/upload" render={() => hasAuth ? <AnnouncementEditor editMode={false} path={'/contributor/announcements/add'} {...rest} /> : <Redirect to="/"/>}/>
+      <Route exact path="/contributor/announcements/add" render={() => hasAuth ? <AnnouncementEditor editMode={false} path={'/contributor/announcements/add'} {...rest} /> : <Redirect to="/"/>}/>
     </>
   );
 };
