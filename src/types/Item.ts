@@ -295,7 +295,7 @@ export enum itemVideo {
   Lecture_Recording = 'Lecture Recording',
   Informational_Video = 'Informational Video',
   Trailer = 'Trailer',
-  Artwork_Documentation = 'Artwork Documentation',
+  Video_Artwork_Documentation = 'Artwork Documentation',
   Raw_Footage = 'Raw Footage',
   Video = 'Video',
   Other = 'Other'

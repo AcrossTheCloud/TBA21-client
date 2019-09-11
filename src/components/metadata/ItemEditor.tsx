@@ -423,8 +423,9 @@ export class ItemEditor extends React.Component<Props, State> {
       produced_by
     } = this.state.changedItem;
 
-    const
-      textFields = {
+    const { file } = this.state.originalItem;
+
+    const textFields =  (file.type === 'text')  ? {
         'Academic Publication': {
           'authors': (authors || false),
           'subtitle': (subtitle || false)
@@ -465,8 +466,8 @@ export class ItemEditor extends React.Component<Props, State> {
           'authors': (authors || false),
           'institution': (institution || false),
         }
-      },
-      audioFields = {
+      } : '';
+    const audioFields = (file.type === 'audio')  ?  {
         'Sound Art': {
           'performers': (performers || false)
         },
@@ -490,8 +491,8 @@ export class ItemEditor extends React.Component<Props, State> {
         'Performance Poetry ': {
           'performers ': (performers || false)
         }
-      },
-      imageFields = {
+      } : '';
+    const imageFields = (file.type === 'image')  ?  {
         'Photograph': {
           'medium': (medium || false),
           'dimensions': (dimensions || false)
@@ -522,8 +523,8 @@ export class ItemEditor extends React.Component<Props, State> {
         'Artwork Documentation': {
           'exhibited_at': (exhibited_at || false)
         }
-      },
-      videoFields = {
+      } : '';
+    const videoFields  = (file.type === 'video')  ?   {
         'Movie': {
           'directors': (directors || false)
         },
@@ -555,7 +556,7 @@ export class ItemEditor extends React.Component<Props, State> {
         'Informational Video': {
           'produced_by': (produced_by || false)
         }
-      };
+      } : '';
 
     // All the required fields per sub type
     const subtypeRequiredFields = {
@@ -2452,7 +2453,7 @@ export class ItemEditor extends React.Component<Props, State> {
                     {item.item_subtype === itemVideo.Lecture_Recording ? <this.VideoLectureRecording /> : <></>}
                     {item.item_subtype === itemVideo.Informational_Video ? <this.VideoInformationalVideo /> : <></>}
                     {item.item_subtype === itemVideo.Trailer ? <this.VideoMovieTrailer /> : <></>}
-                    {((item.item_subtype === itemVideo.Artwork_Documentation) && (!!item.file && item.file.type === 'video')) ? <this.VideoArtworkDocumentation /> : <></>}
+                    {((item.item_subtype === itemVideo.Video_Artwork_Documentation) && (!!item.file && item.file.type === 'video')) ? <this.VideoArtworkDocumentation /> : <></>}
                     {(!!item.file && item.file.type === 'video') && item.item_subtype === itemVideo.Other ? <this.VideoOther /> : <></>}
 
                     {/*Item Image */}
@@ -2523,7 +2524,17 @@ export class ItemEditor extends React.Component<Props, State> {
                         className="concept_tags"
                         type="concept"
                         defaultValues={conceptTags}
-                        callback={tags => this.validateLength('concept_tags', tags ? tags.map(tag => tag.id) : [])}
+                        callback={tags => {
+                          const tagList = tags ? tags.map(tag => ({id: tag.id, tag_name: tag.label})) : [];
+                          this.validateLength('concept_tags', tags ? tags.map(tag => tag.id) : []);
+                          if (this._isMounted) {
+                            const { originalItem, changedItem } = this.state;
+                            this.setState({
+                              originalItem: {...originalItem, aggregated_concept_tags: tagList},
+                              changedItem: {...changedItem, aggregated_concept_tags: tagList}
+                            });
+                          }
+                        }}
                       />
                       <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('concept_tags') && !this.state.validate.concept_tags ? 'block' : 'none') }}>This is a required field</FormFeedback>
                     </FormGroup>
@@ -2535,7 +2546,17 @@ export class ItemEditor extends React.Component<Props, State> {
                         type="keyword"
                         defaultValues={keywordTags}
                         loadItemRekognitionTags={!keywordTags.length ? this.state.originalItem.s3_key : ''}
-                        callback={tags => this.changeItem('keyword_tags', tags ? tags.map(tag => tag.id) : [])}
+                        callback={tags => {
+                          const tagList = tags ? tags.map(tag => ({id: tag.id, tag_name: tag.label})) : [];
+                          this.validateLength('keyword_tags', tags ? tags.map(tag => tag.id) : []);
+                          if (this._isMounted) {
+                            const { originalItem, changedItem } = this.state;
+                            this.setState({
+                              originalItem: {...originalItem, aggregated_keyword_tags: tagList},
+                              changedItem: {...changedItem, aggregated_keyword_tags: tagList}
+                            });
+                          }
+                        }}
                       />
                     </FormGroup>
 
