@@ -6,8 +6,9 @@ import { FileUpload } from './FileUpload';
 import { Item } from '../../types/Item';
 import { ItemEditor } from './ItemEditor';
 import { Button, Col, Row } from 'reactstrap';
+import { RouteComponentProps, withRouter } from 'react-router';
 
-interface Props {
+interface Props extends RouteComponentProps {
   callback?: Function;
   items?: Item[];
   allowRemoveItem?: boolean;
@@ -25,7 +26,7 @@ interface ItemsObject {
   };
 }
 
-const ItemsDisplay = (props: { removeItem: Function | undefined, s3Key: string, item: { loaded: boolean, isLoading: boolean, details?: Item }, callback: Function }): JSX.Element => {
+const ItemsDisplay = (props: { isContributorPath: boolean, removeItem: Function | undefined, s3Key: string, item: { loaded: boolean, isLoading: boolean, details?: Item }, callback: Function }): JSX.Element => {
 
   if (props.item && Object.keys(props.item).length && !props.item.isLoading && props.item.loaded && props.item.details) {
     return (
@@ -36,7 +37,7 @@ const ItemsDisplay = (props: { removeItem: Function | undefined, s3Key: string, 
           </Col>
           : <></>
         }
-        <ItemEditor item={props.item.details}/>
+        <ItemEditor item={props.item.details} isContributorPath={props.isContributorPath}/>
       </Row>
     );
   } else {
@@ -56,11 +57,15 @@ const ItemsDisplay = (props: { removeItem: Function | undefined, s3Key: string, 
   }
 };
 
-export class Items extends React.Component<Props, State> {
+class ItemsClass extends React.Component<Props, State> {
   _isMounted;
+  isContributorPath;
+
   constructor(props: Props) {
     super(props);
     this._isMounted = false;
+
+    this.isContributorPath = (this.props.location.pathname.match(/contributor/i));
 
     this.state = {
       items: {}
@@ -185,7 +190,7 @@ export class Items extends React.Component<Props, State> {
           if (!this._isMounted) { clearTimeout(apiTimeout); return; }
           counter --;
 
-          const response = await API.get('tba21', 'admin/items/getItemNC', {
+          const response = await API.get('tba21', (this.isContributorPath ? 'contributor/items/getItem' : 'admin/items/getItemNC'), {
             queryStringParameters: {
               s3Key: s3key
             }
@@ -217,10 +222,12 @@ export class Items extends React.Component<Props, State> {
         <FileUpload callback={this.fileUploadCallback} />
         {
           Object.entries(this.state.items).map( ( [s3Key, item] ) => {
-            return <ItemsDisplay key={s3Key} s3Key={s3Key} item={item} callback={this.fileUploadCallback} removeItem={this.props.allowRemoveItem ? this.removeItem : undefined} />;
+            return <ItemsDisplay isContributorPath={this.isContributorPath} key={s3Key} s3Key={s3Key} item={item} callback={this.fileUploadCallback} removeItem={this.props.allowRemoveItem ? this.removeItem : undefined} />;
           })
         }
       </>
     );
   }
 }
+
+export const Items = withRouter(ItemsClass);

@@ -15,11 +15,11 @@ export { default as AdminItems } from './admin/pages/items/Items';
 export { default as AdminPeople } from './admin/pages/people/People';
 // END ADMIN
 
-// START Collaborator
+// START Contributor
 export { default as Collections } from './admin/pages/collections/Collections';
 export { Items } from './metadata/Items';
 export { CollectionEditor } from './metadata/CollectionEditor';
-// END Collaborator
+// END Contributor
 
 // START ITEMS
 export { default as ViewItems } from './item/ViewItems';

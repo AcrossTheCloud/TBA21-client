@@ -4,20 +4,21 @@ import * as React from 'react';
 import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import { Button, Container, Modal, ModalBody, ModalFooter, ModalHeader, Spinner } from 'reactstrap';
-
-import { Item } from 'types/Item';
-import { ItemEditor } from 'components/metadata/ItemEditor';
-import { Alerts, ErrorMessage, SuccessMessage } from 'components/utils/alerts';
 import { RouteComponentProps, withRouter } from 'react-router';
+
+import { Announcement } from 'types/Announcement';
+
+import { Alerts, ErrorMessage, SuccessMessage } from 'components/utils/alerts';
 
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css';
 
 import 'styles/components/admin/tables/modal.scss';
+import { AnnouncementEditor } from '../../../metadata/AnnouncementEditor';
 
 interface State extends Alerts {
-  items: Item[];
-  itemIndex?: number;
+  announcements: Announcement[];
+  editingIndex?: number;
 
   componentModalOpen: boolean;
   deleteModalOpen: boolean;
@@ -30,19 +31,21 @@ interface State extends Alerts {
   deleteErrorMessage: string | JSX.Element | undefined;
 }
 
-class Items extends React.Component<RouteComponentProps, State> {
+class Announcements extends React.Component<RouteComponentProps, State> {
   _isMounted;
-  isContributorPath;
   tableColumns;
+  isContributorPath;
 
   constructor(props: RouteComponentProps) {
     super(props);
     this._isMounted = false;
 
+    this.isContributorPath = (this.props.location.pathname.match(/contributor/i));
+
     this.state = {
       componentModalOpen: false,
       deleteModalOpen: false,
-      items: [],
+      announcements: [],
 
       tableIsLoading: true,
       page: 1,
@@ -51,11 +54,9 @@ class Items extends React.Component<RouteComponentProps, State> {
       deleteErrorMessage: undefined
     };
 
-    this.isContributorPath = (this.props.location.pathname.match(/contributor/i));
-
     this.tableColumns = [
       {
-        dataField: 's3_key',
+        dataField: 'id',
         hidden: true
       },
       {
@@ -64,7 +65,12 @@ class Items extends React.Component<RouteComponentProps, State> {
       },
       {
         dataField: 'title',
-        text: 'Title'
+        text: 'Title',
+        events: {
+          onClick: (e, column, columnIndex, row, rowIndex) => {
+            console.log(e, column, columnIndex, row, rowIndex);
+          }
+        }
       },
       {
         dataField: 'options',
@@ -84,47 +90,42 @@ class Items extends React.Component<RouteComponentProps, State> {
 
   async componentDidMount() {
     this._isMounted = true;
-    this.getItems();
+    this.getAnnouncement();
   }
 
-  componentWillUnmount() {
-    this._isMounted = false;
-  }
-
-  getItemsQuery = async (offset: number): Promise<{ items: Item[], totalSize: number } | void> => {
+  getAnnouncementQuery = async (offset: number): Promise<{ announcements: Announcement[], totalSize: number } | void> => {
     try {
       const
         queryStringParameters = {
           offset: offset,
           limit: this.state.sizePerPage
         },
-        response = await API.get('tba21', `${ this.isContributorPath ? 'contributor/items/getByPerson' :  'admin/items' }`, { queryStringParameters: queryStringParameters });
+        response = await API.get('tba21', `${this.isContributorPath ? 'contributor' : 'admin'}/announcements`, { queryStringParameters: queryStringParameters });
 
-      if (!this._isMounted) { return; }
       return {
-        items: response.items,
-        totalSize: response.items[0] && response.items[0].count ? parseInt(response.items[0].count, 0) : 0
+        announcements: response.announcements,
+        totalSize: response.announcements[0] && response.announcements[0].count ? parseInt(response.announcements[0].count, 0) : 0
       };
 
     } catch (e) {
       if (!this._isMounted) { return; }
-      this.setState({items: [], errorMessage: `${e} - We've had some trouble getting the list of items.`, tableIsLoading: false});
+      this.setState({announcements: [], errorMessage: `We've had some trouble getting the list of announcements.`, tableIsLoading: false});
     }
   }
 
-  getItems = async (): Promise<void> => {
+  getAnnouncement = async (): Promise<void> => {
     try {
       const
         currentIndex = (this.state.page - 1) * this.state.sizePerPage,
-        response = await this.getItemsQuery(currentIndex);
+        response = await this.getAnnouncementQuery(currentIndex);
 
       if (response) {
-        const { items, totalSize } = response;
+        const { announcements, totalSize } = response;
 
         if (!this._isMounted) { return; }
         this.setState(
           {
-            items: items,
+            announcements: announcements,
             tableIsLoading: false,
             totalSize: totalSize
           }
@@ -132,25 +133,25 @@ class Items extends React.Component<RouteComponentProps, State> {
       }
     } catch (e) {
       if (!this._isMounted) { return; }
-      this.setState({items: [], errorMessage: `${e} - We've had some trouble getting the list of items.`, tableIsLoading: false});
+      this.setState({announcements: [], errorMessage: `We've had some trouble getting the list of announcements.`, tableIsLoading: false});
     }
   }
 
-  onEditButtonClick = (itemIndex: number) => {
+  onEditButtonClick = (collectionIndex: number) => {
     if (!this._isMounted) { return; }
     this.setState(
       {
         componentModalOpen: true,
-        itemIndex: itemIndex,
+        editingIndex: collectionIndex,
       }
     );
   }
-  onDeleteButtonClick = (itemIndex: number) => {
+  onDeleteButtonClick = (collectionIndex: number) => {
     if (!this._isMounted) { return; }
     this.setState(
       {
         deleteModalOpen: true,
-        itemIndex: itemIndex,
+        editingIndex: collectionIndex,
       }
     );
   }
@@ -163,50 +164,51 @@ class Items extends React.Component<RouteComponentProps, State> {
      })
     );
   }
-
   deleteModalToggle = () => {
     if (!this._isMounted) { return; }
     this.setState( prevState => ({
        ...prevState,
-      deleteModalOpen: !prevState.deleteModalOpen,
-      deleteErrorMessage: undefined,
-      successMessage: undefined
+       deleteModalOpen: !prevState.deleteModalOpen,
+       deleteErrorMessage: undefined,
+       successMessage: undefined
      })
     );
   }
-
-  deleteItem = async () => {
+  deleteAnnouncement = async () => {
     const state = {
       deleteErrorMessage: undefined,
       successMessage: undefined
     };
     try {
-      const itemIndex: number | undefined = this.state.itemIndex;
-      if (typeof itemIndex !== 'undefined' && itemIndex > -1) {
-        await API.del('tba21', (this.isContributorPath ? 'contributor/items' :  'admin/items'), {
+      const announcementIndex: number | undefined = this.state.editingIndex;
+      if (typeof announcementIndex !== 'undefined' && announcementIndex > -1) {
+
+        await API.del('tba21', `${this.isContributorPath ? 'contributor' : 'admin'}/announcements`, {
           queryStringParameters: {
-            s3Key: this.state.items[itemIndex].s3_key
+            id: this.state.announcements[announcementIndex].id
           }
         });
-        this.getItems();
+        this.getAnnouncement();
         Object.assign(state, {
           deleteModalOpen: false,
-          successMessage: 'Item deleted'
+          successMessage: 'Announcement deleted'
         });
       } else {
         Object.assign(state, {
-          deleteErrorMessage: 'This item may have already been deleted.',
+          deleteErrorMessage: 'This announcement may have already been deleted.',
           deleteModalOpen: false
         });
-        this.getItems();
+        this.getAnnouncement();
       }
 
     } catch (e) {
-        Object.assign(state, {
-          deleteErrorMessage: 'We had some trouble deleting this item. Please try again later.'
-        });
+      Object.assign(state, {
+        deleteErrorMessage: 'We had some trouble deleting this announcement. Please try again later.'
+      });
     } finally {
-      this.setState(state);
+      if (this._isMounted) {
+        this.setState(state);
+      }
     }
   }
 
@@ -217,7 +219,7 @@ class Items extends React.Component<RouteComponentProps, State> {
       this.setState({ tableIsLoading: true });
 
       try {
-        const response = await this.getItemsQuery(currentIndex);
+        const response = await this.getAnnouncementQuery(currentIndex);
         if (response) {
           if (!this._isMounted) { return; }
 
@@ -225,14 +227,14 @@ class Items extends React.Component<RouteComponentProps, State> {
             errorMessage: undefined,
             page,
             sizePerPage,
-            items: response.items,
+            announcements: response.announcements,
             tableIsLoading: false
           });
         }
 
       } catch (e) {
         if (!this._isMounted) { return; }
-        this.setState({page: this.state.page - 1, errorMessage: `We've had some trouble getting the list of items.`, tableIsLoading: false});
+        this.setState({page: this.state.page - 1, errorMessage: `We've had some trouble getting your list of announcements.`, tableIsLoading: false});
       }
     }
   }
@@ -240,9 +242,9 @@ class Items extends React.Component<RouteComponentProps, State> {
   render() {
     const
       { page, sizePerPage, totalSize } = this.state,
-      items = this.state.items,
+      announcements = this.state.announcements,
       currentIndex = (page - 1) * sizePerPage,
-      slicedItems = items.length ? items.slice(currentIndex, currentIndex + sizePerPage) : [];
+      slicedItems = announcements.length ? announcements.slice(currentIndex, currentIndex + sizePerPage) : [];
 
     return (
       <Container>
@@ -251,55 +253,39 @@ class Items extends React.Component<RouteComponentProps, State> {
         <BootstrapTable
           remote
           bootstrap4
-          className="itemTable"
-          keyField="s3_key"
-          data={this.state.tableIsLoading ? [] : items}
+          className="announcementTable"
+          keyField="id"
+          data={this.state.tableIsLoading ? [] : announcements}
           columns={this.tableColumns}
           pagination={paginationFactory({ page, sizePerPage, totalSize })}
           onTableChange={this.handleTableChange}
           noDataIndication={() => !this.state.tableIsLoading && !slicedItems.length ? 'No data to display.' : <Spinner style={{ width: '10rem', height: '10rem' }} type="grow" />}
         />
-        {/* Edit Item Modal */}
-        <Modal isOpen={this.state.componentModalOpen} className="fullwidth">
+
+        <Modal isOpen={this.state.componentModalOpen} className="tableModal fullwidth">
           <ModalBody>
-
-            {
-              typeof this.state.itemIndex !== 'undefined' && this.state.itemIndex >= 0 ?
-                <ItemEditor
-                  isContributorPath={this.isContributorPath}
-                  item={this.state.items[this.state.itemIndex]}
-                  index={this.state.itemIndex}
-                  onChange={c => {
-                    if (this._isMounted && typeof this.state.itemIndex !== 'undefined' && this.state.itemIndex >= 0) {
-                      const stateItems = this.state.items;
-                      stateItems[c.index] = c.item;
-                      this.setState({ items: stateItems });
-                    }
-                  }}
-                />
-                :
-                <></>
+            {typeof this.state.editingIndex !== 'undefined' && this.state.editingIndex >= 0 ?
+              <AnnouncementEditor editMode={true} path={this.props.location.pathname} announcement={this.state.announcements[this.state.editingIndex]}/>
+              : <></>
             }
-
           </ModalBody>
           <ModalFooter>
             <Button className="mr-auto" color="secondary" onClick={this.componentModalToggle}>Close</Button>
           </ModalFooter>
         </Modal>
 
-        {/* Delete Item Modal */}
-        <Modal isOpen={this.state.deleteModalOpen}>
+        <Modal isOpen={this.state.deleteModalOpen} className="tableModal">
           <ErrorMessage message={this.state.deleteErrorMessage}/>
-          <ModalHeader>Delete Item?</ModalHeader>
-          <ModalBody>Are you 100% sure you want to delete this item?</ModalBody>
-            <ModalFooter>
-              <Button color="danger" className="mr-auto" onClick={this.deleteItem}>I'm Sure</Button>{' '}
-              <Button color="secondary" onClick={this.deleteModalToggle}>Cancel</Button>
-            </ModalFooter>
+          <ModalHeader>Delete Announcement?</ModalHeader>
+          <ModalBody>Are you 100% sure you want to delete this announcement?</ModalBody>
+          <ModalFooter>
+            <Button color="danger" className="mr-auto" onClick={this.deleteAnnouncement}>I'm Sure</Button>{' '}
+            <Button color="secondary" onClick={this.deleteModalToggle}>Cancel</Button>
+          </ModalFooter>
         </Modal>
       </Container>
     );
   }
 }
 
-export default withRouter(Items);
+export default withRouter(Announcements);

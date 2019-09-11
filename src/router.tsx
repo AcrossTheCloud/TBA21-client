@@ -24,10 +24,10 @@ import {
 
   // END ADMIN
 
-  // START Collaborator
+  // START Conributors
   Items,
   CollectionEditor,
-  // END Collaborator
+  // END Conributors
 
   // START USER
   Profile,
@@ -44,6 +44,8 @@ import {
 
 import { AuthConsumer, AuthProvider } from './providers/AuthProvider';
 import SearchConsole from './components/search/SearchConsole';
+import Announcements from './components/admin/pages/announcements/Announcements';
+import { AnnouncementEditor } from './components/metadata/AnnouncementEditor';
 
 const LoggedInRoutes = ({isAuthenticated, ...rest}) => {
   const isLoggedIn = isAuthenticated;
@@ -54,13 +56,18 @@ const LoggedInRoutes = ({isAuthenticated, ...rest}) => {
   );
 };
 
-const CollaboratorRoutes = ({authorisation, ...rest}) => {
-  const hasAuth = has(authorisation, 'collaborator') || has(authorisation, 'editor') || has(authorisation, 'admin');
+const ContributorsRoutes = ({authorisation, ...rest}) => {
+  const hasAuth = has(authorisation, 'contributor') || has(authorisation, 'editor') || has(authorisation, 'admin');
   return (
     <>
-      <Route exact path="/contributor/items/upload" render={routeProps => hasAuth ? <Items {...history} {...routeProps} {...rest}/> : <Redirect to="/"/>}/>
-      <Route exact path="/contributor/collection" render={routeProps => hasAuth ? <CollectionEditor editMode={false} {...history} {...routeProps} {...rest}/> : <Redirect to="/"/>}/>
+      <Route exact path="/contributor/items/add" render={routeProps => hasAuth ? <Items {...history} {...routeProps} {...rest}/> : <Redirect to="/"/>}/>
       <Route exact path="/contributor/items" render={routeProps => hasAuth ? <AdminItems {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
+
+      <Route exact path="/contributor/collections/add" render={routeProps => hasAuth ? <CollectionEditor editMode={false} {...history} {...routeProps} {...rest}/> : <Redirect to="/"/>}/>
+      <Route exact path="/contributor/collections" render={routeProps => hasAuth ? <AdminCollections {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
+
+      <Route exact path="/contributor/announcements" render={() => hasAuth ? <Announcements {...rest} /> : <Redirect to="/"/>}/>
+      <Route exact path="/contributor/announcements/add" render={() => hasAuth ? <AnnouncementEditor editMode={false} path={'/contributor/announcements/add'} {...rest} /> : <Redirect to="/"/>}/>
     </>
   );
 };
@@ -73,6 +80,7 @@ const AdminRoutes = ({authorisation, ...rest}) => {
       <Route exact path="/admin/Collections" render={routeProps => isAdmin ? <AdminCollections {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
       <Route exact path="/admin/Items" render={routeProps => isAdmin ? <AdminItems {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
       <Route exact path="/admin/People" render={routeProps => isAdmin ? <AdminPeople {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
+      <Route exact path="/admin/announcements" render={() => isAdmin ? <Announcements {...rest} /> : <Redirect to="/"/>}/>
     </>
   );
 };
@@ -107,7 +115,14 @@ export const AppRouter = () => {
             <Route exact path="/" component={Home} />
             <div id="content">
               <Route exact path="/view" component={ViewItems} />
-              <Route path="/view/:itemId" component={ViewItem} />
+              <Route
+                path="/view/:itemId"
+                render={() => (
+                  <div className="container-fluid content blue">
+                    <ViewItem />
+                  </div> )
+                }
+              />
               <Route exact path="/map" component={MapView} />
               <Route exact path="/login" component={Login} />
               <Route exact path="/signup" component={SignUp} />
@@ -122,7 +137,7 @@ export const AppRouter = () => {
                     return (
                       <>
                         <AdminRoutes authorisation={authorisation} history={history} />
-                        <CollaboratorRoutes authorisation={authorisation} history={history} />
+                        <ContributorsRoutes authorisation={authorisation} history={history} />
                         <LoggedInRoutes isAuthenticated={isAuthenticated} history={history} />
                       </>
                     );
@@ -132,7 +147,6 @@ export const AppRouter = () => {
                 }}
               </AuthConsumer>
             </div>
-
           </div>
         </AuthProvider>
       </Router>

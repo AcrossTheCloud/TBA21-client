@@ -5,7 +5,7 @@ import $ from 'jquery';
 import { API } from 'aws-amplify';
 import { FaTimes } from 'react-icons/fa';
 import { uniqBy } from 'lodash';
-import { Col, Row, Container, Spinner } from 'reactstrap';
+import { Col, Row, Container, Spinner, Modal } from 'reactstrap';
 import { SearchConsoleState } from '../../reducers/searchConsole'; // Props from Redux.
 import { Document, Page, pdfjs } from 'react-pdf';
 
@@ -15,17 +15,21 @@ import {
   CriteriaOption
 } from '../../actions/searchConsole'; // Props from Redux.
 
+import ViewItem from '../item/ViewItem';
 import AudioPlayer from '../layout/audio/AudioPlayer';
 import { Bubble } from './Bubble';
+import AudioPreview from '../layout/audio/AudioPreview';
+import { fetchItem } from '../../actions/items/viewItem';
 
 import 'styles/components/search/searchConsole.scss';
-import AudioPreview from '../layout/audio/AudioPreview';
+import 'styles/components/admin/tables/modal.scss';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 interface Props extends SearchConsoleState {
   changeView: Function;
   dispatchSearch: Function;
+  fetchItem: Function;
 }
 
 interface State {
@@ -38,6 +42,7 @@ interface State {
   focus_arts: boolean;
   focus_action: boolean;
   focus_scitech: boolean;
+  modalOpen: boolean;
 }
 
 const createCriteriaOption = (label: string, field: string): CriteriaOption => {
@@ -109,6 +114,8 @@ class SearchConsole extends React.Component<Props, State> {
       focus_arts: false,
       focus_action: false,
       focus_scitech: false,
+
+      modalOpen: false
     };
 
   }
@@ -190,9 +197,7 @@ class SearchConsole extends React.Component<Props, State> {
    * Then dispatches the redux action.
   */
   searchDispatch = () => {
-    console.log('searchDispatch 1');
     if (this.state.isOpen && this.state.selectedCriteria && this.state.selectedCriteria.length) {
-      console.log('searchDispatch 2');
       this.props.dispatchSearch(this.state.selectedCriteria, this.state.focus_arts, this.state.focus_action, this.state.focus_scitech);
     }
   }
@@ -211,14 +216,20 @@ class SearchConsole extends React.Component<Props, State> {
 
   onSearchKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
     if (!this.state.searchMenuOpen && event.key === 'Enter') {
-      event.preventDefault();
       this.searchDispatch();
+      event.preventDefault();
     }
   }
 
   focusSearchInput = () => {
     if (!this._isMounted || this.state.isOpen) { return; }
     this.setState({isOpen: !this.state.isOpen}, () => this.searchInputRef.current.select.select.focus());
+  }
+
+  toggleModal = () => {
+    this.setState(prevState => ({
+      modalOpen: !prevState.modalOpen
+    }));
   }
 
   render() {
@@ -237,7 +248,7 @@ class SearchConsole extends React.Component<Props, State> {
         <Container fluid className={`${hoveredClass} ${isOpenClass} console`} onMouseEnter={() => this.toggleHover(true)} onMouseLeave={() => this.toggleHover(false)} onTouchStart={this.touchDeviceOpen} >
           <Row className="legend">
             {/*<Col xs="2" className="border_right">View</Col>*/}
-            <Col xs="6" className="border_right">Search</Col>
+            <Col xs="8" className="border_right">Search</Col>
             <Col xs="4">Focus</Col>
           </Row>
 
@@ -345,6 +356,7 @@ class SearchConsole extends React.Component<Props, State> {
           <div className="results">
             {
               results.map((t, i) => {
+
                 if (t.full_name) {
                   return (
                     <Row className="result" key={i}>
@@ -369,7 +381,7 @@ class SearchConsole extends React.Component<Props, State> {
                     );
                   } else {
                     return (
-                      <Row className="result" key={i}>
+                      <Row className="result" key={i} onClick={() => { this.props.fetchItem(t.id); this.setState({ modalOpen: true }); }}>
                         {!!t.file ?
                           <Col xs="2">
                             <FilePreview data={t}/>
@@ -406,6 +418,22 @@ class SearchConsole extends React.Component<Props, State> {
             <Spinner type="grow"/>
           </div>
         </div>
+
+        <Modal isOpen={this.state.modalOpen} className="fullwidth blue" backdrop toggle={this.toggleModal}>
+          <div className="d-flex flex-column mh-100">
+            <Row className="header align-content-center">
+              <Col xs="12">
+                <div className="text-right">
+                  <FaTimes className="closeButton" onClick={this.toggleModal}/>
+                </div>
+              </Col>
+            </Row>
+
+            <ViewItem />
+
+          </div>
+        </Modal>
+
       </div>
     );
   }
@@ -423,4 +451,4 @@ const mapStateToProps = (state: { searchConsole: SearchConsoleState }) => ({
 
 });
 
-export default connect(mapStateToProps, { dispatchSearch, changeView })(SearchConsole);
+export default connect(mapStateToProps, { dispatchSearch, changeView, fetchItem })(SearchConsole);

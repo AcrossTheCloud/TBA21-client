@@ -57,6 +57,7 @@ interface Props {
   item: Item;
   index?: number;
   onChange?: Function;
+  isContributorPath?: boolean;
 }
 
 interface State extends Alerts {
@@ -143,7 +144,7 @@ export class ItemEditor extends React.Component<Props, State> {
     };
 
     try {
-      const response = await API.get('tba21', 'admin/items/getItemNC', {
+      const response = await API.get('tba21', (this.props.isContributorPath ? 'contributor/items/getItem' : 'admin/items/getItemNC'), {
         queryStringParameters : {
           s3Key: this.props.item.s3_key
         }
@@ -292,7 +293,7 @@ export class ItemEditor extends React.Component<Props, State> {
       // Assign s3_key
       Object.assign(itemsProperties, { 's3_key': this.state.originalItem.s3_key });
 
-      const result = await API.put('tba21', 'admin/items/update', {
+      const result = await API.put('tba21', (this.props.isContributorPath ? 'contributor/items/update' : 'admin/items/update'), {
         body: {
           ...itemsProperties
         }
@@ -2446,7 +2447,7 @@ export class ItemEditor extends React.Component<Props, State> {
                     {item.item_subtype === itemVideo.Movie ? <this.VideoMovieTrailer /> : <></>}
                     {item.item_subtype === itemVideo.Documentary ? <this.VideoDocumentaryArt /> : <></>}
                     {(!!item.file && item.file.type === 'video') && item.item_subtype === itemVideo.Research ? <this.VideoResearch /> : <></>}
-                    {item.item_subtype === itemVideo.Interview ? <this.VideoInterview /> : <></>}
+                    {(!!item.file && item.file.type === 'video') && item.item_subtype === itemVideo.Interview ? <this.VideoInterview /> : <></>}
                     {item.item_subtype === itemVideo.Art ? <this.VideoDocumentaryArt /> : <></>}
                     {item.item_subtype === itemVideo.News_Journalism ? <this.VideoNewsJournalism /> : <></>}
                     {item.item_subtype === itemVideo.Event_Recording ? <this.VideoEventRecording /> : <></>}
@@ -2484,7 +2485,7 @@ export class ItemEditor extends React.Component<Props, State> {
                     {item.item_subtype === itemAudio.Music ? <this.AudioMusic /> : <></>}
                     {item.item_subtype === itemAudio.Podcast ? <this.AudioPodcast /> : <></>}
                     {item.item_subtype === itemAudio.Lecture ? <this.AudioLecture /> : <></>}
-                    {item.item_subtype === itemAudio.Interview ? <this.AudioInterview /> : <></>}
+                    {(!!item.file && item.file.type === 'audio') && item.item_subtype === itemAudio.Interview ? <this.AudioInterview /> : <></>}
                     {item.item_subtype === itemAudio.Radio ? <this.AudioRadio /> : <></>}
                     {item.item_subtype === itemAudio.Performance_Poetry ? <this.AudioPerformancePoetry /> : <></>}
                     {(!!item.file && item.file.type === 'audio') && item.item_subtype === itemAudio.Other ? <this.AudioOther /> : <></>}

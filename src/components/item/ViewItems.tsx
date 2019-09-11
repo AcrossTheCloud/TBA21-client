@@ -104,7 +104,7 @@ class ViewItems extends React.Component<Props, {}> { // tslint:disable-line: no-
       count = ((itemsEntries && itemsEntries[0]) && (itemsEntries[0][1] && itemsEntries[0][1].count)) ? itemsEntries[0][1].count : 0;
 
     return (
-      <Container id="viewItems">
+      <Container id="viewItems" className="main blue">
         <CardColumns>
           {
             itemsEntries.map( ([key, item]) => <MasonryItem key={item.s3_key} item={item} /> )
