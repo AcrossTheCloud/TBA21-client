@@ -174,6 +174,8 @@ class Items extends React.Component<RouteComponentProps, State> {
   }
 
   deleteItem = async () => {
+    const isContributorPath = (this.props.location.pathname.match(/contributor/i));
+
     const state = {
       deleteErrorMessage: undefined,
       successMessage: undefined
@@ -181,12 +183,12 @@ class Items extends React.Component<RouteComponentProps, State> {
     try {
       const itemIndex: number | undefined = this.state.itemIndex;
       if (typeof itemIndex !== 'undefined' && itemIndex > -1) {
-        await API.del('tba21', 'admin/items', {
+        await API.del('tba21', `${ isContributorPath ? 'contributor/items' :  'admin/items' }`, {
           queryStringParameters: {
             s3Key: this.state.items[itemIndex].s3_key
           }
         });
-        this.getItems();
+        await this.getItems();
         Object.assign(state, {
           deleteModalOpen: false,
           successMessage: 'Item deleted'
@@ -196,7 +198,7 @@ class Items extends React.Component<RouteComponentProps, State> {
           deleteErrorMessage: 'This item may have already been deleted.',
           deleteModalOpen: false
         });
-        this.getItems();
+        await this.getItems();
       }
 
     } catch (e) {
