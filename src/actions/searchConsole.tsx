@@ -65,7 +65,6 @@ export const search = (criteria: CriteriaOption[], focusArts: boolean = false, f
       return;
     } finally {
       Object.assign(state, { results });
-      console.log('ran', state);
       dispatch(state);
     }
   }

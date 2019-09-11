@@ -258,7 +258,7 @@ class Items extends React.Component<RouteComponentProps, State> {
           noDataIndication={() => !this.state.tableIsLoading && !slicedItems.length ? 'No data to display.' : <Spinner style={{ width: '10rem', height: '10rem' }} type="grow" />}
         />
         {/* Edit Item Modal */}
-        <Modal isOpen={this.state.componentModalOpen} className="tableModal fullwidth">
+        <Modal isOpen={this.state.componentModalOpen} className="fullwidth">
           <ModalBody>
 
             {
@@ -285,7 +285,7 @@ class Items extends React.Component<RouteComponentProps, State> {
         </Modal>
 
         {/* Delete Item Modal */}
-        <Modal isOpen={this.state.deleteModalOpen} className="tableModal">
+        <Modal isOpen={this.state.deleteModalOpen}>
           <ErrorMessage message={this.state.deleteErrorMessage}/>
           <ModalHeader>Delete Item?</ModalHeader>
           <ModalBody>Are you 100% sure you want to delete this item?</ModalBody>

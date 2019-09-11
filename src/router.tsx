@@ -113,34 +113,38 @@ export const AppRouter = () => {
             />
 
             <Route exact path="/" component={Home} />
-            <div id="content">
-              <Route exact path="/view" component={ViewItems} />
-              <Route path="/view/:itemId" component={ViewItem} />
-              <Route exact path="/map" component={MapView} />
-              <Route exact path="/login" component={Login} />
-              <Route exact path="/signup" component={SignUp} />
-              <Route exact path="/resetPassword/" component={ResetPassword} />
-              <Route exact path="/viewGraph" component={NetworkGraph} />
+            <Route exact path="/view" component={ViewItems} />
+            <Route
+              path="/view/:itemId"
+              render={() => (
+                <div className="container-fluid content blue">
+                  <ViewItem />
+                </div> )
+              }
+            />
+            <Route exact path="/map" component={MapView} />
+            <Route exact path="/login" component={Login} />
+            <Route exact path="/signup" component={SignUp} />
+            <Route exact path="/resetPassword/" component={ResetPassword} />
+            <Route exact path="/viewGraph" component={NetworkGraph} />
 
-              <Route exact path="/confirm/:email" component={AccountConfirmation} />
+            <Route exact path="/confirm/:email" component={AccountConfirmation} />
 
-              <AuthConsumer>
-                {({isLoading, authorisation, isAuthenticated}) => {
-                  if (!isLoading) {
-                    return (
-                      <>
-                        <AdminRoutes authorisation={authorisation} history={history} />
-                        <ContributorsRoutes authorisation={authorisation} history={history} />
-                        <LoggedInRoutes isAuthenticated={isAuthenticated} history={history} />
-                      </>
-                    );
-                  } else {
-                    return <></>;
-                  }
-                }}
-              </AuthConsumer>
-            </div>
-
+            <AuthConsumer>
+              {({isLoading, authorisation, isAuthenticated}) => {
+                if (!isLoading) {
+                  return (
+                    <>
+                      <AdminRoutes authorisation={authorisation} history={history} />
+                      <ContributorsRoutes authorisation={authorisation} history={history} />
+                      <LoggedInRoutes isAuthenticated={isAuthenticated} history={history} />
+                    </>
+                  );
+                } else {
+                  return <></>;
+                }
+              }}
+            </AuthConsumer>
           </div>
         </AuthProvider>
       </Router>
