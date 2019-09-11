@@ -32,6 +32,7 @@ interface State extends Alerts {
 
 class Items extends React.Component<RouteComponentProps, State> {
   _isMounted;
+  isContributorPath;
   tableColumns;
 
   constructor(props: RouteComponentProps) {
@@ -49,6 +50,8 @@ class Items extends React.Component<RouteComponentProps, State> {
       totalSize: 0,
       deleteErrorMessage: undefined
     };
+
+    this.isContributorPath = (this.props.location.pathname.match(/contributor/i));
 
     this.tableColumns = [
       {
@@ -94,9 +97,8 @@ class Items extends React.Component<RouteComponentProps, State> {
         queryStringParameters = {
           offset: offset,
           limit: this.state.sizePerPage
-        };
-      const isContributorPath = (this.props.location.pathname.match(/contributor/i));
-      const response = await API.get('tba21', `${ isContributorPath ? 'contributor/items/getByPerson' :  'admin/items' }`, { queryStringParameters: queryStringParameters });
+        },
+        response = await API.get('tba21', `${ this.isContributorPath ? 'contributor/items/getByPerson' :  'admin/items' }`, { queryStringParameters: queryStringParameters });
 
       if (!this._isMounted) { return; }
       return {
@@ -181,7 +183,7 @@ class Items extends React.Component<RouteComponentProps, State> {
     try {
       const itemIndex: number | undefined = this.state.itemIndex;
       if (typeof itemIndex !== 'undefined' && itemIndex > -1) {
-        await API.del('tba21', 'admin/items', {
+        await API.del('tba21', (this.isContributorPath ? 'contributor/items' :  'admin/items'), {
           queryStringParameters: {
             s3Key: this.state.items[itemIndex].s3_key
           }
@@ -264,6 +266,7 @@ class Items extends React.Component<RouteComponentProps, State> {
             {
               typeof this.state.itemIndex !== 'undefined' && this.state.itemIndex >= 0 ?
                 <ItemEditor
+                  isContributorPath={this.isContributorPath}
                   item={this.state.items[this.state.itemIndex]}
                   index={this.state.itemIndex}
                   onChange={c => {
