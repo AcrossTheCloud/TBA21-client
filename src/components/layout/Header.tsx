@@ -117,12 +117,12 @@ class HeaderClass extends React.Component<RouteComponentProps, State> { // tslin
             </DropdownItem>
             <DropdownItem>
               <NavItem>
-                <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/contributor/collection">Add Collection</NavLink>
+                <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/contributor/collections/upload">Add Collection</NavLink>
               </NavItem>
             </DropdownItem>
             <DropdownItem>
               <NavItem>
-                <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/contributor/announcements/add">Add Announcement</NavLink>
+                <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/contributor/announcements/upload">Add Announcement</NavLink>
               </NavItem>
             </DropdownItem>
           </DropdownMenu>
