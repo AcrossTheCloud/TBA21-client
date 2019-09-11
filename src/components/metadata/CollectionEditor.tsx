@@ -1420,7 +1420,18 @@ export class CollectionEditor extends React.Component<Props, State> {
                         className="concept_tags"
                         type="concept"
                         defaultValues={conceptTags}
-                        callback={tags => this.validateLength('concept_tags', tags ? tags.map(tag => tag.id) : [])}
+                        callback={tags => {
+                          const tagList = tags ? tags.map(tag => ({id: tag.id, tag_name: tag.label})) : [];
+                          this.validateLength('concept_tags', tags ? tags.map(tag => tag.id) : []);
+                          if (this._isMounted) {
+                            const { originalCollection, collection } = this.state;
+                            this.setState({
+                              originalCollection: {...originalCollection, aggregated_concept_tags: tagList},
+                              collection: {...collection, aggregated_concept_tags: tagList}
+                            });
+                          }
+                        }}
+
                       />
                       <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('concept_tags') && !this.state.validate.concept_tags ? 'block' : 'none') }}>This is a required field</FormFeedback>
                     </FormGroup>
@@ -1431,7 +1442,17 @@ export class CollectionEditor extends React.Component<Props, State> {
                         className="keyword_tags"
                         type="keyword"
                         defaultValues={keywordTags}
-                        callback={tags => this.changeCollection('keyword_tags', tags ? tags.map(tag => tag.id) : [])}
+                        callback={tags => {
+                          const tagList = tags ? tags.map(tag => ({id: tag.id, tag_name: tag.label})) : [];
+                          this.validateLength('keyword_tags', tags ? tags.map(tag => tag.id) : []);
+                          if (this._isMounted) {
+                            const { originalCollection, collection } = this.state;
+                            this.setState({
+                              originalCollection: {...originalCollection, aggregated_keyword_tags: tagList},
+                              collection: {...collection, aggregated_keyword_tags: tagList}
+                            });
+                          }
+                        }}
                       />
                     </FormGroup>
 

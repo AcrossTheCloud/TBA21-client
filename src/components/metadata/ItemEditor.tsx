@@ -2524,7 +2524,17 @@ export class ItemEditor extends React.Component<Props, State> {
                         className="concept_tags"
                         type="concept"
                         defaultValues={conceptTags}
-                        callback={tags => this.validateLength('concept_tags', tags ? tags.map(tag => tag.id) : [])}
+                        callback={tags => {
+                          const tagList = tags ? tags.map(tag => ({id: tag.id, tag_name: tag.label})) : [];
+                          this.validateLength('concept_tags', tags ? tags.map(tag => tag.id) : []);
+                          if (this._isMounted) {
+                            const { originalItem, changedItem } = this.state;
+                            this.setState({
+                              originalItem: {...originalItem, aggregated_concept_tags: tagList},
+                              changedItem: {...changedItem, aggregated_concept_tags: tagList}
+                            });
+                          }
+                        }}
                       />
                       <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('concept_tags') && !this.state.validate.concept_tags ? 'block' : 'none') }}>This is a required field</FormFeedback>
                     </FormGroup>
@@ -2536,7 +2546,17 @@ export class ItemEditor extends React.Component<Props, State> {
                         type="keyword"
                         defaultValues={keywordTags}
                         loadItemRekognitionTags={!keywordTags.length ? this.state.originalItem.s3_key : ''}
-                        callback={tags => this.changeItem('keyword_tags', tags ? tags.map(tag => tag.id) : [])}
+                        callback={tags => {
+                          const tagList = tags ? tags.map(tag => ({id: tag.id, tag_name: tag.label})) : [];
+                          this.validateLength('keyword_tags', tags ? tags.map(tag => tag.id) : []);
+                          if (this._isMounted) {
+                            const { originalItem, changedItem } = this.state;
+                            this.setState({
+                              originalItem: {...originalItem, aggregated_keyword_tags: tagList},
+                              changedItem: {...changedItem, aggregated_keyword_tags: tagList}
+                            });
+                          }
+                        }}
                       />
                     </FormGroup>
 
