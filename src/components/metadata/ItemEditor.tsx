@@ -1330,6 +1330,7 @@ export class ItemEditor extends React.Component<Props, State> {
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
             <CustomSelect values={item.exhibited_at} callback={values => this.changeItem('exhibited_at', values)} />
+            <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
         <Col md="6">
@@ -1471,6 +1472,7 @@ export class ItemEditor extends React.Component<Props, State> {
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
             <CustomSelect values={item.exhibited_at} callback={values => this.changeItem('exhibited_at', values)} />
+            <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
         <Col md="6">
@@ -1714,6 +1716,7 @@ export class ItemEditor extends React.Component<Props, State> {
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
             <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+            <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
       </Row>
@@ -1753,6 +1756,7 @@ export class ItemEditor extends React.Component<Props, State> {
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
             <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+            <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
       </Row>
@@ -1792,6 +1796,7 @@ export class ItemEditor extends React.Component<Props, State> {
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
             <CustomSelect values={item.exhibited_at} callback={values => this.changeItem('exhibited_at', values)} />
+            <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
         <Col md="6">
@@ -1824,6 +1829,7 @@ export class ItemEditor extends React.Component<Props, State> {
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
             <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+            <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
       </Row>
@@ -1889,6 +1895,7 @@ export class ItemEditor extends React.Component<Props, State> {
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
             <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+            <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
         <Col md="6">
@@ -1933,6 +1940,7 @@ export class ItemEditor extends React.Component<Props, State> {
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
             <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+            <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
       </Row>
@@ -2026,6 +2034,7 @@ export class ItemEditor extends React.Component<Props, State> {
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
             <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+            <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
       </Row>
@@ -2053,6 +2062,7 @@ export class ItemEditor extends React.Component<Props, State> {
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
             <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+            <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
       </Row>
@@ -2312,15 +2322,20 @@ export class ItemEditor extends React.Component<Props, State> {
 
               <Row>
                 <Col xs="8">
-                  <InputGroup>
-                    <CustomInput type="switch" id={`${this.state.originalItem.s3_key}_oa_highlight`} name="OA_highlight" label="OA Highlight" checked={this.state.changedItem.oa_highlight || false} onChange={e => this.changeItem('oa_highlight', e.target.checked)} />
-                  </InputGroup>
-                  <InputGroup>
-                    <CustomInput type="switch" id={`${this.state.originalItem.s3_key}_oa_original`} name="OA_original" label="OA Original" checked={this.state.changedItem.oa_original || false} onChange={e => this.changeItem('oa_original', e.target.checked)} />
-                  </InputGroup>
-                  <InputGroup>
-                    <CustomInput type="switch" id={`${this.state.originalItem.s3_key}_tba21_material`} name="TBA21_material" label="TBA21 Material" checked={this.state.changedItem.tba21_material || false} onChange={e => this.changeItem('tba21_material', e.target.checked)} />
-                  </InputGroup>
+                  {!this.props.isContributorPath ?
+                    <>
+                      <InputGroup>
+                        <CustomInput type="switch" id={`${this.state.originalItem.s3_key}_oa_highlight`} name="OA_highlight" label="OA Highlight" checked={!!this.state.changedItem.oa_highlight || false} onChange={e => this.changeItem('oa_highlight', e.target.checked)} />
+                      </InputGroup>
+                      <InputGroup>
+                        <CustomInput type="switch" id={`${this.state.originalItem.s3_key}_oa_original`} name="OA_original" label="OA Original" checked={!!this.state.changedItem.oa_original || false} onChange={e => this.changeItem('oa_original', e.target.checked)} />
+                      </InputGroup>
+                      <InputGroup>
+                        <CustomInput type="switch" id={`${this.state.originalItem.s3_key}_tba21_material`} name="TBA21_material" label="TBA21 Material" checked={!!this.state.changedItem.tba21_material || false} onChange={e => this.changeItem('tba21_material', e.target.checked)} />
+                      </InputGroup>
+                    </>
+                    : <></>
+                  }
                 </Col>
                 <Col xs="4">
                   <UncontrolledButtonDropdown className="float-right">
@@ -2464,7 +2479,7 @@ export class ItemEditor extends React.Component<Props, State> {
                     {item.item_subtype === itemVideo.Art ? <this.VideoDocumentaryArt /> : <></>}
                     {item.item_subtype === itemVideo.News_Journalism ? <this.VideoNewsJournalism /> : <></>}
                     {item.item_subtype === itemVideo.Event_Recording ? <this.VideoEventRecording /> : <></>}
-                    {item.item_subtype === itemVideo.Lecture_Recording ? <this.VideoLectureRecording /> : <></>}
+                    {(item.item_subtype === itemVideo.Lecture_Recording) && (!!item.file && item.file.type === 'video') ? <this.VideoLectureRecording /> : <></>}
                     {item.item_subtype === itemVideo.Informational_Video ? <this.VideoInformationalVideo /> : <></>}
                     {item.item_subtype === itemVideo.Trailer ? <this.VideoMovieTrailer /> : <></>}
                     {((item.item_subtype === itemVideo.Video_Artwork_Documentation) && (!!item.file && item.file.type === 'video')) ? <this.VideoArtworkDocumentation /> : <></>}

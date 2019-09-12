@@ -1,4 +1,5 @@
 import { API } from 'aws-amplify';
+import { RouteComponentProps, withRouter } from 'react-router';
 
 import * as React from 'react';
 import BootstrapTable from 'react-bootstrap-table-next';
@@ -8,7 +9,7 @@ import { Button, Container, Modal, ModalBody, ModalFooter, ModalHeader, Spinner 
 import { Item } from 'types/Item';
 import { ItemEditor } from 'components/metadata/ItemEditor';
 import { Alerts, ErrorMessage, SuccessMessage } from 'components/utils/alerts';
-import { RouteComponentProps, withRouter } from 'react-router';
+import { AuthContext } from '../../../../providers/AuthProvider';
 
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css';
@@ -51,8 +52,6 @@ class Items extends React.Component<RouteComponentProps, State> {
       deleteErrorMessage: undefined
     };
 
-    this.isContributorPath = (this.props.location.pathname.match(/contributor/i));
-
     this.tableColumns = [
       {
         dataField: 's3_key',
@@ -89,6 +88,7 @@ class Items extends React.Component<RouteComponentProps, State> {
 
   async componentDidMount() {
     this._isMounted = true;
+    this.isContributorPath = (this.props.location.pathname.match(/contributor/i));
     this.getItems();
   }
 
@@ -249,6 +249,8 @@ class Items extends React.Component<RouteComponentProps, State> {
       currentIndex = (page - 1) * sizePerPage,
       slicedItems = items.length ? items.slice(currentIndex, currentIndex + sizePerPage) : [];
 
+    const context: React.ContextType<typeof AuthContext> = this.context;
+
     return (
       <Container>
         <ErrorMessage message={this.state.errorMessage}/>
@@ -271,7 +273,7 @@ class Items extends React.Component<RouteComponentProps, State> {
             {
               typeof this.state.itemIndex !== 'undefined' && this.state.itemIndex >= 0 ?
                 <ItemEditor
-                  isContributorPath={this.isContributorPath}
+                  isContributorPath={context.authorisation.hasOwnProperty('admin') ? false : this.isContributorPath}
                   item={this.state.items[this.state.itemIndex]}
                   index={this.state.itemIndex}
                   onChange={c => {
@@ -308,3 +310,4 @@ class Items extends React.Component<RouteComponentProps, State> {
 }
 
 export default withRouter(Items);
+Items.contextType = AuthContext;

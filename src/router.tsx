@@ -46,12 +46,13 @@ import { AuthConsumer, AuthProvider } from './providers/AuthProvider';
 import SearchConsole from './components/search/SearchConsole';
 import Announcements from './components/admin/pages/announcements/Announcements';
 import { AnnouncementEditor } from './components/metadata/AnnouncementEditor';
+import ViewProfile from './components/user/profile/ViewProfile';
 
 const LoggedInRoutes = ({isAuthenticated, ...rest}) => {
   const isLoggedIn = isAuthenticated;
   return (
     <>
-      <Route exact path="/Profile" render={routeProps => isLoggedIn ? <Profile {...history} {...routeProps} {...rest}/> : <Redirect to="/"/>}/>
+      <Route exact path="/Profile" render={routeProps => isLoggedIn ? <div className="main"><Profile {...history} {...routeProps} {...rest}/></div> : <Redirect to="/"/>}/>
     </>
   );
 };
@@ -60,14 +61,14 @@ const ContributorsRoutes = ({authorisation, ...rest}) => {
   const hasAuth = has(authorisation, 'contributor') || has(authorisation, 'editor') || has(authorisation, 'admin');
   return (
     <>
-      <Route exact path="/contributor/items/add" render={routeProps => hasAuth ? <Items {...history} {...routeProps} {...rest}/> : <Redirect to="/"/>}/>
-      <Route exact path="/contributor/items" render={routeProps => hasAuth ? <AdminItems {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
+      <Route exact path="/contributor/items/add" render={routeProps => hasAuth ? <div className="main"><Items {...history} {...routeProps} {...rest}/></div> : <Redirect to="/"/>}/>
+      <Route exact path="/contributor/items" render={routeProps => hasAuth ? <div className="main"><AdminItems {...routeProps} {...rest} /></div> : <Redirect to="/"/>}/>
 
-      <Route exact path="/contributor/collections/add" render={routeProps => hasAuth ? <CollectionEditor editMode={false} {...history} {...routeProps} {...rest}/> : <Redirect to="/"/>}/>
-      <Route exact path="/contributor/collections" render={routeProps => hasAuth ? <AdminCollections {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
+      <Route exact path="/contributor/collections/add" render={routeProps => hasAuth ? <div className="main"><CollectionEditor editMode={false} {...history} {...routeProps} {...rest}/></div> : <Redirect to="/"/>}/>
+      <Route exact path="/contributor/collections" render={routeProps => hasAuth ? <div className="main"><AdminCollections {...routeProps} {...rest} /></div> : <Redirect to="/"/>}/>
 
-      <Route exact path="/contributor/announcements" render={() => hasAuth ? <Announcements {...rest} /> : <Redirect to="/"/>}/>
-      <Route exact path="/contributor/announcements/add" render={() => hasAuth ? <AnnouncementEditor editMode={false} path={'/contributor/announcements/add'} {...rest} /> : <Redirect to="/"/>}/>
+      <Route exact path="/contributor/announcements" render={() => hasAuth ? <div className="main"><Announcements {...rest} /></div> : <Redirect to="/"/>}/>
+      <Route exact path="/contributor/announcements/add" render={() => hasAuth ? <div className="main"><AnnouncementEditor editMode={false} path={'/contributor/announcements/add'} {...rest} /></div> : <Redirect to="/"/>}/>
     </>
   );
 };
@@ -76,11 +77,11 @@ const AdminRoutes = ({authorisation, ...rest}) => {
   const isAdmin = has(authorisation, 'admin');
   return (
     <>
-      <Route exact path="/admin/ManageUsers" render={routeProps => isAdmin ? <AdminManageUsers {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
-      <Route exact path="/admin/Collections" render={routeProps => isAdmin ? <AdminCollections {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
-      <Route exact path="/admin/Items" render={routeProps => isAdmin ? <AdminItems {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
-      <Route exact path="/admin/People" render={routeProps => isAdmin ? <AdminPeople {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
-      <Route exact path="/admin/announcements" render={() => isAdmin ? <Announcements {...rest} /> : <Redirect to="/"/>}/>
+      <Route exact path="/admin/ManageUsers" render={routeProps => isAdmin ? <div className="main"><AdminManageUsers {...routeProps} {...rest} /></div> : <Redirect to="/"/>}/>
+      <Route exact path="/admin/Collections" render={routeProps => isAdmin ? <div className="main"><AdminCollections {...routeProps} {...rest} /></div> : <Redirect to="/"/>}/>
+      <Route exact path="/admin/Items" render={routeProps => isAdmin ? <div className="main"><AdminItems {...routeProps} {...rest} /></div> : <Redirect to="/"/>}/>
+      <Route exact path="/admin/People" render={routeProps => isAdmin ? <div className="main"><AdminPeople {...routeProps} {...rest} /></div> : <Redirect to="/"/>}/>
+      <Route exact path="/admin/announcements" render={() => isAdmin ? <div className="main"><Announcements {...rest} /></div> : <Redirect to="/"/>}/>
     </>
   );
 };
@@ -113,40 +114,46 @@ export const AppRouter = () => {
             />
 
             <Route exact path="/" component={Home} />
-            <div id="content">
-              <Route exact path="/view" component={ViewItems} />
-              <Route
-                path="/view/:itemId"
-                render={() => (
-                  <div className="container-fluid content blue">
-                    <ViewItem />
-                  </div> )
+            <Route exact path="/view" component={ViewItems} />
+            <Route
+              path="/view/:itemId"
+              render={() => (
+                <div className="container-fluid main blue">
+                  <ViewItem />
+                </div> )
+              }
+            />
+            <Route
+              path="/profiles/:profileId"
+              render={() => (
+                <div className="container-fluid main blue">
+                  <ViewProfile />
+                </div> )
+              }
+            />
+            <Route exact path="/map" component={MapView} />
+            <Route exact path="/login" component={Login} />
+            <Route exact path="/signup" component={SignUp} />
+            <Route exact path="/resetPassword/" component={ResetPassword} />
+            <Route exact path="/viewGraph" component={NetworkGraph} />
+
+            <Route exact path="/confirm/:email" component={AccountConfirmation} />
+
+            <AuthConsumer>
+              {({isLoading, authorisation, isAuthenticated}) => {
+                if (!isLoading) {
+                  return (
+                    <>
+                      <AdminRoutes authorisation={authorisation} history={history} />
+                      <ContributorsRoutes authorisation={authorisation} history={history} />
+                      <LoggedInRoutes isAuthenticated={isAuthenticated} history={history} />
+                    </>
+                  );
+                } else {
+                  return <></>;
                 }
-              />
-              <Route exact path="/map" component={MapView} />
-              <Route exact path="/login" component={Login} />
-              <Route exact path="/signup" component={SignUp} />
-              <Route exact path="/resetPassword/" component={ResetPassword} />
-              <Route exact path="/viewGraph" component={NetworkGraph} />
-
-              <Route exact path="/confirm/:email" component={AccountConfirmation} />
-
-              <AuthConsumer>
-                {({isLoading, authorisation, isAuthenticated}) => {
-                  if (!isLoading) {
-                    return (
-                      <>
-                        <AdminRoutes authorisation={authorisation} history={history} />
-                        <ContributorsRoutes authorisation={authorisation} history={history} />
-                        <LoggedInRoutes isAuthenticated={isAuthenticated} history={history} />
-                      </>
-                    );
-                  } else {
-                    return <></>;
-                  }
-                }}
-              </AuthConsumer>
-            </div>
+              }}
+            </AuthConsumer>
           </div>
         </AuthProvider>
       </Router>

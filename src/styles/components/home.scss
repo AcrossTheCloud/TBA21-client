@@ -49,6 +49,13 @@
 #home {
   min-height: 100vh;
 
+  a {
+    color: #fff;
+    &:visited, &:focus {
+      color: #fff;
+    }
+  }
+
   .d-flex.title-wrapper {
     flex-wrap: wrap;
   }
@@ -68,18 +75,17 @@
     transition: transform .5s cubic-bezier(0.22, 0.61, 0.36, 1);
   }
 
+  .announcement {
+
+  }
+
   .item {
     position: relative;
     cursor: pointer;
-    a {
-      color: #fff;
-      &:visited, &:focus {
-        color: #fff;
-      }
-    }
 
     .d-flex.title-wrapper .title {
       flex: 1 1 auto;
+      text-align: left;
       span {
 
       }
@@ -206,7 +212,12 @@
         }
 
         .video {
-          z-index: 0
+          z-index: 0;
+          position: relative;
+          .player {
+            width: auto !important;
+            height: 100% !important;
+          }
         }
         .image {
           z-index: 0;

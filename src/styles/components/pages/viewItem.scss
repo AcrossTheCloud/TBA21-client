@@ -9,12 +9,9 @@
     font-size: 40px;
   }
 
-  .image {
+  .file {
+    flex: 1 0;
     overflow: hidden;
-    z-index: 0;
-    img {
-      width: 100vh;
-    }
     .background {
       filter: blur(6px);
       z-index: -1;
@@ -23,6 +20,22 @@
       top: 0;
       height: 100%;
       width: 100%;
+    }
+
+    .video {
+      z-index: 0;
+      position: relative;
+      .player {
+        width: auto !important;
+        height: 50vh !important;
+      }
+    }
+    .image {
+      z-index: 0;
+      img {
+        max-height: 100%;
+        z-index: 1;
+      }
     }
   }
 

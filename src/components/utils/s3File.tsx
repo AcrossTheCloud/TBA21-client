@@ -161,8 +161,8 @@ export const getVideoFiles = async (key: string): Promise<{poster: string, playl
   try {
     const
       steamingURL = config.other.VIDEO_STREAMING_URL,
-      privateUUID = key.split('/').slice(0, 2).join('/'),
-      locationKeys = key.split('/').slice(2).join('/'),
+      privateUUID = key.split('/').slice(0, 3).join('/'),
+      locationKeys = key.split('/').slice(3).join('/'),
       fileNameWithoutExtension = locationKeys.split('.'),
       // Poster
       posterFileName = fileNameWithoutExtension.slice(0, fileNameWithoutExtension.length - 1).join('.'),
