@@ -32,8 +32,6 @@ interface State extends Alerts {
 }
 
 class Items extends React.Component<RouteComponentProps, State> {
-  static contextType = AuthContext;
-
   _isMounted;
   isContributorPath;
   tableColumns;
@@ -90,14 +88,8 @@ class Items extends React.Component<RouteComponentProps, State> {
 
   async componentDidMount() {
     this._isMounted = true;
+    this.isContributorPath = (this.props.location.pathname.match(/contributor/i));
     this.getItems();
-
-    const context: React.ContextType<typeof AuthContext> = this.context;
-    if (!context.authorisation.hasOwnProperty('admin')) {
-      this.isContributorPath = (this.props.location.pathname.match(/contributor/i));
-    } else {
-      this.isContributorPath = false;
-    }
   }
 
   componentWillUnmount() {
@@ -257,6 +249,8 @@ class Items extends React.Component<RouteComponentProps, State> {
       currentIndex = (page - 1) * sizePerPage,
       slicedItems = items.length ? items.slice(currentIndex, currentIndex + sizePerPage) : [];
 
+    const context: React.ContextType<typeof AuthContext> = this.context;
+
     return (
       <Container>
         <ErrorMessage message={this.state.errorMessage}/>
@@ -279,7 +273,7 @@ class Items extends React.Component<RouteComponentProps, State> {
             {
               typeof this.state.itemIndex !== 'undefined' && this.state.itemIndex >= 0 ?
                 <ItemEditor
-                  isContributorPath={this.isContributorPath}
+                  isContributorPath={context.authorisation.hasOwnProperty('admin') ? false : this.isContributorPath}
                   item={this.state.items[this.state.itemIndex]}
                   index={this.state.itemIndex}
                   onChange={c => {
@@ -316,3 +310,4 @@ class Items extends React.Component<RouteComponentProps, State> {
 }
 
 export default withRouter(Items);
+Items.contextType = AuthContext;

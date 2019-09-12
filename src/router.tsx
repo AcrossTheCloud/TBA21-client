@@ -134,11 +134,11 @@ export const AppRouter = () => {
               {({isLoading, authorisation, isAuthenticated}) => {
                 if (!isLoading) {
                   return (
-                    <>
+                    <div className="main">
                       <AdminRoutes authorisation={authorisation} history={history} />
                       <ContributorsRoutes authorisation={authorisation} history={history} />
                       <LoggedInRoutes isAuthenticated={isAuthenticated} history={history} />
-                    </>
+                    </div>
                   );
                 } else {
                   return <></>;
