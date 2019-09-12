@@ -64,13 +64,12 @@ class Announcements extends React.Component<RouteComponentProps, State> {
         text: 'Status',
       },
       {
+        dataField: 'created_at',
+        text: 'Created Date',
+      },
+      {
         dataField: 'title',
-        text: 'Title',
-        events: {
-          onClick: (e, column, columnIndex, row, rowIndex) => {
-            console.log(e, column, columnIndex, row, rowIndex);
-          }
-        }
+        text: 'Title'
       },
       {
         dataField: 'options',
@@ -103,7 +102,7 @@ class Announcements extends React.Component<RouteComponentProps, State> {
         response = await API.get('tba21', `${this.isContributorPath ? 'contributor' : 'admin'}/announcements`, { queryStringParameters: queryStringParameters });
 
       return {
-        announcements: response.announcements,
+        announcements: response.announcements.map(a => ({ ...a, created_at: new Date(a.created_at).toISOString().substr(0, 10) })),
         totalSize: response.announcements[0] && response.announcements[0].count ? parseInt(response.announcements[0].count, 0) : 0
       };
 
