@@ -7,6 +7,7 @@ import { Item } from '../../types/Item';
 import { ItemEditor } from './ItemEditor';
 import { Button, Col, Row } from 'reactstrap';
 import { RouteComponentProps, withRouter } from 'react-router';
+import { AuthContext } from '../../providers/AuthProvider';
 
 interface Props extends RouteComponentProps {
   callback?: Function;
@@ -58,14 +59,13 @@ const ItemsDisplay = (props: { isContributorPath: boolean, removeItem: Function 
 };
 
 class ItemsClass extends React.Component<Props, State> {
+  static contextType = AuthContext;
   _isMounted;
   isContributorPath;
 
   constructor(props: Props) {
     super(props);
     this._isMounted = false;
-
-    this.isContributorPath = (this.props.location.pathname.match(/contributor/i));
 
     this.state = {
       items: {}
@@ -76,6 +76,13 @@ class ItemsClass extends React.Component<Props, State> {
     this._isMounted = true;
     // If we have items from props, put them into the items state
     this.setState({ items: this.checkPropsItems() });
+
+    const context: React.ContextType<typeof AuthContext> = this.context;
+    if (!context.authorisation.hasOwnProperty('admin')) {
+      this.isContributorPath = (this.props.location.pathname.match(/contributor/i));
+    } else {
+      this.isContributorPath = false;
+    }
   }
   componentWillUnmount(): void {
     this._isMounted = false;

@@ -1,4 +1,5 @@
 import { API } from 'aws-amplify';
+import { RouteComponentProps, withRouter } from 'react-router';
 
 import * as React from 'react';
 import BootstrapTable from 'react-bootstrap-table-next';
@@ -8,7 +9,7 @@ import { Button, Container, Modal, ModalBody, ModalFooter, ModalHeader, Spinner 
 import { Item } from 'types/Item';
 import { ItemEditor } from 'components/metadata/ItemEditor';
 import { Alerts, ErrorMessage, SuccessMessage } from 'components/utils/alerts';
-import { RouteComponentProps, withRouter } from 'react-router';
+import { AuthContext } from '../../../../providers/AuthProvider';
 
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css';
@@ -31,6 +32,8 @@ interface State extends Alerts {
 }
 
 class Items extends React.Component<RouteComponentProps, State> {
+  static contextType = AuthContext;
+
   _isMounted;
   isContributorPath;
   tableColumns;
@@ -50,8 +53,6 @@ class Items extends React.Component<RouteComponentProps, State> {
       totalSize: 0,
       deleteErrorMessage: undefined
     };
-
-    this.isContributorPath = (this.props.location.pathname.match(/contributor/i));
 
     this.tableColumns = [
       {
@@ -90,6 +91,13 @@ class Items extends React.Component<RouteComponentProps, State> {
   async componentDidMount() {
     this._isMounted = true;
     this.getItems();
+
+    const context: React.ContextType<typeof AuthContext> = this.context;
+    if (!context.authorisation.hasOwnProperty('admin')) {
+      this.isContributorPath = (this.props.location.pathname.match(/contributor/i));
+    } else {
+      this.isContributorPath = false;
+    }
   }
 
   componentWillUnmount() {
