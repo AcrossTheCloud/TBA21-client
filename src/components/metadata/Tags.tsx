@@ -20,6 +20,7 @@ interface State {
 
 interface Props {
   className?: string;
+  location?: string;
 
   defaultValues?: Tag[] | [];
   defaultOptions?: Tag[];
@@ -192,7 +193,7 @@ export default class Tags extends React.Component<Props, State> {
 
     this.setState( { isLoading: true });
 
-    const results = await API.put('tba21', 'admin/tags', {
+    const results = await API.put('tba21', 'contributor/tags', {
       body: {
         // type: this.props.type,
         tags: [inputValue]
