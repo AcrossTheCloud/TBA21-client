@@ -46,6 +46,7 @@ import { AuthConsumer, AuthProvider } from './providers/AuthProvider';
 import SearchConsole from './components/search/SearchConsole';
 import Announcements from './components/admin/pages/announcements/Announcements';
 import { AnnouncementEditor } from './components/metadata/AnnouncementEditor';
+import ViewProfile from './components/user/profile/ViewProfile';
 
 const LoggedInRoutes = ({isAuthenticated, ...rest}) => {
   const isLoggedIn = isAuthenticated;
@@ -119,6 +120,14 @@ export const AppRouter = () => {
               render={() => (
                 <div className="container-fluid main blue">
                   <ViewItem />
+                </div> )
+              }
+            />
+            <Route
+              path="/profiles/:profileId"
+              render={() => (
+                <div className="container-fluid main blue">
+                  <ViewProfile />
                 </div> )
               }
             />
