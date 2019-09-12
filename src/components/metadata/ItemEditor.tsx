@@ -277,8 +277,10 @@ export class ItemEditor extends React.Component<Props, State> {
       Object.entries(item)
         .filter( ([key, value]) => {
           return !(
-            value === null
-            || key === 'id' // use this to exclude things, you shouldn't need to (eg don't put them in changedFields...
+            value === null ||
+            key === 'aggregated_concept_tags' ||
+            key === 'aggregated_keyword_tags' ||
+            key === 'id' // use this to exclude things, you shouldn't need to (eg don't put them in changedFields...
           );
         })
         .forEach( field => {

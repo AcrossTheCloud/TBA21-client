@@ -232,7 +232,9 @@ export class CollectionEditor extends React.Component<Props, State> {
       Object.entries(fields)
         .filter( ([key, value]) => {
           return !(
-            value === null
+            value === null ||
+            key === 'aggregated_concept_tags' ||
+            key === 'aggregated_keyword_tags'
             // || key === 'id' // use this to exclude things, you shouldn't need to (eg don't put them in changedFields...
           );
         })
