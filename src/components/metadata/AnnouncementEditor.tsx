@@ -69,8 +69,6 @@ export class AnnouncementEditor extends React.Component<Props, State> {
 
     this._isMounted = false;
 
-    this.isContributorPath = (this.props.path.match(/contributor/i));
-
     const announcement = props.announcement || emptyAnnouncment;
 
     this.state = {

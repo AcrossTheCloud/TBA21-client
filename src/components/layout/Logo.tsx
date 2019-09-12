@@ -5,7 +5,7 @@ import 'styles/layout/logo.scss';
 import logo from 'images/logo/oa_web_white.svg';
 
 interface Props {
-  onChange: Function;
+  onChange?: Function;
   loaded: boolean;
 }
 

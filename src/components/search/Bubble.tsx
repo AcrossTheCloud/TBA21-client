@@ -94,7 +94,6 @@ export class Bubble extends React.Component<Props, State> {
         const eX: number = !!e.pageX ? e.pageX : 0;
         const eY: number = !!e.pageY ? e.pageY : 0;
 
-
         if (typeof this.props.callback === 'function') {
           if (this.state.canMove) {
             this.props.callback(this.getFocus(eX, eY));
@@ -197,37 +196,41 @@ item
     let x, y;
 
     const canvas: HTMLCanvasElement = document.getElementById('bubble') as HTMLCanvasElement;
-    this.canvas = canvas;
-    this.resize();
+    if (!!canvas) {
+      this.canvas = canvas;
+      this.resize();
 
-    this.pointRadius = Math.min(canvas.width, canvas.height) / 15;
+      this.pointRadius = Math.min(canvas.width, canvas.height) / 15;
 
-    this.ctx = canvas.getContext('2d');
-    this.bounds = new Point(canvas.width, canvas.height);
+      this.ctx = canvas.getContext('2d');
+      this.bounds = new Point(canvas.width, canvas.height);
 
-    this.origin = new Point(this.bounds.x / 2, this.bounds.y / 2);
+      this.origin = new Point(this.bounds.x / 2, this.bounds.y / 2);
 
-    this.points = [];
-    for (i = 0, y = i, end = canvas.height, step = this.pointRadius * 2, asc = step > 0; asc ? i <= end : i >= end; i += step, y = i) {
-      let
-        asc1: boolean = false,
-        end1: number = 0,
-        j: number = 0,
-        step1: number = 0;
+      this.points = [];
+      for (i = 0, y = i, end = canvas.height, step = this.pointRadius * 2, asc = step > 0; asc ? i <= end : i >= end; i += step, y = i) {
+        let
+          asc1: boolean = false,
+          end1: number = 0,
+          j: number = 0,
+          step1: number = 0;
 
-      for (j = 0, x = j, end1 = canvas.width, step1 = this.pointRadius * 2, asc1 = step1 > 0; asc1 ? j <= end1 : j >= end1; j += step1, x = j) {
-        this.points.push(new Point(x + (((y / (this.pointRadius * 2)) % 2) * this.pointRadius), y, this.bubbleColour(x, y)));
+        for (j = 0, x = j, end1 = canvas.width, step1 = this.pointRadius * 2, asc1 = step1 > 0; asc1 ? j <= end1 : j >= end1; j += step1, x = j) {
+          this.points.push(new Point(x + (((y / (this.pointRadius * 2)) % 2) * this.pointRadius), y, this.bubbleColour(x, y)));
+        }
       }
-    }
 
-    // Set to the middle
-    this.moveOrigin(this.origin, new Point(this.bounds.x / 2, this.bounds.y / 2), new Date().getTime(), 300);
+      // Set to the middle
+      this.moveOrigin(this.origin, new Point(this.bounds.x / 2, this.bounds.y / 2), new Date().getTime(), 300);
+    }
   }
 
   resize = () => {
     const wrapper = document.getElementById('bubbleWrapper') as HTMLElement;
-    this.canvas.width = wrapper.getBoundingClientRect().width;
-    this.canvas.height = wrapper.getBoundingClientRect().height;
+    if (!!wrapper) {
+      this.canvas.width = wrapper.getBoundingClientRect().width;
+      this.canvas.height = wrapper.getBoundingClientRect().height;
+    }
   }
 
   int_color(c1: number, c2: number, c3: number, w1: number, w2: number, w3: number): string {

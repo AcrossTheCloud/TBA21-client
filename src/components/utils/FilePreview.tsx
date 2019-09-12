@@ -33,8 +33,6 @@ export const FilePreview = (props: { file: S3File }): JSX.Element => {
           <ReactPlayer
             controls
             url={props.file.playlist || props.file.url}
-            height="auto"
-            width="100%"
             vertical-align="top"
             className="player"
           />
