@@ -7,10 +7,13 @@ import Profile from '../reducers/user/profile';
 import manageUsers from '../reducers/admin/user/manageUsers';
 import searchConsole from '../reducers/searchConsole';
 import audioPlayer from '../reducers/audioPlayer';
+import ViewProfile from '../reducers/user/viewProfile';
 
 const reducers: ReducersMapObject = {
   viewItems: ViewItems,
   viewItem: ViewItem,
+
+  viewProfile: ViewProfile,
 
   map: Map,
 
