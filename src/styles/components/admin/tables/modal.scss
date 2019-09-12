@@ -7,8 +7,9 @@
 .modal-dialog {
   color: #000;
   &.fullwidth {
-    max-width: 98vw;
-    height: 100%;
+    max-width: calc(100% - 30px);
+    height: calc(100% - 56px);
+
     display: flex;
     flex: 1 0 100%;
 

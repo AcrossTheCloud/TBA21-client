@@ -29,6 +29,7 @@
 
   .d-flex.title-wrapper {
     overflow: hidden;
+    font-size: 18px;
     .creators, .title {
       max-width: 45%;
     }
@@ -76,7 +77,15 @@
   }
 
   .announcement {
-
+    font-size: 20px;
+    .type {
+      font-size: 13px;
+    }
+    a {
+      svg {
+        margin-left: 20px;
+      }
+    }
   }
 
   .item {
@@ -89,6 +98,11 @@
       span {
 
       }
+    }
+
+    .tags {
+      color: $soft-blue;
+      font-size: 12px;
     }
 
     .overlay {
