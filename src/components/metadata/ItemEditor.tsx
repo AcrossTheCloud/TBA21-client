@@ -164,6 +164,8 @@ export class ItemEditor extends React.Component<Props, State> {
           changedItem: { ...response.item, file: getFileResult, item_type: type }
         };
 
+        Object.assign(state, data);
+
       } else {
         Object.assign(state, { errorMessage: 'No item by that name.', hideForm: true });
       }
