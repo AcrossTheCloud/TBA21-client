@@ -80,6 +80,7 @@
 
     .d-flex.title-wrapper .title {
       flex: 1 1 auto;
+      text-align: left;
       span {
 
       }
@@ -206,7 +207,12 @@
         }
 
         .video {
-          z-index: 0
+          z-index: 0;
+          position: relative;
+          .player {
+            width: auto !important;
+            height: 100% !important;
+          }
         }
         .image {
           z-index: 0;

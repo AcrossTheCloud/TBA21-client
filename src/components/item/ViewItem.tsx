@@ -86,78 +86,79 @@ class ViewItem extends React.Component<Props, State> {
     );
 
     return (
-      <Row id="item" >
+      <div id="item">
         <ErrorMessage message={this.props.errorMessage} />
         {file && file.url ?
-          <Col xs="12" className="file">
+          <Row xs="12" className="file">
             <FilePreview file={file}/>
-          </Col>
+          </Row>
           : <></>
         }
+        <Row>
+          <Col xs="12" md="8" className="left border-right">
+            <Row>
+              <Col xs={{ size: 12, order: 2 }} md={{ size: 8, order: 1 }} className="creators">
+                {creators ? creators.join(', ') : <></>}
+              </Col>
+              <Col xs={{ size: 12, order: 1 }} md={{ size: 4, order: 2 }} className="subline text-right">
+                {item_subtype}
+              </Col>
+            </Row>
+            <Row>
+              <Col>
+                <h1>{title}</h1>
+              </Col>
+            </Row>
 
-        <Col xs="12" md="8" className="left border-right">
-          <Row>
-            <Col xs={{ size: 12, order: 2 }} md={{ size: 8, order: 1 }} className="creators">
-              {creators ? creators.join(', ') : <></>}
-            </Col>
-            <Col xs={{ size: 12, order: 1 }} md={{ size: 4, order: 2 }} className="subline text-right">
-              {item_subtype}
-            </Col>
-          </Row>
-          <Row>
-            <Col>
-              <h1>{title}</h1>
-            </Col>
-          </Row>
-
-          <Row>
-            <Col className="description">
-              {
-                description ?
-                  this.browser === 'ie6-11' ? description.split('\n').map((d, i) => <p key={i}>{d}</p>) : description
-                : <></>
-              }
-            </Col>
-          </Row>
-        </Col>
-        <Col xs="12" md="4" className="right">
-          {!!regions ?
-            regions.map( (region, i) => (
-              <ItemDetails key={i} label="Region" value={Regions[region]} />
-            ))
-          :
-            ''
-          }
-          {!!license ? <ItemDetails label="License" value={license} /> : ''}
-          {!!language ? <ItemDetails label="Language" value={Languages[language]} /> : ''}
-
-          {!!aggregated_concept_tags ?
-            <Row className="border-bottom subline details">
-              <Col xs="12">Concept Tags</Col>
-              <Col xs="12">
+            <Row>
+              <Col className="description">
                 {
-                  aggregated_concept_tags.map(t => t.tag_name)
+                  description ?
+                    this.browser === 'ie6-11' ? description.split('\n').map((d, i) => <p key={i}>{d}</p>) : description
+                  : <></>
                 }
               </Col>
             </Row>
-          : ''}
-          {!!aggregated_keyword_tags ?
-            <Row className="subline details">
-              <Col xs="12">Keyword Tags</Col>
-              <Col xs="12">
-                {
-                  aggregated_keyword_tags.map(t => t.tag_name)
-                }
+          </Col>
+          <Col xs="12" md="4" className="right">
+            {!!regions ?
+              regions.map( (region, i) => (
+                <ItemDetails key={i} label="Region" value={Regions[region]} />
+              ))
+            :
+              ''
+            }
+            {!!license ? <ItemDetails label="License" value={license} /> : ''}
+            {!!language ? <ItemDetails label="Language" value={Languages[language]} /> : ''}
+
+            {!!aggregated_concept_tags ?
+              <Row className="border-bottom subline details">
+                <Col xs="12">Concept Tags</Col>
+                <Col xs="12">
+                  {
+                    aggregated_concept_tags.map(t => t.tag_name)
+                  }
+                </Col>
+              </Row>
+            : ''}
+            {!!aggregated_keyword_tags ?
+              <Row className="subline details">
+                <Col xs="12">Keyword Tags</Col>
+                <Col xs="12">
+                  {
+                    aggregated_keyword_tags.map(t => t.tag_name)
+                  }
+                </Col>
+              </Row>
+            : ''}
+            <Row>
+              <Col className="px-0">
+                <div style={{ height: '15px', background: `linear-gradient(to right, #0076FF ${focusPercentage(focus_arts)}%, #9013FE ${focusPercentage(focus_scitech)}%, #50E3C2 ${focusPercentage(focus_action)}%)` }} />
               </Col>
             </Row>
-          : ''}
-          <Row>
-            <Col className="px-0">
-              <div style={{ height: '15px', background: `linear-gradient(to right, #0076FF ${focusPercentage(focus_arts)}%, #9013FE ${focusPercentage(focus_scitech)}%, #50E3C2 ${focusPercentage(focus_action)}%)` }} />
-            </Col>
-          </Row>
-        </Col>
-      </Row>
+          </Col>
+        </Row>
+      </div>
     );
   }
 }
