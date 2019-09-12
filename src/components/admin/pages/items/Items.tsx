@@ -60,7 +60,12 @@ class Items extends React.Component<RouteComponentProps, State> {
       },
       {
         dataField: 'status',
-        text: 'Status',
+        text: 'Published',
+      },
+      {
+        dataField: 'creators',
+        hidden: !!this.isContributorPath,
+        text: 'Creator(s)'
       },
       {
         dataField: 'title',
