@@ -1330,6 +1330,7 @@ export class ItemEditor extends React.Component<Props, State> {
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
             <CustomSelect values={item.exhibited_at} callback={values => this.changeItem('exhibited_at', values)} />
+            <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
         <Col md="6">
@@ -1471,6 +1472,7 @@ export class ItemEditor extends React.Component<Props, State> {
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
             <CustomSelect values={item.exhibited_at} callback={values => this.changeItem('exhibited_at', values)} />
+            <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
         <Col md="6">
@@ -1714,6 +1716,7 @@ export class ItemEditor extends React.Component<Props, State> {
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
             <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+            <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
       </Row>
@@ -1753,6 +1756,7 @@ export class ItemEditor extends React.Component<Props, State> {
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
             <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+            <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
       </Row>
@@ -1792,6 +1796,7 @@ export class ItemEditor extends React.Component<Props, State> {
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
             <CustomSelect values={item.exhibited_at} callback={values => this.changeItem('exhibited_at', values)} />
+            <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
         <Col md="6">
@@ -1824,6 +1829,7 @@ export class ItemEditor extends React.Component<Props, State> {
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
             <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+            <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
       </Row>
@@ -1889,6 +1895,7 @@ export class ItemEditor extends React.Component<Props, State> {
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
             <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+            <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
         <Col md="6">
@@ -1933,6 +1940,7 @@ export class ItemEditor extends React.Component<Props, State> {
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
             <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+            <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
       </Row>
@@ -2026,6 +2034,7 @@ export class ItemEditor extends React.Component<Props, State> {
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
             <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+            <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
       </Row>
@@ -2053,6 +2062,7 @@ export class ItemEditor extends React.Component<Props, State> {
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
             <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+            <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
       </Row>
