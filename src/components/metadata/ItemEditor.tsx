@@ -52,6 +52,8 @@ import YearSelect from './fields/YearSelect';
 
 import 'styles/components/metadata/itemEditor.scss';
 import 'styles/components/metadata/editors.scss';
+import * as moment from 'moment';
+import 'moment-duration-format';
 
 interface Props {
   item: Item;
@@ -128,6 +130,7 @@ export class ItemEditor extends React.Component<Props, State> {
   async componentDidMount(): Promise<void> {
     this._isMounted = true;
     await this.getItemByS3Key();
+
   }
 
   componentWillUnmount() {
@@ -277,8 +280,10 @@ export class ItemEditor extends React.Component<Props, State> {
       Object.entries(item)
         .filter( ([key, value]) => {
           return !(
-            value === null
-            || key === 'id' // use this to exclude things, you shouldn't need to (eg don't put them in changedFields...
+            value === null ||
+            key === 'aggregated_concept_tags' ||
+            key === 'aggregated_keyword_tags' ||
+            key === 'id' // use this to exclude things, you shouldn't need to (eg don't put them in changedFields...
           );
         })
         .forEach( field => {
@@ -1609,7 +1614,12 @@ export class ItemEditor extends React.Component<Props, State> {
     if (!!item.duration) {
       // we have to ignore this as it complains that it might be null ... even though we're checking..
       // @ts-ignore
-      duration = item.duration.toString().match(/.{1,2}/g).join(':');
+
+      if (typeof item.duration === 'string') {
+        item.duration = parseInt(item.duration, 0);
+      }
+
+      duration = moment.duration(item.duration, 'seconds').format('hh:mm:ss');
     }
     return (
       <Row>
@@ -1638,7 +1648,7 @@ export class ItemEditor extends React.Component<Props, State> {
               value={duration}
               colon=":"
               showSeconds
-              onChange={e => this.changeItem('duration', e.split(':').join(''))}
+              onChange={e => this.changeItem('duration', moment.duration(e).asSeconds())}
               input={<Input type="text" placeholder="HH:MM:SS" />}
             />
           </FormGroup>
@@ -1930,14 +1940,17 @@ export class ItemEditor extends React.Component<Props, State> {
   }
   ImageFilmStill = (): JSX.Element => {
     const item = this.state.changedItem;
-
     let duration = '';
     if (!!item.duration) {
       // we have to ignore this as it complains that it might be null ... even though we're checking..
       // @ts-ignore
-      duration = item.duration.toString().match(/.{1,2}/g).join(':');
-    }
 
+      if (typeof item.duration === 'string') {
+        item.duration = parseInt(item.duration, 0);
+      }
+
+      duration = moment.duration(item.duration, 'seconds').format('hh:mm:ss');
+    }
     return (
       <Row>
         <Col md="6">
@@ -1983,7 +1996,7 @@ export class ItemEditor extends React.Component<Props, State> {
               value={duration}
               colon=":"
               showSeconds
-              onChange={e => this.changeItem('duration', e.split(':').join(''))}
+              onChange={e => this.changeItem('duration', moment.duration(e).asSeconds())}
               input={<Input type="text" placeholder="HH:MM:SS" />}
             />
           </FormGroup>

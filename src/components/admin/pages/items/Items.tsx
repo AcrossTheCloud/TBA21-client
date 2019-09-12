@@ -188,7 +188,7 @@ class Items extends React.Component<RouteComponentProps, State> {
             s3Key: this.state.items[itemIndex].s3_key
           }
         });
-        this.getItems();
+        await this.getItems();
         Object.assign(state, {
           deleteModalOpen: false,
           successMessage: 'Item deleted'
@@ -198,7 +198,7 @@ class Items extends React.Component<RouteComponentProps, State> {
           deleteErrorMessage: 'This item may have already been deleted.',
           deleteModalOpen: false
         });
-        this.getItems();
+        await this.getItems();
       }
 
     } catch (e) {

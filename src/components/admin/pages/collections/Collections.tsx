@@ -101,7 +101,7 @@ class Collections extends React.Component<RouteComponentProps, State> {
         };
 
       const isContributorPath = (this.props.location.pathname.match(/contributor/i));
-      const response = await API.get('tba21', `${ isContributorPath ? 'contributor/collections/getByPerson' :  'admin/collections/get' }`, { queryStringParameters: queryStringParameters });
+      const response = await API.get('tba21', `${ isContributorPath ? 'contributor/collections/get' :  'admin/collections/get' }`, { queryStringParameters: queryStringParameters });
 
       return {
         collections: response.collections,
