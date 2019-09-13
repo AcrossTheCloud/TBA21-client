@@ -1,18 +1,23 @@
 import { LOAD_HOMEPAGE, LOGO_STATE_HOMEPAGE, LOAD_MORE_HOMEPAGE, MODAL_STATE_HOMEPAGE } from 'actions/home';
-import { S3File } from '../types/s3File';
+import { FileTypes, S3File } from '../types/s3File';
+import { Announcement } from '../types/Announcement';
 
 export interface HomepageData {
-  count?: string;
   file?: S3File;
   id: string;
   title: string;
   s3_key: string;
-  type: string;
+  item_subtype?: string;
+  item_type?: FileTypes | null;
   date: string;
-  duration: string;
-  file_dimensions: number[];
-  creators: string[];
-  regions: string[];
+  duration?: string;
+  file_dimensions?: number[];
+  creators?: string[];
+  regions?: string[];
+
+  // Collection specific
+  count?: string;
+  type?: FileTypes | null;
   items?: HomepageData[];
 
   // OA Highlight specific
@@ -25,10 +30,12 @@ export interface HomePageState {
 
   items: HomepageData[];
   collections: HomepageData[];
+  audio: HomepageData[];
+  announcements: Announcement[];
   oa_highlight: HomepageData[];
 
   loaded_highlights: HomepageData[];
-  loadedItems: JSX.Element[];
+  loadedItems: HomepageData[];
 
   isModalOpen: boolean;
   modalData?: HomepageData;
@@ -38,6 +45,8 @@ const initialState: HomePageState = {
 
   items: [],
   collections: [],
+  audio: [],
+  announcements: [],
   oa_highlight: [],
 
   loaded_highlights: [],
@@ -60,14 +69,16 @@ export default (state: HomePageState | null = initialState, action) => {
         ...state,
         items: action.items,
         collections: action.collections,
-        loaded_highlights: action.loaded_highlights
+        announcements: action.announcements,
+        loaded_highlights: action.loaded_highlights,
       };
     case LOAD_MORE_HOMEPAGE:
       return {
         ...state,
         loadedItems: action.loadedItems,
+        audio: action.audio,
         items: action.items,
-        collections: action.collections,
+        collections: action.collections
       };
     case MODAL_STATE_HOMEPAGE:
       return {

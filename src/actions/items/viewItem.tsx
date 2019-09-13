@@ -1,7 +1,7 @@
 import { API } from 'aws-amplify';
 import { getCDNObject } from '../../components/utils/s3File';
 import { Item } from '../../types/Item';
-import { S3File } from '../../types/s3File';
+import { FileTypes, S3File } from '../../types/s3File';
 import config from 'config';
 
 // Defining our Actions for the reducers.
@@ -23,7 +23,7 @@ export const fetchItem = (id: string) => async (dispatch, getState) => {
       if (item.file && item.file.url) { return item.file; }
       const result = await getCDNObject(item.s3_key);
 
-      if (result && result.type === 'image') {
+      if (result && result.type === FileTypes.Image) {
         const thumbnailUrl = `${config.other.THUMBNAIL_URL}${item.s3_key}`;
         let thumbnails = {};
 

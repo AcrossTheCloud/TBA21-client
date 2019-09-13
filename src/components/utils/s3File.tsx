@@ -21,17 +21,17 @@ export const fileType = (type: string): FileTypes | null => {
     'vnd.amazon',
   ];
   if (type.includes('image')) {
-    return FileTypes.image;
+    return FileTypes.Image;
   } else if (type.includes('audio')) {
-    return FileTypes.audio;
+    return FileTypes.Audio;
   } else if (type.includes('video')) {
-    return FileTypes.video;
+    return FileTypes.Video;
   } else if (downloadTextTypes.some(el => type.includes(el))) {
-    return FileTypes.downloadText;
+    return FileTypes.DownloadText;
   } else if (type.includes('text')) {
-    return FileTypes.text;
+    return FileTypes.Text;
   }  else if (type.includes('pdf')) {
-    return FileTypes.pdf;
+    return FileTypes.Pdf;
   } else {
     return null;
   }
@@ -66,18 +66,18 @@ export const getCDNObject = async (key: string): Promise<S3File | false> => {
         type = fileType(contentType),
         response: S3File = {
           url,
-          type: FileTypes.downloadText
+          type: FileTypes.DownloadText
         };
 
       if (type) {
         Object.assign(response, {type});
 
-        if (type === 'text') {
+        if (type === FileTypes.Text) {
           const body = await fetch(url);
           Object.assign(response, {body});
         }
 
-        if (type === 'video') {
+        if (type === FileTypes.Video) {
           const videoFiles = await getVideoFiles(key);
           // We always have a poster.
           Object.assign(response, { poster: videoFiles.poster });

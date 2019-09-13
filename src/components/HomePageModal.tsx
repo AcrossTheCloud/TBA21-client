@@ -15,14 +15,14 @@ import 'styles/components/home.scss';
 
 interface Props {
   data: HomepageData | undefined;
+  backData?: HomepageData;
   open: boolean;
   closeModal: Function;
 }
 
 interface State {
-  data?: HomepageData;
-  backData?: HomepageData;
   isOpen: boolean;
+  carouselActiveIndex: number;
 }
 
 class HomePageModal extends React.Component<Props, State> {
@@ -69,7 +69,7 @@ class HomePageModal extends React.Component<Props, State> {
         id,
         title,
         creators,
-        type,
+        item_subtype,
         regions,
         keyword_tags,
         concept_tags,
@@ -82,7 +82,7 @@ class HomePageModal extends React.Component<Props, State> {
           <div className="d-flex flex-column mh-100">
             <Row className="header align-content-center">
               <div className="col-10 col-sm-11 title-wrapper d-flex align-content-center">
-                <Link to={`view/${id}`} className="gray openButton flex-grow-0 flex-shrink-0"><FaExternalLinkAlt className="white" /></Link>
+                <Link to={`/view/${id}`} className="gray openButton flex-grow-0 flex-shrink-0"><FaExternalLinkAlt className="white" /></Link>
                 {creators && creators.length ?
                   <>
                     <div className="creators d-none d-md-block">
@@ -117,7 +117,7 @@ class HomePageModal extends React.Component<Props, State> {
               <Row>
                 <div className="body">
                   <div>
-                    {!!type ? type : ''}
+                    {!!item_subtype ? item_subtype : ''}
                     {`, ${new Date(date).getFullYear()}`}
                     {
                       !!regions ? `, ${regions.map(r => Regions[r]).join(', ')}` : ''

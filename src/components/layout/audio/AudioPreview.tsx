@@ -69,13 +69,13 @@ class AudioPreview extends React.Component<Props, State> {
   }
 
   render() {
-    const { id, type, date, creators, title, url } = this.props.data;
+    const { id, item_subtype, date, creators, title, url, isCollection } = this.props.data;
 
     return (
       <div
         className="audioPreview"
         onClick={() => {
-          this.props.audioPlayer(true, { id, type, date, creators, title, url });
+          this.props.audioPlayer(true, { id, item_subtype, date, creators, title, url, isCollection });
         }}
       >
         <div className="container-fluid">
@@ -86,7 +86,7 @@ class AudioPreview extends React.Component<Props, State> {
             </div>
             <Col xs="6" md="4" className="info">
               <div className="type_date">
-                {type}, {date ? new Date(date).getFullYear() : <></>}
+                {item_subtype ? item_subtype + ',' : ''} {date ? new Date(date).getFullYear() : <></>}
               </div>
               {creators && creators.length ?
                 <div className="creator">

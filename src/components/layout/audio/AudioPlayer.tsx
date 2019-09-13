@@ -113,7 +113,6 @@ class AudioPlayer extends React.Component<Props, State> {
     return (
       <div className={`audioPlayer ${this.props.open ? 'show' : 'hide'}`}>
         <div className="container-fluid">
-
             <Row>
               {this.props.data ?
                 <>
@@ -143,7 +142,7 @@ class AudioPlayer extends React.Component<Props, State> {
                 <Row>
                   {this.props.data && this.props.data.id ?
                     <Col className="openButton">
-                      <Link to={`view/${this.props.data.id}`} onClick={this.close}><FaExternalLinkAlt /></Link>
+                      <Link to={`/${this.props.data.isCollection ? 'collection' : 'view'}/${this.props.data.id}`} onClick={this.close}><FaExternalLinkAlt /></Link>
                     </Col>
                     : <></>
                   }
@@ -152,9 +151,7 @@ class AudioPlayer extends React.Component<Props, State> {
                   </Col>
                 </Row>
               </div>
-
             </Row>
-
         </div>
       </div>
     );

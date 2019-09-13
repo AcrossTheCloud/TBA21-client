@@ -50,11 +50,12 @@ import { validateURL } from '../utils/inputs/url';
 import ShortPaths from '../admin/utils/ShortPaths';
 import YearSelect from './fields/YearSelect';
 
-import 'styles/components/metadata/itemEditor.scss';
-import 'styles/components/metadata/editors.scss';
 import * as moment from 'moment';
 import 'moment-duration-format';
-import { S3File } from '../../types/s3File';
+import { FileTypes, S3File } from '../../types/s3File';
+
+import 'styles/components/metadata/itemEditor.scss';
+import 'styles/components/metadata/editors.scss';
 
 interface Props {
   item: Item;
@@ -158,10 +159,10 @@ export class ItemEditor extends React.Component<Props, State> {
 
         // Get the items s3 file
         const getFileResult: S3File | false = await sdkGetObject(this.state.originalItem.s3_key);
-        const type: string | null = (getFileResult && getFileResult.type) ? `${getFileResult.type.substr(0, 1).toUpperCase()}${getFileResult.type.substr(1, getFileResult.type.length)}` : null;
+
         const data = {
           originalItem: { ...response.item, file: getFileResult },
-          changedItem: { ...response.item, file: getFileResult, item_type: type }
+          changedItem: { ...response.item, file: getFileResult }
         };
 
         Object.assign(state, data);
@@ -190,15 +191,15 @@ export class ItemEditor extends React.Component<Props, State> {
         warning = <WarningMessage message={'Unable to load file.'}/>;
 
       if (file && file.url) {
-        if (file.type === 'image') {
+        if (file.type === FileTypes.Image) {
           return <img src={file.url} alt=""/>;
-        } else if (file.type === 'pdf') {
+        } else if (file.type === FileTypes.Pdf) {
           return (
             <div className="embed-responsive embed-responsive-4by3">
               <iframe title={!!title ? title : file.url} className="embed-responsive-item" src={file.url} />
             </div>
           );
-        } else if (file.type === 'downloadText' || file.type === 'text') {
+        } else if (file.type === FileTypes.DownloadText || file.type === FileTypes.Text) {
           return (
             <a href={file.url} target="_blank" rel="noopener noreferrer">
               <img alt="" src="https://upload.wikimedia.org/wikipedia/commons/2/22/Unscharfe_Zeitung.jpg" className="image-fluid"/>
@@ -383,15 +384,15 @@ export class ItemEditor extends React.Component<Props, State> {
     // If we can't get the file at all, for whatever reason, show all types.
     if (!file) {
       options.push(...itemTextSubTypes, ...itemVideoSubTypes, ...itemImageSubTypes, ...itemAudioSubTypes);
-    } else if (file.type === 'pdf') {
+    } else if (file.type === FileTypes.Pdf) {
       options.push(...itemTextSubTypes, ...itemImageSubTypes.filter(t => t.label !== 'Other'));
-    } else if (file.type === 'text' || file.type === 'downloadText') {
+    } else if (file.type === FileTypes.Text || file.type === FileTypes.DownloadText) {
       options = itemTextSubTypes;
-    } else if (file.type === 'video') {
+    } else if (file.type === FileTypes.Video) {
       options = itemVideoSubTypes;
-    } else if (file.type === 'audio') {
+    } else if (file.type === FileTypes.Audio) {
       options = itemAudioSubTypes;
-    } else if (file.type === 'image') {
+    } else if (file.type === FileTypes.Image) {
       options = itemImageSubTypes;
     }
 
@@ -434,7 +435,7 @@ export class ItemEditor extends React.Component<Props, State> {
 
     const { file } = this.state.originalItem;
 
-    const textFields =  (file.type === 'text')  ? {
+    const textFields =  (file.type === FileTypes.Text)  ? {
         'Academic Publication': {
           'authors': (authors || false),
           'subtitle': (subtitle || false)
@@ -476,7 +477,7 @@ export class ItemEditor extends React.Component<Props, State> {
           'institution': (institution || false),
         }
       } : '';
-    const audioFields = (file.type === 'audio')  ?  {
+    const audioFields = (file.type === FileTypes.Audio)  ?  {
         'Sound Art': {
           'performers': (performers || false)
         },
@@ -501,7 +502,7 @@ export class ItemEditor extends React.Component<Props, State> {
           'performers ': (performers || false)
         }
       } : '';
-    const imageFields = (file.type === 'image')  ?  {
+    const imageFields = (file.type === FileTypes.Image)  ?  {
         'Photograph': {
           'medium': (medium || false),
           'dimensions': (dimensions || false)
@@ -533,7 +534,7 @@ export class ItemEditor extends React.Component<Props, State> {
           'exhibited_at': (exhibited_at || false)
         }
       } : '';
-    const videoFields  = (file.type === 'video')  ?   {
+    const videoFields  = (file.type === FileTypes.Video)  ?   {
         'Movie': {
           'directors': (directors || false)
         },
@@ -2471,26 +2472,26 @@ export class ItemEditor extends React.Component<Props, State> {
                     {item.item_subtype === itemText.Historical_Text ? <this.TextHistoricalText /> : <></>}
                     {item.item_subtype === itemText.Event_Press ? <this.TextEventPress /> : <></>}
                     {item.item_subtype === itemText.Toolkit ? <this.TextToolkit /> : <></>}
-                    {(!!item.file && (item.file.type === 'text' || item.file.type === 'pdf' || item.file.type === 'downloadText')) && item.item_subtype === itemText.Other ? <this.TextOther /> : <></>}
+                    {(!!item.file && (item.file.type === FileTypes.Text || item.file.type === FileTypes.Pdf || item.file.type === FileTypes.DownloadText)) && item.item_subtype === itemText.Other ? <this.TextOther /> : <></>}
 
                     {/* Item Video */}
                     {item.item_subtype === itemVideo.Video ? <this.Video /> : <></>}
                     {item.item_subtype === itemVideo.Movie ? <this.VideoMovieTrailer /> : <></>}
                     {item.item_subtype === itemVideo.Documentary ? <this.VideoDocumentaryArt /> : <></>}
-                    {(!!item.file && item.file.type === 'video') && item.item_subtype === itemVideo.Research ? <this.VideoResearch /> : <></>}
-                    {(!!item.file && item.file.type === 'video') && item.item_subtype === itemVideo.Interview ? <this.VideoInterview /> : <></>}
+                    {(!!item.file && item.file.type === FileTypes.Video) && item.item_subtype === itemVideo.Research ? <this.VideoResearch /> : <></>}
+                    {(!!item.file && item.file.type === FileTypes.Video) && item.item_subtype === itemVideo.Interview ? <this.VideoInterview /> : <></>}
                     {item.item_subtype === itemVideo.Art ? <this.VideoDocumentaryArt /> : <></>}
                     {item.item_subtype === itemVideo.News_Journalism ? <this.VideoNewsJournalism /> : <></>}
                     {item.item_subtype === itemVideo.Event_Recording ? <this.VideoEventRecording /> : <></>}
-                    {(item.item_subtype === itemVideo.Lecture_Recording) && (!!item.file && item.file.type === 'video') ? <this.VideoLectureRecording /> : <></>}
+                    {(item.item_subtype === itemVideo.Lecture_Recording) && (!!item.file && item.file.type === FileTypes.Video) ? <this.VideoLectureRecording /> : <></>}
                     {item.item_subtype === itemVideo.Informational_Video ? <this.VideoInformationalVideo /> : <></>}
                     {item.item_subtype === itemVideo.Trailer ? <this.VideoMovieTrailer /> : <></>}
-                    {((item.item_subtype === itemVideo.Video_Artwork_Documentation) && (!!item.file && item.file.type === 'video')) ? <this.VideoArtworkDocumentation /> : <></>}
-                    {(!!item.file && item.file.type === 'video') && item.item_subtype === itemVideo.Other ? <this.VideoOther /> : <></>}
+                    {((item.item_subtype === itemVideo.Video_Artwork_Documentation) && (!!item.file && item.file.type === FileTypes.Video)) ? <this.VideoArtworkDocumentation /> : <></>}
+                    {(!!item.file && item.file.type === FileTypes.Video) && item.item_subtype === itemVideo.Other ? <this.VideoOther /> : <></>}
 
                     {/*Item Image */}
                     {item.item_subtype === itemImage.Illustration ?  <this.ItemImage /> : <></>}
-                    {(item.item_subtype === itemImage.Artwork_Documentation) && (!!item.file && item.file.type === 'image') ?  <this.ItemImage /> : <></>}
+                    {(item.item_subtype === itemImage.Artwork_Documentation) && (!!item.file && item.file.type === FileTypes.Image) ?  <this.ItemImage /> : <></>}
 
                     {
                       item.item_subtype === itemImage.Photograph ||
@@ -2501,11 +2502,11 @@ export class ItemEditor extends React.Component<Props, State> {
 
                     {
                       item.item_subtype === itemImage.Digital_Art ||
-                      (!!item.file && item.file.type === 'image' && item.item_subtype === itemImage.Other) ? <this.ItemDigitalArtOther />
+                      (!!item.file && item.file.type === FileTypes.Image && item.item_subtype === itemImage.Other) ? <this.ItemDigitalArtOther />
                         : <></>
                     }
 
-                    {(!!item.file && item.file.type === 'image') && item.item_subtype === itemImage.Research ? <this.ImageResearch /> : <></>}
+                    {(!!item.file && item.file.type === FileTypes.Image) && item.item_subtype === itemImage.Research ? <this.ImageResearch /> : <></>}
                     {item.item_subtype === itemImage.Graphics ? <this.ImageGraphics /> : <></>}
                     {item.item_subtype === itemImage.Map ? <this.ImageMap /> : <></>}
                     {item.item_subtype === itemImage.Film_Still ? <this.ImageFilmStill /> : <></>}
@@ -2516,10 +2517,10 @@ export class ItemEditor extends React.Component<Props, State> {
                     {item.item_subtype === itemAudio.Music ? <this.AudioMusic /> : <></>}
                     {item.item_subtype === itemAudio.Podcast ? <this.AudioPodcast /> : <></>}
                     {item.item_subtype === itemAudio.Lecture ? <this.AudioLecture /> : <></>}
-                    {(!!item.file && item.file.type === 'audio') && item.item_subtype === itemAudio.Interview ? <this.AudioInterview /> : <></>}
+                    {(!!item.file && item.file.type === FileTypes.Audio) && item.item_subtype === itemAudio.Interview ? <this.AudioInterview /> : <></>}
                     {item.item_subtype === itemAudio.Radio ? <this.AudioRadio /> : <></>}
                     {item.item_subtype === itemAudio.Performance_Poetry ? <this.AudioPerformancePoetry /> : <></>}
-                    {(!!item.file && item.file.type === 'audio') && item.item_subtype === itemAudio.Other ? <this.AudioOther /> : <></>}
+                    {(!!item.file && item.file.type === FileTypes.Audio) && item.item_subtype === itemAudio.Other ? <this.AudioOther /> : <></>}
 
                     <FormGroup>
                       <Label for="license_type">License</Label>

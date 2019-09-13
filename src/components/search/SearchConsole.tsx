@@ -23,6 +23,7 @@ import { fetchItem } from '../../actions/items/viewItem';
 
 import 'styles/components/search/searchConsole.scss';
 import 'styles/components/admin/tables/modal.scss';
+import { FileTypes } from '../../types/s3File';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -58,7 +59,7 @@ const createCriteriaOption = (label: string, field: string): CriteriaOption => {
 };
 
 const FilePreview = (props: { data: any }) => { // tslint:disable-line: no-any
-  if (props.data.file.type === 'image') {
+  if (props.data.file.type === FileTypes.Image) {
     let thumbnails: string = '';
     if (props.data.file.thumbnails) {
       Object.entries(props.data.file.thumbnails).forEach( ([key, value]) => {
@@ -72,9 +73,9 @@ const FilePreview = (props: { data: any }) => { // tslint:disable-line: no-any
         alt=""
       />
     );
-  } else if (props.data.file.type === 'video') {
+  } else if (props.data.file.type === FileTypes.Video) {
     return <img src={props.data.file.poster} alt={''}/>;
-  } else if (props.data.file.type === 'pdf') {
+  } else if (props.data.file.type === FileTypes.Pdf) {
     return (
       <div className="pdf">
         <Document file={{ url: props.data.file.url }} style={{width: '100%', height: '100%'}} >
@@ -82,11 +83,11 @@ const FilePreview = (props: { data: any }) => { // tslint:disable-line: no-any
         </Document>
       </div>
     );
-  } else if (props.data.file.type === 'downloadText' || props.data.file.type === 'text') {
+  } else if (props.data.file.type === FileTypes.DownloadText || props.data.file.type === FileTypes.Text) {
     return <img alt="" src="https://upload.wikimedia.org/wikipedia/commons/2/22/Unscharfe_Zeitung.jpg" className="image-fluid"/>;
-  } else if (props.data.file.type === 'audio') {
-    const {title, id, creators, type, date} = props.data;
-    return <AudioPreview data={{title, id, url: props.data.file.url, date, creators, type }} />;
+  } else if (props.data.file.type === FileTypes.Audio) {
+    const {title, id, creators, item_subtype, date, count} = props.data;
+    return <AudioPreview data={{title, id, url: props.data.file.url, date, creators, item_subtype, isCollection: !!count}} />;
   } else {
     return <></>;
   }
@@ -371,7 +372,7 @@ class SearchConsole extends React.Component<Props, State> {
                     </Row>
                   );
                 } else {
-                  if (!!t.file && t.file.type === 'audio') {
+                  if (!!t.file && t.file.type === FileTypes.Audio) {
                     return (
                       <Row className="result" key={i}>
                         <Col xs="12">
