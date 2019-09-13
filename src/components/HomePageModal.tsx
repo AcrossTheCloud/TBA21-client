@@ -1,8 +1,16 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Col, Modal, Row } from 'reactstrap';
 
+import {
+  Col,
+  Modal,
+  Row,
+  Carousel,
+  CarouselItem,
+  CarouselControl,
+  CarouselIndicators
+} from 'reactstrap';
 import { isEqual } from 'lodash';
 
 import { closeModal } from 'actions/home';
@@ -27,13 +35,16 @@ interface State {
 
 class HomePageModal extends React.Component<Props, State> {
   _isMounted;
+  carouselAnimating;
 
   constructor(props: Props) {
     super(props);
     this._isMounted = false;
+    this.carouselAnimating = false;
 
     this.state = {
-      isOpen: false
+      isOpen: false,
+      carouselActiveIndex: 1
     };
   }
 
@@ -63,9 +74,42 @@ class HomePageModal extends React.Component<Props, State> {
     }
   }
 
+  carouselOnExiting = () => {
+    this.carouselAnimating = true;
+  }
+
+  carouselOnExited = () => {
+    this.carouselAnimating = false;
+  }
+
+  carouselNext = () => {
+    if (this.carouselAnimating || !this.props.data) { return; }
+    if (this.props.data.count) {
+      const count = parseInt(this.props.data.count, 0) / 5;
+      const nextIndex = this.state.carouselActiveIndex === count ? 0 : this.state.carouselActiveIndex + 1;
+      this.setState({carouselActiveIndex: nextIndex});
+    }
+  }
+
+  carouselPrevious = () => {
+    if (this.carouselAnimating || !this.props.data) { return; }
+    if (this.props.data.count) {
+      const count = parseInt(this.props.data.count, 0) / 5;
+      const nextIndex = this.state.carouselActiveIndex === 0 ? count : this.state.carouselActiveIndex - 1;
+      this.setState({carouselActiveIndex: nextIndex});
+    }
+  }
+
+  carouselGoToIndex(newIndex: number) {
+    if (this.carouselAnimating) { return; }
+    this.setState({ carouselActiveIndex: newIndex });
+  }
+
   render() {
-    if (this.state.data) {
+
+    if (this.props.data) {
       const {
+        count,
         id,
         title,
         creators,
@@ -74,8 +118,36 @@ class HomePageModal extends React.Component<Props, State> {
         keyword_tags,
         concept_tags,
         file,
-        date
-      } = this.state.data;
+        date,
+        // items
+      } = this.props.data;
+
+      let counter: number = !!count ? parseInt(count, 0) : 0;
+
+      console.log('WHY');
+
+      const slides = (): JSX.Element[] => {
+        const html: JSX.Element[] = [];
+        const { data } = this.props;
+        if (!!data && data.items) {
+          const items = data.items;
+          for (let i = 0; i < (items.length / 5); i++) {
+            if (i <= 5) {
+              html.push(
+                <CarouselItem
+                  onExiting={this.carouselOnExiting}
+                  onExited={this.carouselOnExited}
+                  key={i}
+                >
+                  HI! {i}
+                </CarouselItem>
+              );
+            }
+          }
+          console.log(html);
+          return html;
+        } else { return [<></>]; }
+      };
 
       return (
         <Modal id="homePageModal" className="fullwidth" isOpen={this.props.open} backdrop toggle={() => this.props.closeModal()}>
@@ -108,12 +180,30 @@ class HomePageModal extends React.Component<Props, State> {
             </Row>
 
             <div className="info d-flex flex-column">
-              <Row className="file">
-                { !!file ?
-                  <FilePreview file={file}/>
+              {!counter ?
+                <Row className="file">
+                  {!!file ?
+                    <FilePreview file={file}/>
+                    : <></>
+                  }
+                </Row>
+                :
+                this.props.data && this.props.data.items ?
+                  <Row className="masonry">
+                    <Carousel
+                      activeIndex={this.state.carouselActiveIndex}
+                      next={this.carouselNext}
+                      previous={this.carouselPrevious}
+                    >
+                      <CarouselIndicators items={this.props.data.items} activeIndex={this.state.carouselActiveIndex} onClickHandler={this.carouselGoToIndex}/>
+                      {slides}
+                      <CarouselControl direction="prev" directionText="Previous" onClickHandler={this.carouselPrevious}/>
+                      <CarouselControl direction="next" directionText="Next" onClickHandler={this.carouselNext}/>
+                    </Carousel>
+                  </Row>
                   : <></>
-                }
-              </Row>
+              }
+
               <Row>
                 <div className="body">
                   <div>

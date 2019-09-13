@@ -35,10 +35,12 @@ export const loadHomepage = () => async dispatch => {
   }
 
   const response: {items: HomepageData[], collections: HomepageData[]} = await API.get('tba21', 'pages/homepage', { queryStringParameters: queryStringParams });
+  const announcementResponse = await API.get('tba21', 'announcements', { queryStringParameters: { limit: '1'}});
 
   const
-    items = await addFilesToData(response.items),
-    collections = await addFilesToData(response.collections),
+    items = response.items,
+    collections = response.collections,
+    announcements = announcementResponse.announcements,
     loadedHighlights = await addFilesToData(oaHighlights.oa_highlight);
 
   // Put all audio files into another list.
@@ -55,6 +57,7 @@ export const loadHomepage = () => async dispatch => {
     items,
     audio,
     collections,
+    announcements,
     loaded_highlights: loadedHighlights
   });
 };
@@ -67,8 +70,11 @@ const addFilesToData = async (data: HomepageData[]): Promise<HomepageData[]> => 
   if (data && data.length) {
     // Loop through each object in the array and get it's File from CloudFront
     for (let i = 0; i < data.length; i++) {
-      const s3Key = data[i].s3_key;
-      const result = await getCDNObject(s3Key);
+      const
+        isCollection: boolean = !!data[i].count,
+        s3Key = isCollection ? data[i].s3_key[0] : data[i].s3_key, // if collection get the first s3_key
+        result = await getCDNObject(s3Key);
+
       if (result) {
         const file: S3File = result;
 
@@ -107,7 +113,13 @@ const addFilesToData = async (data: HomepageData[]): Promise<HomepageData[]> => 
   }
 };
 
-export const loadMore = (items: HomepageData[], collections: HomepageData[], alreadyLoaded: JSX.Element[]) => async dispatch => {
+export const loadMore = (
+    items: HomepageData[],
+    collections: HomepageData[],
+    announcements: Announcement[],
+    audio: HomepageData[],
+    alreadyLoaded: HomepageData[]
+  ) => async dispatch => {
   const
     itemRand = random(2, 3),
     collectionRand = random(2, 3);
@@ -122,23 +134,8 @@ export const loadMore = (items: HomepageData[], collections: HomepageData[], alr
     data.push(...audio.splice(1));
   }
 
-  if (data.length) {
-    for (let i = 0; i < data.length; i++) {
-      const
-        file = data[i].file,
-        columnSizing = colSize(!!file ? file.type : 'image');
-
-      let result: JSX.Element = await displayLayout(data[i], columnSizing, dispatch);
-
-      if (file && file.type === 'audio') {
-        const {title, id, creators, type, date} = data[i];
-        result = (<Col xs="12" key={id}><AudioPreview data={{title, id, url: file.url, date, creators, type }} /></Col>);
-      }
-
-      layout.push(result);
-
-    }
-  }
+  // Add files to the items
+  data = await addFilesToData(data);
 
   dispatch({
    type: LOAD_MORE_HOMEPAGE,
@@ -186,9 +183,7 @@ export const FilePreviewHome = (props: { data: HomepageData }): JSX.Element => {
 
     if (props.data.file.type === FileTypes.DownloadText || props.data.file.type === FileTypes.Text) {
       return (
-        <a href={props.data.file.url} target="_blank" rel="noopener noreferrer">
-          <img alt={props.data.title} src="https://upload.wikimedia.org/wikipedia/commons/2/22/Unscharfe_Zeitung.jpg" className="image-fluid"/>
-        </a>
+        <img alt={props.data.title} src="https://upload.wikimedia.org/wikipedia/commons/2/22/Unscharfe_Zeitung.jpg" className="image-fluid"/>
       );
     }
   }
