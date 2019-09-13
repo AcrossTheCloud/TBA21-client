@@ -54,6 +54,7 @@ import 'styles/components/metadata/itemEditor.scss';
 import 'styles/components/metadata/editors.scss';
 import * as moment from 'moment';
 import 'moment-duration-format';
+import { S3File } from '../../types/s3File';
 
 interface Props {
   item: Item;
@@ -156,11 +157,13 @@ export class ItemEditor extends React.Component<Props, State> {
       if (response.item && Object.keys(response.item).length) {
 
         // Get the items s3 file
-        const getFileResult = await sdkGetObject(this.state.originalItem.s3_key);
+        const getFileResult: S3File | false = await sdkGetObject(this.state.originalItem.s3_key);
+        const type: string | null = (getFileResult && getFileResult.type) ? `${getFileResult.type.substr(0, 1).toUpperCase()}${getFileResult.type.substr(1, getFileResult.type.length)}` : null;
         const data = {
           originalItem: { ...response.item, file: getFileResult },
-          changedItem: { ...response.item, file: getFileResult, type: (getFileResult && getFileResult.type) ? getFileResult.type.substr(0, 1).toUpperCase() : null }
+          changedItem: { ...response.item, file: getFileResult, item_type: type }
         };
+
         Object.assign(state, data);
 
       } else {

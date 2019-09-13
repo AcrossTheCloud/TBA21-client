@@ -52,7 +52,7 @@ const LoggedInRoutes = ({isAuthenticated, ...rest}) => {
   const isLoggedIn = isAuthenticated;
   return (
     <>
-      <Route exact path="/Profile" render={routeProps => isLoggedIn ? <Profile {...history} {...routeProps} {...rest}/> : <Redirect to="/"/>}/>
+      <Route exact path="/Profile" render={routeProps => isLoggedIn ? <div className="main"><Profile {...history} {...routeProps} {...rest}/></div> : <Redirect to="/"/>}/>
     </>
   );
 };
@@ -61,14 +61,14 @@ const ContributorsRoutes = ({authorisation, ...rest}) => {
   const hasAuth = has(authorisation, 'contributor') || has(authorisation, 'editor') || has(authorisation, 'admin');
   return (
     <>
-      <Route exact path="/contributor/items/add" render={routeProps => hasAuth ? <Items {...history} {...routeProps} {...rest}/> : <Redirect to="/"/>}/>
-      <Route exact path="/contributor/items" render={routeProps => hasAuth ? <AdminItems {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
+      <Route exact path="/contributor/items/add" render={routeProps => hasAuth ? <div className="main"><Items {...history} {...routeProps} {...rest}/></div> : <Redirect to="/"/>}/>
+      <Route exact path="/contributor/items" render={routeProps => hasAuth ? <div className="main"><AdminItems {...routeProps} {...rest} /></div> : <Redirect to="/"/>}/>
 
-      <Route exact path="/contributor/collections/add" render={routeProps => hasAuth ? <CollectionEditor editMode={false} {...history} {...routeProps} {...rest}/> : <Redirect to="/"/>}/>
-      <Route exact path="/contributor/collections" render={routeProps => hasAuth ? <AdminCollections {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
+      <Route exact path="/contributor/collections/add" render={routeProps => hasAuth ? <div className="main"><CollectionEditor editMode={false} {...history} {...routeProps} {...rest}/></div> : <Redirect to="/"/>}/>
+      <Route exact path="/contributor/collections" render={routeProps => hasAuth ? <div className="main"><AdminCollections {...routeProps} {...rest} /></div> : <Redirect to="/"/>}/>
 
-      <Route exact path="/contributor/announcements" render={() => hasAuth ? <Announcements {...rest} /> : <Redirect to="/"/>}/>
-      <Route exact path="/contributor/announcements/add" render={() => hasAuth ? <AnnouncementEditor editMode={false} path={'/contributor/announcements/add'} {...rest} /> : <Redirect to="/"/>}/>
+      <Route exact path="/contributor/announcements" render={() => hasAuth ? <div className="main"><Announcements {...rest} /></div> : <Redirect to="/"/>}/>
+      <Route exact path="/contributor/announcements/add" render={() => hasAuth ? <div className="main"><AnnouncementEditor editMode={false} path={'/contributor/announcements/add'} {...rest} /></div> : <Redirect to="/"/>}/>
     </>
   );
 };
@@ -77,11 +77,11 @@ const AdminRoutes = ({authorisation, ...rest}) => {
   const isAdmin = has(authorisation, 'admin');
   return (
     <>
-      <Route exact path="/admin/ManageUsers" render={routeProps => isAdmin ? <AdminManageUsers {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
-      <Route exact path="/admin/Collections" render={routeProps => isAdmin ? <AdminCollections {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
-      <Route exact path="/admin/Items" render={routeProps => isAdmin ? <AdminItems {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
-      <Route exact path="/admin/People" render={routeProps => isAdmin ? <AdminPeople {...routeProps} {...rest} /> : <Redirect to="/"/>}/>
-      <Route exact path="/admin/announcements" render={() => isAdmin ? <Announcements {...rest} /> : <Redirect to="/"/>}/>
+      <Route exact path="/admin/ManageUsers" render={routeProps => isAdmin ? <div className="main"><AdminManageUsers {...routeProps} {...rest} /></div> : <Redirect to="/"/>}/>
+      <Route exact path="/admin/Collections" render={routeProps => isAdmin ? <div className="main"><AdminCollections {...routeProps} {...rest} /></div> : <Redirect to="/"/>}/>
+      <Route exact path="/admin/Items" render={routeProps => isAdmin ? <div className="main"><AdminItems {...routeProps} {...rest} /></div> : <Redirect to="/"/>}/>
+      <Route exact path="/admin/People" render={routeProps => isAdmin ? <div className="main"><AdminPeople {...routeProps} {...rest} /></div> : <Redirect to="/"/>}/>
+      <Route exact path="/admin/announcements" render={() => isAdmin ? <div className="main"><Announcements {...rest} /></div> : <Redirect to="/"/>}/>
     </>
   );
 };
@@ -143,11 +143,11 @@ export const AppRouter = () => {
               {({isLoading, authorisation, isAuthenticated}) => {
                 if (!isLoading) {
                   return (
-                    <div className="main">
+                    <>
                       <AdminRoutes authorisation={authorisation} history={history} />
                       <ContributorsRoutes authorisation={authorisation} history={history} />
                       <LoggedInRoutes isAuthenticated={isAuthenticated} history={history} />
-                    </div>
+                    </>
                   );
                 } else {
                   return <></>;

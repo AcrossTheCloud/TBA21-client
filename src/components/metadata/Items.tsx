@@ -59,7 +59,6 @@ const ItemsDisplay = (props: { isContributorPath: boolean, removeItem: Function 
 };
 
 class ItemsClass extends React.Component<Props, State> {
-  static contextType = AuthContext;
   _isMounted;
   isContributorPath;
 
@@ -238,3 +237,4 @@ class ItemsClass extends React.Component<Props, State> {
 }
 
 export const Items = withRouter(ItemsClass);
+ItemsClass.contextType = AuthContext;
