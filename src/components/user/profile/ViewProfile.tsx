@@ -5,10 +5,11 @@ import { State } from 'reducers/user/viewProfile';
 
 import { RouteComponentProps, withRouter } from 'react-router';
 
-import 'styles/components/pages/viewItem.scss';
+import 'styles/components/pages/viewProfile.scss';
 import { Alerts, ErrorMessage } from '../../utils/alerts';
 import { Profile } from '../../../types/Profile';
 import { fetchProfile } from '../../../actions/user/viewProfile';
+import { Col, Row } from 'reactstrap';
 
 interface Props extends RouteComponentProps, Alerts {
   fetchProfile: Function;
@@ -34,17 +35,66 @@ class ViewProfile extends React.Component<Props, State> {
     } else {
       this.setState({ errorMessage: 'No profile with that id.' });
     }
+    console.log(this.props.profile);
   }
 
   render() {
     if (typeof this.props.profile === 'undefined') {
       return 'Loading...';
     }
-
+    const {
+      // profile_image,
+      profile_type,
+      // featured_image,
+      full_name,
+      position,
+      affiliation,
+      city,
+      country,
+      biography,
+      website,
+      field_expertise,
+      // profile_type,
+      // public_profile
+    } = this.props.profile;
     return (
       <div id="profile">
         <ErrorMessage message={this.props.errorMessage} />
+        <Row>
+          <Col xs="12" md="6" className="left">
+            <Row>
+              <Col xs="12" >
+                <h1>{full_name}</h1>
+              </Col>
+              <Col xs="12">
+                {field_expertise}
+              </Col>
+              <Col xs="12">
+                {profile_type}
+              </Col>
+              <Col xs="12">
+                {biography}
+              </Col>
+             </Row>
+          </Col>
 
+          <Col xs="12" md="6" className="right">
+            <Row className="detailsRow">
+              <Col xs="12" className="details border">
+                Location: {city}, {country}
+              </Col>
+              <Col xs="12" className="details border">
+                Website: {website}
+              </Col>
+              <Col xs="12" className="details border">
+                Position: {position}
+              </Col>
+              <Col xs="12" className="details border">
+                Affiliation: {affiliation}
+              </Col>
+            </Row>
+          </Col>
+        </Row>
       </div>
     );
   }
