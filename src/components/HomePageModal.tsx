@@ -133,7 +133,7 @@ class HomePageModal extends React.Component<Props, State> {
         if (items) {
           for (let i = 0; i < items.length; i++) {
             html.push(
-              <Col xs="12" sm="6" md="3" className="px-0">
+              <Col key={i} xs="12" sm="6" md="3" className="px-0">
                 {!!items[i].file ? <FilePreview file={items[i].file} /> : <></>}
               </Col>
             );
@@ -147,7 +147,7 @@ class HomePageModal extends React.Component<Props, State> {
           <div className="d-flex flex-column mh-100">
             <Row className="header align-content-center">
               <div className="col-10 col-sm-11 title-wrapper d-flex align-content-center">
-                <Link to={`/view/${id}`} className="gray openButton flex-grow-0 flex-shrink-0"><FaExternalLinkAlt className="white" /></Link>
+                <Link to={`/${counter ? 'collection' : 'view'}/${id}`} className="gray openButton flex-grow-0 flex-shrink-0"><FaExternalLinkAlt className="white" /></Link>
                 {creators && creators.length ?
                   <>
                     <div className="creators d-none d-md-block">

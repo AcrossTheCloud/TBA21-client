@@ -105,7 +105,7 @@ class SearchConsole extends React.Component<Props, State> {
     this._isMounted = false;
 
     this.state = {
-      hover: false,
+      hover: true,
       isOpen: false,
       searchMenuOpen: false,
       searchInputValue: '',
@@ -152,13 +152,13 @@ class SearchConsole extends React.Component<Props, State> {
 
   toggleOpen = () => {
     if (!this._isMounted) { return; }
-    this.setState({isOpen: !this.state.isOpen, hover: false});
+    this.setState({isOpen: !this.state.isOpen });
   }
 
   touchDeviceOpen = () => {
     if (!this._isMounted) { return; }
     if (!this.state.isOpen && window.innerWidth <= 540) {
-      this.setState({isOpen: true, hover: false});
+      this.setState({isOpen: true});
     }
   }
 
@@ -246,45 +246,10 @@ class SearchConsole extends React.Component<Props, State> {
 
         <AudioPlayer className="audioPlayerSticky" />
 
-        <Container fluid className={`${hoveredClass} ${isOpenClass} console`} onMouseEnter={() => this.toggleHover(true)} onMouseLeave={() => this.toggleHover(false)} onTouchStart={this.touchDeviceOpen} >
-          <Row className="legend">
-            {/*<Col xs="2" className="border_right">View</Col>*/}
-            <Col xs="8" className="border_right">Search</Col>
-            <Col xs="4">Focus</Col>
-          </Row>
-
+        <Container fluid className={`${hoveredClass} ${isOpenClass} console`} onTouchStart={this.touchDeviceOpen} >
           <Row className="options">
-            {/*<div className={`view col-2 ${isOpen ? isOpenClass : `opacity5`} ${isOpen && window.innerWidth < 540 ? 'd-none' : ''}`}>*/}
             <div className={`view ${isOpen ? isOpenClass : `opacity5`} ${isOpen && window.innerWidth < 540 ? 'd-none' : ''}`}>
               <div className="line" />
-              {/*<Row>*/}
-              {/*  <Col*/}
-              {/*    xs="6"*/}
-              {/*    className={`padding option ${isOpen && view === 'grid' ? 'active' : ''}`}*/}
-              {/*    onClick={() => {*/}
-              {/*      if (isOpen) {*/}
-              {/*        this.props.changeView('grid');*/}
-              {/*      } else {*/}
-              {/*        this.toggleOpen();*/}
-              {/*      }*/}
-              {/*    }}*/}
-              {/*  >*/}
-              {/*    Grid*/}
-              {/*  </Col>*/}
-              {/*  <Col*/}
-              {/*    xs="6"*/}
-              {/*    className={`padding option px-0 ${isOpen && view === 'list' ? 'active' : ''}`}*/}
-              {/*    onClick={() => {*/}
-              {/*      if (isOpen) {*/}
-              {/*        this.props.changeView('list');*/}
-              {/*      } else {*/}
-              {/*        this.toggleOpen();*/}
-              {/*      }*/}
-              {/*    }}*/}
-              {/*  >*/}
-              {/*    List*/}
-              {/*  </Col>*/}
-              {/*</Row>*/}
             </div>
 
             <div

@@ -12,7 +12,6 @@ import {
   Home,
 
   // START ADMIN
-  ViewItems,
   ViewItem,
   AdminManageUsers,
 
@@ -24,10 +23,10 @@ import {
 
   // END ADMIN
 
-  // START Conributors
+  // START Contributors
   Items,
   CollectionEditor,
-  // END Conributors
+  // END Contributors
 
   // START USER
   Profile,
@@ -37,9 +36,6 @@ import {
   AccountConfirmation,
   // END USER
 
-  NetworkGraph,
-
-  MapView
 } from './components/';
 
 import { AuthConsumer, AuthProvider } from './providers/AuthProvider';
@@ -47,6 +43,8 @@ import SearchConsole from './components/search/SearchConsole';
 import Announcements from './components/admin/pages/announcements/Announcements';
 import { AnnouncementEditor } from './components/metadata/AnnouncementEditor';
 import ViewProfile from './components/user/profile/ViewProfile';
+import ViewCollection from './components/collection/ViewCollection';
+import LoadingOverlay from './components/LoadingOverlay';
 
 const LoggedInRoutes = ({isAuthenticated, ...rest}) => {
   const isLoggedIn = isAuthenticated;
@@ -109,17 +107,25 @@ export const AppRouter = () => {
                     }}
                   </AuthConsumer>
                   <SearchConsole />
+                  <LoadingOverlay />
                 </>
               )}
             />
 
             <Route exact path="/" component={Home} />
-            <Route exact path="/view" component={ViewItems} />
             <Route
               path="/view/:itemId"
               render={() => (
                 <div className="container-fluid main blue">
                   <ViewItem />
+                </div> )
+              }
+            />
+            <Route
+              path="/collection/:itemId"
+              render={() => (
+                <div className="container-fluid main blue">
+                  <ViewCollection />
                 </div> )
               }
             />
@@ -131,11 +137,9 @@ export const AppRouter = () => {
                 </div> )
               }
             />
-            <Route exact path="/map" component={MapView} />
             <Route exact path="/login" component={Login} />
             <Route exact path="/signup" component={SignUp} />
             <Route exact path="/resetPassword/" component={ResetPassword} />
-            <Route exact path="/viewGraph" component={NetworkGraph} />
 
             <Route exact path="/confirm/:email" component={AccountConfirmation} />
 
