@@ -3,7 +3,7 @@ import { FileTypes, S3File } from '../types/s3File';
 import { Announcement } from '../types/Announcement';
 
 export interface HomepageData {
-  file?: S3File;
+  file: S3File;
   id: string;
   title: string;
   s3_key: string;

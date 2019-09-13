@@ -154,9 +154,7 @@ class HomePage extends React.Component<Props, {}> {
                     {creators && creators.length ?
                       <>
                         <div className="creators d-none d-md-block">
-                          <Link to={`/view/${id}`}>
-                            <span>{creators.join(', ')}</span>
-                          </Link>
+                          <span>{creators.join(', ')}</span>
                         </div>
                         <div className="d-none d-md-block">
                           <FaCircle className="dot"/>
@@ -165,9 +163,7 @@ class HomePage extends React.Component<Props, {}> {
                       : <></>
                     }
                     <div className="title">
-                      <Link to={`/view/${id}`}>
-                        {title}
-                      </Link>
+                      {title}
                     </div>
                   </div>
                 </div>

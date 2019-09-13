@@ -66,7 +66,7 @@ export const loadHomepage = () => async dispatch => {
  * HEADS all files and inserts a file key value pair into the item/collection.
  * @param data
  */
-const addFilesToData = async (data: HomepageData[]): Promise<HomepageData[]> => {
+export const addFilesToData = async (data: HomepageData[]): Promise<HomepageData[]> => {
   if (data && data.length) {
     // Loop through each object in the array and get it's File from CloudFront
     for (let i = 0; i < data.length; i++) {

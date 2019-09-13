@@ -5,15 +5,11 @@ import { Link } from 'react-router-dom';
 import {
   Col,
   Modal,
-  Row,
-  Carousel,
-  CarouselItem,
-  CarouselControl,
-  CarouselIndicators
+  Row
 } from 'reactstrap';
 import { isEqual } from 'lodash';
 
-import { closeModal } from 'actions/home';
+import { addFilesToData, closeModal } from 'actions/home';
 import { HomepageData } from '../reducers/home';
 import { FaCircle, FaExternalLinkAlt, FaTimes } from 'react-icons/fa';
 import { Regions } from '../types/Item';
@@ -56,7 +52,7 @@ class HomePageModal extends React.Component<Props, State> {
     this._isMounted = false;
   }
 
-  componentDidUpdate(prevProps: Readonly<Props>): void {
+  async componentDidUpdate(prevProps: Readonly<Props>): Promise<void> {
     if (this._isMounted) {
       const state = {};
 
@@ -65,7 +61,16 @@ class HomePageModal extends React.Component<Props, State> {
       }
 
       if (!!this.props.data && !isEqual(this.props.data, prevProps.data)) {
-        Object.assign(state, { data: this.props.data });
+        const { data } = this.props;
+
+        // Add the file to all under items;
+        if (data.items) {
+          Object.assign(data, {
+            items: await addFilesToData(data.items)
+          });
+        }
+
+        Object.assign(state, data);
       }
 
       if (Object.keys(state).length > 0) {
@@ -106,7 +111,6 @@ class HomePageModal extends React.Component<Props, State> {
   }
 
   render() {
-
     if (this.props.data) {
       const {
         count,
@@ -119,32 +123,21 @@ class HomePageModal extends React.Component<Props, State> {
         concept_tags,
         file,
         date,
-        // items
+        items
       } = this.props.data;
 
       let counter: number = !!count ? parseInt(count, 0) : 0;
 
-      console.log('WHY');
-
-      const slides = (): JSX.Element[] => {
+      const masonry = (): JSX.Element[] => {
         const html: JSX.Element[] = [];
-        const { data } = this.props;
-        if (!!data && data.items) {
-          const items = data.items;
-          for (let i = 0; i < (items.length / 5); i++) {
-            if (i <= 5) {
-              html.push(
-                <CarouselItem
-                  onExiting={this.carouselOnExiting}
-                  onExited={this.carouselOnExited}
-                  key={i}
-                >
-                  HI! {i}
-                </CarouselItem>
-              );
-            }
+        if (items) {
+          for (let i = 0; i < items.length; i++) {
+            html.push(
+              <Col xs="12" sm="6" md="3" className="px-0">
+                {!!items[i].file ? <FilePreview file={items[i].file} /> : <></>}
+              </Col>
+            );
           }
-          console.log(html);
           return html;
         } else { return [<></>]; }
       };
@@ -188,18 +181,9 @@ class HomePageModal extends React.Component<Props, State> {
                   }
                 </Row>
                 :
-                this.props.data && this.props.data.items ?
+                items ?
                   <Row className="masonry">
-                    <Carousel
-                      activeIndex={this.state.carouselActiveIndex}
-                      next={this.carouselNext}
-                      previous={this.carouselPrevious}
-                    >
-                      <CarouselIndicators items={this.props.data.items} activeIndex={this.state.carouselActiveIndex} onClickHandler={this.carouselGoToIndex}/>
-                      {slides}
-                      <CarouselControl direction="prev" directionText="Previous" onClickHandler={this.carouselPrevious}/>
-                      <CarouselControl direction="next" directionText="Next" onClickHandler={this.carouselNext}/>
-                    </Carousel>
+                    {masonry()}
                   </Row>
                   : <></>
               }
