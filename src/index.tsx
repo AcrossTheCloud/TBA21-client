@@ -2,6 +2,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import Amplify from 'aws-amplify';
 import { config as AWSConfig } from 'aws-sdk';
+import { CookiesProvider } from 'react-cookie';
 
 import { AppRouter } from './router';
 import config from './config.js';
@@ -39,5 +40,9 @@ Amplify.configure({
 AWSConfig.region = config.s3.REGION;
 
 ReactDOM.render(
-  <AppRouter />, document.getElementById('root')
+  <CookiesProvider>
+    <AppRouter />
+  </CookiesProvider>
+  , 
+  document.getElementById('root')
 );

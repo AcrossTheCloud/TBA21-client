@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { Button, Col, Container, Row } from 'reactstrap';
 import { debounce } from 'lodash';
+import { withCookies, Cookies } from 'react-cookie';
+import { instanceOf } from 'prop-types';
 
 import { AuthConsumer } from '../providers/AuthProvider';
 import { logoDispatch, loadHomepage, loadMore, FilePreviewHome, openModal, closeModal } from 'actions/home';
@@ -19,6 +21,7 @@ import { FileTypes } from '../types/s3File';
 import 'styles/components/home.scss';
 
 interface Props extends HomePageState {
+  cookies: any;
   logoDispatch: Function;
   loadHomepage: Function;
   loadMore: Function;
@@ -27,13 +30,24 @@ interface Props extends HomePageState {
   closeModal: Function;
 }
 
-class HomePage extends React.Component<Props, {}> {
+class HomePage extends React.Component<Props, {isPrivacyPolicyAccepted: boolean}> {
   _isMounted;
   scrollDebounce;
 
+  static propTypes = {
+    cookies: instanceOf(Cookies).isRequired
+  };
+
   constructor(props: Props) {
     super(props);
+
+    const { cookies } = props;
+
     this._isMounted = false;
+
+    this.state = {
+      isPrivacyPolicyAccepted: cookies.get('isPrivacyPolicyAccepted') && (cookies.get('isPrivacyPolicyAccepted') === 'true')
+    }
 
     this.scrollDebounce = debounce( async () => await this.handleScroll(), 300);
   }
@@ -201,7 +215,22 @@ class HomePage extends React.Component<Props, {}> {
                 <Button color="link" tag={Link} to="/login"><span className="simple-icon-login"/> Login</Button>
             )}
           </AuthConsumer>
-
+          <Row>
+          {
+              this.state.isPrivacyPolicyAccepted ? 
+              <></>
+              :
+              <Button onClick={
+                () => {
+                  const { cookies } = this.props;
+ 
+                  cookies.set('isPrivacyPolicyAccepted', true, { path: '/' });
+                  this.setState({ isPrivacyPolicyAccepted: true });
+                  
+                }
+              }></Button>
+          }
+          </Row>
           <Row>
             {!!loaded_highlights[0] ?
               <Col xs="12" md={loaded_highlights.length > 1 ? 8 : 12} className="item" onClick={() => this.props.openModal(loaded_highlights[0])}>
@@ -317,4 +346,4 @@ const mapStateToProps = (state: { home: Props }) => ({
   isModalOpen: state.home.isModalOpen
 });
 
-export default connect(mapStateToProps, { logoDispatch, loadHomepage, loadMore, openModal, closeModal })(HomePage);
+export default connect(mapStateToProps, { logoDispatch, loadHomepage, loadMore, openModal, closeModal })(withCookies(HomePage));
