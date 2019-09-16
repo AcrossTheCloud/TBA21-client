@@ -45,6 +45,7 @@ import { AnnouncementEditor } from './components/metadata/AnnouncementEditor';
 import ViewProfile from './components/user/profile/ViewProfile';
 import ViewCollection from './components/collection/ViewCollection';
 import LoadingOverlay from './components/LoadingOverlay';
+import PrivacyPolicyPopUp from './components/PrivacyPolicyPopUp';
 
 const LoggedInRoutes = ({isAuthenticated, ...rest}) => {
   const isLoggedIn = isAuthenticated;
@@ -107,6 +108,7 @@ export const AppRouter = () => {
                     }}
                   </AuthConsumer>
                   <SearchConsole />
+                  <PrivacyPolicyPopUp />
                   <LoadingOverlay />
                 </>
               )}
