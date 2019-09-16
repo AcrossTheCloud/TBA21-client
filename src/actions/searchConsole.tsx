@@ -5,6 +5,7 @@ import { getCDNObject } from '../components/utils/s3File';
 export const CHANGE_VIEW = 'CHANGE_VIEW';
 export const SEARCH_RESULTS = 'SEARCH_RESULTS';
 export const SEARCH_LOADING = 'SEARCH_LOADING';
+export const SEARCH_TOGGLE_OPEN = 'SEARCH_TOGGLE_OPEN';
 
 export interface CriteriaOption {
   label: string;
@@ -12,6 +13,12 @@ export interface CriteriaOption {
   field: string;
 }
 
+export const toggle = (open: boolean = false) => dispatch => {
+  dispatch({
+     type: SEARCH_TOGGLE_OPEN,
+     open: open
+   });
+};
 export const changeView = (view: 'grid' | 'list') => dispatch => {
   dispatch({
      type: CHANGE_VIEW,

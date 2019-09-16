@@ -3,9 +3,11 @@ import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { Button, Col, Container, Row } from 'reactstrap';
 import { debounce } from 'lodash';
+import { withCookies, Cookies } from 'react-cookie';
 
 import { AuthConsumer } from '../providers/AuthProvider';
 import { logoDispatch, loadHomepage, loadMore, FilePreviewHome, openModal, closeModal } from 'actions/home';
+import { toggle as searchOpenToggle } from 'actions/searchConsole';
 
 import { HomepageData, HomePageState } from '../reducers/home';
 import HomePageModal from './HomePageModal';
@@ -25,6 +27,8 @@ interface Props extends HomePageState {
   oaHighlights: Function;
   openModal: Function;
   closeModal: Function;
+  searchOpenToggle: Function;
+  cookies: Cookies;
 }
 
 class HomePage extends React.Component<Props, {}> {
@@ -41,7 +45,8 @@ class HomePage extends React.Component<Props, {}> {
 
   async componentDidMount(): Promise<void> {
     this._isMounted = true;
-    window.addEventListener('scroll', this.scrollDebounce, false);
+    window.addEventListener('scroll',  this.scrollDebounce, false);
+    window.addEventListener('scroll',  this.handleScrollMobileSearch, false);
 
     // If we have no items go get em.
     if (!this.props.loadedItems.length) {
@@ -53,12 +58,29 @@ class HomePage extends React.Component<Props, {}> {
   componentWillUnmount = () => {
     this._isMounted = false;
     window.removeEventListener('scroll', this.scrollDebounce, false);
+    window.removeEventListener('scroll', this.handleScrollMobileSearch, false);
     this.props.closeModal();
   }
 
   handleScroll = async () => {
     if (window.innerHeight + document.documentElement.scrollTop === document.documentElement.offsetHeight) {
       await this.props.loadMore(this.props.items, this.props.collections, this.props.announcements, this.props.audio, this.props.loadedItems);
+    }
+  }
+  handleScrollMobileSearch = () => {
+    const { cookies } = this.props;
+    const header = document.getElementById('header');
+
+    if (!!header && !cookies.get(`searchMobileCookie`)) {
+      const headerOffset = Math.round(header.offsetHeight + header.scrollTop);
+      if(
+        (headerOffset > document.documentElement.scrollTop) &&
+        (headerOffset - 100 < document.documentElement.scrollTop)
+        && window.innerWidth < 720) {
+        const expiry: Date = new Date(moment().add(2, 'w').format()); // 3 Months from now.
+        this.props.searchOpenToggle(true);
+        this.props.cookies.set(`searchMobileCookie`, true, { path: '/', expires: expiry });
+      }
     }
   }
 
@@ -316,4 +338,4 @@ const mapStateToProps = (state: { home: Props }) => ({
   isModalOpen: state.home.isModalOpen
 });
 
-export default connect(mapStateToProps, { logoDispatch, loadHomepage, loadMore, openModal, closeModal })(HomePage);
+export default connect(mapStateToProps, { logoDispatch, loadHomepage, loadMore, openModal, closeModal, searchOpenToggle })(withCookies(HomePage));
