@@ -33,6 +33,7 @@ class HomePage extends React.Component<Props, {}> {
 
   constructor(props: Props) {
     super(props);
+
     this._isMounted = false;
 
     this.scrollDebounce = debounce( async () => await this.handleScroll(), 300);
@@ -186,7 +187,6 @@ class HomePage extends React.Component<Props, {}> {
     );
   };
 
-
   render() {
     const { loaded_highlights, logoLoaded, loadedItems, announcements } = this.props;
 
@@ -201,7 +201,6 @@ class HomePage extends React.Component<Props, {}> {
                 <Button color="link" tag={Link} to="/login"><span className="simple-icon-login"/> Login</Button>
             )}
           </AuthConsumer>
-
           <Row>
             {!!loaded_highlights[0] ?
               <Col xs="12" md={loaded_highlights.length > 1 ? 8 : 12} className="item" onClick={() => this.props.openModal(loaded_highlights[0])}>
