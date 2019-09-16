@@ -2003,7 +2003,7 @@ export class ItemEditor extends React.Component<Props, State> {
         </Col>
         <Col md="6">
           <FormGroup>
-            <Label for="duration">Minute : Second</Label>
+            <Label for="duration">Duration (Hour : Minute : Second)</Label>
             <TimeField
               value={duration}
               colon=":"
