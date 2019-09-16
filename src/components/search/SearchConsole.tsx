@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import AsyncSelect from 'react-select/async';
+import { withCookies, Cookies } from 'react-cookie';
 import $ from 'jquery';
 import { API } from 'aws-amplify';
 import { FaTimes } from 'react-icons/fa';
@@ -12,7 +13,8 @@ import { Document, Page, pdfjs } from 'react-pdf';
 import {
   search as dispatchSearch,
   changeView,
-  CriteriaOption
+  CriteriaOption,
+  toggle
 } from '../../actions/searchConsole'; // Props from Redux.
 
 import ViewItem from '../item/ViewItem';
@@ -20,10 +22,11 @@ import AudioPlayer from '../layout/audio/AudioPlayer';
 import { Bubble } from './Bubble';
 import AudioPreview from '../layout/audio/AudioPreview';
 import { fetchItem } from '../../actions/items/viewItem';
+import { FileTypes } from '../../types/s3File';
+import { instanceOf } from 'prop-types';
 
 import 'styles/components/search/searchConsole.scss';
 import 'styles/components/admin/tables/modal.scss';
-import { FileTypes } from '../../types/s3File';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -31,11 +34,12 @@ interface Props extends SearchConsoleState {
   changeView: Function;
   dispatchSearch: Function;
   fetchItem: Function;
+  toggle: Function;
+  cookies: Cookies;
 }
 
 interface State {
   hover: boolean;
-  isOpen: boolean;
   searchMenuOpen: boolean;
   searchInputValue: string;
   criteria: CriteriaOption[];
@@ -44,6 +48,7 @@ interface State {
   focus_action: boolean;
   focus_scitech: boolean;
   modalOpen: boolean;
+  searchMobileCookie: boolean;
 }
 
 const createCriteriaOption = (label: string, field: string): CriteriaOption => {
@@ -94,6 +99,10 @@ const FilePreview = (props: { data: any }) => { // tslint:disable-line: no-any
 };
 
 class SearchConsole extends React.Component<Props, State> {
+  static propTypes = {
+    cookies: instanceOf(Cookies).isRequired
+  };
+
   _isMounted;
   searchTimeout;
   searchInputRef;
@@ -101,12 +110,13 @@ class SearchConsole extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
+    const { cookies } = this.props;
+
     this.searchInputRef = React.createRef();
     this._isMounted = false;
 
     this.state = {
       hover: true,
-      isOpen: false,
       searchMenuOpen: false,
       searchInputValue: '',
       criteria: [],
@@ -116,7 +126,9 @@ class SearchConsole extends React.Component<Props, State> {
       focus_action: false,
       focus_scitech: false,
 
-      modalOpen: false
+      modalOpen: false,
+
+      searchMobileCookie: !!cookies.get(`searchMobileCookie`) && (cookies.get(`searchMobileCookie`) === 'true')
     };
 
   }
@@ -130,9 +142,10 @@ class SearchConsole extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>, ): void {
-    if (this.state.isOpen !== prevState.isOpen) {
-      if (this.state.isOpen) {
+    if (this.props.open !== prevProps.open) {
+      if (this.props.open) {
         $('#body').addClass('searchOpen');
+        this.searchInputRef.current.select.select.focus();
       } else {
         $('#body').removeClass('searchOpen');
       }
@@ -141,7 +154,7 @@ class SearchConsole extends React.Component<Props, State> {
 
   toggleHover = (open?: boolean) => {
     if (!this._isMounted) { return; }
-    if (!this.state.isOpen) {
+    if (!this.props.open) {
       if (window.innerWidth < 540) {
         this.toggleOpen();
       } else {
@@ -152,13 +165,13 @@ class SearchConsole extends React.Component<Props, State> {
 
   toggleOpen = () => {
     if (!this._isMounted) { return; }
-    this.setState({isOpen: !this.state.isOpen });
+    this.props.toggle(!this.props.open);
   }
 
   touchDeviceOpen = () => {
     if (!this._isMounted) { return; }
-    if (!this.state.isOpen && window.innerWidth <= 540) {
-      this.setState({isOpen: true});
+    if (!this.props.open && window.innerWidth <= 540) {
+      this.props.toggle(true);
     }
   }
 
@@ -198,7 +211,7 @@ class SearchConsole extends React.Component<Props, State> {
    * Then dispatches the redux action.
   */
   searchDispatch = () => {
-    if (this.state.isOpen && this.state.selectedCriteria && this.state.selectedCriteria.length) {
+    if (this.props.open && this.state.selectedCriteria && this.state.selectedCriteria.length) {
       this.props.dispatchSearch(this.state.selectedCriteria, this.state.focus_arts, this.state.focus_action, this.state.focus_scitech);
     }
   }
@@ -223,8 +236,8 @@ class SearchConsole extends React.Component<Props, State> {
   }
 
   focusSearchInput = () => {
-    if (!this._isMounted || this.state.isOpen) { return; }
-    this.setState({isOpen: !this.state.isOpen}, () => this.searchInputRef.current.select.select.focus());
+    if (!this._isMounted || this.props.open) { return; }
+    this.props.toggle(!this.props.open);
   }
 
   toggleModal = () => {
@@ -236,8 +249,9 @@ class SearchConsole extends React.Component<Props, State> {
   render() {
     const
       // { view, results } = this.props,
-      { results } = this.props,
-      { hover, isOpen } = this.state,
+      { results, open } = this.props,
+      { hover } = this.state,
+      isOpen = open,
       isOpenClass = isOpen ? 'open' : '',
       hoveredClass = hover ? 'hover' : '';
 
@@ -372,7 +386,7 @@ class SearchConsole extends React.Component<Props, State> {
           </div>
 
           <Row className="bubbleRow">
-            {this.state.isOpen ?
+            {this.props.open ?
               <Bubble callback={e => { if (this._isMounted) { this.setState(e); }}} />
             : <></>
             }
@@ -413,8 +427,10 @@ const mapStateToProps = (state: { searchConsole: SearchConsoleState }) => ({
   view: state.searchConsole.view,
   results: state.searchConsole.results,
 
-  loading: state.searchConsole.loading
+  loading: state.searchConsole.loading,
+
+  open: state.searchConsole.open
 
 });
 
-export default connect(mapStateToProps, { dispatchSearch, changeView, fetchItem })(SearchConsole);
+export default connect(mapStateToProps, { dispatchSearch, changeView, fetchItem, toggle })(withCookies(SearchConsole));

@@ -46,6 +46,8 @@ import ViewProfile from './components/user/profile/ViewProfile';
 import ViewCollection from './components/collection/ViewCollection';
 import LoadingOverlay from './components/LoadingOverlay';
 import PrivacyPolicyPopUp from './components/PrivacyPolicyPopUp';
+import PrivacyPolicy from './components/pages/PrivacyPolicy';
+import TermsAndConditions from './components/pages/TermsAndConditions';
 
 const LoggedInRoutes = ({isAuthenticated, ...rest}) => {
   const isLoggedIn = isAuthenticated;
@@ -109,6 +111,8 @@ export const AppRouter = () => {
                   </AuthConsumer>
                   <SearchConsole />
                   <PrivacyPolicyPopUp />
+                  <PrivacyPolicy />
+                  <TermsAndConditions />
                   <LoadingOverlay />
                 </>
               )}

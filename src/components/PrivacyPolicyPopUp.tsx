@@ -5,8 +5,11 @@ import { Button, Col, Container, Row } from 'reactstrap';
 
 import 'styles/layout/privacyPolicyPopUp.scss';
 import moment from 'moment';
+import { connect } from 'react-redux';
+import { modalToggle } from '../actions/pages/privacyPolicy';
 
 interface Props {
+  modalToggle: Function;
   cookies: Cookies;
 }
 
@@ -50,7 +53,8 @@ class PrivacyPolicyPopUp extends React.Component<Props, {isPrivacyPolicyAccepted
         <Row className="align-items-center">
           <Col xs="12" lg="8">
             <p>Cookies on our website allow us to deliver better content to you, by enhancing our understanding of what content people are engaging with. We do this through Google Analytics.</p>
-            <p>Read our privacy policy & terms and conditions for more information.</p>
+            <p>
+              Read our <Button color="link" className="p-0" onClick={() => this.props.modalToggle(undefined, true)}>privacy policy</Button> & <Button color="link" className="p-0" onClick={() => this.props.modalToggle('TC_MODAL', true)}>terms of use</Button> for more information.</p>
           </Col>
           <Col xs="12" lg="4">
             <Row>
@@ -68,4 +72,4 @@ class PrivacyPolicyPopUp extends React.Component<Props, {isPrivacyPolicyAccepted
   }
 }
 
-export default withCookies(PrivacyPolicyPopUp);
+export default connect(undefined, { modalToggle })(withCookies(PrivacyPolicyPopUp));

@@ -15,8 +15,7 @@
 
   .btn {
     cursor: pointer;
-    width: 100%;
-
+    vertical-align: unset;
     &.decline {
       background: #ccc;
     }
