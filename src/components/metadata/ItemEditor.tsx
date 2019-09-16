@@ -427,7 +427,6 @@ export class ItemEditor extends React.Component<Props, State> {
       dimensions,
       directors,
       writers,
-      exhibited_at,
       location,
       event_title,
       produced_by
@@ -435,7 +434,7 @@ export class ItemEditor extends React.Component<Props, State> {
 
     const { file } = this.state.originalItem;
 
-    const textFields =  (file.type === FileTypes.Text)  ? {
+    const textFields =  (file.type === FileTypes.Text) ? {
         'Academic Publication': {
           'authors': (authors || false),
           'subtitle': (subtitle || false)
@@ -476,8 +475,8 @@ export class ItemEditor extends React.Component<Props, State> {
           'authors': (authors || false),
           'institution': (institution || false),
         }
-      } : '';
-    const audioFields = (file.type === FileTypes.Audio)  ?  {
+      } : {};
+    const audioFields = (file.type === FileTypes.Audio) ? {
         'Sound Art': {
           'performers': (performers || false)
         },
@@ -501,8 +500,8 @@ export class ItemEditor extends React.Component<Props, State> {
         'Performance Poetry ': {
           'performers ': (performers || false)
         }
-      } : '';
-    const imageFields = (file.type === FileTypes.Image)  ?  {
+      } : {};
+    const imageFields = (file.type === FileTypes.Image) ? {
         'Photograph': {
           'medium': (medium || false),
           'dimensions': (dimensions || false)
@@ -529,12 +528,9 @@ export class ItemEditor extends React.Component<Props, State> {
         'Illustration': {
           'medium': (medium || false),
           'dimensions': (dimensions || false)
-        },
-        'Artwork Documentation': {
-          'exhibited_at': (exhibited_at || false)
         }
-      } : '';
-    const videoFields  = (file.type === FileTypes.Video)  ?   {
+      } : {};
+    const videoFields = (file.type === FileTypes.Video) ? {
         'Movie': {
           'directors': (directors || false)
         },
@@ -566,7 +562,7 @@ export class ItemEditor extends React.Component<Props, State> {
         'Informational Video': {
           'produced_by': (produced_by || false)
         }
-      } : '';
+      } : {};
 
     // All the required fields per sub type
     const subtypeRequiredFields = {
@@ -1618,14 +1614,7 @@ export class ItemEditor extends React.Component<Props, State> {
     const item = this.state.changedItem;
     let duration = '';
     if (!!item.duration) {
-      // we have to ignore this as it complains that it might be null ... even though we're checking..
-      // @ts-ignore
-
-      if (typeof item.duration === 'string') {
-        item.duration = parseInt(item.duration, 0);
-      }
-
-      duration = moment.duration(item.duration, 'seconds').format('hh:mm:ss');
+      duration = moment.duration(item.duration, 'seconds').format('hh:mm:ss', { trim: false });
     }
     return (
       <Row>
@@ -1954,14 +1943,7 @@ export class ItemEditor extends React.Component<Props, State> {
     const item = this.state.changedItem;
     let duration = '';
     if (!!item.duration) {
-      // we have to ignore this as it complains that it might be null ... even though we're checking..
-      // @ts-ignore
-
-      if (typeof item.duration === 'string') {
-        item.duration = parseInt(item.duration, 0);
-      }
-
-      duration = moment.duration(item.duration, 'seconds').format('hh:mm:ss');
+      duration = moment.duration(item.duration, 'seconds').format('hh:mm:ss', { trim: false });
     }
     return (
       <Row>
