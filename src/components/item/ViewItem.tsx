@@ -46,7 +46,7 @@ class ViewItem extends React.Component<Props, State> {
 
   render() {
     if (typeof this.props.item === 'undefined') {
-      return 'Loading...';
+      return '';
     }
 
     const {
