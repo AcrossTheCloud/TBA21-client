@@ -248,7 +248,7 @@ export class ItemEditor extends React.Component<Props, State> {
     if (invalidFields.length > 0) {
       const message: JSX.Element = (
         <>
-          Missing required Field(s) <br/>
+          Missing required field(s) <br/>
           {invalidFields.map( (f, i) => ( <div key={i} style={{ textTransform: 'capitalize' }}>{f.replace(/_/g, ' ')}<br/></div> ) )}
         </>
       );
@@ -503,8 +503,7 @@ export class ItemEditor extends React.Component<Props, State> {
       } : {};
     const imageFields = (file.type === FileTypes.Image) ? {
         'Photograph': {
-          'medium': (medium || false),
-          'dimensions': (dimensions || false)
+          'medium': (medium || false)
         },
         'Graphics': {
           'medium': (medium || false),
@@ -1755,7 +1754,7 @@ export class ItemEditor extends React.Component<Props, State> {
       </Row>
     );
   }
-  ItemImagePhotographSculpturePaintingDrawing = (): JSX.Element => {
+  ItemImageSculpturePaintingDrawing = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
       <Row>
@@ -1783,6 +1782,51 @@ export class ItemEditor extends React.Component<Props, State> {
               invalid={this.state.validate.hasOwnProperty('dimensions') && !this.state.validate.dimensions}
             />
             <FormFeedback>This is a required field</FormFeedback>
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="exhibited_at">Exhibited At</Label>
+            <CustomSelect values={item.exhibited_at} callback={values => this.changeItem('exhibited_at', values)} />
+            <FormText>Use tab or enter to add a new Exhibit.</FormText>
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="Provenance">Provenance</Label>
+            <CustomSelect values={item.provenance} callback={values => this.changeItem('provenance', values)} />
+            <FormText>Use tab or enter to add a new Provenance.</FormText>
+          </FormGroup>
+        </Col>
+      </Row>
+    );
+  }
+  ItemImagePhotograph = (): JSX.Element => {
+    const item = this.state.changedItem;
+    return (
+      <Row>
+        <Col md="6">
+          <FormGroup>
+            <Label for="medium">Medium</Label>
+            <Input
+              type="text"
+              className="medium"
+              defaultValue={item.medium ? item.medium : ''}
+              onChange={e => this.validateLength('medium', e.target.value)}
+              invalid={this.state.validate.hasOwnProperty('medium') && !this.state.validate.medium}
+            />
+            <FormFeedback>This is a required field</FormFeedback>
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="dimensions">Dimensions</Label>
+            <Input
+              type="text"
+              className="dimensions"
+              defaultValue={item.dimensions ? item.dimensions : ''}
+              onChange={e => this.changeItem('dimensions', e.target.value)}
+            />
           </FormGroup>
         </Col>
         <Col md="6">
@@ -2476,10 +2520,13 @@ export class ItemEditor extends React.Component<Props, State> {
                     {(item.item_subtype === itemImage.Artwork_Documentation) && (!!item.file && item.file.type === FileTypes.Image) ?  <this.ItemImage /> : <></>}
 
                     {
-                      item.item_subtype === itemImage.Photograph ||
                       item.item_subtype === itemImage.Sculpture ||
                       item.item_subtype === itemImage.Drawing ||
-                      item.item_subtype === itemImage.Painting ? <this.ItemImagePhotographSculpturePaintingDrawing /> : <></>
+                      item.item_subtype === itemImage.Painting ? <this.ItemImageSculpturePaintingDrawing /> : <></>
+                    }
+
+                    { 
+                      item.item_subtype === itemImage.Photograph ? <this.ItemImagePhotograph /> : <></>
                     }
 
                     {
