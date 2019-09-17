@@ -6,7 +6,7 @@ import $ from 'jquery';
 import { API } from 'aws-amplify';
 import { FaTimes } from 'react-icons/fa';
 import { uniqBy } from 'lodash';
-import { Col, Row, Container, Spinner, Modal } from 'reactstrap';
+import { Col, Row, Container, Spinner, Modal, ModalBody } from 'reactstrap';
 import { SearchConsoleState } from '../../reducers/searchConsole'; // Props from Redux.
 import { Document, Page, pdfjs } from 'react-pdf';
 
@@ -144,10 +144,10 @@ class SearchConsole extends React.Component<Props, State> {
   componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>, ): void {
     if (this.props.open !== prevProps.open) {
       if (this.props.open) {
-        $('#body').addClass('searchOpen');
+        $('body').addClass('searchOpen');
         this.searchInputRef.current.select.select.focus();
       } else {
-        $('#body').removeClass('searchOpen');
+        $('body').removeClass('searchOpen');
       }
     }
   }
@@ -399,7 +399,7 @@ class SearchConsole extends React.Component<Props, State> {
           </div>
         </div>
 
-        <Modal isOpen={this.state.modalOpen} className="fullwidth blue" backdrop toggle={this.toggleModal}>
+        <Modal isOpen={this.state.modalOpen} centered size="lg" scrollable className="search fullwidth blue" backdrop toggle={this.toggleModal}>
           <div className="d-flex flex-column mh-100">
             <Row className="header align-content-center">
               <Col xs="12">
@@ -409,7 +409,9 @@ class SearchConsole extends React.Component<Props, State> {
               </Col>
             </Row>
 
-            <ViewItem />
+            <ModalBody>
+              <ViewItem />
+            </ModalBody>
 
           </div>
         </Modal>

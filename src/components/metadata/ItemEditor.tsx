@@ -239,11 +239,7 @@ export class ItemEditor extends React.Component<Props, State> {
       invalidFields = Object.entries(this.state.validate).filter(v => v[1] === false).map(([key, val]) => key);
 
     // If we don't have one of time_produced or year_produced, show an error.
-    if (
-      (!this.state.validate.hasOwnProperty('time_produced') && !this.state.validate.time_produced)
-      &&
-      (!this.state.validate.hasOwnProperty('year_produced') && !this.state.validate.year_produced)
-    ) {
+    if (!!item.year_produced) {
       invalidFields.push('time_produced or year_produced');
     }
 
@@ -2430,6 +2426,7 @@ export class ItemEditor extends React.Component<Props, State> {
                         defaultValue={item.description ? item.description : ''}
                         onChange={e => this.validateLength('description', e.target.value)}
                         invalid={this.state.validate.hasOwnProperty('description') && !this.state.validate.description}
+                        maxLength={1024}
                       />
                       <FormFeedback>This is a required field</FormFeedback>
                     </FormGroup>

@@ -20,24 +20,25 @@ interface Props extends RouteComponentProps, Alerts {
 }
 
 class ViewItem extends React.Component<Props, State> {
-  matchedItemId: string = '';
   browser: string;
 
   constructor(props: any) { // tslint:disable-line: no-any
     super(props);
 
     this.browser = browser();
-
-    // Get our itemId passed through from URL props
-    if (props.location && props.location.pathname) {
-      this.matchedItemId = props.location.pathname.replace('/view/', '');
-    }
   }
 
   componentDidMount() {
+    const { location } = this.props;
+    let matchedItemId: string | null = null;
+    // Get our itemId passed through from URL props
+    if (location && location.pathname.includes('/view/')) {
+      matchedItemId = location.pathname.replace('/view/', '');
+    }
+
     // If we have an id from the URL pass it through, otherwise use the one from Redux State
-    if (this.matchedItemId) {
-      this.props.fetchItem(this.matchedItemId);
+    if (matchedItemId) {
+      this.props.fetchItem(matchedItemId);
     } else {
       this.setState({ errorMessage: 'No item with that id.' });
     }
