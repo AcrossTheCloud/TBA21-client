@@ -240,9 +240,11 @@ export class ItemEditor extends React.Component<Props, State> {
 
     // If we don't have one of time_produced or year_produced, show an error.
     if (
-      (!this.state.validate.hasOwnProperty('time_produced') && !this.state.validate.time_produced) && (!this.state.validate.hasOwnProperty('year_produced') && !this.state.validate.year_produced)
+      (!this.state.validate.hasOwnProperty('time_produced') && !this.state.validate.time_produced)
+      &&
+      (!this.state.validate.hasOwnProperty('year_produced') && !this.state.validate.year_produced)
     ) {
-      Object.assign(invalidFields, {'time_produced or year_produced': ''});
+      invalidFields.push('time_produced or year_produced');
     }
 
     if (invalidFields.length > 0) {
@@ -2452,13 +2454,7 @@ export class ItemEditor extends React.Component<Props, State> {
                         callback={e => this.validateLength('year_produced', e)}
                       />
 
-                      <FormFeedback
-                        style={
-                          (this.state.validate.hasOwnProperty('time_produced') && this.state.validate.time_produced) ||
-                          (this.state.validate.hasOwnProperty('year_produced') && this.state.validate.year_produced) ? {display: 'none'}
-                            : {display: 'block'}
-                        }
-                      >
+                      <FormFeedback style={!!item.year_produced ? {display: 'none'} : {display: 'block'}}>
                         You must select either a Date and/or a Year produced.
                       </FormFeedback>
                     </FormGroup>
@@ -2525,7 +2521,7 @@ export class ItemEditor extends React.Component<Props, State> {
                       item.item_subtype === itemImage.Painting ? <this.ItemImageSculpturePaintingDrawing /> : <></>
                     }
 
-                    { 
+                    {
                       item.item_subtype === itemImage.Photograph ? <this.ItemImagePhotograph /> : <></>
                     }
 
