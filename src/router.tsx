@@ -53,7 +53,7 @@ const LoggedInRoutes = ({isAuthenticated, ...rest}) => {
   const isLoggedIn = isAuthenticated;
   return (
     <>
-      <Route exact path="/Profile" render={routeProps => isLoggedIn ? <div className="main"><Profile {...history} {...routeProps} {...rest}/></div> : <Redirect to="/"/>}/>
+      <Route exact path="/Profile" render={routeProps => isLoggedIn ? <div className="main blue"><Profile {...history} {...routeProps} {...rest}/></div> : <Redirect to="/"/>}/>
     </>
   );
 };
