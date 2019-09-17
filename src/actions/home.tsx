@@ -1,14 +1,10 @@
 import { API } from 'aws-amplify';
 import { HomepageData } from '../reducers/home';
-import * as React from 'react';
 import { random } from 'lodash';
 import { getCDNObject } from '../components/utils/s3File';
 import config from 'config';
 import { FileTypes, S3File } from '../types/s3File';
-import { Document, Page, pdfjs } from 'react-pdf';
 import { Announcement } from '../types/Announcement';
-
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 // Defining our Actions for the reducers
 export const LOGO_STATE_HOMEPAGE = 'LOGO_STATE_HOMEPAGE';
@@ -142,6 +138,7 @@ export const loadMore = (
    items: items,
    collections: collections,
    audio: audio,
+   loadedMore: true,
    loadedItems: [
      ...alreadyLoaded,
      ...data
@@ -149,51 +146,6 @@ export const loadMore = (
  });
 };
 
-export const FilePreviewHome = (props: { data: HomepageData }): JSX.Element => {
-  if (props.data.file && props.data.file.url) {
-    if (props.data.file.type === FileTypes.Image) {
-      let thumbnails: string = '';
-      if (props.data.file.thumbnails) {
-        Object.entries(props.data.file.thumbnails).forEach( ([key, value]) => {
-          thumbnails = `${thumbnails}, ${value} ${key}w,`;
-        } );
-      }
-      return (
-        <img
-          srcSet={thumbnails}
-          src={props.data.file.url}
-          alt={props.data.title}
-        />
-      );
-    }
-    if (props.data.file.type === FileTypes.Video) {
-      return (
-        <VideoPoster data={props.data} />
-      );
-    }
-    if (props.data.file.type === FileTypes.Pdf) {
-      return (
-        <div className="pdf">
-          <Document file={{ url: props.data.file.url }} style={{width: '100%', height: '100%'}} >
-            <Page pageNumber={1}/>
-          </Document>
-        </div>
-      );
-    }
-
-    if (props.data.file.type === FileTypes.DownloadText || props.data.file.type === FileTypes.Text) {
-      return (
-        <img alt={props.data.title} src="https://upload.wikimedia.org/wikipedia/commons/2/22/Unscharfe_Zeitung.jpg" className="image-fluid"/>
-      );
-    }
-  }
-  return <></>;
-};
-export const VideoPoster = (props: { data: HomepageData }) => (
-  <div className="videoPreview">
-    {!!props.data.file ? <img src={props.data.file.poster} alt={''}/> : <></>}
-  </div>
-);
 // Modal
 export const closeModal = () => dispatch => {
   dispatch({

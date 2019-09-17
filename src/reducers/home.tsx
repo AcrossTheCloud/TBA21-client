@@ -36,6 +36,7 @@ export interface HomePageState {
 
   loaded_highlights: HomepageData[];
   loadedItems: HomepageData[];
+  loadedMore: boolean;
 
   isModalOpen: boolean;
   modalData?: HomepageData;
@@ -51,6 +52,7 @@ const initialState: HomePageState = {
 
   loaded_highlights: [],
   loadedItems: [],
+  loadedMore: false,
 
   isModalOpen: false,
 };
@@ -76,6 +78,7 @@ export default (state: HomePageState | null = initialState, action) => {
       return {
         ...state,
         loadedItems: action.loadedItems,
+        loadedMore: action.loadedMore,
         audio: action.audio,
         items: action.items,
         collections: action.collections
