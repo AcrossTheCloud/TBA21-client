@@ -181,7 +181,7 @@ export class CollectionEditor extends React.Component<Props, State> {
     if (invalidFields.length > 0) {
       const message: JSX.Element = (
         <>
-          Missing required Field(s) <br/>
+          Missing required field(s) <br/>
           {invalidFields.map( (f, i) => ( <div key={i} style={{ textTransform: 'capitalize' }}>{f.replace(/_/g, ' ')}<br/></div> ) )}
         </>
       );
