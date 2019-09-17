@@ -1,4 +1,4 @@
-import { SEARCH_RESULTS, CHANGE_VIEW, SEARCH_LOADING, SEARCH_TOGGLE_OPEN } from 'actions/searchConsole';
+import { SEARCH_RESULTS, CHANGE_VIEW, SEARCH_TOGGLE_OPEN } from 'actions/searchConsole';
 
 import { Tag } from '../components/metadata/Tags';
 
@@ -7,7 +7,6 @@ export interface SearchConsoleState {
   selected_tags: Tag[];
   view: 'grid' | 'list';
   results: any[];  // tslint:disable-line: no-any
-  loading: boolean;
   open?: boolean;
 }
 const initialState: SearchConsoleState = {
@@ -15,7 +14,6 @@ const initialState: SearchConsoleState = {
   selected_tags: [],
   view: 'grid',
   results: [],
-  loading: false,
   open: false
 };
 
@@ -39,12 +37,6 @@ export default (state: SearchConsoleState | null = initialState, action) => {
         ...state,
         results: action.results,
         view: 'list',
-        loading: action.loading
-      }
-    case SEARCH_LOADING:
-      return {
-        ...state,
-        loading: action.loading
       }
 
     default:

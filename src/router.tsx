@@ -120,7 +120,7 @@ export const AppRouter = () => {
 
             <Route exact path="/" component={Home} />
             <Route
-              path="/view/:itemId"
+              path="/view/:id"
               render={() => (
                 <div className="container-fluid main blue">
                   <ViewItem />
@@ -128,7 +128,7 @@ export const AppRouter = () => {
               }
             />
             <Route
-              path="/collection/:itemId"
+              path="/collection/:id"
               render={() => (
                 <div className="container-fluid main blue">
                   <ViewCollection />

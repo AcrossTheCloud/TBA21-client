@@ -93,7 +93,7 @@ export const fetchItem = (id: string) => async (dispatch, getState) => {
        type: FETCH_ITEM_ERROR
      });
     } finally {
-      dispatch({ type: LOADINGOVERLAY, on: false }); // Turn on the loading overlay
+      dispatch({ type: LOADINGOVERLAY, on: false }); // Turn off the loading overlay
     }
   }
 };

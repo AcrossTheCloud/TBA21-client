@@ -6,7 +6,7 @@ import $ from 'jquery';
 import { API } from 'aws-amplify';
 import { FaTimes } from 'react-icons/fa';
 import { uniqBy } from 'lodash';
-import { Col, Row, Container, Spinner, Modal, ModalBody } from 'reactstrap';
+import { Col, Row, Container, Modal, ModalBody } from 'reactstrap';
 import { SearchConsoleState } from '../../reducers/searchConsole'; // Props from Redux.
 import { Document, Page, pdfjs } from 'react-pdf';
 
@@ -391,13 +391,7 @@ class SearchConsole extends React.Component<Props, State> {
             : <></>
             }
           </Row>
-
         </Container>
-        <div className="overlay_fixed_middle" style={this.props.loading ? {} : {display: 'none'}}>
-          <div className="middle">
-            <Spinner type="grow"/>
-          </div>
-        </div>
 
         <Modal isOpen={this.state.modalOpen} centered size="lg" scrollable className="search fullwidth blue" backdrop toggle={this.toggleModal}>
           <div className="d-flex flex-column mh-100">
@@ -415,7 +409,6 @@ class SearchConsole extends React.Component<Props, State> {
 
           </div>
         </Modal>
-
       </div>
     );
   }
@@ -428,8 +421,6 @@ const mapStateToProps = (state: { searchConsole: SearchConsoleState }) => ({
 
   view: state.searchConsole.view,
   results: state.searchConsole.results,
-
-  loading: state.searchConsole.loading,
 
   open: state.searchConsole.open
 
