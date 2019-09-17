@@ -140,7 +140,7 @@ class LoginClass extends React.Component<RouteComponentProps, State> {
                     />
                   </FormGroup>
                 </Col>
-                <Col md="4" className="pl-md-0">
+                <Col md="4" className="pb-2 pb-md-0 pl-md-0">
                   <LoaderButton
                     block
                     disabled={!this.validateForm()}

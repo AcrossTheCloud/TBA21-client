@@ -11,6 +11,7 @@ import 'styles/layout/audio.scss';
 interface Props {
   data: AudioPlayerDetails;
   audioPlayer: Function;
+  onLoad?: Function;
 }
 
 interface State {
@@ -59,6 +60,9 @@ class AudioPreview extends React.Component<Props, State> {
 
       if (this.props.data.url) {
         wavesurfer.load(this.props.data.url);
+      }
+      if (typeof this.props.onLoad === 'function') {
+        this.props.onLoad();
       }
 
       this.setState( { wavesurfer: wavesurfer, loaded: true } );

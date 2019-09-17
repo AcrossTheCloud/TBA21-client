@@ -14,7 +14,11 @@ import { RouteComponentProps, withRouter } from 'react-router';
 
 import 'styles/components/pages/viewItem.scss';
 
-interface Props extends RouteComponentProps, Alerts {
+type MatchParams = {
+  id: string;
+};
+
+interface Props extends RouteComponentProps<MatchParams>, Alerts {
   fetchItem: Function;
   item: Item;
 }
@@ -29,11 +33,12 @@ class ViewItem extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    const { location } = this.props;
+    const { match } = this.props;
     let matchedItemId: string | null = null;
+
     // Get our itemId passed through from URL props
-    if (location && location.pathname.includes('/view/')) {
-      matchedItemId = location.pathname.replace('/view/', '');
+    if (match.params.id) {
+      matchedItemId = match.params.id;
     }
 
     // If we have an id from the URL pass it through, otherwise use the one from Redux State
@@ -46,7 +51,7 @@ class ViewItem extends React.Component<Props, State> {
 
   render() {
     if (typeof this.props.item === 'undefined') {
-      return 'Loading...';
+      return '';
     }
 
     const {

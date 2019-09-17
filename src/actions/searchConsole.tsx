@@ -1,5 +1,6 @@
 import { API } from 'aws-amplify';
 import { getCDNObject } from '../components/utils/s3File';
+import { LOADINGOVERLAY } from './loadingOverlay';
 
 // Defining our Actions for the reducers.
 export const CHANGE_VIEW = 'CHANGE_VIEW';
@@ -31,14 +32,10 @@ export const search = (criteria: CriteriaOption[], focusArts: boolean = false, f
     const
       results: any = [],  // tslint:disable-line: no-any
       state = {
-        type: SEARCH_RESULTS,
-        loading: false
+        type: SEARCH_RESULTS
       };
 
-    dispatch({
-       type: SEARCH_LOADING,
-       loading: true
-     });
+    dispatch({ type: LOADINGOVERLAY, on: true }); // Turn on the loading overlay
 
     try {
       const response = await API.post('tba21', 'pages/search', {
@@ -73,6 +70,7 @@ export const search = (criteria: CriteriaOption[], focusArts: boolean = false, f
     } finally {
       Object.assign(state, { results });
       dispatch(state);
+      dispatch({ type: LOADINGOVERLAY, on: false }); // Turn off the loading overlay
     }
   }
 };
