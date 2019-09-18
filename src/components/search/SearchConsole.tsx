@@ -58,7 +58,8 @@ const createCriteriaOption = (label: string, field: string): CriteriaOption => {
   }
   return {
     label: `${label} (${displayField})`,
-    value: label,
+    originalValue: label,
+    value: `${label} (${displayField})`,
     field
   };
 };
@@ -143,12 +144,38 @@ class SearchConsole extends React.Component<Props, State> {
 
   componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>, ): void {
     if (this.props.open !== prevProps.open) {
+
       if (this.props.open) {
         $('body').addClass('searchOpen');
         this.searchInputRef.current.select.select.focus();
+        // If we have results open it up
+        if (this.props.results.length) {
+          this.animateResults(true);
+        }
       } else {
+        // Remove the height from the results on closed.
+        this.animateResults(false);
         $('body').removeClass('searchOpen');
       }
+    }
+
+    // Animate the results field when we come back with new results.
+    if (this.props.results.length) {
+      this.animateResults(true);
+    }
+  }
+
+  animateResults(open: boolean) {
+    const
+      $results = $('#searchConsole .results'),
+      resultsheight = $results.get(0).scrollHeight;
+
+    if (open) {
+      $results.animate({ 'height': resultsheight }, 300, function() {
+        $results.height('auto');
+      });
+    } else {
+      $results.animate({'height': 0}, 200);
     }
   }
 
@@ -164,7 +191,6 @@ class SearchConsole extends React.Component<Props, State> {
   }
 
   toggleOpen = () => {
-    if (!this._isMounted) { return; }
     this.props.toggle(!this.props.open);
   }
 
@@ -211,6 +237,7 @@ class SearchConsole extends React.Component<Props, State> {
    * Then dispatches the redux action.
   */
   searchDispatch = () => {
+    $('#searchConsole .results').animate({ 'height': 0 }, 300);
     if (this.props.open && this.state.selectedCriteria && this.state.selectedCriteria.length) {
       this.props.dispatchSearch(this.state.selectedCriteria, this.state.focus_arts, this.state.focus_action, this.state.focus_scitech);
     }
@@ -271,7 +298,7 @@ class SearchConsole extends React.Component<Props, State> {
               onClick={this.focusSearchInput}
             >
               <Row className="align-items-center">
-                <div className={`inputwrapper ${isOpen ? 'flex-grow-1' : ''}`}>
+                <div className="inputwrapper">
 
                   <AsyncSelect
                     className="searchInput"
@@ -303,7 +330,7 @@ class SearchConsole extends React.Component<Props, State> {
                         if (t.field === 'full_name') {
                           field = 'Profile';
                         }
-                        return (<div className="option"><span className="value">{t.value}</span> <span className="field float-right">{field}</span></div>);
+                        return (<div className="option"><span className="value">{t.originalValue}</span> <span className="field float-right">{field}</span></div>);
                       } else {
                         return <div className="tag-option">{t.label}</div>;
                       }
@@ -363,16 +390,16 @@ class SearchConsole extends React.Component<Props, State> {
                     return (
                       <Row className="result" key={i} onClick={() => { this.props.fetchItem(t.id); this.setState({ modalOpen: true }); }}>
                         {!!t.file ?
-                          <Col xs="2">
+                          <Col xs="6" sm="4" md="2">
                             <FilePreview data={t}/>
                           </Col> : <></>
                         }
-                        <Col xs="10">
+                        <Col xs="6" sm="8" md="10">
                           <Row>
-                            <Col xs="10">
+                            <Col xs="12">
                               {t.title}
                             </Col>
-                            <Col xs="10">
+                            <Col xs="12">
                               {t.title}
                             </Col>
                           </Row>
