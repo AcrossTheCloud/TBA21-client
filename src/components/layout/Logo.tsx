@@ -9,7 +9,12 @@ interface Props {
   loaded: boolean;
 }
 
-export default class Logo extends Component<Props, {}> {
+interface State {
+  // We keep the final loaded prop in state, this is so we can set the class on the #logo div
+  finallyLoaded: boolean;
+}
+
+export default class Logo extends Component<Props, State> {
   _isMounted;
   detectScroll;
 
@@ -18,7 +23,7 @@ export default class Logo extends Component<Props, {}> {
     this._isMounted = false;
 
     this.state = {
-      loaded: this.props.loaded || false
+      finallyLoaded: false
     };
 
     this.detectScroll = () => {
@@ -65,6 +70,9 @@ export default class Logo extends Component<Props, {}> {
       setTimeout(() => {
         $('#body').removeClass('fixed');
         $('#body #logo').addClass('loaded');
+        if (this._isMounted) {
+          this.setState({ finallyLoaded: true });
+        }
       }, 1500);
 
       setTimeout(() => {
@@ -79,7 +87,7 @@ export default class Logo extends Component<Props, {}> {
     const { loaded } = this.props;
 
     return (
-      <div id="logo">
+      <div id="logo" className={this.state.finallyLoaded ? 'loaded' : ''}>
         <header>
           <div className={`left show ${loaded ? 'init' : ''}`}>
             <img src={logo} alt="Ocean Archive" />
