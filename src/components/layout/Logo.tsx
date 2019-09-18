@@ -34,6 +34,12 @@ export default class Logo extends Component<Props, {}> {
 
   componentDidMount(): void {
     this._isMounted = true;
+
+    // If the logo hasn't loaded ever add this class to Body
+    if (!this.props.loaded) {
+      $('#body').addClass('fixed');
+    }
+
     window.addEventListener('scroll', this.detectScroll, false);
   }
 

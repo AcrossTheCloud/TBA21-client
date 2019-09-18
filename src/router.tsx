@@ -88,13 +88,11 @@ const AdminRoutes = ({authorisation, ...rest}) => {
 };
 
 export const AppRouter = () => {
-  const currentLocation = window.location.pathname;
-
   return (
     <Provider store={store}>
       <Router history={history}>
         <AuthProvider>
-          <div id="body" className={currentLocation === '/' ? 'fixed' : ''}>
+          <div id="body">
 
             <Route
               path="/"
