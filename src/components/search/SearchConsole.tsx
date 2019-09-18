@@ -160,7 +160,7 @@ class SearchConsole extends React.Component<Props, State> {
     }
 
     // Animate the results field when we come back with new results.
-    if (this.props.results !== prevProps.results) {
+    if (this.props.results.length) {
       this.animateResults(true);
     }
   }
