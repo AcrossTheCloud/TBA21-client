@@ -47,8 +47,8 @@ class PrivacyPolicy extends React.Component<Props, {}> {
             Köstlergasse 1<br/>
             1060 Vienna, Austria<br/>
             P: +43 1 513 98 56-0<br/>
-            E: legal@tba21-academy.org<br/>
-            W: www.tba21-academy.org<br/>
+            E: <a href="mailto:legal@tba21-academy.org">legal@tba21-academy.org</a><br/>
+            W: <a href="www.tba21-academy.org" target="_blank" rel="noreferrer noopener">www.TBA21-Academy.org</a><br/>
           </p>
 
           <h2>3. General Information</h2>
@@ -191,7 +191,7 @@ class PrivacyPolicy extends React.Component<Props, {}> {
 
           <p>You have the possibility at any time to revoke your consent to the processing of your personal data. If you contact us by email, you may object to the storage of your personal data at any time. In this case, the conversation can not be continued.</p>
 
-          <p>If you wish to revoke your consent to the processing of personal data and refuse to store it, please send an email to legal@tba21-academy.org with the subject "Revocation consent to the processing of personal data" and enter your first name, last name, and email address.</p>
+          <p>If you wish to revoke your consent to the processing of personal data and refuse to store it, please send an email to <a href="mailto:legal@tba21-academy.org?Subject=Revocation%20of%20consent%20to%20the%20processing%20of%20personal%20data">legal@tba21-academy.org</a> with the subject "Revocation of consent to the processing of personal data" and enter your first name, last name, and email address.</p>
 
           <p>We will process your request as soon as possible.</p>
 
