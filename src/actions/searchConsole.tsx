@@ -11,6 +11,7 @@ export const SEARCH_TOGGLE_OPEN = 'SEARCH_TOGGLE_OPEN';
 export interface CriteriaOption {
   label: string;
   value: string;
+  originalValue: string;
   field: string;
 }
 
@@ -40,7 +41,7 @@ export const search = (criteria: CriteriaOption[], focusArts: boolean = false, f
     try {
       const response = await API.post('tba21', 'pages/search', {
         body: {
-          criteria: criteria.map(e => ({'field': e.field, 'value': e.value})),
+          criteria: criteria.map(e => ({'field': e.field, 'value': e.originalValue})),
           limit: 50,
           focus_arts: focusArts,
           focus_action: focusAction,
