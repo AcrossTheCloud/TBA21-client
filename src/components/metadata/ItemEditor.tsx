@@ -239,7 +239,7 @@ export class ItemEditor extends React.Component<Props, State> {
       invalidFields = Object.entries(this.state.validate).filter(v => v[1] === false).map(([key, val]) => key);
 
     // If we don't have one of time_produced or year_produced, show an error.
-    if (!!item.year_produced) {
+    if (!this.state.changedItem.year_produced) {
       invalidFields.push('time_produced or year_produced');
     }
 
