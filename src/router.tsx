@@ -40,7 +40,7 @@ import {
 
 import { AuthConsumer, AuthProvider } from './providers/AuthProvider';
 import SearchConsole from './components/search/SearchConsole';
-import { ErrorMessage } from './components/utils/alerts';
+import { NotFound404Message } from './components/utils/alerts';
 import Announcements from './components/admin/pages/announcements/Announcements';
 import { AnnouncementEditor } from './components/metadata/AnnouncementEditor';
 import ViewProfile from './components/user/profile/ViewProfile';
@@ -53,9 +53,7 @@ import TermsAndConditions from './components/pages/TermsAndConditions';
 const LoggedInRoutes = ({ isAuthenticated, ...rest }) => {
   const isLoggedIn = isAuthenticated;
   return (
-    <>
       <Route exact path="/Profile" render={routeProps => isLoggedIn ? <div className="main blue"><Profile {...history} {...routeProps} {...rest} /></div> : <Redirect to="/" />} />
-    </>
   );
 };
 
@@ -89,7 +87,7 @@ const AdminRoutes = ({ authorisation, ...rest }) => {
 };
 
 const NoMatch = ({ location }) => {
-  return (location.pathname.match(/(\/admin\/|\/collection|\/items\/upload|\/Profile)/i)) ? <></> : (<ErrorMessage message={'404: Your requested path ' + location.pathname + ' is not found.'} />);
+  return (location.pathname.match(/(\/admin\/|\/contributor|\/Profile)/i)) ? <></> : (<NotFound404Message pathName={location.pathname}/>);
 }
 
 export const AppRouter = () => {
