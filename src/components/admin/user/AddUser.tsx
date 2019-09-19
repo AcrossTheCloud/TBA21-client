@@ -10,7 +10,7 @@ import {
   Alert,
   Col,
   Container,
-  Row, Form
+  Row, Form, FormGroup
 } from 'reactstrap';
 import { get, findIndex, clone } from 'lodash';
 import { Alerts, ErrorMessage, WarningMessage } from '../../utils/alerts';
@@ -18,6 +18,11 @@ import { getCurrentCredentials } from '../../utils/Auth';
 import config from '../../../config';
 import CognitoIdentityServiceProvider from 'aws-sdk/clients/cognitoidentityserviceprovider';
 import * as emailHelper from '../../utils/inputs/email';
+import Select from 'react-select';
+import { countries as selectableCountries } from '../../metadata/SelectOptions';
+import { API } from 'aws-amplify';
+
+import 'styles/components/admin/tables/modal.scss';
 
 interface State extends Alerts {
   isOpen: boolean;
@@ -31,6 +36,23 @@ interface State extends Alerts {
   validate: {
     emailField: boolean;
   };
+
+  social_media?: string[];
+  contributors?: string[];
+  featured_image?: string;
+  full_name?: string;
+  field_expertise?: string;
+  city?: string;
+  country?: string;
+  biography?: string;
+  website?: string;
+  public_profile?: boolean;
+  profile_type?: string;
+  affiliation?: string;
+  position?: string;
+  contact_person?: string;
+  contact_position?: string;
+  contact_email?: string;
 }
 interface GroupData {
   name: string;
@@ -44,9 +66,9 @@ const initialState: State = {
   groups: [],
   successMessage: '',
   errorMessage: '',
-    validate: {
-      emailField: true
-    }
+  validate: {
+    emailField: true
+  },
 };
 
 export class AddUser extends React.Component<{}, State> {
@@ -77,15 +99,14 @@ export class AddUser extends React.Component<{}, State> {
   async componentDidMount(): Promise<void> {
     const credentials = await getCurrentCredentials();
     // Initialise CognitoIdentityServiceProvider so we can access it in our class.
-    this.cognitoIdentityServiceProvider = new CognitoIdentityServiceProvider(
-{
-       region: config.cognito.REGION,
-       credentials: {
-         accessKeyId: get(credentials, 'accessKeyId'),
-         sessionToken: get(credentials, 'sessionToken'),
-         secretAccessKey: get(credentials, 'data.Credentials.SecretKey'),
-       }
-     });
+    this.cognitoIdentityServiceProvider = new CognitoIdentityServiceProvider({
+     region: config.cognito.REGION,
+     credentials: {
+       accessKeyId: get(credentials, 'accessKeyId'),
+       sessionToken: get(credentials, 'sessionToken'),
+       secretAccessKey: get(credentials, 'data.Credentials.SecretKey'),
+     }
+   });
 
     this.userPoolId = config.cognito.USER_POOL_ID;
   }
@@ -199,6 +220,29 @@ export class AddUser extends React.Component<{}, State> {
    * Adds a user to the user pool
    */
   addUser = async (): Promise<void> => {
+    const profileAttributes = {};
+    [
+      'social_media',
+      'contributors',
+      'profile_image',
+      'featured_image',
+      'full_name',
+      'field_expertise',
+      'city',
+      'country',
+      'biography',
+      'website',
+      'public_profile',
+      'affiliation',
+      'position',
+      'contact_person',
+      'contact_position',
+      'contact_email'
+    ].forEach( attr => {
+      if (!!this.state[attr]) {
+        Object.assign(profileAttributes, { [attr]: this.state[attr] });
+      }
+    });
 
     const userEmail = this.emailField.value;
     if (userEmail.length) {
@@ -213,16 +257,22 @@ export class AddUser extends React.Component<{}, State> {
 
         this.setState(
           {
-                  successMessage: 'User was successfully created',
-                  errorMessage: ''
-                });
+            successMessage: 'User was successfully created',
+            errorMessage: ''
+          });
+
+        if (profileAttributes) {
+          await API.put('tba21', 'admin/profiles', {
+            body: { ...profileAttributes, uuid: response.User.Username }
+          });
+        }
 
         this.addUserToGroup(response.User.Username);
       } catch (e) {
         this.setState(
-  {
-          errorMessage: `We had trouble adding this user, please try again. (${e.message})`,
-        });
+          {
+            errorMessage: `We had trouble adding this user, please try again. (${e.message})`,
+          });
       }
     }
   }
@@ -334,11 +384,11 @@ export class AddUser extends React.Component<{}, State> {
   buttons = (): JSX.Element => {
     if (!this.state.successMessage) {
       return (
-          <>
-            <Button color="primary" onClick={this.handleSubmit}>Submit</Button>,
-            <Button color="secondary" onClick={this.addUserModalToggle}>Cancel</Button>
-          </>
-        );
+        <>
+          <Button color="primary" onClick={this.handleSubmit}>Submit</Button>,
+          <Button color="secondary" onClick={this.addUserModalToggle}>Cancel</Button>
+        </>
+      );
     } else {
       return (
         <>
@@ -365,13 +415,18 @@ export class AddUser extends React.Component<{}, State> {
     const emailValue = this.emailField.value;
     let { validate } = this.state;
 
+    if (!this.state.full_name) {
+      this.setState({ errorMessage: 'Need at least a full name to create a profile.'});
+      return;
+    }
+
     if (emailValue !== this.state.userEmail) {
       if (!this.validateEmail()) {
         validate.emailField = false;
         this.setState(
-    {
-                  validate: validate,
-                  errorMessage: 'Please enter a valid email address.'
+          {
+            validate: validate,
+            errorMessage: 'Please enter a valid email address.'
           });
         return;
       }
@@ -379,14 +434,23 @@ export class AddUser extends React.Component<{}, State> {
     }
   }
 
-  render() {
+  fieldChanged = (value: string | string[], field: string) => {
+    const state = {};
+    if (value.length) {
+      Object.assign(state, { [field]: value });
+    }
+    this.setState(state);
+  }
 
+  render() {
+    console.log(this.state.profile_type, 'hi');
     return (
-      <Modal isOpen={this.state.isOpen} toggle={this.addUserModalToggle}>
+      <Modal isOpen={this.state.isOpen} backdrop className="fullwidth" scrollable toggle={this.addUserModalToggle}>
         <ModalHeader>
           Add User
         </ModalHeader>
-        {this.state.errorMessage ? <WarningMessage message={this.state.errorMessage} /> : <></>}
+        {this.state.errorMessage ? <ErrorMessage message={this.state.errorMessage} /> : <></>}
+        {this.state.warningMessage ? <WarningMessage message={this.state.warningMessage} /> : <></>}
         {this.state.successMessage ? <Alert color="success"> {this.state.successMessage} </Alert> : <></>}
         <ModalBody>
           <Form innerRef={this.myFormRef}>
@@ -403,11 +467,92 @@ export class AddUser extends React.Component<{}, State> {
                 <this.GroupsDisplay />
               </Row>
             </Container>
+
+            <FormGroup>
+              <Label for="full_name">Full Name</Label>
+              <Input type="text" name="full_name" id="full_name" placeholder="Full Name" onChange={e => this.fieldChanged(e.target.value, 'full_name')} />
+            </FormGroup>
+            <FormGroup>
+              <Label for="field_expertise">Field of Expertise</Label>
+              <Input type="text" name="field_expertise" id="field_expertise" placeholder="Field of Expertise" onChange={e => this.fieldChanged(e.target.value, 'field_expertise')} />
+            </FormGroup>
+            <FormGroup>
+              <Label for="city">City</Label>
+              <Input type="text" name="city" id="city" placeholder="City" onChange={e => this.fieldChanged(e.target.value, 'city')} />
+            </FormGroup>
+
+            <FormGroup>
+              <Label for="country">Country</Label>
+              <Select className="select" classNamePrefix="select" isSearchable menuPlacement="auto" placeholder="Country" options={selectableCountries} />
+            </FormGroup>
+
+            <FormGroup>
+              <Label for="biography">Biography</Label>
+              <Input
+                type="textarea"
+                id="biography"
+                onChange={e => this.fieldChanged(e.target.value, 'biography')}
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <Label for="website">Website</Label>
+              <Input type="text" name="website" id="website" placeholder="Website" onChange={e => this.fieldChanged(e.target.value, 'website')} />
+            </FormGroup>
+
+            <FormGroup>
+              <Label for="affiliation">Affiliation</Label>
+              <Input type="text" name="affiliation" id="affiliation" placeholder="Affiliation" onChange={e => this.fieldChanged(e.target.value, 'affiliation')} />
+            </FormGroup>
+
+            <FormGroup>
+              <Label for="position">Position</Label>
+              <Input type="text" name="position" id="position" placeholder="Position" onChange={e => this.fieldChanged(e.target.value, 'position')} />
+            </FormGroup>
+
+            <FormGroup>
+              <Label for="type">Profile Type</Label>
+              <Select
+                className="select"
+                classNamePrefix="select"
+                id="type"
+                menuPlacement="auto"
+                options={[
+                  {value: 'Institution', label: 'Institution'},
+                  {value: 'Collective', label: 'Collective'},
+                  {value: 'Individual', label: 'Individual'},
+                  {value: 'Public', label: 'Normal User'}
+                ]}
+                defaultValue={{value: 'Public', label: 'Normal User'}}
+                onChange={e => this.fieldChanged(e.value, 'profile_type')}
+              />
+            </FormGroup>
+
+            {
+              this.state.profile_type === 'Institution' || this.state.profile_type === 'Collective' ?
+                <>
+                  <FormGroup>
+                    <Label for="contact_person">Contact Person</Label>
+                    <Input type="text" name="contact_person" id="contact_person" placeholder="Contact Person" onChange={e => this.fieldChanged(e.target.value, 'contact_person')} />
+                  </FormGroup>
+                  <FormGroup>
+                    <Label for="contact_position">Contact Position</Label>
+                    <Input type="text" name="contact_position" id="contact_position" placeholder="Contact Position" onChange={e => this.fieldChanged(e.target.value, 'contact_position')} />
+                  </FormGroup>
+                  <FormGroup>
+                    <Label for="contact_email">Contact Email</Label>
+                    <Input type="text" name="contact_email" id="contact_email" placeholder="Contact Email" onChange={e => this.fieldChanged(e.target.value, 'contact_email')} />
+                  </FormGroup>
+                </>
+                :
+                <></>
+            }
+
           </Form>
         </ModalBody>
 
         <ModalFooter>
-            <this.buttons/>
+          <this.buttons/>
         </ModalFooter>
       </Modal>
     );

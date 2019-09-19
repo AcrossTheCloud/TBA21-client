@@ -14,9 +14,11 @@ export default class ChangePassword extends React.Component<Props, State> {
   private oldPasswordInput;
   private confirmPasswordInput;
   private confirmPasswordOnChangeTimeout;
+  private _isMounted;
 
   constructor(props: Props) {
     super(props);
+    this._isMounted = false;
     this.state = {
       passwordsMatch: false
     };
@@ -24,12 +26,22 @@ export default class ChangePassword extends React.Component<Props, State> {
     this.confirmPasswordOnChangeTimeout = false;
   }
 
+  componentDidMount(): void {
+    this._isMounted = true;
+  }
+
+  componentWillUnmount(): void {
+    this._isMounted = false;
+  }
+
   changePassword = () => {
     this.props.changePassword(this.oldPasswordInput.value, this.newPasswordInput.value);
     this.oldPasswordInput.value = '';
     this.newPasswordInput.value = '';
     this.confirmPasswordInput.value = '';
-    this.setState({ passwordsMatch: false });
+    if (this._isMounted) {
+      this.setState({passwordsMatch: false});
+    }
   }
 
   confirmPasswordOnChange = () => {
@@ -38,20 +50,23 @@ export default class ChangePassword extends React.Component<Props, State> {
       this.confirmPasswordOnChangeTimeout = false;
     };
 
-    if (!this.confirmPasswordOnChangeTimeout && this.oldPasswordInput.value) {
-      this.confirmPasswordOnChangeTimeout = setTimeout( () => {
+    this.confirmPasswordOnChangeTimeout = setTimeout( () => {
+
+      if (this._isMounted) {
         if (this.newPasswordInput.value === this.confirmPasswordInput.value) {
+          if (this.oldPasswordInput.value) {
+            this.setState({passwordsMatch: true});
+          } else {
+            this.setState({passwordsMatch: false});
+          }
           cancelTimeout();
-          this.setState({ passwordsMatch: true });
         } else {
+          this.setState({passwordsMatch: false});
           cancelTimeout();
-          this.setState({ passwordsMatch: false });
         }
-      },
-                                                        500);
-    } else {
-      cancelTimeout();
-    }
+      }
+    },
+                                                      500);
   }
 
   render() {
@@ -61,12 +76,12 @@ export default class ChangePassword extends React.Component<Props, State> {
         <Form onSubmit={(e) => { e.preventDefault(); this.changePassword(); }} autoComplete="off">
           <FormGroup>
             <Label for="oldPassword">Old Password</Label>
-            <Input type="password" name="oldPassword" id="oldPassword" placeholder="Old Password" innerRef={e => this.oldPasswordInput = e}/>
+            <Input type="password" name="oldPassword" id="oldPassword" placeholder="Old Password" innerRef={e => this.oldPasswordInput = e} onChange={this.confirmPasswordOnChange}/>
           </FormGroup>
 
           <FormGroup>
             <Label for="newPassword">New Password</Label>
-            <Input type="password" name="newPassword" id="newPassword" placeholder="New Password" innerRef={e => this.newPasswordInput = e}/>
+            <Input type="password" name="newPassword" id="newPassword" placeholder="New Password" innerRef={e => this.newPasswordInput = e} onChange={this.confirmPasswordOnChange}/>
 
             <Label for="confirmPassword">Confirm Password</Label>
             <Input type="password" name="confirmPassword" id="confirmPassword" onChange={this.confirmPasswordOnChange} placeholder="Confirm Password" innerRef={e => this.confirmPasswordInput = e}/>

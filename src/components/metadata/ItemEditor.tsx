@@ -1610,8 +1610,10 @@ export class ItemEditor extends React.Component<Props, State> {
   VideoArtworkDocumentation = (): JSX.Element => {
     const item = this.state.changedItem;
     let duration = '';
+
     if (!!item.duration) {
-      duration = moment.duration(item.duration, 'seconds').format('hh:mm:ss', { trim: false });
+      const time = typeof item.duration === 'string' ? parseInt(item.duration, 0) : item.duration;
+      duration = moment.duration(time, 'seconds').format('hh:mm:ss', { trim: false });
     }
     return (
       <Row>
@@ -1985,7 +1987,8 @@ export class ItemEditor extends React.Component<Props, State> {
     const item = this.state.changedItem;
     let duration = '';
     if (!!item.duration) {
-      duration = moment.duration(item.duration, 'seconds').format('hh:mm:ss', { trim: false });
+      const time = typeof item.duration === 'string' ? parseInt(item.duration, 0) : item.duration;
+      duration = moment.duration(time, 'seconds').format('hh:mm:ss', { trim: false });
     }
     return (
       <Row>
@@ -2538,7 +2541,7 @@ export class ItemEditor extends React.Component<Props, State> {
                     {item.item_subtype === itemAudio.Sound_Art ? <this.AudioSoundArt /> : <></>}
                     {item.item_subtype === itemAudio.Music ? <this.AudioMusic /> : <></>}
                     {item.item_subtype === itemAudio.Podcast ? <this.AudioPodcast /> : <></>}
-                    {item.item_subtype === itemAudio.Lecture ? <this.AudioLecture /> : <></>}
+                    {(!!item.file && item.file.type === FileTypes.Audio) && item.item_subtype === itemAudio.Lecture ? <this.AudioLecture /> : <></>}
                     {(!!item.file && item.file.type === FileTypes.Audio) && item.item_subtype === itemAudio.Interview ? <this.AudioInterview /> : <></>}
                     {item.item_subtype === itemAudio.Radio ? <this.AudioRadio /> : <></>}
                     {item.item_subtype === itemAudio.Performance_Poetry ? <this.AudioPerformancePoetry /> : <></>}

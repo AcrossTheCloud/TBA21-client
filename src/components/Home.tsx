@@ -54,6 +54,7 @@ class HomePage extends React.Component<Props, {}> {
     if (!this.props.loadedItems.length) {
       await this.props.loadHomepage();
       await this.props.loadMore(this.props.items, this.props.collections, this.props.announcements, this.props.audio, this.props.loadedItems);
+      this.loadedCount = this.props.loadedItems.filter(t => (t.type === FileTypes.Pdf || t.type === FileTypes.Text || t.type === FileTypes.DownloadText)).length;
     }
   }
 

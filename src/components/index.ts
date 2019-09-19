@@ -12,7 +12,6 @@ export * from './user/AccountConfirmation';
 export { default as AdminManageUsers } from './admin/user/ManageUsers';
 export { default as AdminCollections } from './admin/pages/collections/Collections';
 export { default as AdminItems } from './admin/pages/items/Items';
-export { default as AdminPeople } from './admin/pages/people/People';
 // END ADMIN
 
 // START Contributor

@@ -1,2 +1,9 @@
 @import "animations";
 @import "loaderButton";
+
+@import '../base/variables';
+
+h2 {
+  color: $soft-gray;
+  background-color: $dark-blue;
+}
