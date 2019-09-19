@@ -231,7 +231,7 @@ class Profile extends React.Component<Props, State> {
                       id="public"
                       name="public"
                       label="Make my profile public."
-                      checked={(!!details && details.public_profile) || false}
+                      checked={(!!details && details.public_profile) || this.state.public_profile}
                       onChange={e => this.fieldChanged(e.target.checked, 'public_profile')}
                     />
                     <small>By enabling this you aceept that all your information will be viewable by the general public.</small>
