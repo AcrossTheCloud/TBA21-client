@@ -46,6 +46,6 @@ export const FilePreview = (props: { file: S3File }): JSX.Element => {
         </div>
       );
     default:
-      return <></>;
+      return <img alt="" src="https://upload.wikimedia.org/wikipedia/commons/2/22/Unscharfe_Zeitung.jpg" className="image-fluid"/>;
   }
 };

@@ -21,7 +21,7 @@ export const logoDispatch = (state: boolean) => dispatch => {
 
 export const loadHomepage = () => async dispatch => {
   const
-    oaHighlights: {oa_highlight: HomepageData[]} = await API.get('tba21', 'pages/homepage', { queryStringParameters: {oa_highlight: true}}),
+    oaHighlights: {oa_highlight: HomepageData[]} = await API.get('tba21', 'pages/homepage', { queryStringParameters: {oa_highlight: true, oaHighlightLimit: 2}}),
     queryStringParams = {
       oa_highlight: false
     };

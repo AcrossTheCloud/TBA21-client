@@ -14,8 +14,9 @@ import { HomepageData } from '../reducers/home';
 import { FaCircle, FaExternalLinkAlt, FaTimes } from 'react-icons/fa';
 import { Regions } from '../types/Item';
 
-import { FilePreview } from './utils/FilePreview';
+import { FilePreview } from './utils/filePreview';
 import 'styles/components/home.scss';
+import { CollectionSlider } from './collection/CollectionSlider';
 
 interface Props {
   data: HomepageData | undefined;
@@ -26,21 +27,17 @@ interface Props {
 
 interface State {
   isOpen: boolean;
-  carouselActiveIndex: number;
 }
 
 class HomePageModal extends React.Component<Props, State> {
   _isMounted;
-  carouselAnimating;
 
   constructor(props: Props) {
     super(props);
     this._isMounted = false;
-    this.carouselAnimating = false;
 
     this.state = {
-      isOpen: false,
-      carouselActiveIndex: 1
+      isOpen: false
     };
   }
 
@@ -79,37 +76,6 @@ class HomePageModal extends React.Component<Props, State> {
     }
   }
 
-  carouselOnExiting = () => {
-    this.carouselAnimating = true;
-  }
-
-  carouselOnExited = () => {
-    this.carouselAnimating = false;
-  }
-
-  carouselNext = () => {
-    if (this.carouselAnimating || !this.props.data) { return; }
-    if (this.props.data.count) {
-      const count = parseInt(this.props.data.count, 0) / 5;
-      const nextIndex = this.state.carouselActiveIndex === count ? 0 : this.state.carouselActiveIndex + 1;
-      this.setState({carouselActiveIndex: nextIndex});
-    }
-  }
-
-  carouselPrevious = () => {
-    if (this.carouselAnimating || !this.props.data) { return; }
-    if (this.props.data.count) {
-      const count = parseInt(this.props.data.count, 0) / 5;
-      const nextIndex = this.state.carouselActiveIndex === 0 ? count : this.state.carouselActiveIndex - 1;
-      this.setState({carouselActiveIndex: nextIndex});
-    }
-  }
-
-  carouselGoToIndex(newIndex: number) {
-    if (this.carouselAnimating) { return; }
-    this.setState({ carouselActiveIndex: newIndex });
-  }
-
   render() {
     if (this.props.data) {
       const {
@@ -127,20 +93,6 @@ class HomePageModal extends React.Component<Props, State> {
       } = this.props.data;
 
       let counter: number = !!count ? parseInt(count, 0) : 0;
-
-      const masonry = (): JSX.Element[] => {
-        const html: JSX.Element[] = [];
-        if (items) {
-          for (let i = 0; i < items.length; i++) {
-            html.push(
-              <Col key={i} xs="12" sm="6" md="3" className="px-0">
-                {!!items[i].file ? <FilePreview file={items[i].file} /> : <></>}
-              </Col>
-            );
-          }
-          return html;
-        } else { return [<></>]; }
-      };
 
       return (
         <Modal id="homePageModal" className="fullwidth" isOpen={this.props.open} backdrop toggle={() => this.props.closeModal()}>
@@ -182,9 +134,7 @@ class HomePageModal extends React.Component<Props, State> {
                 </Row>
                 :
                 items ?
-                  <Row className="masonry">
-                    {masonry()}
-                  </Row>
+                  <CollectionSlider items={items} />
                   : <></>
               }
 
