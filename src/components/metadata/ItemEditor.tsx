@@ -1610,8 +1610,10 @@ export class ItemEditor extends React.Component<Props, State> {
   VideoArtworkDocumentation = (): JSX.Element => {
     const item = this.state.changedItem;
     let duration = '';
+
     if (!!item.duration) {
-      duration = moment.duration(item.duration, 'seconds').format('hh:mm:ss', { trim: false });
+      const time = typeof item.duration === 'string' ? parseInt(item.duration, 0) : item.duration;
+      duration = moment.duration(time, 'seconds').format('hh:mm:ss', { trim: false });
     }
     return (
       <Row>
@@ -1985,7 +1987,8 @@ export class ItemEditor extends React.Component<Props, State> {
     const item = this.state.changedItem;
     let duration = '';
     if (!!item.duration) {
-      duration = moment.duration(item.duration, 'seconds').format('hh:mm:ss', { trim: false });
+      const time = typeof item.duration === 'string' ? parseInt(item.duration, 0) : item.duration;
+      duration = moment.duration(time, 'seconds').format('hh:mm:ss', { trim: false });
     }
     return (
       <Row>
