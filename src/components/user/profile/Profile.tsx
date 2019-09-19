@@ -1,7 +1,19 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
-import { Button, Col, Container, Form, FormGroup, Input, Label, Row, Spinner } from 'reactstrap';
+import {
+  Button,
+  Col,
+  Container,
+  CustomInput,
+  Form,
+  FormGroup,
+  Input,
+  InputGroup,
+  Label,
+  Row,
+  Spinner
+} from 'reactstrap';
 import { validateURL } from '../../utils/inputs/url';
 
 import DeleteAccount from 'components/utils/user/DeleteAccount';
@@ -149,9 +161,9 @@ class Profile extends React.Component<Props, State> {
     }
   }
 
-  fieldChanged = (value: string | string[], field: string) => {
+  fieldChanged = (value: string | string[] | boolean, field: string) => {
     const state = {};
-    if (value.length && this._isMounted) {
+    if (((typeof value === 'string' && value.length) || typeof value === 'boolean') && this._isMounted) {
       Object.assign(state, { [field]: value });
     }
 
@@ -182,7 +194,6 @@ class Profile extends React.Component<Props, State> {
           open={this.state.cropperModalOpen}
           callback={ async (openState, updated) => {
             if (this._isMounted) {
-              console.log('context.uuid', context.uuid);
               if (updated) {
                 await this.props.getProfileDetails(context.uuid);
               }
@@ -212,6 +223,20 @@ class Profile extends React.Component<Props, State> {
                     : <>Click here to upload a profile image.</>
                   }
                 </div>
+
+                <FormGroup>
+                  <InputGroup>
+                    <CustomInput
+                      type="switch"
+                      id="public"
+                      name="public"
+                      label="Make my profile public."
+                      checked={(!!details && details.public_profile) || false}
+                      onChange={e => this.fieldChanged(e.target.checked, 'public_profile')}
+                    />
+                    <small>By enabling this you aceept that all your information will be viewable by the general public.</small>
+                  </InputGroup>
+                </FormGroup>
 
                 <Button>Save</Button>
               </div>
