@@ -1,5 +1,5 @@
 import * as React from 'react';
-import CreatableSelect from 'react-select/creatable';
+import Select from 'react-select';
 import { createOption, SelectObject } from '../../utils/react-select';
 import { range } from 'lodash';
 
@@ -21,7 +21,7 @@ export default class YearSelect extends React.Component<Props, State> {
     const { value } = this.props;
 
     const thisYear = (new Date()).getFullYear();
-    this.listOfYears = range(thisYear + 1, 1900).map(y => ({ label: y.toString(), value: y.toString() }));
+    this.listOfYears = range(thisYear + 1, 1800).map(y => ({ label: y.toString(), value: y.toString() }));
 
     this.state = {
       value: value ? { label: value, value: value } : {label: '', value: ''},
@@ -85,7 +85,7 @@ export default class YearSelect extends React.Component<Props, State> {
   render() {
     const { inputValue, value } = this.state;
     return (
-      <CreatableSelect
+      <Select
         className="select"
         classNamePrefix="select"
         menuPlacement="auto"

@@ -267,7 +267,7 @@ class Items extends React.Component<RouteComponentProps, State> {
           noDataIndication={() => !this.state.tableIsLoading && !slicedItems.length ? 'No data to display.' : <Spinner style={{ width: '10rem', height: '10rem' }} type="grow" />}
         />
         {/* Edit Item Modal */}
-        <Modal isOpen={this.state.componentModalOpen} className="fullwidth">
+        <Modal isOpen={this.state.componentModalOpen} centered size="lg" scrollable backdrop className="fullwidth">
           <ModalBody>
 
             {
