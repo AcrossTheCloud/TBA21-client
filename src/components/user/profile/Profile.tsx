@@ -90,13 +90,12 @@ class Profile extends React.Component<Props, State> {
 
   getUserCredentials = async (): Promise<void> => {
     const context: React.ContextType<typeof AuthContext> = this.context;
-
     if (!this.props.details) {
       await this.props.getProfileDetails(context.uuid);
     }
 
     if (this._isMounted) {
-      this.setState({ email: context.email });
+      this.setState({ email: context.email, ...this.props.details });
     }
   }
 
@@ -137,7 +136,6 @@ class Profile extends React.Component<Props, State> {
           if (typeof this.state[attr] === 'undefined' || this.state[attr] === null) {
             return;
           } else {
-            console.log(attr, this.state[attr], this.state[attr] === null);
             Object.assign(profileAttributes, { [attr]: this.state[attr] });
           }
         });
