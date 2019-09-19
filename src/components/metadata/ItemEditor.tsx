@@ -2541,7 +2541,7 @@ export class ItemEditor extends React.Component<Props, State> {
                     {item.item_subtype === itemAudio.Sound_Art ? <this.AudioSoundArt /> : <></>}
                     {item.item_subtype === itemAudio.Music ? <this.AudioMusic /> : <></>}
                     {item.item_subtype === itemAudio.Podcast ? <this.AudioPodcast /> : <></>}
-                    {item.item_subtype === itemAudio.Lecture ? <this.AudioLecture /> : <></>}
+                    {(!!item.file && item.file.type === FileTypes.Audio) && item.item_subtype === itemAudio.Lecture ? <this.AudioLecture /> : <></>}
                     {(!!item.file && item.file.type === FileTypes.Audio) && item.item_subtype === itemAudio.Interview ? <this.AudioInterview /> : <></>}
                     {item.item_subtype === itemAudio.Radio ? <this.AudioRadio /> : <></>}
                     {item.item_subtype === itemAudio.Performance_Poetry ? <this.AudioPerformancePoetry /> : <></>}
