@@ -19,6 +19,15 @@
       overflow-x: hidden;
     }
   }
+
+  form {
+    input, textarea {
+      &.form-control {
+        border: 1px solid hsl(0,0%,80%);
+      }
+    }
+  }
+
   &.blue {
     .modal-content {
       background-color: $dark-blue;
