@@ -265,10 +265,10 @@ export interface APITag {
 }
 
 enum itemType {
-  video = 'Video',
-  text = 'Text',
-  audio = 'Audio',
-  image = 'Image'
+  Video = 'Video',
+  Text = 'Text',
+  Audio = 'Audio',
+  Image = 'Image'
 }
 
 export enum itemText {
@@ -295,7 +295,7 @@ export enum itemVideo {
   Lecture_Recording = 'Lecture Recording',
   Informational_Video = 'Informational Video',
   Trailer = 'Trailer',
-  Artwork_Documentation = 'Artwork Documentation',
+  Video_Artwork_Documentation = 'Artwork Documentation',
   Raw_Footage = 'Raw Footage',
   Video = 'Video',
   Other = 'Other'
@@ -362,9 +362,9 @@ export interface Item {
   place: string[] | null;
   regions: Regions[] | null;
 
-  item_type: itemType;
+  item_type: itemType | null;
 
-  item_subtype: itemAudio | itemImage | itemText | itemVideo;
+  item_subtype: itemAudio | itemImage | itemText | itemVideo | null;
   creators: string[] | null;
 
   contributor: string | null;

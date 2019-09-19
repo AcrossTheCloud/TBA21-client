@@ -1,11 +1,11 @@
-import { S3File } from '../../types/s3File';
+import { FileTypes, S3File } from '../../types/s3File';
 import { Col } from 'reactstrap';
 import ReactPlayer from 'react-player';
 import * as React from 'react';
 
 export const FilePreview = (props: { file: S3File }): JSX.Element => {
   switch (props.file.type) {
-    case 'image':
+    case FileTypes.Image:
       let thumbnails: string = '';
       let background: string | undefined = undefined;
       if (props.file.thumbnails) {
@@ -25,7 +25,7 @@ export const FilePreview = (props: { file: S3File }): JSX.Element => {
           <div className="background" style={{ background: `url(${background && background.length ? background : props.file.url})`, backgroundSize: 'contain' }} />
         </Col>
       );
-    case 'video':
+    case FileTypes.Video:
       const poster = !!props.file.poster ? props.file.poster : '';
 
       return (
@@ -33,15 +33,13 @@ export const FilePreview = (props: { file: S3File }): JSX.Element => {
           <ReactPlayer
             controls
             url={props.file.playlist || props.file.url}
-            height="100%"
-            width="100%"
             vertical-align="top"
             className="player"
           />
           {!!poster ? <div className="background" style={{background: `url(${poster})`, backgroundSize: 'contain'}} /> : <></>}
         </Col>
       );
-    case 'pdf':
+    case FileTypes.Pdf:
       return (
         <div className="embed-responsive embed-responsive-4by3">
           <iframe title={props.file.url} className="embed-responsive-item" src={props.file.url} />

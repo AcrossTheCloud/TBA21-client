@@ -5,15 +5,11 @@ import 'styles/layout/logo.scss';
 import logo from 'images/logo/oa_web_white.svg';
 
 interface Props {
-  onChange: Function;
+  onChange?: Function;
   loaded: boolean;
 }
 
-interface State {
-  loaded: boolean;
-}
-
-export default class Logo extends Component<Props, State> {
+export default class Logo extends Component<Props, {}> {
   _isMounted;
   detectScroll;
 
@@ -39,22 +35,37 @@ export default class Logo extends Component<Props, State> {
   componentDidMount(): void {
     this._isMounted = true;
 
-    window.addEventListener('scroll', this.detectScroll, false);
-
+    // If the logo hasn't loaded ever add this class to Body
     if (!this.props.loaded) {
+      $('#body').addClass('fixed');
+    }
+
+    window.addEventListener('scroll', this.detectScroll, false);
+  }
+
+  componentWillUnmount(): void {
+    this._isMounted = false;
+    window.removeEventListener('scroll', this.detectScroll, false);
+  }
+
+  componentDidUpdate(prevProps: Readonly<Props>): void {
+    if (this.props.loaded !== prevProps.loaded && this.props.loaded) {
       setTimeout(() => {
         $('#logo .right').addClass('op');
       }, 750);
 
       setTimeout(() => {
         $('#logo .left, #logo .right').addClass('init');
-      }, 2750);
+      }, 1000);
 
       setTimeout(() => {
-        $('#body').removeClass('fixed').addClass('logoLoaded');
-        if (!this._isMounted) { return; }
-        this.setState({ loaded: true });
-      }, 4750);
+        $('#body').addClass('logoLoaded');
+      }, 1300);
+
+      setTimeout(() => {
+        $('#body').removeClass('fixed');
+        $('#body #logo').addClass('loaded');
+      }, 1500);
 
       setTimeout(() => {
         if (this.props.onChange && typeof this.props.onChange === 'function') {
@@ -64,16 +75,11 @@ export default class Logo extends Component<Props, State> {
     }
   }
 
-  componentWillUnmount(): void {
-    this._isMounted = false;
-    window.removeEventListener('scroll', this.detectScroll, false);
-  }
-
   render() {
-    const { loaded } = this.state;
+    const { loaded } = this.props;
 
     return (
-      <div id="logo" className={loaded ? 'loaded' : ''}>
+      <div id="logo">
         <header>
           <div className={`left show ${loaded ? 'init' : ''}`}>
             <img src={logo} alt="Ocean Archive" />

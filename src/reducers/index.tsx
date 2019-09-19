@@ -1,29 +1,37 @@
 import { combineReducers, ReducersMapObject } from 'redux';
-import ViewItems from '../reducers/items/viewItems';
-import ViewItem from '../reducers/items/viewItem';
-import Map from '../reducers/map/map';
-import Home from '../reducers/home';
-import Profile from '../reducers/user/profile';
+import viewItems from '../reducers/items/viewItems';
+import viewItem from '../reducers/items/viewItem';
+import viewCollection from '../reducers/collections/viewCollection';
+import loadingOverlay from './loadingOverlay';
+import map from '../reducers/map/map';
+import home from '../reducers/home';
+import profile from '../reducers/user/profile';
 import manageUsers from '../reducers/admin/user/manageUsers';
 import searchConsole from '../reducers/searchConsole';
 import audioPlayer from '../reducers/audioPlayer';
+import viewProfile from '../reducers/user/viewProfile';
+import privacyPolicy from 'reducers/pages/privacyPolicy';
 
 const reducers: ReducersMapObject = {
-  viewItems: ViewItems,
-  viewItem: ViewItem,
+  viewItems,
+  viewItem,
+  viewCollection,
+  viewProfile,
 
-  map: Map,
+  loadingOverlay,
 
-  home: Home,
+  map,
 
-  profile: Profile,
+  home,
+  searchConsole,
+  audioPlayer,
+  privacyPolicy,
+
+  // User
+  profile,
 
   // Admin
-  manageUsers: manageUsers,
-
-  searchConsole: searchConsole,
-
-  audioPlayer: audioPlayer
+  manageUsers
 };
 
 export default combineReducers(reducers);

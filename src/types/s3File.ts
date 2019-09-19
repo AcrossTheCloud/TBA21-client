@@ -16,10 +16,10 @@ export interface S3File {
 }
 
 export enum FileTypes {
-  'video' = 'video',
-  'text' = 'text',
-  'audio' = 'audio',
-  'image' = 'image',
-  'pdf' = 'pdf',
-  'downloadText' = 'downloadText'
+  'Video' = 'Video',
+  'Text' = 'Text',
+  'Audio' = 'Audio',
+  'Image' = 'Image',
+  'Pdf' = 'Pdf',
+  'DownloadText' = 'DownloadText'
 }

@@ -181,7 +181,7 @@ export class CollectionEditor extends React.Component<Props, State> {
     if (invalidFields.length > 0) {
       const message: JSX.Element = (
         <>
-          Missing required Field(s) <br/>
+          Missing required field(s) <br/>
           {invalidFields.map( (f, i) => ( <div key={i} style={{ textTransform: 'capitalize' }}>{f.replace(/_/g, ' ')}<br/></div> ) )}
         </>
       );
@@ -232,7 +232,9 @@ export class CollectionEditor extends React.Component<Props, State> {
       Object.entries(fields)
         .filter( ([key, value]) => {
           return !(
-            value === null
+            value === null ||
+            key === 'aggregated_concept_tags' ||
+            key === 'aggregated_keyword_tags'
             // || key === 'id' // use this to exclude things, you shouldn't need to (eg don't put them in changedFields...
           );
         })
@@ -1420,7 +1422,18 @@ export class CollectionEditor extends React.Component<Props, State> {
                         className="concept_tags"
                         type="concept"
                         defaultValues={conceptTags}
-                        callback={tags => this.validateLength('concept_tags', tags ? tags.map(tag => tag.id) : [])}
+                        callback={tags => {
+                          const tagList = tags ? tags.map(tag => ({id: tag.id, tag_name: tag.label})) : [];
+                          this.validateLength('concept_tags', tags ? tags.map(tag => tag.id) : []);
+                          if (this._isMounted) {
+                            const { originalCollection, collection } = this.state;
+                            this.setState({
+                              originalCollection: {...originalCollection, aggregated_concept_tags: tagList},
+                              collection: {...collection, aggregated_concept_tags: tagList}
+                            });
+                          }
+                        }}
+
                       />
                       <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('concept_tags') && !this.state.validate.concept_tags ? 'block' : 'none') }}>This is a required field</FormFeedback>
                     </FormGroup>
@@ -1431,7 +1444,17 @@ export class CollectionEditor extends React.Component<Props, State> {
                         className="keyword_tags"
                         type="keyword"
                         defaultValues={keywordTags}
-                        callback={tags => this.changeCollection('keyword_tags', tags ? tags.map(tag => tag.id) : [])}
+                        callback={tags => {
+                          const tagList = tags ? tags.map(tag => ({id: tag.id, tag_name: tag.label})) : [];
+                          this.validateLength('keyword_tags', tags ? tags.map(tag => tag.id) : []);
+                          if (this._isMounted) {
+                            const { originalCollection, collection } = this.state;
+                            this.setState({
+                              originalCollection: {...originalCollection, aggregated_keyword_tags: tagList},
+                              collection: {...collection, aggregated_keyword_tags: tagList}
+                            });
+                          }
+                        }}
                       />
                     </FormGroup>
 
@@ -1452,7 +1475,7 @@ export class CollectionEditor extends React.Component<Props, State> {
                       </Col>
                     </FormGroup>
                     <FormGroup row className="my-0 align-items-center">
-                      <Label for={`${id}_focus_scitech`} sm="2">Sci Tech</Label>
+                      <Label for={`${id}_focus_scitech`} sm="2">Sci-Tech</Label>
                       <Col sm="10">
                         <CustomInput type="checkbox" id={`${id}_focus_scitech`} defaultChecked={(typeof focus_scitech !== 'undefined' && focus_scitech !== null) && parseInt(focus_scitech, 0) > 0} onChange={e => this.changeCollection('focus_scitech', e.target.checked ? '1' : '0')}/>
                       </Col>

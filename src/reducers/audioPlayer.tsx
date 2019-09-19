@@ -5,8 +5,9 @@ export interface AudioPlayerDetails {
   url: string;
   title: string;
   creators?: string[];
-  type?: string;
+  item_subtype?: string;
   date: string;
+  isCollection: boolean;
 }
 export interface AudioPlayerState {
   open: boolean;

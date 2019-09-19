@@ -1,11 +1,15 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Col, Modal, Row } from 'reactstrap';
 
+import {
+  Col,
+  Modal,
+  Row
+} from 'reactstrap';
 import { isEqual } from 'lodash';
 
-import { closeModal } from 'actions/home';
+import { addFilesToData, closeModal } from 'actions/home';
 import { HomepageData } from '../reducers/home';
 import { FaCircle, FaExternalLinkAlt, FaTimes } from 'react-icons/fa';
 import { Regions } from '../types/Item';
@@ -15,25 +19,28 @@ import 'styles/components/home.scss';
 
 interface Props {
   data: HomepageData | undefined;
+  backData?: HomepageData;
   open: boolean;
   closeModal: Function;
 }
 
 interface State {
-  data?: HomepageData;
-  backData?: HomepageData;
   isOpen: boolean;
+  carouselActiveIndex: number;
 }
 
 class HomePageModal extends React.Component<Props, State> {
   _isMounted;
+  carouselAnimating;
 
   constructor(props: Props) {
     super(props);
     this._isMounted = false;
+    this.carouselAnimating = false;
 
     this.state = {
-      isOpen: false
+      isOpen: false,
+      carouselActiveIndex: 1
     };
   }
 
@@ -45,7 +52,7 @@ class HomePageModal extends React.Component<Props, State> {
     this._isMounted = false;
   }
 
-  componentDidUpdate(prevProps: Readonly<Props>): void {
+  async componentDidUpdate(prevProps: Readonly<Props>): Promise<void> {
     if (this._isMounted) {
       const state = {};
 
@@ -54,7 +61,16 @@ class HomePageModal extends React.Component<Props, State> {
       }
 
       if (!!this.props.data && !isEqual(this.props.data, prevProps.data)) {
-        Object.assign(state, { data: this.props.data });
+        const { data } = this.props;
+
+        // Add the file to all under items;
+        if (data.items) {
+          Object.assign(data, {
+            items: await addFilesToData(data.items)
+          });
+        }
+
+        Object.assign(state, data);
       }
 
       if (Object.keys(state).length > 0) {
@@ -63,26 +79,75 @@ class HomePageModal extends React.Component<Props, State> {
     }
   }
 
+  carouselOnExiting = () => {
+    this.carouselAnimating = true;
+  }
+
+  carouselOnExited = () => {
+    this.carouselAnimating = false;
+  }
+
+  carouselNext = () => {
+    if (this.carouselAnimating || !this.props.data) { return; }
+    if (this.props.data.count) {
+      const count = parseInt(this.props.data.count, 0) / 5;
+      const nextIndex = this.state.carouselActiveIndex === count ? 0 : this.state.carouselActiveIndex + 1;
+      this.setState({carouselActiveIndex: nextIndex});
+    }
+  }
+
+  carouselPrevious = () => {
+    if (this.carouselAnimating || !this.props.data) { return; }
+    if (this.props.data.count) {
+      const count = parseInt(this.props.data.count, 0) / 5;
+      const nextIndex = this.state.carouselActiveIndex === 0 ? count : this.state.carouselActiveIndex - 1;
+      this.setState({carouselActiveIndex: nextIndex});
+    }
+  }
+
+  carouselGoToIndex(newIndex: number) {
+    if (this.carouselAnimating) { return; }
+    this.setState({ carouselActiveIndex: newIndex });
+  }
+
   render() {
-    if (this.state.data) {
+    if (this.props.data) {
       const {
+        count,
         id,
         title,
         creators,
-        type,
+        item_subtype,
         regions,
         keyword_tags,
         concept_tags,
         file,
-        date
-      } = this.state.data;
+        date,
+        items
+      } = this.props.data;
+
+      let counter: number = !!count ? parseInt(count, 0) : 0;
+
+      const masonry = (): JSX.Element[] => {
+        const html: JSX.Element[] = [];
+        if (items) {
+          for (let i = 0; i < items.length; i++) {
+            html.push(
+              <Col key={i} xs="12" sm="6" md="3" className="px-0">
+                {!!items[i].file ? <FilePreview file={items[i].file} /> : <></>}
+              </Col>
+            );
+          }
+          return html;
+        } else { return [<></>]; }
+      };
 
       return (
         <Modal id="homePageModal" className="fullwidth" isOpen={this.props.open} backdrop toggle={() => this.props.closeModal()}>
           <div className="d-flex flex-column mh-100">
             <Row className="header align-content-center">
               <div className="col-10 col-sm-11 title-wrapper d-flex align-content-center">
-                <Link to={`view/${id}`} className="gray openButton flex-grow-0 flex-shrink-0"><FaExternalLinkAlt className="white" /></Link>
+                <Link to={`/${counter ? 'collection' : 'view'}/${id}`} className="gray openButton flex-grow-0 flex-shrink-0"><FaExternalLinkAlt className="white" /></Link>
                 {creators && creators.length ?
                   <>
                     <div className="creators d-none d-md-block">
@@ -108,16 +173,25 @@ class HomePageModal extends React.Component<Props, State> {
             </Row>
 
             <div className="info d-flex flex-column">
-              <Row className="file">
-                { !!file ?
-                  <FilePreview file={file}/>
+              {!counter ?
+                <Row className="file">
+                  {!!file ?
+                    <FilePreview file={file}/>
+                    : <></>
+                  }
+                </Row>
+                :
+                items ?
+                  <Row className="masonry">
+                    {masonry()}
+                  </Row>
                   : <></>
-                }
-              </Row>
+              }
+
               <Row>
                 <div className="body">
                   <div>
-                    {!!type ? type : ''}
+                    {!!item_subtype ? item_subtype : ''}
                     {`, ${new Date(date).getFullYear()}`}
                     {
                       !!regions ? `, ${regions.map(r => Regions[r]).join(', ')}` : ''

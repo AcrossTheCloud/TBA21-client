@@ -3,16 +3,25 @@ import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { Button, Col, Container, Row } from 'reactstrap';
 import { debounce } from 'lodash';
+import { withCookies, Cookies } from 'react-cookie';
+import { Document, Page, pdfjs } from 'react-pdf';
 
 import { AuthConsumer } from '../providers/AuthProvider';
-import { logoDispatch, loadHomepage, loadMore, FilePreviewHome, openModal, closeModal } from 'actions/home';
+import { logoDispatch, loadHomepage, loadMore, openModal, closeModal } from 'actions/home';
+import { toggle as searchOpenToggle } from 'actions/searchConsole';
 
-import { HomePageState } from '../reducers/home';
+import { HomepageData, HomePageState } from '../reducers/home';
 import HomePageModal from './HomePageModal';
 
 import Logo from './layout/Logo';
+import { FaCircle, FaPlay } from 'react-icons/all';
+import moment from 'moment';
+import AudioPreview from './layout/audio/AudioPreview';
+import { FileTypes } from '../types/s3File';
+
 import 'styles/components/home.scss';
-import { FaCircle } from 'react-icons/all';
+
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 interface Props extends HomePageState {
   logoDispatch: Function;
@@ -21,14 +30,18 @@ interface Props extends HomePageState {
   oaHighlights: Function;
   openModal: Function;
   closeModal: Function;
+  searchOpenToggle: Function;
+  cookies: Cookies;
 }
 
 class HomePage extends React.Component<Props, {}> {
   _isMounted;
+  loadedCount: number = 0;
   scrollDebounce;
 
   constructor(props: Props) {
     super(props);
+
     this._isMounted = false;
 
     this.scrollDebounce = debounce( async () => await this.handleScroll(), 300);
@@ -36,74 +49,226 @@ class HomePage extends React.Component<Props, {}> {
 
   async componentDidMount(): Promise<void> {
     this._isMounted = true;
-    window.addEventListener('scroll', this.scrollDebounce, false);
+    window.addEventListener('scroll',  this.scrollDebounce, false);
+    window.addEventListener('scroll',  this.handleScrollMobileSearch, false);
 
     // If we have no items go get em.
     if (!this.props.loadedItems.length) {
       await this.props.loadHomepage();
-      await this.props.loadMore(this.props.items, this.props.collections, this.props.loadedItems);
+      await this.props.loadMore(this.props.items, this.props.collections, this.props.announcements, this.props.audio, this.props.loadedItems);
+      this.loadedCount = this.props.loadedItems.length;
     }
   }
 
   componentWillUnmount = () => {
     this._isMounted = false;
     window.removeEventListener('scroll', this.scrollDebounce, false);
+    window.removeEventListener('scroll', this.handleScrollMobileSearch, false);
     this.props.closeModal();
+  }
+
+  waitForLoad = () => {
+    if (this.props.loadedMore) { // We've loaded the OA Highlights prior to this being set.
+      this.loadedCount--;
+      if (!this.props.logoLoaded && this.loadedCount <= 0) {
+        this.props.logoDispatch(true);
+      }
+    }
   }
 
   handleScroll = async () => {
     if (window.innerHeight + document.documentElement.scrollTop === document.documentElement.offsetHeight) {
-      await this.props.loadMore(this.props.items, this.props.collections, this.props.loadedItems);
+      await this.props.loadMore(this.props.items, this.props.collections, this.props.announcements, this.props.audio, this.props.loadedItems);
+    }
+  }
+  handleScrollMobileSearch = () => {
+    const { cookies } = this.props;
+    const header = document.getElementById('header');
+
+    if (!!header && !cookies.get(`searchMobileCookie`)) {
+      const headerOffset = Math.round(header.offsetHeight + header.scrollTop);
+      if(
+        (headerOffset > document.documentElement.scrollTop) &&
+        (headerOffset - 100 < document.documentElement.scrollTop)
+        && window.innerWidth < 720) {
+        const expiry: Date = new Date(moment().add(2, 'w').format()); // 3 Months from now.
+        this.props.searchOpenToggle(true);
+        this.props.cookies.set(`searchMobileCookie`, true, { path: '/', expires: expiry });
+      }
     }
   }
 
-  render() {
-    const { loaded_highlights, logoLoaded, loadedItems } = this.props;
+  HighlightsItemDetails = (props: { index: number }) => {
+    const { loaded_highlights } = this.props;
+    const tags = loaded_highlights[props.index].concept_tags;
+    const creators = !!loaded_highlights[props.index].creators ? loaded_highlights[props.index].creators : [];
 
-    const HighlightsItemDetails = (props: { index: number }) => {
-      const tags = loaded_highlights[props.index].concept_tags;
-      const creators = !!loaded_highlights[props.index].creators ? loaded_highlights[props.index].creators : [];
-
-      return (
-        <>
-          <div className="title-wrapper d-flex">
-            {creators && creators.length ?
-              <>
-                <div className="creators d-none d-md-block">
+    return (
+      <>
+        <div className="title-wrapper d-flex">
+          {creators && creators.length ?
+            <>
+              <div className="creators d-none d-md-block">
                   <span className="ellipsis">
-                    <Link to={`/view/${loaded_highlights[props.index].s3_key}`}>
+                    <Link to={`/view/${loaded_highlights[props.index].id}`}>
                       <span>{creators.join(', ')}</span>
                     </Link>
                   </span>
-                </div>
-                <div className="d-none d-md-block">
-                  <FaCircle className="dot"/>
-                </div>
-              </>
-              : <></>
-            }
-            <div className="title">
+              </div>
+              <div className="d-none d-md-block">
+                <FaCircle className="dot"/>
+              </div>
+            </>
+            : <></>
+          }
+          <div className="title">
               <span className="ellipsis">
-                <Link to={`/view/${loaded_highlights[props.index].s3_key}`}>
+                <Link to={`/view/${loaded_highlights[props.index].id}`}>
                   {loaded_highlights[props.index].title}
                 </Link>
               </span>
-            </div>
           </div>
-          <div className="type">
-            <Link to={`/view/${loaded_highlights[props.index].s3_key}`}>
-              {loaded_highlights[props.index].type}, {new Date(loaded_highlights[props.index].date).getFullYear()}
-            </Link>
+        </div>
+        <div className="type">
+          <Link to={`/view/${loaded_highlights[props.index].id}`}>
+            {loaded_highlights[props.index].item_subtype}, {new Date(loaded_highlights[props.index].date).getFullYear()}
+          </Link>
+        </div>
+        {!!tags && tags.length ?
+          <div className="tags d-none d-sm-block">
+            {tags.map(t => `#${t}`).join(' ').toString()}
           </div>
-          {!!tags && tags.length ?
-            <div className="tags d-none d-sm-block">
-              {tags.map(t => `#${t}`).join(' ').toString()}
-            </div>
-            : <></>
-          }
-        </>
-      );
+          : <></>
+        }
+      </>
+    );
+  }
+
+  FilePreviewHome = (props: { data: HomepageData }): JSX.Element => {
+    if (props.data.file && props.data.file.url) {
+      if (props.data.file.type === FileTypes.Image) {
+        let thumbnails: string = '';
+        if (props.data.file.thumbnails) {
+          Object.entries(props.data.file.thumbnails).forEach( ([key, value]) => {
+            thumbnails = `${thumbnails}, ${value} ${key}w,`;
+          } );
+        }
+        return (
+          <img
+            onLoad={() => this.waitForLoad()}
+            srcSet={thumbnails}
+            src={props.data.file.url}
+            alt={props.data.title}
+          />
+        );
+      }
+      if (props.data.file.type === FileTypes.Video) {
+        return (
+          <div className="videoPreview">
+            {!!props.data.file ? <img onLoad={() => this.waitForLoad()} src={props.data.file.poster} alt={''}/> : <></>}
+          </div>
+        );
+      }
+      if (props.data.file.type === FileTypes.Pdf) {
+        return (
+          <div className="pdf">
+            <Document onLoad={() => this.waitForLoad()} file={{ url: props.data.file.url }} style={{width: '100%', height: '100%'}} >
+              <Page pageNumber={1}/>
+            </Document>
+          </div>
+        );
+      }
+
+      if (props.data.file.type === FileTypes.DownloadText || props.data.file.type === FileTypes.Text) {
+        return (
+          <img onLoad={() => this.waitForLoad()} alt={props.data.title} src="https://upload.wikimedia.org/wikipedia/commons/2/22/Unscharfe_Zeitung.jpg" className="image-fluid"/>
+        );
+      }
     }
+    return <></>;
+  };
+
+  DisplayLayout = (props: {data: HomepageData}): JSX.Element => {
+    const {
+      id,
+      count,
+      item_subtype,
+      item_type,
+      title,
+      file,
+      duration,
+      creators,
+      date
+    } = props.data;
+
+    if (!file) { return <></>; }
+
+    const colSize = (fileType: string): number => {
+      switch (fileType) {
+        case 'Audio':
+          return 12;
+
+        case 'Video':
+          return 8;
+
+        default:
+          return 4;
+      }
+    };
+
+    return (
+      <Col md={colSize(!!file ? file.type : '')}>
+
+        {item_type === FileTypes.Audio || file.type === FileTypes.Audio ?
+          <AudioPreview onLoad={() => this.waitForLoad()} data={{title, id, url: file.url, date, creators, item_subtype, isCollection: !!count}}/>
+          :
+
+          <div className="item" onClick={() => this.props.openModal(props.data)}>
+            <div className="file">
+              {file ? <this.FilePreviewHome data={props.data}/> : <></>}
+              <div className="overlay">
+                <div className="type">
+                  {item_subtype}
+                </div>
+                <div className="bottom">
+                  <div className="title-wrapper d-flex">
+                    {creators && creators.length ?
+                      <>
+                        <div className="creators d-none d-md-block">
+                          <span>{creators.join(', ')}</span>
+                        </div>
+                        <div className="d-none d-md-block">
+                          <FaCircle className="dot"/>
+                        </div>
+                      </>
+                      : <></>
+                    }
+                    <div className="title">
+                      {title}
+                    </div>
+                  </div>
+                </div>
+                {duration ?
+                  <div className="duration">
+                    {moment.duration((typeof duration === 'string' ? parseInt(duration, 0) : duration), 'seconds').format('hh:mm:ss')}
+                  </div>
+                  : <></>}
+                {file && file.type === FileTypes.Video ?
+                  <div className="playButton">
+                    <FaPlay/>
+                  </div>
+                  : <></>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </Col>
+    );
+  };
+
+  render() {
+    const { loaded_highlights, logoLoaded, loadedItems, announcements } = this.props;
 
     return (
       <div id="home" className="flex-fill">
@@ -116,16 +281,15 @@ class HomePage extends React.Component<Props, {}> {
                 <Button color="link" tag={Link} to="/login"><span className="simple-icon-login"/> Login</Button>
             )}
           </AuthConsumer>
-
           <Row>
             {!!loaded_highlights[0] ?
               <Col xs="12" md={loaded_highlights.length > 1 ? 8 : 12} className="item" onClick={() => this.props.openModal(loaded_highlights[0])}>
                 <div className="file">
-                  <FilePreviewHome data={loaded_highlights[0]}/>
+                  <this.FilePreviewHome data={loaded_highlights[0]}/>
                 </div>
 
                 <div className="d-sm-none overlay">
-                  <HighlightsItemDetails index={0}/>
+                  <this.HighlightsItemDetails index={0}/>
                 </div>
 
               </Col>
@@ -137,16 +301,16 @@ class HomePage extends React.Component<Props, {}> {
                 <Row className="d-none d-sm-block">
                   <Col xs="12">
                     <div className="file">
-                      <FilePreviewHome data={loaded_highlights[1]}/>
+                      <this.FilePreviewHome data={loaded_highlights[1]}/>
                     </div>
-                    <HighlightsItemDetails index={1}/>
+                    <this.HighlightsItemDetails index={1}/>
                   </Col>
                 </Row>
                 <div className="d-sm-none">
                   <div className="file">
-                    <FilePreviewHome data={loaded_highlights[1]}/>
+                    <this.FilePreviewHome data={loaded_highlights[1]}/>
                     <div className="overlay">
-                      <HighlightsItemDetails index={1}/>
+                      <this.HighlightsItemDetails index={1}/>
                     </div>
                   </div>
                 </div>
@@ -158,43 +322,55 @@ class HomePage extends React.Component<Props, {}> {
           </Row>
           <Row>
             {!!loaded_highlights[0] ?
-              <Col md="6" className="d-none d-sm-block item" onClick={() => this.props.openModal(loaded_highlights[0])}>
-                <HighlightsItemDetails index={0} />
+              <Col md="8" className="d-none d-sm-block item" onClick={() => this.props.openModal(loaded_highlights[0])}>
+                <this.HighlightsItemDetails index={0} />
               </Col>
               : <></>
             }
 
-            {!!loaded_highlights[2] ?
-              <Col md="2" className="item" onClick={() => this.props.openModal(loaded_highlights[2])}>
-                <div className="left">
-                  <FilePreviewHome data={loaded_highlights[2]}/>
+            {announcements && announcements.length ?
+              <Col md="4" className="announcement">
+                <div className="type">
+                  Announcement
                 </div>
-              </Col>
-              : <></>
-            }
-
-            {!!loaded_highlights[2] ?
-              <Col md="4" className="item">
-                <div onClick={() => this.props.openModal(loaded_highlights[2])}>
-                  {loaded_highlights[2].type}
+                <div className="title">
+                  {announcements[0].title}
                 </div>
-                <div onClick={() => this.props.openModal(loaded_highlights[2])}>
-                  {loaded_highlights[2].title}
+                <div className="description">
+                  {announcements[0].description}
                 </div>
-                <div onClick={() => this.props.openModal(loaded_highlights[0])}>
-                  {loaded_highlights[0].type}, {new Date(loaded_highlights[0].date).getFullYear()}
-                </div>
+                {!!announcements[0].url ?
+                  <div>
+                    <a href={announcements[0].url} target="_blank" rel="noopener noreferrer">
+                      View
+                      <svg width="21px" height="17px" viewBox="0 0 21 17" version="1.1" xmlns={"http://www.w3.org/2000/svg"} xmlnsXlink="http://www.w3.org/1999/xlink">
+                        <g stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
+                          <g transform="translate(-1114.000000, -760.000000)">
+                            <g transform="translate(1.000000, 0.000000)">
+                              <g transform="translate(1113.000000, 760.000000)">
+                                <path d="M14.3596565,16.9833984 C14.277748,16.9833984 14.198766,16.9695639 14.1227082,16.9418945 C14.0466503,16.9142251 13.9793693,16.8727216 13.9208632,16.8173828 C13.8038511,16.7067052 13.7453459,16.573894 13.7453459,16.4189453 C13.7453459,16.2639966 13.8038511,16.1311854 13.9208632,16.0205078 L19.5456081,9.56692708 L14.0437254,3.24615885 C13.9267132,3.13548122 13.8682081,2.99990315 13.8682081,2.83942057 C13.8682081,2.678938 13.9267132,2.54335993 14.0437254,2.43268229 C14.1607375,2.32200465 14.3040752,2.26666667 14.4737428,2.26666667 C14.6434104,2.26666667 14.7867481,2.32200465 14.9037602,2.43268229 L20.8093328,9.16848958 C20.9263449,9.27916722 20.9848501,9.41197839 20.9848501,9.56692708 C20.9848501,9.72187577 20.9263449,9.85468695 20.8093328,9.96536458 L14.7808981,16.8173828 C14.722392,16.8727216 14.6551111,16.9142251 14.5790532,16.9418945 C14.5029953,16.9695639 14.4298638,16.9833984 14.3596565,16.9833984 Z" fill="#FFFFFF" fillRule="nonzero"></path>
+                                <path d="M1.38568046,9.70416667 L19.3586534,9.70416667" stroke="#FFFFFF" strokeWidth="1.14932327" strokeLinecap="round"></path>
+                                <path d="M1.38568046,0.6375 L1.38568046,9.70416667" stroke="#FFFFFF" strokeWidth="1.14932327" strokeLinecap="round"></path>
+                              </g>
+                            </g>
+                          </g>
+                        </g>
+                      </svg>
+                    </a>
+                  </div>
+                  : <></>
+                }
               </Col>
               : <></>
             }
           </Row>
         </Container>
 
-        <Logo loaded={logoLoaded} onChange={() => this.props.logoDispatch(true)}/>
+        <Logo loaded={logoLoaded}/>
 
         <Container fluid id="main">
           <Row>
-            {loadedItems}
+            {loadedItems.map( (e: HomepageData, i: number) => (<this.DisplayLayout key={i} data={e} />))}
           </Row>
         </Container>
 
@@ -209,12 +385,16 @@ const mapStateToProps = (state: { home: Props }) => ({
 
   items: state.home.items ? state.home.items : [],
   collections: state.home.collections ? state.home.collections : [],
+  audio: state.home.collections ? state.home.collections : [],
+  announcements: state.home.announcements ? state.home.announcements : [],
+
   oa_highlight: state.home.oa_highlight ? state.home.oa_highlight : [],
   loadedItems: state.home.loadedItems,
+  loadedMore: state.home.loadedMore,
   loaded_highlights: state.home.loaded_highlights,
 
   modalData: state.home.modalData,
   isModalOpen: state.home.isModalOpen
 });
 
-export default connect(mapStateToProps, { logoDispatch, loadHomepage, loadMore, openModal, closeModal })(HomePage);
+export default connect(mapStateToProps, { logoDispatch, loadHomepage, loadMore, openModal, closeModal, searchOpenToggle })(withCookies(HomePage));

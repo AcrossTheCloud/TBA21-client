@@ -56,6 +56,11 @@ class HeaderClass extends React.Component<RouteComponentProps, State> { // tslin
               <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/admin/Items">Items</NavLink>
             </NavItem>
           </DropdownItem>
+          <DropdownItem>
+            <NavItem>
+              <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/admin/announcements">Announcements</NavLink>
+            </NavItem>
+          </DropdownItem>
 
           <DropdownItem divider />
 
@@ -79,15 +84,49 @@ class HeaderClass extends React.Component<RouteComponentProps, State> { // tslin
     );
   }
 
-  ColllaboratorRoutes(): JSX.Element {
+  ContributorRoutes(): JSX.Element {
     return (
       <>
-        <NavItem>
-          <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/items/upload">Add Items</NavLink>
-        </NavItem>
-        <NavItem>
-          <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/collection">Add Collection</NavLink>
-        </NavItem>
+        <UncontrolledDropdown inNavbar nav>
+          <DropdownToggle nav caret>
+            Contribute
+          </DropdownToggle>
+          <DropdownMenu>
+            <DropdownItem>
+              <NavItem>
+                <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/contributor/items">My Items</NavLink>
+              </NavItem>
+            </DropdownItem>
+            <DropdownItem>
+              <NavItem>
+                <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/contributor/collections">My Collections</NavLink>
+              </NavItem>
+            </DropdownItem>
+            <DropdownItem>
+              <NavItem>
+                <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/contributor/announcements">My Announcements</NavLink>
+              </NavItem>
+            </DropdownItem>
+
+            <DropdownItem divider />
+
+            <DropdownItem>
+              <NavItem>
+                <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/contributor/items/add">Add Items</NavLink>
+              </NavItem>
+            </DropdownItem>
+            <DropdownItem>
+              <NavItem>
+                <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/contributor/collections/add">Add Collection</NavLink>
+              </NavItem>
+            </DropdownItem>
+            <DropdownItem>
+              <NavItem>
+                <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/contributor/announcements/add">Add Announcement</NavLink>
+              </NavItem>
+            </DropdownItem>
+          </DropdownMenu>
+        </UncontrolledDropdown>
       </>
     );
   }
@@ -113,8 +152,8 @@ class HeaderClass extends React.Component<RouteComponentProps, State> { // tslin
                       : <></>
                     }
 
-                    {isAuthenticated && (has(authorisation, 'collaborator') || has(authorisation, 'editor') || has(authorisation, 'admin')) ?
-                      <this.ColllaboratorRoutes />
+                    {isAuthenticated && (has(authorisation, 'contributor') || has(authorisation, 'admin')) ?
+                      <this.ContributorRoutes />
                       : <></>
                     }
 

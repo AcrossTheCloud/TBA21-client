@@ -117,6 +117,9 @@ export interface Collection {
   pages?: number | null;
   journal?: string | null;
 
+  s3_key?: string[] | null; // a list of item s3_keys
+
+  // For the API
   items?: string[] | null; // a list of item s3_keys
 
   digital_collection?: boolean;

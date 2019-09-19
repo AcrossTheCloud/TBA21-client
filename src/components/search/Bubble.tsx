@@ -3,6 +3,10 @@ import $ from 'jquery';
 
 import 'styles/components/search/bubble.scss';
 
+interface State {
+  canMove: boolean;
+}
+
 interface Props {
   callback?: Function;
 }
@@ -42,7 +46,7 @@ class Easing {
   }
 }
 
-export class Bubble extends React.Component<Props, {}> {
+export class Bubble extends React.Component<Props, State> {
   resizeTimeout;
   bounds;
   pointRadius;
@@ -53,17 +57,24 @@ export class Bubble extends React.Component<Props, {}> {
   touchX;
   touchY;
 
+  _isMounted;
+
   constructor(props: Props) {
     super(props);
+    this._isMounted = false;
 
     this.points = [];
     this.ctx = null;
 
     const $body = $('body');
 
+    this.state = {
+      canMove: true
+    };
+
     // On Move
     $body.on('mousemove touchmove', '#bubble', e => {
-      if (e) {
+      if (e && this.state.canMove && this._isMounted) {
         const pageX: number = !!e.touches ? e.touches[0].pageX : (!!e.pageX ? e.pageX : 0);
         const pageY: number = !!e.touches ? e.touches[0].pageY : (!!e.pageY ? e.pageY : 0);
         this.touchX = pageX;
@@ -79,15 +90,25 @@ export class Bubble extends React.Component<Props, {}> {
 
     // On Click
     $body.on('click', '#bubble', e => {
-      if (e) {
+      if (e && this._isMounted) {
         const eX: number = !!e.pageX ? e.pageX : 0;
         const eY: number = !!e.pageY ? e.pageY : 0;
 
         if (typeof this.props.callback === 'function') {
-          this.props.callback(this.getFocus(eX, eY));
+          if (this.state.canMove) {
+            this.props.callback(this.getFocus(eX, eY));
+          } else {
+            this.getFocus(eX, eY);
+            this.props.callback({
+              focus_art: false,
+              focus_action: false,
+              focus_scitech: false
+            });
+          }
         }
 
-        this.moveBubble(eX, eY);
+        this.setState({ canMove: !this.state.canMove }, () => this.moveBubble(eX, eY) );
+
       } else {
         return;
       }
@@ -95,12 +116,16 @@ export class Bubble extends React.Component<Props, {}> {
 
     // On Click or On touch
     $body.on('touchend', '#bubble', e => {
-      this.getFocus(this.touchX , this.touchY);
+      if (this._isMounted) {
+        this.getFocus(this.touchX, this.touchY);
+      }
     });
 
   }
 
   componentDidMount(): void {
+    this._isMounted = true;
+
     this.init();
 
     window.addEventListener('resize', () => {
@@ -111,8 +136,9 @@ export class Bubble extends React.Component<Props, {}> {
       }, 500);
     });
   }
-
+item
   componentWillUnmount(): void {
+    this._isMounted = false;
     window.removeEventListener('resize', () => { return; });
   }
 
@@ -156,12 +182,6 @@ export class Bubble extends React.Component<Props, {}> {
     this.toggleLabelHighlight('action', focusAction);
     this.toggleLabelHighlight('scitech', focusScitech);
 
-    console.log(
-      'focusArts', focusArts, Math.fround(w2),
-      'focusAction', focusAction, Math.fround(w3),
-      'focusScitech', focusScitech, Math.fround(w1),
-    );
-
     return {
       focus_arts: focusArts,
       focus_action: focusAction,
@@ -176,37 +196,41 @@ export class Bubble extends React.Component<Props, {}> {
     let x, y;
 
     const canvas: HTMLCanvasElement = document.getElementById('bubble') as HTMLCanvasElement;
-    this.canvas = canvas;
-    this.resize();
+    if (!!canvas) {
+      this.canvas = canvas;
+      this.resize();
 
-    this.pointRadius = Math.min(canvas.width, canvas.height) / 15;
+      this.pointRadius = Math.min(canvas.width, canvas.height) / 15;
 
-    this.ctx = canvas.getContext('2d');
-    this.bounds = new Point(canvas.width, canvas.height);
+      this.ctx = canvas.getContext('2d');
+      this.bounds = new Point(canvas.width, canvas.height);
 
-    this.origin = new Point(this.bounds.x / 2, this.bounds.y / 2);
+      this.origin = new Point(this.bounds.x / 2, this.bounds.y / 2);
 
-    this.points = [];
-    for (i = 0, y = i, end = canvas.height, step = this.pointRadius * 2, asc = step > 0; asc ? i <= end : i >= end; i += step, y = i) {
-      let
-        asc1: boolean = false,
-        end1: number = 0,
-        j: number = 0,
-        step1: number = 0;
+      this.points = [];
+      for (i = 0, y = i, end = canvas.height, step = this.pointRadius * 2, asc = step > 0; asc ? i <= end : i >= end; i += step, y = i) {
+        let
+          asc1: boolean = false,
+          end1: number = 0,
+          j: number = 0,
+          step1: number = 0;
 
-      for (j = 0, x = j, end1 = canvas.width, step1 = this.pointRadius * 2, asc1 = step1 > 0; asc1 ? j <= end1 : j >= end1; j += step1, x = j) {
-        this.points.push(new Point(x + (((y / (this.pointRadius * 2)) % 2) * this.pointRadius), y, this.bubbleColour(x, y)));
+        for (j = 0, x = j, end1 = canvas.width, step1 = this.pointRadius * 2, asc1 = step1 > 0; asc1 ? j <= end1 : j >= end1; j += step1, x = j) {
+          this.points.push(new Point(x + (((y / (this.pointRadius * 2)) % 2) * this.pointRadius), y, this.bubbleColour(x, y)));
+        }
       }
-    }
 
-    // Set to the middle
-    this.moveOrigin(this.origin, new Point(this.bounds.x / 2, this.bounds.y / 2), new Date().getTime(), 300);
+      // Set to the middle
+      this.moveOrigin(this.origin, new Point(this.bounds.x / 2, this.bounds.y / 2), new Date().getTime(), 300);
+    }
   }
 
   resize = () => {
     const wrapper = document.getElementById('bubbleWrapper') as HTMLElement;
-    this.canvas.width = wrapper.getBoundingClientRect().width;
-    this.canvas.height = wrapper.getBoundingClientRect().height;
+    if (!!wrapper) {
+      this.canvas.width = wrapper.getBoundingClientRect().width;
+      this.canvas.height = wrapper.getBoundingClientRect().height;
+    }
   }
 
   int_color(c1: number, c2: number, c3: number, w1: number, w2: number, w3: number): string {
@@ -296,14 +320,14 @@ export class Bubble extends React.Component<Props, {}> {
 
   render() {
     return (
-      <div id="bubbleWrapper">
+      <div id="bubbleWrapper" className={this.state.canMove ? 'active' : ''}>
         <div className="art active">
           <div className="focus">Art</div>
         </div>
         <div className="action active">
           <div className="focus">Action</div></div>
         <div className="scitech active">
-          <div className="focus">Scitech</div></div>
+          <div className="focus">Sci-Tech</div></div>
         <canvas id="bubble" />
       </div>
     );

@@ -29,6 +29,7 @@
 
   .d-flex.title-wrapper {
     overflow: hidden;
+    font-size: 18px;
     .creators, .title {
       max-width: 45%;
     }
@@ -49,6 +50,13 @@
 #home {
   min-height: 100vh;
 
+  a {
+    color: #fff;
+    &:visited, &:focus {
+      color: #fff;
+    }
+  }
+
   .d-flex.title-wrapper {
     flex-wrap: wrap;
   }
@@ -68,21 +76,33 @@
     transition: transform .5s cubic-bezier(0.22, 0.61, 0.36, 1);
   }
 
+  .announcement {
+    font-size: 20px;
+    .type {
+      font-size: 13px;
+    }
+    a {
+      svg {
+        margin-left: 20px;
+      }
+    }
+  }
+
   .item {
     position: relative;
     cursor: pointer;
-    a {
-      color: #fff;
-      &:visited, &:focus {
-        color: #fff;
-      }
-    }
 
     .d-flex.title-wrapper .title {
       flex: 1 1 auto;
+      text-align: left;
       span {
 
       }
+    }
+
+    .tags {
+      color: $soft-blue;
+      font-size: 12px;
     }
 
     .overlay {
@@ -133,6 +153,11 @@
       .react-pdf__Page__canvas {
         max-width: 100% !important;
         height: auto !important;
+      }
+
+      .pdf {
+        position: relative;
+        max-width: 300px;
       }
     }
   }
@@ -201,7 +226,12 @@
         }
 
         .video {
-          z-index: 0
+          z-index: 0;
+          position: relative;
+          .player {
+            width: auto !important;
+            height: 100% !important;
+          }
         }
         .image {
           z-index: 0;

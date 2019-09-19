@@ -9,34 +9,41 @@ import { Alerts, ErrorMessage } from '../utils/alerts';
 import { Item, Regions } from '../../types/Item';
 import { FilePreview } from '../utils/FilePreview';
 import { Languages } from '../../types/Languages';
+import { browser } from '../utils/browser';
+import { RouteComponentProps, withRouter } from 'react-router';
 
 import 'styles/components/pages/viewItem.scss';
-import { browser } from '../utils/browser';
 
-interface Props extends Alerts {
+type MatchParams = {
+  id: string;
+};
+
+interface Props extends RouteComponentProps<MatchParams>, Alerts {
   fetchItem: Function;
   item: Item;
 }
 
 class ViewItem extends React.Component<Props, State> {
-  matchedItemId: string = '';
   browser: string;
 
   constructor(props: any) { // tslint:disable-line: no-any
     super(props);
 
     this.browser = browser();
-
-    // Get our itemId passed through from URL props
-    if (props.location && props.location.pathname) {
-      this.matchedItemId = props.location.pathname.replace('/view/', '');
-    }
   }
 
   componentDidMount() {
+    const { match } = this.props;
+    let matchedItemId: string | null = null;
+
+    // Get our itemId passed through from URL props
+    if (match.params.id) {
+      matchedItemId = match.params.id;
+    }
+
     // If we have an id from the URL pass it through, otherwise use the one from Redux State
-    if (this.matchedItemId) {
-      this.props.fetchItem(this.matchedItemId);
+    if (matchedItemId) {
+      this.props.fetchItem(matchedItemId);
     } else {
       this.setState({ errorMessage: 'No item with that id.' });
     }
@@ -44,7 +51,7 @@ class ViewItem extends React.Component<Props, State> {
 
   render() {
     if (typeof this.props.item === 'undefined') {
-      return 'Loading...';
+      return '';
     }
 
     const {
@@ -85,16 +92,16 @@ class ViewItem extends React.Component<Props, State> {
     );
 
     return (
-      <div id="item" className="container-fluid">
+      <div id="item">
         <ErrorMessage message={this.props.errorMessage} />
         {file && file.url ?
-          <Row className="file">
+          <Row xs="12" className="file">
             <FilePreview file={file}/>
           </Row>
           : <></>
         }
         <Row>
-          <Col md="8" className="left border-right">
+          <Col xs="12" md="8" className="left border-right">
             <Row>
               <Col xs={{ size: 12, order: 2 }} md={{ size: 8, order: 1 }} className="creators">
                 {creators ? creators.join(', ') : <></>}
@@ -119,7 +126,7 @@ class ViewItem extends React.Component<Props, State> {
               </Col>
             </Row>
           </Col>
-          <Col md="4" className="right">
+          <Col xs="12" md="4" className="right">
             {!!regions ?
               regions.map( (region, i) => (
                 <ItemDetails key={i} label="Region" value={Regions[region]} />
@@ -171,4 +178,4 @@ const mapStateToProps = (state: { viewItem: State }) => { // tslint:disable-line
 };
 
 // Connect our redux store State to Props, and pass through the fetchItem function.
-export default connect(mapStateToProps, { fetchItem })(ViewItem);
+export default withRouter(connect(mapStateToProps, { fetchItem })(ViewItem));

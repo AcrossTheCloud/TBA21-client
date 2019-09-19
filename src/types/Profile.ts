@@ -1,3 +1,4 @@
+
 enum profileType {
   Individual = 'Individual',
   Collective = 'Collective',

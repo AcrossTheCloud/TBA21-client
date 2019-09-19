@@ -20,6 +20,7 @@ interface State {
 
 interface Props {
   className?: string;
+  location?: string;
 
   defaultValues?: Tag[] | [];
   defaultOptions?: Tag[];
@@ -192,7 +193,7 @@ export default class Tags extends React.Component<Props, State> {
 
     this.setState( { isLoading: true });
 
-    const results = await API.put('tba21', 'admin/tags', {
+    const results = await API.put('tba21', 'contributor/tags', {
       body: {
         // type: this.props.type,
         tags: [inputValue]
@@ -232,17 +233,25 @@ export default class Tags extends React.Component<Props, State> {
       return tags;
     };
 
+    const parentCallback = (): void => {
+      if ((this.props.callback && typeof this.props.callback === 'function') && (this.state.selectedTags && this.state.selectedTags.length > 0)) {
+        this.props.callback(this.state.selectedTags);
+      }
+    }
+
     if (actionMeta.action === 'select-option' || actionMeta.action === 'create-option') {
-      this.setState({isLoading: false, selectedTags: await createNewTags()});
+      this.setState({isLoading: false, selectedTags: await createNewTags()}, () => {
+        parentCallback();
+      });
     }
 
     if (actionMeta.action === 'remove-value') {
-      this.setState({selectedTags: tagsList});
+      this.setState({selectedTags: tagsList}, () => {
+        parentCallback();
+      });
     }
 
-    if ((this.props.callback && typeof this.props.callback === 'function') && (this.state.selectedTags && this.state.selectedTags.length > 0)) {
-      this.props.callback(this.state.selectedTags.map(tag => tag));
-    }
+
   }
 
   render() {
@@ -261,7 +270,7 @@ export default class Tags extends React.Component<Props, State> {
             className="select"
             classNamePrefix="select"
 
-            defaultValue={this.state.selectedTags}
+            value={this.state.selectedTags}
             defaultOptions={[{
               label: 'Generated Suggestions',
               options: [...this.state.rekognitionTags]

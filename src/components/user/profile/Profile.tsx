@@ -248,12 +248,12 @@ class Profile extends React.Component<Props, State> {
 
               <FormGroup>
                 <Label for="biography">Biography</Label>
-                <Input
+                {!this.props.overlay ? <Input
                   type="textarea"
                   id="biography"
                   defaultValue={!!details && !!details.biography ? details.biography : ''}
                   onChange={e => this.fieldChanged(e.target.value, 'biography')}
-                />
+                /> : <></>}
               </FormGroup>
 
               <FormGroup>

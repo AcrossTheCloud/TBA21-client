@@ -1,18 +1,10 @@
 import { API } from 'aws-amplify';
 import { HomepageData } from '../reducers/home';
-import AudioPreview from 'components/layout/audio/AudioPreview';
-import * as React from 'react';
 import { random } from 'lodash';
 import { getCDNObject } from '../components/utils/s3File';
-import ReactPlayer from 'react-player';
-import { Col } from 'reactstrap';
 import config from 'config';
-import { S3File } from '../types/s3File';
-import { FaCircle, FaPlay } from 'react-icons/fa';
-import { Document, Page, pdfjs } from 'react-pdf';
-import { Link } from 'react-router-dom';
-
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+import { FileTypes, S3File } from '../types/s3File';
+import { Announcement } from '../types/Announcement';
 
 // Defining our Actions for the reducers
 export const LOGO_STATE_HOMEPAGE = 'LOGO_STATE_HOMEPAGE';
@@ -39,16 +31,29 @@ export const loadHomepage = () => async dispatch => {
   }
 
   const response: {items: HomepageData[], collections: HomepageData[]} = await API.get('tba21', 'pages/homepage', { queryStringParameters: queryStringParams });
+  const announcementResponse = await API.get('tba21', 'announcements', { queryStringParameters: { limit: '1'}});
 
   const
-    items = await addFilesToData(response.items),
-    collections = await addFilesToData(response.collections),
+    items = response.items,
+    collections = response.collections,
+    announcements = announcementResponse.announcements,
     loadedHighlights = await addFilesToData(oaHighlights.oa_highlight);
+
+  // Put all audio files into another list.
+  const audio: HomepageData[] = [];
+  for (let i = 0; i < items.length; i++) {
+    if (items[i].item_type === FileTypes.Audio) {
+      audio.push(items[i]);
+      items.splice(i, 1);
+    }
+  }
 
   dispatch({
     type: LOAD_HOMEPAGE,
     items,
+    audio,
     collections,
+    announcements,
     loaded_highlights: loadedHighlights
   });
 };
@@ -57,30 +62,35 @@ export const loadHomepage = () => async dispatch => {
  * HEADS all files and inserts a file key value pair into the item/collection.
  * @param data
  */
-const addFilesToData = async (data: HomepageData[]): Promise<HomepageData[]> => {
+export const addFilesToData = async (data: HomepageData[]): Promise<HomepageData[]> => {
   if (data && data.length) {
     // Loop through each object in the array and get it's File from CloudFront
     for (let i = 0; i < data.length; i++) {
-      const s3Key = data[i].s3_key;
-      const result = await getCDNObject(s3Key);
+      const
+        isCollection: boolean = !!data[i].count,
+        s3Key = isCollection ? data[i].s3_key[0] : data[i].s3_key, // if collection get the first s3_key
+        result = await getCDNObject(s3Key);
+
       if (result) {
         const file: S3File = result;
 
-        if (result.type === 'image') {
+        if (file.type === FileTypes.Image) {
           const thumbnailUrl = `${config.other.THUMBNAIL_URL}${s3Key}`;
           let thumbnails = {};
 
-          if (!!data[i].file_dimensions) {
-            if (data[i].file_dimensions[0] > 540) {
+          if (typeof data[i].file_dimensions !== 'undefined') {
+            const dimensions: number[] = data[i].file_dimensions as number[];
+
+            if (dimensions[0] > 540) {
               Object.assign(thumbnails, {540: `${thumbnailUrl}.thumbnail540.png`});
             }
-            if (data[i].file_dimensions[0] > 720) {
+            if (dimensions[0] > 720) {
               Object.assign(thumbnails, {720: `${thumbnailUrl}.thumbnail720.png`});
             }
-            if (data[i].file_dimensions[0] > 960) {
+            if (dimensions[0] > 960) {
               Object.assign(thumbnails, {960: `${thumbnailUrl}.thumbnail960.png`});
             }
-            if (data[i].file_dimensions[0] > 1140) {
+            if (dimensions[0] > 1140) {
               Object.assign(thumbnails, {1140: `${thumbnailUrl}.thumbnail1140.png`});
             }
 
@@ -99,235 +109,52 @@ const addFilesToData = async (data: HomepageData[]): Promise<HomepageData[]> => 
   }
 };
 
-export const loadMore = (items: HomepageData[], collections: HomepageData[], alreadyLoaded: JSX.Element[]) => async dispatch => {
+export const loadMore = (
+    items: HomepageData[],
+    collections: HomepageData[],
+    announcements: Announcement[],
+    audio: HomepageData[],
+    alreadyLoaded: HomepageData[]
+  ) => async dispatch => {
   const
-    itemRand = random(2, 4),
-    collectionRand = random(2, 4);
-
-  const layout: JSX.Element[] = [];
+    itemRand = random(2, 3),
+    collectionRand = random(2, 3);
 
   let data: HomepageData[] = [
     ...items.length > itemRand ? items.splice(0, itemRand) : items.splice(0, items.length),
-    ...collections.length > itemRand ? collections.splice(0, collectionRand) : collections.splice(0, items.length)
+    ...collections.length > collectionRand ? collections.splice(0, collectionRand) : collections.splice(0, collections.length)
   ];
 
-  if (data.length) {
-    for (let i = 0; i < data.length; i++) {
-      const
-        file = data[i].file,
-        columnSizing = colSize(!!file ? file.type : 'image');
-
-      let result: JSX.Element = await displayLayout(data[i], columnSizing, dispatch);
-
-      if (file && file.type === 'audio') {
-        const {title, id, creators, type, date} = data[i];
-        result = (<Col xs="12" key={id}><AudioPreview data={{title, id, url: file.url, date, creators, type }} /></Col>);
-      }
-
-      layout.push(result);
-
-    }
+  // Push the audio to the end
+  if (audio && audio.length) {
+    data.push(...audio.splice(1));
   }
+
+  // Add files to the items
+  data = await addFilesToData(data);
 
   dispatch({
    type: LOAD_MORE_HOMEPAGE,
    items: items,
    collections: collections,
+   audio: audio,
+   loadedMore: true,
    loadedItems: [
      ...alreadyLoaded,
-     ...layout
-   ]
+     ...data
+   ],
  });
 };
 
-const displayLayout = (data: HomepageData, columnSize: number, dispatch: Function) => {
-  const {
-    s3_key,
-    count,
-    type,
-    title,
-    file,
-    duration,
-    creators
-  } = data;
-
-  return (
-    <Col key={`${s3_key}-${!!count ? 'collection' : 'item'}`} md={columnSize}>
-      <div className="item" onClick={() => openModalWithoutDispatch(data, dispatch)}>
-        <div className="file">
-          {file ? <FilePreviewHome data={data}/> : <></>}
-          <div className="overlay">
-            <div className="type">
-              {type}
-            </div>
-            <div className="bottom">
-              <div className="title-wrapper d-flex">
-                {creators && creators.length ?
-                  <>
-                    <div className="creators d-none d-md-block">
-                      <Link to={`/view/${s3_key}`}>
-                        <span>{creators.join(', ')}</span>
-                      </Link>
-                    </div>
-                    <div className="d-none d-md-block">
-                      <FaCircle className="dot"/>
-                    </div>
-                  </>
-                  : <></>
-                }
-                <div className="title">
-                  <Link to={`/view/${s3_key}`}>
-                    {title}
-                  </Link>
-                </div>
-              </div>
-            </div>
-            {duration ?
-              <div className="duration">
-                {duration}
-              </div>
-              : <></> }
-            {file && file.type === 'video' ?
-              <div className="playButton">
-                <FaPlay />
-              </div>
-              : <></>
-            }
-          </div>
-        </div>
-      </div>
-    </Col>
-  );
-};
-const colSize = (fileType: string): number => {
-  switch (fileType) {
-    case 'audio':
-      return 12;
-
-    case 'video':
-      return 8;
-
-    default:
-      return 4;
-  }
-};
-
-export const FilePreview = (props: { data: HomepageData }): JSX.Element => {
-  if (props.data.file && props.data.file.url) {
-    if (props.data.file.type === 'image') {
-      let thumbnails: string = '';
-      if (props.data.file.thumbnails) {
-        Object.entries(props.data.file.thumbnails).forEach( ([key, value]) => {
-          thumbnails = `${thumbnails} ${value} ${key}w,`;
-        } );
-      }
-
-      return (
-        <img
-          srcSet={thumbnails}
-          src={props.data.file.url}
-          alt={props.data.title}
-        />
-      );
-    }
-    if (props.data.file && props.data.file.type === 'audio') {
-      const {title, id, creators, type, date} = props.data;
-      return <AudioPreview data={{title, id, url: props.data.file.url, date, creators, type }} />;
-    }
-    if (props.data.file.type === 'video') {
-      return (
-        <div className="embed-responsive embed-responsive-16by9">
-          <ReactPlayer
-            controls
-            light={props.data.file.poster}
-            className="embed-responsive-item"
-            url={!!props.data.file.playlist ? props.data.file.playlist : props.data.file.url}
-            height="auto"
-            width="100%"
-            vertical-align="top"
-          />
-        </div>
-      );
-    }
-    if (props.data.file.type === 'pdf') {
-      return (
-        <div className="embed-responsive embed-responsive-4by3">
-          <iframe title={props.data.title} className="embed-responsive-item" src={props.data.file.url} />
-        </div>
-      );
-    }
-
-    if (props.data.file.type === 'downloadText' || props.data.file.type === 'text') {
-      return (
-        <a href={props.data.file.url} target="_blank" rel="noopener noreferrer">
-          <img alt={props.data.title} src="https://upload.wikimedia.org/wikipedia/commons/2/22/Unscharfe_Zeitung.jpg" className="image-fluid"/>
-        </a>
-      );
-    }
-  }
-  return <></>;
-};
-export const FilePreviewHome = (props: { data: HomepageData }): JSX.Element => {
-  if (props.data.file && props.data.file.url) {
-    if (props.data.file.type === 'image') {
-      let thumbnails: string = '';
-      if (props.data.file.thumbnails) {
-        Object.entries(props.data.file.thumbnails).forEach( ([key, value]) => {
-          thumbnails = `${thumbnails}, ${value} ${key}w,`;
-        } );
-      }
-      return (
-        <img
-          srcSet={thumbnails}
-          src={props.data.file.url}
-          alt={props.data.title}
-        />
-      );
-    }
-    if (props.data.file.type === 'video') {
-      return (
-        <VideoPoster data={props.data} />
-      );
-    }
-    if (props.data.file.type === 'pdf') {
-      return (
-        <Document file={{ url: props.data.file.url }} style={{width: '100%', height: '100%'}} >
-          <Page pageNumber={1}/>
-        </Document>
-      );
-    }
-
-    if (props.data.file.type === 'downloadText' || props.data.file.type === 'text') {
-      return (
-        <a href={props.data.file.url} target="_blank" rel="noopener noreferrer">
-          <img alt={props.data.title} src="https://upload.wikimedia.org/wikipedia/commons/2/22/Unscharfe_Zeitung.jpg" className="image-fluid"/>
-        </a>
-      );
-    }
-  }
-  return <></>;
-};
-export const VideoPoster = (props: { data: HomepageData }) => (
-  <div className="videoPreview">
-    {!!props.data.file ? <img src={props.data.file.poster} alt={''}/> : <></>}
-  </div>
-);
 // Modal
 export const closeModal = () => dispatch => {
   dispatch({
     type: MODAL_STATE_HOMEPAGE,
-     isModalOpen: false,
+    isModalOpen: false,
     data: undefined
   });
 };
 
-const openModalWithoutDispatch = (data: HomepageData, dispatch: Function) => {
-  dispatch({
-    type: MODAL_STATE_HOMEPAGE,
-     isModalOpen: true,
-     modalData: data
-  });
-};
 export const openModal = (data: HomepageData) => dispatch => {
   dispatch({
     type: MODAL_STATE_HOMEPAGE,

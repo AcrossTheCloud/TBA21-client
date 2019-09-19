@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { API, Auth } from 'aws-amplify';
+import { API } from 'aws-amplify';
 import { get } from 'lodash';
 import { Button, Form, FormGroup, Input, Label, Spinner } from 'reactstrap';
 import { getCurrentAuthenticatedUser } from './Auth';
@@ -90,11 +90,7 @@ export default class MailChimp extends React.Component<Props, State> {
 
       if (checked) {
         await API.post('tba21', 'mailchimp/postSubscriberAddTag', {
-          headers: {
-            Authorization: `Bearer ${(await Auth.currentSession()).getIdToken().getJwtToken()}`
-          },
           body: query
-
         });
         // Add the tag if it doesn't exist.
         if (!subscriberDetails.tags.includes(tag)) {
@@ -102,9 +98,6 @@ export default class MailChimp extends React.Component<Props, State> {
         }
       } else {
         await API.del('tba21', 'mailchimp/deleteSubscriberRemoveTag', {
-          headers: {
-            Authorization: `Bearer ${(await Auth.currentSession()).getIdToken().getJwtToken()}`
-          },
           queryStringParameters: query
         });
         // Add the tag if it doesn't exist.
@@ -134,11 +127,7 @@ export default class MailChimp extends React.Component<Props, State> {
       responseErrorMessage = undefined;
     try {
       // Returns a boolean if the request was successful or not.
-      const response = await API.post('tba21', 'mailchimp/postSubscribeUser', {
-        headers: {
-          Authorization: `Bearer ${(await Auth.currentSession()).getIdToken().getJwtToken()}`
-        }
-      });
+      const response = await API.post('tba21', 'mailchimp/postSubscribeUser', {});
 
       status = response ? 'subscribed' : 'unsubscribed';
     } catch (e) {

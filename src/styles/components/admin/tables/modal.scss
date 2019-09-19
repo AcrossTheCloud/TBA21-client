@@ -1,14 +1,57 @@
-.tableModal {
+@import '../../../base/variables';
+
+.modal {
+  overflow: hidden;
+}
+
+.modal-dialog {
   color: #000;
   &.fullwidth {
-    max-width: 100%;
-    margin: 0;
-    height: 100%;
+    @media (min-width: 720px) {
+      max-width: calc(100% - 30px);
+    }
+
     display: flex;
     flex: 1 0 100%;
 
-    .modal-body {
-      overflow: scroll;
+    .modal-body, .modal-content {
+      overflow-y: scroll;
+      overflow-x: hidden;
+    }
+  }
+  &.blue {
+    .modal-content {
+      background-color: $dark-blue;
+      border: none;
+      border-radius: 0;
+
+      .header {
+        background: $dark-blue;
+        color: #fff;
+        padding: 15px;
+        margin: 0;
+
+        a.gray {
+          color: $soft-gray;
+          font-family: 'Roboto Mono', sans-serif;
+          font-size: 14px;
+          opacity: .5;
+          &.openButton {
+            line-height: 1.2;
+            display: inline-block;
+            margin-right: 10px;
+            font-size: 17px;
+          }
+
+          &:hover {
+            opacity: 1;
+          }
+        }
+
+        .closeButton, .openButton {
+          cursor: pointer;
+        }
+      }
     }
   }
 }

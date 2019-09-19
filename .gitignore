@@ -22,3 +22,4 @@ yarn-error.log*
 
 # config based on $ENV
 src/config.js
+/.idea/

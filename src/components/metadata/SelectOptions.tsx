@@ -419,7 +419,7 @@ export const itemVideoSubTypes = [
   {value: itemVideo.Lecture_Recording, label: 'Lecture Recording'},
   {value: itemVideo.Informational_Video, label: 'Informational Video'},
   {value: itemVideo.Trailer, label: 'Trailer'},
-  {value: itemVideo.Artwork_Documentation, label: 'Artwork Documentation'},
+  {value: itemVideo.Video_Artwork_Documentation, label: 'Artwork Documentation'},
   {value: itemVideo.Raw_Footage, label: 'Raw Footage'},
   {value: itemVideo.Video, label: 'Video'},
   {value: itemVideo.Other, label: 'Other'}

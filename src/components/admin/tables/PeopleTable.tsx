@@ -278,7 +278,7 @@ export default class UserTable extends React.Component<{}, State> {
 
         </FormGroup>
 
-        <Modal isOpen={this.state.componentModalOpen} className="tableModal fullwidth">
+        <Modal isOpen={this.state.componentModalOpen} className="fullwidth">
           <ModalBody>
 
             {/* USER DETAILS HERE */}

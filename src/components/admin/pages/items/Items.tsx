@@ -1,4 +1,5 @@
 import { API } from 'aws-amplify';
+import { RouteComponentProps, withRouter } from 'react-router';
 
 import * as React from 'react';
 import BootstrapTable from 'react-bootstrap-table-next';
@@ -8,6 +9,7 @@ import { Button, Container, Modal, ModalBody, ModalFooter, ModalHeader, Spinner 
 import { Item } from 'types/Item';
 import { ItemEditor } from 'components/metadata/ItemEditor';
 import { Alerts, ErrorMessage, SuccessMessage } from 'components/utils/alerts';
+import { AuthContext } from '../../../../providers/AuthProvider';
 
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css';
@@ -29,11 +31,12 @@ interface State extends Alerts {
   deleteErrorMessage: string | JSX.Element | undefined;
 }
 
-export default class Items extends React.Component<{}, State> {
+class Items extends React.Component<RouteComponentProps, State> {
   _isMounted;
+  isContributorPath;
   tableColumns;
 
-  constructor(props: {}) {
+  constructor(props: RouteComponentProps) {
     super(props);
     this._isMounted = false;
 
@@ -56,16 +59,16 @@ export default class Items extends React.Component<{}, State> {
       },
       {
         dataField: 'status',
-        text: 'Status',
+        text: 'Published',
+      },
+      {
+        dataField: 'creators',
+        hidden: !!this.isContributorPath,
+        text: 'Creator(s)'
       },
       {
         dataField: 'title',
-        text: 'Title',
-        events: {
-          onClick: (e, column, columnIndex, row, rowIndex) => {
-            console.log(e, column, columnIndex, row, rowIndex);
-          }
-        }
+        text: 'Title'
       },
       {
         dataField: 'options',
@@ -85,6 +88,7 @@ export default class Items extends React.Component<{}, State> {
 
   async componentDidMount() {
     this._isMounted = true;
+    this.isContributorPath = (this.props.location.pathname.match(/contributor/i));
     this.getItems();
   }
 
@@ -99,7 +103,7 @@ export default class Items extends React.Component<{}, State> {
           offset: offset,
           limit: this.state.sizePerPage
         },
-        response = await API.get('tba21', 'admin/items', { queryStringParameters: queryStringParameters });
+        response = await API.get('tba21', `${ this.isContributorPath ? 'contributor/items/getByPerson' :  'admin/items' }`, { queryStringParameters: queryStringParameters });
 
       if (!this._isMounted) { return; }
       return {
@@ -170,26 +174,26 @@ export default class Items extends React.Component<{}, State> {
     this.setState( prevState => ({
        ...prevState,
       deleteModalOpen: !prevState.deleteModalOpen,
-      deleteErrorMessage: '',
-      successMessage: ''
+      deleteErrorMessage: undefined,
+      successMessage: undefined
      })
     );
   }
 
   deleteItem = async () => {
     const state = {
-      deleteErrorMessage: '',
-      successMessage: ''
+      deleteErrorMessage: undefined,
+      successMessage: undefined
     };
     try {
       const itemIndex: number | undefined = this.state.itemIndex;
       if (typeof itemIndex !== 'undefined' && itemIndex > -1) {
-        await API.del('tba21', 'admin/items', {
+        await API.del('tba21', (this.isContributorPath ? 'contributor/items' :  'admin/items'), {
           queryStringParameters: {
             s3Key: this.state.items[itemIndex].s3_key
           }
         });
-        this.getItems();
+        await this.getItems();
         Object.assign(state, {
           deleteModalOpen: false,
           successMessage: 'Item deleted'
@@ -199,7 +203,7 @@ export default class Items extends React.Component<{}, State> {
           deleteErrorMessage: 'This item may have already been deleted.',
           deleteModalOpen: false
         });
-        this.getItems();
+        await this.getItems();
       }
 
     } catch (e) {
@@ -245,6 +249,8 @@ export default class Items extends React.Component<{}, State> {
       currentIndex = (page - 1) * sizePerPage,
       slicedItems = items.length ? items.slice(currentIndex, currentIndex + sizePerPage) : [];
 
+    const context: React.ContextType<typeof AuthContext> = this.context;
+
     return (
       <Container>
         <ErrorMessage message={this.state.errorMessage}/>
@@ -261,12 +267,13 @@ export default class Items extends React.Component<{}, State> {
           noDataIndication={() => !this.state.tableIsLoading && !slicedItems.length ? 'No data to display.' : <Spinner style={{ width: '10rem', height: '10rem' }} type="grow" />}
         />
         {/* Edit Item Modal */}
-        <Modal isOpen={this.state.componentModalOpen} className="tableModal fullwidth">
+        <Modal isOpen={this.state.componentModalOpen} className="fullwidth">
           <ModalBody>
 
             {
               typeof this.state.itemIndex !== 'undefined' && this.state.itemIndex >= 0 ?
                 <ItemEditor
+                  isContributorPath={context.authorisation.hasOwnProperty('admin') ? false : this.isContributorPath}
                   item={this.state.items[this.state.itemIndex]}
                   index={this.state.itemIndex}
                   onChange={c => {
@@ -288,13 +295,10 @@ export default class Items extends React.Component<{}, State> {
         </Modal>
 
         {/* Delete Item Modal */}
-        <Modal isOpen={this.state.deleteModalOpen} className="tableModal">
+        <Modal isOpen={this.state.deleteModalOpen}>
           <ErrorMessage message={this.state.deleteErrorMessage}/>
           <ModalHeader>Delete Item?</ModalHeader>
-          <ModalBody>Are you 100% sure you want to delete this item?
-
-          </ModalBody>
-
+          <ModalBody>Are you 100% sure you want to delete this item?</ModalBody>
             <ModalFooter>
               <Button color="danger" className="mr-auto" onClick={this.deleteItem}>I'm Sure</Button>{' '}
               <Button color="secondary" onClick={this.deleteModalToggle}>Cancel</Button>
@@ -304,3 +308,6 @@ export default class Items extends React.Component<{}, State> {
     );
   }
 }
+
+export default withRouter(Items);
+Items.contextType = AuthContext;
