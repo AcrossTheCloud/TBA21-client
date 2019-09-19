@@ -18,7 +18,6 @@ import {
   // START Tables
   AdminCollections,
   AdminItems,
-  AdminPeople,
   // END Tables
 
   // END ADMIN
@@ -81,7 +80,6 @@ const AdminRoutes = ({authorisation, ...rest}) => {
       <Route exact path="/admin/ManageUsers" render={routeProps => isAdmin ? <div className="main"><AdminManageUsers {...routeProps} {...rest} /></div> : <Redirect to="/"/>}/>
       <Route exact path="/admin/Collections" render={routeProps => isAdmin ? <div className="main"><AdminCollections {...routeProps} {...rest} /></div> : <Redirect to="/"/>}/>
       <Route exact path="/admin/Items" render={routeProps => isAdmin ? <div className="main"><AdminItems {...routeProps} {...rest} /></div> : <Redirect to="/"/>}/>
-      <Route exact path="/admin/People" render={routeProps => isAdmin ? <div className="main"><AdminPeople {...routeProps} {...rest} /></div> : <Redirect to="/"/>}/>
       <Route exact path="/admin/announcements" render={() => isAdmin ? <div className="main"><Announcements {...rest} /></div> : <Redirect to="/"/>}/>
     </>
   );
