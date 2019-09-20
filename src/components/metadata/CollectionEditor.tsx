@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { connect } from 'react-redux';
 import {
   Button,
   Col, CustomInput,
@@ -35,12 +36,21 @@ import Contributors from './fields/Contributors';
 import { AuthContext } from '../../providers/AuthProvider';
 import { License } from '../../types/License';
 
+import { modalToggle } from '../../actions/pages/privacyPolicy';
+import { getProfileDetails } from '../../actions/user/profile';
+import { Profile } from '../../types/Profile';
+
 import 'styles/components/metadata/editors.scss';
 
 interface Props {
   collection?: Collection;
   editMode: boolean;
   onChange?: Function;
+
+  // From Redux
+  modalToggle: Function;
+  getProfileDetails: Function;
+  profileDetails: Profile;
 }
 
 interface State extends Alerts {
@@ -49,6 +59,7 @@ interface State extends Alerts {
   changedFields: {
     [key: string]: string
   };
+  acceptedLicense?: boolean;
 
   validate: {
     [key: string]: boolean
@@ -93,7 +104,7 @@ const defaultRequiredFields = (collection: Collection) => {
   };
 };
 
-export class CollectionEditor extends React.Component<Props, State> {
+class CollectionEditorClass extends React.Component<Props, State> {
   static contextType = AuthContext;
 
   _isMounted;
@@ -167,6 +178,20 @@ export class CollectionEditor extends React.Component<Props, State> {
 
   putCollection = async () =>  {
     if (!this._isMounted) { return; }
+
+    if (!this.props.profileDetails.accepted_license && !this.state.acceptedLicense) {
+      this.setState({ errorMessage: 'You need to agree to our terms of use.' });
+      return;
+    } else if (!this.props.profileDetails.accepted_license && this.state.acceptedLicense) {
+      await API.patch('tba21', 'profiles', {
+        body: {
+          accepted_license: true
+        }
+      });
+      // Refresh the Profile Details.
+      this.props.getProfileDetails(this.props.profileDetails.cognito_uuid);
+    }
+
     this.setState(
       {
         errorMessage: undefined,
@@ -1296,7 +1321,7 @@ export class CollectionEditor extends React.Component<Props, State> {
             <TabContent activeTab={this.state.activeTab}>
               <TabPane tabId="1">
                 <Row>
-                  <Col md="12">
+                  <Col md={{size: 3, offset: 9}}>
                     <UncontrolledButtonDropdown className="float-right">
                       {this.state.originalCollection.status === true ?
                         <Button className="caret" onClick={this.putCollection} disabled={!this.state.isDifferent}>Save</Button>
@@ -1313,7 +1338,20 @@ export class CollectionEditor extends React.Component<Props, State> {
                       </DropdownMenu>
                     </UncontrolledButtonDropdown>
                   </Col>
-                  <Col>
+
+                  {this.props.profileDetails && !this.props.profileDetails.accepted_license ?
+                    <Col md={{size: 3, offset: 9}}>
+                      By checking this box you agree to the Ocean Archive's <Button color="link" onClick={e => {e.preventDefault(); this.props.modalToggle('TC_MODAL', true); }}>Terms Of Use</Button>
+                      <FormGroup check>
+                        <Label check>
+                          <Input type="checkbox" checked={this.state.acceptedLicense ? this.state.acceptedLicense : false} onChange={e => { if (this._isMounted) { this.setState({ acceptedLicense: e.target.checked }); } }}/>{' '}
+                          I agree
+                        </Label>
+                      </FormGroup>
+                    </Col>
+                    : <></>
+                  }
+                  <Col xs="12">
                     <FormGroup>
                       <Label for="title">Title</Label>
                       <Input
@@ -1334,7 +1372,7 @@ export class CollectionEditor extends React.Component<Props, State> {
                         this.state.editMode ?
                           <></>
                           :
-                          <FormFeedback style={{ display: !this.state.hasShortPath ? 'block' : 'none' }}>You need to save your collection first before adding a URL slug.</FormFeedback>
+                          <FormFeedback style={{ display: !this.state.hasShortPath ? 'block' : 'none' }}>You need to save your collection first before adding a URL slug (short path).</FormFeedback>
                       }
                     </FormGroup>
 
@@ -1355,6 +1393,7 @@ export class CollectionEditor extends React.Component<Props, State> {
                         defaultValue={description ? description : ''}
                         onChange={e => this.validateLength('description', e.target.value)}
                         invalid={this.state.validate.hasOwnProperty('description') && !this.state.validate.description}
+                        maxLength={2048}
                       />
                       <FormFeedback>This is a required field</FormFeedback>
                     </FormGroup>
@@ -1528,3 +1567,9 @@ export class CollectionEditor extends React.Component<Props, State> {
     );
   }
 }
+
+const mapStateToProps = (state: { profile: { details: Profile} }) => ({
+  profileDetails: state.profile.details,
+});
+
+export const CollectionEditor = connect(mapStateToProps, { modalToggle, getProfileDetails })(CollectionEditorClass);
