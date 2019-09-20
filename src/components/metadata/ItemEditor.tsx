@@ -714,7 +714,7 @@ class ItemEditorClass extends React.Component<Props, State> {
                   valid = true;
                 } // set valid to true for no content
                 if (valid) {
-                  this.changeItem('doi', value);
+                  this.validateLength('doi', value);
                 } // if valid set the data in changedItem
                 if (!this._isMounted) { return; }
                 this.setState({validate: {...this.state.validate, doi: valid}});
@@ -1062,7 +1062,7 @@ class ItemEditorClass extends React.Component<Props, State> {
               type="date"
               className="birth_date"
               defaultValue={item.birth_date ? new Date(item.birth_date).toISOString().substr(0, 10) : ''}
-              onChange={e => this.validateLength('birth_date', e.target.value)}
+              onChange={e => this.changeItem('birth_date', e.target.value)}
             />
           </FormGroup>
         </Col>
@@ -1074,7 +1074,7 @@ class ItemEditorClass extends React.Component<Props, State> {
               type="date"
               className="death_date"
               defaultValue={item.death_date ? new Date(item.death_date).toISOString().substr(0, 10) : ''}
-              onChange={e => this.validateLength('death_date', e.target.value)}
+              onChange={e => this.changeItem('death_date', e.target.value)}
             />
           </FormGroup>
         </Col>
@@ -1563,7 +1563,7 @@ class ItemEditorClass extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="participants">Participant(s)</Label>
-            <CustomSelect values={item.participants} callback={values => this.validateLength('participants', values)} />
+            <CustomSelect values={item.participants} callback={values => this.changeItem('participants', values)} />
             <FormText>Use tab or enter to add a new Participant.</FormText>
           </FormGroup>
         </Col>
@@ -1592,7 +1592,7 @@ class ItemEditorClass extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="participants">Participant(s)</Label>
-            <CustomSelect values={item.participants} callback={values => this.validateLength('participants', values)} />
+            <CustomSelect values={item.participants} callback={values => this.changeItem('participants', values)} />
             <FormText>Use tab or enter to add a new Participant.</FormText>
           </FormGroup>
         </Col>
@@ -1642,7 +1642,7 @@ class ItemEditorClass extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="produced_by">Exhibition History</Label>
-            <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+            <CustomSelect values={item.exhibited_at} callback={values => this.changeItem('exhibited_at', values)} />
             <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
@@ -1653,7 +1653,7 @@ class ItemEditorClass extends React.Component<Props, State> {
               type="text"
               className="medium"
               defaultValue={item.medium ? item.medium : ''}
-              onChange={e => this.validateLength('medium', e.target.value)}
+              onChange={e => this.changeItem('medium', e.target.value)}
             />
           </FormGroup>
         </Col>
@@ -1729,7 +1729,7 @@ class ItemEditorClass extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
-            <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+            <CustomSelect values={item.exhibited_at} callback={values => this.changeItem('exhibited_at', values)} />
             <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
@@ -1769,7 +1769,7 @@ class ItemEditorClass extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
-            <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+            <CustomSelect values={item.exhibited_at} callback={values => this.changeItem('exhibited_at', values)} />
             <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
@@ -1887,7 +1887,7 @@ class ItemEditorClass extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
-            <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+            <CustomSelect values={item.exhibited_at} callback={values => this.changeItem('exhibited_at', values)} />
             <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
@@ -1953,7 +1953,7 @@ class ItemEditorClass extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
-            <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+            <CustomSelect values={item.exhibited_at} callback={values => this.changeItem('exhibited_at', values)} />
             <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
@@ -1998,7 +1998,7 @@ class ItemEditorClass extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
-            <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+            <CustomSelect values={item.exhibited_at} callback={values => this.changeItem('exhibited_at', values)} />
             <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
@@ -2086,7 +2086,7 @@ class ItemEditorClass extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
-            <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+            <CustomSelect values={item.exhibited_at} callback={values => this.changeItem('exhibited_at', values)} />
             <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
@@ -2114,7 +2114,7 @@ class ItemEditorClass extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
-            <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+            <CustomSelect values={item.exhibited_at} callback={values => this.changeItem('exhibited_at', values)} />
             <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
@@ -2642,7 +2642,7 @@ class ItemEditorClass extends React.Component<Props, State> {
                         loadItemRekognitionTags={!keywordTags.length ? this.state.originalItem.s3_key : ''}
                         callback={tags => {
                           const tagList = tags ? tags.map(tag => ({id: tag.id, tag_name: tag.label})) : [];
-                          this.validateLength('keyword_tags', tags ? tags.map(tag => tag.id) : []);
+                          this.changeItem('keyword_tags', tags ? tags.map(tag => tag.id) : []);
                           if (this._isMounted) {
                             const { originalItem, changedItem } = this.state;
                             this.setState({
