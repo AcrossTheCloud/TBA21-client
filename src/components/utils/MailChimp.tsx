@@ -4,6 +4,9 @@ import { get } from 'lodash';
 import { Button, Form, FormGroup, Input, Label, Spinner } from 'reactstrap';
 import { getCurrentAuthenticatedUser } from './Auth';
 import { Alerts, TimedErrorMessage } from './alerts';
+import { connect } from 'react-redux';
+import { Profile } from '../../types/Profile';
+import { getProfileDetails } from '../../actions/user/profile';
 
 interface SubscriberDetails {
   status: string;
@@ -18,9 +21,11 @@ interface State extends Alerts  {
 
 interface Props {
   email: string;
+  details?: Profile;
+  getProfileDetails: Function;
 }
 
-export default class MailChimp extends React.Component<Props, State> {
+class MailChimp extends React.Component<Props, State> {
   private _isMounted;
 
   constructor(props: Props) {
@@ -122,6 +127,7 @@ export default class MailChimp extends React.Component<Props, State> {
   }
 
   subscribeUser = async (): Promise<void> => {
+    // Returns a boolean if the request was successful or not.
     if (this._isMounted) {
       this.setState({ isLoading: true });
     }
@@ -130,8 +136,19 @@ export default class MailChimp extends React.Component<Props, State> {
       status = 'unsubscribed',
       responseErrorMessage = undefined;
     try {
-      // Returns a boolean if the request was successful or not.
-      const response = await API.post('tba21', 'mailchimp/postSubscribeUser', {});
+      const params = {};
+
+      if (!this.props.details) {
+        await this.props.getProfileDetails();
+      }
+
+      if (this.props.details) {
+        Object.assign(params, { full_name: this.props.details.full_name });
+      }
+
+      const response = await API.post('tba21', 'mailchimp/postSubscribeUser', {
+        body: params
+      });
 
       status = response ? 'subscribed' : 'unsubscribed';
     } catch (e) {
@@ -181,3 +198,9 @@ export default class MailChimp extends React.Component<Props, State> {
     );
   }
 }
+
+const mapStateToProps = (state: { profile: Props }) => ({
+  details: state.profile.details
+});
+
+export default connect(mapStateToProps, { getProfileDetails })(MailChimp);
