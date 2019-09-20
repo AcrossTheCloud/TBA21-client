@@ -144,14 +144,9 @@ class SearchConsole extends React.Component<Props, State> {
 
   componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>, ): void {
     if (this.props.open !== prevProps.open) {
-
       if (this.props.open) {
         $('body').addClass('searchOpen');
         this.searchInputRef.current.select.select.focus();
-        // If we have results open it up
-        if (this.props.results.length) {
-          this.animateResults(true);
-        }
       } else {
         // Remove the height from the results on closed.
         this.animateResults(false);
@@ -159,18 +154,17 @@ class SearchConsole extends React.Component<Props, State> {
       }
     }
 
-    // Animate the results field when we come back with new results.
-    if (this.props.results.length) {
+    // If we have results open it up
+    if (this.props.results.length && this.props.open) {
       this.animateResults(true);
     }
   }
 
   animateResults(open: boolean) {
-    const
-      $results = $('#searchConsole .results'),
-      resultsheight = $results.get(0).scrollHeight;
+    const $results = $('#searchConsole .results');
 
     if (open) {
+      const resultsheight = $results.get(0).scrollHeight;
       $results.animate({ 'height': resultsheight }, 300, function() {
         $results.height('auto');
       });
