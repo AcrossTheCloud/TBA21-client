@@ -87,7 +87,7 @@ export default class Logo extends Component<Props, State> {
     const { loaded } = this.props;
 
     return (
-      <div id="logo" className={this.state.finallyLoaded ? 'loaded' : ''}>
+      <div id="logo" className={this.state.finallyLoaded || this.props.loaded ? 'loaded' : ''}>
         <header>
           <div className={`left show ${loaded ? 'init' : ''}`}>
             <img src={logo} alt="Ocean Archive" />
