@@ -4,6 +4,8 @@ import { PrivacyPolicyState } from 'reducers/pages/privacyPolicy';
 import { modalToggle } from 'actions/pages/privacyPolicy';
 import { Modal, ModalBody, ModalHeader } from 'reactstrap';
 
+import 'styles/components/admin/tables/modal.scss';
+
 interface Props extends PrivacyPolicyState {
   modalToggle: Function;
 }
@@ -11,7 +13,7 @@ interface Props extends PrivacyPolicyState {
 class TermsAndConditions extends React.Component<Props, {}> {
   render() {
     return (
-      <Modal isOpen={this.props.tc_open} toggle={() => this.props.modalToggle('TC_MODAL')} className="fullwidth">
+      <Modal isOpen={this.props.tc_open} toggle={() => this.props.modalToggle('TC_MODAL')} className="fullwidth blue">
           <ModalHeader toggle={() => this.props.modalToggle('TC_MODAL')}>TERMS OF USE</ModalHeader>
           <ModalBody>
               <h1>TERMS OF USE</h1>

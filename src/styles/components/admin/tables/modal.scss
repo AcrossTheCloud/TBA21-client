@@ -20,6 +20,16 @@
     }
   }
   &.blue {
+    color: $soft-gray;
+
+    // Bootstrap default close.
+    .close {
+      color: #fff;
+      span {
+        color: #fff;
+      }
+    }
+
     .modal-content {
       background-color: $dark-blue;
       border: none;

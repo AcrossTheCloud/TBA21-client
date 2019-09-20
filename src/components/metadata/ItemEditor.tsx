@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { connect } from 'react-redux';
 import {
   Button,
   Col,
@@ -35,7 +36,6 @@ import {
   itemTextSubTypes,
   itemVideoSubTypes,
   languages,
-  licenseType,
   oceans,
   regions as selectableRegions
 } from './SelectOptions';
@@ -43,7 +43,6 @@ import {
 import Tags from './Tags';
 import { sdkGetObject } from '../utils/s3File';
 import { Alerts, ErrorMessage, SuccessMessage, WarningMessage } from '../utils/alerts';
-import { License } from '../../types/License';
 
 import CustomSelect from './fields/CustomSelect';
 import { validateURL } from '../utils/inputs/url';
@@ -53,15 +52,23 @@ import YearSelect from './fields/YearSelect';
 import * as moment from 'moment';
 import 'moment-duration-format';
 import { FileTypes, S3File } from '../../types/s3File';
-
+import { modalToggle } from '../../actions/pages/privacyPolicy';
+import { getProfileDetails } from '../../actions/user/profile';
+import { Profile } from '../../types/Profile';
 import 'styles/components/metadata/itemEditor.scss';
 import 'styles/components/metadata/editors.scss';
+
 
 interface Props {
   item: Item;
   index?: number;
   onChange?: Function;
   isContributorPath?: boolean;
+
+  // From Redux
+  modalToggle: Function;
+  getProfileDetails: Function;
+  profileDetails: Profile;
 }
 
 interface State extends Alerts {
@@ -70,6 +77,7 @@ interface State extends Alerts {
   changedFields: {
     [key: string]: string
   };
+  acceptedLicense?: boolean;
   isDifferent: boolean;
 
   isLoading: boolean;
@@ -109,7 +117,7 @@ const defaultRequiredFields = (item: Item) => {
   };
 };
 
-export class ItemEditor extends React.Component<Props, State> {
+class ItemEditorClass extends React.Component<Props, State> {
   _isMounted;
 
   constructor(props: Props) {
@@ -222,6 +230,20 @@ export class ItemEditor extends React.Component<Props, State> {
   updateItem = async () => {
     if (!this._isMounted) { return; }
 
+    if (!this.props.profileDetails.accepted_license && !this.state.acceptedLicense) {
+      this.setState({ errorMessage: 'You need to agree to our terms of use.' });
+      return;
+    } else if (!this.props.profileDetails.accepted_license && this.state.acceptedLicense) {
+      await API.patch('tba21', 'profiles', {
+        body: {
+          accepted_license: true
+        }
+      });
+
+      // Refresh the Profile Details.
+      this.props.getProfileDetails(this.props.profileDetails.cognito_uuid);
+    }
+
     this.setState(
       {
         errorMessage: undefined,
@@ -294,7 +316,7 @@ export class ItemEditor extends React.Component<Props, State> {
 
       // If no license assign OA
       if (!itemsProperties.hasOwnProperty('license')) {
-        Object.assign(itemsProperties, { 'license': 'Ocean Archive' });
+        Object.assign(itemsProperties, { 'license': 'CC BY-NC' });
       }
 
       // Assign s3_key
@@ -2386,6 +2408,21 @@ export class ItemEditor extends React.Component<Props, State> {
                   </UncontrolledButtonDropdown>
                 </Col>
               </Row>
+
+              {this.props.profileDetails && !this.props.profileDetails.accepted_license ?
+                <Row>
+                  <Col>
+                    By checking this box you agree to the Ocean Archive's <Button color="link" onClick={e => {e.preventDefault(); this.props.modalToggle('TC_MODAL', true); }}>Terms Of Use</Button>
+                    <FormGroup check>
+                      <Label check>
+                        <Input type="checkbox" checked={this.state.acceptedLicense ? this.state.acceptedLicense : false} onChange={e => { if (this._isMounted) { this.setState({ acceptedLicense: e.target.checked }); } }}/>{' '}
+                        I agree
+                      </Label>
+                    </FormGroup>
+                  </Col>
+                </Row>
+                : <></>
+              }
             </div>
           </Col>
 
@@ -2552,11 +2589,6 @@ export class ItemEditor extends React.Component<Props, State> {
                     {(!!item.file && item.file.type === FileTypes.Audio) && item.item_subtype === itemAudio.Other ? <this.AudioOther /> : <></>}
 
                     <FormGroup>
-                      <Label for="license_type">License</Label>
-                      <Select menuPlacement="auto" className="select license_type" classNamePrefix="select" options={licenseType} value={item.license ? {value: item.license, label: item.license} : { value: License.LOCKED, label: License.LOCKED }} onChange={e => this.changeItem('license', e.label)} isSearchable/>
-                    </FormGroup>
-
-                    <FormGroup>
                       <Label for="copyright_holder">Copyright Owner</Label>
                       <Input type="text" className="copyright_holder" defaultValue={item.copyright_holder ? item.copyright_holder : ''} onChange={e => this.changeItem('copyright_holder', e.target.value)}/>
                     </FormGroup>
@@ -2662,3 +2694,9 @@ export class ItemEditor extends React.Component<Props, State> {
     );
   }
 }
+
+const mapStateToProps = (state: { profile: { details: Profile} }) => ({
+  profileDetails: state.profile.details,
+});
+
+export const ItemEditor = connect(mapStateToProps, { modalToggle, getProfileDetails })(ItemEditorClass);
