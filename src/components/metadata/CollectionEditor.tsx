@@ -1372,7 +1372,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
                         this.state.editMode ?
                           <></>
                           :
-                          <FormFeedback style={{ display: !this.state.hasShortPath ? 'block' : 'none' }}>You need to save your collection first before adding a URL slug.</FormFeedback>
+                          <FormFeedback style={{ display: !this.state.hasShortPath ? 'block' : 'none' }}>You need to save your collection first before adding a URL slug (short path).</FormFeedback>
                       }
                     </FormGroup>
 
