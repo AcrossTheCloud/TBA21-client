@@ -10,7 +10,6 @@ import { logoDispatch, loadHomepage, loadMore, openModal, closeModal } from 'act
 import { toggle as searchOpenToggle } from 'actions/searchConsole';
 
 import { HomepageData, HomePageState } from '../reducers/home';
-import HomePageModal from './HomePageModal';
 
 import Logo from './layout/Logo';
 import { FaCircle } from 'react-icons/all';
@@ -20,6 +19,7 @@ import { FileTypes } from '../types/s3File';
 import { DetailPreview } from './utils/DetailPreview';
 
 import 'styles/components/home.scss';
+import { itemType } from '../types/Item';
 
 interface Props extends HomePageState {
   logoDispatch: Function;
@@ -54,7 +54,7 @@ class HomePage extends React.Component<Props, {}> {
     if (!this.props.loadedItems.length) {
       await this.props.loadHomepage();
       await this.props.loadMore(this.props.items, this.props.collections, this.props.announcements, this.props.audio, this.props.loadedItems);
-      this.loadedCount = this.props.loadedItems.filter(t => (t.type === FileTypes.Pdf || t.type === FileTypes.Text || t.type === FileTypes.DownloadText)).length;
+      this.loadedCount = this.props.loadedItems.filter(t => (t.type === itemType.PDF || t.type === itemType.Text || t.type === itemType.DownloadText)).length;
     }
   }
 
@@ -177,12 +177,12 @@ class HomePage extends React.Component<Props, {}> {
 
     return (
       <Col md={colSize(!!file ? file.type : '')}>
-        {item_type === FileTypes.Audio || file.type === FileTypes.Audio ?
+        {item_type === itemType.Audio || file.type === FileTypes.Audio ?
           <AudioPreview onLoad={() => this.waitForLoad()} data={{title, id, url: file.url, date, creators, item_subtype, isCollection: !!count}}/>
           :
 
           <div onClick={() => this.props.openModal(props.data)}>
-            <DetailPreview data={props.data} homepage onLoad={() => this.waitForLoad}/>
+            <DetailPreview data={props.data} onLoad={() => this.waitForLoad}/>
           </div>
         }
       </Col>
@@ -295,8 +295,6 @@ class HomePage extends React.Component<Props, {}> {
             {loadedItems.map( (e: HomepageData, i: number) => (<this.DisplayLayout key={i} data={e} />))}
           </Row>
         </Container>
-
-        <HomePageModal data={this.props.modalData} open={this.props.isModalOpen} />
       </div>
     );
   }
@@ -307,16 +305,13 @@ const mapStateToProps = (state: { home: Props }) => ({
 
   items: state.home.items ? state.home.items : [],
   collections: state.home.collections ? state.home.collections : [],
-  audio: state.home.collections ? state.home.collections : [],
+  audio: state.home.audio ? state.home.audio : [],
   announcements: state.home.announcements ? state.home.announcements : [],
 
   oa_highlight: state.home.oa_highlight ? state.home.oa_highlight : [],
   loadedItems: state.home.loadedItems,
   loadedMore: state.home.loadedMore,
-  loaded_highlights: state.home.loaded_highlights,
-
-  modalData: state.home.modalData,
-  isModalOpen: state.home.isModalOpen
+  loaded_highlights: state.home.loaded_highlights
 });
 
 export default connect(mapStateToProps, { logoDispatch, loadHomepage, loadMore, openModal, closeModal, searchOpenToggle })(withCookies(HomePage));

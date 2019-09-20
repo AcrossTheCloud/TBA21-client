@@ -12,7 +12,7 @@ export type ItemOrHomePageData = Item | HomepageData;
 
 export const checkTypeIsItem = (toBeDetermined: ItemOrHomePageData): toBeDetermined is Item => {
   // If we don't have created_at we can determine that we have a HomePageData item.
-  return !(toBeDetermined as HomepageData).date;
+  return !!(toBeDetermined as Item).item_type && !!(toBeDetermined as Item).created_at;
 };
 
 export const FileStaticPreview = (props: { file: S3File, onLoad?: Function }): JSX.Element => {
@@ -61,12 +61,12 @@ export const FileStaticPreview = (props: { file: S3File, onLoad?: Function }): J
   }
 };
 
-export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Function, homepage?: boolean}): JSX.Element => {
+export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Function, modalToggle?: Function}): JSX.Element => {
   if ((!!props.data.file && props.data.file.type === FileTypes.Audio) || props.data.item_type === itemType.Audio) { return <></>; }
 
   const { file, item_subtype, creators, title, duration } = props.data;
   return (
-    <div className="detailPreview">
+    <div className="detailPreview" onClick={() => { if (typeof props.modalToggle === 'function') { props.modalToggle(); } }}>
       {file ? <FileStaticPreview file={file} onLoad={typeof props.onLoad === 'function' ? props.onLoad : undefined}/> : <></>}
       <div className="overlay">
         <div className="type">

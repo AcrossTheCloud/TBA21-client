@@ -268,7 +268,9 @@ export enum itemType {
   Video = 'Video',
   Text = 'Text',
   Audio = 'Audio',
-  Image = 'Image'
+  Image = 'Image',
+  PDF = 'PDF',
+  DownloadText = 'DownloadText'
 }
 
 export enum itemText {
@@ -362,7 +364,7 @@ export interface Item {
   place: string[] | null;
   regions: Regions[] | null;
 
-  item_type: itemType | null;
+  item_type: itemType;
 
   item_subtype: itemAudio | itemImage | itemText | itemVideo | null;
   creators: string[] | null;

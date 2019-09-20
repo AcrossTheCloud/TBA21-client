@@ -9,14 +9,14 @@ import {
 } from 'reactstrap';
 import { isEqual } from 'lodash';
 
-import { addFilesToData, closeModal } from 'actions/home';
+import { closeModal } from 'actions/home';
 import { HomepageData } from '../reducers/home';
 import { FaCircle, FaExternalLinkAlt, FaTimes } from 'react-icons/fa';
 import { Regions } from '../types/Item';
 
 import { FilePreview } from './utils/filePreview';
-import 'styles/components/home.scss';
 import { CollectionSlider } from './collection/CollectionSlider';
+import 'styles/components/home.scss';
 
 interface Props {
   data: HomepageData | undefined;
@@ -27,6 +27,7 @@ interface Props {
 
 interface State {
   isOpen: boolean;
+  originalData?: HomepageData | undefined;
 }
 
 class HomePageModal extends React.Component<Props, State> {
@@ -49,7 +50,7 @@ class HomePageModal extends React.Component<Props, State> {
     this._isMounted = false;
   }
 
-  async componentDidUpdate(prevProps: Readonly<Props>): Promise<void> {
+  async componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>): Promise<void> {
     if (this._isMounted) {
       const state = {};
 
@@ -57,15 +58,9 @@ class HomePageModal extends React.Component<Props, State> {
         Object.assign(state, { isOpen: this.props.open });
       }
 
-      if (!!this.props.data && !isEqual(this.props.data, prevProps.data)) {
+      if (!!this.props.data && !isEqual(this.props.data, prevState.originalData)) {
+        Object.assign(state, { originalData : {...this.props.data} });
         const { data } = this.props;
-
-        // Add the file to all under items;
-        if (data.items) {
-          Object.assign(data, {
-            items: await addFilesToData(data.items)
-          });
-        }
 
         Object.assign(state, data);
       }
@@ -163,4 +158,9 @@ class HomePageModal extends React.Component<Props, State> {
   }
 }
 
-export default connect(null, { closeModal })(HomePageModal);
+const mapStateToProps = (state: { home: { isModalOpen: boolean, modalData?: HomepageData } }) => ({
+  data: state.home.modalData,
+  open: state.home.isModalOpen
+});
+
+export default connect(mapStateToProps, { closeModal })(HomePageModal);

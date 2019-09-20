@@ -5,6 +5,7 @@ import { getCDNObject } from '../components/utils/s3File';
 import config from 'config';
 import { FileTypes, S3File } from '../types/s3File';
 import { Announcement } from '../types/Announcement';
+import { itemType } from '../types/Item';
 
 // Defining our Actions for the reducers
 export const LOGO_STATE_HOMEPAGE = 'LOGO_STATE_HOMEPAGE';
@@ -42,7 +43,7 @@ export const loadHomepage = () => async dispatch => {
   // Put all audio files into another list.
   const audio: HomepageData[] = [];
   for (let i = 0; i < items.length; i++) {
-    if (items[i].item_type === FileTypes.Audio) {
+    if (items[i].item_type === itemType.Audio) {
       audio.push(items[i]);
       items.splice(i, 1);
     }
@@ -155,10 +156,18 @@ export const closeModal = () => dispatch => {
   });
 };
 
-export const openModal = (data: HomepageData) => dispatch => {
+export const openModal = (data: HomepageData) => async dispatch => {
+  const dataObject = data;
+  // Add the file to all under items;
+  if (dataObject.items) {
+    Object.assign(dataObject, {
+      items: await addFilesToData(dataObject.items)
+    });
+  }
+
   dispatch({
     type: MODAL_STATE_HOMEPAGE,
      isModalOpen: true,
-     modalData: data
+     modalData: dataObject
   });
 };

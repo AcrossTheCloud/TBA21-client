@@ -45,6 +45,10 @@ export const FilePreview = (props: { file: S3File }): JSX.Element => {
           <iframe title={props.file.url} className="embed-responsive-item" src={props.file.url} />
         </div>
       );
+
+    case FileTypes.DownloadText || FileTypes.Text:
+      return <img alt="" src="https://upload.wikimedia.org/wikipedia/commons/2/22/Unscharfe_Zeitung.jpg" className="image-fluid"/>;
+
     default:
       return <img alt="" src="https://upload.wikimedia.org/wikipedia/commons/2/22/Unscharfe_Zeitung.jpg" className="image-fluid"/>;
   }
