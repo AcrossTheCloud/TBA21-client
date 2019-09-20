@@ -196,7 +196,7 @@ class ItemEditorClass extends React.Component<Props, State> {
     if (!this.state.isLoading) {
       const
         { file, title } = this.state.originalItem,
-        warning = <WarningMessage message={'Unable to load file.'}/>;
+        warning = <WarningMessage message={'File will be processed on save.'}/>;
 
       if (file && file.url) {
         if (file.type === FileTypes.Image) {
