@@ -51,7 +51,7 @@ class AuthProviderClass extends React.Component<Props, State> {
       try {
         const auth = await checkAuth(true);
 
-        if (!this.props.profileDetails) {
+        if (!this.props.profileDetails && auth.uuid) {
           // Get the users profile details and hold on to the them for as long as possible.
           await this.props.getProfileDetails(auth.uuid);
         }

@@ -11,7 +11,7 @@ interface Props extends PrivacyPolicyState  {
 class PrivacyPolicy extends React.Component<Props, {}> {
   render() {
     return (
-      <Modal isOpen={this.props.open} toggle={() => this.props.modalToggle('PP_MODAL')} className="fullwidth">
+      <Modal isOpen={this.props.open} toggle={() => this.props.modalToggle('PP_MODAL')} className="fullwidth blue">
         <ModalHeader toggle={() => this.props.modalToggle('PP_MODAL')}>PRIVACY POLICY</ModalHeader>
         <ModalBody>
           <h1>PRIVACY POLICY</h1>

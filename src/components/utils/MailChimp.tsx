@@ -138,10 +138,6 @@ class MailChimp extends React.Component<Props, State> {
     try {
       const params = {};
 
-      if (!this.props.details) {
-        await this.props.getProfileDetails();
-      }
-
       if (this.props.details) {
         Object.assign(params, { full_name: this.props.details.full_name });
       }
