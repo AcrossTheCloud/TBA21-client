@@ -1298,13 +1298,17 @@ export class CollectionEditor extends React.Component<Props, State> {
                 <Row>
                   <Col md="12">
                     <UncontrolledButtonDropdown className="float-right">
-                      <Button className="caret" onClick={this.putCollection} disabled={!this.state.isDifferent}>Save</Button>
+                      {this.state.originalCollection.status === true ?
+                        <Button className="caret" onClick={this.putCollection} disabled={!this.state.isDifferent}>Save</Button>
+                        :
+                        <Button className="caret" onClick={() => { this.changeCollection('status', true, () => this.putCollection() ); }}>Publish</Button>
+                      }
                       <DropdownToggle caret />
                       <DropdownMenu>
                         {this.state.originalCollection.status === true ?
                           <DropdownItem onClick={() => { this.changeCollection('status', false, () => this.putCollection() ); }}>Unpublish</DropdownItem>
                         :
-                          <DropdownItem onClick={() => { this.changeCollection('status', true, () => this.putCollection() ); }}>Publish</DropdownItem>
+                          <DropdownItem onClick={() => { this.changeCollection('status', false, () => this.putCollection() ); }}>Save Draft</DropdownItem>
                         }
                       </DropdownMenu>
                     </UncontrolledButtonDropdown>
