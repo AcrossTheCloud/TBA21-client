@@ -2,6 +2,8 @@ import * as React from 'react';
 import { Auth } from 'aws-amplify';
 import { connect } from 'react-redux';
 import { getProfileDetails } from 'actions/user/profile';
+import { Profile } from '../types/Profile';
+
 import { Authorisation, checkAuth } from '../components/utils/Auth';
 import { RouteComponentProps, withRouter } from 'react-router';
 
@@ -10,6 +12,7 @@ interface State extends Authorisation {
 }
 export interface Props extends RouteComponentProps {
   getProfileDetails: Function;
+  profileDetails?: Profile;
 }
 
 const authContextDefaultValues = {
@@ -47,6 +50,12 @@ class AuthProviderClass extends React.Component<Props, State> {
     if (!this.state.isAuthenticated) {
       try {
         const auth = await checkAuth(true);
+
+        if (!this.props.profileDetails && auth.uuid) {
+          // Get the users profile details and hold on to the them for as long as possible.
+          await this.props.getProfileDetails(auth.uuid);
+        }
+
         if (!this._isMounted) { return; }
         this.setState(prevState => ({...prevState, ...auth, isLoading: false}));
       } catch (e) {
@@ -130,4 +139,8 @@ class AuthProviderClass extends React.Component<Props, State> {
   }
 }
 
-export const AuthProvider = withRouter(connect(undefined, { getProfileDetails })(AuthProviderClass));
+const mapStateToProps = (state: { profile: { details: Profile} }) => ({
+  profileDetails: state.profile.details,
+});
+
+export const AuthProvider = withRouter(connect(mapStateToProps, { getProfileDetails })(AuthProviderClass));
