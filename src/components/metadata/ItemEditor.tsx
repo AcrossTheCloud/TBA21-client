@@ -375,10 +375,15 @@ class ItemEditorClass extends React.Component<Props, State> {
       Object.assign(changedFields, { [key]: value });
       Object.assign(changedItem, { [key]: value });
     } else {
-      if (changedFields[key]) {
-        delete changedFields[key];
-        // Reset back to original item key value
-        Object.assign(changedItem, { [key]: this.state.originalItem[key] });
+      if (!isEqual(this.state.originalItem[key], value)) {
+        Object.assign(changedFields, { [key]: value });
+        Object.assign(changedItem, { [key]: value });
+      } else {
+        if (changedFields[key]) {
+          delete changedFields[key];
+          // Reset back to original item key value
+          Object.assign(changedItem, {[key]: this.state.originalItem[key]});
+        }
       }
     }
 

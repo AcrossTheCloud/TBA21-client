@@ -344,16 +344,9 @@ class CollectionEditorClass extends React.Component<Props, State> {
   changeCollection = (key: string, value: any, callback?: Function) => { // tslint:disable-line: no-any
     const { collection, changedFields } = this.state;
 
-    if (value.toString().length) {
-      Object.assign(changedFields, { [key]: value });
-      Object.assign(collection, { [key]: value });
-    } else {
-      if (changedFields[key]) {
-        delete changedFields[key];
-        // Reset back to original item key value
-        Object.assign(collection, { [key]: this.state.originalCollection[key] });
-      }
-    }
+    Object.assign(changedFields, { [key]: value });
+    Object.assign(collection, { [key]: value });
+
     if (!this._isMounted) { return; }
     this.setState(
       {
@@ -1489,7 +1482,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
                         defaultValues={keywordTags}
                         callback={tags => {
                           const tagList = tags ? tags.map(tag => ({id: tag.id, tag_name: tag.label})) : [];
-                          this.validateLength('keyword_tags', tags ? tags.map(tag => tag.id) : []);
+                          this.changeCollection('keyword_tags', tags ? tags.map(tag => tag.id) : []);
                           if (this._isMounted) {
                             const { originalCollection, collection } = this.state;
                             this.setState({
