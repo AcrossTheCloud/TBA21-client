@@ -3,11 +3,11 @@ import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { Button, Col, Container, Row } from 'reactstrap';
 import { debounce } from 'lodash';
-import { withCookies, Cookies } from 'react-cookie';
+import { Cookies, withCookies } from 'react-cookie';
 import { Document, Page, pdfjs } from 'react-pdf';
 
 import { AuthConsumer } from '../providers/AuthProvider';
-import { logoDispatch, loadHomepage, loadMore, openModal, closeModal } from 'actions/home';
+import { closeModal, loadHomepage, loadMore, logoDispatch, openModal } from 'actions/home';
 import { toggle as searchOpenToggle } from 'actions/searchConsole';
 
 import { HomepageData, HomePageState } from '../reducers/home';
@@ -56,7 +56,7 @@ class HomePage extends React.Component<Props, {}> {
     if (!this.props.loadedItems.length) {
       await this.props.loadHomepage();
       await this.props.loadMore(this.props.items, this.props.collections, this.props.announcements, this.props.audio, this.props.loadedItems);
-      this.loadedCount = this.props.loadedItems.length;
+      this.loadedCount = this.props.loadedItems.filter(t => (t.type === FileTypes.Pdf || t.type === FileTypes.Text || t.type === FileTypes.DownloadText)).length;
     }
   }
 
@@ -172,7 +172,7 @@ class HomePage extends React.Component<Props, {}> {
       if (props.data.file.type === FileTypes.Pdf) {
         return (
           <div className="pdf">
-            <Document onLoad={() => this.waitForLoad()} file={{ url: props.data.file.url }} style={{width: '100%', height: '100%'}} >
+            <Document file={{ url: props.data.file.url }} style={{width: '100%', height: '100%'}} >
               <Page pageNumber={1}/>
             </Document>
           </div>

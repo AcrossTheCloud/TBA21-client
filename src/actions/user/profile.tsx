@@ -20,6 +20,10 @@ export const dispatchError = (message: string) => dispatch => {
   dispatch({type: PROFILE_ERROR, message: message});
 };
 
+export const overlayToggle = (on: boolean) => dispatch => {
+  dispatch({type: OVERLAY, overlay: on});
+};
+
 /**
  * Updates the users attributes in AWS Cognito
  *

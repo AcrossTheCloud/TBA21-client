@@ -2370,13 +2370,17 @@ export class ItemEditor extends React.Component<Props, State> {
                 </Col>
                 <Col xs="4">
                   <UncontrolledButtonDropdown className="float-right">
-                    <Button className="caret" onClick={this.updateItem} disabled={!this.state.isDifferent}>Save</Button>
+                    {this.state.originalItem.status ?
+                      <Button className="caret" onClick={this.updateItem} disabled={!this.state.isDifferent}>Save</Button>
+                      :
+                      <Button className="caret" onClick={() => { this.changeItem('status', true, () => this.updateItem() ); }}>Publish</Button>
+                    }
                     <DropdownToggle caret />
                     <DropdownMenu>
                       {this.state.originalItem.status ?
                         <DropdownItem onClick={() => { this.changeItem('status', false, () => this.updateItem() ); }}>Unpublish</DropdownItem>
                         :
-                        <DropdownItem onClick={() => { this.changeItem('status', true, () => this.updateItem() ); }}>Publish</DropdownItem>
+                        <DropdownItem onClick={() => { this.changeItem('status', false, () => this.updateItem() ); }}>Save Draft</DropdownItem>
                       }
                     </DropdownMenu>
                   </UncontrolledButtonDropdown>
@@ -2429,7 +2433,7 @@ export class ItemEditor extends React.Component<Props, State> {
                         defaultValue={item.description ? item.description : ''}
                         onChange={e => this.validateLength('description', e.target.value)}
                         invalid={this.state.validate.hasOwnProperty('description') && !this.state.validate.description}
-                        maxLength={1024}
+                        maxLength={2048}
                       />
                       <FormFeedback>This is a required field</FormFeedback>
                     </FormGroup>
@@ -2541,7 +2545,7 @@ export class ItemEditor extends React.Component<Props, State> {
                     {item.item_subtype === itemAudio.Sound_Art ? <this.AudioSoundArt /> : <></>}
                     {item.item_subtype === itemAudio.Music ? <this.AudioMusic /> : <></>}
                     {item.item_subtype === itemAudio.Podcast ? <this.AudioPodcast /> : <></>}
-                    {item.item_subtype === itemAudio.Lecture ? <this.AudioLecture /> : <></>}
+                    {(!!item.file && item.file.type === FileTypes.Audio) && item.item_subtype === itemAudio.Lecture ? <this.AudioLecture /> : <></>}
                     {(!!item.file && item.file.type === FileTypes.Audio) && item.item_subtype === itemAudio.Interview ? <this.AudioInterview /> : <></>}
                     {item.item_subtype === itemAudio.Radio ? <this.AudioRadio /> : <></>}
                     {item.item_subtype === itemAudio.Performance_Poetry ? <this.AudioPerformancePoetry /> : <></>}
