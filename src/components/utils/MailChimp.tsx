@@ -68,11 +68,15 @@ export default class MailChimp extends React.Component<Props, State> {
   getUserTags = async (): Promise<SubscriberDetails> => {
     const userDetails = await getCurrentAuthenticatedUser(false);
 
-    return await API.get('tba21', 'mailchimp/getSubscriberTags', {
-      queryStringParameters: {
-        email: get(userDetails, 'attributes.email')
-      }
-    });
+    try {
+      return await API.get('tba21', 'mailchimp/getSubscriberTags', {
+        queryStringParameters: {
+          email: get(userDetails, 'attributes.email')
+        }
+      });
+    } catch (e) {
+      return { status: 'unsubscribed', tags: [] };
+    }
   }
 
   checkboxOnChange = async (e: React.ChangeEvent<HTMLInputElement>, tag: string) => {
