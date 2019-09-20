@@ -26,4 +26,5 @@ export interface Profile {
   contact_position: string | null;
   contact_email: string | null;
   profile_type: profileType | null;
+  accepted_license: boolean | null;
 }
