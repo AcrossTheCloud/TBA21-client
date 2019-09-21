@@ -40,12 +40,12 @@ export default class Tags extends React.Component<Props, State> {
 
     this._isMounted = false;
 
-    const { loadItemRekognitionTags, defaultValues } = this.props;
+    const { defaultValues } = this.props;
 
     this.state = {
       tags: [],
       selectedTags: defaultValues ? defaultValues : [],
-      isLoading: !!loadItemRekognitionTags,
+      isLoading: false,
       rekognitionTags: []
     };
   }
@@ -237,7 +237,7 @@ export default class Tags extends React.Component<Props, State> {
       if ((this.props.callback && typeof this.props.callback === 'function') && (this.state.selectedTags && this.state.selectedTags.length > 0)) {
         this.props.callback(this.state.selectedTags);
       }
-    }
+    };
 
     if (actionMeta.action === 'select-option' || actionMeta.action === 'create-option') {
       this.setState({isLoading: false, selectedTags: await createNewTags()}, () => {
@@ -250,8 +250,6 @@ export default class Tags extends React.Component<Props, State> {
         parentCallback();
       });
     }
-
-
   }
 
   render() {
@@ -264,6 +262,8 @@ export default class Tags extends React.Component<Props, State> {
         {this.props.type === 'keyword' ?
           <AsyncCreatableSelect
             isMulti
+            maxMenuHeight={200}
+            menuPlacement="auto"
             isDisabled={this.state.isLoading}
             isLoading={this.state.isLoading}
             cacheOptions
@@ -283,6 +283,8 @@ export default class Tags extends React.Component<Props, State> {
           :
           <AsyncSelect
             isMulti
+            maxMenuHeight={200}
+            menuPlacement="auto"
             isDisabled={this.state.isLoading}
             isLoading={this.state.isLoading}
             cacheOptions
