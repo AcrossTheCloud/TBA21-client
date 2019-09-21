@@ -207,7 +207,11 @@ class CollectionEditorClass extends React.Component<Props, State> {
       const message: JSX.Element = (
         <>
           Missing required field(s) <br/>
-          {invalidFields.map( (f, i) => ( <div key={i} style={{ textTransform: 'capitalize' }}>{f.replace(/_/g, ' ')}<br/></div> ) )}
+          {invalidFields.map( (f, i) => ( <div key={i} style={{ textTransform: 'capitalize' }}>{
+            f.toLowerCase() === 'type'? 
+              'Collection Category' :
+              f.replace(/_/g, ' ')
+            }<br/></div> ) )}
         </>
       );
 
@@ -1365,7 +1369,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
                         this.state.editMode ?
                           <></>
                           :
-                          <FormFeedback style={{ display: !this.state.hasShortPath ? 'block' : 'none' }}>You need to save your collection first before adding a URL slug (short path).</FormFeedback>
+                          <FormFeedback style={{ display: !this.state.hasShortPath ? 'block' : 'none' }}>You need to save or publish your collection first before adding a URL slug (short path).</FormFeedback>
                       }
                     </FormGroup>
 
@@ -1537,6 +1541,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
                       classNamePrefix="select"
                       isClearable
                       loadOptions={this.selectQueryItems}
+                      placeholder="Start typing the item title then select..."
                       onChange={this.selectItemOnChange}
                       onInputChange={v => { if (this._isMounted) { this.setState({ selectInputValue: v }); } }}
                       inputValue={this.state.selectInputValue}

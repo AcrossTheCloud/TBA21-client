@@ -71,6 +71,7 @@ export default class CustomSelect extends React.Component<Props, State> {
         className="select"
         classNamePrefix="select"
         menuPlacement="auto"
+        placeholder="Type an entry then press enter/tab..."
         components={{DropdownIndicator: null}}
         isClearable
         isMulti
