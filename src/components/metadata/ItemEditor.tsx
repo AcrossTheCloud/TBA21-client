@@ -58,7 +58,6 @@ import { Profile } from '../../types/Profile';
 import 'styles/components/metadata/itemEditor.scss';
 import 'styles/components/metadata/editors.scss';
 
-
 interface Props {
   item: Item;
   index?: number;
@@ -262,7 +261,7 @@ class ItemEditorClass extends React.Component<Props, State> {
 
     // If we don't have one of time_produced or year_produced, show an error.
     if (!this.state.changedItem.year_produced) {
-      invalidFields.push('time_produced or year_produced');
+      invalidFields.push('date_produced or year_produced');
     }
 
     if (invalidFields.length > 0) {
@@ -304,7 +303,7 @@ class ItemEditorClass extends React.Component<Props, State> {
       Object.entries(item)
         .filter( ([key, value]) => {
           return !(
-            value === null ||
+            (value === null && key !== 'time_produced') ||
             key === 'aggregated_concept_tags' ||
             key === 'aggregated_keyword_tags' ||
             key === 'id' // use this to exclude things, you shouldn't need to (eg don't put them in changedFields...
@@ -371,7 +370,20 @@ class ItemEditorClass extends React.Component<Props, State> {
 
     const { changedItem, changedFields } = this.state;
 
-    if (value.toString().length) {
+    const deleteKey = () => {
+      if (changedFields[key]) {
+        delete changedFields[key];
+        // Reset back to original item key value
+        Object.assign(changedItem, {[key]: this.state.originalItem[key]});
+      }
+    };
+
+    if (value === null) {
+      Object.assign(changedFields, { [key]: null });
+      Object.assign(changedItem, {[key]: null});
+    }
+
+    if (!!value && value.toString().length) {
       Object.assign(changedFields, { [key]: value });
       Object.assign(changedItem, { [key]: value });
     } else {
@@ -379,11 +391,7 @@ class ItemEditorClass extends React.Component<Props, State> {
         Object.assign(changedFields, { [key]: value });
         Object.assign(changedItem, { [key]: value });
       } else {
-        if (changedFields[key]) {
-          delete changedFields[key];
-          // Reset back to original item key value
-          Object.assign(changedItem, {[key]: this.state.originalItem[key]});
-        }
+        deleteKey();
       }
     }
 
@@ -603,14 +611,21 @@ class ItemEditorClass extends React.Component<Props, State> {
 
   validateLength = (field: string, inputValue: string | string[] | number | number[]): void => {
     if (!this._isMounted) { return; }
+    const validFields = this.state.validate;
 
     let valid = false;
     this.changeItem(field, inputValue);
     if (inputValue && inputValue.toString().length > 0) {
       valid = true;
     }
+    let result = { [field]: valid };
 
-    const state = { validate: { ...this.state.validate, [field]: valid } };
+    if (field === 'time_produced' && inputValue && !inputValue.toString().length) {
+      result = {};
+      delete validFields[field];
+    }
+
+    const state = { validate: { ...validFields, ...result } };
 
     if (!this._isMounted) { return; }
     this.setState(state, () => {
@@ -1261,7 +1276,7 @@ class ItemEditorClass extends React.Component<Props, State> {
               className="related_event"
               required
               defaultValue={item.related_event ? item.related_event : ''}
-              onChange={e => this.changeItem('related_event', [e.target.value])}
+              onChange={e => this.changeItem('related_event', e.target.value)}
             />
           </FormGroup>
         </Col>
@@ -2487,9 +2502,12 @@ class ItemEditorClass extends React.Component<Props, State> {
                         className="time_produced"
                         defaultValue={item.time_produced ? new Date(item.time_produced).toISOString().substr(0, 10) : ''}
                         onChange={e => {
-                          this.validateLength('time_produced', e.target.value);
-                          if (e.target.value && e.target.value.length) {
-                            this.validateLength('year_produced', new Date(e.target.value).getFullYear());
+                          const value = e.target.value;
+                          if (value && value.length) {
+                            this.validateLength('time_produced', value);
+                            this.validateLength('year_produced', new Date(value).getFullYear());
+                          } else {
+                            this.changeItem('time_produced', null);
                           }
                         }}
                       />
@@ -2507,8 +2525,8 @@ class ItemEditorClass extends React.Component<Props, State> {
 
                     <FormGroup>
                       <Label for="creators">Creator(s)</Label>
-                      <CustomSelect values={!!item.creators ? item.creators : []} callback={values => this.validateLength('creators', values)} />
-                      <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('creators') && !this.state.validate.creators ? 'block' : 'none') }}>This is a required field</FormFeedback>
+                      <CustomSelect values={!!item.creators ? item.creators : []} callback={values => this.changeItem('creators', values)} />
+                      {/*<FormFeedback style={{ display: (this.state.validate.hasOwnProperty('creators') && !this.state.validate.creators) || !!item.creators || (Array.isArray(item.creators) && !item.creators.length) ? 'block' : 'none' }}>This is a required field</FormFeedback>*/}
                       <FormText>Use tab or enter to add a new Creator.</FormText>
                     </FormGroup>
 
