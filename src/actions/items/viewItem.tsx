@@ -1,8 +1,7 @@
 import { API } from 'aws-amplify';
-import { getCDNObject } from '../../components/utils/s3File';
+import { getCDNObject, checkThumbnails } from '../../components/utils/s3File';
 import { Item } from '../../types/Item';
 import { FileTypes, S3File } from '../../types/s3File';
-import config from 'config';
 import { LOADINGOVERLAY } from '../loadingOverlay';
 
 // Defining our Actions for the reducers.
@@ -16,27 +15,7 @@ export const checkFile = async (item: Item): Promise<S3File | false> => {
     const result = await getCDNObject(item.s3_key);
 
     if (result && result.type === FileTypes.Image) {
-      const thumbnailUrl = `${config.other.THUMBNAIL_URL}${item.s3_key}`;
-      let thumbnails = {};
-
-      if (!!item.file_dimensions) {
-        if (item.file_dimensions[0] > 540) {
-          Object.assign(thumbnails, {540: `${thumbnailUrl}.thumbnail540.png`});
-        }
-        if (item.file_dimensions[0] > 720) {
-          Object.assign(thumbnails, {720: `${thumbnailUrl}.thumbnail720.png`});
-        }
-        if (item.file_dimensions[0] > 960) {
-          Object.assign(thumbnails, {960: `${thumbnailUrl}.thumbnail960.png`});
-        }
-        if (item.file_dimensions[0] > 1140) {
-          Object.assign(thumbnails, {1140: `${thumbnailUrl}.thumbnail1140.png`});
-        }
-
-        if (Object.keys(thumbnails).length > 1) {
-          Object.assign(result, {thumbnails});
-        }
-      }
+      Object.assign(result, checkThumbnails(item, result));
     }
 
     return result;

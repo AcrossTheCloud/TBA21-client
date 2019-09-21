@@ -41,7 +41,7 @@ import {
 } from './SelectOptions';
 
 import Tags from './Tags';
-import { sdkGetObject } from '../utils/s3File';
+import { checkThumbnails, sdkGetObject, thumbnailsSRCSET } from '../utils/s3File';
 import { Alerts, ErrorMessage, SuccessMessage, WarningMessage } from '../utils/alerts';
 
 import CustomSelect from './fields/CustomSelect';
@@ -167,6 +167,10 @@ class ItemEditorClass extends React.Component<Props, State> {
         // Get the items s3 file
         const getFileResult: S3File | false = await sdkGetObject(this.state.originalItem.s3_key);
 
+        if (getFileResult && getFileResult.type === FileTypes.Image) {
+          Object.assign(getFileResult, checkThumbnails(response.item, getFileResult));
+        }
+
         const data = {
           originalItem: { ...response.item, file: getFileResult },
           changedItem: { ...response.item, file: getFileResult }
@@ -199,7 +203,13 @@ class ItemEditorClass extends React.Component<Props, State> {
 
       if (file && file.url) {
         if (file.type === FileTypes.Image) {
-          return <img src={file.url} alt=""/>;
+          return (
+            <img
+              srcSet={thumbnailsSRCSET(file)}
+              src={file.url}
+              alt={''}
+            />
+          );
         } else if (file.type === FileTypes.Pdf) {
           return (
             <div className="embed-responsive embed-responsive-4by3">

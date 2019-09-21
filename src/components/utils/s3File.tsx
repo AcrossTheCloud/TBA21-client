@@ -6,6 +6,7 @@ import config from 'config';
 import { FileTypes, S3File } from 'types/s3File';
 
 import defaultVideoImage from 'images/defaults/video.jpg';
+import { Item } from '../../types/Item';
 
 export const fileType = (type: string): FileTypes | null => {
   // https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types
@@ -133,7 +134,7 @@ export const sdkGetObject = async (key: string): Promise<S3File | false> => {
       },
       head: HeadObjectOutput = await s3.headObject({ Bucket: config.s3.BUCKET , Key: key}).promise();
 
-    if (head && head.ContentType ) {
+    if (head && head.ContentType) {
       const url = await s3.getSignedUrl('getObject', params);
 
       const type = fileType(head.ContentType);
@@ -188,4 +189,41 @@ export const getVideoFiles = async (key: string): Promise<{poster: string, playl
   } catch (e) {
     return response;
   }
+};
+
+export const thumbnailsSRCSET = (file: S3File): string => {
+  let thumbnails: string[] = [];
+  if (file.thumbnails) {
+    Object.entries(file.thumbnails).forEach( ([key, value]) => {
+      thumbnails.push(`${encodeURI(value)} ${key}w`);
+    });
+  }
+
+  return thumbnails.join(', ').toString();
+};
+
+export const checkThumbnails = (item: Item, file: S3File): S3File => {
+  const thumbnailUrl = `${config.other.THUMBNAIL_URL}${item.s3_key}`;
+  const thumbnails = {};
+
+  if (!!item.file_dimensions) {
+    if (item.file_dimensions[0] > 540) {
+      Object.assign(thumbnails, {540: `${thumbnailUrl}.thumbnail540.png`});
+    }
+    if (item.file_dimensions[0] > 720) {
+      Object.assign(thumbnails, {720: `${thumbnailUrl}.thumbnail720.png`});
+    }
+    if (item.file_dimensions[0] > 960) {
+      Object.assign(thumbnails, {960: `${thumbnailUrl}.thumbnail960.png`});
+    }
+    if (item.file_dimensions[0] > 1140) {
+      Object.assign(thumbnails, {1140: `${thumbnailUrl}.thumbnail1140.png`});
+    }
+
+    if (Object.keys(thumbnails).length > 1) {
+      Object.assign(file, {thumbnails});
+    }
+  }
+
+  return file;
 };
