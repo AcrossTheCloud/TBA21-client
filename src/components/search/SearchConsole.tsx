@@ -27,6 +27,7 @@ import { instanceOf } from 'prop-types';
 
 import 'styles/components/search/searchConsole.scss';
 import 'styles/components/admin/tables/modal.scss';
+import { thumbnailsSRCSET } from '../utils/s3File';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -66,15 +67,9 @@ const createCriteriaOption = (label: string, field: string): CriteriaOption => {
 
 const FilePreview = (props: { data: any }) => { // tslint:disable-line: no-any
   if (props.data.file.type === FileTypes.Image) {
-    let thumbnails: string = '';
-    if (props.data.file.thumbnails) {
-      Object.entries(props.data.file.thumbnails).forEach( ([key, value]) => {
-        thumbnails = `${thumbnails}, ${value} ${key}w,`;
-      } );
-    }
     return (
       <img
-        srcSet={thumbnails}
+        srcSet={thumbnailsSRCSET(props.data.file)}
         src={props.data.file.url}
         alt=""
       />

@@ -20,6 +20,7 @@ import AudioPreview from './layout/audio/AudioPreview';
 import { FileTypes } from '../types/s3File';
 
 import 'styles/components/home.scss';
+import { thumbnailsSRCSET } from './utils/s3File';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -147,16 +148,10 @@ class HomePage extends React.Component<Props, {}> {
   FilePreviewHome = (props: { data: HomepageData }): JSX.Element => {
     if (props.data.file && props.data.file.url) {
       if (props.data.file.type === FileTypes.Image) {
-        let thumbnails: string = '';
-        if (props.data.file.thumbnails) {
-          Object.entries(props.data.file.thumbnails).forEach( ([key, value]) => {
-            thumbnails = `${thumbnails}, ${value} ${key}w,`;
-          } );
-        }
         return (
           <img
             onLoad={() => this.waitForLoad()}
-            srcSet={thumbnails}
+            srcSet={thumbnailsSRCSET(props.data.file)}
             src={props.data.file.url}
             alt={props.data.title}
           />
