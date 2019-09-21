@@ -63,7 +63,7 @@ export default class Tags extends React.Component<Props, State> {
         response = await API.get('tba21', 'tags', {
           queryStringParameters: {
             type: 'concept',
-            limit: 20
+            limit: 2000
           }
         }),
         tags = response.tags.map(t => ({id: parseInt(t.id, 0), value: parseInt(t.id, 0), label: t.tag_name})),
