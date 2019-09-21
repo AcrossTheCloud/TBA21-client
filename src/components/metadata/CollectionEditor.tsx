@@ -1541,6 +1541,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
                       classNamePrefix="select"
                       isClearable
                       loadOptions={this.selectQueryItems}
+                      placeholder="Start typing the item title then select..."
                       onChange={this.selectItemOnChange}
                       onInputChange={v => { if (this._isMounted) { this.setState({ selectInputValue: v }); } }}
                       inputValue={this.state.selectInputValue}
