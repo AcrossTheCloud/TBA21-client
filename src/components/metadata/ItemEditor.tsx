@@ -1671,7 +1671,7 @@ class ItemEditorClass extends React.Component<Props, State> {
       <Row>
         <Col md="6">
           <FormGroup>
-            <Label for="produced_by">Exhibition History</Label>
+            <Label for="exhibited_at">Exhibition History</Label>
             <CustomSelect values={item.exhibited_at} callback={values => this.changeItem('exhibited_at', values)} />
             <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>

@@ -60,7 +60,7 @@ class Collections extends React.Component<RouteComponentProps, State> {
       },
       {
         dataField: 'status',
-        text: 'Status',
+        text: 'Published',
       },
       {
         dataField: 'title',
