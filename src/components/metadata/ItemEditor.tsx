@@ -167,8 +167,6 @@ class ItemEditorClass extends React.Component<Props, State> {
         // Get the items s3 file
         const getFileResult: S3File | false = await sdkGetObject(this.state.originalItem.s3_key);
 
-        console.log(getFileResult, 'the file');
-
         if (getFileResult && getFileResult.type === FileTypes.Image) {
           Object.assign(getFileResult, checkThumbnails(response.item, getFileResult));
         }
