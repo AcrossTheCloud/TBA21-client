@@ -381,7 +381,7 @@ export interface Item {
 
   isbn: string[] | null;
   related_isbn: string[] | null;
-  doi: number | null;
+  DOI: number | null;
   url: string | null;
 
   edition: number | null;

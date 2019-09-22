@@ -731,12 +731,12 @@ class ItemEditorClass extends React.Component<Props, State> {
 
         <Col md="6">
           <FormGroup>
-            <Label for="doi">DOI</Label>
+            <Label for="DOI">DOI</Label>
             <Input
               type="text"
-              className="doi"
-              defaultValue={item.doi ? item.doi.toString() : ''}
-              invalid={this.state.validate.hasOwnProperty('doi') && !this.state.validate.doi}
+              className="DOI"
+              defaultValue={item.DOI ? item.DOI.toString() : ''}
+              invalid={this.state.validate.hasOwnProperty('DOI') && !this.state.validate.DOI}
               onChange={e => {
                 const value = e.target.value;
                 let valid = /^10.\d{4,9}\/[-._;()/:a-zA-Z0-9]+$/.test(value);
@@ -744,10 +744,10 @@ class ItemEditorClass extends React.Component<Props, State> {
                   valid = true;
                 } // set valid to true for no content
                 if (valid) {
-                  this.validateLength('doi', value);
+                  this.validateLength('DOI', value);
                 } // if valid set the data in changedItem
                 if (!this._isMounted) { return; }
-                this.setState({validate: {...this.state.validate, doi: valid}});
+                this.setState({validate: {...this.state.validate, DOI: valid}});
               }}
             />
             <FormFeedback>This field is required.</FormFeedback>
