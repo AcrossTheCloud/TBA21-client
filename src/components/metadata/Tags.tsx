@@ -177,7 +177,7 @@ export default class Tags extends React.Component<Props, State> {
         );
 
         // Return the tags to React Select
-        resolve(filteredTags.filter(tag => tag.label.includes(inputValue)));
+        resolve(filteredTags.filter(tag => tag.label.toLowerCase().includes(inputValue.toLowerCase())));
       }, 500);
     });
   }
