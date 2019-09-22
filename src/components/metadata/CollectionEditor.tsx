@@ -20,7 +20,6 @@ import Tags from './Tags';
 import {
   collectionTypes,
   countries,
-  licenseType,
   oceans,
   regions as selectableRegions
 } from './SelectOptions';
@@ -34,7 +33,6 @@ import CustomSelect from './fields/CustomSelect';
 import ShortPaths from '../admin/utils/ShortPaths';
 import Contributors from './fields/Contributors';
 import { AuthContext } from '../../providers/AuthProvider';
-import { License } from '../../types/License';
 
 import { modalToggle } from '../../actions/pages/privacyPolicy';
 import { getProfileDetails } from '../../actions/user/profile';
@@ -208,7 +206,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
         <>
           Missing required field(s) <br/>
           {invalidFields.map( (f, i) => ( <div key={i} style={{ textTransform: 'capitalize' }}>{
-            f.toLowerCase() === 'type'? 
+            f.toLowerCase() === 'type'?
               'Collection Category' :
               f.replace(/_/g, ' ')
             }<br/></div> ) )}
@@ -273,7 +271,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
 
       // If no license assign OA
       if (!collectionProperties.hasOwnProperty('license')) {
-        Object.assign(collectionProperties, { 'license': 'Ocean Archive' });
+        Object.assign(collectionProperties, { 'license': 'CC BY-NC' });
       }
 
       const result = await API.put('tba21', `admin/collections/${editMode ? 'update' : 'create'}`, {
@@ -1265,7 +1263,6 @@ class CollectionEditorClass extends React.Component<Props, State> {
       copyright_holder,
 
       regions,
-      license,
 
       focus_arts,
       focus_scitech,
@@ -1426,11 +1423,6 @@ class CollectionEditorClass extends React.Component<Props, State> {
                     {type === Types.Convening ? <this.Convening /> : <></>}
                     {type === Types.Performance ? <this.Performance /> : <></>}
                     {type === Types.Installation ? <this.Installation /> : <></>}
-
-                    <FormGroup>
-                      <Label for="license_type">License</Label>
-                      <Select menuPlacement="auto" className="select license_type" classNamePrefix="select" options={licenseType} value={license ? {value: license, label: license} : { value: License.LOCKED, label: License.LOCKED }} onChange={e => this.changeCollection('license', e.label)} isSearchable/>
-                    </FormGroup>
 
                     <FormGroup>
                       <Label for="copyright_holder">Copyright Holder</Label>
