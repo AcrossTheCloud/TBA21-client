@@ -7,6 +7,7 @@ import { Item, itemType } from '../../types/Item';
 import { HomepageData } from '../../reducers/home';
 
 import 'styles/components/detailPreview.scss';
+import { thumbnailsSRCSET } from './s3File';
 
 export type ItemOrHomePageData = Item | HomepageData;
 
@@ -19,17 +20,10 @@ export const FileStaticPreview = (props: { file: S3File, onLoad?: Function }): J
   if (props.file.type === FileTypes.Audio) { return <></>; }
   switch (props.file.type) {
     case FileTypes.Image:
-      let thumbnails: string = '';
-      if (props.file.thumbnails) {
-        Object.entries(props.file.thumbnails).forEach(([key, value]) => {
-          thumbnails = `${thumbnails}, ${value} ${key}w,`;
-        });
-      }
       return (
         <picture className="image">
           <img
-            srcSet={thumbnails}
-            sizes="100vw"
+            srcSet={thumbnailsSRCSET(props.file)}
             src={props.file.url}
             alt={''}
             onLoad={typeof props.onLoad === 'function' ? props.onLoad() : () => { return; }}
