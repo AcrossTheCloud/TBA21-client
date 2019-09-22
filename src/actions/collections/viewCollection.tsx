@@ -45,12 +45,14 @@ export const fetchCollection = (id: string) => async (dispatch, getState) => {
           }
         });
 
-        if (!!itemResponse.items && Object.keys(itemResponse.items).length) {
-          const item = itemResponse.item;
-          // Get the items file
-          const file = await checkFile(item);
-          if (file) {
-            items.push({ ...item, file });
+        if (itemResponse.items && itemResponse.items.length) {
+          for (let i = 0; i < itemResponse.items.length; i++) {
+            const item = itemResponse.items[i];
+            // Get the items file
+            const file = await checkFile(item);
+            if (file) {
+              items.push({ ...item, file });
+            }
           }
         }
 

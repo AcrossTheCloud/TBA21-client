@@ -264,11 +264,13 @@ export interface APITag {
   tag_name: string;
 }
 
-enum itemType {
+export enum itemType {
   Video = 'Video',
   Text = 'Text',
   Audio = 'Audio',
-  Image = 'Image'
+  Image = 'Image',
+  PDF = 'PDF',
+  DownloadText = 'DownloadText'
 }
 
 export enum itemText {
@@ -337,7 +339,7 @@ export interface Item {
 
   file_dimensions?: number[] | null;
 
-  exif: {  [name: string]: any } | null; // tslint:disable-line: no-any
+  exif: { [name: string]: any } | null; // tslint:disable-line: no-any
   machine_recognition_tags: { [name: string]: any } | null; // tslint:disable-line: no-any
 
   id: string;
@@ -362,7 +364,7 @@ export interface Item {
   place: string[] | null;
   regions: Regions[] | null;
 
-  item_type: itemType | null;
+  item_type: itemType;
 
   item_subtype: itemAudio | itemImage | itemText | itemVideo | null;
   creators: string[] | null;
@@ -385,6 +387,7 @@ export interface Item {
   url: string | null;
 
   edition: number | null;
+  edition_uploaded: number | null;
   first_edition: number | null;
   first_edition_year: number | null;
   year_produced: string | null;
@@ -404,7 +407,7 @@ export interface Item {
   interviewers: string[] | null;
   interviewees: string[] | null;
 
-  cast_: string[] | null; // should be an array, need to change in schema
+  cast_: string[] | null;
   license: License | null;
 
   title: string | null;
@@ -491,6 +494,10 @@ export interface Item {
   recording_studio: string | null;
 
   original_text_credit: string | null;
+  credit: string | null;
   location: string | null;
   provenance: string[] | null;
+
+  geom: string | null;
+  geojson: { [name: string]: any } | null; // tslint:disable-line: no-any
 }

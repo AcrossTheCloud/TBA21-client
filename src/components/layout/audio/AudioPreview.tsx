@@ -37,6 +37,8 @@ class AudioPreview extends React.Component<Props, State> {
   componentDidMount(): void {
     this._isMounted = true;
 
+    console.log('PREV', this.props);
+
     if (!this.state.wavesurfer && !this.state.loaded) {
       const
         options = {

@@ -7,7 +7,7 @@ import { State } from 'reducers/items/viewItem';
 import { Alerts, ErrorMessage } from '../utils/alerts';
 
 import { Item, Regions } from '../../types/Item';
-import { FilePreview } from '../utils/FilePreview';
+import { FilePreview } from '../utils/filePreview';
 import { Languages } from '../../types/Languages';
 import { browser } from '../utils/browser';
 import { RouteComponentProps, withRouter } from 'react-router';

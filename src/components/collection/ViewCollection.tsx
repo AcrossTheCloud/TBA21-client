@@ -10,6 +10,7 @@ import { browser } from '../utils/browser';
 import { RouteComponentProps, withRouter } from 'react-router';
 
 import 'styles/components/pages/viewItem.scss';
+import { CollectionSlider } from './CollectionSlider';
 
 interface Props extends RouteComponentProps, State {
   fetchCollection: Function;
@@ -41,7 +42,7 @@ class ViewCollection extends React.Component<Props, State> {
 
   render() {
     if (typeof this.props.collection === 'undefined') {
-      return 'Loading...';
+      return <ErrorMessage message={this.props.errorMessage} />;
     }
 
     const {
@@ -80,6 +81,7 @@ class ViewCollection extends React.Component<Props, State> {
     return (
       <div id="item">
         <ErrorMessage message={this.props.errorMessage} />
+        <CollectionSlider items={this.props.items}/>
         <Row>
           <Col xs="12" md="8" className="left border-right">
             <Row>

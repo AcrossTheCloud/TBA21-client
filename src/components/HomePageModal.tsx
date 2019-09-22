@@ -9,12 +9,13 @@ import {
 } from 'reactstrap';
 import { isEqual } from 'lodash';
 
-import { addFilesToData, closeModal } from 'actions/home';
+import { closeModal } from 'actions/home';
 import { HomepageData } from '../reducers/home';
 import { FaCircle, FaExternalLinkAlt, FaTimes } from 'react-icons/fa';
 import { Regions } from '../types/Item';
 
-import { FilePreview } from './utils/FilePreview';
+import { FilePreview } from './utils/filePreview';
+import { CollectionSlider } from './collection/CollectionSlider';
 import 'styles/components/home.scss';
 
 interface Props {
@@ -26,21 +27,18 @@ interface Props {
 
 interface State {
   isOpen: boolean;
-  carouselActiveIndex: number;
+  originalData?: HomepageData | undefined;
 }
 
 class HomePageModal extends React.Component<Props, State> {
   _isMounted;
-  carouselAnimating;
 
   constructor(props: Props) {
     super(props);
     this._isMounted = false;
-    this.carouselAnimating = false;
 
     this.state = {
-      isOpen: false,
-      carouselActiveIndex: 1
+      isOpen: false
     };
   }
 
@@ -52,7 +50,7 @@ class HomePageModal extends React.Component<Props, State> {
     this._isMounted = false;
   }
 
-  async componentDidUpdate(prevProps: Readonly<Props>): Promise<void> {
+  async componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>): Promise<void> {
     if (this._isMounted) {
       const state = {};
 
@@ -60,15 +58,9 @@ class HomePageModal extends React.Component<Props, State> {
         Object.assign(state, { isOpen: this.props.open });
       }
 
-      if (!!this.props.data && !isEqual(this.props.data, prevProps.data)) {
+      if (!!this.props.data && !isEqual(this.props.data, prevState.originalData)) {
+        Object.assign(state, { originalData : {...this.props.data} });
         const { data } = this.props;
-
-        // Add the file to all under items;
-        if (data.items) {
-          Object.assign(data, {
-            items: await addFilesToData(data.items)
-          });
-        }
 
         Object.assign(state, data);
       }
@@ -77,37 +69,6 @@ class HomePageModal extends React.Component<Props, State> {
         this.setState(state);
       }
     }
-  }
-
-  carouselOnExiting = () => {
-    this.carouselAnimating = true;
-  }
-
-  carouselOnExited = () => {
-    this.carouselAnimating = false;
-  }
-
-  carouselNext = () => {
-    if (this.carouselAnimating || !this.props.data) { return; }
-    if (this.props.data.count) {
-      const count = parseInt(this.props.data.count, 0) / 5;
-      const nextIndex = this.state.carouselActiveIndex === count ? 0 : this.state.carouselActiveIndex + 1;
-      this.setState({carouselActiveIndex: nextIndex});
-    }
-  }
-
-  carouselPrevious = () => {
-    if (this.carouselAnimating || !this.props.data) { return; }
-    if (this.props.data.count) {
-      const count = parseInt(this.props.data.count, 0) / 5;
-      const nextIndex = this.state.carouselActiveIndex === 0 ? count : this.state.carouselActiveIndex - 1;
-      this.setState({carouselActiveIndex: nextIndex});
-    }
-  }
-
-  carouselGoToIndex(newIndex: number) {
-    if (this.carouselAnimating) { return; }
-    this.setState({ carouselActiveIndex: newIndex });
   }
 
   render() {
@@ -127,20 +88,6 @@ class HomePageModal extends React.Component<Props, State> {
       } = this.props.data;
 
       let counter: number = !!count ? parseInt(count, 0) : 0;
-
-      const masonry = (): JSX.Element[] => {
-        const html: JSX.Element[] = [];
-        if (items) {
-          for (let i = 0; i < items.length; i++) {
-            html.push(
-              <Col key={i} xs="12" sm="6" md="3" className="px-0">
-                {!!items[i].file ? <FilePreview file={items[i].file} /> : <></>}
-              </Col>
-            );
-          }
-          return html;
-        } else { return [<></>]; }
-      };
 
       return (
         <Modal id="homePageModal" className="fullwidth" isOpen={this.props.open} backdrop toggle={() => this.props.closeModal()}>
@@ -182,9 +129,7 @@ class HomePageModal extends React.Component<Props, State> {
                 </Row>
                 :
                 items ?
-                  <Row className="masonry">
-                    {masonry()}
-                  </Row>
+                  <CollectionSlider items={items} />
                   : <></>
               }
 
@@ -213,4 +158,9 @@ class HomePageModal extends React.Component<Props, State> {
   }
 }
 
-export default connect(null, { closeModal })(HomePageModal);
+const mapStateToProps = (state: { home: { isModalOpen: boolean, modalData?: HomepageData } }) => ({
+  data: state.home.modalData,
+  open: state.home.isModalOpen
+});
+
+export default connect(mapStateToProps, { closeModal })(HomePageModal);

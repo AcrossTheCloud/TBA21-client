@@ -3,26 +3,23 @@ import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { Button, Col, Container, Row } from 'reactstrap';
 import { debounce } from 'lodash';
-import { Cookies, withCookies } from 'react-cookie';
-import { Document, Page, pdfjs } from 'react-pdf';
+import { withCookies, Cookies } from 'react-cookie';
 
 import { AuthConsumer } from '../providers/AuthProvider';
-import { closeModal, loadHomepage, loadMore, logoDispatch, openModal } from 'actions/home';
+import { logoDispatch, loadHomepage, loadMore, openModal, closeModal } from 'actions/home';
 import { toggle as searchOpenToggle } from 'actions/searchConsole';
 
 import { HomepageData, HomePageState } from '../reducers/home';
-import HomePageModal from './HomePageModal';
 
 import Logo from './layout/Logo';
-import { FaCircle, FaPlay } from 'react-icons/all';
+import { FaCircle } from 'react-icons/all';
 import moment from 'moment';
 import AudioPreview from './layout/audio/AudioPreview';
 import { FileTypes } from '../types/s3File';
+import { DetailPreview } from './utils/DetailPreview';
+import { itemType } from '../types/Item';
 
 import 'styles/components/home.scss';
-import { thumbnailsSRCSET } from './utils/s3File';
-
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 interface Props extends HomePageState {
   logoDispatch: Function;
@@ -57,7 +54,7 @@ class HomePage extends React.Component<Props, {}> {
     if (!this.props.loadedItems.length) {
       await this.props.loadHomepage();
       await this.props.loadMore(this.props.items, this.props.collections, this.props.announcements, this.props.audio, this.props.loadedItems);
-      this.loadedCount = this.props.loadedItems.filter(t => (t.type === FileTypes.Pdf || t.type === FileTypes.Text || t.type === FileTypes.DownloadText)).length;
+      this.loadedCount = this.props.loadedItems.filter(t => (t.type === itemType.PDF || t.type === itemType.Text || t.type === itemType.DownloadText)).length;
     }
   }
 
@@ -66,6 +63,12 @@ class HomePage extends React.Component<Props, {}> {
     window.removeEventListener('scroll', this.scrollDebounce, false);
     window.removeEventListener('scroll', this.handleScrollMobileSearch, false);
     this.props.closeModal();
+  }
+
+  componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>, snapshot?: any): void {
+    if (this.loadedCount === 0 && this.props.loadedMore) {
+      this.loadedCount = this.props.loadedItems.length;
+    }
   }
 
   waitForLoad = () => {
@@ -145,44 +148,6 @@ class HomePage extends React.Component<Props, {}> {
     );
   }
 
-  FilePreviewHome = (props: { data: HomepageData }): JSX.Element => {
-    if (props.data.file && props.data.file.url) {
-      if (props.data.file.type === FileTypes.Image) {
-        return (
-          <img
-            onLoad={() => this.waitForLoad()}
-            srcSet={thumbnailsSRCSET(props.data.file)}
-            src={props.data.file.url}
-            alt={props.data.title}
-          />
-        );
-      }
-      if (props.data.file.type === FileTypes.Video) {
-        return (
-          <div className="videoPreview">
-            {!!props.data.file ? <img onLoad={() => this.waitForLoad()} src={props.data.file.poster} alt={''}/> : <></>}
-          </div>
-        );
-      }
-      if (props.data.file.type === FileTypes.Pdf) {
-        return (
-          <div className="pdf">
-            <Document file={{ url: props.data.file.url }} style={{width: '100%', height: '100%'}} >
-              <Page pageNumber={1}/>
-            </Document>
-          </div>
-        );
-      }
-
-      if (props.data.file.type === FileTypes.DownloadText || props.data.file.type === FileTypes.Text) {
-        return (
-          <img onLoad={() => this.waitForLoad()} alt={props.data.title} src="https://upload.wikimedia.org/wikipedia/commons/2/22/Unscharfe_Zeitung.jpg" className="image-fluid"/>
-        );
-      }
-    }
-    return <></>;
-  };
-
   DisplayLayout = (props: {data: HomepageData}): JSX.Element => {
     const {
       id,
@@ -191,7 +156,6 @@ class HomePage extends React.Component<Props, {}> {
       item_type,
       title,
       file,
-      duration,
       creators,
       date
     } = props.data;
@@ -213,49 +177,12 @@ class HomePage extends React.Component<Props, {}> {
 
     return (
       <Col md={colSize(!!file ? file.type : '')}>
-
-        {item_type === FileTypes.Audio || file.type === FileTypes.Audio ?
+        {item_type === itemType.Audio || file.type === FileTypes.Audio ?
           <AudioPreview onLoad={() => this.waitForLoad()} data={{title, id, url: file.url, date, creators, item_subtype, isCollection: !!count}}/>
           :
 
-          <div className="item" onClick={() => this.props.openModal(props.data)}>
-            <div className="file">
-              {file ? <this.FilePreviewHome data={props.data}/> : <></>}
-              <div className="overlay">
-                <div className="type">
-                  {item_subtype}
-                </div>
-                <div className="bottom">
-                  <div className="title-wrapper d-flex">
-                    {creators && creators.length ?
-                      <>
-                        <div className="creators d-none d-md-block">
-                          <span>{creators.join(', ')}</span>
-                        </div>
-                        <div className="d-none d-md-block">
-                          <FaCircle className="dot"/>
-                        </div>
-                      </>
-                      : <></>
-                    }
-                    <div className="title">
-                      {title}
-                    </div>
-                  </div>
-                </div>
-                {duration ?
-                  <div className="duration">
-                    {moment.duration((typeof duration === 'string' ? parseInt(duration, 0) : duration), 'seconds').format('hh:mm:ss')}
-                  </div>
-                  : <></>}
-                {file && file.type === FileTypes.Video ?
-                  <div className="playButton">
-                    <FaPlay/>
-                  </div>
-                  : <></>
-                }
-              </div>
-            </div>
+          <div onClick={() => this.props.openModal(props.data)}>
+            <DetailPreview data={props.data} onLoad={() => this.waitForLoad}/>
           </div>
         }
       </Col>
@@ -280,7 +207,7 @@ class HomePage extends React.Component<Props, {}> {
             {!!loaded_highlights[0] ?
               <Col xs="12" md={loaded_highlights.length > 1 ? 8 : 12} className="item" onClick={() => this.props.openModal(loaded_highlights[0])}>
                 <div className="file">
-                  <this.FilePreviewHome data={loaded_highlights[0]}/>
+                  <DetailPreview data={loaded_highlights[0]}/>
                 </div>
 
                 <div className="d-sm-none overlay">
@@ -296,14 +223,14 @@ class HomePage extends React.Component<Props, {}> {
                 <Row className="d-none d-sm-block">
                   <Col xs="12">
                     <div className="file">
-                      <this.FilePreviewHome data={loaded_highlights[1]}/>
+                      <DetailPreview data={loaded_highlights[1]}/>
                     </div>
                     <this.HighlightsItemDetails index={1}/>
                   </Col>
                 </Row>
                 <div className="d-sm-none">
                   <div className="file">
-                    <this.FilePreviewHome data={loaded_highlights[1]}/>
+                    <DetailPreview data={loaded_highlights[1]}/>
                     <div className="overlay">
                       <this.HighlightsItemDetails index={1}/>
                     </div>
@@ -368,8 +295,6 @@ class HomePage extends React.Component<Props, {}> {
             {loadedItems.map( (e: HomepageData, i: number) => (<this.DisplayLayout key={i} data={e} />))}
           </Row>
         </Container>
-
-        <HomePageModal data={this.props.modalData} open={this.props.isModalOpen} />
       </div>
     );
   }
@@ -380,16 +305,13 @@ const mapStateToProps = (state: { home: Props }) => ({
 
   items: state.home.items ? state.home.items : [],
   collections: state.home.collections ? state.home.collections : [],
-  audio: state.home.collections ? state.home.collections : [],
+  audio: state.home.audio ? state.home.audio : [],
   announcements: state.home.announcements ? state.home.announcements : [],
 
   oa_highlight: state.home.oa_highlight ? state.home.oa_highlight : [],
   loadedItems: state.home.loadedItems,
   loadedMore: state.home.loadedMore,
-  loaded_highlights: state.home.loaded_highlights,
-
-  modalData: state.home.modalData,
-  isModalOpen: state.home.isModalOpen
+  loaded_highlights: state.home.loaded_highlights
 });
 
 export default connect(mapStateToProps, { logoDispatch, loadHomepage, loadMore, openModal, closeModal, searchOpenToggle })(withCookies(HomePage));
