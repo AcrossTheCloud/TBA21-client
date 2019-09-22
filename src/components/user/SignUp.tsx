@@ -107,7 +107,8 @@ export class SignUp extends React.Component<{}, State> {
       await API.put('tba21', 'profiles', {
         body: {
           uuid: newUser.userSub,
-          full_name: this.state.fullName
+          full_name: this.state.fullName,
+          profile_type: 'Individual'
         }
       });
 

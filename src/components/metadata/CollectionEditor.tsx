@@ -20,7 +20,6 @@ import Tags from './Tags';
 import {
   collectionTypes,
   countries,
-  licenseType,
   oceans,
   regions as selectableRegions
 } from './SelectOptions';
@@ -34,7 +33,6 @@ import CustomSelect from './fields/CustomSelect';
 import ShortPaths from '../admin/utils/ShortPaths';
 import Contributors from './fields/Contributors';
 import { AuthContext } from '../../providers/AuthProvider';
-import { License } from '../../types/License';
 
 import { modalToggle } from '../../actions/pages/privacyPolicy';
 import { getProfileDetails } from '../../actions/user/profile';
@@ -207,7 +205,11 @@ class CollectionEditorClass extends React.Component<Props, State> {
       const message: JSX.Element = (
         <>
           Missing required field(s) <br/>
-          {invalidFields.map( (f, i) => ( <div key={i} style={{ textTransform: 'capitalize' }}>{f.replace(/_/g, ' ')}<br/></div> ) )}
+          {invalidFields.map( (f, i) => ( <div key={i} style={{ textTransform: 'capitalize' }}>{
+            f.toLowerCase() === 'type'?
+              'Collection Category' :
+              f.replace(/_/g, ' ')
+            }<br/></div> ) )}
         </>
       );
 
@@ -269,7 +271,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
 
       // If no license assign OA
       if (!collectionProperties.hasOwnProperty('license')) {
-        Object.assign(collectionProperties, { 'license': 'Ocean Archive' });
+        Object.assign(collectionProperties, { 'license': 'CC BY-NC' });
       }
 
       const result = await API.put('tba21', `admin/collections/${editMode ? 'update' : 'create'}`, {
@@ -344,16 +346,9 @@ class CollectionEditorClass extends React.Component<Props, State> {
   changeCollection = (key: string, value: any, callback?: Function) => { // tslint:disable-line: no-any
     const { collection, changedFields } = this.state;
 
-    if (value.toString().length) {
-      Object.assign(changedFields, { [key]: value });
-      Object.assign(collection, { [key]: value });
-    } else {
-      if (changedFields[key]) {
-        delete changedFields[key];
-        // Reset back to original item key value
-        Object.assign(collection, { [key]: this.state.originalCollection[key] });
-      }
-    }
+    Object.assign(changedFields, { [key]: value });
+    Object.assign(collection, { [key]: value });
+
     if (!this._isMounted) { return; }
     this.setState(
       {
@@ -1268,7 +1263,6 @@ class CollectionEditorClass extends React.Component<Props, State> {
       copyright_holder,
 
       regions,
-      license,
 
       focus_arts,
       focus_scitech,
@@ -1372,7 +1366,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
                         this.state.editMode ?
                           <></>
                           :
-                          <FormFeedback style={{ display: !this.state.hasShortPath ? 'block' : 'none' }}>You need to save your collection first before adding a URL slug (short path).</FormFeedback>
+                          <FormFeedback style={{ display: !this.state.hasShortPath ? 'block' : 'none' }}>You need to save or publish your collection first before adding a URL slug (short path).</FormFeedback>
                       }
                     </FormGroup>
 
@@ -1431,11 +1425,6 @@ class CollectionEditorClass extends React.Component<Props, State> {
                     {type === Types.Installation ? <this.Installation /> : <></>}
 
                     <FormGroup>
-                      <Label for="license_type">License</Label>
-                      <Select menuPlacement="auto" className="select license_type" classNamePrefix="select" options={licenseType} value={license ? {value: license, label: license} : { value: License.LOCKED, label: License.LOCKED }} onChange={e => this.changeCollection('license', e.label)} isSearchable/>
-                    </FormGroup>
-
-                    <FormGroup>
                       <Label for="copyright_holder">Copyright Holder</Label>
                       <Input type="text" id="copyright_holder" defaultValue={copyright_holder ? copyright_holder : ''} onChange={e => this.changeCollection('copyright_holder', e.target.value)}/>
                     </FormGroup>
@@ -1489,7 +1478,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
                         defaultValues={keywordTags}
                         callback={tags => {
                           const tagList = tags ? tags.map(tag => ({id: tag.id, tag_name: tag.label})) : [];
-                          this.validateLength('keyword_tags', tags ? tags.map(tag => tag.id) : []);
+                          this.changeCollection('keyword_tags', tags ? tags.map(tag => tag.id) : []);
                           if (this._isMounted) {
                             const { originalCollection, collection } = this.state;
                             this.setState({
@@ -1544,6 +1533,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
                       classNamePrefix="select"
                       isClearable
                       loadOptions={this.selectQueryItems}
+                      placeholder="Start typing the item title then select..."
                       onChange={this.selectItemOnChange}
                       onInputChange={v => { if (this._isMounted) { this.setState({ selectInputValue: v }); } }}
                       inputValue={this.state.selectInputValue}

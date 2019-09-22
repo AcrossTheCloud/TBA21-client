@@ -279,7 +279,14 @@ class Profile extends React.Component<Props, State> {
 
               <FormGroup>
                 <Label for="country">Country</Label>
-                <Select className="select" classNamePrefix="select" isSearchable menuPlacement="auto" placeholder="Country" options={selectableCountries} defaultValue={countryList ? countryList : null} onChange={e => this.fieldChanged('country', e)} />
+                <Select 
+                  className="select" 
+                  classNamePrefix="select" 
+                  isSearchable menuPlacement="auto" 
+                  placeholder="Country" 
+                  options={selectableCountries} 
+                  defaultValue={countryList ? countryList : null} 
+                  onChange={e => this.fieldChanged(e.value, 'country')} />
               </FormGroup>
 
               <FormGroup>

@@ -18,8 +18,10 @@ import AudioPreview from './layout/audio/AudioPreview';
 import { FileTypes } from '../types/s3File';
 import { DetailPreview } from './utils/DetailPreview';
 
-import 'styles/components/home.scss';
+import { thumbnailsSRCSET } from './utils/s3File';
 import { itemType } from '../types/Item';
+
+import 'styles/components/home.scss';
 
 interface Props extends HomePageState {
   logoDispatch: Function;
@@ -147,6 +149,44 @@ class HomePage extends React.Component<Props, {}> {
       </>
     );
   }
+
+  FilePreviewHome = (props: { data: HomepageData }): JSX.Element => {
+    if (props.data.file && props.data.file.url) {
+      if (props.data.file.type === FileTypes.Image) {
+        return (
+          <img
+            onLoad={() => this.waitForLoad()}
+            srcSet={thumbnailsSRCSET(props.data.file)}
+            src={props.data.file.url}
+            alt={props.data.title}
+          />
+        );
+      }
+      if (props.data.file.type === FileTypes.Video) {
+        return (
+          <div className="videoPreview">
+            {!!props.data.file ? <img onLoad={() => this.waitForLoad()} src={props.data.file.poster} alt={''}/> : <></>}
+          </div>
+        );
+      }
+      if (props.data.file.type === FileTypes.Pdf) {
+        return (
+          <div className="pdf">
+            <Document file={{ url: props.data.file.url }} style={{width: '100%', height: '100%'}} >
+              <Page pageNumber={1}/>
+            </Document>
+          </div>
+        );
+      }
+
+      if (props.data.file.type === FileTypes.DownloadText || props.data.file.type === FileTypes.Text) {
+        return (
+          <img onLoad={() => this.waitForLoad()} alt={props.data.title} src="https://upload.wikimedia.org/wikipedia/commons/2/22/Unscharfe_Zeitung.jpg" className="image-fluid"/>
+        );
+      }
+    }
+    return <></>;
+  };
 
   DisplayLayout = (props: {data: HomepageData}): JSX.Element => {
     const {

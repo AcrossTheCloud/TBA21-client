@@ -2,23 +2,19 @@ import { FileTypes, S3File } from '../../types/s3File';
 import { Col } from 'reactstrap';
 import ReactPlayer from 'react-player';
 import * as React from 'react';
+import { thumbnailsSRCSET } from './s3File';
 
 export const FilePreview = (props: { file: S3File }): JSX.Element => {
   switch (props.file.type) {
     case FileTypes.Image:
-      let thumbnails: string = '';
       let background: string | undefined = undefined;
       if (props.file.thumbnails) {
         background = props.file.thumbnails['1140'] || props.file.thumbnails['960'] || props.file.thumbnails['720'] || props.file.thumbnails['540'];
-        Object.entries(props.file.thumbnails).forEach( ([key, value]) => {
-          thumbnails = `${thumbnails} ${value} ${key}w,`;
-        } );
       }
-
       return (
         <Col className="px-0 image text-center h-100">
           <img
-            srcSet={thumbnails}
+            srcSet={thumbnailsSRCSET(props.file)}
             src={props.file.url}
             alt=""
           />

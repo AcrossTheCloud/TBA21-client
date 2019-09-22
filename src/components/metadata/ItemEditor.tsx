@@ -41,7 +41,7 @@ import {
 } from './SelectOptions';
 
 import Tags from './Tags';
-import { sdkGetObject } from '../utils/s3File';
+import { checkThumbnails, sdkGetObject, thumbnailsSRCSET } from '../utils/s3File';
 import { Alerts, ErrorMessage, SuccessMessage, WarningMessage } from '../utils/alerts';
 
 import CustomSelect from './fields/CustomSelect';
@@ -57,7 +57,6 @@ import { getProfileDetails } from '../../actions/user/profile';
 import { Profile } from '../../types/Profile';
 import 'styles/components/metadata/itemEditor.scss';
 import 'styles/components/metadata/editors.scss';
-
 
 interface Props {
   item: Item;
@@ -168,6 +167,10 @@ class ItemEditorClass extends React.Component<Props, State> {
         // Get the items s3 file
         const getFileResult: S3File | false = await sdkGetObject(this.state.originalItem.s3_key);
 
+        if (getFileResult && getFileResult.type === FileTypes.Image) {
+          Object.assign(getFileResult, checkThumbnails(response.item, getFileResult));
+        }
+
         const data = {
           originalItem: { ...response.item, file: getFileResult },
           changedItem: { ...response.item, file: getFileResult }
@@ -200,7 +203,13 @@ class ItemEditorClass extends React.Component<Props, State> {
 
       if (file && file.url) {
         if (file.type === FileTypes.Image) {
-          return <img src={file.url} alt=""/>;
+          return (
+            <img
+              srcSet={thumbnailsSRCSET(file)}
+              src={file.url}
+              alt={''}
+            />
+          );
         } else if (file.type === FileTypes.Pdf) {
           return (
             <div className="embed-responsive embed-responsive-4by3">
@@ -262,7 +271,7 @@ class ItemEditorClass extends React.Component<Props, State> {
 
     // If we don't have one of time_produced or year_produced, show an error.
     if (!this.state.changedItem.year_produced) {
-      invalidFields.push('time_produced or year_produced');
+      invalidFields.push('date_produced or year_produced');
     }
 
     if (invalidFields.length > 0) {
@@ -304,7 +313,7 @@ class ItemEditorClass extends React.Component<Props, State> {
       Object.entries(item)
         .filter( ([key, value]) => {
           return !(
-            value === null ||
+            (value === null && key !== 'time_produced') ||
             key === 'aggregated_concept_tags' ||
             key === 'aggregated_keyword_tags' ||
             key === 'id' // use this to exclude things, you shouldn't need to (eg don't put them in changedFields...
@@ -371,14 +380,28 @@ class ItemEditorClass extends React.Component<Props, State> {
 
     const { changedItem, changedFields } = this.state;
 
-    if (value.toString().length) {
-      Object.assign(changedFields, { [key]: value });
-      Object.assign(changedItem, { [key]: value });
-    } else {
+    const deleteKey = () => {
       if (changedFields[key]) {
         delete changedFields[key];
         // Reset back to original item key value
-        Object.assign(changedItem, { [key]: this.state.originalItem[key] });
+        Object.assign(changedItem, {[key]: this.state.originalItem[key]});
+      }
+    };
+
+    if (value === null) {
+      Object.assign(changedFields, { [key]: null });
+      Object.assign(changedItem, {[key]: null});
+    }
+
+    if (!!value && value.toString().length) {
+      Object.assign(changedFields, { [key]: value });
+      Object.assign(changedItem, { [key]: value });
+    } else {
+      if (!isEqual(this.state.originalItem[key], value)) {
+        Object.assign(changedFields, { [key]: value });
+        Object.assign(changedItem, { [key]: value });
+      } else {
+        deleteKey();
       }
     }
 
@@ -598,14 +621,21 @@ class ItemEditorClass extends React.Component<Props, State> {
 
   validateLength = (field: string, inputValue: string | string[] | number | number[]): void => {
     if (!this._isMounted) { return; }
+    const validFields = this.state.validate;
 
     let valid = false;
     this.changeItem(field, inputValue);
     if (inputValue && inputValue.toString().length > 0) {
       valid = true;
     }
+    let result = { [field]: valid };
 
-    const state = { validate: { ...this.state.validate, [field]: valid } };
+    if (field === 'time_produced' && inputValue && !inputValue.toString().length) {
+      result = {};
+      delete validFields[field];
+    }
+
+    const state = { validate: { ...validFields, ...result } };
 
     if (!this._isMounted) { return; }
     this.setState(state, () => {
@@ -701,12 +731,12 @@ class ItemEditorClass extends React.Component<Props, State> {
 
         <Col md="6">
           <FormGroup>
-            <Label for="doi">DOI</Label>
+            <Label for="DOI">DOI</Label>
             <Input
               type="text"
-              className="doi"
-              defaultValue={item.doi ? item.doi.toString() : ''}
-              invalid={this.state.validate.hasOwnProperty('doi') && !this.state.validate.doi}
+              className="DOI"
+              defaultValue={item.DOI ? item.DOI.toString() : ''}
+              invalid={this.state.validate.hasOwnProperty('DOI') && !this.state.validate.DOI}
               onChange={e => {
                 const value = e.target.value;
                 let valid = /^10.\d{4,9}\/[-._;()/:a-zA-Z0-9]+$/.test(value);
@@ -714,10 +744,10 @@ class ItemEditorClass extends React.Component<Props, State> {
                   valid = true;
                 } // set valid to true for no content
                 if (valid) {
-                  this.validateLength('doi', value);
+                  this.validateLength('DOI', value);
                 } // if valid set the data in changedItem
                 if (!this._isMounted) { return; }
-                this.setState({validate: {...this.state.validate, doi: valid}});
+                this.setState({validate: {...this.state.validate, DOI: valid}});
               }}
             />
             <FormFeedback>This field is required.</FormFeedback>
@@ -1256,7 +1286,7 @@ class ItemEditorClass extends React.Component<Props, State> {
               className="related_event"
               required
               defaultValue={item.related_event ? item.related_event : ''}
-              onChange={e => this.changeItem('related_event', [e.target.value])}
+              onChange={e => this.changeItem('related_event', e.target.value)}
             />
           </FormGroup>
         </Col>
@@ -1641,7 +1671,7 @@ class ItemEditorClass extends React.Component<Props, State> {
       <Row>
         <Col md="6">
           <FormGroup>
-            <Label for="produced_by">Exhibition History</Label>
+            <Label for="exhibited_at">Exhibition History</Label>
             <CustomSelect values={item.exhibited_at} callback={values => this.changeItem('exhibited_at', values)} />
             <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
@@ -2482,9 +2512,12 @@ class ItemEditorClass extends React.Component<Props, State> {
                         className="time_produced"
                         defaultValue={item.time_produced ? new Date(item.time_produced).toISOString().substr(0, 10) : ''}
                         onChange={e => {
-                          this.validateLength('time_produced', e.target.value);
-                          if (e.target.value && e.target.value.length) {
-                            this.validateLength('year_produced', new Date(e.target.value).getFullYear());
+                          const value = e.target.value;
+                          if (value && value.length) {
+                            this.validateLength('time_produced', value);
+                            this.validateLength('year_produced', new Date(value).getFullYear());
+                          } else {
+                            this.changeItem('time_produced', null);
                           }
                         }}
                       />
@@ -2502,8 +2535,8 @@ class ItemEditorClass extends React.Component<Props, State> {
 
                     <FormGroup>
                       <Label for="creators">Creator(s)</Label>
-                      <CustomSelect values={!!item.creators ? item.creators : []} callback={values => this.validateLength('creators', values)} />
-                      <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('creators') && !this.state.validate.creators ? 'block' : 'none') }}>This is a required field</FormFeedback>
+                      <CustomSelect values={!!item.creators ? item.creators : []} callback={values => this.changeItem('creators', values)} />
+                      {/*<FormFeedback style={{ display: (this.state.validate.hasOwnProperty('creators') && !this.state.validate.creators) || !!item.creators || (Array.isArray(item.creators) && !item.creators.length) ? 'block' : 'none' }}>This is a required field</FormFeedback>*/}
                       <FormText>Use tab or enter to add a new Creator.</FormText>
                     </FormGroup>
 

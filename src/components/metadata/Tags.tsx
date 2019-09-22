@@ -40,12 +40,12 @@ export default class Tags extends React.Component<Props, State> {
 
     this._isMounted = false;
 
-    const { loadItemRekognitionTags, defaultValues } = this.props;
+    const { defaultValues } = this.props;
 
     this.state = {
       tags: [],
       selectedTags: defaultValues ? defaultValues : [],
-      isLoading: !!loadItemRekognitionTags,
+      isLoading: false,
       rekognitionTags: []
     };
   }
@@ -63,7 +63,7 @@ export default class Tags extends React.Component<Props, State> {
         response = await API.get('tba21', 'tags', {
           queryStringParameters: {
             type: 'concept',
-            limit: 20
+            limit: 2000
           }
         }),
         tags = response.tags.map(t => ({id: parseInt(t.id, 0), value: parseInt(t.id, 0), label: t.tag_name})),
@@ -177,7 +177,7 @@ export default class Tags extends React.Component<Props, State> {
         );
 
         // Return the tags to React Select
-        resolve(filteredTags.filter(tag => tag.label.includes(inputValue)));
+        resolve(filteredTags.filter(tag => tag.label.toLowerCase().includes(inputValue.toLowerCase())));
       }, 500);
     });
   }
@@ -237,7 +237,7 @@ export default class Tags extends React.Component<Props, State> {
       if ((this.props.callback && typeof this.props.callback === 'function') && (this.state.selectedTags && this.state.selectedTags.length > 0)) {
         this.props.callback(this.state.selectedTags);
       }
-    }
+    };
 
     if (actionMeta.action === 'select-option' || actionMeta.action === 'create-option') {
       this.setState({isLoading: false, selectedTags: await createNewTags()}, () => {
@@ -250,8 +250,6 @@ export default class Tags extends React.Component<Props, State> {
         parentCallback();
       });
     }
-
-
   }
 
   render() {
@@ -264,8 +262,15 @@ export default class Tags extends React.Component<Props, State> {
         {this.props.type === 'keyword' ?
           <AsyncCreatableSelect
             isMulti
+            maxMenuHeight={200}
+            menuPlacement="auto"
             isDisabled={this.state.isLoading}
             isLoading={this.state.isLoading}
+            placeholder={(this.state.rekognitionTags.length > 0) ? 
+              "Pick generated keyword, or start typing then select, or type then hit enter/tab to add a new keyword..."
+              :
+              "Start typing then select, or type then hit enter/tab to add a new keyword..."
+            }
             cacheOptions
             className="select"
             classNamePrefix="select"
@@ -283,6 +288,8 @@ export default class Tags extends React.Component<Props, State> {
           :
           <AsyncSelect
             isMulti
+            maxMenuHeight={200}
+            menuPlacement="auto"
             isDisabled={this.state.isLoading}
             isLoading={this.state.isLoading}
             cacheOptions
