@@ -443,7 +443,6 @@ export class AddUser extends React.Component<{}, State> {
   }
 
   render() {
-    console.log(this.state.profile_type, 'hi');
     return (
       <Modal isOpen={this.state.isOpen} backdrop className="fullwidth" scrollable toggle={this.addUserModalToggle}>
         <ModalHeader>

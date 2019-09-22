@@ -1,6 +1,7 @@
 import { LOAD_HOMEPAGE, LOGO_STATE_HOMEPAGE, LOAD_MORE_HOMEPAGE, MODAL_STATE_HOMEPAGE } from 'actions/home';
-import { FileTypes, S3File } from '../types/s3File';
+import { S3File } from '../types/s3File';
 import { Announcement } from '../types/Announcement';
+import { itemType } from '../types/Item';
 
 export interface HomepageData {
   file: S3File;
@@ -8,7 +9,7 @@ export interface HomepageData {
   title: string;
   s3_key: string;
   item_subtype?: string;
-  item_type?: FileTypes | null;
+  item_type: itemType;
   date: string;
   duration?: string;
   file_dimensions?: number[];
@@ -17,7 +18,7 @@ export interface HomepageData {
 
   // Collection specific
   count?: string;
-  type?: FileTypes | null;
+  type?: itemType | null;
   items?: HomepageData[];
 
   // OA Highlight specific
@@ -71,6 +72,7 @@ export default (state: HomePageState | null = initialState, action) => {
         ...state,
         items: action.items,
         collections: action.collections,
+        audio: action.audio,
         announcements: action.announcements,
         loaded_highlights: action.loaded_highlights,
       };
