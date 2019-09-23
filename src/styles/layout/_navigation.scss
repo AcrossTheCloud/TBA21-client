@@ -1,3 +1,4 @@
+@import '../base/variables';
 
 // Hide nav on fixed body (When the logo is loading)
 #body.fixed {
@@ -10,7 +11,48 @@
 
 
 #navigation {
+  background: #142636;
+  border-bottom: 1px solid #eee;
+
   max-height: unset;
   transition: max-height 5s;
   overflow: unset;
+
+  .navbar {
+    .nav-item {
+      a.nav-link {
+        color: $subline-gray;
+        font-size: 14px;
+        &.active {
+          color: $soft-gray;
+        }
+        &:hover {
+          color: $soft-gray;
+        }
+        &:focus {
+          outline: none;
+        }
+      }
+      &.dropdown {
+        .dropdown-menu {
+          background: $dark-blue;
+          .dropdown-item {
+            &:hover {
+              color: $soft-gray;
+              text-decoration: none;
+              background-color: transparent;
+            }
+            &:focus {
+              outline: none;
+            }
+            .nav-item {
+              .nav-link {
+                padding: 0.25rem .5rem;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }
