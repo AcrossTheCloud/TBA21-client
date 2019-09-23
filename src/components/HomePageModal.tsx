@@ -136,11 +136,9 @@ class HomePageModal extends React.Component<Props, State> {
               <Row>
                 <div className="body">
                   <div>
-                    {!!item_subtype ? item_subtype : ''}
-                    {`, ${new Date(date).getFullYear()}`}
-                    {
-                      !!regions ? `, ${regions.map(r => Regions[r]).join(', ')}` : ''
-                    }
+                    {!!item_subtype ? `${item_subtype}, ` : ''}
+                    {`${new Date(date).getFullYear()}, `}
+                    {!!regions ? `${regions.map(r => Regions[r]).join(', ')}` : ''}
                   </div>
                   <div className="tags">
                     {!!keyword_tags ? keyword_tags.map(t => `#${t}`).join(' ').toString() : <></>}{' '}
