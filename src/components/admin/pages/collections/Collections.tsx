@@ -206,6 +206,7 @@ class Collections extends React.Component<RouteComponentProps, State> {
         deleteErrorMessage: 'We had some trouble deleting this collection. Please try again later.'
       });
     } finally {
+      if (!this._isMounted) { return; }
       this.setState(state);
     }
   }

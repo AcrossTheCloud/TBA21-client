@@ -410,7 +410,7 @@ class SearchConsole extends React.Component<Props, State> {
         </Container>
 
         <Modal isOpen={this.state.modalOpen} centered size="lg" scrollable className="search fullwidth blue" backdrop toggle={this.toggleModal}>
-          <div className="d-flex flex-column mh-100">
+          <div className="d-flex flex-column flex-fill mh-100">
             <Row className="header align-content-center">
               <Col xs="12">
                 <div className="text-right">
