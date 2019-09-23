@@ -176,7 +176,7 @@ class HomePage extends React.Component<Props, {}> {
     };
 
     return (
-      <Col md={colSize(!!file ? file.type : '')}>
+      <Col md={colSize(!!file ? file.type : '')} className="pt-4">
         {item_type === itemType.Audio || file.type === FileTypes.Audio ?
           <AudioPreview onLoad={() => this.waitForLoad()} data={{title, id, url: file.url, date, creators, item_subtype, isCollection: !!count}}/>
           :

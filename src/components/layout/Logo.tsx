@@ -17,6 +17,8 @@ interface State {
 export default class Logo extends Component<Props, State> {
   _isMounted;
   detectScroll;
+  animating: boolean = false;
+  animatingInterval;
 
   constructor(props: Props) {
     super(props);
@@ -43,6 +45,28 @@ export default class Logo extends Component<Props, State> {
     // If the logo hasn't loaded ever add this class to Body
     if (!this.props.loaded) {
       $('#body').addClass('fixed');
+
+      const
+        $rightAndLeft = $('#logo .left, #logo .right');
+
+      setTimeout( () => {
+        $rightAndLeft.addClass('init');
+        this.animating = true;
+      }, 500);
+
+      this.animatingInterval = setInterval( () => {
+        if (this.animating) {
+          this.animating = false;
+          $rightAndLeft.addClass('init');
+        } else {
+          this.animating = true;
+          $rightAndLeft.removeClass('init');
+        }
+      }, 3000);
+    } else {
+      $('#logo .left, #logo .right').addClass('init');
+      $('#body').removeClass('fixed').addClass('logoLoaded');
+      $('#body #logo').addClass('loaded');
     }
 
     window.addEventListener('scroll', this.detectScroll, false);
@@ -50,14 +74,15 @@ export default class Logo extends Component<Props, State> {
 
   componentWillUnmount(): void {
     this._isMounted = false;
+    $('#body').removeClass('fixed');
     window.removeEventListener('scroll', this.detectScroll, false);
   }
 
   componentDidUpdate(prevProps: Readonly<Props>): void {
+
     if (this.props.loaded !== prevProps.loaded && this.props.loaded) {
-      setTimeout(() => {
-        $('#logo .right').addClass('op');
-      }, 750);
+      this.animating = true;
+      clearInterval(this.animatingInterval);
 
       setTimeout(() => {
         $('#logo .left, #logo .right').addClass('init');
@@ -65,35 +90,27 @@ export default class Logo extends Component<Props, State> {
 
       setTimeout(() => {
         $('#body').addClass('logoLoaded');
-      }, 1300);
+      }, 2000);
 
       setTimeout(() => {
-        $('#body').removeClass('fixed');
         $('#body #logo').addClass('loaded');
+        $('#body').removeClass('fixed');
         if (this._isMounted) {
           this.setState({ finallyLoaded: true });
         }
-      }, 1500);
-
-      setTimeout(() => {
-        if (this.props.onChange && typeof this.props.onChange === 'function') {
-          this.props.onChange();
-        }
-      }, 5750);
+      }, 2500);
     }
   }
 
   render() {
-    const { loaded } = this.props;
-
     return (
-      <div id="logo" className={this.state.finallyLoaded || this.props.loaded ? 'loaded' : ''}>
+      <div id="logo">
         <header>
-          <div className={`left show ${loaded ? 'init' : ''}`}>
+          <div className={`left show`}>
             <img src={logo} alt="Ocean Archive" />
           </div>
 
-          <div className={`right show op ${loaded ? 'init' : ''}`}>
+          <div className={`right show op`}>
             <img src={logo} alt="Ocean Archive" />
           </div>
         </header>
