@@ -58,7 +58,7 @@
 
   .left {
     border-color: $item-details-border !important;
-    padding: 15px 15px 100px;
+    padding: 15px 15px 0;
 
     .creators {
       font-size: 21px
@@ -72,6 +72,10 @@
 
   .right {
     padding: 15px 15px 0;
+    @media screen and (max-width: 540px) {
+      margin-top: 15px;
+      border-top: 1px solid $item-details-border;
+    }
     .details {
       border-color: $item-details-border !important;
       padding: 15px;

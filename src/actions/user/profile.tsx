@@ -137,7 +137,7 @@ export const getProfileDetails = (uuid: string) => async dispatch => {
   }
 };
 
-const checkProfileImageExists = async (imageURL: string): Promise<string | undefined> => {
+export const checkProfileImageExists = async (imageURL: string): Promise<string | undefined> => {
   if (imageURL) {
     try {
       await fetch(imageURL, {

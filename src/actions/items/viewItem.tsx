@@ -38,6 +38,7 @@ export const fetchItem = (id: string) => async (dispatch, getState) => {
   // Detect if we have the same itemID and return the previous state.
   // We do this here to stop another API call and you can easily get the prevState in the Action.
   if (prevState.viewItem.item && id === prevState.viewItem.item.id) {
+    dispatch({ type: LOADINGOVERLAY, on: false }); // Turn off the loading overlay
     return prevState.viewItem;
   } else {
 

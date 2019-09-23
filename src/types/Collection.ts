@@ -1,5 +1,6 @@
-import { APITag, Regions } from './Item';
+import { Regions } from './Item';
 import { License } from './License';
+import { APITag } from 'components/metadata/Tags';
 
 export enum collectionTypes {
   Series = 'Series',

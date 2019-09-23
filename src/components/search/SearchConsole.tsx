@@ -8,7 +8,6 @@ import { FaTimes } from 'react-icons/fa';
 import { uniqBy } from 'lodash';
 import { Col, Row, Container, Modal, ModalBody } from 'reactstrap';
 import { SearchConsoleState } from '../../reducers/searchConsole'; // Props from Redux.
-import { Document, Page, pdfjs } from 'react-pdf';
 
 import {
   search as dispatchSearch,
@@ -17,24 +16,34 @@ import {
   toggle
 } from '../../actions/searchConsole'; // Props from Redux.
 
+import { find } from 'lodash';
 import ViewItem from '../item/ViewItem';
 import AudioPlayer from '../layout/audio/AudioPlayer';
 import { Bubble } from './Bubble';
 import AudioPreview from '../layout/audio/AudioPreview';
 import { fetchItem } from '../../actions/items/viewItem';
+import { fetchCollection } from 'actions/collections/viewCollection';
 import { FileTypes } from '../../types/s3File';
 import { instanceOf } from 'prop-types';
+import { FileStaticPreview } from '../utils/DetailPreview';
+
+
+import { Item } from '../../types/Item';
+import { Collection } from '../../types/Collection';
+import { Profile } from '../../types/Profile';
+import ViewCollection from '../collection/ViewCollection';
+import ViewProfile from '../user/profile/ViewProfile';
+import { fetchProfile } from '../../actions/user/viewProfile';
 
 import 'styles/components/search/searchConsole.scss';
 import 'styles/components/admin/tables/modal.scss';
-import { thumbnailsSRCSET } from '../utils/s3File';
-
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 interface Props extends SearchConsoleState {
   changeView: Function;
   dispatchSearch: Function;
   fetchItem: Function;
+  fetchCollection: Function;
+  fetchProfile: Function;
   toggle: Function;
   cookies: Cookies;
 }
@@ -49,6 +58,7 @@ interface State {
   focus_action: boolean;
   focus_scitech: boolean;
   modalOpen: boolean;
+  modalType?: 'Item' | 'Collection' | 'Profile';
   searchMobileCookie: boolean;
 }
 
@@ -66,31 +76,19 @@ const createCriteriaOption = (label: string, field: string): CriteriaOption => {
 };
 
 const FilePreview = (props: { data: any }) => { // tslint:disable-line: no-any
-  if (props.data.file.type === FileTypes.Image) {
-    return (
-      <img
-        srcSet={thumbnailsSRCSET(props.data.file)}
-        src={props.data.file.url}
-        alt=""
-      />
-    );
-  } else if (props.data.file.type === FileTypes.Video) {
-    return <img src={props.data.file.poster} alt={''}/>;
-  } else if (props.data.file.type === FileTypes.Pdf) {
-    return (
-      <div className="pdf">
-        <Document file={{ url: props.data.file.url }} style={{width: '100%', height: '100%'}} >
-          <Page pageNumber={1}/>
-        </Document>
-      </div>
-    );
-  } else if (props.data.file.type === FileTypes.DownloadText || props.data.file.type === FileTypes.Text) {
-    return <img alt="" src="https://upload.wikimedia.org/wikipedia/commons/2/22/Unscharfe_Zeitung.jpg" className="image-fluid"/>;
-  } else if (props.data.file.type === FileTypes.Audio) {
-    const {title, id, creators, item_subtype, date, count} = props.data;
-    return <AudioPreview data={{title, id, url: props.data.file.url, date, creators, item_subtype, isCollection: !!count}} />;
+  if (props.data.file.type === FileTypes.Audio) {
+    const {
+      id,
+      count,
+      item_subtype,
+      title,
+      file,
+      creators,
+      date
+    } = props.data;
+    return <AudioPreview data={{title, id, url: file.url, date, creators, item_subtype, isCollection: !!count}} />;
   } else {
-    return <></>;
+    return <FileStaticPreview file={props.data.file} />;
   }
 };
 
@@ -160,11 +158,17 @@ class SearchConsole extends React.Component<Props, State> {
 
     if (open) {
       const resultsheight = $results.get(0).scrollHeight;
-      $results.animate({ 'height': resultsheight }, 300, function() {
-        $results.height('auto');
-      });
+      if (!$results.hasClass('animated')) {
+        $results.animate({ 'height': resultsheight > 500 ? 500 : resultsheight }, 1000, function() {
+          $results.height('auto').addClass('animated');
+        });
+      }
     } else {
-      $results.animate({'height': 0}, 200);
+      $results.stop();
+      if (this.props.results.length) {
+        $results.height(500);
+      }
+      $results.animate({'height': 0}, 1000).removeClass('animated');
     }
   }
 
@@ -201,7 +205,7 @@ class SearchConsole extends React.Component<Props, State> {
 
         let suggestions = await API.get('tba21', 'pages/search', { queryStringParameters: { query: input }});
         const keywordTags = await API.get('tba21', 'tags', { queryStringParameters: { query: input, limit: 50, type: 'keyword'} });
-        const conceptTags = await API.get('tba21', 'tags', { queryStringParameters: { query: input, limit: 50, type: 'concept'} });
+        const conceptTags = await API.get('tba21', 'tags', { queryStringParameters: { query: input, limit: 1000, type: 'concept'} });
 
         suggestions = suggestions.results.map( t => createCriteriaOption(t.value, t.field) );
         suggestions = uniqBy(suggestions, (e: CriteriaOption) => e.field);
@@ -226,7 +230,7 @@ class SearchConsole extends React.Component<Props, State> {
    * Then dispatches the redux action.
   */
   searchDispatch = () => {
-    $('#searchConsole .results').animate({ 'height': 0 }, 300);
+    this.animateResults(false);
     if (this.props.open && this.state.selectedCriteria && this.state.selectedCriteria.length) {
       this.props.dispatchSearch(this.state.selectedCriteria, this.state.focus_arts, this.state.focus_action, this.state.focus_scitech);
     }
@@ -262,6 +266,21 @@ class SearchConsole extends React.Component<Props, State> {
     }));
   }
 
+  openResult = (type: Item | Collection | Profile) => {
+    let metaType: 'Item' | 'Collection' | 'Profile'  = 'Item';
+    if (type.hasOwnProperty('full_name')) { // profile
+      this.props.fetchProfile(type.id);
+      metaType = 'Profile';
+    } else if (type.hasOwnProperty('collection')) {
+      this.props.fetchCollection(type.id);
+      metaType = 'Collection';
+    } else {
+      this.props.fetchItem(type.id);
+    }
+
+    this.setState({ modalOpen: true, modalType: metaType });
+  }
+
   render() {
     const
       // { view, results } = this.props,
@@ -288,7 +307,6 @@ class SearchConsole extends React.Component<Props, State> {
             >
               <Row className="align-items-center">
                 <div className="inputwrapper">
-
                   <AsyncSelect
                     className="searchInput"
                     classNamePrefix="search"
@@ -301,6 +319,7 @@ class SearchConsole extends React.Component<Props, State> {
                     isMulti
                     loadOptions={this.searchSuggestions}
                     options={this.state.criteria}
+                    value={this.state.selectedCriteria}
 
                     components={{DropdownIndicator: null}}
 
@@ -326,6 +345,7 @@ class SearchConsole extends React.Component<Props, State> {
                     }}
                   />
                 </div>
+
                 <div
                   className={`icon margin ${isOpen ? `${isOpenClass}` : `opacity5`}`}
                   onClick={isOpen ? () => { return; } : this.toggleOpen}
@@ -355,7 +375,7 @@ class SearchConsole extends React.Component<Props, State> {
 
                 if (t.full_name) {
                   return (
-                    <Row className="result" key={i}>
+                    <Row className="result" key={i} onClick={() => this.openResult(t)}>
                       {t.profile_image ?
                         <Col xs="4">
                           <img src={t.profile_image} alt=""/>
@@ -377,7 +397,7 @@ class SearchConsole extends React.Component<Props, State> {
                     );
                   } else {
                     return (
-                      <Row className="result" key={i} onClick={() => { this.props.fetchItem(t.id); this.setState({ modalOpen: true }); }}>
+                      <Row className="result" key={i} onClick={() => this.openResult(t)}>
                         {!!t.file ?
                           <Col xs="6" sm="4" md="2">
                             <FilePreview data={t}/>
@@ -401,6 +421,35 @@ class SearchConsole extends React.Component<Props, State> {
             }
           </div>
 
+          <Row>
+            <div className="tags">
+              {
+                !!this.props.concept_tags ?
+                  <div className="list">
+                    {this.props.concept_tags
+                      .filter(a => !find(this.state.selectedCriteria, {'originalValue': a.tag_name}))
+                      .map((t, i) =>
+                        <span
+                          key={i}
+                          onClick={() => {
+                              const tagList = [
+                                ...this.state.selectedCriteria,
+                                createCriteriaOption(t.tag_name, 'concept_tag')
+                              ];
+                              this.onSearchChange(tagList, { action: 'select-option' });
+                            }
+                          }
+                        >
+                          #{t.tag_name}
+                        </span>
+                      )
+                    }
+                  </div>
+                  : <></>
+              }
+            </div>
+          </Row>
+
           <Row className="bubbleRow">
             {this.props.open ?
               <Bubble callback={e => { if (this._isMounted) { this.setState(e); }}} />
@@ -420,7 +469,15 @@ class SearchConsole extends React.Component<Props, State> {
             </Row>
 
             <ModalBody>
-              <ViewItem />
+              {
+                this.state.modalType && this.state.modalType === 'Item' ? <ViewItem /> : <></>
+              }
+              {
+                this.state.modalType && this.state.modalType === 'Collection' ? <ViewCollection /> : <></>
+              }
+              {
+                this.state.modalType && this.state.modalType === 'Profile' ? <ViewProfile /> : <></>
+              }
             </ModalBody>
 
           </div>
@@ -431,9 +488,7 @@ class SearchConsole extends React.Component<Props, State> {
 }
 
 const mapStateToProps = (state: { searchConsole: SearchConsoleState }) => ({
-
   concept_tags: state.searchConsole.concept_tags,
-  selected_tags: state.searchConsole.selected_tags,
 
   view: state.searchConsole.view,
   results: state.searchConsole.results,
@@ -442,4 +497,4 @@ const mapStateToProps = (state: { searchConsole: SearchConsoleState }) => ({
 
 });
 
-export default connect(mapStateToProps, { dispatchSearch, changeView, fetchItem, toggle })(withCookies(SearchConsole));
+export default connect(mapStateToProps, { dispatchSearch, changeView, fetchItem, fetchCollection, fetchProfile, toggle })(withCookies(SearchConsole));
