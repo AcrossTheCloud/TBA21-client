@@ -449,7 +449,6 @@ class ItemEditorClass extends React.Component<Props, State> {
     };
 
     const {
-      authors,
       subtitle,
       news_outlet,
       host_organisation,
@@ -479,43 +478,34 @@ class ItemEditorClass extends React.Component<Props, State> {
 
     const textFields =  (file.type === FileTypes.Text) ? {
         'Academic Publication': {
-          'authors': (authors || false),
           'subtitle': (subtitle || false)
         },
         'News': {
-          'authors': (authors || false),
           'news_outlet': (news_outlet || false)
         },
         'Policy Paper': {
-          'authors': (authors || false),
           'host_organisation': (host_organisation || false)
         },
         'Report': {
-          'authors': (authors || false),
           'organisation': (organisation || false)
         },
         'Book': {
-          'authors': (authors || false),
           'publisher': (publisher || false),
           'city_of_publication': (city_of_publication	 || false),
           'edition': (edition	 || false)
         },
         'Essay': {
-          'authors': (authors || false),
           'venues': (venues || false),
         },
         'Historical Text': {
-          'authors': (authors || false),
           'publisher': (publisher || false),
           'venues': (venues || false),
           'edition': (edition	 || false)
         },
         'Event Press': {
-          'authors': (authors || false),
           'institution': (institution || false),
         },
         'Toolkit': {
-          'authors': (authors || false),
           'institution': (institution || false),
         }
       } : {};
@@ -587,7 +577,6 @@ class ItemEditorClass extends React.Component<Props, State> {
           'directors': (directors || false)
         },
         'News / Journalism': {
-          'authors': (authors || false),
           'news_outlet': (news_outlet || false)
         },
         'Event Recording': {
@@ -650,14 +639,6 @@ class ItemEditorClass extends React.Component<Props, State> {
     const item = this.state.changedItem;
     return (
       <Row>
-        <Col md="6">
-          <FormGroup>
-            <Label for="authors">Author(s)</Label>
-            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
-            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
-            <FormText>Use tab or enter to add a new Author.</FormText>
-          </FormGroup>
-        </Col>
 
         <Col md="6">
           <FormGroup>
@@ -767,14 +748,6 @@ class ItemEditorClass extends React.Component<Props, State> {
     const item = this.state.changedItem;
     return (
       <Row>
-        <Col md="6">
-          <FormGroup>
-            <Label for="authors">Author(s)</Label>
-            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
-            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
-            <FormText>Use tab or enter to add a new Author.</FormText>
-          </FormGroup>
-        </Col>
 
         <Col md="6">
           <FormGroup>
@@ -794,14 +767,6 @@ class ItemEditorClass extends React.Component<Props, State> {
     const item = this.state.changedItem;
     return (
       <Row>
-        <Col md="6">
-          <FormGroup>
-            <Label for="authors">Author(s)</Label>
-            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
-            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
-            <FormText>Use tab or enter to add a new Author.</FormText>
-          </FormGroup>
-        </Col>
         <Col md="6">
           <FormGroup>
             <Label for="subtitle">Subtitle</Label>
@@ -837,14 +802,6 @@ class ItemEditorClass extends React.Component<Props, State> {
     const item = this.state.changedItem;
     return (
       <Row>
-        <Col md="6">
-          <FormGroup>
-            <Label for="authors">Author(s)</Label>
-            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
-            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
-            <FormText>Use tab or enter to add a new Author.</FormText>
-          </FormGroup>
-        </Col>
 
         <Col md="6">
           <FormGroup>
@@ -885,14 +842,6 @@ class ItemEditorClass extends React.Component<Props, State> {
     const item = this.state.changedItem;
     return (
       <Row>
-        <Col md="6">
-          <FormGroup>
-            <Label for="authors">Author(s)</Label>
-            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
-            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
-            <FormText>Use tab or enter to add a new Author.</FormText>
-          </FormGroup>
-        </Col>
 
         <Col md="6">
           <FormGroup>
@@ -1016,14 +965,6 @@ class ItemEditorClass extends React.Component<Props, State> {
     const item = this.state.changedItem;
     return (
       <Row>
-        <Col md="6">
-          <FormGroup>
-            <Label for="authors">Author(s)</Label>
-            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
-            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
-            <FormText>Use tab or enter to add a new Author.</FormText>
-          </FormGroup>
-        </Col>
 
         <Col md="6">
           <FormGroup>
@@ -1064,14 +1005,6 @@ class ItemEditorClass extends React.Component<Props, State> {
     const item = this.state.changedItem;
     return (
       <Row>
-        <Col md="6">
-          <FormGroup>
-            <Label for="authors">Author(s)</Label>
-            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
-            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
-            <FormText>Use tab or enter to add a new Author.</FormText>
-          </FormGroup>
-        </Col>
 
         <Col md="6">
           <FormGroup>
@@ -1246,14 +1179,6 @@ class ItemEditorClass extends React.Component<Props, State> {
     const item = this.state.changedItem;
     return (
       <Row>
-        <Col md="6">
-          <FormGroup>
-            <Label for="authors">Author(s)</Label>
-            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
-            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
-            <FormText>Use tab or enter to add a new Author.</FormText>
-          </FormGroup>
-        </Col>
 
         <Col md="6">
           <FormGroup>
@@ -1297,14 +1222,6 @@ class ItemEditorClass extends React.Component<Props, State> {
     const item = this.state.changedItem;
     return (
       <Row>
-        <Col md="6">
-          <FormGroup>
-            <Label for="authors">Author(s)</Label>
-            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
-            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
-            <FormText>Use tab or enter to add a new Author.</FormText>
-          </FormGroup>
-        </Col>
 
         <Col md="6">
           <FormGroup>
@@ -1568,13 +1485,6 @@ class ItemEditorClass extends React.Component<Props, State> {
             <Input type="text" className="news_outlet" defaultValue={item.news_outlet ? item.news_outlet : ''} onChange={e => this.changeItem('news_outlet', e.target.value)}/>
           </FormGroup>
         </Col>
-        <Col md="6">
-          <FormGroup>
-            <Label for="authors">Author(s)</Label>
-            <CustomSelect values={item.authors} callback={values => this.changeItem(values, 'authors')} />
-            <FormText>Use tab or enter to add a new Author.</FormText>
-          </FormGroup>
-        </Col>
 
       </Row>
     );
@@ -1707,14 +1617,6 @@ class ItemEditorClass extends React.Component<Props, State> {
     const item = this.state.changedItem;
     return (
       <Row>
-        <Col md="6">
-          <FormGroup>
-            <Label for="authors">Author(s)</Label>
-            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
-            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
-            <FormText>Use tab or enter to add a new Author.</FormText>
-          </FormGroup>
-        </Col>
         <Col md="6">
           <FormGroup>
             <Label for="collaborators">Collaborators</Label>
@@ -2303,7 +2205,7 @@ class ItemEditorClass extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="radio_station">Radio Station</Label>
-            <Input type="text" className="radio_station" defaultValue={item.radio_station ? item.radio_station.join(',') : ''} onChange={e => this.changeItem('radio_station', e.target.value)}/>
+            <Input type="text" className="radio_station" defaultValue={item.radio_station ? item.radio_station : ''} onChange={e => this.changeItem('radio_station', e.target.value)}/>
           </FormGroup>
         </Col>
       </Row>
@@ -2342,13 +2244,6 @@ class ItemEditorClass extends React.Component<Props, State> {
     const item = this.state.changedItem;
     return (
       <Row>
-        <Col md="6">
-          <FormGroup>
-            <Label for="authors">Author(s)</Label>
-            <CustomSelect values={item.authors} callback={values => this.changeItem(values, 'authors')} />
-            <FormText>Use tab or enter to add a new Author.</FormText>
-          </FormGroup>
-        </Col>
         <Col md="6">
           <FormGroup>
             <Label for="collaborators">Collaborators</Label>
@@ -2534,10 +2429,10 @@ class ItemEditorClass extends React.Component<Props, State> {
                     </FormGroup>
 
                     <FormGroup>
-                      <Label for="creators">Creator(s)</Label>
+                      <Label for="creators">Creator(s) /  Author(s)</Label>
                       <CustomSelect values={!!item.creators ? item.creators : []} callback={values => this.changeItem('creators', values)} />
                       {/*<FormFeedback style={{ display: (this.state.validate.hasOwnProperty('creators') && !this.state.validate.creators) || !!item.creators || (Array.isArray(item.creators) && !item.creators.length) ? 'block' : 'none' }}>This is a required field</FormFeedback>*/}
-                      <FormText>Use tab or enter to add a new Creator.</FormText>
+                      <FormText>Use tab or enter to add a new Creator / Author.</FormText>
                     </FormGroup>
 
                     <FormGroup>
