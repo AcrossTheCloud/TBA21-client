@@ -95,7 +95,7 @@ class ViewItem extends React.Component<Props, State> {
       <div id="item">
         <ErrorMessage message={this.props.errorMessage} />
         {file && file.url ?
-          <Row xs="12" className="file">
+          <Row className="file">
             <FilePreview file={file}/>
           </Row>
           : <></>
@@ -142,7 +142,7 @@ class ViewItem extends React.Component<Props, State> {
                 <Col xs="12">Concept Tags</Col>
                 <Col xs="12">
                   {
-                    aggregated_concept_tags.map(t => t.tag_name)
+                    aggregated_concept_tags.map(t => `#${t.tag_name}`)
                   }
                 </Col>
               </Row>
@@ -152,7 +152,7 @@ class ViewItem extends React.Component<Props, State> {
                 <Col xs="12">Keyword Tags</Col>
                 <Col xs="12">
                   {
-                    aggregated_keyword_tags.map(t => t.tag_name)
+                    aggregated_keyword_tags.map(t => `#${t.tag_name}`)
                   }
                 </Col>
               </Row>

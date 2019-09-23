@@ -21,6 +21,16 @@
       width: 100%;
     }
 
+    .pdf {
+      height: 50vh;
+      @media (min-width: 540px) {
+        height: 50vw;
+      }
+      @media (min-width: 760px) {
+        height: 50vh;
+      }
+    }
+
     .video {
       z-index: 0;
       position: relative;
@@ -30,6 +40,9 @@
       }
     }
     .image {
+      @media (min-width: 800px) and (max-height: 1300px) {
+        height: 70vh;
+      }
       z-index: 0;
       img {
         max-height: 100%;
@@ -53,6 +66,7 @@
 
     .description {
       white-space: pre-wrap;
+      word-break: break-all;
     }
   }
 
