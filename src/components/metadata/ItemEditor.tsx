@@ -2303,7 +2303,7 @@ class ItemEditorClass extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="radio_station">Radio Station</Label>
-            <Input type="text" className="radio_station" defaultValue={item.radio_station ? item.radio_station.join(',') : ''} onChange={e => this.changeItem('radio_station', e.target.value)}/>
+            <Input type="text" className="radio_station" defaultValue={item.radio_station ? item.radio_station : ''} onChange={e => this.changeItem('radio_station', e.target.value)}/>
           </FormGroup>
         </Col>
       </Row>
