@@ -847,28 +847,6 @@ class CollectionEditorClass extends React.Component<Props, State> {
         </Col>
         <Col md="6">
           <FormGroup>
-            <Label for="expedition_start_point">Expedition Start Point (GPS Lat,Lng)</Label>
-            <Input
-              type="text"
-              className="expedition_start_point"
-              defaultValue={collection.expedition_start_point ? collection.expedition_start_point : ''}
-              onChange={e => this.changeCollection('expedition_start_point', e.target.value)}
-            />
-          </FormGroup>
-        </Col>
-        <Col md="6">
-          <FormGroup>
-            <Label for="expedition_end_point">Expedition End Point (GPS Lat,Lng)</Label>
-            <Input
-              type="text"
-              className="expedition_end_point"
-              defaultValue={collection.expedition_end_point ? collection.expedition_end_point : ''}
-              onChange={e => this.changeCollection('expedition_end_point', e.target.value)}
-            />
-          </FormGroup>
-        </Col>
-        <Col md="6">
-          <FormGroup>
             <Label for="url">Original URL</Label>
             <Input
               type="url"
