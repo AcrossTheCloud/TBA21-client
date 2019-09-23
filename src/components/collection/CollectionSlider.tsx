@@ -49,6 +49,8 @@ export class CollectionSlider extends React.Component<Props, State> {
 
     let itemAmount: number = 8;
     if (window.innerWidth < 540) {
+      itemAmount = 1;
+    } else if (window.innerWidth > 540) {
       itemAmount = 4;
     } else if (window.innerWidth < 720) {
       itemAmount = 6;
@@ -70,7 +72,7 @@ export class CollectionSlider extends React.Component<Props, State> {
           {
             items.map( (item: ItemOrHomePageData, idx: number) => {
               const isAudio = (!!item.file && item.file.type === FileTypes.Audio) || (!!item.file && item.item_type === itemType.Audio);
-              const xs = isAudio ? 12 : 6;
+              const xs = 12;
               const sm = isAudio ? 12 : 4;
               const md = isAudio ? 12 : 3;
               return (

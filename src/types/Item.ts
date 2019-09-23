@@ -1,6 +1,7 @@
 import { License } from './License';
 import { S3File } from './s3File';
 import { Languages } from './Languages';
+import { APITag } from '../components/metadata/Tags';
 
 export enum Regions {
   ATLANTIC = 'Atlantic Ocean',
@@ -257,11 +258,6 @@ export enum Regions {
   YE = 'Yemen',
   ZM = 'Zambia',
   ZW = 'Zimbabwe'
-}
-
-export interface APITag {
-  id: number;
-  tag_name: string;
 }
 
 export enum itemType {
