@@ -76,8 +76,7 @@ export const search = (criteria: CriteriaOption[], focusArts: boolean = false, f
 
           results.push(result);
         } else if (result.full_name) { // Profile
-          // remove the commented push below to enable profiles in search.
-          // results.push(result);
+          results.push(result);
           return;
         }
       }
