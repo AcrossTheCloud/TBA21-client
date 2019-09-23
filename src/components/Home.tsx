@@ -200,7 +200,7 @@ class HomePage extends React.Component<Props, {}> {
               isAuthenticated ?
                 <></>
                 :
-                <Button color="link" tag={Link} to="/login"><span className="simple-icon-login"/> Login</Button>
+                <Button color="link" tag={Link} to="/login"><span className="simple-icon-login"/>Login / Signup</Button>
             )}
           </AuthConsumer>
           <Row>
