@@ -108,22 +108,22 @@ class ViewCollection extends React.Component<Props, State> {
           <Col xs="12" md="4" className="right">
             {!!license ? <CollectionDetails label="License" value={license} /> : ''}
 
-            {!!aggregated_concept_tags ?
+            {!!aggregated_concept_tags && aggregated_concept_tags.length ?
               <Row className="border-bottom subline details">
                 <Col xs="12">Concept Tags</Col>
                 <Col xs="12">
                   {
-                    aggregated_concept_tags.map(t => t.tag_name)
+                    aggregated_concept_tags.map(t => `#${t.tag_name} `)
                   }
                 </Col>
               </Row>
             : ''}
-            {!!aggregated_keyword_tags ?
+            {!!aggregated_keyword_tags && aggregated_keyword_tags.length ?
               <Row className="subline details">
                 <Col xs="12">Keyword Tags</Col>
                 <Col xs="12">
                   {
-                    aggregated_keyword_tags.map(t => t.tag_name)
+                    aggregated_keyword_tags.map(t => `#${t.tag_name} `)
                   }
                 </Col>
               </Row>
