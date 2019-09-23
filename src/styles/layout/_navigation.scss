@@ -19,6 +19,13 @@
   overflow: unset;
 
   .navbar {
+    .navbar-toggler {
+      border: none;
+      padding-left: 0;
+      &:hover, &:focus {
+        outline: none;
+      }
+    }
     .nav-item {
       a.nav-link {
         color: $subline-gray;
@@ -35,6 +42,7 @@
       }
       &.dropdown {
         .dropdown-menu {
+          border: none;
           background: $dark-blue;
           .dropdown-item {
             &:hover {
@@ -47,7 +55,9 @@
             }
             .nav-item {
               .nav-link {
-                padding: 0.25rem .5rem;
+                @media screen and (min-width: 768px) {
+                  padding: 0.25rem .5rem;
+                }
               }
             }
           }

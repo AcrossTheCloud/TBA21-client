@@ -128,7 +128,7 @@ class HeaderClass extends React.Component<RouteComponentProps, State> { // tslin
           const isAdmin = (authorisation && Object.keys(authorisation).length &&  authorisation.hasOwnProperty('admin'));
           return (
             <div id="navigation">
-              <Navbar expand="md">
+              <Navbar dark expand="md">
                 {/*<NavbarBrand href="/">TBA21</NavbarBrand>*/}
                 <NavbarToggler onClick={this.toggle}/>
                 <Collapse isOpen={this.state.isOpen} navbar>
