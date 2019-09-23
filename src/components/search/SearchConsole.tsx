@@ -8,7 +8,6 @@ import { FaTimes } from 'react-icons/fa';
 import { uniqBy } from 'lodash';
 import { Col, Row, Container, Modal, ModalBody } from 'reactstrap';
 import { SearchConsoleState } from '../../reducers/searchConsole'; // Props from Redux.
-import { Document, Page, pdfjs } from 'react-pdf';
 
 import {
   search as dispatchSearch,
@@ -27,9 +26,7 @@ import { instanceOf } from 'prop-types';
 
 import 'styles/components/search/searchConsole.scss';
 import 'styles/components/admin/tables/modal.scss';
-import { thumbnailsSRCSET } from '../utils/s3File';
-
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+import { FileStaticPreview } from '../utils/DetailPreview';
 
 interface Props extends SearchConsoleState {
   changeView: Function;
@@ -66,31 +63,19 @@ const createCriteriaOption = (label: string, field: string): CriteriaOption => {
 };
 
 const FilePreview = (props: { data: any }) => { // tslint:disable-line: no-any
-  if (props.data.file.type === FileTypes.Image) {
-    return (
-      <img
-        srcSet={thumbnailsSRCSET(props.data.file)}
-        src={props.data.file.url}
-        alt=""
-      />
-    );
-  } else if (props.data.file.type === FileTypes.Video) {
-    return <img src={props.data.file.poster} alt={''}/>;
-  } else if (props.data.file.type === FileTypes.Pdf) {
-    return (
-      <div className="pdf">
-        <Document file={{ url: props.data.file.url }} style={{width: '100%', height: '100%'}} >
-          <Page pageNumber={1}/>
-        </Document>
-      </div>
-    );
-  } else if (props.data.file.type === FileTypes.DownloadText || props.data.file.type === FileTypes.Text) {
-    return <img alt="" src="https://upload.wikimedia.org/wikipedia/commons/2/22/Unscharfe_Zeitung.jpg" className="image-fluid"/>;
-  } else if (props.data.file.type === FileTypes.Audio) {
-    const {title, id, creators, item_subtype, date, count} = props.data;
-    return <AudioPreview data={{title, id, url: props.data.file.url, date, creators, item_subtype, isCollection: !!count}} />;
+  if (props.data.file.type === FileTypes.Audio) {
+    const {
+      id,
+      count,
+      item_subtype,
+      title,
+      file,
+      creators,
+      date
+    } = props.data;
+    return <AudioPreview data={{title, id, url: file.url, date, creators, item_subtype, isCollection: !!count}} />;
   } else {
-    return <></>;
+    return <FileStaticPreview file={props.data.file} />
   }
 };
 
