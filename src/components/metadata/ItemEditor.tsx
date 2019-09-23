@@ -464,7 +464,6 @@ class ItemEditorClass extends React.Component<Props, State> {
       lecturer,
       interviewers,
       interviewees,
-      recording_name,
       medium,
       dimensions,
       directors,
@@ -526,9 +525,6 @@ class ItemEditorClass extends React.Component<Props, State> {
         'Interview': {
           'interviewers': (interviewers || false),
           'interviewees': (interviewees || false)
-        },
-        'Radio': {
-          'recording_name ': (recording_name || false)
         },
         'Performance Poetry ': {
           'performers ': (performers || false)
@@ -2175,19 +2171,6 @@ class ItemEditorClass extends React.Component<Props, State> {
           <FormGroup>
             <Label for="series_name">Series Name</Label>
             <Input type="text" className="series_name" defaultValue={item.series_name ? item.series_name : ''} onChange={e => this.changeItem('series_name', e.target.value)}/>
-          </FormGroup>
-        </Col>
-        <Col md="6">
-          <FormGroup>
-            <Label for="recording_name">Recording Name</Label>
-            <Input
-              type="text"
-              className="recording_name"
-              defaultValue={item.recording_name ? item.recording_name : ''}
-              onChange={e => this.validateLength('recording_name', e.target.value)}
-              invalid={this.state.validate.hasOwnProperty('recording_name') && !this.state.validate.recording_name}
-            />
-            <FormFeedback>This is a required field</FormFeedback>
           </FormGroup>
         </Col>
         <Col md="6">
