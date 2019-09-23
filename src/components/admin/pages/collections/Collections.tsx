@@ -170,15 +170,15 @@ class Collections extends React.Component<RouteComponentProps, State> {
     this.setState( prevState => ({
        ...prevState,
        deleteModalOpen: !prevState.deleteModalOpen,
-       deleteErrorMessage: '',
-       successMessage: ''
+       deleteErrorMessage: undefined,
+       successMessage: undefined
      })
     );
   }
   deleteCollection = async () => {
     const state = {
-      deleteErrorMessage: '',
-      successMessage: ''
+      deleteErrorMessage: undefined,
+      successMessage: undefined
     };
     try {
       const collectionIndex: number | undefined = this.state.editingCollectionIndex;
