@@ -91,7 +91,7 @@ class HomePageModal extends React.Component<Props, State> {
 
       return (
         <Modal id="homePageModal" className="fullwidth" isOpen={this.props.open} backdrop toggle={() => this.props.closeModal()}>
-          <div className="d-flex flex-column mh-100">
+          <div className="d-flex flex-column flex-fill mh-100">
             <Row className="header align-content-center">
               <div className="col-10 col-sm-11 title-wrapper d-flex align-content-center">
                 <Link to={`/${counter ? 'collection' : 'view'}/${id}`} className="gray openButton flex-grow-0 flex-shrink-0"><FaExternalLinkAlt className="white" /></Link>
@@ -136,11 +136,9 @@ class HomePageModal extends React.Component<Props, State> {
               <Row>
                 <div className="body">
                   <div>
-                    {!!item_subtype ? item_subtype : ''}
-                    {`, ${new Date(date).getFullYear()}`}
-                    {
-                      !!regions ? `, ${regions.map(r => Regions[r]).join(', ')}` : ''
-                    }
+                    {!!item_subtype ? `${item_subtype}, ` : ''}
+                    {`${new Date(date).getFullYear()}, `}
+                    {!!regions ? `${regions.map(r => Regions[r]).join(', ')}` : ''}
                   </div>
                   <div className="tags">
                     {!!keyword_tags ? keyword_tags.map(t => `#${t}`).join(' ').toString() : <></>}{' '}

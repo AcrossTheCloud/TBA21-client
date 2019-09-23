@@ -12,31 +12,37 @@ import { RouteComponentProps, withRouter } from 'react-router';
 import 'styles/components/pages/viewItem.scss';
 import { CollectionSlider } from './CollectionSlider';
 
-interface Props extends RouteComponentProps, State {
+type MatchParams = {
+  id: string;
+};
+
+interface Props extends RouteComponentProps<MatchParams>, State {
   fetchCollection: Function;
 }
 
 class ViewCollection extends React.Component<Props, State> {
-  matchedCollectionId: string = '';
   browser: string;
 
   constructor(props: any) { // tslint:disable-line: no-any
     super(props);
 
     this.browser = browser();
-
-    // Get our itemId passed through from URL props
-    if (props.location && props.location.pathname) {
-      this.matchedCollectionId = props.location.pathname.replace('/collection/', '');
-    }
   }
 
   componentDidMount() {
+    const { match } = this.props;
+    let matchId: string | null = null;
+
+    // Get our collectionId passed through from URL props
+    if (match.params.id) {
+      matchId = match.params.id;
+    }
+
     // If we have an id from the URL pass it through, otherwise use the one from Redux State
-    if (this.matchedCollectionId) {
-      this.props.fetchCollection(this.matchedCollectionId);
+    if (matchId) {
+      this.props.fetchCollection(matchId);
     } else {
-      this.setState({ errorMessage: 'No item with that id.' });
+      this.setState({ errorMessage: 'No collection with that id.' });
     }
   }
 
@@ -108,22 +114,22 @@ class ViewCollection extends React.Component<Props, State> {
           <Col xs="12" md="4" className="right">
             {!!license ? <CollectionDetails label="License" value={license} /> : ''}
 
-            {!!aggregated_concept_tags ?
+            {!!aggregated_concept_tags && aggregated_concept_tags.length ?
               <Row className="border-bottom subline details">
                 <Col xs="12">Concept Tags</Col>
                 <Col xs="12">
                   {
-                    aggregated_concept_tags.map(t => t.tag_name)
+                    aggregated_concept_tags.map(t => `#${t.tag_name} `)
                   }
                 </Col>
               </Row>
             : ''}
-            {!!aggregated_keyword_tags ?
+            {!!aggregated_keyword_tags && aggregated_keyword_tags.length ?
               <Row className="subline details">
                 <Col xs="12">Keyword Tags</Col>
                 <Col xs="12">
                   {
-                    aggregated_keyword_tags.map(t => t.tag_name)
+                    aggregated_keyword_tags.map(t => `#${t.tag_name} `)
                   }
                 </Col>
               </Row>

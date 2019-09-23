@@ -477,23 +477,6 @@ class CollectionEditorClass extends React.Component<Props, State> {
       </Row>
     );
   }
-  AreaOfResearch = (): JSX.Element => {
-    const
-      collection = this.state.collection,
-      regionalFocus = collection.regional_focus ? countries.find( c => c.value === collection.regional_focus ) || oceans.find( c => c.value === collection.regional_focus ) : null;
-
-    return (
-      <Row>
-        <Col md="6">
-          <FormGroup>
-            <Label for="regional_focus">Regional Focus</Label>
-            <Select className="select" classNamePrefix="select" menuPlacement="auto" id="regional_focus" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries }]} value={[regionalFocus]} onChange={e => this.validateLength('regional_focus', e.value)} isSearchable/>
-            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('regional_focus') && !this.state.validate.regional_focus ? 'block' : 'none') }}>This is a required field</FormFeedback>
-          </FormGroup>
-        </Col>
-      </Row>
-    );
-  }
   Event = (): JSX.Element => {
     const
       collection = this.state.collection,
@@ -1414,7 +1397,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
                     </FormGroup>
 
                     {type === Types.Series ? <this.Series /> : <></>}
-                    {type === Types.Area_of_Research ? <this.AreaOfResearch /> : <></>}
+                    {type === Types.Area_of_Research ? <></> : <></>}
                     {type === Types.Event ? <this.Event /> : <></>}
                     {type === Types.Event_Series ? <this.EventSeries /> : <></>}
                     {type === Types.Edited_Volume ? <this.EditedVolume /> : <></>}

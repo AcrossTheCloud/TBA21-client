@@ -6,8 +6,8 @@ import {
   Col,
   Container,
   CustomInput,
-  Form,
-  FormGroup,
+  Form, FormFeedback,
+  FormGroup, FormText,
   Input,
   InputGroup,
   Label,
@@ -46,6 +46,7 @@ interface Props extends RouteComponentProps, ProfileState {
 
 interface State extends Partial<ProfileType>, Alerts {
   email: string;
+  websiteValid?: boolean;
   cropperModalOpen: boolean;
 }
 
@@ -159,7 +160,9 @@ class Profile extends React.Component<Props, State> {
 
   fieldChanged = (value: string | string[] | boolean, field: string) => {
     const state = {};
-    if (((typeof value === 'string' && value.length) || typeof value === 'boolean') && this._isMounted) {
+    if (
+      (((typeof value === 'string' || Array.isArray(value)) && value.length) || typeof value === 'boolean'
+      ) && this._isMounted) {
       Object.assign(state, { [field]: value });
     }
 
@@ -167,6 +170,9 @@ class Profile extends React.Component<Props, State> {
   }
 
   onChangeSocialMedia = (newValue: any, actionMeta: any) => { // tslint:disable-line: no-any
+    console.log('newValue', newValue);
+    console.log('Filter', newValue.filter(n => validateURL(n.value)).map(e => e.value));
+    console.log(newValue.length ? newValue.filter(n => validateURL(n.value)).map(e => e.value) : []);
     this.fieldChanged(
       newValue.length ? newValue.filter(n => validateURL(n.value)).map(e => e.value) : [],
       'social_media'
@@ -195,7 +201,7 @@ class Profile extends React.Component<Props, State> {
     const context: React.ContextType<typeof AuthContext> = this.context;
     const countryList = country ? selectableCountries.find(a => a.value === country) : undefined;
 
-    return(
+    return (
       <Container id="profile">
 
         <ErrorMessage message={this.props.errorMessage} />
@@ -279,29 +285,49 @@ class Profile extends React.Component<Props, State> {
 
               <FormGroup>
                 <Label for="country">Country</Label>
-                <Select 
-                  className="select" 
-                  classNamePrefix="select" 
-                  isSearchable menuPlacement="auto" 
-                  placeholder="Country" 
-                  options={selectableCountries} 
-                  defaultValue={countryList ? countryList : null} 
-                  onChange={e => this.fieldChanged(e.value, 'country')} />
+                <Select
+                  className="select"
+                  classNamePrefix="select"
+                  isSearchable
+                  menuPlacement="auto"
+                  placeholder="Country"
+                  options={selectableCountries}
+                  value={countryList ? countryList : null}
+                  onChange={e => this.fieldChanged(e.value, 'country')}
+                />
               </FormGroup>
 
               <FormGroup>
                 <Label for="biography">Biography</Label>
-                {!this.props.overlay ? <Input
+                <Input
                   type="textarea"
                   id="biography"
-                  defaultValue={biography ? biography : ''}
+                  value={biography ? biography : ''}
                   onChange={e => this.fieldChanged(e.target.value, 'biography')}
-                /> : <></>}
+                />
               </FormGroup>
 
               <FormGroup>
                 <Label for="website">Website</Label>
-                <Input type="text" name="website" id="website" placeholder="Website" onChange={e => this.fieldChanged(e.target.value, 'website')} defaultValue={website ? website : ''} />
+                <Input
+                  type="text"
+                  name="website"
+                  id="website"
+                  placeholder="Website"
+                  onChange={e => {
+                    const value = e.target.value;
+                    let valid = validateURL(value);
+                    if (!value || (value && !value.length)) { valid = true; } // set valid to true for no content
+                    if (valid) { this.fieldChanged(e.target.value, 'website'); } // if valid set the data in changedItem
+                    if (this._isMounted) {
+                      this.setState({ websiteValid: valid });
+                    }
+                  }}
+                  invalid={!!this.state.websiteValid && !this.state.websiteValid}
+                  defaultValue={website ? website : ''}
+                />
+                <FormFeedback>Not a valid URL</FormFeedback>
+                <FormText>Website URL must start with http:// or https://</FormText>
               </FormGroup>
 
               <FormGroup>
@@ -314,11 +340,12 @@ class Profile extends React.Component<Props, State> {
                   placeholder="Social Media"
                   onChange={this.onChangeSocialMedia}
                   value={
-                    (!!this.state.social_media && this.state.social_media.length) ?
-                      this.state.social_media.map(s => ({ value: s, label: s }))
-                      : (social_media ) ? social_media.map(s => ({ value: s, label: s }))  : null}
+                    !!social_media && social_media.length ?
+                      social_media.map(s => ({ value: s, label: s })) : null
+                  }
                   formatCreateLabel={i => `Add new URL ${i}`}
                 />
+                <FormText>All URL's must start with http:// or https://</FormText>
               </FormGroup>
 
               <FormGroup>
@@ -366,7 +393,9 @@ class Profile extends React.Component<Props, State> {
           : <></>
         }
 
-        <DeleteAccount deleteAccountAction={this.props.deleteAccount}/>
+        <div className="pt-5">
+          <DeleteAccount deleteAccountAction={this.props.deleteAccount}/>
+        </div>
 
       </Container>
     );

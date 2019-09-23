@@ -12,13 +12,13 @@ export const FilePreview = (props: { file: S3File }): JSX.Element => {
         background = props.file.thumbnails['1140'] || props.file.thumbnails['960'] || props.file.thumbnails['720'] || props.file.thumbnails['540'];
       }
       return (
-        <Col className="px-0 image text-center h-100">
+        <Col className="px-0 image text-center">
           <img
             srcSet={thumbnailsSRCSET(props.file)}
             src={props.file.url}
             alt=""
           />
-          <div className="background" style={{ background: `url(${background && background.length ? background : props.file.url})`, backgroundSize: 'contain' }} />
+          <div className="background" style={{ background: `url(${!!background ? encodeURI(background) : props.file.url})`, backgroundSize: 'contain' }} />
         </Col>
       );
     case FileTypes.Video:
@@ -37,8 +37,8 @@ export const FilePreview = (props: { file: S3File }): JSX.Element => {
       );
     case FileTypes.Pdf:
       return (
-        <div className="embed-responsive embed-responsive-4by3">
-          <iframe title={props.file.url} className="embed-responsive-item" src={props.file.url} />
+        <div className="w-100 pdf">
+          <iframe title={props.file.url} className="w-100 h-100" src={props.file.url} frameBorder={0} />
         </div>
       );
 

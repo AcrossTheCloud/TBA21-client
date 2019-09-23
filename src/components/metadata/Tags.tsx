@@ -4,6 +4,11 @@ import AsyncSelect from 'react-select/async';
 import { API } from 'aws-amplify';
 import { find } from 'lodash';
 
+export interface APITag {
+  id: number;
+  tag_name: string;
+}
+
 export interface Tag {
   id?: number;
   value: number | string;
@@ -266,10 +271,10 @@ export default class Tags extends React.Component<Props, State> {
             menuPlacement="auto"
             isDisabled={this.state.isLoading}
             isLoading={this.state.isLoading}
-            placeholder={(this.state.rekognitionTags.length > 0) ? 
-              "Pick generated keyword, or start typing then select, or type then hit enter/tab to add a new keyword..."
+            placeholder={(this.state.rekognitionTags.length > 0) ?
+              'Pick generated keyword, or start typing then select, or type then hit enter/tab to add a new keyword...'
               :
-              "Start typing then select, or type then hit enter/tab to add a new keyword..."
+              'Start typing then select, or type then hit enter/tab to add a new keyword...'
             }
             cacheOptions
             className="select"

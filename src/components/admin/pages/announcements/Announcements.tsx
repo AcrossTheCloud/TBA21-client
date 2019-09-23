@@ -264,7 +264,18 @@ class Announcements extends React.Component<RouteComponentProps, State> {
         <Modal isOpen={this.state.componentModalOpen} className="tableModal fullwidth">
           <ModalBody>
             {typeof this.state.editingIndex !== 'undefined' && this.state.editingIndex >= 0 ?
-              <AnnouncementEditor editMode={true} path={this.props.location.pathname} announcement={this.state.announcements[this.state.editingIndex]}/>
+              <AnnouncementEditor
+                editMode={true}
+                path={this.props.location.pathname}
+                announcement={this.state.announcements[this.state.editingIndex]}
+                onChange={c => {
+                  if (this._isMounted && typeof this.state.editingIndex !== 'undefined' && this.state.editingIndex >= 0) {
+                    const state = this.state.announcements;
+                    state[this.state.editingIndex] = c;
+                    this.setState({ announcements: state });
+                  }
+                }}
+              />
               : <></>
             }
           </ModalBody>

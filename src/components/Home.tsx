@@ -176,11 +176,10 @@ class HomePage extends React.Component<Props, {}> {
     };
 
     return (
-      <Col md={colSize(!!file ? file.type : '')}>
+      <Col md={colSize(!!file ? file.type : '')} className="pt-4">
         {item_type === itemType.Audio || file.type === FileTypes.Audio ?
           <AudioPreview onLoad={() => this.waitForLoad()} data={{title, id, url: file.url, date, creators, item_subtype, isCollection: !!count}}/>
           :
-
           <div onClick={() => this.props.openModal(props.data)}>
             <DetailPreview data={props.data} onLoad={() => this.waitForLoad}/>
           </div>
@@ -200,7 +199,7 @@ class HomePage extends React.Component<Props, {}> {
               isAuthenticated ?
                 <></>
                 :
-                <Button color="link" tag={Link} to="/login"><span className="simple-icon-login"/> Login</Button>
+                <Button color="link" tag={Link} to="/login"><span className="simple-icon-login"/>Login / Signup</Button>
             )}
           </AuthConsumer>
           <Row>

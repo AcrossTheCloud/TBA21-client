@@ -1,4 +1,5 @@
 @import '../../base/variables';
+@import "../../utils/animations";
 
 %searchFont {
   color: #fff;
@@ -68,7 +69,7 @@
           margin: 0;
           height: 100%;
           .inputwrapper {
-            height: 100%;
+            height: 60px;
             flex: 1 1 50%;
           }
         }
@@ -229,10 +230,15 @@
       }
     }
 
-
     .results {
       height: 0;
       overflow: hidden;
+    }
+
+    .tags {
+      height: 0;
+      overflow: hidden;
+      position: relative;
     }
 
     &.open {
@@ -312,6 +318,27 @@
               max-width: 100%;
               height: auto !important;
             }
+          }
+        }
+      }
+
+      .tags {
+        height: 60px;
+        width: 100%;
+        .list {
+          position: absolute;
+          top: 10px;
+          white-space: nowrap;
+          /* Starting position */
+          transform:translateX(100vw);
+          /* Apply animation to this element */
+          animation: marquee 80s linear infinite;
+
+          span {
+            padding: 3px 5px 5px;
+            border: 1px solid;
+            margin-right: 10px;
+            cursor: pointer;
           }
         }
       }
