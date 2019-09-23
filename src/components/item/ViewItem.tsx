@@ -137,7 +137,7 @@ class ViewItem extends React.Component<Props, State> {
             {!!license ? <ItemDetails label="License" value={license} /> : ''}
             {!!language ? <ItemDetails label="Language" value={Languages[language]} /> : ''}
 
-            {!!aggregated_concept_tags ?
+            {!!aggregated_concept_tags && aggregated_concept_tags.length ?
               <Row className="border-bottom subline details">
                 <Col xs="12">Concept Tags</Col>
                 <Col xs="12">
@@ -147,7 +147,7 @@ class ViewItem extends React.Component<Props, State> {
                 </Col>
               </Row>
             : ''}
-            {!!aggregated_keyword_tags ?
+            {!!aggregated_keyword_tags && aggregated_keyword_tags.length ?
               <Row className="subline details">
                 <Col xs="12">Keyword Tags</Col>
                 <Col xs="12">
