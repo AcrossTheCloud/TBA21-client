@@ -102,7 +102,7 @@ export const AppRouter = () => {
                 <>
                   <AuthConsumer>
                     {({ isAuthenticated }) => {
-                      if (isAuthenticated) {
+                      if (!history.location.pathname.match(/^\/$/i) || isAuthenticated) {
                         return <Header />;
                       } else {
                         return <></>;
