@@ -482,13 +482,15 @@ export class AddUser extends React.Component<{}, State> {
 
             <FormGroup>
               <Label for="country">Country</Label>
-              <Select 
-                className="select" 
-                classNamePrefix="select" 
-                isSearchable menuPlacement="auto" 
-                placeholder="Country" 
+              <Select
+                className="select"
+                classNamePrefix="select"
+                isSearchable
+                menuPlacement="auto"
+                placeholder="Country"
                 options={selectableCountries}
-                onChange={e => this.fieldChanged(e.value, 'country')} />
+                onChange={e => this.fieldChanged(e.value, 'country')}
+              />
             </FormGroup>
 
             <FormGroup>

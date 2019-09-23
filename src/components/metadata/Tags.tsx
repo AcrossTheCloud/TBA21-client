@@ -272,9 +272,9 @@ export default class Tags extends React.Component<Props, State> {
             isDisabled={this.state.isLoading}
             isLoading={this.state.isLoading}
             placeholder={(this.state.rekognitionTags.length > 0) ?
-              "Pick generated keyword, or start typing then select, or type then hit enter/tab to add a new keyword..."
+              'Pick generated keyword, or start typing then select, or type then hit enter/tab to add a new keyword...'
               :
-              "Start typing then select, or type then hit enter/tab to add a new keyword..."
+              'Start typing then select, or type then hit enter/tab to add a new keyword...'
             }
             cacheOptions
             className="select"
