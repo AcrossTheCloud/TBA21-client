@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Col, Row } from 'reactstrap';
-
 import { fetchCollection } from 'actions/collections/viewCollection';
 import { State } from 'reducers/collections/viewCollection';
 import { ErrorMessage } from '../utils/alerts';
@@ -11,6 +10,7 @@ import { RouteComponentProps, withRouter } from 'react-router';
 
 import CollectionSlider from './CollectionSlider';
 import 'styles/components/pages/viewItem.scss';
+import Share from '../utils/Share';
 
 type MatchParams = {
   id: string;
@@ -52,6 +52,7 @@ class ViewCollection extends React.Component<Props, State> {
     }
 
     const {
+      id,
       creators,
       title,
       description,
@@ -110,6 +111,15 @@ class ViewCollection extends React.Component<Props, State> {
                 }
               </Col>
             </Row>
+
+            {!!id ?
+              <Row>
+                <Col className="text-right">
+                  <Share suffix={`collection/${id}`}/>
+                </Col>
+              </Row>
+              : <></>
+            }
           </Col>
           <Col xs="12" md="4" className="right">
             {!!license ? <CollectionDetails label="License" value={license} /> : ''}
