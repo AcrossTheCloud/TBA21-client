@@ -408,9 +408,15 @@ class SearchConsole extends React.Component<Props, State> {
                             <Col xs="12">
                               {t.title}
                             </Col>
-                            <Col xs="12">
-                              {t.title}
-                            </Col>
+
+                            {t.creators && t.creators.length ?
+                              <Col xs="12">
+                                <div className="creators d-none d-md-block">
+                                  <span className="ellipsis">{t.creators.join(', ')}</span>
+                                </div>
+                              </Col>
+                            : <></>
+                            }
                           </Row>
                         </Col>
                       </Row>
