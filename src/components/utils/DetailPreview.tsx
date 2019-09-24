@@ -58,7 +58,7 @@ export const FileStaticPreview = (props: { file: S3File, onLoad?: Function }): J
 export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Function, modalToggle?: Function}): JSX.Element => {
   if ((!!props.data.file && props.data.file.type === FileTypes.Audio) || props.data.item_type === itemType.Audio) { return <></>; }
 
-  const { file, item_subtype, creators, title, duration } = props.data;
+  const { file, item_subtype, creators, title, duration, count } = props.data;
   return (
     <div className="detailPreview" onClick={() => { if (typeof props.modalToggle === 'function') { props.modalToggle(); } }}>
       {file ? <FileStaticPreview file={file} onLoad={typeof props.onLoad === 'function' ? props.onLoad : undefined}/> : <></>}
@@ -66,12 +66,21 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
         <div className="type">
           {item_subtype}
         </div>
+
+        {!!count && count > 0 ?
+          <div className="count">
+            {count} item{count > 1 ? 's' : ''}
+          </div>
+          :
+          <></>
+          }
+
         <div className="bottom">
           <div className="title-wrapper d-flex">
             {creators && creators.length ?
               <>
                 <div className="creators d-none d-md-block">
-                  <span>{creators.join(', ')}</span>
+                  <span className="ellipsis">{creators.join(', ')}</span>
                 </div>
                 <div className="d-none d-md-block">
                   <FaCircle className="dot"/>
