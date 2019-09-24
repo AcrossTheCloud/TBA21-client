@@ -16,7 +16,7 @@ import { FaCircle } from 'react-icons/all';
 import moment from 'moment';
 import AudioPreview from './layout/audio/AudioPreview';
 import { FileTypes } from '../types/s3File';
-import { DetailPreview } from './utils/DetailPreview';
+import { DetailPreview, FileStaticPreview } from './utils/DetailPreview';
 import { itemType } from '../types/Item';
 
 import 'styles/components/home.scss';
@@ -204,7 +204,7 @@ class HomePage extends React.Component<Props, {}> {
             {!!loaded_highlights[0] ?
               <Col xs="12" md={loaded_highlights.length > 1 ? 8 : 12} className="item" onClick={() => this.props.openModal(loaded_highlights[0])}>
                 <div className="file">
-                  <DetailPreview data={loaded_highlights[0]}/>
+                  {loaded_highlights[0].file ? <FileStaticPreview file={loaded_highlights[0].file} /> : <></>}
                 </div>
 
                 <div className="overlay">
@@ -220,14 +220,14 @@ class HomePage extends React.Component<Props, {}> {
                 <Row className="d-none d-md-block">
                   <Col xs="12">
                     <div className="file">
-                      <DetailPreview data={loaded_highlights[1]}/>
+                      {loaded_highlights[1].file ? <FileStaticPreview file={loaded_highlights[1].file} /> : <></>}
                     </div>
                     <this.HighlightsItemDetails index={1}/>
                   </Col>
                 </Row>
                 <div className="d-md-none py-4 py-md-0">
                   <div className="file">
-                    <DetailPreview data={loaded_highlights[1]}/>
+                    {loaded_highlights[1].file ? <FileStaticPreview file={loaded_highlights[1].file} /> : <></>}
                     <div className="overlay">
                       <this.HighlightsItemDetails index={1}/>
                     </div>
