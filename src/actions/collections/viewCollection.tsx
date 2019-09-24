@@ -46,7 +46,8 @@ export const fetchCollection = (id: string) => async (dispatch, getState) => {
 
         const itemResponse = await API.get('tba21', 'collections/getItemsInCollection', {
           queryStringParameters: {
-            id: collection.id
+            id: collection.id,
+            limit: 1000
           }
         });
 
