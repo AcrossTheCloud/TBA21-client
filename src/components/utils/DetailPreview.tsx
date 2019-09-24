@@ -109,10 +109,22 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
           </div>
           : <></>}
         {!collectionType && data.file && data.file.type === FileTypes.Video ?
-          <div className="playButton">
+          <div className="middle">
             <FaPlay/>
           </div>
-          : <></>
+          :
+          collectionType ?
+            <div className="middle">
+              <svg className="collection_icon" viewBox="0 0 7 31" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
+                <g stroke="none" strokeWidth="1" fill="#fff">
+                  <rect id="Rectangle" x="3" y="6" width="1" height="19" />
+                  <circle id="Oval" cx="3.5" cy="3.5" r="3.5"/>
+                  <circle id="Oval-Copy-2" cx="3.5" cy="15.5" r="2.5"/>
+                  <circle id="Oval-Copy" cx="3.5" cy="27.5" r="3.5"/>
+                </g>
+              </svg>
+            </div>
+            : <></>
         }
       </div>
     </div>
