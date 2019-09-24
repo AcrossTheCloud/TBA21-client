@@ -6,7 +6,7 @@ import { debounce } from 'lodash';
 import { withCookies, Cookies } from 'react-cookie';
 
 import { AuthConsumer } from '../providers/AuthProvider';
-import { logoDispatch, loadHomepage, loadMore, openModal, closeModal } from 'actions/home';
+import { logoDispatch, loadHomepage, loadMore, openModal } from 'actions/home';
 import { toggle as searchOpenToggle } from 'actions/searchConsole';
 
 import { HomepageData, HomePageState } from '../reducers/home';
@@ -27,7 +27,6 @@ interface Props extends HomePageState {
   loadMore: Function;
   oaHighlights: Function;
   openModal: Function;
-  closeModal: Function;
   searchOpenToggle: Function;
   cookies: Cookies;
 }
@@ -62,7 +61,6 @@ class HomePage extends React.Component<Props, {}> {
     this._isMounted = false;
     window.removeEventListener('scroll', this.scrollDebounce, false);
     window.removeEventListener('scroll', this.handleScrollMobileSearch, false);
-    this.props.closeModal();
   }
 
   componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>, snapshot?: any): void {
@@ -199,7 +197,7 @@ class HomePage extends React.Component<Props, {}> {
               isAuthenticated ?
                 <></>
                 :
-                <Button color="link" tag={Link} to="/login"><span className="simple-icon-login"/>Login / Signup</Button>
+                <Button color="link" tag={Link} to="/login"><span className="simple-icon-login login-button" />Login / Signup</Button>
             )}
           </AuthConsumer>
           <Row>
@@ -313,4 +311,4 @@ const mapStateToProps = (state: { home: Props }) => ({
   loaded_highlights: state.home.loaded_highlights
 });
 
-export default connect(mapStateToProps, { logoDispatch, loadHomepage, loadMore, openModal, closeModal, searchOpenToggle })(withCookies(HomePage));
+export default connect(mapStateToProps, { logoDispatch, loadHomepage, loadMore, openModal, searchOpenToggle })(withCookies(HomePage));

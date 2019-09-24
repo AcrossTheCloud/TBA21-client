@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { isEqual } from 'lodash';
+import { connect } from 'react-redux';
 
 import { Carousel, CarouselControl, CarouselIndicators, CarouselItem, Col, Row } from 'reactstrap';
 import { itemType } from '../../types/Item';
@@ -7,18 +8,19 @@ import { checkTypeIsItem, DetailPreview, ItemOrHomePageData } from '../utils/Det
 import { FileTypes } from '../../types/s3File';
 import AudioPreview from '../layout/audio/AudioPreview';
 import { ErrorMessage } from '../utils/alerts';
+import { toggle } from 'actions/modals/itemModal';
 
 interface Props {
   items: ItemOrHomePageData[] | undefined;
+  toggle: Function;
 }
 interface State {
   activeIndex: number;
   items: ItemOrHomePageData[];
   slides: JSX.Element[];
-  modalOpen: boolean;
 }
 
-export class CollectionSlider extends React.Component<Props, State> {
+class CollectionSlider extends React.Component<Props, State> {
   animating: boolean = false;
 
   constructor(props: Props) {
@@ -27,8 +29,7 @@ export class CollectionSlider extends React.Component<Props, State> {
     this.state = {
       activeIndex: 0,
       items: this.props.items || [],
-      slides: [],
-      modalOpen: false
+      slides: []
     };
   }
 
@@ -47,13 +48,11 @@ export class CollectionSlider extends React.Component<Props, State> {
   slides = (slides: ItemOrHomePageData[]): JSX.Element[] => {
     if (!slides) { return [<ErrorMessage key={1} message={'This collection has no items.'} />]; }
 
-    let itemAmount: number = 8;
-    if (window.innerWidth < 540) {
+    let itemAmount: number = 4;
+    if (window.innerWidth <= 540) {
       itemAmount = 1;
-    } else if (window.innerWidth > 540) {
-      itemAmount = 4;
-    } else if (window.innerWidth < 720) {
-      itemAmount = 6;
+    } else if (window.innerWidth >= 540) {
+      itemAmount = 2;
     }
 
     return slides.reduce( (accumulator: ItemOrHomePageData[][], currentValue: ItemOrHomePageData, currentIndex, array: ItemOrHomePageData[]) => { // tslint:disable-line: no-any
@@ -73,8 +72,8 @@ export class CollectionSlider extends React.Component<Props, State> {
             items.map( (item: ItemOrHomePageData, idx: number) => {
               const isAudio = (!!item.file && item.file.type === FileTypes.Audio) || (!!item.file && item.item_type === itemType.Audio);
               const xs = 12;
-              const sm = isAudio ? 12 : 4;
-              const md = isAudio ? 12 : 3;
+              const sm = isAudio ? 12 : 6;
+              const md = isAudio ? 12 : 4;
               return (
                 <Col xs={xs} sm={sm} md={md} key={idx} className="px-0">
                   {
@@ -88,7 +87,7 @@ export class CollectionSlider extends React.Component<Props, State> {
                         date: checkTypeIsItem(item) ? (!!item.created_at ? item.created_at : '') : (!!item.date ? item.date : '')
                       }}
                     />
-                    : <DetailPreview data={item} modalToggle={this.toggleModal}/>
+                    : <DetailPreview data={item} modalToggle={() => this.props.toggle(true, item)} />
                   }
                 </Col>
               );
@@ -131,12 +130,6 @@ export class CollectionSlider extends React.Component<Props, State> {
     this.setState({activeIndex: newIndex});
   }
 
-  toggleModal = () => {
-    this.setState(prevState => ({
-      modalOpen: !prevState.modalOpen
-    }));
-  }
-
   render() {
     const { activeIndex, items, slides } = this.state;
     if (!items || !items.length) {
@@ -168,3 +161,5 @@ export class CollectionSlider extends React.Component<Props, State> {
     );
   }
 }
+
+export default connect(undefined, { toggle })(CollectionSlider);

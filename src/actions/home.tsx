@@ -6,6 +6,8 @@ import config from 'config';
 import { FileTypes, S3File } from '../types/s3File';
 import { Announcement } from '../types/Announcement';
 import { itemType } from '../types/Item';
+import { COLLECTION_MODAL_TOGGLE } from './modals/collectionModal';
+import { ITEM_MODAL_TOGGLE } from './modals/itemModal';
 
 // Defining our Actions for the reducers
 export const LOGO_STATE_HOMEPAGE = 'LOGO_STATE_HOMEPAGE';
@@ -148,26 +150,19 @@ export const loadMore = (
 };
 
 // Modal
-export const closeModal = () => dispatch => {
-  dispatch({
-    type: MODAL_STATE_HOMEPAGE,
-    isModalOpen: false,
-    data: undefined
-  });
-};
-
-export const openModal = (data: HomepageData) => async dispatch => {
-  const dataObject = data;
-  // Add the file to all under items;
-  if (dataObject.items) {
-    Object.assign(dataObject, {
-      items: await addFilesToData(dataObject.items)
-    });
+export const openModal = (data: HomepageData) => dispatch => {
+  if (data.hasOwnProperty('count') || data.hasOwnProperty('items') || data.hasOwnProperty('type')) {
+    // We have a collection.
+    dispatch({
+     type: COLLECTION_MODAL_TOGGLE,
+     open: true,
+     data
+   });
+  } else {
+    dispatch({
+       type: ITEM_MODAL_TOGGLE,
+       open: true,
+       data
+     });
   }
-
-  dispatch({
-    type: MODAL_STATE_HOMEPAGE,
-     isModalOpen: true,
-     modalData: dataObject
-  });
 };

@@ -9,8 +9,8 @@ import { ErrorMessage } from '../utils/alerts';
 import { browser } from '../utils/browser';
 import { RouteComponentProps, withRouter } from 'react-router';
 
+import CollectionSlider from './CollectionSlider';
 import 'styles/components/pages/viewItem.scss';
-import { CollectionSlider } from './CollectionSlider';
 
 type MatchParams = {
   id: string;
