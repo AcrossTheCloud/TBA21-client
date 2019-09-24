@@ -60,14 +60,14 @@ class CollectionModal extends React.Component<Props, {}> {
       return (
         <Modal id="homePageModal" scrollable className="fullwidth" isOpen={this.props.open} backdrop toggle={() => this.props.toggle()}>
           <Row className="header align-content-center">
-            <div className="col-10 col-sm-11 title-wrapper d-flex align-content-center">
+            <div className="col-11 title-wrapper d-flex align-content-center">
               <div className="title">
                 <span className="ellipsis">
                   {title}
                 </span>
               </div>
             </div>
-            <Col xs="1">
+            <Col xs="1" className="pl-0 pr-3">
               <div className="text-right">
                 <FaTimes className="closeButton" onClick={() => this.props.toggle(false)}/>
               </div>

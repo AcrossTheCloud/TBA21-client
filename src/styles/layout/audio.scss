@@ -13,6 +13,11 @@
     color: #000;
     align-items: center;
 
+    .info {
+      max-height: 95%;
+      overflow: hidden;
+    }
+
     .background {
       position: absolute;
       top: 0;

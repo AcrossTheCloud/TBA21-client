@@ -137,7 +137,7 @@ class HomePage extends React.Component<Props, {}> {
           </Link>
         </div>
         {!!tags && tags.length ?
-          <div className="tags d-none d-sm-block">
+          <div className="tags d-none d-md-block">
             {tags.map(t => `#${t}`).join(' ').toString()}
           </div>
           : <></>
@@ -207,7 +207,7 @@ class HomePage extends React.Component<Props, {}> {
                   <DetailPreview data={loaded_highlights[0]}/>
                 </div>
 
-                <div className="d-sm-none overlay">
+                <div className="d-md-none overlay">
                   <this.HighlightsItemDetails index={0}/>
                 </div>
 
@@ -217,7 +217,7 @@ class HomePage extends React.Component<Props, {}> {
             }
             {!!loaded_highlights[1] ?
               <Col xs="12" md="4" className="item" onClick={() => this.props.openModal(loaded_highlights[1])}>
-                <Row className="d-none d-sm-block">
+                <Row className="d-none d-md-block">
                   <Col xs="12">
                     <div className="file">
                       <DetailPreview data={loaded_highlights[1]}/>
@@ -225,7 +225,7 @@ class HomePage extends React.Component<Props, {}> {
                     <this.HighlightsItemDetails index={1}/>
                   </Col>
                 </Row>
-                <div className="d-sm-none">
+                <div className="d-md-none py-4 py-md-0">
                   <div className="file">
                     <DetailPreview data={loaded_highlights[1]}/>
                     <div className="overlay">
@@ -241,14 +241,14 @@ class HomePage extends React.Component<Props, {}> {
           </Row>
           <Row>
             {!!loaded_highlights[0] ?
-              <Col md="8" className="d-none d-sm-block item" onClick={() => this.props.openModal(loaded_highlights[0])}>
+              <Col md="8" className="d-none d-md-block item" onClick={() => this.props.openModal(loaded_highlights[0])}>
                 <this.HighlightsItemDetails index={0} />
               </Col>
               : <></>
             }
 
             {announcements && announcements.length ?
-              <Col md="4" className="announcement">
+              <Col md="4" className="announcement pt-4 pt-md-0 col-md-4">
                 <div className="type">
                   Announcement
                 </div>
