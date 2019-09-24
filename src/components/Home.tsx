@@ -207,7 +207,7 @@ class HomePage extends React.Component<Props, {}> {
                   <DetailPreview data={loaded_highlights[0]}/>
                 </div>
 
-                <div className="d-md-none overlay">
+                <div className="overlay">
                   <this.HighlightsItemDetails index={0}/>
                 </div>
 
@@ -240,15 +240,9 @@ class HomePage extends React.Component<Props, {}> {
 
           </Row>
           <Row>
-            {!!loaded_highlights[0] ?
-              <Col md="8" className="d-none d-md-block item" onClick={() => this.props.openModal(loaded_highlights[0])}>
-                <this.HighlightsItemDetails index={0} />
-              </Col>
-              : <></>
-            }
 
             {announcements && announcements.length ?
-              <Col md="4" className="announcement pt-4 pt-md-0 col-md-4">
+              <Col md={{ size: 4, offset: 8 }} className="announcement pt-4">
                 <div className="type">
                   Announcement
                 </div>
