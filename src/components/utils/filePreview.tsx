@@ -42,10 +42,22 @@ export const FilePreview = (props: { file: S3File }): JSX.Element => {
         </div>
       );
 
-    case FileTypes.DownloadText || FileTypes.Text:
-      return <img alt="" src="https://upload.wikimedia.org/wikipedia/commons/2/22/Unscharfe_Zeitung.jpg" className="image-fluid"/>;
+    case FileTypes.Text:
+      return (
+        <Col className="text">
+          {props.file.body}
+        </Col>
+      );
 
     default:
-      return <img alt="" src="https://upload.wikimedia.org/wikipedia/commons/2/22/Unscharfe_Zeitung.jpg" className="image-fluid"/>;
+      return (
+        <Col className="px-0 image text-center">
+          <img
+            alt={''}
+            src="https://upload.wikimedia.org/wikipedia/commons/2/22/Unscharfe_Zeitung.jpg"
+            className="image-fluid"
+          />
+        </Col>
+      );
   }
 };

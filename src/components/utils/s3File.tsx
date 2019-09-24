@@ -75,7 +75,8 @@ export const getCDNObject = async (key: string): Promise<S3File | false> => {
 
         if (type === FileTypes.Text) {
           const body = await fetch(url);
-          Object.assign(response, {body});
+          const text = await body.text();
+          Object.assign(response, { body: text });
         }
 
         if (type === FileTypes.Video) {
