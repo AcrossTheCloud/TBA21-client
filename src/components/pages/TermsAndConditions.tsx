@@ -128,6 +128,14 @@ class TermsAndConditions extends React.Component<Props, {}> {
 
               <p>In the event that one or more current or future provisions of these Terms shall be, or shall be deemed to be, fully or partly, invalid or unenforceable, the validity and enforceability of the other provisions shall not be affected thereby. The invalid or unenforceable provision shall be replaced by such appropriate provision that, to the extent legally permissible, comes closest to the actual or assumed intention of these Terms as of the date of the amendment of these Terms.</p>
 
+            <h4 className="pt-5">Third Party Image Credits</h4>
+            <p>
+              Christian Alexander Tietgen <br/>
+              <a title="Christian Alexander Tietgen [CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0)], via Wikimedia Commons" href="https://commons.wikimedia.org/wiki/File:Unscharfe_Zeitung.jpg">
+                <img width="100" alt="Unscharfe Zeitung" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Unscharfe_Zeitung.jpg/512px-Unscharfe_Zeitung.jpg" />
+              </a>
+            </p>
+
           </ModalBody>
       </Modal>
     );

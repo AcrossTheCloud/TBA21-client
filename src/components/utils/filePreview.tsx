@@ -4,6 +4,8 @@ import ReactPlayer from 'react-player';
 import * as React from 'react';
 import { thumbnailsSRCSET } from './s3File';
 
+import textImage from 'images/defaults/Unscharfe_Zeitung.jpg';
+
 export const FilePreview = (props: { file: S3File }): JSX.Element => {
   switch (props.file.type) {
     case FileTypes.Image:
@@ -54,7 +56,7 @@ export const FilePreview = (props: { file: S3File }): JSX.Element => {
         <Col className="px-0 image text-center">
           <img
             alt={''}
-            src="https://upload.wikimedia.org/wikipedia/commons/2/22/Unscharfe_Zeitung.jpg"
+            src={textImage}
             className="image-fluid"
           />
         </Col>

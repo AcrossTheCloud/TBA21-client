@@ -10,6 +10,8 @@ import 'styles/components/detailPreview.scss';
 import { thumbnailsSRCSET } from './s3File';
 import { collectionTypes } from '../../types/Collection';
 
+import textImage from 'images/defaults/Unscharfe_Zeitung.jpg';
+
 export type ItemOrHomePageData = Item | HomepageData;
 
 export const checkTypeIsItem = (toBeDetermined: ItemOrHomePageData): toBeDetermined is Item => {
@@ -48,7 +50,7 @@ export const FileStaticPreview = (props: { file: S3File, onLoad?: Function }): J
           <img
             onLoad={typeof props.onLoad === 'function' ? props.onLoad() : () => { return; }}
             alt={''}
-            src="https://upload.wikimedia.org/wikipedia/commons/2/22/Unscharfe_Zeitung.jpg"
+            src={textImage}
             className="image-fluid"
           />
         </picture>
