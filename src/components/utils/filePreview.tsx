@@ -22,7 +22,7 @@ export const FilePreview = (props: { file: S3File }): JSX.Element => {
         </Col>
       );
     case FileTypes.Video:
-      // const poster = !!props.file.poster ? props.file.poster : '';
+      const poster = !!props.file.poster ? props.file.poster : '';
 
       return (
         <Col className="px-0 h-100 video">
@@ -31,8 +31,8 @@ export const FilePreview = (props: { file: S3File }): JSX.Element => {
             url={props.file.playlist || props.file.url}
             vertical-align="top"
             className="player"
+            config={{ file: { attributes: { poster: poster }} }}
           />
-          {/*{!!poster ? <div className="background" style={{background: `url(${poster})`, backgroundSize: 'contain'}} /> : <></>}*/}
         </Col>
       );
     case FileTypes.Pdf:
