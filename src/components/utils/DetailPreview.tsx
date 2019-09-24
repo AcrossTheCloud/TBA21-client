@@ -8,6 +8,9 @@ import { HomepageData } from '../../reducers/home';
 
 import 'styles/components/detailPreview.scss';
 import { thumbnailsSRCSET } from './s3File';
+import { collectionTypes } from '../../types/Collection';
+
+import textImage from 'images/defaults/Unscharfe_Zeitung.jpg';
 
 export type ItemOrHomePageData = Item | HomepageData;
 
@@ -47,7 +50,7 @@ export const FileStaticPreview = (props: { file: S3File, onLoad?: Function }): J
           <img
             onLoad={typeof props.onLoad === 'function' ? props.onLoad() : () => { return; }}
             alt={''}
-            src="https://upload.wikimedia.org/wikipedia/commons/2/22/Unscharfe_Zeitung.jpg"
+            src={textImage}
             className="image-fluid"
           />
         </picture>
@@ -58,20 +61,38 @@ export const FileStaticPreview = (props: { file: S3File, onLoad?: Function }): J
 export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Function, modalToggle?: Function}): JSX.Element => {
   if ((!!props.data.file && props.data.file.type === FileTypes.Audio) || props.data.item_type === itemType.Audio) { return <></>; }
 
-  const { file, item_subtype, creators, title, duration } = props.data;
+  let data: ItemOrHomePageData = props.data;
+  let collectionType: collectionTypes | null | undefined = null;
+  if (checkTypeIsItem(props.data)) {
+    data = data as Item;
+  } else {
+    data = data as HomepageData;
+    collectionType = data.type;
+  }
+
   return (
     <div className="detailPreview" onClick={() => { if (typeof props.modalToggle === 'function') { props.modalToggle(); } }}>
-      {file ? <FileStaticPreview file={file} onLoad={typeof props.onLoad === 'function' ? props.onLoad : undefined}/> : <></>}
+      {data.file ? <FileStaticPreview file={data.file} onLoad={typeof props.onLoad === 'function' ? props.onLoad : undefined}/> : <></>}
       <div className="overlay">
         <div className="type">
-          {item_subtype}
+          {data.item_subtype || !!collectionType ? collectionType : ''}
         </div>
+
+        {
+          !!data.count && data.count > 0 ?
+            <div className="count">
+              {data.count} item{data.count > 1 ? 's' : ''}
+            </div>
+            :
+            <></>
+        }
+
         <div className="bottom">
           <div className="title-wrapper d-flex">
-            {creators && creators.length ?
+            {data.creators && data.creators.length ?
               <>
                 <div className="creators d-none d-md-block">
-                  <span>{creators.join(', ')}</span>
+                  <span className="ellipsis">{data.creators.join(', ')}</span>
                 </div>
                 <div className="d-none d-md-block">
                   <FaCircle className="dot"/>
@@ -80,20 +101,32 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
               : <></>
             }
             <div className="title">
-              {title}
+              {data.title}
             </div>
           </div>
         </div>
-        {duration ?
+        {data.duration ?
           <div className="duration">
-            {moment.duration((typeof duration === 'string' ? parseInt(duration, 0) : duration), 'seconds').format('hh:mm:ss')}
+            {moment.duration((typeof data.duration === 'string' ? parseInt(data.duration, 0) : data.duration), 'seconds').format('hh:mm:ss')}
           </div>
           : <></>}
-        {file && file.type === FileTypes.Video ?
-          <div className="playButton">
+        {!collectionType && data.file && data.file.type === FileTypes.Video ?
+          <div className="middle">
             <FaPlay/>
           </div>
-          : <></>
+          :
+          collectionType ?
+            <div className="middle">
+              <svg className="collection_icon" viewBox="0 0 7 31" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
+                <g stroke="none" strokeWidth="1" fill="#fff">
+                  <rect id="Rectangle" x="3" y="6" width="1" height="19" />
+                  <circle id="Oval" cx="3.5" cy="3.5" r="3.5"/>
+                  <circle id="Oval-Copy-2" cx="3.5" cy="15.5" r="2.5"/>
+                  <circle id="Oval-Copy" cx="3.5" cy="27.5" r="3.5"/>
+                </g>
+              </svg>
+            </div>
+            : <></>
         }
       </div>
     </div>

@@ -4,13 +4,15 @@ import ReactPlayer from 'react-player';
 import * as React from 'react';
 import { thumbnailsSRCSET } from './s3File';
 
+import textImage from 'images/defaults/Unscharfe_Zeitung.jpg';
+
 export const FilePreview = (props: { file: S3File }): JSX.Element => {
   switch (props.file.type) {
     case FileTypes.Image:
-      let background: string | undefined = undefined;
-      if (props.file.thumbnails) {
-        background = props.file.thumbnails['1140'] || props.file.thumbnails['960'] || props.file.thumbnails['720'] || props.file.thumbnails['540'];
-      }
+      // let background: string | undefined = undefined;
+      // if (props.file.thumbnails) {
+      //   background = props.file.thumbnails['1140'] || props.file.thumbnails['960'] || props.file.thumbnails['720'] || props.file.thumbnails['540'];
+      // }
       return (
         <Col className="px-0 image text-center">
           <img
@@ -18,7 +20,7 @@ export const FilePreview = (props: { file: S3File }): JSX.Element => {
             src={props.file.url}
             alt=""
           />
-          <div className="background" style={{ background: `url(${!!background ? encodeURI(background) : props.file.url})`, backgroundSize: 'contain' }} />
+          {/*<div className="background" style={{ background: `url(${!!background ? encodeURI(background) : props.file.url})`, backgroundSize: 'contain' }} />*/}
         </Col>
       );
     case FileTypes.Video:
@@ -31,8 +33,8 @@ export const FilePreview = (props: { file: S3File }): JSX.Element => {
             url={props.file.playlist || props.file.url}
             vertical-align="top"
             className="player"
+            config={{ file: { attributes: { poster: poster }} }}
           />
-          {!!poster ? <div className="background" style={{background: `url(${poster})`, backgroundSize: 'contain'}} /> : <></>}
         </Col>
       );
     case FileTypes.Pdf:
@@ -42,10 +44,22 @@ export const FilePreview = (props: { file: S3File }): JSX.Element => {
         </div>
       );
 
-    case FileTypes.DownloadText || FileTypes.Text:
-      return <img alt="" src="https://upload.wikimedia.org/wikipedia/commons/2/22/Unscharfe_Zeitung.jpg" className="image-fluid"/>;
+    case FileTypes.Text:
+      return (
+        <Col className="text">
+          {props.file.body}
+        </Col>
+      );
 
     default:
-      return <img alt="" src="https://upload.wikimedia.org/wikipedia/commons/2/22/Unscharfe_Zeitung.jpg" className="image-fluid"/>;
+      return (
+        <Col className="px-0 image text-center">
+          <img
+            alt={''}
+            src={textImage}
+            className="image-fluid"
+          />
+        </Col>
+      );
   }
 };

@@ -48,7 +48,8 @@ import LoadingOverlay from './components/LoadingOverlay';
 import PrivacyPolicyPopUp from './components/PrivacyPolicyPopUp';
 import PrivacyPolicy from './components/pages/PrivacyPolicy';
 import TermsAndConditions from './components/pages/TermsAndConditions';
-import HomePageModal from './components/HomePageModal';
+import ItemModal from './components/modals/ItemModal';
+import CollectionModal from './components/modals/CollectionModal';
 
 const LoggedInRoutes = ({ isAuthenticated, ...rest }) => {
   const isLoggedIn = isAuthenticated;
@@ -113,7 +114,8 @@ export const AppRouter = () => {
                   <PrivacyPolicyPopUp />
                   <PrivacyPolicy />
                   <TermsAndConditions />
-                  <HomePageModal />
+                  <ItemModal />
+                  <CollectionModal />
                   <LoadingOverlay />
                 </>
               )}

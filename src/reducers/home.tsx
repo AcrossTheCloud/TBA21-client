@@ -2,6 +2,7 @@ import { LOAD_HOMEPAGE, LOGO_STATE_HOMEPAGE, LOAD_MORE_HOMEPAGE, MODAL_STATE_HOM
 import { S3File } from '../types/s3File';
 import { Announcement } from '../types/Announcement';
 import { itemType } from '../types/Item';
+import { collectionTypes } from '../types/Collection';
 
 export interface HomepageData {
   file: S3File;
@@ -17,8 +18,8 @@ export interface HomepageData {
   regions?: string[];
 
   // Collection specific
-  count?: string;
-  type?: itemType | null;
+  count?: number;
+  type?: collectionTypes | null;
   items?: HomepageData[];
 
   // OA Highlight specific

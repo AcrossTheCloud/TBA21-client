@@ -12,6 +12,8 @@
     #home {
       #header {
         height: auto;
+        margin-bottom: 10px;
+        padding-bottom: 40px;
         transform: translate3d(0,0,0);
       }
     }
@@ -29,7 +31,7 @@
 
   .d-flex.title-wrapper {
     overflow: hidden;
-    font-size: 18px;
+    font-size: 20px;
     .creators, .title {
       max-width: 45%;
     }
@@ -57,6 +59,10 @@
     }
   }
 
+  .login-button {
+    margin-right: 10px;
+  }
+
   .d-flex.title-wrapper {
     flex-wrap: wrap;
   }
@@ -68,12 +74,14 @@
   }
 
   #header {
-    margin-bottom: 10px;
     height: 0;
-    padding-bottom: 40px;
     background: $dark-blue;
     transform: translate3d(0,-60vw,0);
     transition: transform .5s cubic-bezier(0.22, 0.61, 0.36, 1);
+
+    .file {
+      cursor: pointer;
+    }
   }
 
   .announcement {

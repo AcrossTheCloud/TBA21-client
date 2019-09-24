@@ -29,6 +29,8 @@ import Select from 'react-select';
 import { isArray, isEqual } from 'lodash';
 import { Item, itemAudio, itemImage, itemText, itemVideo } from '../../types/Item';
 
+import textImage from 'images/defaults/Unscharfe_Zeitung.jpg';
+
 import {
   countries,
   itemAudioSubTypes,
@@ -219,7 +221,7 @@ class ItemEditorClass extends React.Component<Props, State> {
         } else if (file.type === FileTypes.DownloadText || file.type === FileTypes.Text) {
           return (
             <a href={file.url} target="_blank" rel="noopener noreferrer">
-              <img alt="" src="https://upload.wikimedia.org/wikipedia/commons/2/22/Unscharfe_Zeitung.jpg" className="image-fluid"/>
+              <img alt="" src={textImage} className="image-fluid"/>
             </a>
           );
         } else { return warning; }
@@ -747,7 +749,7 @@ class ItemEditorClass extends React.Component<Props, State> {
 
         <Col md="6">
           <FormGroup>
-            <Label for="journal">Journal</Label>
+            <Label for="journal">Magazine/Journal</Label>
             <Input
               type="text"
               className="journal"

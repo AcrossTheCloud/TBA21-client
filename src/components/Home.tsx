@@ -6,7 +6,7 @@ import { debounce } from 'lodash';
 import { withCookies, Cookies } from 'react-cookie';
 
 import { AuthConsumer } from '../providers/AuthProvider';
-import { logoDispatch, loadHomepage, loadMore, openModal, closeModal } from 'actions/home';
+import { logoDispatch, loadHomepage, loadMore, openModal } from 'actions/home';
 import { toggle as searchOpenToggle } from 'actions/searchConsole';
 
 import { HomepageData, HomePageState } from '../reducers/home';
@@ -16,7 +16,7 @@ import { FaCircle } from 'react-icons/all';
 import moment from 'moment';
 import AudioPreview from './layout/audio/AudioPreview';
 import { FileTypes } from '../types/s3File';
-import { DetailPreview } from './utils/DetailPreview';
+import { DetailPreview, FileStaticPreview } from './utils/DetailPreview';
 import { itemType } from '../types/Item';
 
 import 'styles/components/home.scss';
@@ -27,7 +27,6 @@ interface Props extends HomePageState {
   loadMore: Function;
   oaHighlights: Function;
   openModal: Function;
-  closeModal: Function;
   searchOpenToggle: Function;
   cookies: Cookies;
 }
@@ -54,7 +53,7 @@ class HomePage extends React.Component<Props, {}> {
     if (!this.props.loadedItems.length) {
       await this.props.loadHomepage();
       await this.props.loadMore(this.props.items, this.props.collections, this.props.announcements, this.props.audio, this.props.loadedItems);
-      this.loadedCount = this.props.loadedItems.filter(t => (t.type === itemType.PDF || t.type === itemType.Text || t.type === itemType.DownloadText)).length;
+      this.loadedCount = this.props.loadedItems.filter(t => (t.item_type === itemType.PDF || t.item_type === itemType.Text || t.item_type === itemType.DownloadText)).length;
     }
   }
 
@@ -62,7 +61,6 @@ class HomePage extends React.Component<Props, {}> {
     this._isMounted = false;
     window.removeEventListener('scroll', this.scrollDebounce, false);
     window.removeEventListener('scroll', this.handleScrollMobileSearch, false);
-    this.props.closeModal();
   }
 
   componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>, snapshot?: any): void {
@@ -139,7 +137,7 @@ class HomePage extends React.Component<Props, {}> {
           </Link>
         </div>
         {!!tags && tags.length ?
-          <div className="tags d-none d-sm-block">
+          <div className="tags d-none d-md-block">
             {tags.map(t => `#${t}`).join(' ').toString()}
           </div>
           : <></>
@@ -199,17 +197,17 @@ class HomePage extends React.Component<Props, {}> {
               isAuthenticated ?
                 <></>
                 :
-                <Button color="link" tag={Link} to="/login"><span className="simple-icon-login"/>Login / Signup</Button>
+                <Button color="link" tag={Link} to="/login"><span className="simple-icon-login login-button" />Login / Signup</Button>
             )}
           </AuthConsumer>
           <Row>
             {!!loaded_highlights[0] ?
               <Col xs="12" md={loaded_highlights.length > 1 ? 8 : 12} className="item" onClick={() => this.props.openModal(loaded_highlights[0])}>
                 <div className="file">
-                  <DetailPreview data={loaded_highlights[0]}/>
+                  {loaded_highlights[0].file ? <FileStaticPreview file={loaded_highlights[0].file} /> : <></>}
                 </div>
 
-                <div className="d-sm-none overlay">
+                <div className="overlay">
                   <this.HighlightsItemDetails index={0}/>
                 </div>
 
@@ -219,17 +217,17 @@ class HomePage extends React.Component<Props, {}> {
             }
             {!!loaded_highlights[1] ?
               <Col xs="12" md="4" className="item" onClick={() => this.props.openModal(loaded_highlights[1])}>
-                <Row className="d-none d-sm-block">
+                <Row className="d-none d-md-block">
                   <Col xs="12">
                     <div className="file">
-                      <DetailPreview data={loaded_highlights[1]}/>
+                      {loaded_highlights[1].file ? <FileStaticPreview file={loaded_highlights[1].file} /> : <></>}
                     </div>
                     <this.HighlightsItemDetails index={1}/>
                   </Col>
                 </Row>
-                <div className="d-sm-none">
+                <div className="d-md-none py-4 py-md-0">
                   <div className="file">
-                    <DetailPreview data={loaded_highlights[1]}/>
+                    {loaded_highlights[1].file ? <FileStaticPreview file={loaded_highlights[1].file} /> : <></>}
                     <div className="overlay">
                       <this.HighlightsItemDetails index={1}/>
                     </div>
@@ -242,15 +240,9 @@ class HomePage extends React.Component<Props, {}> {
 
           </Row>
           <Row>
-            {!!loaded_highlights[0] ?
-              <Col md="8" className="d-none d-sm-block item" onClick={() => this.props.openModal(loaded_highlights[0])}>
-                <this.HighlightsItemDetails index={0} />
-              </Col>
-              : <></>
-            }
 
             {announcements && announcements.length ?
-              <Col md="4" className="announcement">
+              <Col md={{ size: 4, offset: 8 }} className="announcement pt-4">
                 <div className="type">
                   Announcement
                 </div>
@@ -313,4 +305,4 @@ const mapStateToProps = (state: { home: Props }) => ({
   loaded_highlights: state.home.loaded_highlights
 });
 
-export default connect(mapStateToProps, { logoDispatch, loadHomepage, loadMore, openModal, closeModal, searchOpenToggle })(withCookies(HomePage));
+export default connect(mapStateToProps, { logoDispatch, loadHomepage, loadMore, openModal, searchOpenToggle })(withCookies(HomePage));

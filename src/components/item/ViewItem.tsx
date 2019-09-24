@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Col, Row } from 'reactstrap';
-
 import { fetchItem } from 'actions/items/viewItem';
 import { State } from 'reducers/items/viewItem';
 import { Alerts, ErrorMessage } from '../utils/alerts';
@@ -13,6 +12,7 @@ import { browser } from '../utils/browser';
 import { RouteComponentProps, withRouter } from 'react-router';
 
 import 'styles/components/pages/viewItem.scss';
+import Share from '../utils/Share';
 
 type MatchParams = {
   id: string;
@@ -55,6 +55,7 @@ class ViewItem extends React.Component<Props, State> {
     }
 
     const {
+      id,
       file,
       creators,
       title,
@@ -125,6 +126,16 @@ class ViewItem extends React.Component<Props, State> {
                 }
               </Col>
             </Row>
+
+            {!!id ?
+              <Row>
+                <Col className="text-right">
+                  <Share suffix={`view/${id}`}/>
+                </Col>
+              </Row>
+              : <></>
+            }
+
           </Col>
           <Col xs="12" md="4" className="right">
             {!!regions ?
