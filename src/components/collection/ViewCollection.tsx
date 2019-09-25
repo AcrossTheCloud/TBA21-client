@@ -12,6 +12,7 @@ import CollectionSlider from './CollectionSlider';
 import Share from '../utils/Share';
 import moment from 'moment';
 import 'styles/components/pages/viewItem.scss';
+import { Regions } from '../../types/Item';
 
 type MatchParams = {
   id: string;
@@ -65,7 +66,12 @@ class ViewCollection extends React.Component<Props, {}> {
       focus_arts,
       focus_scitech,
       time_produced,
-      year_produced
+      year_produced,
+      venues,
+      exhibited_at,
+      url,
+      regions,
+      copyright_holder
     } = this.props.collection;
 
     let focusTotal = 0;
@@ -129,8 +135,22 @@ class ViewCollection extends React.Component<Props, {}> {
               <CollectionDetails label="Date Produced" value={moment(time_produced).format('Do MMMM YYYY')} />
               : year_produced ? <CollectionDetails label="Year Produced" value={moment(year_produced).format('YYYY')} /> : <></>
             }
-
+            {!!venues && venues.length ?
+              <CollectionDetails label="Publication Venue(s)" value={`${venues.join(', ')}`} />
+              : <></>
+            }
+            {!!exhibited_at && exhibited_at.length ?
+              <CollectionDetails label="Exhibited At" value={`${exhibited_at.join(', ')}`} />
+              : <></>
+            }
+            {!!regions && regions.length ?
+              <CollectionDetails label="Region" value={regions.map((region) => (Regions[region])).join(', ')} />
+              :
+              ''
+            }
             {!!license ? <CollectionDetails label="License" value={license} /> : ''}
+            {!!copyright_holder ? <CollectionDetails label="Copyright Owner" value={copyright_holder} /> : ''}
+            {!!url ? <CollectionDetails label="Link" value={url} /> : ''}
 
             {!!aggregated_concept_tags && aggregated_concept_tags.length ?
               <Row className="border-bottom subline details">
@@ -151,7 +171,7 @@ class ViewCollection extends React.Component<Props, {}> {
                   }
                 </Col>
               </Row>
-            : ''}
+              : ''}
             <Row>
               <Col className="px-0">
                 <div style={{ height: '15px', background: `linear-gradient(to right, #0076FF ${focusPercentage(focus_arts)}%, #9013FE ${focusPercentage(focus_scitech)}%, #50E3C2 ${focusPercentage(focus_action)}%)` }} />

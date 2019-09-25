@@ -74,7 +74,10 @@ class ViewItem extends React.Component<Props, State> {
       time_produced,
       year_produced,
       venues,
-      exhibited_at
+      exhibited_at,
+      copyright_holder,
+      url,
+      medium
     } = this.props.item;
 
     let focusTotal = 0;
@@ -90,7 +93,7 @@ class ViewItem extends React.Component<Props, State> {
       return `${ (level / focusTotal) * 100 }`;
     };
 
-    const ItemDetails = (props: { label: string, value: string }): JSX.Element => (
+    const ItemDetails = (props: { label: string, value: string | JSX.Element }): JSX.Element => (
       <Row className="border-bottom subline details">
         <Col xs="12" md="6">{props.label}</Col>
         <Col xs="12" md="6">{props.value}</Col>
@@ -160,8 +163,11 @@ class ViewItem extends React.Component<Props, State> {
             :
               ''
             }
-            {!!license ? <ItemDetails label="License" value={license} /> : ''}
             {!!language ? <ItemDetails label="Language" value={Languages[language]} /> : ''}
+            {!!license ? <ItemDetails label="License" value={license} /> : ''}
+            {!!copyright_holder ? <ItemDetails label="Copyright Owner" value={copyright_holder} /> : ''}
+            {!!medium ? <ItemDetails label="Medium" value={medium} /> : ''}
+            {!!url ? <ItemDetails label="Link" value={<a href={url} target="_blank" rel="noreferrer noopener">Click here to view</a>} /> : ''}
 
             {!!aggregated_concept_tags && aggregated_concept_tags.length ?
               <Row className="border-bottom subline details">

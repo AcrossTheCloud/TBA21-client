@@ -48,7 +48,7 @@ export interface Collection {
   editor?: string | null;
   collaborators?: string[] | null;
 
-  exhibited_at?: string | null;
+  exhibited_at?: string[] | null;
   series?: number | null;
 
   isbn?: string[] | null;
