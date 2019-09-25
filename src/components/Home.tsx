@@ -193,8 +193,6 @@ class HomePage extends React.Component<Props, {}> {
 
   render() {
     const { loaded_highlights, logoLoaded, loadedItems, announcements } = this.props;
-
-    console.log(loaded_highlights);
     return (
       <div id="home" className="flex-fill">
         <Container fluid id="header">

@@ -170,9 +170,6 @@ class Profile extends React.Component<Props, State> {
   }
 
   onChangeSocialMedia = (newValue: any, actionMeta: any) => { // tslint:disable-line: no-any
-    console.log('newValue', newValue);
-    console.log('Filter', newValue.filter(n => validateURL(n.value)).map(e => e.value));
-    console.log(newValue.length ? newValue.filter(n => validateURL(n.value)).map(e => e.value) : []);
     this.fieldChanged(
       newValue.length ? newValue.filter(n => validateURL(n.value)).map(e => e.value) : [],
       'social_media'

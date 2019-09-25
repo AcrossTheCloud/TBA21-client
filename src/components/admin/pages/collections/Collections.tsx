@@ -64,12 +64,7 @@ class Collections extends React.Component<RouteComponentProps, State> {
       },
       {
         dataField: 'title',
-        text: 'Title',
-        events: {
-          onClick: (e, column, columnIndex, row, rowIndex) => {
-            console.log(e, column, columnIndex, row, rowIndex);
-          }
-        }
+        text: 'Title'
       },
       {
         dataField: 'options',

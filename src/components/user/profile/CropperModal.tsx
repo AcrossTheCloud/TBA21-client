@@ -120,13 +120,11 @@ export class CropperModal extends React.Component<Props, State> {
         blobResult: Blob = await blob(),
         fileLocation = `${context.uuid}/${uuid()}.${blobResult.type.split('/')[1]}`;
 
-      const result = await Storage.put(fileLocation, blobResult, {
+      await Storage.put(fileLocation, blobResult, {
         contentType: blobResult.type,
         level: 'public-read',
         bucket: config.s3.PROFILE_PIC_BUCKET
       });
-
-      console.log(blobResult, result, fileLocation);
 
       await API.patch('tba21', 'profiles', { body: {profile_image: `${config.other.PROFILE_URL}public/${fileLocation}`} });
 
