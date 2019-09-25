@@ -8,8 +8,13 @@
     background: #fff;
     overflow: hidden;
   }
+  #home {
+    position: relative;
+    z-index: 15;
+  }
   &.logoLoaded {
     #home {
+      z-index: unset;
       #header {
         height: auto;
         margin-bottom: 10px;
