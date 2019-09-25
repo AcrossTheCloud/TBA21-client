@@ -11,6 +11,7 @@ import { thumbnailsSRCSET } from './s3File';
 import { collectionTypes } from '../../types/Collection';
 
 import textImage from 'images/defaults/Unscharfe_Zeitung.jpg';
+import { browser } from './browser';
 
 export type ItemOrHomePageData = Item | HomepageData;
 
@@ -71,7 +72,7 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
   }
 
   return (
-    <div className="detailPreview" onClick={() => { if (typeof props.modalToggle === 'function') { props.modalToggle(); } }}>
+    <div className={`detailPreview ${browser()}`} onClick={() => { if (typeof props.modalToggle === 'function') { props.modalToggle(); } }}>
       {data.file ? <FileStaticPreview file={data.file} onLoad={typeof props.onLoad === 'function' ? props.onLoad : undefined}/> : <></>}
       <div className="overlay">
         <div className="type">

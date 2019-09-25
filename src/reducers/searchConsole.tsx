@@ -1,4 +1,4 @@
-import { SEARCH_RESULTS, CHANGE_VIEW, SEARCH_TOGGLE_OPEN } from 'actions/searchConsole';
+import { SEARCH_RESULTS, CHANGE_VIEW, SEARCH_TOGGLE_OPEN, SEARCH_CONCEPT_TAGS } from 'actions/searchConsole';
 
 import { APITag } from 'components/metadata/Tags';
 
@@ -30,11 +30,19 @@ export default (state: SearchConsoleState | null = initialState, action) => {
         Object.assign(newState,{ concept_tags: action.concept_tags });
       }
       return newState;
+
+    case SEARCH_CONCEPT_TAGS:
+      return {
+        ...state,
+        concept_tags: action.concept_tags
+      };
+
     case CHANGE_VIEW:
       return {
         ...state,
         view: action.view
       };
+
     case SEARCH_RESULTS:
       return {
         ...state,

@@ -6,6 +6,7 @@ import { LOADINGOVERLAY } from './loadingOverlay';
 export const CHANGE_VIEW = 'CHANGE_VIEW';
 export const SEARCH_RESULTS = 'SEARCH_RESULTS';
 export const SEARCH_TOGGLE_OPEN = 'SEARCH_TOGGLE_OPEN';
+export const SEARCH_CONCEPT_TAGS = 'SEARCH_CONCEPT_TAGS';
 
 export interface CriteriaOption {
   label: string;
@@ -14,24 +15,28 @@ export interface CriteriaOption {
   field: string;
 }
 
-export const toggle = (open: boolean = false) => (dispatch, getState) => {
+export const toggle = (open: boolean = false) => dispatch => {
   const state = {
     type: SEARCH_TOGGLE_OPEN,
     open: open
   };
 
+  getConceptTags();
+
+  dispatch(state);
+};
+
+export const getConceptTags = () => async (dispatch, getState) => {
   const { searchConsole } = getState();
   if (searchConsole.concept_tags && !searchConsole.concept_tags.length) {
     try {
       API.get('tba21', 'tags', { queryStringParameters: { limit: 1000, type: 'concept'} }).then(res => {
-        dispatch({ ...state, concept_tags: res.tags });
+        dispatch({ type: SEARCH_CONCEPT_TAGS, concept_tags: res.tags });
       });
     } catch (e) {
       return;
     }
   }
-
-  dispatch(state);
 };
 
 export const changeView = (view: 'grid' | 'list') => dispatch => {

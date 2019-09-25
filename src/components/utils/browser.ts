@@ -22,6 +22,10 @@ const isChrome = !!window.chrome && (!!window.chrome.webstore || !!window.chrome
 // Blink engine detection
 // @ts-ignore
 const isBlink = (isChrome || isOpera) && !!window.CSS;
+
+// IOS
+// 'standalone' in navigator thansk to https://medium.com/@firt/iphone-11-ipados-and-ios-13-for-pwas-and-web-development-5d5d9071cc49
+const isIOS = navigator.userAgent.match(/iPhone|iPad|iPod/i) || 'standalone' in navigator;
 /* tslint:enable */
 
 export const browser = (): string => {
@@ -44,6 +48,8 @@ export const browser = (): string => {
    return 'chrome';
  } else if (isBlink) {
    return 'blink';
+ }  else if (isIOS) {
+   return 'ios';
  } else {
    return 'unknown';
  }

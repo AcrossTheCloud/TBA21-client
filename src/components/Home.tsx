@@ -20,6 +20,7 @@ import { DetailPreview, FileStaticPreview } from './utils/DetailPreview';
 import { itemType } from '../types/Item';
 
 import 'styles/components/home.scss';
+import { browser } from './utils/browser';
 
 interface Props extends HomePageState {
   logoDispatch: Function;
@@ -92,7 +93,7 @@ class HomePage extends React.Component<Props, {}> {
       if(
         (headerOffset > document.documentElement.scrollTop) &&
         (headerOffset - 100 < document.documentElement.scrollTop)
-        && window.innerWidth < 720) {
+        && (window.innerWidth < 720 || browser() === 'ios')) {
         const expiry: Date = new Date(moment().add(2, 'w').format()); // 3 Months from now.
         this.props.searchOpenToggle(true);
         this.props.cookies.set(`searchMobileCookie`, true, { path: '/', expires: expiry });
