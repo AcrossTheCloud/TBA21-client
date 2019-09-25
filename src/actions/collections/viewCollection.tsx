@@ -2,6 +2,7 @@ import { API } from 'aws-amplify';
 import { Item } from '../../types/Item';
 import { checkFile } from '../items/viewItem';
 import { LOADINGOVERLAY } from '../loadingOverlay';
+import { FETCH_COLLECTION_LOAD_MORE } from '../../reducers/collections/viewCollection';
 
 // Defining our Actions for the reducers.
 export const FETCH_COLLECTION = 'FETCH_COLLECTION';
@@ -41,33 +42,20 @@ export const fetchCollection = (id: string) => async (dispatch, getState) => {
       });
 
       if (!!response.collection && Object.keys(response.collection).length) {
-        const collection = response.collection;
-        const items: Item[] = [];
 
         const itemResponse = await API.get('tba21', 'collections/getItemsInCollection', {
           queryStringParameters: {
-            id: collection.id,
+            id,
             limit: 1000
           }
         });
 
-        if (itemResponse.items && itemResponse.items.length) {
-          for (let i = 0; i < itemResponse.items.length; i++) {
-            const item = itemResponse.items[i];
-            // Get the items file
-            const file = await checkFile(item);
-            if (file) {
-              items.push({ ...item, file });
-            }
-          }
-        }
-
         dispatch({
            type: FETCH_COLLECTION,
-           collection: collection,
-           items: items
-         });
-
+           collection: response.collection,
+           offset: 0,
+           ...await loadMore(itemResponse.items)
+        });
       } else {
         dispatch({
          type: FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION,
@@ -86,4 +74,43 @@ export const fetchCollection = (id: string) => async (dispatch, getState) => {
      });
     }
   }
+};
+
+export const loadMore = async (items: Item[], offset: number = -1, forward: boolean = true) => {
+  if (items && items.length && offset < items.length) {
+    for (let i = 0; i < 8; i++) {
+      if (forward) {
+        offset++;
+      } else {
+        offset--;
+      }
+
+      if (offset < 0) {
+        offset = items.length - 1;
+      } else if (offset >= items.length) {
+        offset = 0;
+      }
+
+      // Get the items file
+      if (items[offset] && !items[offset].file) {
+        const file = await checkFile(items[offset]);
+        if (file) {
+          Object.assign(items[offset], {file});
+        }
+      }
+    }
+  }
+
+  return {
+     items: [...items],
+     offset: offset
+   };
+};
+
+export const loadMoreDispatch = (forward: boolean = true) => async (dispatch, getState) => {
+  const state = getState();
+  dispatch({
+   type: FETCH_COLLECTION_LOAD_MORE,
+   ...await loadMore(state.viewCollection.items, state.viewCollection.offset, forward)
+ });
 };
