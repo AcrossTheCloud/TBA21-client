@@ -71,7 +71,8 @@ class ViewItem extends React.Component<Props, State> {
       focus_action,
       focus_arts,
       focus_scitech,
-      created_at,
+      time_produced,
+      year_produced,
       venues,
       exhibited_at
     } = this.props.item;
@@ -142,9 +143,9 @@ class ViewItem extends React.Component<Props, State> {
 
           </Col>
           <Col xs="12" md="4" className="right">
-            {!!created_at ?
-              <ItemDetails label="Date" value={moment(created_at).format('Do MMMM YYYY')} />
-              : <></>
+            {!!time_produced ?
+              <ItemDetails label="Date Produced" value={moment(time_produced).format('Do MMMM YYYY')} />
+              : year_produced ? <ItemDetails label="Year Produced" value={moment(year_produced).format('YYYY')} /> : <></>
             }
             {!!venues && venues.length ?
               <ItemDetails label="Publication Venue(s)" value={`${venues.join(', ')}`} />

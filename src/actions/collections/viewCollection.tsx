@@ -76,7 +76,7 @@ export const fetchCollection = (id: string) => async (dispatch, getState) => {
   }
 };
 
-export const loadMore = async (items: Item[], offset: number = -1, forward: boolean = true) => {
+export const loadMore = async (items: Item[], offset: number = -1, forward: boolean = true, dispatch?: Function) => {
   if (items && items.length && offset < items.length) {
     for (let i = 0; i < 8; i++) {
       if (forward) {
@@ -93,12 +93,19 @@ export const loadMore = async (items: Item[], offset: number = -1, forward: bool
 
       // Get the items file
       if (items[offset] && !items[offset].file) {
+        if (typeof dispatch === 'function') {
+          dispatch({ type: LOADINGOVERLAY, on: true }); // Turn on the loading overlay
+        }
         const file = await checkFile(items[offset]);
         if (file) {
           Object.assign(items[offset], {file});
         }
       }
     }
+  }
+
+  if (typeof dispatch === 'function') {
+    dispatch({ type: LOADINGOVERLAY, on: false }); // Turn on the loading overlay
   }
 
   return {
@@ -111,6 +118,6 @@ export const loadMoreDispatch = (forward: boolean = true) => async (dispatch, ge
   const state = getState();
   dispatch({
    type: FETCH_COLLECTION_LOAD_MORE,
-   ...await loadMore(state.viewCollection.items, state.viewCollection.offset, forward)
+   ...await loadMore(state.viewCollection.items, state.viewCollection.offset, forward, dispatch)
  });
 };

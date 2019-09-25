@@ -12,7 +12,7 @@ import { toggle as searchOpenToggle } from 'actions/searchConsole';
 import { HomepageData, HomePageState } from '../reducers/home';
 
 import Logo from './layout/Logo';
-import { FaCircle } from 'react-icons/all';
+import { FaCircle, FaPlay } from 'react-icons/all';
 import moment from 'moment';
 import AudioPreview from './layout/audio/AudioPreview';
 import { FileTypes } from '../types/s3File';
@@ -194,6 +194,7 @@ class HomePage extends React.Component<Props, {}> {
   render() {
     const { loaded_highlights, logoLoaded, loadedItems, announcements } = this.props;
 
+    console.log(loaded_highlights);
     return (
       <div id="home" className="flex-fill">
         <Container fluid id="header">
@@ -210,6 +211,11 @@ class HomePage extends React.Component<Props, {}> {
               <Col xs="12" md={loaded_highlights.length > 1 ? 8 : 12} className="item" onClick={() => this.props.openModal(loaded_highlights[0])}>
                 <div className="file">
                   {loaded_highlights[0].file ? <FileStaticPreview file={loaded_highlights[0].file} /> : <></>}
+                  {loaded_highlights[0].file.type === FileTypes.Video ?
+                    <div className="middle">
+                      <FaPlay/>
+                    </div>
+                    : <></>}
                 </div>
 
                 <div className="d-md-none overlay">
@@ -226,6 +232,12 @@ class HomePage extends React.Component<Props, {}> {
                   <Col xs="12">
                     <div className="file">
                       {loaded_highlights[1].file ? <FileStaticPreview file={loaded_highlights[1].file} /> : <></>}
+                      {loaded_highlights[1].file.type === FileTypes.Video ?
+                        <div className="middle">
+                          <FaPlay/>
+                        </div>
+                        : <></>}
+
                     </div>
                     <this.HighlightsItemDetails index={1}/>
                   </Col>
@@ -233,6 +245,11 @@ class HomePage extends React.Component<Props, {}> {
                 <div className="d-md-none py-4 py-md-0">
                   <div className="file">
                     {loaded_highlights[1].file ? <FileStaticPreview file={loaded_highlights[1].file} /> : <></>}
+                    {loaded_highlights[1].file.type === FileTypes.Video ?
+                      <div className="middle">
+                        <FaPlay/>
+                      </div>
+                      : <></>}
                     <div className="overlay">
                       <this.HighlightsItemDetails index={1}/>
                     </div>

@@ -64,7 +64,8 @@ class ViewCollection extends React.Component<Props, {}> {
       focus_action,
       focus_arts,
       focus_scitech,
-      created_at
+      time_produced,
+      year_produced
     } = this.props.collection;
 
     let focusTotal = 0;
@@ -124,9 +125,9 @@ class ViewCollection extends React.Component<Props, {}> {
             }
           </Col>
           <Col xs="12" md="4" className="right">
-            {!!created_at ?
-              <CollectionDetails label="Date" value={moment(created_at).format('Do MMMM YYYY')} />
-              : <></>
+            {!!time_produced ?
+              <CollectionDetails label="Date Produced" value={moment(time_produced).format('Do MMMM YYYY')} />
+              : year_produced ? <CollectionDetails label="Year Produced" value={moment(year_produced).format('YYYY')} /> : <></>
             }
 
             {!!license ? <CollectionDetails label="License" value={license} /> : ''}
