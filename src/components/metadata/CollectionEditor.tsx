@@ -149,7 +149,8 @@ class CollectionEditorClass extends React.Component<Props, State> {
       const getItemsInCollection = async (id) => {
         const results = await API.get('tba21', 'admin/collections/getItemsInCollection', {
           queryStringParameters: {
-            id: id
+            id: id,
+            limit: 1000
           }
         });
 

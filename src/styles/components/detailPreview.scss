@@ -13,7 +13,19 @@
 
   picture {
     height: 70vh;
+    max-height: 500px;
     display: block;
+    // iPad Pro
+    @media only screen
+    and (min-device-width: 768px)
+    and (max-device-width: 1024px)
+    and (orientation: portrait)
+    and (-webkit-min-device-pixel-ratio: 2) {
+      max-height: 400px;
+    }
+    @media only screen and (min-width: 768px) and (max-width: 1091px), (min-height: 1500px) {
+      max-height: 400px;
+    }
     img {
       object-fit: cover;
       height: 100%;

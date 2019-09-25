@@ -20,6 +20,7 @@ import { DetailPreview, FileStaticPreview } from './utils/DetailPreview';
 import { itemType } from '../types/Item';
 
 import 'styles/components/home.scss';
+import { browser } from './utils/browser';
 
 interface Props extends HomePageState {
   logoDispatch: Function;
@@ -92,7 +93,7 @@ class HomePage extends React.Component<Props, {}> {
       if(
         (headerOffset > document.documentElement.scrollTop) &&
         (headerOffset - 100 < document.documentElement.scrollTop)
-        && window.innerWidth < 720) {
+        && (window.innerWidth < 720 || browser() === 'ios')) {
         const expiry: Date = new Date(moment().add(2, 'w').format()); // 3 Months from now.
         this.props.searchOpenToggle(true);
         this.props.cookies.set(`searchMobileCookie`, true, { path: '/', expires: expiry });
@@ -176,7 +177,11 @@ class HomePage extends React.Component<Props, {}> {
     return (
       <Col md={colSize(!!file ? file.type : '')} className="pt-4">
         {item_type === itemType.Audio || file.type === FileTypes.Audio ?
-          <AudioPreview onLoad={() => this.waitForLoad()} data={{title, id, url: file.url, date, creators, item_subtype, isCollection: !!count}}/>
+            !!props.data.count && props.data.count > 0 ?
+              <div onClick={() => this.props.openModal(props.data)}>
+                <AudioPreview noClick onLoad={() => this.waitForLoad()} data={{title, id, url: file.url, date, creators, item_subtype, isCollection: !!count}}/>
+              </div> :
+              <AudioPreview onLoad={() => this.waitForLoad()} data={{title, id, url: file.url, date, creators, item_subtype, isCollection: !!count}}/>
           :
           <div onClick={() => this.props.openModal(props.data)}>
             <DetailPreview data={props.data} onLoad={() => this.waitForLoad}/>
@@ -207,7 +212,7 @@ class HomePage extends React.Component<Props, {}> {
                   {loaded_highlights[0].file ? <FileStaticPreview file={loaded_highlights[0].file} /> : <></>}
                 </div>
 
-                <div className="overlay">
+                <div className="d-md-none overlay">
                   <this.HighlightsItemDetails index={0}/>
                 </div>
 
@@ -241,8 +246,15 @@ class HomePage extends React.Component<Props, {}> {
           </Row>
           <Row>
 
+            {!!loaded_highlights[0] ?
+              <Col md="8" className="d-none d-md-block item" onClick={() => this.props.openModal(loaded_highlights[0])}>
+                <this.HighlightsItemDetails index={0} />
+              </Col>
+              : <></>
+            }
+
             {announcements && announcements.length ?
-              <Col md={{ size: 4, offset: 8 }} className="announcement pt-4">
+              <Col md="4" className="announcement">
                 <div className="type">
                   Announcement
                 </div>

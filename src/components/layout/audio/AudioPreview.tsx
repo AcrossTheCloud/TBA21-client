@@ -10,6 +10,7 @@ import 'styles/layout/audio.scss';
 
 interface Props {
   data: AudioPlayerDetails;
+  noClick?: boolean;
   audioPlayer: Function;
   onLoad?: Function;
 }
@@ -79,7 +80,9 @@ class AudioPreview extends React.Component<Props, State> {
       <div
         className="audioPreview"
         onClick={() => {
-          this.props.audioPlayer(true, { id, item_subtype, date, creators, title, url, isCollection });
+          if (!this.props.noClick) {
+            this.props.audioPlayer(true, { id, item_subtype, date, creators, title, url, isCollection });
+          }
         }}
       >
         <div className="container-fluid">

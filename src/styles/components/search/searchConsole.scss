@@ -274,6 +274,9 @@
           height: 60px;
           .inputwrapper {
             height: 100%;
+            &.ios {
+              max-width: 75%;
+            }
           }
         }
         .margin {
@@ -311,6 +314,21 @@
           border-bottom: 1px solid #fff;
           padding-bottom: 5px;
           margin-bottom: 5px;
+          .creators {
+            overflow: hidden;
+            max-width: 95%;
+            span.ellipsis {
+              text-transform: capitalize;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+              max-width: 100%;
+              overflow: hidden;
+              display: inline-block;
+            }
+            .title {
+              flex: 1 1 50%;
+            }
+          }
           .pdf {
             position: relative;
             max-width: 200px;
@@ -333,6 +351,12 @@
           transform:translateX(100vw);
           /* Apply animation to this element */
           animation: marquee 80s linear infinite;
+
+          &.safari {
+            @media screen and (max-width: 768px) {
+              animation: marquee 30s linear infinite;
+            }
+          }
 
           span {
             padding: 3px 5px 5px;

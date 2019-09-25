@@ -228,16 +228,8 @@ item
   resize = () => {
     const wrapper = document.getElementById('bubbleWrapper') as HTMLElement;
     if (!!wrapper) {
-      switch (window.screen.orientation.angle) {
-        case -90:
-        case 90:
-          this.canvas.width = wrapper.getBoundingClientRect().width;
-          this.canvas.height = window.innerHeight - 113;
-          break;
-        default:
-          this.canvas.width = wrapper.getBoundingClientRect().width;
-          this.canvas.height = wrapper.getBoundingClientRect().height;
-      }
+      this.canvas.width = wrapper.getBoundingClientRect().width;
+      this.canvas.height = wrapper.getBoundingClientRect().height;
     }
   }
 
