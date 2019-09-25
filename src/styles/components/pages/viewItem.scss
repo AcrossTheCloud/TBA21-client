@@ -41,10 +41,11 @@
     }
     .image {
       @media (min-width: 1000px) {
-        height: 70vh;
+        max-height: 70vh;
       }
       z-index: 0;
       img {
+        height: 100%;
         max-height: 100%;
         z-index: 1;
       }
