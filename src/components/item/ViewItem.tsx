@@ -13,6 +13,7 @@ import { RouteComponentProps, withRouter } from 'react-router';
 
 import 'styles/components/pages/viewItem.scss';
 import Share from '../utils/Share';
+import moment from 'moment';
 
 type MatchParams = {
   id: string;
@@ -69,7 +70,10 @@ class ViewItem extends React.Component<Props, State> {
 
       focus_action,
       focus_arts,
-      focus_scitech
+      focus_scitech,
+      created_at,
+      venues,
+      exhibited_at
     } = this.props.item;
 
     let focusTotal = 0;
@@ -138,10 +142,20 @@ class ViewItem extends React.Component<Props, State> {
 
           </Col>
           <Col xs="12" md="4" className="right">
-            {!!regions ?
-              regions.map( (region, i) => (
-                <ItemDetails key={i} label="Region" value={Regions[region]} />
-              ))
+            {!!created_at ?
+              <ItemDetails label="Date" value={moment(created_at).format('Do MMMM YYYY')} />
+              : <></>
+            }
+            {!!venues && venues.length ?
+              <ItemDetails label="Publication Venue(s)" value={`${venues.join(', ')}`} />
+              : <></>
+            }
+            {!!exhibited_at && exhibited_at.length ?
+              <ItemDetails label="Exhibited At" value={`${exhibited_at.join(', ')}`} />
+              : <></>
+            }
+            {!!regions && regions.length ?
+              <ItemDetails label="Region" value={regions.map((region) => (Regions[region])).join(', ')} />
             :
               ''
             }

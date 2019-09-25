@@ -11,6 +11,7 @@ import { RouteComponentProps, withRouter } from 'react-router';
 import CollectionSlider from './CollectionSlider';
 import 'styles/components/pages/viewItem.scss';
 import Share from '../utils/Share';
+import moment from 'moment';
 
 type MatchParams = {
   id: string;
@@ -62,7 +63,8 @@ class ViewCollection extends React.Component<Props, State> {
 
       focus_action,
       focus_arts,
-      focus_scitech
+      focus_scitech,
+      created_at
     } = this.props.collection;
 
     let focusTotal = 0;
@@ -122,6 +124,11 @@ class ViewCollection extends React.Component<Props, State> {
             }
           </Col>
           <Col xs="12" md="4" className="right">
+            {!!created_at ?
+              <CollectionDetails label="Date" value={moment(created_at).format('Do MMMM YYYY')} />
+              : <></>
+            }
+
             {!!license ? <CollectionDetails label="License" value={license} /> : ''}
 
             {!!aggregated_concept_tags && aggregated_concept_tags.length ?
