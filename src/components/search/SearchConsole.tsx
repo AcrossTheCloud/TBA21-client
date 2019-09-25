@@ -13,7 +13,8 @@ import {
   search as dispatchSearch,
   changeView,
   CriteriaOption,
-  toggle
+  toggle,
+  getConceptTags
 } from '../../actions/searchConsole'; // Props from Redux.
 
 import { find } from 'lodash';
@@ -27,7 +28,6 @@ import { FileTypes } from '../../types/s3File';
 import { instanceOf } from 'prop-types';
 import { FileStaticPreview } from '../utils/DetailPreview';
 
-
 import { Item } from '../../types/Item';
 import { Collection } from '../../types/Collection';
 import { Profile } from '../../types/Profile';
@@ -37,6 +37,7 @@ import { fetchProfile } from '../../actions/user/viewProfile';
 
 import 'styles/components/search/searchConsole.scss';
 import 'styles/components/admin/tables/modal.scss';
+import { browser } from '../utils/browser';
 
 interface Props extends SearchConsoleState {
   changeView: Function;
@@ -45,6 +46,7 @@ interface Props extends SearchConsoleState {
   fetchCollection: Function;
   fetchProfile: Function;
   toggle: Function;
+  getConceptTags: Function;
   cookies: Cookies;
 }
 
@@ -129,6 +131,7 @@ class SearchConsole extends React.Component<Props, State> {
 
   componentDidMount(): void {
     this._isMounted = true;
+    this.props.getConceptTags();
   }
 
   componentWillUnmount(): void {
@@ -306,7 +309,7 @@ class SearchConsole extends React.Component<Props, State> {
               onClick={this.focusSearchInput}
             >
               <Row className="align-items-center">
-                <div className="inputwrapper">
+                <div className={`inputwrapper ${browser()}`}>
                   <AsyncSelect
                     className="searchInput"
                     classNamePrefix="search"
@@ -431,7 +434,7 @@ class SearchConsole extends React.Component<Props, State> {
             <div className="tags">
               {
                 !!this.props.concept_tags ?
-                  <div className="list">
+                  <div className={`list ${browser()}`}>
                     {this.props.concept_tags
                       .filter(a => !find(this.state.selectedCriteria, {'originalValue': a.tag_name}))
                       .map((t, i) =>
@@ -503,4 +506,4 @@ const mapStateToProps = (state: { searchConsole: SearchConsoleState }) => ({
 
 });
 
-export default connect(mapStateToProps, { dispatchSearch, changeView, fetchItem, fetchCollection, fetchProfile, toggle })(withCookies(SearchConsole));
+export default connect(mapStateToProps, { dispatchSearch, changeView, fetchItem, fetchCollection, fetchProfile, toggle, getConceptTags })(withCookies(SearchConsole));

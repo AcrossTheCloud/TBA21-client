@@ -4,17 +4,20 @@ import { Item } from '../../types/Item';
 
 // Defining our Actions for the reducers.
 export const FETCH_COLLECTION = 'FETCH_COLLECTION';
+export const FETCH_COLLECTION_LOAD_MORE = 'FETCH_COLLECTION_LOAD_MORE';
 export const FETCH_COLLECTION_ERROR = 'FETCH_COLLECTION_ERROR';
 export const FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION = 'FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION';
 
-export interface State extends Alerts {
-  collectionId?: string | boolean;
+export interface ViewCollectionState extends Alerts {
   collection?: Collection;
-  items?: Item[];
+  offset: number;
+  items: Item[];
 }
 
-const initialState: State = {
-  errorMessage: undefined
+const initialState: ViewCollectionState = {
+  errorMessage: undefined,
+  offset: 0,
+  items: []
 };
 
 /**
@@ -25,7 +28,7 @@ const initialState: State = {
  *
  * @returns {object} the state with modified values
  */
-export default (state: State = initialState, action) => {
+export default (state: ViewCollectionState = initialState, action) => {
   if (state === undefined) { state = initialState; }
 
   switch (action.type) {
@@ -33,9 +36,15 @@ export default (state: State = initialState, action) => {
       return {
         ...state,
         collection: action.collection,
-        collectionId: action.collectionId,
+        offset: action.offset,
         items: action.items,
         errorMessage: undefined
+      };
+    case FETCH_COLLECTION_LOAD_MORE:
+      return {
+        ...state,
+        offset: action.offset,
+        items: action.items,
       };
 
     case FETCH_COLLECTION_ERROR:
@@ -48,6 +57,7 @@ export default (state: State = initialState, action) => {
       return {
         ...state,
         collection: action.collection,
+        items: action.items,
         errorMessage: `Are you sure you've got the right url? We can't find what you're looking for. Sorry!`,
       };
 

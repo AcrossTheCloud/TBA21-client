@@ -10,6 +10,7 @@ import 'styles/layout/audio.scss';
 
 interface Props {
   data: AudioPlayerDetails;
+  noClick?: boolean;
   audioPlayer: Function;
   onLoad?: Function;
 }
@@ -37,39 +38,53 @@ class AudioPreview extends React.Component<Props, State> {
   componentDidMount(): void {
     this._isMounted = true;
 
-    if (!this.state.wavesurfer && !this.state.loaded) {
-      const
-        options = {
-          height: 80,
-          barHeight: 20,
-          // barWidth: 1,
-
-          container: `#wavepreview_${this.props.data.id.replace(/[^\w\s]/gi, '')}`,
-          backend: 'MediaElement',
-          responsive: true,
-
-          progressColor: '#4a74a5',
-          waveColor: 'rgba(34, 168, 175, 19)',
-          cursorColor: '#4a74a5',
-          interact: false,
-          hideScrollbar: true,
-          forceDecode: true,
-          cursorWidth: 0
-        },
-        wavesurfer = WaveSurfer.create(options);
-
-      if (this.props.data.url) {
-        wavesurfer.load(this.props.data.url);
-      }
-      if (typeof this.props.onLoad === 'function') {
-        this.props.onLoad();
-      }
-
-      this.setState( { wavesurfer: wavesurfer, loaded: true } );
-    }
+    this.init();
   }
+
   componentWillUnmount(): void {
     this._isMounted = false;
+  }
+
+  componentDidUpdate(prevProps: Readonly<Props>): void {
+    if (this.props.data.url !== prevProps.data.url) {
+      this.init();
+    }
+  }
+
+  init = () => {
+    let loaded = this.state.loaded;
+    let wavesurfer = this.state.wavesurfer;
+    if (!loaded || !wavesurfer) {
+      const options = {
+        height: 80,
+        barHeight: 20,
+        // barWidth: 1,
+
+        container: `#wavepreview_${this.props.data.id.replace(/[^\w\s]/gi, '')}`,
+        backend: 'MediaElement',
+        responsive: true,
+
+        progressColor: '#4a74a5',
+        waveColor: 'rgba(34, 168, 175, 19)',
+        cursorColor: '#4a74a5',
+        interact: false,
+        hideScrollbar: true,
+        forceDecode: true,
+        cursorWidth: 0
+      };
+      wavesurfer = WaveSurfer.create(options);
+    }
+
+    if (this.props.data.url) {
+      wavesurfer.load(this.props.data.url);
+      wavesurfer.load(this.props.data.url);
+      loaded = true;
+    }
+    if (typeof this.props.onLoad === 'function') {
+      this.props.onLoad();
+    }
+
+    this.setState( { wavesurfer: wavesurfer, loaded: loaded } );
   }
 
   render() {
@@ -79,7 +94,9 @@ class AudioPreview extends React.Component<Props, State> {
       <div
         className="audioPreview"
         onClick={() => {
-          this.props.audioPlayer(true, { id, item_subtype, date, creators, title, url, isCollection });
+          if (!this.props.noClick) {
+            this.props.audioPlayer(true, { id, item_subtype, date, creators, title, url, isCollection });
+          }
         }}
       >
         <div className="container-fluid">

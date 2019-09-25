@@ -2,25 +2,26 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { Col, Row } from 'reactstrap';
 import { fetchCollection } from 'actions/collections/viewCollection';
-import { State } from 'reducers/collections/viewCollection';
+import { ViewCollectionState } from 'reducers/collections/viewCollection';
 import { ErrorMessage } from '../utils/alerts';
 
 import { browser } from '../utils/browser';
 import { RouteComponentProps, withRouter } from 'react-router';
 
 import CollectionSlider from './CollectionSlider';
-import 'styles/components/pages/viewItem.scss';
 import Share from '../utils/Share';
+import moment from 'moment';
+import 'styles/components/pages/viewItem.scss';
 
 type MatchParams = {
   id: string;
 };
 
-interface Props extends RouteComponentProps<MatchParams>, State {
+interface Props extends RouteComponentProps<MatchParams>, ViewCollectionState {
   fetchCollection: Function;
 }
 
-class ViewCollection extends React.Component<Props, State> {
+class ViewCollection extends React.Component<Props, {}> {
   browser: string;
 
   constructor(props: any) { // tslint:disable-line: no-any
@@ -62,7 +63,8 @@ class ViewCollection extends React.Component<Props, State> {
 
       focus_action,
       focus_arts,
-      focus_scitech
+      focus_scitech,
+      created_at
     } = this.props.collection;
 
     let focusTotal = 0;
@@ -88,7 +90,7 @@ class ViewCollection extends React.Component<Props, State> {
     return (
       <div id="item">
         <ErrorMessage message={this.props.errorMessage} />
-        <CollectionSlider items={this.props.items}/>
+        <CollectionSlider />
         <Row>
           <Col xs="12" md="8" className="left border-right">
             <Row>
@@ -122,6 +124,11 @@ class ViewCollection extends React.Component<Props, State> {
             }
           </Col>
           <Col xs="12" md="4" className="right">
+            {!!created_at ?
+              <CollectionDetails label="Date" value={moment(created_at).format('Do MMMM YYYY')} />
+              : <></>
+            }
+
             {!!license ? <CollectionDetails label="License" value={license} /> : ''}
 
             {!!aggregated_concept_tags && aggregated_concept_tags.length ?
@@ -157,11 +164,12 @@ class ViewCollection extends React.Component<Props, State> {
 }
 
 // State to props
-const mapStateToProps = (state: { viewCollection: State }) => { // tslint:disable-line: no-any
+const mapStateToProps = (state: { viewCollection: ViewCollectionState }) => { // tslint:disable-line: no-any
   return {
     errorMessage: state.viewCollection.errorMessage,
     collection: state.viewCollection.collection,
-    items: state.viewCollection.items
+    items: state.viewCollection.items,
+    offset: state.viewCollection.offset
   };
 };
 
