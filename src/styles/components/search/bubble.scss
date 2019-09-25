@@ -1,5 +1,9 @@
 #bubbleWrapper {
   height: calc(100vh / 1.5);
+  width: calc(100vw / 1.5);
+  max-width: 1000px;
+  max-height: 1000px;
+
   position: relative;
   margin: 0 auto;
   filter: grayscale(1);
@@ -96,12 +100,21 @@
     display: block;
   }
 
-  @media (min-width: 720px) {
+  @media (max-width: 720px) and (orientation:portrait) {
+    height: 100vw;
+    width: 100vw;
+  }
+  @media (min-width: 720px) and (orientation:portrait) {
     height: calc(100vw / 1.5);
     width: calc(100vw / 1.5);
   }
-  @media (min-width: 1140px) {
+  @media (min-width: 1140px) and (orientation:portrait) {
     height: calc(100vh / 1.5);
     width: calc(100vw / 2);
+  }
+
+  @media screen and (device-width: 1024px) and (device-height: 768px) and (orientation:landscape) {
+    height: calc(100vh / 1.7);
+    width: calc(100vw / 1.7);
   }
 }
