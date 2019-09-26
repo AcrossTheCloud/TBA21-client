@@ -114,7 +114,7 @@ class HomePage extends React.Component<Props, State> {
   }
 
   handleScroll = async () => {
-    if (window.innerHeight + document.documentElement.scrollTop >= document.documentElement.offsetHeight - 200) {
+    if (window.innerHeight + Math.max(document.documentElement.scrollTop, document.body.scrollTop) >= Math.max(window.pageYOffset, document.documentElement.scrollTop, document.body.scrollTop) - 200) {
       try {
         if (this._isMounted) {
           this.setState( { loading: true } );
