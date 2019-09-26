@@ -48,7 +48,7 @@ class PrivacyPolicy extends React.Component<Props, {}> {
             1060 Vienna, Austria<br/>
             P: +43 1 513 98 56-0<br/>
             E: <a href="mailto:legal@ocean-archive.org">legal@ocean-archive.org</a><br/>
-            W: <a href="www.tba21-academy.org" target="_blank" rel="noreferrer noopener">www.TBA21-Academy.org</a><br/>
+            W: <a href="https://www.tba21-academy.org" target="_blank" rel="noreferrer noopener">www.tba21-academy.org</a><br/>
           </p>
 
           <h2>3. General Information</h2>

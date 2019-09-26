@@ -20,9 +20,9 @@ import { DetailPreview, FileStaticPreview } from './utils/DetailPreview';
 import { itemType } from '../types/Item';
 
 import { browser } from './utils/browser';
+import Footer from './layout/Footer';
 
 import 'styles/components/home.scss';
-import tbaLogo from 'images/logo/tba21-logo.svg';
 
 interface Props extends HomePageState {
   logoDispatch: Function;
@@ -36,22 +36,6 @@ interface Props extends HomePageState {
 
 interface State {
   loading: boolean;
-}
-
-const LoginButton = (props: { col?: boolean }) => {
-  const button = <Button color="link" tag={Link} to="/login" className="loginButton"><span className="simple-icon-login" />Login / Signup</Button>;
-  return (
-    <AuthConsumer>
-      {({ isAuthenticated, logout }) => (
-        isAuthenticated ?
-          <></>
-          :
-          <>
-            {!!props.col ? <Col lg="5">{button}</Col> : button}
-          </>
-      )}
-    </AuthConsumer>
-  );
 }
 
 class HomePage extends React.Component<Props, State> {
@@ -266,7 +250,14 @@ class HomePage extends React.Component<Props, State> {
     return (
       <div id="home" className="flex-fill">
         <Container fluid id="header">
-          <LoginButton />
+          <AuthConsumer>
+            {({ isAuthenticated, logout }) => (
+              isAuthenticated ?
+                <></>
+                :
+                <Button color="link" tag={Link} to="/login" className="loginButton"><span className="simple-icon-login" />Login / Signup</Button>
+            )}
+          </AuthConsumer>
           <Row>
             {!!loaded_highlights[0] ?
               <Col xs="12" md={loaded_highlights.length > 1 ? 8 : 12} className="item" onClick={() => this.props.openModal(loaded_highlights[0])}>
@@ -385,23 +376,7 @@ class HomePage extends React.Component<Props, State> {
           </Row>
 
           { !items.length && !collections.length && !audio.length ?
-              <footer className="row text-center text-lg-left">
-                <Col xs="12" md="6">
-                  <Row>
-                    <LoginButton col/>
-                    <Col className="pt-2 py-md-0"><a href="mailto:info@ocean-archive.org">info@ocean-archive.org</a></Col>
-                  </Row>
-                </Col>
-                <Col xs="12" md="6">
-                  <Row>
-                    <Col xs="12" lg="8" className="py-md-0"></Col>
-                    <Col xs="12" lg="4" className="py-2 py-md-0">
-                      <img src={tbaLogo} alt='' />
-                    </Col>
-                  </Row>
-                </Col>
-              </footer>
-
+              <Footer />
             : <></>
           }
         </Container>

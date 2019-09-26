@@ -101,33 +101,6 @@
     }
   }
 
-  footer {
-    color: $dark-gray;
-    margin-bottom: 45px; // offset search
-    padding-top: 50px;
-    padding-bottom: 50px;
-    align-items: center;
-
-    .row {
-      align-items: center;
-    }
-
-    img {
-      max-width: 50vw;
-      @media screen and (min-width: 768px) and (max-width: 992px) {
-        max-width: 200px;
-      }
-    }
-
-    .loginButton.btn-link, a {
-      color: $dark-gray;
-      transition: color 0.5s;
-      &:hover {
-        color: $dark-green;
-      }
-    }
-  }
-
   .announcement {
     .title {
       font-size: 18px;
