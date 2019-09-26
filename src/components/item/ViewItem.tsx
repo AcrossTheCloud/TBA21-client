@@ -5,7 +5,7 @@ import { fetchItem } from 'actions/items/viewItem';
 import { State } from 'reducers/items/viewItem';
 import { Alerts, ErrorMessage } from '../utils/alerts';
 
-import { Item, Regions } from '../../types/Item';
+import { Item, itemType, Regions } from '../../types/Item';
 import { FilePreview } from '../utils/filePreview';
 import { Languages } from '../../types/Languages';
 import { browser } from '../utils/browser';
@@ -14,6 +14,8 @@ import { RouteComponentProps, withRouter } from 'react-router';
 import 'styles/components/pages/viewItem.scss';
 import Share from '../utils/Share';
 import moment from 'moment';
+import { FileTypes } from '../../types/s3File';
+import AudioPreview from '../layout/audio/AudioPreview';
 
 type MatchParams = {
   id: string;
@@ -77,7 +79,9 @@ class ViewItem extends React.Component<Props, State> {
       exhibited_at,
       copyright_holder,
       url,
-      medium
+      medium,
+      item_type,
+      created_at,
     } = this.props.item;
 
     let focusTotal = 0;
@@ -100,12 +104,27 @@ class ViewItem extends React.Component<Props, State> {
       </Row>
     );
 
+    const isAudio = (!!file && item_type === itemType.Audio) || (!!file && file.type === FileTypes.Audio);
     return (
       <div id="item">
         <ErrorMessage message={this.props.errorMessage} />
         {file && file.url ?
           <Row className="file">
-            <FilePreview file={file}/>
+            {
+              isAudio ?
+                <div className="w-100">
+                  <AudioPreview
+                    data={{
+                      id: `${id}_slider`,
+                      title: title ? title : '',
+                      url: file.url,
+                      isCollection: false,
+                      date: !!created_at ? created_at : ''
+                    }}
+                  />
+                </div>
+                : <FilePreview file={file}/>
+            }
           </Row>
           : <></>
         }
@@ -148,7 +167,7 @@ class ViewItem extends React.Component<Props, State> {
           <Col xs="12" md="4" className="right">
             {!!time_produced ?
               <ItemDetails label="Date Produced" value={moment(time_produced).format('Do MMMM YYYY')} />
-              : year_produced ? <ItemDetails label="Year Produced" value={moment(year_produced).format('YYYY')} /> : <></>
+              : year_produced ? <ItemDetails label="Year Produced" value={year_produced} /> : <></>
             }
             {!!venues && venues.length ?
               <ItemDetails label="Publication Venue(s)" value={`${venues.join(', ')}`} />

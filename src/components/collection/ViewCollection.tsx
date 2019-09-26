@@ -133,7 +133,7 @@ class ViewCollection extends React.Component<Props, {}> {
           <Col xs="12" md="4" className="right">
             {!!time_produced ?
               <CollectionDetails label="Date Produced" value={moment(time_produced).format('Do MMMM YYYY')} />
-              : year_produced ? <CollectionDetails label="Year Produced" value={moment(year_produced).format('YYYY')} /> : <></>
+              : year_produced ? <CollectionDetails label="Year Produced" value={year_produced} /> : <></>
             }
             {!!venues && venues.length ?
               <CollectionDetails label="Publication Venue(s)" value={`${venues.join(', ')}`} />
