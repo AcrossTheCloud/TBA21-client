@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { Button, Col, Container, Row } from 'reactstrap';
+import { Button, Col, Container, Row, Spinner } from 'reactstrap';
 import { debounce } from 'lodash';
 import { withCookies, Cookies } from 'react-cookie';
 
@@ -32,7 +32,11 @@ interface Props extends HomePageState {
   cookies: Cookies;
 }
 
-class HomePage extends React.Component<Props, {}> {
+interface State {
+  loading: boolean;
+}
+
+class HomePage extends React.Component<Props, State> {
   _isMounted;
   loadedCount: number = 0;
   scrollDebounce;
@@ -42,7 +46,11 @@ class HomePage extends React.Component<Props, {}> {
 
     this._isMounted = false;
 
-    this.scrollDebounce = debounce( async () => await this.handleScroll(), 300);
+    this.state = {
+      loading: false
+    };
+
+    this.scrollDebounce = debounce( async () => await this.handleScroll(), 100);
   }
 
   async componentDidMount(): Promise<void> {
@@ -80,8 +88,19 @@ class HomePage extends React.Component<Props, {}> {
   }
 
   handleScroll = async () => {
-    if (window.innerHeight + document.documentElement.scrollTop === document.documentElement.offsetHeight) {
-      await this.props.loadMore(this.props.items, this.props.collections, this.props.announcements, this.props.audio, this.props.loadedItems);
+    try {
+      if (this.loadedCount && document.documentElement.scrollTop > document.documentElement.offsetHeight / 2.5) {
+        if (this._isMounted) {
+          this.setState( { loading: true } );
+        }
+        await this.props.loadMore(this.props.items, this.props.collections, this.props.announcements, this.props.audio, this.props.loadedItems);
+      }
+    } catch (e) {
+      return;
+    } finally {
+      if (this._isMounted) {
+        this.setState( { loading: false } );
+      }
     }
   }
   handleScrollMobileSearch = () => {
@@ -311,6 +330,14 @@ class HomePage extends React.Component<Props, {}> {
         <Container fluid id="main">
           <Row>
             {loadedItems.map( (e: HomepageData, i: number) => (<this.DisplayLayout key={i} data={e} />))}
+          </Row>
+          <Row>
+            { this.state.loading ?
+              <Col className="text-center py-5">
+                <Spinner type="grow" style={{ color: '#50E3C2', fontSize: '20px'}}/>
+              </Col>
+              : <></>
+            }
           </Row>
         </Container>
       </div>
