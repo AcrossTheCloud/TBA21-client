@@ -19,8 +19,10 @@ import { FileTypes } from '../types/s3File';
 import { DetailPreview, FileStaticPreview } from './utils/DetailPreview';
 import { itemType } from '../types/Item';
 
-import 'styles/components/home.scss';
 import { browser } from './utils/browser';
+
+import 'styles/components/home.scss';
+import tbaLogo from 'images/logo/tba21-logo.svg';
 
 interface Props extends HomePageState {
   logoDispatch: Function;
@@ -36,10 +38,27 @@ interface State {
   loading: boolean;
 }
 
+const LoginButton = (props: { col?: boolean }) => {
+  const button = <Button color="link" tag={Link} to="/login" className="loginButton"><span className="simple-icon-login" />Login / Signup</Button>;
+  return (
+    <AuthConsumer>
+      {({ isAuthenticated, logout }) => (
+        isAuthenticated ?
+          <></>
+          :
+          <>
+            {!!props.col ? <Col lg="5">{button}</Col> : button}
+          </>
+      )}
+    </AuthConsumer>
+  );
+}
+
 class HomePage extends React.Component<Props, State> {
   _isMounted;
   loadedCount: number = 0;
   scrollDebounce;
+  windowHeightTimeout;
 
   constructor(props: Props) {
     super(props);
@@ -78,18 +97,41 @@ class HomePage extends React.Component<Props, State> {
     }
   }
 
-  waitForLoad = () => {
+  waitForLoad = async () => {
     if (this.props.loadedMore) { // We've loaded the OA Highlights prior to this being set.
       this.loadedCount--;
       if (!this.props.logoLoaded && this.loadedCount <= 0) {
         this.props.logoDispatch(true);
+        await this.windowHeightCheck();
       }
     }
   }
 
+  windowHeightCheck = async () => {
+    const loading = (loading: boolean = true) => {
+      if (this._isMounted) {
+        this.setState( { loading } );
+      }
+    }
+    // if the page is higher than the items and we have no scroll bar we need to get more items.
+    clearTimeout(this.windowHeightTimeout);
+    this.windowHeightTimeout = setTimeout( async () => {
+      if (this.props.loadedMore && (this.props.items.length || this.props.collections.length || this.props.audio.length) && window.innerHeight + document.documentElement.scrollTop === document.documentElement.offsetHeight) {
+        loading();
+        await this.props.loadMore(this.props.items, this.props.collections, this.props.announcements, this.props.audio, this.props.loadedItems);
+        loading(false);
+        // Run again just in case
+        this.windowHeightCheck();
+      } else {
+        clearTimeout(this.windowHeightTimeout);
+        loading(false);
+      }
+    }, 3000);
+  }
+
   handleScroll = async () => {
     try {
-      if (this.loadedCount && document.documentElement.scrollTop > document.documentElement.offsetHeight / 2.5) {
+      if (window.innerHeight + document.documentElement.scrollTop === document.documentElement.offsetHeight) {
         if (this._isMounted) {
           this.setState( { loading: true } );
         }
@@ -211,18 +253,20 @@ class HomePage extends React.Component<Props, State> {
   };
 
   render() {
-    const { loaded_highlights, logoLoaded, loadedItems, announcements } = this.props;
+    const {
+      loaded_highlights,
+      logoLoaded,
+      loadedItems,
+      announcements,
+      items,
+      collections,
+      audio
+    } = this.props;
+
     return (
       <div id="home" className="flex-fill">
         <Container fluid id="header">
-          <AuthConsumer>
-            {({ isAuthenticated, logout }) => (
-              isAuthenticated ?
-                <></>
-                :
-                <Button color="link" tag={Link} to="/login"><span className="simple-icon-login login-button" />Login / Signup</Button>
-            )}
-          </AuthConsumer>
+          <LoginButton />
           <Row>
             {!!loaded_highlights[0] ?
               <Col xs="12" md={loaded_highlights.length > 1 ? 8 : 12} className="item" onClick={() => this.props.openModal(loaded_highlights[0])}>
@@ -339,6 +383,27 @@ class HomePage extends React.Component<Props, State> {
               : <></>
             }
           </Row>
+
+          { !items.length && !collections.length && !audio.length ?
+              <footer className="row text-center text-lg-left">
+                <Col xs="12" md="6">
+                  <Row>
+                    <LoginButton col/>
+                    <Col className="pt-2 py-md-0"><a href="mailto:info@ocean-archive.org">info@ocean-archive.org</a></Col>
+                  </Row>
+                </Col>
+                <Col xs="12" md="6">
+                  <Row>
+                    <Col xs="12" lg="8" className="py-md-0"></Col>
+                    <Col xs="12" lg="4" className="py-2 py-md-0">
+                      <img src={tbaLogo} alt='' />
+                    </Col>
+                  </Row>
+                </Col>
+              </footer>
+
+            : <></>
+          }
         </Container>
       </div>
     );

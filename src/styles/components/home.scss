@@ -59,13 +59,16 @@
 
   a {
     color: #fff;
-    &:visited, &:focus {
-      color: #fff;
-    }
   }
 
-  .login-button {
-    margin-right: 10px;
+  .loginButton.btn-link {
+    transition: color 0.5s;
+    span {
+      margin-right: 10px;
+    }
+    &:hover {
+      color: $dark-green
+    }
   }
 
   .d-flex.title-wrapper {
@@ -75,7 +78,7 @@
   #main {
     overflow: hidden;
     margin-top: 25px;
-    padding-bottom: 100px;
+    //padding-bottom: 100px;
   }
 
   #header {
@@ -94,6 +97,33 @@
         left: 50%;
         font-size: 50px;
         transform: translate(-50%, -50%);
+      }
+    }
+  }
+
+  footer {
+    color: $dark-gray;
+    margin-bottom: 45px; // offset search
+    padding-top: 50px;
+    padding-bottom: 50px;
+    align-items: center;
+
+    .row {
+      align-items: center;
+    }
+
+    img {
+      max-width: 50vw;
+      @media screen and (min-width: 768px) and (max-width: 992px) {
+        max-width: 200px;
+      }
+    }
+
+    .loginButton.btn-link, a {
+      color: $dark-gray;
+      transition: color 0.5s;
+      &:hover {
+        color: $dark-green;
       }
     }
   }

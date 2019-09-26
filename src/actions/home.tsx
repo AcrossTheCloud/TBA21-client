@@ -130,7 +130,7 @@ export const loadMore = (
 
   // Push the audio to the end
   if (audio && audio.length) {
-    data.push(...audio.splice(1));
+    data.push(...audio.splice(0, 1));
   }
 
   // Add files to the items
