@@ -24,6 +24,10 @@
     }
     @media screen and (device-width: 1024px) and (device-height: 768px) and (orientation:landscape) {}
 
+    @media (max-height: 768px)and (orientation:landscape) {
+      height: 70vh;
+    }
+
     img {
       object-fit: cover;
       height: 100%;

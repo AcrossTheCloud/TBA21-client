@@ -43,6 +43,10 @@
       @media (min-width: 1200px) {
         max-height: 70vh;
       }
+      @media (max-height: 768px) and (orientation:landscape) {
+        max-height: 70vh;
+      }
+
       z-index: 0;
       img {
         height: 100%;
