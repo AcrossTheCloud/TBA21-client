@@ -114,18 +114,18 @@ class HomePage extends React.Component<Props, State> {
   }
 
   handleScroll = async () => {
-    try {
-      if (window.innerHeight + document.documentElement.scrollTop >= document.documentElement.offsetHeight) {
+    if (window.innerHeight + document.documentElement.scrollTop >= document.documentElement.offsetHeight - 200) {
+      try {
         if (this._isMounted) {
           this.setState( { loading: true } );
         }
         await this.props.loadMore(this.props.items, this.props.collections, this.props.announcements, this.props.audio, this.props.loadedItems);
-      }
-    } catch (e) {
-      return;
-    } finally {
-      if (this._isMounted) {
-        this.setState( { loading: false } );
+      } catch (e) {
+        return;
+      } finally {
+        if (this._isMounted) {
+          this.setState( { loading: false } );
+        }
       }
     }
   }

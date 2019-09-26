@@ -24,8 +24,12 @@
     }
     @media screen and (device-width: 1024px) and (device-height: 768px) and (orientation:landscape) {}
 
-    @media (max-height: 768px)and (orientation:landscape) {
+    @media (max-height: 768px) and (orientation:landscape) {
       height: 70vh;
+    }
+    @media (min-height: 1200px) {
+      height: 30vh;
+      max-height: 500px;
     }
 
     img {
