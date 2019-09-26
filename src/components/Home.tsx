@@ -115,7 +115,7 @@ class HomePage extends React.Component<Props, State> {
 
   handleScroll = async () => {
     try {
-      if (window.innerHeight + document.documentElement.scrollTop === document.documentElement.offsetHeight) {
+      if (window.innerHeight + document.documentElement.scrollTop >= document.documentElement.offsetHeight) {
         if (this._isMounted) {
           this.setState( { loading: true } );
         }
@@ -368,7 +368,7 @@ class HomePage extends React.Component<Props, State> {
           </Row>
           <Row>
             { this.state.loading ?
-              <Col className="text-center py-5">
+              <Col className="text-center pb-5">
                 <Spinner type="grow" style={{ color: '#50E3C2', fontSize: '20px'}}/>
               </Col>
               : <></>
@@ -377,7 +377,7 @@ class HomePage extends React.Component<Props, State> {
 
           { !items.length && !collections.length && !audio.length ?
               <Footer />
-            : <></>
+            : <div style={{paddingTop: '100px'}}></div>
           }
         </Container>
       </div>
