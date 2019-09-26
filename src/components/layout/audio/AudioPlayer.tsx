@@ -142,7 +142,7 @@ class AudioPlayer extends React.Component<Props, State> {
                 <Row>
                   {this.props.data && this.props.data.id ?
                     <Col className="openButton">
-                      <Link to={`/${this.props.data.isCollection ? 'collection' : 'view'}/${this.props.data.id}`} onClick={this.close}><FaExternalLinkAlt /></Link>
+                      <Link to={`/${this.props.data.isCollection ? 'collection' : 'view'}/${this.props.data.id.replace('_slider', '')}`} onClick={this.close}><FaExternalLinkAlt /></Link>
                     </Col>
                     : <></>
                   }
