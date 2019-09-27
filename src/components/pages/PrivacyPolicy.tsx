@@ -14,9 +14,7 @@ class PrivacyPolicy extends React.Component<Props, {}> {
       <Modal isOpen={this.props.open} toggle={() => this.props.modalToggle('PP_MODAL')} className="fullwidth blue">
         <ModalHeader toggle={() => this.props.modalToggle('PP_MODAL')}>PRIVACY POLICY</ModalHeader>
         <ModalBody>
-          <h1>PRIVACY POLICY</h1>
-
-          <h2>1. Definitions</h2>
+          <h3>1. Definitions</h3>
 
           <p>For the purposes of this Privacy Policy:</p>
 
@@ -38,7 +36,7 @@ class PrivacyPolicy extends React.Component<Props, {}> {
 
           <p>‘supervisory authority’ means an independent public authority which is established by a Member State pursuant to Art. 51 GDPR. ‘international organization’ means an organization and its subordinate bodies governed by public international law, or any other body which is set up by, or on the basis of, an agreement between two or more countries.</p>
 
-          <h2>2. Name and Address of the Controller</h2>
+          <h3>2. Name and Address of the Controller</h3>
 
           <p>The controller within the meaning of the General Data Protection Regulation and other national data protection laws of the member states as well as other data protection regulations is:</p>
 
@@ -51,7 +49,7 @@ class PrivacyPolicy extends React.Component<Props, {}> {
             W: <a href="https://www.tba21-academy.org" target="_blank" rel="noreferrer noopener">www.tba21-academy.org</a><br/>
           </p>
 
-          <h2>3. General Information</h2>
+          <h3>3. General Information</h3>
 
           <p>In principle, we process personal data only as necessary to provide a functioning website, as well as our content and services. We regularly only process personal data with the consent of the users. An exception applies to cases in which prior consent can not be obtained for factual reasons and the processing of the data is permitted by law.</p>
 
@@ -67,7 +65,7 @@ class PrivacyPolicy extends React.Component<Props, {}> {
 
           <p>The personal data of the concerned person will be deleted or blocked as soon as the purpose of the storage is omitted. In addition, such storage may be provided for by the European or national legislator in EU regulations, laws or other regulations to which the controller is subject. A blocking or deletion of the data takes place, if the mandatory storage period expires, unless there is a need for further storage of the data for a contract conclusion or a contract fulfilment.</p>
 
-          <h2>4. Provision of the Website and Creation of Log Files</h2>
+          <h3>4. Provision of the Website and Creation of Log Files</h3>
 
           <p>Each time our website is accessed, our system automatically collects data and information from the computer system of the calling computer. The following data is collected:</p>
 
@@ -97,7 +95,7 @@ class PrivacyPolicy extends React.Component<Props, {}> {
 
           <p>The collection of data for the provision of the website and the storage of the data in log files is essential for the operation of the website. Consequently, there is no contradiction possible on your part.</p>
 
-          <h2>5. Cookies</h2>
+          <h3>5. Cookies</h3>
 
           <p>We use cookies on our site. A cookie is a small file that your browser automatically creates and that is stored on your device (laptop, tablet, smartphone, etc.). You can use your web browser’s settings to refuse cookies if you wish.</p>
 
@@ -127,7 +125,7 @@ class PrivacyPolicy extends React.Component<Props, {}> {
 
           <p>Most browsers accept cookies automatically. Should you not wish these cookies to be stored, please deactivate the acceptance of these cookies in your internet browser. However, this may limit the functionality of our website. You can also delete persistent cookies via your browser at any time.</p>
 
-          <h2>6. Analytics and Ads</h2>
+          <h3>6. Analytics and Ads</h3>
 
           <p>We may use third-party Service Providers to monitor and analyse the use of our service and for advertising purposes.</p>
 
@@ -147,7 +145,7 @@ class PrivacyPolicy extends React.Component<Props, {}> {
 
           <p>For more information on the privacy practices of Google, please visit the Google Privacy & Terms website: https://policies.google.com/privacy</p>
 
-          <h2>7. Newsletter and Email Marketing</h2>
+          <h3>7. Newsletter and Email Marketing</h3>
 
           <p>We may provide you with the opportunity to sign-up for a periodic email newsletter by entering in your email address and confirming it by clicking on a confirmation link sent to you by us by email (double opt-in). The legal basis for this processing is Art. 6 (1) lit. a) GDPR.</p>
 
@@ -163,7 +161,7 @@ class PrivacyPolicy extends React.Component<Props, {}> {
 
           <p>We will not share your personal information with any other third-party unless we have your permission or the law requires us to.</p>
 
-          <h2>8. Contact Form and Email Contact</h2>
+          <h3>8. Contact Form and Email Contact</h3>
 
           <p>There is a contact form available on our website, which can be used for electronic contact. If you use this option, the data entered in the input mask will be transmitted to us and saved. This includes:
             a) Name <br />
@@ -197,7 +195,7 @@ class PrivacyPolicy extends React.Component<Props, {}> {
 
           <p>All personal data stored in the course of contacting will be deleted in this case.</p>
 
-          <h2>9. Your Rights</h2>
+          <h3>9. Your Rights</h3>
 
           <h3>9.01 Right to Access</h3>
 
@@ -298,7 +296,7 @@ class PrivacyPolicy extends React.Component<Props, {}> {
           <p>Without prejudice to any other administrative or judicial remedy, you have the right to complain to a supervisory authority, in particular in the Member State of its residence, place of work or place of alleged infringement, if you believe that the processing of your personal data violates the GDPR.<br />
             The supervisory authority to which the complaint has been submitted shall inform the complainant of the status and results of the complaint, including the possibility of a judicial remedy pursuant to Art. 78 of the GDPR.</p>
 
-          <h2>10. Changes to this Privacy Policy</h2>
+          <h3>10. Changes to this Privacy Policy</h3>
 
           <p>This Privacy Policy may change from time to time to be in line with legislation or industry developments. We will not explicitly inform you of these changes. Thus, we recommend that you check this page periodically for any policy changes and updates. These changes are effective immediately after they are posted on this page.</p>
         </ModalBody>
