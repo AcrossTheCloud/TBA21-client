@@ -76,8 +76,7 @@ class AudioPreview extends React.Component<Props, State> {
     }
 
     if (this.props.data.url) {
-      wavesurfer.load(this.props.data.url);
-      wavesurfer.load(this.props.data.url);
+      wavesurfer.load(this.props.data.url, false);
       loaded = true;
     }
     if (typeof this.props.onLoad === 'function') {
