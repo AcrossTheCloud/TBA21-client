@@ -84,21 +84,23 @@ export const addFilesToData = async (data: HomepageData[]): Promise<HomepageData
           if (typeof data[i].file_dimensions !== 'undefined') {
             const dimensions: number[] = data[i].file_dimensions as number[];
 
-            if (dimensions[0] > 540) {
-              Object.assign(thumbnails, {540: `${thumbnailUrl}.thumbnail540.png`});
-            }
-            if (dimensions[0] > 720) {
-              Object.assign(thumbnails, {720: `${thumbnailUrl}.thumbnail720.png`});
-            }
-            if (dimensions[0] > 960) {
-              Object.assign(thumbnails, {960: `${thumbnailUrl}.thumbnail960.png`});
-            }
-            if (dimensions[0] > 1140) {
-              Object.assign(thumbnails, {1140: `${thumbnailUrl}.thumbnail1140.png`});
-            }
+            if (dimensions && dimensions[0]) {
+              if (dimensions[0] >= 540) {
+                Object.assign(thumbnails, {540: `${thumbnailUrl}.thumbnail540.png`});
+              }
+              if (dimensions[0] >= 720) {
+                Object.assign(thumbnails, {720: `${thumbnailUrl}.thumbnail720.png`});
+              }
+              if (dimensions[0] >= 960) {
+                Object.assign(thumbnails, {960: `${thumbnailUrl}.thumbnail960.png`});
+              }
+              if (dimensions[0] >= 1140) {
+                Object.assign(thumbnails, {1140: `${thumbnailUrl}.thumbnail1140.png`});
+              }
 
-            if (Object.keys(thumbnails).length > 1) {
-              Object.assign(file, {thumbnails});
+              if (Object.keys(thumbnails).length > 1) {
+                Object.assign(file, {thumbnails});
+              }
             }
           }
         }
