@@ -1,10 +1,15 @@
 import { API } from 'aws-amplify';
 import { getCDNObject } from '../components/utils/s3File';
 import { LOADINGOVERLAY } from './loadingOverlay';
+import { ItemOrCollectionOrProfile } from '../reducers/searchConsole';
+import { Item } from '../types/Item';
+import { Collection } from '../types/Collection';
+import { S3File } from '../types/s3File';
 
 // Defining our Actions for the reducers.
 export const CHANGE_VIEW = 'CHANGE_VIEW';
 export const SEARCH_RESULTS = 'SEARCH_RESULTS';
+export const SEARCH_RESULTS_LOADING = 'SEARCH_RESULTS_LOADING';
 export const SEARCH_TOGGLE_OPEN = 'SEARCH_TOGGLE_OPEN';
 export const SEARCH_CONCEPT_TAGS = 'SEARCH_CONCEPT_TAGS';
 
@@ -49,7 +54,6 @@ export const changeView = (view: 'grid' | 'list') => dispatch => {
 export const search = (criteria: CriteriaOption[], focusArts: boolean = false, focusAction: boolean = false, focusScitech: boolean = false) => async dispatch => {
   if (criteria && criteria.length) {
     const
-      results: any = [],  // tslint:disable-line: no-any
       state = {
         type: SEARCH_RESULTS
       };
@@ -67,30 +71,67 @@ export const search = (criteria: CriteriaOption[], focusArts: boolean = false, f
         }
       });
 
-      for (let i = 0; i < response.results.length ; i++) {
-        const result = response.results[i];
+      const results = await loadMore(response.results, 0);
+      Object.assign(state, { results: response.results, loadedResults: results.loadedResults, offset: results.offset });
 
-        if (result.s3_key) {
-          if (Array.isArray(result.s3_key) && result.s3_key.length > 0) {
-            if (result.s3_key[0]) {
-              result.file = await getCDNObject(result.s3_key[0]);
-            }
-          } else {
-            result.file = await getCDNObject(result.s3_key);
-          }
-
-          results.push(result);
-        } else if (result.full_name) { // Profile
-          results.push(result);
-          return;
-        }
-      }
     } catch (e) {
-      return;
     } finally {
-      Object.assign(state, { results });
       dispatch(state);
       dispatch({ type: LOADINGOVERLAY, on: false }); // Turn off the loading overlay
     }
+  }
+};
+
+export const loadMoreResults = () => async (dispatch, getState) => {
+  dispatch({ type: SEARCH_RESULTS_LOADING, loading: true });
+  try {
+    const { results, loadedResults, offset } = getState().searchConsole;
+    const moreResults = await loadMore(results, loadedResults.length, offset);
+    dispatch({ type: SEARCH_RESULTS, results: results, loadedResults: [...loadedResults, ...moreResults.loadedResults], offset: moreResults.offset });
+  } catch (e) {
+    dispatch({ type: SEARCH_RESULTS_LOADING, loading: false });
+  }
+};
+
+const loadMore = async (results: ItemOrCollectionOrProfile[], amountLoaded: number, offset: number = 0): Promise<{loadedResults: ItemOrCollectionOrProfile[], offset?: number}> => {
+  const response: ItemOrCollectionOrProfile[] = [];
+  const counter = (results.length - amountLoaded) >= 10 ? 10 : results.length ;
+
+  try {
+    for (let i = 0; i < counter; i++) {
+      let result: ItemOrCollectionOrProfile = results[offset + i];
+      if (result) {
+
+        if (result.hasOwnProperty('s3_key')) {
+          const itemOrCollection = result as Item | Collection;
+
+          const s3Key = itemOrCollection.s3_key;
+          if (Array.isArray(s3Key) && s3Key.length) {
+            if (s3Key[0]) {
+              const file: S3File | false = await getCDNObject(s3Key[0]);
+              if (file) {
+                Object.assign(itemOrCollection, {file});
+              }
+            }
+          } else if (typeof s3Key === 'string') {
+            const file: S3File | false = await getCDNObject(s3Key);
+            if (file) {
+              Object.assign(itemOrCollection, {file});
+            }
+          }
+        }
+
+        response.push(result);
+      }
+    }
+
+    return {
+      loadedResults: response,
+      offset: offset + counter
+    };
+  } catch (e) {
+    return {
+      loadedResults: response
+    };
   }
 };
