@@ -125,8 +125,6 @@ export const loadMore = () => async (dispatch, getState) => {
       loadedItems,
     } = state.home;
 
-  console.log(state.home);
-
   let data: HomepageData[] = [
     ...items.length > itemRand ? items.splice(0, itemRand) : items.splice(0, items.length),
     ...collections.length > collectionRand ? collections.splice(0, collectionRand) : collections.splice(0, collections.length)
