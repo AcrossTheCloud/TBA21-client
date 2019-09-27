@@ -1,10 +1,10 @@
 import { API } from 'aws-amplify';
-import { getCDNObject } from '../components/utils/s3File';
+import { checkThumbnails, getCDNObject } from '../components/utils/s3File';
 import { LOADINGOVERLAY } from './loadingOverlay';
 import { ItemOrCollectionOrProfile } from '../reducers/searchConsole';
 import { Item } from '../types/Item';
 import { Collection } from '../types/Collection';
-import { S3File } from '../types/s3File';
+import { FileTypes, S3File } from '../types/s3File';
 
 // Defining our Actions for the reducers.
 export const CHANGE_VIEW = 'CHANGE_VIEW';
@@ -110,17 +110,26 @@ const loadMore = async (results: ItemOrCollectionOrProfile[], amountLoaded: numb
             if (s3Key[0]) {
               const file: S3File | false = await getCDNObject(s3Key[0]);
               if (file) {
-                Object.assign(itemOrCollection, {file});
+                if (file.type === FileTypes.Image) {
+                  const item = s3Key[0] as unknown as Item;
+                  Object.assign(itemOrCollection, { file: checkThumbnails(item, file) });
+                } else {
+                  Object.assign(itemOrCollection, {file});
+                }
               }
             }
           } else if (typeof s3Key === 'string') {
             const file: S3File | false = await getCDNObject(s3Key);
             if (file) {
-              Object.assign(itemOrCollection, {file});
+              if (file.type === FileTypes.Image) {
+                const item = itemOrCollection as Item;
+                Object.assign(itemOrCollection, { file: checkThumbnails(item, file) });
+              } else {
+                Object.assign(itemOrCollection, {file});
+              }
             }
           }
         }
-
         response.push(result);
       }
     }

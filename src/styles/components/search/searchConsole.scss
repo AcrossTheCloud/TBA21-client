@@ -324,11 +324,20 @@
         .result {
           cursor: pointer;
           position: relative;
-          max-height: 200px;
           overflow: hidden;
           border-bottom: 1px solid #fff;
           padding-bottom: 5px;
           margin-bottom: 5px;
+          picture {
+            height: 200px;
+            display: block;
+
+            img {
+              object-fit: cover;
+              height: 100%;
+              width: 100%;
+            }
+          }
           .creators {
             overflow: hidden;
             max-width: 95%;

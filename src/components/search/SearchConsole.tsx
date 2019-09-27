@@ -94,7 +94,24 @@ const FilePreview = (props: { data: any }) => { // tslint:disable-line: no-any
     } = props.data;
     return <AudioPreview data={{title, id, url: file.url, date, creators, item_subtype, isCollection: !!count}} />;
   } else {
-    return <FileStaticPreview file={props.data.file} />;
+    if (props.data.file.type === FileTypes.Image && props.data.file.thumbnails) {
+      const thumbnail = props.data.file.thumbnails['540'] || props.data.file.thumbnails['720'];
+      if (thumbnail) {
+        return (
+          <picture className="image">
+            <img
+              src={thumbnail}
+              alt={''}
+            />
+          </picture>
+        );
+      } else {
+        return <FileStaticPreview file={props.data.file}/>;
+      }
+
+    } else {
+      return <FileStaticPreview file={props.data.file}/>;
+    }
   }
 };
 
