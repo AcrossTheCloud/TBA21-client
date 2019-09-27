@@ -168,7 +168,7 @@ export const getVideoFiles = async (key: string): Promise<{poster: string, playl
       fileNameWithoutExtension = locationKeys.split('.'),
       // Poster
       posterFileName = fileNameWithoutExtension.slice(0, fileNameWithoutExtension.length - 1).join('.'),
-      posterURL = `${steamingURL}${privateUUID}/thumbnails/${posterFileName}_thumb.0000000.jpg`,
+      posterURL = `${steamingURL}${privateUUID}/thumbnails/${posterFileName}_thumb.0000001.jpg`,
       // Playlist
       playlistURLFileName = fileNameWithoutExtension.slice(0, fileNameWithoutExtension.length - 1).join('.'),
       playlistURL = `${steamingURL}${privateUUID}/hls/${playlistURLFileName}.m3u8`;
