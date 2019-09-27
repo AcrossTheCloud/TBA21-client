@@ -1,4 +1,5 @@
 import * as React from 'react';
+import $ from 'jquery';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { Button, Col, Container, Row, Spinner } from 'reactstrap';
@@ -34,11 +35,7 @@ interface Props extends HomePageState {
   cookies: Cookies;
 }
 
-interface State {
-  loading: boolean;
-}
-
-class HomePage extends React.Component<Props, State> {
+class HomePage extends React.Component<Props, {}> {
   _isMounted;
   loadedCount: number = 0;
   scrollDebounce;
@@ -48,10 +45,6 @@ class HomePage extends React.Component<Props, State> {
     super(props);
 
     this._isMounted = false;
-
-    this.state = {
-      loading: false
-    };
 
     this.scrollDebounce = debounce( async () => await this.handleScroll(), 100);
   }
@@ -64,7 +57,7 @@ class HomePage extends React.Component<Props, State> {
     // If we have no items go get em.
     if (!this.props.loadedItems.length) {
       await this.props.loadHomepage();
-      await this.props.loadMore(this.props.items, this.props.collections, this.props.announcements, this.props.audio, this.props.loadedItems);
+      await this.props.loadMore();
       this.loadedCount = this.props.loadedItems.filter(t => (t.item_type === itemType.PDF || t.item_type === itemType.Text || t.item_type === itemType.DownloadText)).length;
     }
   }
@@ -102,7 +95,7 @@ class HomePage extends React.Component<Props, State> {
     this.windowHeightTimeout = setTimeout( async () => {
       if (this.props.loadedMore && (this.props.items.length || this.props.collections.length || this.props.audio.length) && window.innerHeight + document.documentElement.scrollTop === document.documentElement.offsetHeight) {
         loading();
-        await this.props.loadMore(this.props.items, this.props.collections, this.props.announcements, this.props.audio, this.props.loadedItems);
+        await this.props.loadMore();
         loading(false);
         // Run again just in case
         this.windowHeightCheck();
@@ -114,30 +107,31 @@ class HomePage extends React.Component<Props, State> {
   }
 
   handleScroll = async () => {
-    if (window.innerHeight + Math.max(document.documentElement.scrollTop, document.body.scrollTop) >= Math.max(window.pageYOffset, document.documentElement.scrollTop, document.body.scrollTop) - 200) {
+    if (this.props.loading || (!this.props.items.length && !this.props.collections.length && !this.props.audio.length)) { return; }
+
+    const height = $(document).height() as number;
+    const scrollTop = $(document).scrollTop() as number;
+
+    if (height >= (scrollTop - 200)) {
       try {
-        if (this._isMounted) {
-          this.setState( { loading: true } );
-        }
-        await this.props.loadMore(this.props.items, this.props.collections, this.props.announcements, this.props.audio, this.props.loadedItems);
+        await this.props.loadMore();
       } catch (e) {
         return;
-      } finally {
-        if (this._isMounted) {
-          this.setState( { loading: false } );
-        }
       }
     }
   }
   handleScrollMobileSearch = () => {
     const { cookies } = this.props;
-    const header = document.getElementById('header');
+    const $header = $('#header');
 
-    if (!!header && !cookies.get(`searchMobileCookie`)) {
-      const headerOffset = Math.round(header.offsetHeight + header.scrollTop);
+    if ($header && !cookies.get(`searchMobileCookie`)) {
+      const headerOffset: undefined | JQuery.Coordinates = $header.offset();
+      const scrollTop = $(document).scrollTop() as number;
+
+      if (!headerOffset) { return; }
       if(
-        (headerOffset > document.documentElement.scrollTop) &&
-        (headerOffset - 100 < document.documentElement.scrollTop)
+        (headerOffset.top >= scrollTop) &&
+        (headerOffset.top - 100 < scrollTop)
         && (window.innerWidth < 720 || browser() === 'ios')) {
         const expiry: Date = new Date(moment().add(2, 'w').format()); // 3 Months from now.
         this.props.searchOpenToggle(true);
@@ -367,7 +361,7 @@ class HomePage extends React.Component<Props, State> {
             {loadedItems.map( (e: HomepageData, i: number) => (<this.DisplayLayout key={i} data={e} />))}
           </Row>
           <Row>
-            { this.state.loading ?
+            { this.props.loading ?
               <Col className="text-center pb-5">
                 <Spinner type="grow" style={{ color: '#50E3C2', fontSize: '20px'}}/>
               </Col>
@@ -387,6 +381,7 @@ class HomePage extends React.Component<Props, State> {
 
 const mapStateToProps = (state: { home: Props }) => ({
   logoLoaded: state.home.logoLoaded,
+  loading: state.home.loading,
 
   items: state.home.items ? state.home.items : [],
   collections: state.home.collections ? state.home.collections : [],

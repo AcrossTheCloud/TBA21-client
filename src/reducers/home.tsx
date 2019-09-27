@@ -1,4 +1,4 @@
-import { LOAD_HOMEPAGE, LOGO_STATE_HOMEPAGE, LOAD_MORE_HOMEPAGE, MODAL_STATE_HOMEPAGE } from 'actions/home';
+import { LOAD_HOMEPAGE, LOGO_STATE_HOMEPAGE, LOAD_MORE_HOMEPAGE, MODAL_STATE_HOMEPAGE, LOAD_MORE_LOADING } from 'actions/home';
 import { S3File } from '../types/s3File';
 import { Announcement } from '../types/Announcement';
 import { itemType } from '../types/Item';
@@ -29,6 +29,7 @@ export interface HomepageData {
 
 export interface HomePageState {
   logoLoaded: boolean;
+  loading: boolean;
 
   items: HomepageData[];
   collections: HomepageData[];
@@ -45,6 +46,7 @@ export interface HomePageState {
 }
 const initialState: HomePageState = {
   logoLoaded: false,
+  loading: false,
 
   items: [],
   collections: [],
@@ -85,6 +87,11 @@ export default (state: HomePageState | null = initialState, action) => {
         audio: action.audio,
         items: action.items,
         collections: action.collections
+      };
+    case LOAD_MORE_LOADING:
+      return {
+        ...state,
+        loading: action.loading
       };
     case MODAL_STATE_HOMEPAGE:
       return {

@@ -4,7 +4,6 @@ import { random } from 'lodash';
 import { getCDNObject } from '../components/utils/s3File';
 import config from 'config';
 import { FileTypes, S3File } from '../types/s3File';
-import { Announcement } from '../types/Announcement';
 import { itemType } from '../types/Item';
 import { COLLECTION_MODAL_TOGGLE } from './modals/collectionModal';
 import { ITEM_MODAL_TOGGLE } from './modals/itemModal';
@@ -13,6 +12,7 @@ import { ITEM_MODAL_TOGGLE } from './modals/itemModal';
 export const LOGO_STATE_HOMEPAGE = 'LOGO_STATE_HOMEPAGE';
 export const LOAD_HOMEPAGE = 'LOAD_HOMEPAGE';
 export const LOAD_MORE_HOMEPAGE = 'LOAD_MORE_HOMEPAGE';
+export const LOAD_MORE_LOADING = 'LOAD_MORE_LOADING';
 export const MODAL_STATE_HOMEPAGE = 'MODAL_STATE_HOMEPAGE';
 
 export const logoDispatch = (state: boolean) => dispatch => {
@@ -112,16 +112,20 @@ export const addFilesToData = async (data: HomepageData[]): Promise<HomepageData
   }
 };
 
-export const loadMore = (
-    items: HomepageData[],
-    collections: HomepageData[],
-    announcements: Announcement[],
-    audio: HomepageData[],
-    alreadyLoaded: HomepageData[]
-  ) => async dispatch => {
+export const loadMore = () => async (dispatch, getState) => {
+  dispatch({ type: LOAD_MORE_LOADING, loading: true });
   const
     itemRand = random(2, 3),
-    collectionRand = random(2, 3);
+    collectionRand = random(2, 3),
+    state = getState(),
+    {
+      items,
+      collections,
+      audio,
+      loadedItems,
+    } = state.home;
+
+  console.log(state.home);
 
   let data: HomepageData[] = [
     ...items.length > itemRand ? items.splice(0, itemRand) : items.splice(0, items.length),
@@ -133,9 +137,6 @@ export const loadMore = (
     data.push(...audio.splice(0, 1));
   }
 
-  // Add files to the items
-  data = await addFilesToData(data);
-
   dispatch({
    type: LOAD_MORE_HOMEPAGE,
    items: items,
@@ -143,10 +144,11 @@ export const loadMore = (
    audio: audio,
    loadedMore: true,
    loadedItems: [
-     ...alreadyLoaded,
-     ...data
+     ...loadedItems,
+     ...await addFilesToData(data)
    ],
  });
+  dispatch({ type: LOAD_MORE_LOADING, loading: false });
 };
 
 // Modal
