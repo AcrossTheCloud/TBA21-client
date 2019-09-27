@@ -51,6 +51,7 @@ import TermsAndConditions from './components/pages/TermsAndConditions';
 import ItemModal from './components/modals/ItemModal';
 import CollectionModal from './components/modals/CollectionModal';
 import Footer from './components/layout/Footer';
+import About from './components/pages/About';
 
 const LoggedInRoutes = ({ isAuthenticated, ...rest }) => {
   const isLoggedIn = isAuthenticated;
@@ -115,6 +116,7 @@ export const AppRouter = () => {
                   <PrivacyPolicyPopUp />
                   <PrivacyPolicy />
                   <TermsAndConditions />
+                  <About />
                   <ItemModal />
                   <CollectionModal />
                   <LoadingOverlay />

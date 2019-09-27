@@ -16,18 +16,17 @@ class TermsAndConditions extends React.Component<Props, {}> {
       <Modal isOpen={this.props.tc_open} toggle={() => this.props.modalToggle('TC_MODAL')} className="fullwidth blue">
           <ModalHeader toggle={() => this.props.modalToggle('TC_MODAL')}>TERMS OF USE</ModalHeader>
           <ModalBody>
-              <h1>TERMS OF USE</h1>
               <p>
                   Please read these Terms of Use (may also be referred to as “Terms” or "Agreement") carefully before using the services offered by Thyssen-Bornemisza Art Contemporary Privatstiftung, hereinafter "TBA21", "we" or "us". Although the term "Ocean Archive" is used in the following, the legal relationship is concluded with TBA21 as the operator of the Ocean Archive.
              </p>
 
-              <h2>1. Definition</h2>
+              <h3>1. Definition</h3>
               <p>
                   Visitors: a person that is not logged-in<br/>
                   User: a person that is logged-in
              </p>
 
-              <h2>2. Offered Services </h2>
+              <h3>2. Offered Services </h3>
               <p>The Ocean Archive is a platform operating at the intersection of scientific inquiry, artistic intelligence, and environmental advocacy. The Ocean Archive is committed to the following objectives:</p>
 
               <ul>
@@ -42,7 +41,7 @@ class TermsAndConditions extends React.Component<Props, {}> {
                   </li>
               </ul>
 
-              <h2>3. Acceptance of Terms of Use</h2>
+              <h3>3. Acceptance of Terms of Use</h3>
 
               <p>These Terms of Use and conditions apply to all users and visitors of the Ocean Archive, including the Privacy Policy available at ocean-archive.org/privacy, and all other operating rules, policies, and procedures that may be published on our site by us.</p>
 
@@ -50,7 +49,7 @@ class TermsAndConditions extends React.Component<Props, {}> {
 
               <p>All rules, policies, and procedures governing the use of our services are incorporated by reference into these Terms of Use and may be updated by us without further notice. If you do not agree, you do not have permission to use any of our services.</p>
 
-              <h2>4. Registration</h2>
+              <h3>4. Registration</h3>
 
               <p>To participate in the Ocean Archive we invite you to register directly at ocean-archive.org.</p>
 
@@ -58,7 +57,7 @@ class TermsAndConditions extends React.Component<Props, {}> {
 
               <p>If you register, you agree to provide true, accurate and complete information about yourself. You also agree to keep registration information, up-to-date to maintain its truth, accuracy and completeness.</p>
 
-              <h2>5. Intellectual Property and Licensing</h2>
+              <h3>5. Intellectual Property and Licensing</h3>
 
               <p>You agree not to infringe or challenge any of the intellectual property rights owned or licensed by TBA21.</p>
 
@@ -74,17 +73,17 @@ class TermsAndConditions extends React.Component<Props, {}> {
 
               <p>If you believe that any content or materials on the Ocean Archive infringe your copyrights, contact the TBA21 copyright agent, who can be reached at <a href="mailto:legal@ocean-archive.org?subject=Copright%20notification">legal@ocean-archive.org</a>. The notification must meet the requirements of the Digital Millennium Copyright Act and/or alike legal regulations.</p>
 
-              <h2>6. Termination of Account and Service</h2>
+              <h3>6. Termination of Account and Service</h3>
 
               <p>TBA21 may terminate your access to the service without cause or notice, which may result in the forfeiture and destruction of all information associated with your account. If you wish to terminate your account, you may do so by terminating your account via your profile page. Alternatively, you can send us a termination request by email to <a href="mailto:legal@ocean-archive.org?subject=Account%20termination" >legal@ocean-archive.org</a>. With the termination of your account, all items that you have contributed and also any collections for which you are the sole contributor will be deleted. All provisions of the Terms of Use that by their nature should survive termination shall survive termination, including, without limitation, ownership provisions, warranty disclaimers, indemnity, and limitations of liability.</p>
 
-              <h2>7. Interactions</h2>
+              <h3>7. Interactions</h3>
 
               <p>Your interactions with other users or other third parties are solely between you and such individuals or entities. We cannot guarantee the authenticity of any data or information that users provide about themselves. You should make whatever investigation you feel necessary or appropriate before engaging. You agree that TBA21 shall not be responsible or liable for any loss or damage of any sort incurred in this context.</p>
 
               <p>You further acknowledge that we have no duty to take any action regarding any of the following: which users gain access to the Site; what content users access through our site or how users may interpret the content and their reactions.</p>
 
-              <h2>8. Warranties</h2>
+              <h3>8. Warranties</h3>
 
               <p>To the fullest extent permitted by local law, you understand and agree that the services available on our site are provided "AS IS" and that we assume no responsibility for the timeliness, deletion, mis-delivery or failure to store any user submitted information, data or personalization settings.</p>
 
@@ -96,11 +95,11 @@ class TermsAndConditions extends React.Component<Props, {}> {
 
               <p>Further TBA21 does not warrant or make any representation regarding the use of the content available through our services in terms of accuracy, reliability, or otherwise.</p>
 
-              <h2>9. Indemnification</h2>
+              <h3>9. Indemnification</h3>
 
               <p>You hereby indemnify and hold harmless TBA21 and its affiliates' partners, contractors, employees and representatives (hereinafter: "affiliates") from and against any claims, actions, damages, expenses, liabilities and costs arising from or relating to the use of the service and content or the providing of content.</p>
 
-              <h2>10. Liability</h2>
+              <h3>10. Liability</h3>
 
               <p>To the fullest extent permitted by local law, you agree that neither TBA21, nor any of its affiliates shall be liable for all claims for compensation and cases of liability to you and/or any third party, irrespective of their legal grounds (including, but not limited to warranty, breach of duty, unlawful act, modification, alteration, or termination of the offered services), with the exception of claims due to injury to life, body and health and fraudulent intent. The legal provisions apply in the event of these exceptions.</p>
 
@@ -108,19 +107,19 @@ class TermsAndConditions extends React.Component<Props, {}> {
 
               <p>Our site contains links to third-party websites. We have no influence whatsoever on the information on these websites and accept no guarantee for its correctness. The content of such third-party sites is the responsibility of the respective owners/providers. If you access a third-party website from our website, you do so at your own risk. The inclusion of such a link or reference on our website is provided merely as a convenience and does not imply endorsement of, or association with, the site or party by us, or any warranty of any kind, being either expressed or implied.</p>
 
-              <h2>11. Entire Agreement</h2>
+              <h3>11. Entire Agreement</h3>
 
               <p>These Terms of Use, any supplemental rules, policies, procedures and any documents expressly incorporated by reference herein contain the whole understanding between TBA21 and you and supersede any understanding or previous agreements between both of these parties relating to the subject matter covered by the understanding. No waiver or variation of this understanding will be effective unless approved in writing by the duly authorized representatives of the previously mentioned parties.</p>
 
-              <h2>12. International Access</h2>
+              <h3>12. International Access</h3>
 
               <p>The Ocean Archive is controlled and operated from within Austria. Accessing the service is prohibited from territories where the content is illegal. If you access the service from other locations, you do so based on your own initiative and are responsible for compliance with local laws.</p>
 
-              <h2>13. Applicable Law and Place of Jurisdiction</h2>
+              <h3>13. Applicable Law and Place of Jurisdiction</h3>
 
               <p>These Terms are exclusively governed by the laws of Austria with exception of the United Nations Convention on Contracts for the International Sale of Goods (CISG). The place of jurisdiction shall be the ordinary courts of Vienna, Austria.</p>
 
-              <h2>14. Miscellaneous</h2>
+              <h3>14. Miscellaneous</h3>
 
               <p>We reserve the right, at our discretion, to modify, remove or add to these Terms at any time. You can access the current version at ocean-archive.org/terms. We will always indicate the date of the latest revision. Your continued use of any services after new and/or revised Terms are effective indicates that you have read, understood, and agreed to those Terms.</p>
 

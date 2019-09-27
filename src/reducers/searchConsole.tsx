@@ -1,17 +1,28 @@
-import { SEARCH_RESULTS, CHANGE_VIEW, SEARCH_TOGGLE_OPEN, SEARCH_CONCEPT_TAGS } from 'actions/searchConsole';
+import { SEARCH_RESULTS, CHANGE_VIEW, SEARCH_TOGGLE_OPEN, SEARCH_CONCEPT_TAGS, SEARCH_RESULTS_LOADING } from 'actions/searchConsole';
 
 import { APITag } from 'components/metadata/Tags';
+import { Item } from '../types/Item';
+import { Collection } from '../types/Collection';
+import { Profile } from '../types/Profile';
+
+export type ItemOrCollectionOrProfile = Item | Collection | Profile;
 
 export interface SearchConsoleState {
   concept_tags: APITag[];
   view: 'grid' | 'list';
-  results: any[];  // tslint:disable-line: no-any
-  open?: boolean;
+  results: ItemOrCollectionOrProfile[];
+  loadedResults: ItemOrCollectionOrProfile[];
+  searchResultsLoading: boolean;
+  offset: number;
+  open: boolean;
 }
 const initialState: SearchConsoleState = {
   concept_tags: [],
   view: 'grid',
   results: [],
+  loadedResults: [],
+  searchResultsLoading: false,
+  offset: 0,
   open: false
 };
 
@@ -27,7 +38,7 @@ export default (state: SearchConsoleState | null = initialState, action) => {
       };
 
       if (action.concept_tags) {
-        Object.assign(newState,{ concept_tags: action.concept_tags });
+        Object.assign(newState, { concept_tags: action.concept_tags });
       }
       return newState;
 
@@ -47,7 +58,16 @@ export default (state: SearchConsoleState | null = initialState, action) => {
       return {
         ...state,
         results: action.results,
+        loadedResults: action.loadedResults,
+        offset: action.offset,
+        searchResultsLoading: false,
         view: 'list',
+      };
+
+    case SEARCH_RESULTS_LOADING:
+      return {
+        ...state,
+        searchResultsLoading: action.loading
       };
 
     default:

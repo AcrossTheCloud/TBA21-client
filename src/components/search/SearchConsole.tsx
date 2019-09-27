@@ -3,14 +3,16 @@ import { connect } from 'react-redux';
 import AsyncSelect from 'react-select/async';
 import { withCookies, Cookies } from 'react-cookie';
 import $ from 'jquery';
+import { debounce } from 'lodash';
 import { API } from 'aws-amplify';
 import { FaTimes } from 'react-icons/fa';
 import { uniqBy } from 'lodash';
-import { Col, Row, Container, Modal, ModalBody } from 'reactstrap';
+import { Col, Row, Container, Modal, ModalBody, Spinner } from 'reactstrap';
 import { SearchConsoleState } from '../../reducers/searchConsole'; // Props from Redux.
 
 import {
   search as dispatchSearch,
+  loadMoreResults,
   changeView,
   CriteriaOption,
   toggle,
@@ -34,14 +36,15 @@ import { Profile } from '../../types/Profile';
 import ViewCollection from '../collection/ViewCollection';
 import ViewProfile from '../user/profile/ViewProfile';
 import { fetchProfile } from '../../actions/user/viewProfile';
+import { browser } from '../utils/browser';
 
 import 'styles/components/search/searchConsole.scss';
 import 'styles/components/admin/tables/modal.scss';
-import { browser } from '../utils/browser';
 
 interface Props extends SearchConsoleState {
   changeView: Function;
   dispatchSearch: Function;
+  loadMoreResults: Function;
   fetchItem: Function;
   fetchCollection: Function;
   fetchProfile: Function;
@@ -60,6 +63,7 @@ interface State {
   focus_action: boolean;
   focus_scitech: boolean;
   modalOpen: boolean;
+  loading: boolean;
   modalType?: 'Item' | 'Collection' | 'Profile';
   searchMobileCookie: boolean;
 }
@@ -98,10 +102,11 @@ class SearchConsole extends React.Component<Props, State> {
   static propTypes = {
     cookies: instanceOf(Cookies).isRequired
   };
-
+  scrollDebounce;
   _isMounted;
   searchTimeout;
   searchInputRef;
+  resultsHeightTimeout;
 
   constructor(props: Props) {
     super(props);
@@ -123,19 +128,30 @@ class SearchConsole extends React.Component<Props, State> {
       focus_scitech: false,
 
       modalOpen: false,
+      loading: false,
 
       searchMobileCookie: !!cookies.get(`searchMobileCookie`) && (cookies.get(`searchMobileCookie`) === 'true')
     };
+
+    this.scrollDebounce = debounce( async () => await this.handleResultsScroll(), 100);
 
   }
 
   componentDidMount(): void {
     this._isMounted = true;
     this.props.getConceptTags();
+    const searchConsoleBody = document.getElementById('searchConsole');
+    if (searchConsoleBody) {
+      searchConsoleBody.addEventListener('scroll',  this.scrollDebounce, true);
+    }
   }
 
   componentWillUnmount(): void {
     this._isMounted = false;
+    const searchConsoleBody = document.getElementById('searchConsole');
+    if (searchConsoleBody) {
+      searchConsoleBody.removeEventListener('scroll', this.scrollDebounce, false);
+    }
   }
 
   componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>, ): void {
@@ -151,27 +167,70 @@ class SearchConsole extends React.Component<Props, State> {
     }
 
     // If we have results open it up
-    if (this.props.results.length && this.props.open) {
+    if (this.props.loadedResults.length && this.props.open) {
       this.animateResults(true);
+      this.windowHeightCheck();
     }
   }
 
-  animateResults(open: boolean) {
+  windowHeightCheck = async () => {
+    // if the page is higher than the items and we have no scroll bar we need to get more items.
+    clearTimeout(this.resultsHeightTimeout);
+    this.resultsHeightTimeout = setTimeout( async () => {
+      const $results = $('#searchConsole .results');
+      const height = $results.height();
+      const windowHeight = $(window).height();
+
+      if (this.props.loadedResults.length < this.props.results.length) {
+        if (windowHeight && height && height < windowHeight) {
+          await this.props.loadMoreResults();
+          // Run again just in case
+          this.windowHeightCheck();
+        }
+      } else {
+        clearTimeout(this.resultsHeightTimeout);
+      }
+    }, 3000);
+  }
+
+  animateResults = (open: boolean) => {
     const $results = $('#searchConsole .results');
 
     if (open) {
-      const resultsheight = $results.get(0).scrollHeight;
+      const resultsHeight = $results.get(0).scrollHeight;
       if (!$results.hasClass('animated')) {
-        $results.animate({ 'height': resultsheight > 500 ? 500 : resultsheight }, 1000, function() {
-          $results.height('auto').addClass('animated');
+        $results.stop(true).animate({ 'height': resultsHeight > 500 ? 500 : resultsHeight }, 1000, () => {
+          $results.stop(true).height('auto').addClass('animated');
         });
       }
     } else {
-      $results.stop();
-      if (this.props.results.length) {
-        $results.height(500);
+      if (this.props.loadedResults.length) {
+        $results.stop(true).height(500);
       }
-      $results.animate({'height': 0}, 1000).removeClass('animated');
+      $results.stop(true).animate({'height': 0}, 1000).removeClass('animated');
+    }
+  }
+
+  handleResultsScroll = async () => {
+    const $results = $('#searchConsole .results');
+    const height = $results.outerHeight();
+    const scrollTopOffset: undefined | JQuery.Coordinates = $results.offset();
+
+    if (!scrollTopOffset || !height) { return; }
+
+    if (this.props.loadedResults.length < this.props.results.length) {
+      let calcOffset = Math.abs(scrollTopOffset.top + scrollTopOffset.top);
+      if (this.props.offset <= 10) {
+        calcOffset = calcOffset + 500;
+      }
+
+      if (height && (calcOffset > height) && !this.props.searchResultsLoading) {
+        try {
+          await this.props.loadMoreResults();
+        } catch (e) {
+          return;
+        }
+      }
     }
   }
 
@@ -287,7 +346,7 @@ class SearchConsole extends React.Component<Props, State> {
   render() {
     const
       // { view, results } = this.props,
-      { results, open } = this.props,
+      { loadedResults, open } = this.props,
       { hover } = this.state,
       isOpen = open,
       isOpenClass = isOpen ? 'open' : '',
@@ -308,7 +367,7 @@ class SearchConsole extends React.Component<Props, State> {
               className={`mid px-0 col ${hoveredClass}`}
               onClick={this.focusSearchInput}
             >
-              <Row className="align-items-center">
+              <div className="align-items-center d-flex">
                 <div className={`inputwrapper ${browser()}`}>
                   <AsyncSelect
                     className="searchInput"
@@ -354,16 +413,16 @@ class SearchConsole extends React.Component<Props, State> {
                   onClick={isOpen ? () => { return; } : this.toggleOpen}
                 >
                   <Row>
-                    <Col onClick={isOpen ? this.searchDispatch : this.toggleOpen}>
+                    <Col className="px-0" onClick={isOpen ? this.searchDispatch : this.toggleOpen}>
                       <span className="simple-icon-magnifier"/>
                     </Col>
                     {/*{ Is only shown when opened fully. }*/}
-                    <Col className={`closeButton ${isOpenClass}`} onClick={this.toggleOpen}>
+                    <Col className={`px-0 closeButton ${isOpenClass}`} onClick={this.toggleOpen}>
                       <FaTimes />
                     </Col>
                   </Row>
                 </div>
-              </Row>
+              </div>
             </div>
 
             {/*{ Is hidden when open (max-width: 0) }*/}
@@ -374,48 +433,49 @@ class SearchConsole extends React.Component<Props, State> {
 
           <div className="results">
             {
-              results.map((t, i) => {
-
-                if (t.full_name) {
+              (loadedResults && loadedResults.length) ? loadedResults.map((t, i) => {
+                if (t.hasOwnProperty('full_name')) {
+                  const profile = t as Profile;
                   return (
                     <Row className="result" key={i} onClick={() => this.openResult(t)}>
-                      {t.profile_image ?
+                      {profile.profile_image ?
                         <Col xs="4">
-                          <img src={t.profile_image} alt=""/>
+                          <img src={profile.profile_image} alt=""/>
                         </Col>
                         : ''}
-                      <Col xs={t.profile_image ? '8' : '12'}>
-                        {t.full_name}
+                      <Col xs={profile.profile_image ? '8' : '12'}>
+                        {profile.full_name}
                       </Col>
                     </Row>
                   );
                 } else {
-                  if (!!t.file && t.file.type === FileTypes.Audio) {
+                  const itemOrCollection = t as Item | Collection;
+                  if (!!itemOrCollection.file && itemOrCollection.file.type === FileTypes.Audio) {
                     return (
                       <Row className="result" key={i}>
                         <Col xs="12">
-                          <FilePreview data={t}/>
+                          <FilePreview data={itemOrCollection}/>
                         </Col>
                       </Row>
                     );
                   } else {
                     return (
-                      <Row className="result" key={i} onClick={() => this.openResult(t)}>
-                        {!!t.file ?
+                      <Row className="result" key={i} onClick={() => this.openResult(itemOrCollection)}>
+                        {!!itemOrCollection.file ?
                           <Col xs="6" sm="4" md="2">
                             <FilePreview data={t}/>
-                          </Col> : <></>
+                          </Col> : <div className="py-5"/>
                         }
                         <Col xs="6" sm="8" md="10">
                           <Row>
                             <Col xs="12">
-                              {t.title}
+                              {itemOrCollection.title}
                             </Col>
 
-                            {t.creators && t.creators.length ?
+                            {itemOrCollection.creators && itemOrCollection.creators.length ?
                               <Col xs="12">
                                 <div className="creators d-none d-md-block">
-                                  <span className="ellipsis">{t.creators.join(', ')}</span>
+                                  {itemOrCollection.creators[0]} {itemOrCollection.creators.length > 1 ? <em>, et al.</em> : <></>}
                                 </div>
                               </Col>
                             : <></>
@@ -426,9 +486,18 @@ class SearchConsole extends React.Component<Props, State> {
                     );
                   }
                 }
-              })
+              }) : <>No Results.</>
             }
           </div>
+
+          { this.props.searchResultsLoading ?
+            <Row>
+              <Col className="text-center pb-5">
+                <Spinner type="grow" style={{ color: '#50E3C2', fontSize: '20px'}}/>
+              </Col>
+            </Row>
+            : <></>
+          }
 
           <Row>
             <div className="tags">
@@ -501,9 +570,12 @@ const mapStateToProps = (state: { searchConsole: SearchConsoleState }) => ({
 
   view: state.searchConsole.view,
   results: state.searchConsole.results,
+  loadedResults: state.searchConsole.loadedResults,
+  searchResultsLoading: state.searchConsole.searchResultsLoading,
+  offset: state.searchConsole.offset,
 
   open: state.searchConsole.open
 
 });
 
-export default connect(mapStateToProps, { dispatchSearch, changeView, fetchItem, fetchCollection, fetchProfile, toggle, getConceptTags })(withCookies(SearchConsole));
+export default connect(mapStateToProps, { dispatchSearch, loadMoreResults, changeView, fetchItem, fetchCollection, fetchProfile, toggle, getConceptTags })(withCookies(SearchConsole));
