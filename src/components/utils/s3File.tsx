@@ -168,16 +168,24 @@ export const getVideoFiles = async (key: string): Promise<{poster: string, playl
       fileNameWithoutExtension = locationKeys.split('.'),
       // Poster
       posterFileName = fileNameWithoutExtension.slice(0, fileNameWithoutExtension.length - 1).join('.'),
-      posterURL = `${steamingURL}${privateUUID}/thumbnails/${posterFileName}_thumb.0000000.jpg`,
       // Playlist
       playlistURLFileName = fileNameWithoutExtension.slice(0, fileNameWithoutExtension.length - 1).join('.'),
       playlistURL = `${steamingURL}${privateUUID}/hls/${playlistURLFileName}.m3u8`;
+    
+    let posterURL = `${steamingURL}${privateUUID}/thumbnails/${posterFileName}_thumb.0000001.jpg`;
 
     // Fetch the thumbnail to see if it exists.
-    const poster = await fetch(posterURL, {method: 'HEAD', mode: 'cors'});
+    let poster = await fetch(posterURL, {method: 'HEAD', mode: 'cors'});
     if (poster && poster.status === 200) {
       // check response and status
       Object.assign(response, {poster: posterURL});
+    } else {
+      posterURL = `${steamingURL}${privateUUID}/thumbnails/${posterFileName}_thumb.0000000.jpg`;
+      poster = await fetch(posterURL, {method: 'HEAD', mode: 'cors'});
+      if (poster && poster.status === 200) {
+        // check response and status
+        Object.assign(response, {poster: posterURL});
+      }
     }
     // Fetch the playlist to see if it exists.
     const playlist = await fetch(playlistURL, {method: 'HEAD', mode: 'cors'});
