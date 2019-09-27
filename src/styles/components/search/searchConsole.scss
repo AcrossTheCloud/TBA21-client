@@ -65,12 +65,12 @@
       .mid {
         height: 0;
         overflow: hidden;
-        .row {
+        .d-flex {
           margin: 0;
           height: 100%;
           .inputwrapper {
             height: 45px;
-            flex: 1 1 50%;
+            flex: 1 0 100%;
           }
         }
       }
@@ -272,10 +272,24 @@
         .mid {
           overflow: unset !important;
           height: 60px;
-          .inputwrapper {
-            height: 100%;
-            &.ios {
-              max-width: 75%;
+          width: 100%;
+          position: relative;
+          .d-flex {
+            .inputwrapper {
+              height: 100%;
+              flex: auto;
+              max-width: calc(90% - 55px);
+              @media screen and (min-width: 768px) {
+                max-width: unset;
+              }
+            }
+            .icon {
+              flex: 0 0 55px;
+              width: 55px;
+              @media screen and (min-width: 768px) {
+                flex: 0 0 100px;
+                width: 100px;
+              }
             }
           }
         }
@@ -306,6 +320,7 @@
         position: relative;
         overflow: hidden;
         height: 0;
+        padding-top: 20px;
         .result {
           cursor: pointer;
           position: relative;

@@ -93,7 +93,7 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
             {data.creators && data.creators.length ?
               <>
                 <div className="creators d-none d-md-block">
-                  <span className="ellipsis">{data.creators.join(', ')}</span>
+                  {data.creators[0]} {data.creators.length > 1 ? <em>, et al.</em> : <></>}
                 </div>
                 <div className="d-none d-md-block">
                   <FaCircle className="dot"/>

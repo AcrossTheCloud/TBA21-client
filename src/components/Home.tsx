@@ -85,23 +85,15 @@ class HomePage extends React.Component<Props, {}> {
   }
 
   windowHeightCheck = async () => {
-    const loading = (loading: boolean = true) => {
-      if (this._isMounted) {
-        this.setState( { loading } );
-      }
-    }
     // if the page is higher than the items and we have no scroll bar we need to get more items.
     clearTimeout(this.windowHeightTimeout);
     this.windowHeightTimeout = setTimeout( async () => {
       if (this.props.loadedMore && (this.props.items.length || this.props.collections.length || this.props.audio.length) && window.innerHeight + document.documentElement.scrollTop === document.documentElement.offsetHeight) {
-        loading();
         await this.props.loadMore();
-        loading(false);
         // Run again just in case
         this.windowHeightCheck();
       } else {
         clearTimeout(this.windowHeightTimeout);
-        loading(false);
       }
     }, 3000);
   }
@@ -153,7 +145,7 @@ class HomePage extends React.Component<Props, {}> {
               <div className="creators d-none d-md-block">
                   <span className="ellipsis">
                     <Link to={`/view/${loaded_highlights[props.index].id}`}>
-                      <span>{creators.join(', ')}</span>
+                      {creators[0]} {creators.length > 1 ? <em>, et al.</em> : <></>}
                     </Link>
                   </span>
               </div>
