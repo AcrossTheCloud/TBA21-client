@@ -266,7 +266,7 @@ class HomePage extends React.Component<Props, {}> {
           </AuthConsumer>
           <Row className="highlights">
             {!!loaded_highlights[0] ?
-              <Col xs="12" lg={loaded_highlights.length > 1 ? 8 : 12} className="item" onClick={() => this.props.openModal(loaded_highlights[0])}>
+              <Col xs="12" lg={loaded_highlights.length > 1 ? 8 : 12} className="item" onClick={() => { if (loaded_highlights[0].item_type !== itemType.Audio || (loaded_highlights[0].file && loaded_highlights[0].file.type) !== FileTypes.Audio) { this.props.openModal(loaded_highlights[0]); }}}>
                 <div className="file">
                   {
                     loaded_highlights[0].file ?
@@ -292,7 +292,7 @@ class HomePage extends React.Component<Props, {}> {
               <></>
             }
             {!!loaded_highlights[1] ?
-              <Col xs="12" lg="4" className="item" onClick={() => this.props.openModal(loaded_highlights[1])}>
+              <Col xs="12" lg="4" className="item" onClick={() => { if (loaded_highlights[1].item_type !== itemType.Audio || (loaded_highlights[1].file && loaded_highlights[1].file.type) !== FileTypes.Audio) { this.props.openModal(loaded_highlights[1]); }}}>
                 <Row className="d-none d-lg-block">
                   <Col xs="12">
                     <div className="file">
