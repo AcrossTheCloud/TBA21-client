@@ -15,7 +15,7 @@ export default {
     IDENTITY_POOL_ID: "eu-central-1:87c9ec1d-7fa8-4c74-b907-c31bdec2b879"
   },
   google : {
-    UA_ID: "UA-147444684-2"
+    UA_ID: "UA-147444684-3"
   },
   social: {
     FB: "370805207078211"

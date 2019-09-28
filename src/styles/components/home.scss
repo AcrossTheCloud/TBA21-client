@@ -88,7 +88,10 @@
 
   .highlights {
     .audioPreview {
-      height: 100px;
+      height: 80px;
+      max-height: 80px;
+      position: relative;
+      overflow: hidden;
     }
   }
 
