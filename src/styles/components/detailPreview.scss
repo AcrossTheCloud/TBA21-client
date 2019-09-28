@@ -42,13 +42,15 @@
   .title-wrapper {
     //overflow: hidden;
     font-size: 20px;
-    .creators, .title {
-      max-width: 95%;
-      width: 95%;
-      @media screen and (min-width: 768px) {
-        width: auto;
-        max-width: 45%;
-      }
+    .title { // , .creators
+      flex: 0 1;
+      max-width: 90%;
+    }
+    .creators {
+      flex: 0 1 auto;
+    }
+    .dotwrap {
+      flex: 0;
     }
     span.ellipsis {
       text-transform: capitalize;
@@ -58,14 +60,6 @@
       overflow: hidden;
       display: inline-block;
     }
-    .title {
-      flex: 1 1 50%;
-    }
-  }
-
-  .d-flex.title-wrapper .title {
-    flex: 1 1 auto;
-    text-align: left;
   }
 
   .tags {
