@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Col, Row } from 'reactstrap';
 import { connect } from 'react-redux';
 import { FaPlay } from 'react-icons/fa';
+import { waveFormData } from './waveform';
 import WaveSurfer from 'wavesurfer.js';
 import { AudioPlayerDetails } from '../../../reducers/audioPlayer';
 import { Audio } from '../../../actions/audioPlayer';
@@ -51,7 +52,7 @@ class AudioPreview extends React.Component<Props, State> {
     }
   }
 
-  init = () => {
+  init = async () => {
     let loaded = this.state.loaded;
     let wavesurfer = this.state.wavesurfer;
     if (!loaded || !wavesurfer) {

@@ -2,12 +2,14 @@ import * as React from 'react';
 import { FaPlay, FaPause, FaCircle, FaTimes, FaExternalLinkAlt } from 'react-icons/fa';
 import { connect } from 'react-redux';
 import WaveSurfer from 'wavesurfer.js';
-import { Col, Row } from 'reactstrap';
+import { waveFormData } from './waveform';
+import { Col, Row, Spinner } from 'reactstrap';
 import { Audio } from '../../../actions/audioPlayer';
 import { AudioPlayerState } from '../../../reducers/audioPlayer';
 
 import 'styles/layout/audio.scss';
 import { Link } from 'react-router-dom';
+import { browser } from '../../utils/browser';
 
 interface Props extends AudioPlayerState {
   className: string;
@@ -17,6 +19,7 @@ interface Props extends AudioPlayerState {
 
 interface State {
   paused: boolean;
+  loading: boolean;
   duration: string;
 }
 
@@ -38,7 +41,8 @@ class AudioPlayer extends React.Component<Props, State> {
 
     this.state = {
       paused: true,
-      duration: '00:00'
+      duration: '00:00',
+      loading: true
     };
   }
 
@@ -65,8 +69,11 @@ class AudioPlayer extends React.Component<Props, State> {
       this.wavesurfer = WaveSurfer.create(options);
     }
 
-    this.wavesurfer.on('waveform-ready', () => {
-      this.setState({ duration: audioDurationFormat(this.wavesurfer.getDuration())});
+    this.wavesurfer.on('ready', () => {
+      console.log('done');
+      if (this._isMounted) {
+        this.setState({loading: false, duration: audioDurationFormat(this.wavesurfer.getDuration())});
+      }
     });
 
     this.wavesurfer.on('finish', () => {
@@ -82,7 +89,7 @@ class AudioPlayer extends React.Component<Props, State> {
     this._isMounted = false;
   }
 
-  componentDidUpdate(prevProps: Readonly<Props>): void {
+  async componentDidUpdate(prevProps: Readonly<Props>): Promise<void> {
     if (this.props.data) {
       if (this.props.data.url !== (prevProps.data ? prevProps.data.url : false)) {
 
@@ -152,6 +159,11 @@ class AudioPlayer extends React.Component<Props, State> {
                 </Row>
               </div>
             </Row>
+          <div className={`overlay ${this.state.loading}`}>
+            <div className="middle">
+              <Spinner type="grow"/>
+            </div>
+          </div>
         </div>
       </div>
     );
