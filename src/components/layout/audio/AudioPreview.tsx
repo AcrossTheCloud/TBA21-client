@@ -118,7 +118,7 @@ class AudioPreview extends React.Component<Props, State> {
               </div>
               {creators && creators.length ?
                 <div className="creator">
-                  {creators[0]} {creators.length > 1 ? <em>, et al.</em> : <></>}
+                  {creators[0]}{creators.length > 1 ? <em>, et al.</em> : <></>}
                 </div>
                 : <></>
               }

@@ -4,10 +4,10 @@ import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { Button, Col, Container, Row, Spinner } from 'reactstrap';
 import { debounce } from 'lodash';
-import { withCookies, Cookies } from 'react-cookie';
+import { Cookies, withCookies } from 'react-cookie';
 
 import { AuthConsumer } from '../providers/AuthProvider';
-import { logoDispatch, loadHomepage, loadMore, openModal } from 'actions/home';
+import { loadHomepage, loadMore, logoDispatch, openModal } from 'actions/home';
 import { toggle as searchOpenToggle } from 'actions/searchConsole';
 
 import { HomepageData, HomePageState } from '../reducers/home';
@@ -146,14 +146,14 @@ class HomePage extends React.Component<Props, {}> {
         <div className="title-wrapper d-flex">
           {creators && creators.length ?
             <>
-              <div className="creators d-none d-lg-block">
+              <div className="creators">
                   <span className="ellipsis">
                     <Link to={`/view/${loaded_highlights[props.index].id}`}>
-                      {creators[0]} {creators.length > 1 ? <em>, et al.</em> : <></>}
+                      {creators[0]}{creators.length > 1 ? <em>, et al.</em> : <></>}
                     </Link>
                   </span>
               </div>
-              <div className="d-none d-lg-block">
+              <div className="d-none d-md-block">
                 <FaCircle className="dot"/>
               </div>
             </>
@@ -184,14 +184,8 @@ class HomePage extends React.Component<Props, {}> {
 
   DisplayLayout = (props: {data: HomepageData}): JSX.Element => {
     const {
-      id,
-      count,
-      item_subtype,
-      item_type,
-      title,
       file,
-      creators,
-      date
+      item_type
     } = props.data;
 
     if (!file) { return <></>; }
@@ -212,11 +206,7 @@ class HomePage extends React.Component<Props, {}> {
     return (
       <Col lg={colSize(!!file ? file.type : '')} className="pt-4">
         {item_type === itemType.Audio || file.type === FileTypes.Audio ?
-            !!props.data.count && props.data.count > 0 ?
-              <div onClick={() => this.props.openModal(props.data)}>
-                <AudioPreview noClick onLoad={() => this.waitForLoad()} data={{title, id, url: file.url, date, creators, item_subtype, isCollection: !!count}}/>
-              </div> :
-              <AudioPreview onLoad={() => this.waitForLoad()} data={{title, id, url: file.url, date, creators, item_subtype, isCollection: !!count}}/>
+            <this.audioPreview data={props.data} />
           :
           <div onClick={() => this.props.openModal(props.data)}>
             <DetailPreview data={props.data} onLoad={() => this.waitForLoad}/>
@@ -225,6 +215,32 @@ class HomePage extends React.Component<Props, {}> {
       </Col>
     );
   };
+
+  audioPreview = (props: { data: HomepageData }) => {
+    const {
+      id,
+      count,
+      item_subtype,
+      item_type,
+      title,
+      file,
+      creators,
+      date
+    } = props.data;
+
+    return (
+      <>
+        {item_type === itemType.Audio || (!!file && file.type === FileTypes.Audio) ?
+          !!count && count > 0 ?
+            <div onClick={() => this.props.openModal(props.data)}>
+              <AudioPreview noClick data={{title, id, url: file.url, date, creators, item_subtype, isCollection: !!count}}/>
+            </div> :
+            <AudioPreview data={{title, id, url: file.url, date, creators, item_subtype, isCollection: !!count}}/>
+          : <></>
+        }
+      </>
+    );
+  }
 
   render() {
     const {
@@ -248,11 +264,18 @@ class HomePage extends React.Component<Props, {}> {
                 <Button color="link" tag={Link} to="/login" className="loginButton"><span className="simple-icon-login" />Login / Signup</Button>
             )}
           </AuthConsumer>
-          <Row>
+          <Row className="highlights">
             {!!loaded_highlights[0] ?
               <Col xs="12" lg={loaded_highlights.length > 1 ? 8 : 12} className="item" onClick={() => this.props.openModal(loaded_highlights[0])}>
                 <div className="file">
-                  {loaded_highlights[0].file ? <FileStaticPreview file={loaded_highlights[0].file} /> : <></>}
+                  {
+                    loaded_highlights[0].file ?
+                      loaded_highlights[0].item_type === itemType.Audio || loaded_highlights[0].file.type === FileTypes.Audio ?
+                        <this.audioPreview data={loaded_highlights[0]} />
+                        :
+                        <FileStaticPreview file={loaded_highlights[0].file} />
+                      : <></>
+                  }
                   {loaded_highlights[0].file.type === FileTypes.Video ?
                     <div className="middle">
                       <FaPlay/>
@@ -273,7 +296,14 @@ class HomePage extends React.Component<Props, {}> {
                 <Row className="d-none d-lg-block">
                   <Col xs="12">
                     <div className="file">
-                      {loaded_highlights[1].file ? <FileStaticPreview file={loaded_highlights[1].file} /> : <></>}
+                      {
+                        loaded_highlights[1].file ?
+                          loaded_highlights[1].item_type === itemType.Audio || loaded_highlights[1].file.type === FileTypes.Audio ?
+                            <this.audioPreview data={loaded_highlights[1]} />
+                            :
+                            <FileStaticPreview file={loaded_highlights[1].file} />
+                          : <></>
+                      }
                       {loaded_highlights[1].file.type === FileTypes.Video ?
                         <div className="middle">
                           <FaPlay/>
@@ -286,7 +316,14 @@ class HomePage extends React.Component<Props, {}> {
                 </Row>
                 <div className="d-lg-none py-4 py-lg-0">
                   <div className="file">
-                    {loaded_highlights[1].file ? <FileStaticPreview file={loaded_highlights[1].file} /> : <></>}
+                    {
+                      loaded_highlights[1].file ?
+                        loaded_highlights[1].item_type === itemType.Audio || loaded_highlights[1].file.type === FileTypes.Audio ?
+                          <this.audioPreview data={loaded_highlights[1]} />
+                          :
+                          <FileStaticPreview file={loaded_highlights[1].file} />
+                        : <></>
+                    }
                     {loaded_highlights[1].file.type === FileTypes.Video ?
                       <div className="middle">
                         <FaPlay/>
