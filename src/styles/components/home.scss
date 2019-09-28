@@ -62,11 +62,7 @@
   }
 
   .loginButton.btn-link {
-    margin: 0 auto;
     transition: color 0.5s;
-    @media screen and (min-width: 992px) {
-      margin: unset;
-    }
     span {
       margin-right: 10px;
     }
