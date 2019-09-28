@@ -2,10 +2,8 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { Button, Col, Row } from 'reactstrap';
 import tbaLogo from 'images/logo/tba21-logo.svg';
-import { AuthConsumer } from 'providers/AuthProvider';
 import { modalToggle as aboutModalToggle } from 'actions/pages/about';
 import { modalToggle } from 'actions/pages/privacyPolicy';
-import { Link } from 'react-router-dom';
 
 import 'styles/layout/footer.scss';
 
@@ -20,14 +18,6 @@ class Footer extends React.Component<Props, {}> {
       <footer className="row text-center text-lg-left">
         <Col xs="12" lg="10">
           <Row>
-            <AuthConsumer>
-              {({ isAuthenticated }) => (
-                isAuthenticated ?
-                  <></>
-                  :
-                  <Button color="link" tag={Link} to="/login" className="loginButton"><span className="simple-icon-login" />Login / Signup</Button>
-              )}
-            </AuthConsumer>
             <Col xs="12" lg="4" className="pt-2 py-md-0 pr-lg-0"><a href="mailto:info@ocean-archive.org">info@ocean-archive.org</a></Col>
             <Col xs="12" lg="8" className="pt-2 py-md-0 px-lg-0">
               <Button color="link" onClick={() => this.props.aboutModalToggle(true)}>About</Button>

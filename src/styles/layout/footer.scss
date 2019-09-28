@@ -6,6 +6,10 @@ footer {
   margin-bottom: 45px; // offset search
   padding-top: 50px;
   padding-bottom: 50px;
+  @media screen and (min-width: 992px) {
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
   align-items: center;
 
   .row {
