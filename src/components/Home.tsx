@@ -147,24 +147,22 @@ class HomePage extends React.Component<Props, {}> {
           {creators && creators.length ?
             <>
               <div className="creators">
-                  <span className="ellipsis">
-                    <Link to={`/view/${loaded_highlights[props.index].id}`}>
-                      {creators[0]}{creators.length > 1 ? <em>, et al.</em> : <></>}
-                    </Link>
-                  </span>
+                <Link to={`/view/${loaded_highlights[props.index].id}`}>
+                  {creators[0]}{creators.length > 1 ? <em>, et al.</em> : <></>}
+                </Link>
               </div>
-              <div className="d-none d-md-block">
+              <div className="d-none d-md-block dotwrap">
                 <FaCircle className="dot"/>
               </div>
             </>
             : <></>
           }
           <div className="title">
-              <span className="ellipsis">
-                <Link to={`/view/${loaded_highlights[props.index].id}`}>
-                  {loaded_highlights[props.index].title}
-                </Link>
-              </span>
+            <span className="ellipsis">
+              <Link to={`/view/${loaded_highlights[props.index].id}`}>
+                {loaded_highlights[props.index].title}
+              </Link>
+            </span>
           </div>
         </div>
         <div className="type">
