@@ -71,7 +71,6 @@ class AudioPlayer extends React.Component<Props, State> {
     }
 
     this.wavesurfer.on('ready', () => {
-      console.log('done');
       if (this._isMounted) {
         this.setState({loading: false, duration: audioDurationFormat(this.wavesurfer.getDuration())});
       }
