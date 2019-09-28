@@ -58,12 +58,13 @@ class AudioPlayer extends React.Component<Props, State> {
         container: `#audioPlayer`,
         backend: 'MediaElement',
         responsive: true,
+        partialRender: false,
 
         progressColor: '#4a74a5',
         waveColor: 'rgba(34, 168, 175, 19)',
         cursorColor: '#4a74a5',
         hideScrollbar: true,
-        forceDecode: true
+        forceDecode: false,
       };
 
       this.wavesurfer = WaveSurfer.create(options);
@@ -93,8 +94,11 @@ class AudioPlayer extends React.Component<Props, State> {
     if (this.props.data) {
       if (this.props.data.url !== (prevProps.data ? prevProps.data.url : false)) {
 
-        this.wavesurfer.load(this.props.data.url, false);
-        this.playPause(false);
+        // this.wavesurfer.load(this.props.data.url, false);
+        this.wavesurfer.load(this.props.data.url, await waveFormData(), false);
+        if (browser() !== 'ios') {
+          this.playPause(false);
+        }
       }
     }
   }
@@ -143,7 +147,7 @@ class AudioPlayer extends React.Component<Props, State> {
               }
 
               <Col id="audioPlayer"/>
-              <div className="duration">{this.state.duration}</div>
+              <div className="duration">{this.state.duration !== '00:00' ? this.state.duration : ''}</div>
 
               <div>
                 <Row>

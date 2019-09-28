@@ -55,7 +55,8 @@ class AudioPreview extends React.Component<Props, State> {
   init = async () => {
     let loaded = this.state.loaded;
     let wavesurfer = this.state.wavesurfer;
-    if (!loaded || !wavesurfer) {
+
+    if (!wavesurfer || !loaded) {
       const options = {
         height: 80,
         barHeight: 20,
@@ -64,27 +65,33 @@ class AudioPreview extends React.Component<Props, State> {
         container: `#wavepreview_${this.props.data.id.replace(/[^\w\s]/gi, '')}`,
         backend: 'MediaElement',
         responsive: true,
+        partialRender: false,
 
         progressColor: '#4a74a5',
         waveColor: 'rgba(34, 168, 175, 19)',
         cursorColor: '#4a74a5',
         interact: false,
         hideScrollbar: true,
-        forceDecode: true,
-        cursorWidth: 0
+        normalize: true,
+        forceDecode: false,
+        cursorWidth: 0,
+        minPxPerSec: 2205
       };
       wavesurfer = WaveSurfer.create(options);
+
+      if (this.props.data.url) {
+        const waveform = await waveFormData();
+        wavesurfer.load(this.props.data.url, waveform, false);
+      }
     }
 
-    if (this.props.data.url) {
-      wavesurfer.load(this.props.data.url, false);
-      loaded = true;
-    }
     if (typeof this.props.onLoad === 'function') {
       this.props.onLoad();
     }
 
-    this.setState( { wavesurfer: wavesurfer, loaded: loaded } );
+    if (this._isMounted) {
+      this.setState({ wavesurfer: wavesurfer, loaded: true });
+    }
   }
 
   render() {
