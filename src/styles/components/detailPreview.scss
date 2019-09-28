@@ -40,10 +40,15 @@
   }
 
   .title-wrapper {
-    overflow: hidden;
+    //overflow: hidden;
     font-size: 20px;
     .creators, .title {
-      max-width: 45%;
+      max-width: 95%;
+      width: 95%;
+      @media screen and (min-width: 768px) {
+        width: auto;
+        max-width: 45%;
+      }
     }
     span.ellipsis {
       text-transform: capitalize;

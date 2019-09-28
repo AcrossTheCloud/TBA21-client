@@ -62,7 +62,7 @@ export const getCDNObject = async (key: string): Promise<S3File | false> => {
       contentType = result.headers.get('content-type');
     }
 
-    if (result && contentType !== null) {
+    if (!!result && contentType !== null) {
       const
         type = fileType(contentType),
         response: S3File = {
@@ -171,7 +171,7 @@ export const getVideoFiles = async (key: string): Promise<{poster: string, playl
       // Playlist
       playlistURLFileName = fileNameWithoutExtension.slice(0, fileNameWithoutExtension.length - 1).join('.'),
       playlistURL = `${steamingURL}${privateUUID}/hls/${playlistURLFileName}.m3u8`;
-    
+
     let posterURL = `${steamingURL}${privateUUID}/thumbnails/${posterFileName}_thumb.0000001.jpg`;
 
     // Fetch the thumbnail to see if it exists.

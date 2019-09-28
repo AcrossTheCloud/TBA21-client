@@ -475,7 +475,7 @@ class SearchConsole extends React.Component<Props, State> {
                             {itemOrCollection.creators && itemOrCollection.creators.length ?
                               <Col xs="12">
                                 <div className="creators d-none d-md-block">
-                                  {itemOrCollection.creators[0]} {itemOrCollection.creators.length > 1 ? <em>, et al.</em> : <></>}
+                                  {itemOrCollection.creators[0]}{itemOrCollection.creators.length > 1 ? <em>, et al.</em> : <></>}
                                 </div>
                               </Col>
                             : <></>

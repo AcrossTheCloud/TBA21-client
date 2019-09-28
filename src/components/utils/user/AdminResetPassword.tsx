@@ -55,7 +55,6 @@ class AdminResetPassword extends React.Component<{}, State> {
           successMessage: 'User has been sent an email to reset their password.'
         });
       } catch (e) {
-        console.log(e.message);
         this.setState({
           errorMessage: `Something went wrong, please try again later. (${e.message})`
         });
