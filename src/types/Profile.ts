@@ -1,3 +1,4 @@
+import { Countries } from './Countries';
 
 enum profileType {
   Individual = 'Individual',
@@ -15,7 +16,7 @@ export interface Profile {
   full_name: string | null;
   field_expertise: string;
   city: string | null;
-  country: string | null;
+  country: Countries | null;
   biography: string | null;
   website: string | null;
   social_media: string[] | null;
@@ -26,4 +27,5 @@ export interface Profile {
   contact_position: string | null;
   contact_email: string | null;
   profile_type: profileType | null;
+  accepted_license: boolean | null;
 }

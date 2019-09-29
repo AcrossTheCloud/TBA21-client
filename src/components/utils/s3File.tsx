@@ -6,6 +6,7 @@ import config from 'config';
 import { FileTypes, S3File } from 'types/s3File';
 
 import defaultVideoImage from 'images/defaults/video.jpg';
+import { Item } from '../../types/Item';
 
 export const fileType = (type: string): FileTypes | null => {
   // https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types
@@ -21,17 +22,17 @@ export const fileType = (type: string): FileTypes | null => {
     'vnd.amazon',
   ];
   if (type.includes('image')) {
-    return FileTypes.image;
+    return FileTypes.Image;
   } else if (type.includes('audio')) {
-    return FileTypes.audio;
+    return FileTypes.Audio;
   } else if (type.includes('video')) {
-    return FileTypes.video;
+    return FileTypes.Video;
   } else if (downloadTextTypes.some(el => type.includes(el))) {
-    return FileTypes.downloadText;
+    return FileTypes.DownloadText;
   } else if (type.includes('text')) {
-    return FileTypes.text;
+    return FileTypes.Text;
   }  else if (type.includes('pdf')) {
-    return FileTypes.pdf;
+    return FileTypes.Pdf;
   } else {
     return null;
   }
@@ -61,23 +62,24 @@ export const getCDNObject = async (key: string): Promise<S3File | false> => {
       contentType = result.headers.get('content-type');
     }
 
-    if (result && contentType !== null) {
+    if (!!result && contentType !== null) {
       const
         type = fileType(contentType),
         response: S3File = {
           url,
-          type: FileTypes.downloadText
+          type: FileTypes.DownloadText
         };
 
       if (type) {
         Object.assign(response, {type});
 
-        if (type === 'text') {
+        if (type === FileTypes.Text) {
           const body = await fetch(url);
-          Object.assign(response, {body});
+          const text = await body.text();
+          Object.assign(response, { body: text });
         }
 
-        if (type === 'video') {
+        if (type === FileTypes.Video) {
           const videoFiles = await getVideoFiles(key);
           // We always have a poster.
           Object.assign(response, { poster: videoFiles.poster });
@@ -133,7 +135,7 @@ export const sdkGetObject = async (key: string): Promise<S3File | false> => {
       },
       head: HeadObjectOutput = await s3.headObject({ Bucket: config.s3.BUCKET , Key: key}).promise();
 
-    if (head && head.ContentType ) {
+    if (head && head.ContentType) {
       const url = await s3.getSignedUrl('getObject', params);
 
       const type = fileType(head.ContentType);
@@ -166,16 +168,24 @@ export const getVideoFiles = async (key: string): Promise<{poster: string, playl
       fileNameWithoutExtension = locationKeys.split('.'),
       // Poster
       posterFileName = fileNameWithoutExtension.slice(0, fileNameWithoutExtension.length - 1).join('.'),
-      posterURL = `${steamingURL}${privateUUID}/thumbnails/${posterFileName}_thumb.0000001.jpg`,
       // Playlist
       playlistURLFileName = fileNameWithoutExtension.slice(0, fileNameWithoutExtension.length - 1).join('.'),
       playlistURL = `${steamingURL}${privateUUID}/hls/${playlistURLFileName}.m3u8`;
 
+    let posterURL = `${steamingURL}${privateUUID}/thumbnails/${posterFileName}_thumb.0000001.jpg`;
+
     // Fetch the thumbnail to see if it exists.
-    const poster = await fetch(posterURL, {method: 'HEAD', mode: 'cors'});
+    let poster = await fetch(posterURL, {method: 'HEAD', mode: 'cors'});
     if (poster && poster.status === 200) {
       // check response and status
       Object.assign(response, {poster: posterURL});
+    } else {
+      posterURL = `${steamingURL}${privateUUID}/thumbnails/${posterFileName}_thumb.0000000.jpg`;
+      poster = await fetch(posterURL, {method: 'HEAD', mode: 'cors'});
+      if (poster && poster.status === 200) {
+        // check response and status
+        Object.assign(response, {poster: posterURL});
+      }
     }
     // Fetch the playlist to see if it exists.
     const playlist = await fetch(playlistURL, {method: 'HEAD', mode: 'cors'});
@@ -188,4 +198,41 @@ export const getVideoFiles = async (key: string): Promise<{poster: string, playl
   } catch (e) {
     return response;
   }
+};
+
+export const thumbnailsSRCSET = (file: S3File): string => {
+  let thumbnails: string[] = [];
+  if (file.thumbnails) {
+    Object.entries(file.thumbnails).forEach( ([key, value]) => {
+      thumbnails.push(`${encodeURI(value)} ${key}w`);
+    });
+  }
+
+  return thumbnails.join(', ').toString();
+};
+
+export const checkThumbnails = (item: Item, file: S3File): S3File => {
+  const thumbnailUrl = `${config.other.THUMBNAIL_URL}${item.s3_key}`;
+  const thumbnails = {};
+
+  if (!!item.file_dimensions) {
+    if (item.file_dimensions[0] > 540) {
+      Object.assign(thumbnails, {540: `${thumbnailUrl}.thumbnail540.png`});
+    }
+    if (item.file_dimensions[0] > 720) {
+      Object.assign(thumbnails, {720: `${thumbnailUrl}.thumbnail720.png`});
+    }
+    if (item.file_dimensions[0] > 960) {
+      Object.assign(thumbnails, {960: `${thumbnailUrl}.thumbnail960.png`});
+    }
+    if (item.file_dimensions[0] > 1140) {
+      Object.assign(thumbnails, {1140: `${thumbnailUrl}.thumbnail1140.png`});
+    }
+
+    if (Object.keys(thumbnails).length > 1) {
+      Object.assign(file, {thumbnails});
+    }
+  }
+
+  return file;
 };

@@ -114,7 +114,7 @@ export class AnnouncementEditor extends React.Component<Props, State> {
     if (invalidFields.length > 0) {
       const message: JSX.Element = (
         <>
-          Missing required Field(s) <br/>
+          Missing required field(s) <br/>
           {invalidFields.map( (f, i) => ( <div key={i} style={{ textTransform: 'capitalize' }}>{f.replace(/_/g, ' ')}<br/></div> ) )}
         </>
       );
@@ -292,6 +292,7 @@ export class AnnouncementEditor extends React.Component<Props, State> {
                 id="title"
                 defaultValue={title ? title : ''}
                 placeholder="Please Enter A Title"
+                maxLength={40}
                 onChange={e => this.validateLength('title', e.target.value)}
                 required
                 invalid={this.state.validate.hasOwnProperty('title') && !this.state.validate.title}
@@ -304,6 +305,7 @@ export class AnnouncementEditor extends React.Component<Props, State> {
               <Input
                 type="textarea"
                 id="description"
+                maxLength={256}
                 defaultValue={description ? description : ''}
                 onChange={e => this.validateLength('description', e.target.value)}
                 invalid={this.state.validate.hasOwnProperty('description') && !this.state.validate.description}
@@ -316,6 +318,7 @@ export class AnnouncementEditor extends React.Component<Props, State> {
               <Input
                 type="url"
                 id="url"
+                maxLength={2048}
                 defaultValue={url ? url : ''}
                 invalid={this.state.validate.hasOwnProperty('url') && !this.state.validate.url}
                 onChange={e => {

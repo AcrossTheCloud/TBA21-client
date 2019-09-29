@@ -1,14 +1,26 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
-import { Button, Col, Container, Form, FormGroup, Input, Label, Row, Spinner } from 'reactstrap';
+import {
+  Button,
+  Col,
+  Container,
+  CustomInput,
+  Form, FormFeedback,
+  FormGroup, FormText,
+  Input,
+  InputGroup,
+  Label,
+  Row,
+  Spinner
+} from 'reactstrap';
 import { validateURL } from '../../utils/inputs/url';
 
 import DeleteAccount from 'components/utils/user/DeleteAccount';
 import ChangePassword from 'components/utils/user/ChangePassword';
 import { AuthContext } from '../../../providers/AuthProvider';
-import { deleteAccount, dispatchError, updateAttributes, changePassword, getProfileDetails } from 'actions/user/profile';
-import { ErrorMessage, SuccessMessage } from '../../utils/alerts';
+import { deleteAccount, dispatchError, updateAttributes, changePassword, getProfileDetails, overlayToggle } from 'actions/user/profile';
+import { Alerts, ErrorMessage, SuccessMessage } from '../../utils/alerts';
 import Select from 'react-select';
 import CreatableSelect from 'react-select/creatable';
 import {
@@ -17,10 +29,11 @@ import {
 
 import MailChimp from '../../utils/MailChimp';
 import { ProfileState } from '../../../reducers/user/profile';
-
-import 'styles/components/user/profile/profile.scss';
 import { CropperModal } from './CropperModal';
 import { API } from 'aws-amplify';
+import { Profile as ProfileType } from 'types/Profile';
+
+import 'styles/components/user/profile/profile.scss';
 
 interface Props extends RouteComponentProps, ProfileState {
   deleteAccount: Function;
@@ -28,27 +41,12 @@ interface Props extends RouteComponentProps, ProfileState {
   updateAttributes: Function;
   changePassword: Function;
   getProfileDetails: Function;
+  overlayToggle: Function;
 }
 
-interface State {
+interface State extends Partial<ProfileType>, Alerts {
   email: string;
-  social_media?: string[];
-  contributors?: string[];
-  profile_image?: string;
-  featured_image?: string;
-  full_name?: string;
-  field_expertise?: string;
-  city?: string;
-  country?: string;
-  biography?: string;
-  website?: string;
-  public_profile?: boolean;
-  affiliation?: string;
-  position?: string;
-  contact_person?: string;
-  contact_position?: string;
-  contact_email?: string;
-
+  websiteValid?: boolean;
   cropperModalOpen: boolean;
 }
 
@@ -85,78 +83,90 @@ class Profile extends React.Component<Props, State> {
         this.props.dispatchError();
       }
     }
+
+    if (!prevProps.details && this.props.details && this._isMounted) {
+      this.setState({ ...this.props.details });
+    }
   }
 
   getUserCredentials = async (): Promise<void> => {
     const context: React.ContextType<typeof AuthContext> = this.context;
-
     if (!this.props.details) {
       await this.props.getProfileDetails(context.uuid);
     }
 
     if (this._isMounted) {
-      this.setState({
-        email: context.email
-      });
+      this.setState({ email: context.email, ...this.props.details });
     }
   }
 
   submitForm = async (): Promise<void> => {
-    const context: React.ContextType<typeof AuthContext> = this.context;
-    const attributes = {};
-    const profileAttributes = {};
+    try {
+      this.props.overlayToggle(true);
+      const context: React.ContextType<typeof AuthContext> = this.context;
+      const attributes = {};
+      const profileAttributes = {};
 
-    if (this._isMounted) {
-      if (this.state.email !== context.email) {
-        Object.assign(attributes, {'email': this.state.email});
-      }
-
-      if (Object.keys(attributes).length) {
-        await this.props.updateAttributes(attributes);
-      }
-
-      [
-        'social_media',
-        'contributors',
-        'profile_image',
-        'featured_image',
-        'full_name',
-        'field_expertise',
-        'city',
-        'country',
-        'biography',
-        'website',
-        'public_profile',
-        'affiliation',
-        'position',
-        'contact_person',
-        'contact_position',
-        'contact_email'
-      ].forEach( attr => {
-        if (!!this.state[attr]) {
-          Object.assign(profileAttributes, { [attr]: this.state[attr] });
+      if (this._isMounted) {
+        if (this.state.email !== context.email) {
+          Object.assign(attributes, {'email': this.state.email});
         }
-      });
 
-      if (profileAttributes) {
-        await API.patch('tba21', 'profiles', {
-          body: profileAttributes
+        if (Object.keys(attributes).length) {
+          await this.props.updateAttributes(attributes);
+        }
+
+        [
+          'social_media',
+          'contributors',
+          'profile_image',
+          'featured_image',
+          'full_name',
+          'field_expertise',
+          'city',
+          'country',
+          'biography',
+          'website',
+          'public_profile',
+          'affiliation',
+          'position',
+          'contact_person',
+          'contact_position',
+          'contact_email'
+        ].forEach( attr => {
+          if (typeof this.state[attr] === 'undefined' || this.state[attr] === null) {
+            return;
+          } else {
+            Object.assign(profileAttributes, { [attr]: this.state[attr] });
+          }
         });
+
+        if (Object.keys(profileAttributes).length) {
+          await API.patch('tba21', 'profiles', {
+            body: profileAttributes
+          });
+        }
+
+        await this.getUserCredentials();
       }
-
-      await this.getUserCredentials();
-
+    } catch (e) {
+      if (this._isMounted) {
+        this.setState({ errorMessage: 'We had an issue updating your profile.' });
+      }
+    } finally {
+      this.props.overlayToggle(false);
     }
   }
 
-  fieldChanged = (value: string | string[], field: string) => {
+  fieldChanged = (value: string | string[] | boolean, field: string) => {
     const state = {};
-    if (value.length && this._isMounted) {
+    if (
+      (((typeof value === 'string' || Array.isArray(value)) && value.length) || typeof value === 'boolean'
+      ) && this._isMounted) {
       Object.assign(state, { [field]: value });
     }
 
     this.setState(state);
-
   }
 
   onChangeSocialMedia = (newValue: any, actionMeta: any) => { // tslint:disable-line: no-any
@@ -167,22 +177,38 @@ class Profile extends React.Component<Props, State> {
   }
 
   render() {
-    const context: React.ContextType<typeof AuthContext> = this.context;
-    const { details } = this.props;
-    const country = (!!details && !!details.country) ? selectableCountries.find(a => a.value === details.country) : '';
+    const {
+      full_name,
+      city,
+      field_expertise,
+      country,
+      website,
+      affiliation,
+      position,
+      biography,
+      social_media,
+      profile_type,
+      profile_image,
+      public_profile,
+      contact_email,
+      contact_person,
+      contact_position,
+    } = this.state;
 
-    return(
+    const context: React.ContextType<typeof AuthContext> = this.context;
+    const countryList = country ? selectableCountries.find(a => a.value === country) : undefined;
+
+    return (
       <Container id="profile">
 
         <ErrorMessage message={this.props.errorMessage} />
         <SuccessMessage message={this.props.successMessage} />
 
         <CropperModal
-          imageURL={!!details && details.profile_image ? details.profile_image : undefined}
+          imageURL={profile_image ? profile_image : undefined}
           open={this.state.cropperModalOpen}
           callback={ async (openState, updated) => {
             if (this._isMounted) {
-              console.log('context.uuid', context.uuid);
               if (updated) {
                 await this.props.getProfileDetails(context.uuid);
               }
@@ -199,24 +225,37 @@ class Profile extends React.Component<Props, State> {
           </div>
           : <></>
         }
-        <h1>{details ? `Hey, ${details.full_name}` : 'Your Profile'}</h1>
-
         <Form onSubmit={(e) => { e.preventDefault(); this.submitForm(); }} autoComplete="off">
           <Row>
-            <Col xs="12" md="4">
+            <Col xs="12" md="4" className="pt-3">
               <div className="sticky">
+                <h1>{!!full_name ? `Hey, ${full_name}` : 'Your Profile'}</h1>
 
                 <div className="profileImage" onClick={() => {if (this._isMounted) { this.setState({ cropperModalOpen: true }); } }}>
-                  {!!details && details.profile_image ?
-                    <img src={details.profile_image} alt="" />
+                  {profile_image ?
+                    <img src={profile_image} alt="" />
                     : <>Click here to upload a profile image.</>
                   }
                 </div>
 
+                <FormGroup className="pt-4">
+                  <InputGroup>
+                    <CustomInput
+                      type="switch"
+                      id="public"
+                      name="public"
+                      label="Make my profile public."
+                      checked={!!public_profile ? public_profile : false}
+                      onChange={e => this.fieldChanged(e.target.checked, 'public_profile')}
+                    />
+                    <small>By enabling this you accept that all your information will be viewable by the general public.</small>
+                  </InputGroup>
+                </FormGroup>
+
                 <Button>Save</Button>
               </div>
             </Col>
-            <Col xs="12" md="8">
+            <Col xs="12" md="8" className="pt-3">
               <FormGroup>
                 <Label for="email">Email Address</Label>
                 <Input
@@ -230,35 +269,62 @@ class Profile extends React.Component<Props, State> {
               </FormGroup>
               <FormGroup>
                 <Label for="full_name">Full Name</Label>
-                <Input type="text" name="full_name" id="full_name" placeholder="Full Name" onChange={e => this.fieldChanged(e.target.value, 'full_name')} defaultValue={!!details && !!details.full_name ? details.full_name : ''} />
+                <Input type="text" name="full_name" id="full_name" placeholder="Full Name" onChange={e => this.fieldChanged(e.target.value, 'full_name')} defaultValue={full_name ? full_name : ''} />
               </FormGroup>
               <FormGroup>
                 <Label for="field_expertise">Field of Expertise</Label>
-                <Input type="text" name="field_expertise" id="field_expertise" placeholder="Field of Expertise" onChange={e => this.fieldChanged(e.target.value, 'field_expertise')} defaultValue={!!details && !!details.field_expertise ? details.field_expertise : ''} />
+                <Input type="text" name="field_expertise" id="field_expertise" placeholder="Field of Expertise" onChange={e => this.fieldChanged(e.target.value, 'field_expertise')} defaultValue={field_expertise ? field_expertise : ''} />
               </FormGroup>
               <FormGroup>
                 <Label for="city">City</Label>
-                <Input type="text" name="city" id="city" placeholder="City" onChange={e => this.fieldChanged(e.target.value, 'city')} defaultValue={!!details && !!details.city ? details.city : ''} />
+                <Input type="text" name="city" id="city" placeholder="City" onChange={e => this.fieldChanged(e.target.value, 'city')} defaultValue={city ? city : ''} />
               </FormGroup>
 
               <FormGroup>
                 <Label for="country">Country</Label>
-                <Select className="select" classNamePrefix="select" isSearchable menuPlacement="auto" placeholder="Country" options={selectableCountries} defaultValue={country ? country : null} onChange={e => this.fieldChanged('country', e)} />
+                <Select
+                  className="select"
+                  classNamePrefix="select"
+                  isSearchable
+                  menuPlacement="auto"
+                  placeholder="Country"
+                  options={selectableCountries}
+                  value={countryList ? countryList : null}
+                  onChange={e => this.fieldChanged(e.value, 'country')}
+                />
               </FormGroup>
 
               <FormGroup>
                 <Label for="biography">Biography</Label>
-                {!this.props.overlay ? <Input
+                <Input
                   type="textarea"
                   id="biography"
-                  defaultValue={!!details && !!details.biography ? details.biography : ''}
+                  value={biography ? biography : ''}
                   onChange={e => this.fieldChanged(e.target.value, 'biography')}
-                /> : <></>}
+                />
               </FormGroup>
 
               <FormGroup>
                 <Label for="website">Website</Label>
-                <Input type="text" name="website" id="website" placeholder="Website" onChange={e => this.fieldChanged(e.target.value, 'website')} defaultValue={!!details && !!details.website ? details.website : ''} />
+                <Input
+                  type="text"
+                  name="website"
+                  id="website"
+                  placeholder="Website"
+                  onChange={e => {
+                    const value = e.target.value;
+                    let valid = validateURL(value);
+                    if (!value || (value && !value.length)) { valid = true; } // set valid to true for no content
+                    if (valid) { this.fieldChanged(e.target.value, 'website'); } // if valid set the data in changedItem
+                    if (this._isMounted) {
+                      this.setState({ websiteValid: valid });
+                    }
+                  }}
+                  invalid={!!this.state.websiteValid && !this.state.websiteValid}
+                  defaultValue={website ? website : ''}
+                />
+                <FormFeedback>Not a valid URL</FormFeedback>
+                <FormText>Website URL must start with http:// or https://</FormText>
               </FormGroup>
 
               <FormGroup>
@@ -271,38 +337,39 @@ class Profile extends React.Component<Props, State> {
                   placeholder="Social Media"
                   onChange={this.onChangeSocialMedia}
                   value={
-                    (!!this.state.social_media && this.state.social_media.length) ?
-                      this.state.social_media.map(s => ({ value: s, label: s }))
-                      : (!!details && !!details.social_media ) ? details.social_media.map(s => ({ value: s, label: s }))  : null}
+                    !!social_media && social_media.length ?
+                      social_media.map(s => ({ value: s, label: s })) : null
+                  }
                   formatCreateLabel={i => `Add new URL ${i}`}
                 />
+                <FormText>All URL's must start with http:// or https://</FormText>
               </FormGroup>
 
               <FormGroup>
                 <Label for="affiliation">Affiliation</Label>
-                <Input type="text" name="affiliation" id="affiliation" placeholder="Affiliation" onChange={e => this.fieldChanged(e.target.value, 'affiliation')} defaultValue={!!details && !!details.affiliation ? details.affiliation : ''} />
+                <Input type="text" name="affiliation" id="affiliation" placeholder="Affiliation" onChange={e => this.fieldChanged(e.target.value, 'affiliation')} defaultValue={affiliation ? affiliation : ''} />
               </FormGroup>
 
               <FormGroup>
                 <Label for="position">Position</Label>
-                <Input type="text" name="position" id="position" placeholder="Position" onChange={e => this.fieldChanged(e.target.value, 'position')} defaultValue={!!details && !!details.position ? details.position : ''} />
+                <Input type="text" name="position" id="position" placeholder="Position" onChange={e => this.fieldChanged(e.target.value, 'position')} defaultValue={position ? position : ''} />
               </FormGroup>
 
               {
-                (!!details && (!!details.profile_type && details.profile_type === 'Institution')) ||
-                (!!details && (!!details.profile_type && details.profile_type === 'Collective')) ?
+                ((!!profile_type && profile_type === 'Institution')) ||
+                ((!!profile_type && profile_type === 'Collective')) ?
                   <>
                     <FormGroup>
                       <Label for="contact_person">Contact Person</Label>
-                      <Input type="text" name="contact_person" id="contact_person" placeholder="Contact Person" onChange={e => this.fieldChanged(e.target.value, 'contact_person')} defaultValue={!!details && !!details.contact_person ? details.contact_person : ''} />
+                      <Input type="text" name="contact_person" id="contact_person" placeholder="Contact Person" onChange={e => this.fieldChanged(e.target.value, 'contact_person')} defaultValue={contact_person ? contact_person : ''} />
                     </FormGroup>
                     <FormGroup>
                       <Label for="contact_position">Contact Position</Label>
-                      <Input type="text" name="contact_position" id="contact_position" placeholder="Contact Position" onChange={e => this.fieldChanged(e.target.value, 'contact_position')} defaultValue={!!details && !!details.contact_position ? details.contact_position : ''} />
+                      <Input type="text" name="contact_position" id="contact_position" placeholder="Contact Position" onChange={e => this.fieldChanged(e.target.value, 'contact_position')} defaultValue={contact_position ? contact_position : ''} />
                     </FormGroup>
                     <FormGroup>
                       <Label for="contact_email">Contact Email</Label>
-                      <Input type="text" name="contact_email" id="contact_email" placeholder="Contact Email" onChange={e => this.fieldChanged(e.target.value, 'contact_email')} defaultValue={!!details && !!details.contact_email ? details.contact_email : ''} />
+                      <Input type="text" name="contact_email" id="contact_email" placeholder="Contact Email" onChange={e => this.fieldChanged(e.target.value, 'contact_email')} defaultValue={contact_email ? contact_email : ''} />
                     </FormGroup>
                   </>
                   :
@@ -323,7 +390,9 @@ class Profile extends React.Component<Props, State> {
           : <></>
         }
 
-        <DeleteAccount deleteAccountAction={this.props.deleteAccount}/>
+        <div className="pt-5">
+          <DeleteAccount deleteAccountAction={this.props.deleteAccount}/>
+        </div>
 
       </Container>
     );
@@ -346,7 +415,8 @@ const mapDispatchToProps = {
   dispatchError,
   updateAttributes,
   changePassword,
-  getProfileDetails
+  getProfileDetails,
+  overlayToggle
 };
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Profile));

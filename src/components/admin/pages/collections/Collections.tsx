@@ -60,16 +60,11 @@ class Collections extends React.Component<RouteComponentProps, State> {
       },
       {
         dataField: 'status',
-        text: 'Status',
+        text: 'Published',
       },
       {
         dataField: 'title',
-        text: 'Title',
-        events: {
-          onClick: (e, column, columnIndex, row, rowIndex) => {
-            console.log(e, column, columnIndex, row, rowIndex);
-          }
-        }
+        text: 'Title'
       },
       {
         dataField: 'options',
@@ -170,15 +165,15 @@ class Collections extends React.Component<RouteComponentProps, State> {
     this.setState( prevState => ({
        ...prevState,
        deleteModalOpen: !prevState.deleteModalOpen,
-       deleteErrorMessage: '',
-       successMessage: ''
+       deleteErrorMessage: undefined,
+       successMessage: undefined
      })
     );
   }
   deleteCollection = async () => {
     const state = {
-      deleteErrorMessage: '',
-      successMessage: ''
+      deleteErrorMessage: undefined,
+      successMessage: undefined
     };
     try {
       const collectionIndex: number | undefined = this.state.editingCollectionIndex;
@@ -206,6 +201,7 @@ class Collections extends React.Component<RouteComponentProps, State> {
         deleteErrorMessage: 'We had some trouble deleting this collection. Please try again later.'
       });
     } finally {
+      if (!this._isMounted) { return; }
       this.setState(state);
     }
   }

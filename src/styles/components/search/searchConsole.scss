@@ -1,9 +1,5 @@
 @import '../../base/variables';
-
-#body.searchOpen {
-  position: fixed;
-  overflow: hidden;
-}
+@import "../../utils/animations";
 
 %searchFont {
   color: #fff;
@@ -20,7 +16,7 @@
   position: fixed;
   bottom: 0;
   width: 100%;
-  z-index: 10;
+  z-index: 13;
 
   transition: min-height 1.2s cubic-bezier(0.22, 0.61, 0.36, 1), opacity .3s linear .5s;
 
@@ -69,12 +65,12 @@
       .mid {
         height: 0;
         overflow: hidden;
-        .row {
+        .d-flex {
           margin: 0;
           height: 100%;
           .inputwrapper {
-            height: 100%;
-            flex: 1 1 auto;
+            height: 45px;
+            flex: 1 0 100%;
           }
         }
       }
@@ -190,6 +186,7 @@
       }
 
       .icon {
+        width: 0;
         overflow: hidden;
         font-size: 16px;
         flex: 0 1 auto;
@@ -233,10 +230,15 @@
       }
     }
 
-
     .results {
-      max-height: 0;
+      height: 0;
       overflow: hidden;
+    }
+
+    .tags {
+      height: 0;
+      overflow: hidden;
+      position: relative;
     }
 
     &.open {
@@ -246,6 +248,10 @@
       .legend {
         max-height: 0;
         transition: max-height 1s;
+      }
+
+      .icon {
+        width: auto;
       }
 
       .options {
@@ -266,8 +272,25 @@
         .mid {
           overflow: unset !important;
           height: 60px;
-          .inputwrapper {
-            height: 100%;
+          width: 100%;
+          position: relative;
+          .d-flex {
+            .inputwrapper {
+              height: 100%;
+              flex: auto;
+              max-width: calc(90% - 55px);
+              @media screen and (min-width: 768px) {
+                max-width: unset;
+              }
+            }
+            .icon {
+              flex: 0 0 55px;
+              width: 55px;
+              @media screen and (min-width: 768px) {
+                flex: 0 0 100px;
+                width: 100px;
+              }
+            }
           }
         }
         .margin {
@@ -295,9 +318,9 @@
 
       .results {
         position: relative;
-        max-height: unset;
-        overflow: scroll;
-        padding: 20px 0 ;
+        overflow: hidden;
+        height: 0;
+        padding-top: 20px;
         .result {
           cursor: pointer;
           position: relative;
@@ -306,6 +329,21 @@
           border-bottom: 1px solid #fff;
           padding-bottom: 5px;
           margin-bottom: 5px;
+          .creators {
+            overflow: hidden;
+            max-width: 95%;
+            span.ellipsis {
+              text-transform: capitalize;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+              max-width: 100%;
+              overflow: hidden;
+              display: inline-block;
+            }
+            .title {
+              flex: 1 1 50%;
+            }
+          }
           .pdf {
             position: relative;
             max-width: 200px;
@@ -313,6 +351,33 @@
               max-width: 100%;
               height: auto !important;
             }
+          }
+        }
+      }
+
+      .tags {
+        height: 60px;
+        width: 100%;
+        .list {
+          position: absolute;
+          top: 10px;
+          white-space: nowrap;
+          /* Starting position */
+          transform:translateX(100vw);
+          /* Apply animation to this element */
+          animation: marquee 80s linear infinite;
+
+          &.safari {
+            @media screen and (max-width: 768px) {
+              animation: marquee 30s linear infinite;
+            }
+          }
+
+          span {
+            padding: 3px 5px 5px;
+            border: 1px solid;
+            margin-right: 10px;
+            cursor: pointer;
           }
         }
       }
@@ -363,10 +428,21 @@
   }
 
   &.open {
-    z-index: 9999;
     min-height: 100%;
     max-height: 100%;
     transition: min-height 1.2s cubic-bezier(0.22, 0.61, 0.36, 1), opacity .3s linear .5s;
   }
 
+}
+
+
+.modal {
+  .search {
+    .image {
+      img {
+        width: auto;
+        max-height: 70vh !important;
+      }
+    }
+  }
 }

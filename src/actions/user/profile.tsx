@@ -20,6 +20,10 @@ export const dispatchError = (message: string) => dispatch => {
   dispatch({type: PROFILE_ERROR, message: message});
 };
 
+export const overlayToggle = (on: boolean) => dispatch => {
+  dispatch({type: OVERLAY, overlay: on});
+};
+
 /**
  * Updates the users attributes in AWS Cognito
  *
@@ -133,7 +137,7 @@ export const getProfileDetails = (uuid: string) => async dispatch => {
   }
 };
 
-const checkProfileImageExists = async (imageURL: string): Promise<string | undefined> => {
+export const checkProfileImageExists = async (imageURL: string): Promise<string | undefined> => {
   if (imageURL) {
     try {
       await fetch(imageURL, {

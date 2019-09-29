@@ -10,7 +10,7 @@ import { fetchItems, fetchMoreItems } from '../../actions/items/viewItems';
 import { State } from '../../reducers/items/viewItems';
 import { getCDNObject } from '../utils/s3File';
 
-import { S3File } from '../../types/s3File';
+import { FileTypes, S3File } from '../../types/s3File';
 
 import 'styles/components/ViewItems.scss';
 
@@ -24,7 +24,7 @@ interface Props extends Alerts {
 
 const FilePreview = (props: { id: string, file: S3File }): JSX.Element => {
   if (props.file.url) {
-    if (props.file.type === 'image') {
+    if (props.file.type === FileTypes.Image) {
       return <CardImg src={props.file.url}/>;
     }
   }

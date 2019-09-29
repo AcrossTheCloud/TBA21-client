@@ -1,20 +1,29 @@
-import { SEARCH_RESULTS, CHANGE_VIEW, SEARCH_LOADING } from 'actions/searchConsole';
+import { SEARCH_RESULTS, CHANGE_VIEW, SEARCH_TOGGLE_OPEN, SEARCH_CONCEPT_TAGS, SEARCH_RESULTS_LOADING } from 'actions/searchConsole';
 
-import { Tag } from '../components/metadata/Tags';
+import { APITag } from 'components/metadata/Tags';
+import { Item } from '../types/Item';
+import { Collection } from '../types/Collection';
+import { Profile } from '../types/Profile';
+
+export type ItemOrCollectionOrProfile = Item | Collection | Profile;
 
 export interface SearchConsoleState {
-  concept_tags: Tag[];
-  selected_tags: Tag[];
+  concept_tags: APITag[];
   view: 'grid' | 'list';
-  results: any[];  // tslint:disable-line: no-any
-  loading: boolean;
+  results: ItemOrCollectionOrProfile[];
+  loadedResults: ItemOrCollectionOrProfile[];
+  searchResultsLoading: boolean;
+  offset: number;
+  open: boolean;
 }
 const initialState: SearchConsoleState = {
   concept_tags: [],
-  selected_tags: [],
   view: 'grid',
   results: [],
-  loading: false
+  loadedResults: [],
+  searchResultsLoading: false,
+  offset: 0,
+  open: false
 };
 
 export default (state: SearchConsoleState | null = initialState, action) => {
@@ -22,23 +31,44 @@ export default (state: SearchConsoleState | null = initialState, action) => {
 
   switch (action.type) {
 
+    case SEARCH_TOGGLE_OPEN:
+      const newState = {
+        ...state,
+        open: action.open
+      };
+
+      if (action.concept_tags) {
+        Object.assign(newState, { concept_tags: action.concept_tags });
+      }
+      return newState;
+
+    case SEARCH_CONCEPT_TAGS:
+      return {
+        ...state,
+        concept_tags: action.concept_tags
+      };
+
     case CHANGE_VIEW:
       return {
         ...state,
         view: action.view
-      }
+      };
+
     case SEARCH_RESULTS:
       return {
         ...state,
         results: action.results,
+        loadedResults: action.loadedResults,
+        offset: action.offset,
+        searchResultsLoading: false,
         view: 'list',
-        loading: action.loading
-      }
-    case SEARCH_LOADING:
+      };
+
+    case SEARCH_RESULTS_LOADING:
       return {
         ...state,
-        loading: action.loading
-      }
+        searchResultsLoading: action.loading
+      };
 
     default:
       return state;

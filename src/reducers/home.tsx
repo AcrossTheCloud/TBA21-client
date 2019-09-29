@@ -1,18 +1,25 @@
-import { LOAD_HOMEPAGE, LOGO_STATE_HOMEPAGE, LOAD_MORE_HOMEPAGE, MODAL_STATE_HOMEPAGE } from 'actions/home';
+import { LOAD_HOMEPAGE, LOGO_STATE_HOMEPAGE, LOAD_MORE_HOMEPAGE, MODAL_STATE_HOMEPAGE, LOAD_MORE_LOADING } from 'actions/home';
 import { S3File } from '../types/s3File';
+import { Announcement } from '../types/Announcement';
+import { itemType } from '../types/Item';
+import { collectionTypes } from '../types/Collection';
 
 export interface HomepageData {
-  count?: string;
-  file?: S3File;
+  file: S3File;
   id: string;
   title: string;
   s3_key: string;
-  type: string;
+  item_subtype?: string;
+  item_type: itemType;
   date: string;
-  duration: string;
-  file_dimensions: number[];
-  creators: string[];
-  regions: string[];
+  duration?: string;
+  file_dimensions?: number[];
+  creators?: string[];
+  regions?: string[];
+
+  // Collection specific
+  count?: number;
+  type?: collectionTypes | null;
   items?: HomepageData[];
 
   // OA Highlight specific
@@ -22,26 +29,34 @@ export interface HomepageData {
 
 export interface HomePageState {
   logoLoaded: boolean;
+  loading: boolean;
 
   items: HomepageData[];
   collections: HomepageData[];
+  audio: HomepageData[];
+  announcements: Announcement[];
   oa_highlight: HomepageData[];
 
   loaded_highlights: HomepageData[];
-  loadedItems: JSX.Element[];
+  loadedItems: HomepageData[];
+  loadedMore: boolean;
 
   isModalOpen: boolean;
   modalData?: HomepageData;
 }
 const initialState: HomePageState = {
   logoLoaded: false,
+  loading: false,
 
   items: [],
   collections: [],
+  audio: [],
+  announcements: [],
   oa_highlight: [],
 
   loaded_highlights: [],
   loadedItems: [],
+  loadedMore: false,
 
   isModalOpen: false,
 };
@@ -60,14 +75,23 @@ export default (state: HomePageState | null = initialState, action) => {
         ...state,
         items: action.items,
         collections: action.collections,
-        loaded_highlights: action.loaded_highlights
+        audio: action.audio,
+        announcements: action.announcements,
+        loaded_highlights: action.loaded_highlights,
       };
     case LOAD_MORE_HOMEPAGE:
       return {
         ...state,
         loadedItems: action.loadedItems,
+        loadedMore: action.loadedMore,
+        audio: action.audio,
         items: action.items,
-        collections: action.collections,
+        collections: action.collections
+      };
+    case LOAD_MORE_LOADING:
+      return {
+        ...state,
+        loading: action.loading
       };
     case MODAL_STATE_HOMEPAGE:
       return {

@@ -10,19 +10,22 @@ interface Props {
 }
 
 interface State {
-  loaded: boolean;
+  // We keep the final loaded prop in state, this is so we can set the class on the #logo div
+  finallyLoaded: boolean;
 }
 
 export default class Logo extends Component<Props, State> {
   _isMounted;
   detectScroll;
+  animating: boolean = false;
+  animatingInterval;
 
   constructor(props: Props) {
     super(props);
     this._isMounted = false;
 
     this.state = {
-      loaded: this.props.loaded || false
+      finallyLoaded: false
     };
 
     this.detectScroll = () => {
@@ -39,47 +42,75 @@ export default class Logo extends Component<Props, State> {
   componentDidMount(): void {
     this._isMounted = true;
 
-    window.addEventListener('scroll', this.detectScroll, false);
-
+    // If the logo hasn't loaded ever add this class to Body
     if (!this.props.loaded) {
-      setTimeout(() => {
-        $('#logo .right').addClass('op');
-      }, 750);
+      $('#body').addClass('fixed');
 
-      setTimeout(() => {
-        $('#logo .left, #logo .right').addClass('init');
-      }, 2750);
+      const
+        $rightAndLeft = $('#logo .left, #logo .right');
 
-      setTimeout(() => {
-        $('#body').removeClass('fixed').addClass('logoLoaded');
-        if (!this._isMounted) { return; }
-        this.setState({ loaded: true });
-      }, 4750);
+      setTimeout( () => {
+        $rightAndLeft.addClass('init');
+        this.animating = true;
+      }, 500);
 
-      setTimeout(() => {
-        if (this.props.onChange && typeof this.props.onChange === 'function') {
-          this.props.onChange();
+      this.animatingInterval = setInterval( () => {
+        if (this.animating) {
+          this.animating = false;
+          $rightAndLeft.addClass('init');
+        } else {
+          this.animating = true;
+          $rightAndLeft.removeClass('init');
         }
-      }, 5750);
+      }, 3000);
+    } else {
+      $('#logo .left, #logo .right').addClass('init');
+      $('#body').removeClass('fixed').addClass('logoLoaded');
+      $('#body #logo').addClass('loaded');
     }
+
+    window.addEventListener('scroll', this.detectScroll, false);
   }
 
   componentWillUnmount(): void {
     this._isMounted = false;
+    $('#body').removeClass('fixed');
     window.removeEventListener('scroll', this.detectScroll, false);
   }
 
-  render() {
-    const { loaded } = this.state;
+  componentDidUpdate(prevProps: Readonly<Props>): void {
 
+    if (this.props.loaded !== prevProps.loaded && this.props.loaded) {
+      this.animating = true;
+      clearInterval(this.animatingInterval);
+
+      setTimeout(() => {
+        $('#logo .left, #logo .right').addClass('init');
+      }, 1000);
+
+      setTimeout(() => {
+        $('#body').addClass('logoLoaded');
+      }, 2000);
+
+      setTimeout(() => {
+        $('#body #logo').addClass('loaded');
+        $('#body').removeClass('fixed');
+        if (this._isMounted) {
+          this.setState({ finallyLoaded: true });
+        }
+      }, 2500);
+    }
+  }
+
+  render() {
     return (
-      <div id="logo" className={loaded ? 'loaded' : ''}>
+      <div id="logo">
         <header>
-          <div className={`left show ${loaded ? 'init' : ''}`}>
+          <div className={`left show`}>
             <img src={logo} alt="Ocean Archive" />
           </div>
 
-          <div className={`right show op ${loaded ? 'init' : ''}`}>
+          <div className={`right show op`}>
             <img src={logo} alt="Ocean Archive" />
           </div>
         </header>

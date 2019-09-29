@@ -7,8 +7,9 @@
 .modal-dialog {
   color: #000;
   &.fullwidth {
-    max-width: calc(100% - 30px);
-    height: calc(100% - 56px);
+    @media (min-width: 720px) {
+      max-width: calc(100% - 30px);
+    }
 
     display: flex;
     flex: 1 0 100%;
@@ -17,44 +18,57 @@
       overflow-y: scroll;
       overflow-x: hidden;
     }
+  }
 
-    &.blue {
-      .modal-content {
-        background-color: $dark-blue;
-        border: none;
-        border-radius: 0;
+  form {
+    input, textarea {
+      &.form-control {
+        border: 1px solid hsl(0,0%,80%);
+      }
+    }
+  }
 
-        height: calc(100vh - (0.5rem * 2));
-        @media (min-width: 576px) {
-          height: calc(100vh - (1.75rem * 2));
+  &.blue {
+    color: $soft-gray;
+
+    // Bootstrap default close.
+    .close {
+      color: #fff;
+      span {
+        color: #fff;
+      }
+    }
+
+    .modal-content {
+      background-color: $dark-blue;
+      border: none;
+      border-radius: 0;
+
+      .header {
+        background: $dark-blue;
+        color: #fff;
+        padding: 15px;
+        margin: 0;
+
+        a.gray {
+          color: $soft-gray;
+          font-family: 'Roboto Mono', sans-serif;
+          font-size: 14px;
+          opacity: .5;
+          &.openButton {
+            line-height: 1.2;
+            display: inline-block;
+            margin-right: 10px;
+            font-size: 17px;
+          }
+
+          &:hover {
+            opacity: 1;
+          }
         }
 
-        .header {
-          background: $dark-blue;
-          color: #fff;
-          padding: 15px;
-          margin: 0;
-
-          a.gray {
-            color: $soft-gray;
-            font-family: 'Roboto Mono', sans-serif;
-            font-size: 14px;
-            opacity: .5;
-            &.openButton {
-              line-height: 1.2;
-              display: inline-block;
-              margin-right: 10px;
-              font-size: 17px;
-            }
-
-            &:hover {
-              opacity: 1;
-            }
-          }
-
-          .closeButton, .openButton {
-            cursor: pointer;
-          }
+        .closeButton, .openButton {
+          cursor: pointer;
         }
       }
     }

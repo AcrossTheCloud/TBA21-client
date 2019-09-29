@@ -1,5 +1,7 @@
-import { APITag, Regions } from './Item';
+import { Regions } from './Item';
 import { License } from './License';
+import { APITag } from 'components/metadata/Tags';
+import { S3File } from './s3File';
 
 export enum collectionTypes {
   Series = 'Series',
@@ -47,7 +49,7 @@ export interface Collection {
   editor?: string | null;
   collaborators?: string[] | null;
 
-  exhibited_at?: string | null;
+  exhibited_at?: string[] | null;
   series?: number | null;
 
   isbn?: string[] | null;
@@ -117,7 +119,11 @@ export interface Collection {
   pages?: number | null;
   journal?: string | null;
 
+  s3_key?: string[] | null; // a list of item s3_keys
+
+  // For the API
   items?: string[] | null; // a list of item s3_keys
+  file?: S3File;
 
   digital_collection?: boolean;
 }

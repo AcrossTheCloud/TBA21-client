@@ -35,7 +35,6 @@ class ViewProfile extends React.Component<Props, State> {
     } else {
       this.setState({ errorMessage: 'No profile with that id.' });
     }
-    console.log(this.props.profile);
   }
 
   render() {

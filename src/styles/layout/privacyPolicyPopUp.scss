@@ -1,0 +1,23 @@
+#privacyPolicyPopUp {
+  position: fixed;
+  bottom: -101vh;
+  left: 0;
+  background: #fff;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  z-index: 9999999;
+  overflow: hidden;
+  transition: bottom 1s;
+
+  &.show {
+    bottom: 0;
+  }
+
+  .btn {
+    cursor: pointer;
+    vertical-align: unset;
+    &.decline {
+      background: #ccc;
+    }
+  }
+}

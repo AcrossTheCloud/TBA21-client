@@ -9,8 +9,9 @@ import { AuthContext } from 'providers/AuthProvider';
 
 import 'styles/components/_dropzone.scss';
 import 'styles/components/_reactTags.scss';
+import { Alerts, ErrorMessage } from '../utils/alerts';
 
-interface State {
+interface State extends Alerts {
   files: Files;
   rejectedFiles: Files;
 }
@@ -47,14 +48,24 @@ interface File {
 
 export class FileUpload extends React.Component<Props, State> {
   static contextType = AuthContext;
+  _isMounted;
 
   constructor(props: Props) {
     super(props);
+    this._isMounted = false;
 
     this.state = {
       files: {},
       rejectedFiles: {}
     };
+  }
+
+  componentDidMount(): void {
+    this._isMounted = true;
+  }
+
+  componentWillUnmount(): void {
+    this._isMounted = false;
   }
 
   onDrop = async (acceptedFiles: Array<any>, rejectedFiles: any) => {  // tslint:disable-line:no-any
@@ -78,6 +89,16 @@ export class FileUpload extends React.Component<Props, State> {
           Object.assign(fileProps, { preview: URL.createObjectURL(file) });
         }
 
+        if (file.type.includes('quicktime')) {
+          Object.assign(rejectedFiles, file);
+          if (!this._isMounted) { return; }
+          this.setState({ errorMessage: <>
+              We currently do not accept .MOV or QuickTime files, we're working to support this.<br/>
+              For now we suggest converting your file to .MP4 using <a href="https://handbrake.fr/" rel="noreferrer noopener" target="_blank">HandBrake</a>
+          </>});
+          return;
+        }
+
         Object.assign(files, { [file.name]: fileProps });
       }
     });
@@ -88,6 +109,7 @@ export class FileUpload extends React.Component<Props, State> {
         rejectedFiles: rejectedFiles
       };
 
+      if (!this._isMounted) { return; }
       this.setState(state, async () => {
         await this.uploadToS3(files);
       });
@@ -115,6 +137,7 @@ export class FileUpload extends React.Component<Props, State> {
         file.s3key = `private/${userCredentials.identityId}/${result.key}`;
 
         $(`#${file.uuid}`).fadeOut(async () => {
+          if (!this._isMounted) { return; }
           this.setState({ files: {...this.state.files, ...files}});
 
           // Callback a single key
@@ -146,26 +169,29 @@ export class FileUpload extends React.Component<Props, State> {
     });
 
     return (
-      <div className="dropzone_wrapper container-fluid">
+      <>
+        <ErrorMessage message={this.state.errorMessage} />
 
-        <Dropzone
-          onDrop={this.onDrop}
-          accept="image/jpeg, image/png, image/svg+xml, application/pdf, audio/*, text/*, video/*"
-        >
-          {({getRootProps, getInputProps, isDragActive, isDragReject, isDragAccept}) => (
-            <div {...getRootProps()} className="dropzone">
-              <input {...getInputProps()} />
-              {!isDragActive && 'Click here or drop a file to upload!'}
-              {isDragReject && 'File type not accepted, sorry!'}
-              {isDragAccept && 'Drop!'}
+        <div className="dropzone_wrapper container-fluid">
+          <Dropzone
+            onDrop={this.onDrop}
+            accept="image/jpeg, image/gif, image/png, image/svg+xml, application/pdf, audio/*, text/*, video/*"
+          >
+            {({getRootProps, getInputProps, isDragActive, isDragReject, isDragAccept}) => (
+              <div {...getRootProps()} className="dropzone">
+                <input {...getInputProps()} />
+                {!isDragActive && 'Click here or drop a file to upload!'}
+                {isDragReject && 'File type not accepted, sorry!'}
+                {isDragAccept && 'Drop!'}
 
-              <Row className="preview">
-                {thumbs}
-              </Row>
-            </div>
-          )}
-        </Dropzone>
-      </div>
+                <Row className="preview">
+                  {thumbs}
+                </Row>
+              </div>
+            )}
+          </Dropzone>
+        </div>
+      </>
     );
   }
 }

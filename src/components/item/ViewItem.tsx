@@ -1,43 +1,52 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Col, Row } from 'reactstrap';
-
 import { fetchItem } from 'actions/items/viewItem';
 import { State } from 'reducers/items/viewItem';
 import { Alerts, ErrorMessage } from '../utils/alerts';
 
-import { Item, Regions } from '../../types/Item';
-import { FilePreview } from '../utils/FilePreview';
+import { Item, itemType, Regions } from '../../types/Item';
+import { FilePreview } from '../utils/filePreview';
 import { Languages } from '../../types/Languages';
 import { browser } from '../utils/browser';
 import { RouteComponentProps, withRouter } from 'react-router';
 
 import 'styles/components/pages/viewItem.scss';
+import Share from '../utils/Share';
+import moment from 'moment';
+import { FileTypes } from '../../types/s3File';
+import AudioPreview from '../layout/audio/AudioPreview';
 
-interface Props extends RouteComponentProps, Alerts {
+type MatchParams = {
+  id: string;
+};
+
+interface Props extends RouteComponentProps<MatchParams>, Alerts {
   fetchItem: Function;
   item: Item;
 }
 
 class ViewItem extends React.Component<Props, State> {
-  matchedItemId: string = '';
   browser: string;
 
   constructor(props: any) { // tslint:disable-line: no-any
     super(props);
 
     this.browser = browser();
-
-    // Get our itemId passed through from URL props
-    if (props.location && props.location.pathname) {
-      this.matchedItemId = props.location.pathname.replace('/view/', '');
-    }
   }
 
   componentDidMount() {
+    const { match } = this.props;
+    let matchedItemId: string | null = null;
+
+    // Get our itemId passed through from URL props
+    if (match.params.id) {
+      matchedItemId = match.params.id;
+    }
+
     // If we have an id from the URL pass it through, otherwise use the one from Redux State
-    if (this.matchedItemId) {
-      this.props.fetchItem(this.matchedItemId);
+    if (matchedItemId) {
+      this.props.fetchItem(matchedItemId);
     } else {
       this.setState({ errorMessage: 'No item with that id.' });
     }
@@ -45,10 +54,11 @@ class ViewItem extends React.Component<Props, State> {
 
   render() {
     if (typeof this.props.item === 'undefined') {
-      return 'Loading...';
+      return '';
     }
 
     const {
+      id,
       file,
       creators,
       title,
@@ -62,7 +72,16 @@ class ViewItem extends React.Component<Props, State> {
 
       focus_action,
       focus_arts,
-      focus_scitech
+      focus_scitech,
+      time_produced,
+      year_produced,
+      venues,
+      exhibited_at,
+      copyright_holder,
+      url,
+      medium,
+      item_type,
+      created_at,
     } = this.props.item;
 
     let focusTotal = 0;
@@ -78,19 +97,34 @@ class ViewItem extends React.Component<Props, State> {
       return `${ (level / focusTotal) * 100 }`;
     };
 
-    const ItemDetails = (props: { label: string, value: string }): JSX.Element => (
+    const ItemDetails = (props: { label: string, value: string | JSX.Element }): JSX.Element => (
       <Row className="border-bottom subline details">
         <Col xs="12" md="6">{props.label}</Col>
         <Col xs="12" md="6">{props.value}</Col>
       </Row>
     );
 
+    const isAudio = (!!file && item_type === itemType.Audio) || (!!file && file.type === FileTypes.Audio);
     return (
       <div id="item">
         <ErrorMessage message={this.props.errorMessage} />
         {file && file.url ?
-          <Row xs="12" className="file">
-            <FilePreview file={file}/>
+          <Row className="file">
+            {
+              isAudio ?
+                <div className="w-100">
+                  <AudioPreview
+                    data={{
+                      id: `${id}_slider`,
+                      title: title ? title : '',
+                      url: file.url,
+                      isCollection: false,
+                      date: !!created_at ? created_at : ''
+                    }}
+                  />
+                </div>
+                : <FilePreview file={file}/>
+            }
           </Row>
           : <></>
         }
@@ -119,34 +153,57 @@ class ViewItem extends React.Component<Props, State> {
                 }
               </Col>
             </Row>
+
+            {!!id ?
+              <Row>
+                <Col className="text-right">
+                  <Share suffix={`view/${id}`}/>
+                </Col>
+              </Row>
+              : <></>
+            }
+
           </Col>
           <Col xs="12" md="4" className="right">
-            {!!regions ?
-              regions.map( (region, i) => (
-                <ItemDetails key={i} label="Region" value={Regions[region]} />
-              ))
+            {!!time_produced ?
+              <ItemDetails label="Date Produced" value={moment(time_produced).format('Do MMMM YYYY')} />
+              : year_produced ? <ItemDetails label="Year Produced" value={year_produced} /> : <></>
+            }
+            {!!venues && venues.length ?
+              <ItemDetails label="Publication Venue(s)" value={`${venues.join(', ')}`} />
+              : <></>
+            }
+            {!!exhibited_at && exhibited_at.length ?
+              <ItemDetails label="Exhibited At" value={`${exhibited_at.join(', ')}`} />
+              : <></>
+            }
+            {!!regions && regions.length ?
+              <ItemDetails label="Region" value={regions.map((region) => (Regions[region])).join(', ')} />
             :
               ''
             }
-            {!!license ? <ItemDetails label="License" value={license} /> : ''}
             {!!language ? <ItemDetails label="Language" value={Languages[language]} /> : ''}
+            {!!license ? <ItemDetails label="License" value={license} /> : ''}
+            {!!copyright_holder ? <ItemDetails label="Copyright Owner" value={copyright_holder} /> : ''}
+            {!!medium ? <ItemDetails label="Medium" value={medium} /> : ''}
+            {!!url ? <ItemDetails label="Link" value={<a href={url} target="_blank" rel="noreferrer noopener">Click here to view</a>} /> : ''}
 
-            {!!aggregated_concept_tags ?
+            {!!aggregated_concept_tags && aggregated_concept_tags.length ?
               <Row className="border-bottom subline details">
                 <Col xs="12">Concept Tags</Col>
                 <Col xs="12">
                   {
-                    aggregated_concept_tags.map(t => t.tag_name)
+                    aggregated_concept_tags.map(t => `#${t.tag_name} `)
                   }
                 </Col>
               </Row>
             : ''}
-            {!!aggregated_keyword_tags ?
+            {!!aggregated_keyword_tags && aggregated_keyword_tags.length ?
               <Row className="subline details">
                 <Col xs="12">Keyword Tags</Col>
                 <Col xs="12">
                   {
-                    aggregated_keyword_tags.map(t => t.tag_name)
+                    aggregated_keyword_tags.map(t => `#${t.tag_name} `)
                   }
                 </Col>
               </Row>

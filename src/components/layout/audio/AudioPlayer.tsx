@@ -2,12 +2,14 @@ import * as React from 'react';
 import { FaPlay, FaPause, FaCircle, FaTimes, FaExternalLinkAlt } from 'react-icons/fa';
 import { connect } from 'react-redux';
 import WaveSurfer from 'wavesurfer.js';
-import { Col, Row } from 'reactstrap';
+import { waveFormData } from './waveform';
+import { Col, Row, Spinner } from 'reactstrap';
 import { Audio } from '../../../actions/audioPlayer';
 import { AudioPlayerState } from '../../../reducers/audioPlayer';
 
 import 'styles/layout/audio.scss';
 import { Link } from 'react-router-dom';
+import { browser } from '../../utils/browser';
 
 interface Props extends AudioPlayerState {
   className: string;
@@ -17,6 +19,7 @@ interface Props extends AudioPlayerState {
 
 interface State {
   paused: boolean;
+  loading: boolean;
   duration: string;
 }
 
@@ -38,7 +41,8 @@ class AudioPlayer extends React.Component<Props, State> {
 
     this.state = {
       paused: true,
-      duration: '00:00'
+      duration: '00:00',
+      loading: true
     };
   }
 
@@ -54,19 +58,22 @@ class AudioPlayer extends React.Component<Props, State> {
         container: `#audioPlayer`,
         backend: 'MediaElement',
         responsive: true,
+        partialRender: false,
 
         progressColor: '#4a74a5',
         waveColor: 'rgba(34, 168, 175, 19)',
         cursorColor: '#4a74a5',
         hideScrollbar: true,
-        forceDecode: true
+        forceDecode: false,
       };
 
       this.wavesurfer = WaveSurfer.create(options);
     }
 
-    this.wavesurfer.on('waveform-ready', () => {
-      this.setState({ duration: audioDurationFormat(this.wavesurfer.getDuration())});
+    this.wavesurfer.on('ready', () => {
+      if (this._isMounted) {
+        this.setState({loading: false, duration: audioDurationFormat(this.wavesurfer.getDuration())});
+      }
     });
 
     this.wavesurfer.on('finish', () => {
@@ -82,12 +89,15 @@ class AudioPlayer extends React.Component<Props, State> {
     this._isMounted = false;
   }
 
-  componentDidUpdate(prevProps: Readonly<Props>): void {
+  async componentDidUpdate(prevProps: Readonly<Props>): Promise<void> {
     if (this.props.data) {
       if (this.props.data.url !== (prevProps.data ? prevProps.data.url : false)) {
 
-        this.wavesurfer.load(this.props.data.url);
-        this.playPause(false);
+        // this.wavesurfer.load(this.props.data.url, false);
+        this.wavesurfer.load(this.props.data.url, await waveFormData(), false);
+        if (browser() !== 'ios') {
+          this.playPause(false);
+        }
       }
     }
   }
@@ -113,7 +123,6 @@ class AudioPlayer extends React.Component<Props, State> {
     return (
       <div className={`audioPlayer ${this.props.open ? 'show' : 'hide'}`}>
         <div className="container-fluid">
-
             <Row>
               {this.props.data ?
                 <>
@@ -137,13 +146,13 @@ class AudioPlayer extends React.Component<Props, State> {
               }
 
               <Col id="audioPlayer"/>
-              <div className="duration">{this.state.duration}</div>
+              <div className="duration">{this.state.duration !== '00:00' ? this.state.duration : ''}</div>
 
               <div>
                 <Row>
                   {this.props.data && this.props.data.id ?
                     <Col className="openButton">
-                      <Link to={`view/${this.props.data.id}`} onClick={this.close}><FaExternalLinkAlt /></Link>
+                      <Link to={`/${this.props.data.isCollection ? 'collection' : 'view'}/${this.props.data.id.replace('_slider', '')}`} onClick={this.close}><FaExternalLinkAlt /></Link>
                     </Col>
                     : <></>
                   }
@@ -152,9 +161,12 @@ class AudioPlayer extends React.Component<Props, State> {
                   </Col>
                 </Row>
               </div>
-
             </Row>
-
+          <div className={`overlay ${this.state.loading}`}>
+            <div className="middle">
+              <Spinner type="grow"/>
+            </div>
+          </div>
         </div>
       </div>
     );

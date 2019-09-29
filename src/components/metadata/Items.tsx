@@ -31,7 +31,7 @@ const ItemsDisplay = (props: { isContributorPath: boolean, removeItem: Function 
 
   if (props.item && Object.keys(props.item).length && !props.item.isLoading && props.item.loaded && props.item.details) {
     return (
-      <Row>
+      <Row style={{paddingTop: '50px'}}>
         {props.removeItem && typeof props.removeItem === 'function' ?
           <Col xs="12">
             <Button onClick={() => {if (props.removeItem) { props.removeItem(props.s3Key); }}}>Remove</Button>

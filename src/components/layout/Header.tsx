@@ -66,16 +66,6 @@ class HeaderClass extends React.Component<RouteComponentProps, State> { // tslin
 
           <DropdownItem>
             <NavItem>
-              <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/admin/People">People</NavLink>
-            </NavItem>
-          </DropdownItem>
-          <DropdownItem>
-            <NavItem>
-              <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/admin/PersonEntry">Person Metadata Entry</NavLink>
-            </NavItem>
-          </DropdownItem>
-          <DropdownItem>
-            <NavItem>
               <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/admin/ManageUsers">Manage Users</NavLink>
             </NavItem>
           </DropdownItem>
@@ -138,7 +128,7 @@ class HeaderClass extends React.Component<RouteComponentProps, State> { // tslin
           const isAdmin = (authorisation && Object.keys(authorisation).length &&  authorisation.hasOwnProperty('admin'));
           return (
             <div id="navigation">
-              <Navbar color="light" light expand="md">
+              <Navbar dark expand="md">
                 {/*<NavbarBrand href="/">TBA21</NavbarBrand>*/}
                 <NavbarToggler onClick={this.toggle}/>
                 <Collapse isOpen={this.state.isOpen} navbar>
@@ -163,7 +153,7 @@ class HeaderClass extends React.Component<RouteComponentProps, State> { // tslin
                             <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/Profile">Profile</NavLink>
                         </NavItem>
                         <NavItem>
-                          <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/" onClick={logout}>
+                          <NavLink exact tag={ReactLink} className="nav-link" activeClassName="no" to="/" onClick={logout}>
                             Logout
                           </NavLink>
                         </NavItem>

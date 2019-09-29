@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { connect } from 'react-redux';
 import {
   Button,
   Col,
@@ -28,6 +29,8 @@ import Select from 'react-select';
 import { isArray, isEqual } from 'lodash';
 import { Item, itemAudio, itemImage, itemText, itemVideo } from '../../types/Item';
 
+import textImage from 'images/defaults/Unscharfe_Zeitung.jpg';
+
 import {
   countries,
   itemAudioSubTypes,
@@ -35,32 +38,38 @@ import {
   itemTextSubTypes,
   itemVideoSubTypes,
   languages,
-  licenseType,
   oceans,
   regions as selectableRegions
 } from './SelectOptions';
 
 import Tags from './Tags';
-import { sdkGetObject } from '../utils/s3File';
+import { checkThumbnails, sdkGetObject, thumbnailsSRCSET } from '../utils/s3File';
 import { Alerts, ErrorMessage, SuccessMessage, WarningMessage } from '../utils/alerts';
-import { License } from '../../types/License';
 
 import CustomSelect from './fields/CustomSelect';
 import { validateURL } from '../utils/inputs/url';
 import ShortPaths from '../admin/utils/ShortPaths';
 import YearSelect from './fields/YearSelect';
 
-import 'styles/components/metadata/itemEditor.scss';
-import 'styles/components/metadata/editors.scss';
 import * as moment from 'moment';
 import 'moment-duration-format';
-import { S3File } from '../../types/s3File';
+import { FileTypes, S3File } from '../../types/s3File';
+import { modalToggle } from '../../actions/pages/privacyPolicy';
+import { getProfileDetails } from '../../actions/user/profile';
+import { Profile } from '../../types/Profile';
+import 'styles/components/metadata/itemEditor.scss';
+import 'styles/components/metadata/editors.scss';
 
 interface Props {
   item: Item;
   index?: number;
   onChange?: Function;
   isContributorPath?: boolean;
+
+  // From Redux
+  modalToggle: Function;
+  getProfileDetails: Function;
+  profileDetails: Profile;
 }
 
 interface State extends Alerts {
@@ -69,6 +78,7 @@ interface State extends Alerts {
   changedFields: {
     [key: string]: string
   };
+  acceptedLicense?: boolean;
   isDifferent: boolean;
 
   isLoading: boolean;
@@ -108,7 +118,7 @@ const defaultRequiredFields = (item: Item) => {
   };
 };
 
-export class ItemEditor extends React.Component<Props, State> {
+class ItemEditorClass extends React.Component<Props, State> {
   _isMounted;
 
   constructor(props: Props) {
@@ -158,10 +168,14 @@ export class ItemEditor extends React.Component<Props, State> {
 
         // Get the items s3 file
         const getFileResult: S3File | false = await sdkGetObject(this.state.originalItem.s3_key);
-        const type: string | null = (getFileResult && getFileResult.type) ? `${getFileResult.type.substr(0, 1).toUpperCase()}${getFileResult.type.substr(1, getFileResult.type.length)}` : null;
+
+        if (getFileResult && getFileResult.type === FileTypes.Image) {
+          Object.assign(getFileResult, checkThumbnails(response.item, getFileResult));
+        }
+
         const data = {
           originalItem: { ...response.item, file: getFileResult },
-          changedItem: { ...response.item, file: getFileResult, item_type: type }
+          changedItem: { ...response.item, file: getFileResult }
         };
 
         Object.assign(state, data);
@@ -187,21 +201,27 @@ export class ItemEditor extends React.Component<Props, State> {
     if (!this.state.isLoading) {
       const
         { file, title } = this.state.originalItem,
-        warning = <WarningMessage message={'Unable to load file.'}/>;
+        warning = <WarningMessage message={'File will be processed on save.'}/>;
 
       if (file && file.url) {
-        if (file.type === 'image') {
-          return <img src={file.url} alt=""/>;
-        } else if (file.type === 'pdf') {
+        if (file.type === FileTypes.Image) {
+          return (
+            <img
+              srcSet={thumbnailsSRCSET(file)}
+              src={file.url}
+              alt={''}
+            />
+          );
+        } else if (file.type === FileTypes.Pdf) {
           return (
             <div className="embed-responsive embed-responsive-4by3">
               <iframe title={!!title ? title : file.url} className="embed-responsive-item" src={file.url} />
             </div>
           );
-        } else if (file.type === 'downloadText' || file.type === 'text') {
+        } else if (file.type === FileTypes.DownloadText || file.type === FileTypes.Text) {
           return (
             <a href={file.url} target="_blank" rel="noopener noreferrer">
-              <img alt="" src="https://upload.wikimedia.org/wikipedia/commons/2/22/Unscharfe_Zeitung.jpg" className="image-fluid"/>
+              <img alt="" src={textImage} className="image-fluid"/>
             </a>
           );
         } else { return warning; }
@@ -221,6 +241,20 @@ export class ItemEditor extends React.Component<Props, State> {
   updateItem = async () => {
     if (!this._isMounted) { return; }
 
+    if (!this.props.profileDetails.accepted_license && !this.state.acceptedLicense) {
+      this.setState({ errorMessage: 'You need to agree to our terms of use.' });
+      return;
+    } else if (!this.props.profileDetails.accepted_license && this.state.acceptedLicense) {
+      await API.patch('tba21', 'profiles', {
+        body: {
+          accepted_license: true
+        }
+      });
+
+      // Refresh the Profile Details.
+      this.props.getProfileDetails(this.props.profileDetails.cognito_uuid);
+    }
+
     this.setState(
       {
         errorMessage: undefined,
@@ -238,16 +272,14 @@ export class ItemEditor extends React.Component<Props, State> {
       invalidFields = Object.entries(this.state.validate).filter(v => v[1] === false).map(([key, val]) => key);
 
     // If we don't have one of time_produced or year_produced, show an error.
-    if (
-      (!this.state.validate.hasOwnProperty('time_produced') && !this.state.validate.time_produced) && (!this.state.validate.hasOwnProperty('year_produced') && !this.state.validate.year_produced)
-    ) {
-      Object.assign(invalidFields, {'time_produced or year_produced': ''});
+    if (!this.state.changedItem.year_produced) {
+      invalidFields.push('date_produced or year_produced');
     }
 
     if (invalidFields.length > 0) {
       const message: JSX.Element = (
         <>
-          Missing required Field(s) <br/>
+          Missing required field(s) <br/>
           {invalidFields.map( (f, i) => ( <div key={i} style={{ textTransform: 'capitalize' }}>{f.replace(/_/g, ' ')}<br/></div> ) )}
         </>
       );
@@ -283,7 +315,7 @@ export class ItemEditor extends React.Component<Props, State> {
       Object.entries(item)
         .filter( ([key, value]) => {
           return !(
-            value === null ||
+            (value === null && key !== 'time_produced') ||
             key === 'aggregated_concept_tags' ||
             key === 'aggregated_keyword_tags' ||
             key === 'id' // use this to exclude things, you shouldn't need to (eg don't put them in changedFields...
@@ -295,7 +327,7 @@ export class ItemEditor extends React.Component<Props, State> {
 
       // If no license assign OA
       if (!itemsProperties.hasOwnProperty('license')) {
-        Object.assign(itemsProperties, { 'license': 'Ocean Archive' });
+        Object.assign(itemsProperties, { 'license': 'CC BY-NC' });
       }
 
       // Assign s3_key
@@ -350,14 +382,28 @@ export class ItemEditor extends React.Component<Props, State> {
 
     const { changedItem, changedFields } = this.state;
 
-    if (value.toString().length) {
-      Object.assign(changedFields, { [key]: value });
-      Object.assign(changedItem, { [key]: value });
-    } else {
+    const deleteKey = () => {
       if (changedFields[key]) {
         delete changedFields[key];
         // Reset back to original item key value
-        Object.assign(changedItem, { [key]: this.state.originalItem[key] });
+        Object.assign(changedItem, {[key]: this.state.originalItem[key]});
+      }
+    };
+
+    if (value === null) {
+      Object.assign(changedFields, { [key]: null });
+      Object.assign(changedItem, {[key]: null});
+    }
+
+    if (!!value && value.toString().length) {
+      Object.assign(changedFields, { [key]: value });
+      Object.assign(changedItem, { [key]: value });
+    } else {
+      if (!isEqual(this.state.originalItem[key], value)) {
+        Object.assign(changedFields, { [key]: value });
+        Object.assign(changedItem, { [key]: value });
+      } else {
+        deleteKey();
       }
     }
 
@@ -383,15 +429,15 @@ export class ItemEditor extends React.Component<Props, State> {
     // If we can't get the file at all, for whatever reason, show all types.
     if (!file) {
       options.push(...itemTextSubTypes, ...itemVideoSubTypes, ...itemImageSubTypes, ...itemAudioSubTypes);
-    } else if (file.type === 'pdf') {
+    } else if (file.type === FileTypes.Pdf) {
       options.push(...itemTextSubTypes, ...itemImageSubTypes.filter(t => t.label !== 'Other'));
-    } else if (file.type === 'text' || file.type === 'downloadText') {
+    } else if (file.type === FileTypes.Text || file.type === FileTypes.DownloadText) {
       options = itemTextSubTypes;
-    } else if (file.type === 'video') {
+    } else if (file.type === FileTypes.Video) {
       options = itemVideoSubTypes;
-    } else if (file.type === 'audio') {
+    } else if (file.type === FileTypes.Audio) {
       options = itemAudioSubTypes;
-    } else if (file.type === 'image') {
+    } else if (file.type === FileTypes.Image) {
       options = itemImageSubTypes;
     }
 
@@ -405,7 +451,6 @@ export class ItemEditor extends React.Component<Props, State> {
     };
 
     const {
-      authors,
       subtitle,
       news_outlet,
       host_organisation,
@@ -421,12 +466,10 @@ export class ItemEditor extends React.Component<Props, State> {
       lecturer,
       interviewers,
       interviewees,
-      recording_name,
       medium,
       dimensions,
       directors,
       writers,
-      exhibited_at,
       location,
       event_title,
       produced_by
@@ -434,49 +477,40 @@ export class ItemEditor extends React.Component<Props, State> {
 
     const { file } = this.state.originalItem;
 
-    const textFields =  (file.type === 'text')  ? {
+    const textFields =  (file.type === FileTypes.Text) ? {
         'Academic Publication': {
-          'authors': (authors || false),
           'subtitle': (subtitle || false)
         },
         'News': {
-          'authors': (authors || false),
           'news_outlet': (news_outlet || false)
         },
         'Policy Paper': {
-          'authors': (authors || false),
           'host_organisation': (host_organisation || false)
         },
         'Report': {
-          'authors': (authors || false),
           'organisation': (organisation || false)
         },
         'Book': {
-          'authors': (authors || false),
           'publisher': (publisher || false),
           'city_of_publication': (city_of_publication	 || false),
           'edition': (edition	 || false)
         },
         'Essay': {
-          'authors': (authors || false),
           'venues': (venues || false),
         },
         'Historical Text': {
-          'authors': (authors || false),
           'publisher': (publisher || false),
           'venues': (venues || false),
           'edition': (edition	 || false)
         },
         'Event Press': {
-          'authors': (authors || false),
           'institution': (institution || false),
         },
         'Toolkit': {
-          'authors': (authors || false),
           'institution': (institution || false),
         }
-      } : '';
-    const audioFields = (file.type === 'audio')  ?  {
+      } : {};
+    const audioFields = (file.type === FileTypes.Audio) ? {
         'Sound Art': {
           'performers': (performers || false)
         },
@@ -494,17 +528,13 @@ export class ItemEditor extends React.Component<Props, State> {
           'interviewers': (interviewers || false),
           'interviewees': (interviewees || false)
         },
-        'Radio': {
-          'recording_name ': (recording_name || false)
-        },
         'Performance Poetry ': {
           'performers ': (performers || false)
         }
-      } : '';
-    const imageFields = (file.type === 'image')  ?  {
+      } : {};
+    const imageFields = (file.type === FileTypes.Image) ? {
         'Photograph': {
-          'medium': (medium || false),
-          'dimensions': (dimensions || false)
+          'medium': (medium || false)
         },
         'Graphics': {
           'medium': (medium || false),
@@ -528,12 +558,9 @@ export class ItemEditor extends React.Component<Props, State> {
         'Illustration': {
           'medium': (medium || false),
           'dimensions': (dimensions || false)
-        },
-        'Artwork Documentation': {
-          'exhibited_at': (exhibited_at || false)
         }
-      } : '';
-    const videoFields  = (file.type === 'video')  ?   {
+      } : {};
+    const videoFields = (file.type === FileTypes.Video) ? {
         'Movie': {
           'directors': (directors || false)
         },
@@ -548,7 +575,6 @@ export class ItemEditor extends React.Component<Props, State> {
           'directors': (directors || false)
         },
         'News / Journalism': {
-          'authors': (authors || false),
           'news_outlet': (news_outlet || false)
         },
         'Event Recording': {
@@ -565,7 +591,7 @@ export class ItemEditor extends React.Component<Props, State> {
         'Informational Video': {
           'produced_by': (produced_by || false)
         }
-      } : '';
+      } : {};
 
     // All the required fields per sub type
     const subtypeRequiredFields = {
@@ -582,14 +608,21 @@ export class ItemEditor extends React.Component<Props, State> {
 
   validateLength = (field: string, inputValue: string | string[] | number | number[]): void => {
     if (!this._isMounted) { return; }
+    const validFields = this.state.validate;
 
     let valid = false;
     this.changeItem(field, inputValue);
     if (inputValue && inputValue.toString().length > 0) {
       valid = true;
     }
+    let result = { [field]: valid };
 
-    const state = { validate: { ...this.state.validate, [field]: valid } };
+    if (field === 'time_produced' && inputValue && !inputValue.toString().length) {
+      result = {};
+      delete validFields[field];
+    }
+
+    const state = { validate: { ...validFields, ...result } };
 
     if (!this._isMounted) { return; }
     this.setState(state, () => {
@@ -604,14 +637,6 @@ export class ItemEditor extends React.Component<Props, State> {
     const item = this.state.changedItem;
     return (
       <Row>
-        <Col md="6">
-          <FormGroup>
-            <Label for="authors">Author(s)</Label>
-            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
-            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
-            <FormText>Use tab or enter to add a new Author.</FormText>
-          </FormGroup>
-        </Col>
 
         <Col md="6">
           <FormGroup>
@@ -685,12 +710,12 @@ export class ItemEditor extends React.Component<Props, State> {
 
         <Col md="6">
           <FormGroup>
-            <Label for="doi">DOI</Label>
+            <Label for="DOI">DOI</Label>
             <Input
               type="text"
-              className="doi"
-              defaultValue={item.doi ? item.doi.toString() : ''}
-              invalid={this.state.validate.hasOwnProperty('doi') && !this.state.validate.doi}
+              className="DOI"
+              defaultValue={item.DOI ? item.DOI.toString() : ''}
+              invalid={this.state.validate.hasOwnProperty('DOI') && !this.state.validate.DOI}
               onChange={e => {
                 const value = e.target.value;
                 let valid = /^10.\d{4,9}\/[-._;()/:a-zA-Z0-9]+$/.test(value);
@@ -698,10 +723,10 @@ export class ItemEditor extends React.Component<Props, State> {
                   valid = true;
                 } // set valid to true for no content
                 if (valid) {
-                  this.changeItem('doi', value);
+                  this.validateLength('DOI', value);
                 } // if valid set the data in changedItem
                 if (!this._isMounted) { return; }
-                this.setState({validate: {...this.state.validate, doi: valid}});
+                this.setState({validate: {...this.state.validate, DOI: valid}});
               }}
             />
             <FormFeedback>This field is required.</FormFeedback>
@@ -721,18 +746,10 @@ export class ItemEditor extends React.Component<Props, State> {
     const item = this.state.changedItem;
     return (
       <Row>
-        <Col md="6">
-          <FormGroup>
-            <Label for="authors">Author(s)</Label>
-            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
-            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
-            <FormText>Use tab or enter to add a new Author.</FormText>
-          </FormGroup>
-        </Col>
 
         <Col md="6">
           <FormGroup>
-            <Label for="journal">Journal</Label>
+            <Label for="journal">Magazine/Journal</Label>
             <Input
               type="text"
               className="journal"
@@ -748,14 +765,6 @@ export class ItemEditor extends React.Component<Props, State> {
     const item = this.state.changedItem;
     return (
       <Row>
-        <Col md="6">
-          <FormGroup>
-            <Label for="authors">Author(s)</Label>
-            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
-            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
-            <FormText>Use tab or enter to add a new Author.</FormText>
-          </FormGroup>
-        </Col>
         <Col md="6">
           <FormGroup>
             <Label for="subtitle">Subtitle</Label>
@@ -791,14 +800,6 @@ export class ItemEditor extends React.Component<Props, State> {
     const item = this.state.changedItem;
     return (
       <Row>
-        <Col md="6">
-          <FormGroup>
-            <Label for="authors">Author(s)</Label>
-            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
-            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
-            <FormText>Use tab or enter to add a new Author.</FormText>
-          </FormGroup>
-        </Col>
 
         <Col md="6">
           <FormGroup>
@@ -839,14 +840,6 @@ export class ItemEditor extends React.Component<Props, State> {
     const item = this.state.changedItem;
     return (
       <Row>
-        <Col md="6">
-          <FormGroup>
-            <Label for="authors">Author(s)</Label>
-            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
-            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
-            <FormText>Use tab or enter to add a new Author.</FormText>
-          </FormGroup>
-        </Col>
 
         <Col md="6">
           <FormGroup>
@@ -970,14 +963,6 @@ export class ItemEditor extends React.Component<Props, State> {
     const item = this.state.changedItem;
     return (
       <Row>
-        <Col md="6">
-          <FormGroup>
-            <Label for="authors">Author(s)</Label>
-            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
-            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
-            <FormText>Use tab or enter to add a new Author.</FormText>
-          </FormGroup>
-        </Col>
 
         <Col md="6">
           <FormGroup>
@@ -1018,14 +1003,6 @@ export class ItemEditor extends React.Component<Props, State> {
     const item = this.state.changedItem;
     return (
       <Row>
-        <Col md="6">
-          <FormGroup>
-            <Label for="authors">Author(s)</Label>
-            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
-            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
-            <FormText>Use tab or enter to add a new Author.</FormText>
-          </FormGroup>
-        </Col>
 
         <Col md="6">
           <FormGroup>
@@ -1046,7 +1023,7 @@ export class ItemEditor extends React.Component<Props, State> {
               type="date"
               className="birth_date"
               defaultValue={item.birth_date ? new Date(item.birth_date).toISOString().substr(0, 10) : ''}
-              onChange={e => this.validateLength('birth_date', e.target.value)}
+              onChange={e => this.changeItem('birth_date', e.target.value)}
             />
           </FormGroup>
         </Col>
@@ -1058,7 +1035,7 @@ export class ItemEditor extends React.Component<Props, State> {
               type="date"
               className="death_date"
               defaultValue={item.death_date ? new Date(item.death_date).toISOString().substr(0, 10) : ''}
-              onChange={e => this.validateLength('death_date', e.target.value)}
+              onChange={e => this.changeItem('death_date', e.target.value)}
             />
           </FormGroup>
         </Col>
@@ -1200,14 +1177,6 @@ export class ItemEditor extends React.Component<Props, State> {
     const item = this.state.changedItem;
     return (
       <Row>
-        <Col md="6">
-          <FormGroup>
-            <Label for="authors">Author(s)</Label>
-            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
-            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
-            <FormText>Use tab or enter to add a new Author.</FormText>
-          </FormGroup>
-        </Col>
 
         <Col md="6">
           <FormGroup>
@@ -1240,7 +1209,7 @@ export class ItemEditor extends React.Component<Props, State> {
               className="related_event"
               required
               defaultValue={item.related_event ? item.related_event : ''}
-              onChange={e => this.changeItem('related_event', [e.target.value])}
+              onChange={e => this.changeItem('related_event', e.target.value)}
             />
           </FormGroup>
         </Col>
@@ -1251,14 +1220,6 @@ export class ItemEditor extends React.Component<Props, State> {
     const item = this.state.changedItem;
     return (
       <Row>
-        <Col md="6">
-          <FormGroup>
-            <Label for="authors">Author(s)</Label>
-            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
-            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
-            <FormText>Use tab or enter to add a new Author.</FormText>
-          </FormGroup>
-        </Col>
 
         <Col md="6">
           <FormGroup>
@@ -1522,13 +1483,6 @@ export class ItemEditor extends React.Component<Props, State> {
             <Input type="text" className="news_outlet" defaultValue={item.news_outlet ? item.news_outlet : ''} onChange={e => this.changeItem('news_outlet', e.target.value)}/>
           </FormGroup>
         </Col>
-        <Col md="6">
-          <FormGroup>
-            <Label for="authors">Author(s)</Label>
-            <CustomSelect values={item.authors} callback={values => this.changeItem(values, 'authors')} />
-            <FormText>Use tab or enter to add a new Author.</FormText>
-          </FormGroup>
-        </Col>
 
       </Row>
     );
@@ -1547,7 +1501,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="participants">Participant(s)</Label>
-            <CustomSelect values={item.participants} callback={values => this.validateLength('participants', values)} />
+            <CustomSelect values={item.participants} callback={values => this.changeItem('participants', values)} />
             <FormText>Use tab or enter to add a new Participant.</FormText>
           </FormGroup>
         </Col>
@@ -1576,7 +1530,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="participants">Participant(s)</Label>
-            <CustomSelect values={item.participants} callback={values => this.validateLength('participants', values)} />
+            <CustomSelect values={item.participants} callback={values => this.changeItem('participants', values)} />
             <FormText>Use tab or enter to add a new Participant.</FormText>
           </FormGroup>
         </Col>
@@ -1616,22 +1570,17 @@ export class ItemEditor extends React.Component<Props, State> {
   VideoArtworkDocumentation = (): JSX.Element => {
     const item = this.state.changedItem;
     let duration = '';
+
     if (!!item.duration) {
-      // we have to ignore this as it complains that it might be null ... even though we're checking..
-      // @ts-ignore
-
-      if (typeof item.duration === 'string') {
-        item.duration = parseInt(item.duration, 0);
-      }
-
-      duration = moment.duration(item.duration, 'seconds').format('hh:mm:ss');
+      const time = typeof item.duration === 'string' ? parseInt(item.duration, 0) : item.duration;
+      duration = moment.duration(time, 'seconds').format('hh:mm:ss', { trim: false });
     }
     return (
       <Row>
         <Col md="6">
           <FormGroup>
-            <Label for="produced_by">Exhibition History</Label>
-            <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+            <Label for="exhibited_at">Exhibition History</Label>
+            <CustomSelect values={item.exhibited_at} callback={values => this.changeItem('exhibited_at', values)} />
             <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
@@ -1642,7 +1591,7 @@ export class ItemEditor extends React.Component<Props, State> {
               type="text"
               className="medium"
               defaultValue={item.medium ? item.medium : ''}
-              onChange={e => this.validateLength('medium', e.target.value)}
+              onChange={e => this.changeItem('medium', e.target.value)}
             />
           </FormGroup>
         </Col>
@@ -1666,14 +1615,6 @@ export class ItemEditor extends React.Component<Props, State> {
     const item = this.state.changedItem;
     return (
       <Row>
-        <Col md="6">
-          <FormGroup>
-            <Label for="authors">Author(s)</Label>
-            <CustomSelect values={item.authors} callback={values => this.validateLength('authors', values)} />
-            <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('authors') && !this.state.validate.authors ? 'block' : 'none') }}>This is a required field</FormFeedback>
-            <FormText>Use tab or enter to add a new Author.</FormText>
-          </FormGroup>
-        </Col>
         <Col md="6">
           <FormGroup>
             <Label for="collaborators">Collaborators</Label>
@@ -1718,7 +1659,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
-            <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+            <CustomSelect values={item.exhibited_at} callback={values => this.changeItem('exhibited_at', values)} />
             <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
@@ -1758,14 +1699,14 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
-            <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+            <CustomSelect values={item.exhibited_at} callback={values => this.changeItem('exhibited_at', values)} />
             <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
       </Row>
     );
   }
-  ItemImagePhotographSculpturePaintingDrawing = (): JSX.Element => {
+  ItemImageSculpturePaintingDrawing = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
       <Row>
@@ -1812,6 +1753,51 @@ export class ItemEditor extends React.Component<Props, State> {
       </Row>
     );
   }
+  ItemImagePhotograph = (): JSX.Element => {
+    const item = this.state.changedItem;
+    return (
+      <Row>
+        <Col md="6">
+          <FormGroup>
+            <Label for="medium">Medium</Label>
+            <Input
+              type="text"
+              className="medium"
+              defaultValue={item.medium ? item.medium : ''}
+              onChange={e => this.validateLength('medium', e.target.value)}
+              invalid={this.state.validate.hasOwnProperty('medium') && !this.state.validate.medium}
+            />
+            <FormFeedback>This is a required field</FormFeedback>
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="dimensions">Dimensions</Label>
+            <Input
+              type="text"
+              className="dimensions"
+              defaultValue={item.dimensions ? item.dimensions : ''}
+              onChange={e => this.changeItem('dimensions', e.target.value)}
+            />
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="exhibited_at">Exhibited At</Label>
+            <CustomSelect values={item.exhibited_at} callback={values => this.changeItem('exhibited_at', values)} />
+            <FormText>Use tab or enter to add a new Exhibit.</FormText>
+          </FormGroup>
+        </Col>
+        <Col md="6">
+          <FormGroup>
+            <Label for="Provenance">Provenance</Label>
+            <CustomSelect values={item.provenance} callback={values => this.changeItem('provenance', values)} />
+            <FormText>Use tab or enter to add a new Provenance.</FormText>
+          </FormGroup>
+        </Col>
+      </Row>
+    );
+  }
   ItemDigitalArtOther = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
@@ -1831,7 +1817,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
-            <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+            <CustomSelect values={item.exhibited_at} callback={values => this.changeItem('exhibited_at', values)} />
             <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
@@ -1897,7 +1883,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
-            <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+            <CustomSelect values={item.exhibited_at} callback={values => this.changeItem('exhibited_at', values)} />
             <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
@@ -1942,7 +1928,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
-            <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+            <CustomSelect values={item.exhibited_at} callback={values => this.changeItem('exhibited_at', values)} />
             <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
@@ -1953,14 +1939,8 @@ export class ItemEditor extends React.Component<Props, State> {
     const item = this.state.changedItem;
     let duration = '';
     if (!!item.duration) {
-      // we have to ignore this as it complains that it might be null ... even though we're checking..
-      // @ts-ignore
-
-      if (typeof item.duration === 'string') {
-        item.duration = parseInt(item.duration, 0);
-      }
-
-      duration = moment.duration(item.duration, 'seconds').format('hh:mm:ss');
+      const time = typeof item.duration === 'string' ? parseInt(item.duration, 0) : item.duration;
+      duration = moment.duration(time, 'seconds').format('hh:mm:ss', { trim: false });
     }
     return (
       <Row>
@@ -2002,7 +1982,7 @@ export class ItemEditor extends React.Component<Props, State> {
         </Col>
         <Col md="6">
           <FormGroup>
-            <Label for="duration">Minute : Second</Label>
+            <Label for="duration">Duration (Hour : Minute : Second)</Label>
             <TimeField
               value={duration}
               colon=":"
@@ -2036,7 +2016,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
-            <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+            <CustomSelect values={item.exhibited_at} callback={values => this.changeItem('exhibited_at', values)} />
             <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
@@ -2064,7 +2044,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="exhibited_at">Exhibited At</Label>
-            <CustomSelect values={item.exhibited_at} callback={values => this.validateLength('exhibited_at', values)} />
+            <CustomSelect values={item.exhibited_at} callback={values => this.changeItem('exhibited_at', values)} />
             <FormText>Use tab or enter to add a new Exhibit.</FormText>
           </FormGroup>
         </Col>
@@ -2197,19 +2177,6 @@ export class ItemEditor extends React.Component<Props, State> {
         </Col>
         <Col md="6">
           <FormGroup>
-            <Label for="recording_name">Recording Name</Label>
-            <Input
-              type="text"
-              className="recording_name"
-              defaultValue={item.recording_name ? item.recording_name : ''}
-              onChange={e => this.validateLength('recording_name', e.target.value)}
-              invalid={this.state.validate.hasOwnProperty('recording_name') && !this.state.validate.recording_name}
-            />
-            <FormFeedback>This is a required field</FormFeedback>
-          </FormGroup>
-        </Col>
-        <Col md="6">
-          <FormGroup>
             <Label for="episode_number">Episode Number</Label>
             <Input type="text" className="episode_number" defaultValue={item.episode_number ? item.episode_number.toString() : ''} onChange={e => this.changeItem('episode_number', e.target.value)}/>
           </FormGroup>
@@ -2223,7 +2190,7 @@ export class ItemEditor extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="radio_station">Radio Station</Label>
-            <Input type="text" className="radio_station" defaultValue={item.radio_station ? item.radio_station.join(',') : ''} onChange={e => this.changeItem('radio_station', e.target.value)}/>
+            <Input type="text" className="radio_station" defaultValue={item.radio_station ? item.radio_station : ''} onChange={e => this.changeItem('radio_station', e.target.value)}/>
           </FormGroup>
         </Col>
       </Row>
@@ -2262,13 +2229,6 @@ export class ItemEditor extends React.Component<Props, State> {
     const item = this.state.changedItem;
     return (
       <Row>
-        <Col md="6">
-          <FormGroup>
-            <Label for="authors">Author(s)</Label>
-            <CustomSelect values={item.authors} callback={values => this.changeItem(values, 'authors')} />
-            <FormText>Use tab or enter to add a new Author.</FormText>
-          </FormGroup>
-        </Col>
         <Col md="6">
           <FormGroup>
             <Label for="collaborators">Collaborators</Label>
@@ -2342,18 +2302,37 @@ export class ItemEditor extends React.Component<Props, State> {
                 </Col>
                 <Col xs="4">
                   <UncontrolledButtonDropdown className="float-right">
-                    <Button className="caret" onClick={this.updateItem} disabled={!this.state.isDifferent}>Save</Button>
+                    {this.state.originalItem.status ?
+                      <Button className="caret" onClick={this.updateItem} disabled={!this.state.isDifferent}>Save</Button>
+                      :
+                      <Button className="caret" onClick={() => { this.changeItem('status', true, () => this.updateItem() ); }}>Publish</Button>
+                    }
                     <DropdownToggle caret />
                     <DropdownMenu>
                       {this.state.originalItem.status ?
                         <DropdownItem onClick={() => { this.changeItem('status', false, () => this.updateItem() ); }}>Unpublish</DropdownItem>
                         :
-                        <DropdownItem onClick={() => { this.changeItem('status', true, () => this.updateItem() ); }}>Publish</DropdownItem>
+                        <DropdownItem onClick={() => { this.changeItem('status', false, () => this.updateItem() ); }}>Save Draft</DropdownItem>
                       }
                     </DropdownMenu>
                   </UncontrolledButtonDropdown>
                 </Col>
               </Row>
+
+              {this.props.profileDetails && !this.props.profileDetails.accepted_license ?
+                <Row>
+                  <Col>
+                    By checking this box you agree to the Ocean Archive's <Button color="link" onClick={e => {e.preventDefault(); this.props.modalToggle('TC_MODAL', true); }}>Terms Of Use</Button>
+                    <FormGroup check>
+                      <Label check>
+                        <Input type="checkbox" checked={this.state.acceptedLicense ? this.state.acceptedLicense : false} onChange={e => { if (this._isMounted) { this.setState({ acceptedLicense: e.target.checked }); } }}/>{' '}
+                        I agree
+                      </Label>
+                    </FormGroup>
+                  </Col>
+                </Row>
+                : <></>
+              }
             </div>
           </Col>
 
@@ -2401,6 +2380,7 @@ export class ItemEditor extends React.Component<Props, State> {
                         defaultValue={item.description ? item.description : ''}
                         onChange={e => this.validateLength('description', e.target.value)}
                         invalid={this.state.validate.hasOwnProperty('description') && !this.state.validate.description}
+                        maxLength={2048}
                       />
                       <FormFeedback>This is a required field</FormFeedback>
                     </FormGroup>
@@ -2412,9 +2392,12 @@ export class ItemEditor extends React.Component<Props, State> {
                         className="time_produced"
                         defaultValue={item.time_produced ? new Date(item.time_produced).toISOString().substr(0, 10) : ''}
                         onChange={e => {
-                          this.validateLength('time_produced', e.target.value);
-                          if (e.target.value && e.target.value.length) {
-                            this.validateLength('year_produced', new Date(e.target.value).getFullYear());
+                          const value = e.target.value;
+                          if (value && value.length) {
+                            this.validateLength('time_produced', value);
+                            this.validateLength('year_produced', new Date(value).getFullYear());
+                          } else {
+                            this.changeItem('time_produced', null);
                           }
                         }}
                       />
@@ -2425,22 +2408,16 @@ export class ItemEditor extends React.Component<Props, State> {
                         callback={e => this.validateLength('year_produced', e)}
                       />
 
-                      <FormFeedback
-                        style={
-                          (this.state.validate.hasOwnProperty('time_produced') && this.state.validate.time_produced) ||
-                          (this.state.validate.hasOwnProperty('year_produced') && this.state.validate.year_produced) ? {display: 'none'}
-                            : {display: 'block'}
-                        }
-                      >
+                      <FormFeedback style={!!item.year_produced ? {display: 'none'} : {display: 'block'}}>
                         You must select either a Date and/or a Year produced.
                       </FormFeedback>
                     </FormGroup>
 
                     <FormGroup>
-                      <Label for="creators">Creator(s)</Label>
-                      <CustomSelect values={!!item.creators ? item.creators : []} callback={values => this.validateLength('creators', values)} />
-                      <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('creators') && !this.state.validate.creators ? 'block' : 'none') }}>This is a required field</FormFeedback>
-                      <FormText>Use tab or enter to add a new Creator.</FormText>
+                      <Label for="creators">Creator(s) /  Author(s)</Label>
+                      <CustomSelect values={!!item.creators ? item.creators : []} callback={values => this.changeItem('creators', values)} />
+                      {/*<FormFeedback style={{ display: (this.state.validate.hasOwnProperty('creators') && !this.state.validate.creators) || !!item.creators || (Array.isArray(item.creators) && !item.creators.length) ? 'block' : 'none' }}>This is a required field</FormFeedback>*/}
+                      <FormText>Use tab or enter to add a new Creator / Author.</FormText>
                     </FormGroup>
 
                     <FormGroup>
@@ -2471,41 +2448,44 @@ export class ItemEditor extends React.Component<Props, State> {
                     {item.item_subtype === itemText.Historical_Text ? <this.TextHistoricalText /> : <></>}
                     {item.item_subtype === itemText.Event_Press ? <this.TextEventPress /> : <></>}
                     {item.item_subtype === itemText.Toolkit ? <this.TextToolkit /> : <></>}
-                    {(!!item.file && (item.file.type === 'text' || item.file.type === 'pdf' || item.file.type === 'downloadText')) && item.item_subtype === itemText.Other ? <this.TextOther /> : <></>}
+                    {(!!item.file && (item.file.type === FileTypes.Text || item.file.type === FileTypes.Pdf || item.file.type === FileTypes.DownloadText)) && item.item_subtype === itemText.Other ? <this.TextOther /> : <></>}
 
                     {/* Item Video */}
                     {item.item_subtype === itemVideo.Video ? <this.Video /> : <></>}
                     {item.item_subtype === itemVideo.Movie ? <this.VideoMovieTrailer /> : <></>}
                     {item.item_subtype === itemVideo.Documentary ? <this.VideoDocumentaryArt /> : <></>}
-                    {(!!item.file && item.file.type === 'video') && item.item_subtype === itemVideo.Research ? <this.VideoResearch /> : <></>}
-                    {(!!item.file && item.file.type === 'video') && item.item_subtype === itemVideo.Interview ? <this.VideoInterview /> : <></>}
+                    {(!!item.file && item.file.type === FileTypes.Video) && item.item_subtype === itemVideo.Research ? <this.VideoResearch /> : <></>}
+                    {(!!item.file && item.file.type === FileTypes.Video) && item.item_subtype === itemVideo.Interview ? <this.VideoInterview /> : <></>}
                     {item.item_subtype === itemVideo.Art ? <this.VideoDocumentaryArt /> : <></>}
                     {item.item_subtype === itemVideo.News_Journalism ? <this.VideoNewsJournalism /> : <></>}
                     {item.item_subtype === itemVideo.Event_Recording ? <this.VideoEventRecording /> : <></>}
-                    {(item.item_subtype === itemVideo.Lecture_Recording) && (!!item.file && item.file.type === 'video') ? <this.VideoLectureRecording /> : <></>}
+                    {(item.item_subtype === itemVideo.Lecture_Recording) && (!!item.file && item.file.type === FileTypes.Video) ? <this.VideoLectureRecording /> : <></>}
                     {item.item_subtype === itemVideo.Informational_Video ? <this.VideoInformationalVideo /> : <></>}
                     {item.item_subtype === itemVideo.Trailer ? <this.VideoMovieTrailer /> : <></>}
-                    {((item.item_subtype === itemVideo.Video_Artwork_Documentation) && (!!item.file && item.file.type === 'video')) ? <this.VideoArtworkDocumentation /> : <></>}
-                    {(!!item.file && item.file.type === 'video') && item.item_subtype === itemVideo.Other ? <this.VideoOther /> : <></>}
+                    {((item.item_subtype === itemVideo.Video_Artwork_Documentation) && (!!item.file && item.file.type === FileTypes.Video)) ? <this.VideoArtworkDocumentation /> : <></>}
+                    {(!!item.file && item.file.type === FileTypes.Video) && item.item_subtype === itemVideo.Other ? <this.VideoOther /> : <></>}
 
                     {/*Item Image */}
                     {item.item_subtype === itemImage.Illustration ?  <this.ItemImage /> : <></>}
-                    {(item.item_subtype === itemImage.Artwork_Documentation) && (!!item.file && item.file.type === 'image') ?  <this.ItemImage /> : <></>}
+                    {(item.item_subtype === itemImage.Artwork_Documentation) && (!!item.file && item.file.type === FileTypes.Image) ?  <this.ItemImage /> : <></>}
 
                     {
-                      item.item_subtype === itemImage.Photograph ||
                       item.item_subtype === itemImage.Sculpture ||
                       item.item_subtype === itemImage.Drawing ||
-                      item.item_subtype === itemImage.Painting ? <this.ItemImagePhotographSculpturePaintingDrawing /> : <></>
+                      item.item_subtype === itemImage.Painting ? <this.ItemImageSculpturePaintingDrawing /> : <></>
+                    }
+
+                    {
+                      item.item_subtype === itemImage.Photograph ? <this.ItemImagePhotograph /> : <></>
                     }
 
                     {
                       item.item_subtype === itemImage.Digital_Art ||
-                      (!!item.file && item.file.type === 'image' && item.item_subtype === itemImage.Other) ? <this.ItemDigitalArtOther />
+                      (!!item.file && item.file.type === FileTypes.Image && item.item_subtype === itemImage.Other) ? <this.ItemDigitalArtOther />
                         : <></>
                     }
 
-                    {(!!item.file && item.file.type === 'image') && item.item_subtype === itemImage.Research ? <this.ImageResearch /> : <></>}
+                    {(!!item.file && item.file.type === FileTypes.Image) && item.item_subtype === itemImage.Research ? <this.ImageResearch /> : <></>}
                     {item.item_subtype === itemImage.Graphics ? <this.ImageGraphics /> : <></>}
                     {item.item_subtype === itemImage.Map ? <this.ImageMap /> : <></>}
                     {item.item_subtype === itemImage.Film_Still ? <this.ImageFilmStill /> : <></>}
@@ -2515,16 +2495,11 @@ export class ItemEditor extends React.Component<Props, State> {
                     {item.item_subtype === itemAudio.Sound_Art ? <this.AudioSoundArt /> : <></>}
                     {item.item_subtype === itemAudio.Music ? <this.AudioMusic /> : <></>}
                     {item.item_subtype === itemAudio.Podcast ? <this.AudioPodcast /> : <></>}
-                    {item.item_subtype === itemAudio.Lecture ? <this.AudioLecture /> : <></>}
-                    {(!!item.file && item.file.type === 'audio') && item.item_subtype === itemAudio.Interview ? <this.AudioInterview /> : <></>}
+                    {(!!item.file && item.file.type === FileTypes.Audio) && item.item_subtype === itemAudio.Lecture ? <this.AudioLecture /> : <></>}
+                    {(!!item.file && item.file.type === FileTypes.Audio) && item.item_subtype === itemAudio.Interview ? <this.AudioInterview /> : <></>}
                     {item.item_subtype === itemAudio.Radio ? <this.AudioRadio /> : <></>}
                     {item.item_subtype === itemAudio.Performance_Poetry ? <this.AudioPerformancePoetry /> : <></>}
-                    {(!!item.file && item.file.type === 'audio') && item.item_subtype === itemAudio.Other ? <this.AudioOther /> : <></>}
-
-                    <FormGroup>
-                      <Label for="license_type">License</Label>
-                      <Select menuPlacement="auto" className="select license_type" classNamePrefix="select" options={licenseType} value={item.license ? {value: item.license, label: item.license} : { value: License.LOCKED, label: License.LOCKED }} onChange={e => this.changeItem('license', e.label)} isSearchable/>
-                    </FormGroup>
+                    {(!!item.file && item.file.type === FileTypes.Audio) && item.item_subtype === itemAudio.Other ? <this.AudioOther /> : <></>}
 
                     <FormGroup>
                       <Label for="copyright_holder">Copyright Owner</Label>
@@ -2580,7 +2555,7 @@ export class ItemEditor extends React.Component<Props, State> {
                         loadItemRekognitionTags={!keywordTags.length ? this.state.originalItem.s3_key : ''}
                         callback={tags => {
                           const tagList = tags ? tags.map(tag => ({id: tag.id, tag_name: tag.label})) : [];
-                          this.validateLength('keyword_tags', tags ? tags.map(tag => tag.id) : []);
+                          this.changeItem('keyword_tags', tags ? tags.map(tag => tag.id) : []);
                           if (this._isMounted) {
                             const { originalItem, changedItem } = this.state;
                             this.setState({
@@ -2632,3 +2607,9 @@ export class ItemEditor extends React.Component<Props, State> {
     );
   }
 }
+
+const mapStateToProps = (state: { profile: { details: Profile} }) => ({
+  profileDetails: state.profile.details,
+});
+
+export const ItemEditor = connect(mapStateToProps, { modalToggle, getProfileDetails })(ItemEditorClass);

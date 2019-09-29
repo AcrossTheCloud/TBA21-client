@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Col, Row } from 'reactstrap';
 import { connect } from 'react-redux';
 import { FaPlay } from 'react-icons/fa';
+import { waveFormData } from './waveform';
 import WaveSurfer from 'wavesurfer.js';
 import { AudioPlayerDetails } from '../../../reducers/audioPlayer';
 import { Audio } from '../../../actions/audioPlayer';
@@ -10,7 +11,9 @@ import 'styles/layout/audio.scss';
 
 interface Props {
   data: AudioPlayerDetails;
+  noClick?: boolean;
   audioPlayer: Function;
+  onLoad?: Function;
 }
 
 interface State {
@@ -36,46 +39,71 @@ class AudioPreview extends React.Component<Props, State> {
   componentDidMount(): void {
     this._isMounted = true;
 
-    if (!this.state.wavesurfer && !this.state.loaded) {
-      const
-        options = {
-          height: 80,
-          barHeight: 20,
-          // barWidth: 1,
-
-          container: `#wavepreview_${this.props.data.id.replace(/[^\w\s]/gi, '')}`,
-          backend: 'MediaElement',
-          responsive: true,
-
-          progressColor: '#4a74a5',
-          waveColor: 'rgba(34, 168, 175, 19)',
-          cursorColor: '#4a74a5',
-          interact: false,
-          hideScrollbar: true,
-          forceDecode: true,
-          cursorWidth: 0
-        },
-        wavesurfer = WaveSurfer.create(options);
-
-      if (this.props.data.url) {
-        wavesurfer.load(this.props.data.url);
-      }
-
-      this.setState( { wavesurfer: wavesurfer, loaded: true } );
-    }
+    this.init();
   }
+
   componentWillUnmount(): void {
     this._isMounted = false;
   }
 
+  componentDidUpdate(prevProps: Readonly<Props>): void {
+    if (this.props.data.url !== prevProps.data.url) {
+      this.init();
+    }
+  }
+
+  init = async () => {
+    let loaded = this.state.loaded;
+    let wavesurfer = this.state.wavesurfer;
+
+    if (!wavesurfer || !loaded) {
+      const options = {
+        height: 80,
+        barHeight: 20,
+        // barWidth: 1,
+
+        container: `#wavepreview_${this.props.data.id.replace(/[^\w\s]/gi, '')}`,
+        backend: 'MediaElement',
+        responsive: true,
+        partialRender: false,
+
+        progressColor: '#4a74a5',
+        waveColor: 'rgba(34, 168, 175, 19)',
+        cursorColor: '#4a74a5',
+        interact: false,
+        hideScrollbar: true,
+        normalize: true,
+        forceDecode: false,
+        cursorWidth: 0,
+        minPxPerSec: 2205
+      };
+      wavesurfer = WaveSurfer.create(options);
+
+      if (this.props.data.url) {
+        const waveform = await waveFormData();
+        wavesurfer.load(this.props.data.url, waveform, false);
+      }
+    }
+
+    if (typeof this.props.onLoad === 'function') {
+      this.props.onLoad();
+    }
+
+    if (this._isMounted) {
+      this.setState({ wavesurfer: wavesurfer, loaded: true });
+    }
+  }
+
   render() {
-    const { id, type, date, creators, title, url } = this.props.data;
+    const { id, item_subtype, date, creators, title, url, isCollection } = this.props.data;
 
     return (
       <div
         className="audioPreview"
         onClick={() => {
-          this.props.audioPlayer(true, { id, type, date, creators, title, url });
+          if (!this.props.noClick) {
+            this.props.audioPlayer(true, { id, item_subtype, date, creators, title, url, isCollection });
+          }
         }}
       >
         <div className="container-fluid">
@@ -86,11 +114,11 @@ class AudioPreview extends React.Component<Props, State> {
             </div>
             <Col xs="6" md="4" className="info">
               <div className="type_date">
-                {type}, {date ? new Date(date).getFullYear() : <></>}
+                {item_subtype ? item_subtype + ',' : ''} {date ? new Date(date).getFullYear() : <></>}
               </div>
               {creators && creators.length ?
                 <div className="creator">
-                  {creators[0]}
+                  {creators[0]}{creators.length > 1 ? <em>, et al.</em> : <></>}
                 </div>
                 : <></>
               }
