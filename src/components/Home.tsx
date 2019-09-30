@@ -157,9 +157,7 @@ class HomePage extends React.Component<Props, {}> {
             : <></>
           }
           <div className="title" onClick={() => this.props.openModal(loaded_highlights[props.index])}>
-            <span className="ellipsis">
-              {loaded_highlights[props.index].title}
-            </span>
+            {loaded_highlights[props.index].title}
           </div>
         </div>
         <div className="type" onClick={() => this.props.openModal(loaded_highlights[props.index])}>

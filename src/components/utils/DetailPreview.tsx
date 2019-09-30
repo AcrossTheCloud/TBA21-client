@@ -103,7 +103,7 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
               : <></>
             }
             <div className="title">
-              <span className="ellipsis">{data.title}</span>
+              {data.title}
             </div>
           </div>
         </div>
