@@ -64,6 +64,9 @@ class Announcements extends React.Component<RouteComponentProps, State> {
         dataField: 'status',
         text: 'Published',
         align: 'center',
+        headerStyle: () => {
+          return { width: '10%' };
+        },
         formatter: (status) => {
           return(
             status === true ? <FaCheck color="green" size={25}/> : <FaTimes color="red" size={25}/>
