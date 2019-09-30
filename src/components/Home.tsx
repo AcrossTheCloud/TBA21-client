@@ -2,11 +2,10 @@ import * as React from 'react';
 import $ from 'jquery';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { Button, Col, Container, Row, Spinner } from 'reactstrap';
+import { Col, Container, Row, Spinner } from 'reactstrap';
 import { debounce } from 'lodash';
 import { Cookies, withCookies } from 'react-cookie';
 
-import { AuthConsumer } from '../providers/AuthProvider';
 import { loadHomepage, loadMore, logoDispatch, openModal } from 'actions/home';
 import { toggle as searchOpenToggle } from 'actions/searchConsole';
 
@@ -254,14 +253,6 @@ class HomePage extends React.Component<Props, {}> {
     return (
       <div id="home" className="flex-fill">
         <Container fluid id="header">
-          <AuthConsumer>
-            {({ isAuthenticated, logout }) => (
-              isAuthenticated ?
-                <></>
-                :
-                <Button color="link" tag={Link} to="/login" className="loginButton"><span className="simple-icon-login" />Login / Signup</Button>
-            )}
-          </AuthConsumer>
           <Row className="highlights">
             {!!loaded_highlights[0] ?
               <Col xs="12" lg={loaded_highlights.length > 1 ? 8 : 12} className="item" onClick={() => { if (loaded_highlights[0].item_type !== itemType.Audio || (loaded_highlights[0].file && loaded_highlights[0].file.type) !== FileTypes.Audio) { this.props.openModal(loaded_highlights[0]); }}}>
