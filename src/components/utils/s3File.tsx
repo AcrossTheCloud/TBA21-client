@@ -90,6 +90,17 @@ export const getCDNObject = async (key: string): Promise<S3File | false> => {
         }
       }
 
+      // If we have a RAW file
+      if (contentType === FileTypes.Audio) {
+        const contentTypeMatch = contentType.match(/image\/(x-sony-arw|x-canon-cr2|x-canon-crw|x-kodak-dcr|x-adobe-dng|x-epson-erf|x-kodak-k25|x-minolta-mrw|x-nikon-nef|x-olympus-orf|x-pentax-pef|x-fuji-raf|x-panasonic-raw|x-sony-sr|x-sigma-x3f|x-dcraw)/i);
+        if (contentTypeMatch || key.match(/(\.raw|\.dng|.cr2)$/i)) {
+          const m4aKey = key.substring(0, key.lastIndexOf('.')) + '.jpg';
+          if (await checkRawImage(m4aKey)) {
+            Object.assign(response, { url: `${config.other.AUDIO_URL}${m4aKey}`});
+          }
+        }
+      }
+
       return response;
     } else {
       return false;
@@ -101,7 +112,13 @@ export const getCDNObject = async (key: string): Promise<S3File | false> => {
   }
 };
 
-/**
+export const checkRawImage = async (key: string): Promise<boolean> => {
+  const file = await fetch(`${config.other.AUDIO_URL}${key}`, {method: 'HEAD', mode: 'cors'});
+  return file.status === 200;
+};
+
+
+  /**
  *
  * Gets the S3 Object from any UUID "folder"
  *

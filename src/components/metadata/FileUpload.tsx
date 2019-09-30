@@ -46,6 +46,35 @@ interface File {
 //   return bytes.toFixed(1) + ' ' + units[u];
 // };
 
+const acceptedMimes = [
+  'image/jpeg',
+  'image/gif',
+  'image/png',
+  'image/svg+xml',
+  'application/pdf',
+  'audio/*',
+  'text/*',
+  'video/*',
+
+  // RAW
+  'image/x-sony-arw',
+  'image/x-canon-cr2',
+  'image/x-canon-crw',
+  'image/x-kodak-dcr',
+  'image/x-adobe-dng',
+  'image/x-epson-erf',
+  'image/x-kodak-k25',
+  'image/x-minolta-mrw',
+  'image/x-nikon-nef',
+  'image/x-olympus-orf',
+  'image/x-pentax-pef',
+  'image/x-fuji-raf',
+  'image/x-panasonic-raw',
+  'image/x-sony-sr',
+  'image/x-sigma-x3f',
+  'image/x-dcraw'
+];
+
 export class FileUpload extends React.Component<Props, State> {
   static contextType = AuthContext;
   _isMounted;
@@ -175,7 +204,7 @@ export class FileUpload extends React.Component<Props, State> {
         <div className="dropzone_wrapper container-fluid">
           <Dropzone
             onDrop={this.onDrop}
-            accept="image/jpeg, image/gif, image/png, image/svg+xml, application/pdf, audio/*, text/*, video/*"
+            accept={acceptedMimes}
           >
             {({getRootProps, getInputProps, isDragActive, isDragReject, isDragAccept}) => (
               <div {...getRootProps()} className="dropzone">

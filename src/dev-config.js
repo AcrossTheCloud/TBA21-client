@@ -24,6 +24,7 @@ export default {
     BASE_CONTENT_URL: "https://demo-dev-content.ocean-archive.org/",
     THUMBNAIL_URL: "https://thumbnails.ocean-archive.org/",
     VIDEO_STREAMING_URL: "https://video-streaming.ocean-archive.org/",
+    CONVERTED_IMAGES_URL: "https://converted-images.ocean-archive.org/",
     PROFILE_URL: "https://profile-pics.ocean-archive.org/"
   }
 };
