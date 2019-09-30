@@ -61,14 +61,22 @@ class Items extends React.Component<RouteComponentProps, State> {
       {
         dataField: 'status',
         text: 'Published',
+        align: 'center',
+        headerStyle: () => {
+          return { width: '10%' };
+        },
         formatter: (status) => {
-          return status === true ? <FaCheck/> : <FaTimes/> ;
+          return status === true ? <FaCheck color="green" size={25}/> : <FaTimes color="red" size={25}/> ;
         }
+      },
+      {
+        dataField: 'title',
+        text: 'Title'
       },
       {
         dataField: 'creators',
         formatter: (cell: string[]) => {
-          return Array.isArray(cell) ? 
+          return Array.isArray(cell) ?
             cell.join(', ')
             :
             '';
@@ -77,17 +85,13 @@ class Items extends React.Component<RouteComponentProps, State> {
         text: 'Creator(s)'
       },
       {
-        dataField: 'title',
-        text: 'Title'
-      },
-      {
         dataField: 'options',
         text: 'options',
         isDummyField: true,
         formatter: (e, row, rowIndex) => {
           return (
             <>
-              <Button color="warning" size="sm" onClick={() => this.onEditButtonClick(rowIndex)}>Edit</Button>
+              <Button color="warning" size="sm" className="mr-3" onClick={() => this.onEditButtonClick(rowIndex)}>Edit</Button>
               <Button color="danger" size="sm" onClick={() => this.onDeleteButtonClick(rowIndex)}>Delete</Button>
             </>
           );

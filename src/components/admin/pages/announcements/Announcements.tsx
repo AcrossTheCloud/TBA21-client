@@ -15,6 +15,7 @@ import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.m
 
 import 'styles/components/admin/tables/modal.scss';
 import { AnnouncementEditor } from '../../../metadata/AnnouncementEditor';
+import { FaCheck, FaTimes } from 'react-icons/fa';
 
 interface State extends Alerts {
   announcements: Announcement[];
@@ -61,15 +62,24 @@ class Announcements extends React.Component<RouteComponentProps, State> {
       },
       {
         dataField: 'status',
-        text: 'Status',
-      },
-      {
-        dataField: 'created_at',
-        text: 'Created Date',
+        text: 'Published',
+        align: 'center',
+        headerStyle: () => {
+          return { width: '10%' };
+        },
+        formatter: (status) => {
+          return(
+            status === true ? <FaCheck color="green" size={25}/> : <FaTimes color="red" size={25}/>
+          );
+        }
       },
       {
         dataField: 'title',
         text: 'Title'
+      },
+      {
+        dataField: 'created_at',
+        text: 'Created Date',
       },
       {
         dataField: 'options',
@@ -78,7 +88,7 @@ class Announcements extends React.Component<RouteComponentProps, State> {
         formatter: (e, row, rowIndex) => {
           return (
             <>
-              <Button color="warning" size="sm" onClick={() => this.onEditButtonClick(rowIndex)}>Edit</Button>
+              <Button color="warning" size="sm" className="mr-3"  onClick={() => this.onEditButtonClick(rowIndex)}>Edit</Button>
               <Button color="danger" size="sm" onClick={() => this.onDeleteButtonClick(rowIndex)}>Delete</Button>
             </>
           );
