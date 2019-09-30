@@ -143,32 +143,27 @@ class HomePage extends React.Component<Props, {}> {
 
     return (
       <>
-        <div className="title-wrapper d-flex">
+        <div className="title-wrapper d-flex" onClick={() => this.props.openModal(loaded_highlights[props.index])}>
           {creators && creators.length ?
-            <>
-              <div className="creators">
-                <Link to={`/view/${loaded_highlights[props.index].id}`}>
-                  {creators[0]}{creators.length > 1 ? <em>, et al.</em> : <></>}
-                </Link>
-              </div>
-              <div className="d-none d-md-block dotwrap">
-                <FaCircle className="dot"/>
-              </div>
-            </>
+            <div className="creators">
+              {creators[0]}{creators.length > 1 ? <em>, et al.</em> : <></>}
+            </div>
             : <></>
           }
-          <div className="title">
+          {creators && creators.length ?
+            <div className="d-none d-md-block dotwrap">
+              <FaCircle className="dot"/>
+            </div>
+            : <></>
+          }
+          <div className="title" onClick={() => this.props.openModal(loaded_highlights[props.index])}>
             <span className="ellipsis">
-              <Link to={`/view/${loaded_highlights[props.index].id}`}>
-                {loaded_highlights[props.index].title}
-              </Link>
+              {loaded_highlights[props.index].title}
             </span>
           </div>
         </div>
-        <div className="type">
-          <Link to={`/view/${loaded_highlights[props.index].id}`}>
-            {loaded_highlights[props.index].item_subtype}, {new Date(loaded_highlights[props.index].date).getFullYear()}
-          </Link>
+        <div className="type" onClick={() => this.props.openModal(loaded_highlights[props.index])}>
+          {loaded_highlights[props.index].item_subtype}, {new Date(loaded_highlights[props.index].date).getFullYear()}
         </div>
         {!!tags && tags.length ?
           <div className="tags d-none d-lg-block">

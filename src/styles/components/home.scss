@@ -37,12 +37,10 @@
   .title-wrapper {
     //overflow: hidden;
     font-size: 20px;
+    flex-wrap: wrap;
     .title { // , .creators
-      flex: 0 1;
+      flex: auto;
       max-width: 90%;
-    }
-    .creators {
-      flex: 0 1 auto;
     }
     .dotwrap {
       flex: 0;
@@ -54,9 +52,6 @@
       max-width: 100%;
       overflow: hidden;
       display: inline-block;
-    }
-    .title {
-      flex: 1 1 auto;
     }
   }
 }
@@ -76,10 +71,6 @@
     &:hover {
       color: $dark-green
     }
-  }
-
-  .d-flex.title-wrapper {
-    flex-wrap: wrap;
   }
 
   #main {
