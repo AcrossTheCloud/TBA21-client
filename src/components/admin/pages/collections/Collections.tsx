@@ -61,9 +61,12 @@ class Collections extends React.Component<RouteComponentProps, State> {
       },
       {
         dataField: 'status',
+        align: 'center',
         text: 'Published',
         formatter: (status) => {
-          return status === true ? <FaCheck/> : <FaTimes/> ;
+          return(
+            status === true ? <FaCheck color="green" size={25}/> : <FaTimes color="red" size={25}/>
+          );
         }
       },
       {
@@ -77,7 +80,7 @@ class Collections extends React.Component<RouteComponentProps, State> {
         formatter: (e, row, rowIndex) => {
           return (
             <>
-              <Button color="warning" size="sm" onClick={() => this.onEditButtonClick(rowIndex)}>Edit</Button>
+              <Button color="warning" size="sm" className="mr-3"  onClick={() => this.onEditButtonClick(rowIndex)}>Edit</Button>
               <Button color="danger" size="sm" onClick={() => this.onDeleteButtonClick(rowIndex)}>Delete</Button>
             </>
           );
