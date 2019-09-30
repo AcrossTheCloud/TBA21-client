@@ -92,8 +92,9 @@ export const getCDNObject = async (key: string): Promise<S3File | false> => {
 
       // If we have a wav file
       if (contentType.includes('audio') && contentType.includes('wav')) {
-        if (checkM4A(key)) {
-          Object.assign(response, { url: `${config.other.AUDIO_URL}${key}.m4a`})
+        const m4aKey = key.substring(0, key.lastIndexOf('.')) + '.m4a';
+        if (await checkM4A(m4aKey)) {
+          Object.assign(response, { url: `${config.other.AUDIO_URL}${m4aKey}`});
         }
       }
 
@@ -164,7 +165,7 @@ export const sdkGetObject = async (key: string): Promise<S3File | false> => {
 };
 
 export const checkM4A = async (key: string): Promise<boolean> => {
-  const waveFile = await fetch(`${config.other.AUDIO_URL}${key}.m4a`, {method: 'HEAD', mode: 'cors'});
+  const waveFile = await fetch(`${config.other.AUDIO_URL}${key}`, {method: 'HEAD', mode: 'cors'});
 
   return waveFile.status === 200;
 };
