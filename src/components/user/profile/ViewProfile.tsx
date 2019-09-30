@@ -42,9 +42,6 @@ class ViewProfile extends React.Component<Props, State> {
       return 'Loading...';
     }
     const {
-      // profile_image,
-      profile_type,
-      // featured_image,
       full_name,
       position,
       affiliation,
@@ -53,15 +50,21 @@ class ViewProfile extends React.Component<Props, State> {
       biography,
       website,
       field_expertise,
-      // profile_type,
+      profile_type,
       // public_profile
     } = this.props.profile;
     return (
-      <div id="profile">
+      <div id="profile" >
         <ErrorMessage message={this.props.errorMessage} />
-        <Row>
+         <Row>
           <Col xs="12" md="6" className="left">
-            <Row>
+              <Col xs="12">
+                {
+                  !!this.props.profile.profile_image ?
+                    <img src={this.props.profile.profile_image}  alt="" />
+                    : <></>
+                }
+              </Col>
               <Col xs="12" >
                 <h1>{full_name}</h1>
               </Col>
@@ -74,7 +77,6 @@ class ViewProfile extends React.Component<Props, State> {
               <Col xs="12">
                 {biography}
               </Col>
-             </Row>
           </Col>
 
           <Col xs="12" md="6" className="right">

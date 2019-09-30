@@ -9,32 +9,10 @@
     font-size: 40px;
   }
 
-  .file {
-    flex: 1 0;
-    overflow: hidden;
-    .background {
-      filter: blur(6px);
-      z-index: -1;
-      position: absolute;
-      left: 0;
-      top: 0;
-      height: 100%;
-      width: 100%;
-    }
-
-    .image {
-      z-index: 0;
-      img {
-        max-height: 100%;
-        z-index: 1;
-      }
-    }
-  }
-
   .left {
-    padding: 15px 15px 15px;
-    .biography {
-      white-space: pre-wrap;
+    img {
+      max-width: 37%;
+      z-index: 1;
     }
   }
 

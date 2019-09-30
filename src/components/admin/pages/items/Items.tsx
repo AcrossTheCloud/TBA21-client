@@ -6,6 +6,7 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import { Button, Container, Modal, ModalBody, ModalFooter, ModalHeader, Spinner } from 'reactstrap';
 
+import { FaCheck, FaTimes } from 'react-icons/fa';
 import { Item } from 'types/Item';
 import { ItemEditor } from 'components/metadata/ItemEditor';
 import { Alerts, ErrorMessage, SuccessMessage } from 'components/utils/alerts';
@@ -60,6 +61,9 @@ class Items extends React.Component<RouteComponentProps, State> {
       {
         dataField: 'status',
         text: 'Published',
+        formatter: (status) => {
+          return status === true ? <FaCheck/> : <FaTimes/> ;
+        }
       },
       {
         dataField: 'creators',
@@ -67,7 +71,7 @@ class Items extends React.Component<RouteComponentProps, State> {
           return Array.isArray(cell) ? 
             cell.join(', ')
             :
-            ''
+            '';
         },
         hidden: !!this.isContributorPath,
         text: 'Creator(s)'

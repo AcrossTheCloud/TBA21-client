@@ -15,6 +15,7 @@ import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css';
 
 import 'styles/components/admin/tables/modal.scss';
+import { FaCheck, FaTimes } from 'react-icons/fa';
 
 interface State extends Alerts {
   collections: Collection[];
@@ -61,6 +62,9 @@ class Collections extends React.Component<RouteComponentProps, State> {
       {
         dataField: 'status',
         text: 'Published',
+        formatter: (status) => {
+          return status === true ? <FaCheck/> : <FaTimes/> ;
+        }
       },
       {
         dataField: 'title',
