@@ -91,18 +91,19 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
         <div className="bottom">
           <div className="title-wrapper d-flex">
             {data.creators && data.creators.length ?
-              <>
-                <div className="creators">
-                  {data.creators[0]}{data.creators.length > 1 ? <em>, et al.</em> : <></>}
-                </div>
-                <div className="d-none d-md-block dotwrap">
-                  <FaCircle className="dot"/>
-                </div>
-              </>
+              <div className="creators">
+                {data.creators[0]}{data.creators.length > 1 ? <em>, et al.</em> : <></>}
+              </div>
+              : <></>
+            }
+            {data.creators && data.creators.length ?
+              <div className="d-none d-md-block dotwrap">
+                <FaCircle className="dot"/>
+              </div>
               : <></>
             }
             <div className="title">
-              <span className="ellipsis">{data.title}</span>
+              {data.title}
             </div>
           </div>
         </div>
