@@ -70,19 +70,19 @@ class Items extends React.Component<RouteComponentProps, State> {
         }
       },
       {
+        dataField: 'title',
+        text: 'Title'
+      },
+      {
         dataField: 'creators',
         formatter: (cell: string[]) => {
-          return Array.isArray(cell) ? 
+          return Array.isArray(cell) ?
             cell.join(', ')
             :
             '';
         },
         hidden: !!this.isContributorPath,
         text: 'Creator(s)'
-      },
-      {
-        dataField: 'title',
-        text: 'Title'
       },
       {
         dataField: 'options',
