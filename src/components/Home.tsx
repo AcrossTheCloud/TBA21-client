@@ -1,6 +1,5 @@
 import * as React from 'react';
 import $ from 'jquery';
-import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { Col, Container, Row, Spinner } from 'reactstrap';
 import { debounce } from 'lodash';
