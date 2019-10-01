@@ -1,8 +1,16 @@
 @import "../base/variables";
 
+#body.logoLoaded #home footer {
+  z-index: 0;
+}
+
+#body.fixed #home footer {
+  z-index: -1;
+}
+
 footer {
   background: $soft-gray;
-  color: $dark-gray !important;;
+  color: $dark-gray !important;
   margin-bottom: 45px; // offset search
   padding-top: 50px;
   padding-bottom: 50px;
@@ -12,7 +20,7 @@ footer {
     padding-bottom: 0;
     width: 100%;
     bottom: 0;
-    z-index: 4;
+    left: 0;
   }
   align-items: center;
 
