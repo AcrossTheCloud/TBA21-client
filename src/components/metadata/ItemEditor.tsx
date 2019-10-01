@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import {
   Button,
   Col,
+  Collapse,
   CustomInput,
   DropdownItem,
   DropdownMenu,
@@ -61,7 +62,7 @@ import 'styles/components/metadata/itemEditor.scss';
 import 'styles/components/metadata/editors.scss';
 import { FaMinus, FaPlus } from 'react-icons/fa';
 
-interface Props {
+export interface Props {
   item: Item;
   index?: number;
   onChange?: Function;
@@ -2302,6 +2303,8 @@ class ItemEditorClass extends React.Component<Props, State> {
                   }
                 </Col>
                 <Col xs="4">
+                  {this.props.children ? this.props.children : <></>}
+
                   <UncontrolledButtonDropdown className="float-right">
                     {this.state.originalItem.status ?
                       <Button className="caret" onClick={this.updateItem} disabled={!this.state.isDifferent}>Save</Button>
@@ -2613,4 +2616,42 @@ const mapStateToProps = (state: { profile: { details: Profile} }) => ({
   profileDetails: state.profile.details,
 });
 
-export const ItemEditor = connect(mapStateToProps, { modalToggle, getProfileDetails })(ItemEditorClass);
+export default connect(mapStateToProps, { modalToggle, getProfileDetails })(ItemEditorClass);
+
+interface WithCollapseProps extends Props {
+  isOpen?: boolean;
+}
+function withCollapse <P extends WithCollapseProps>(WrappedComponent: React.ComponentType<P>) {
+  interface WithCollapseState {
+    open: boolean;
+  }
+
+  return class CollapsedItemDisplay extends React.Component<P, WithCollapseState> {
+    constructor(props: P) {
+      super(props);
+      this.state = {
+        open: props.isOpen || false
+      };
+    }
+
+    toggleCollapse = () => {
+      this.setState({ open: !this.state.open });
+    }
+
+    render() {
+      return (
+        <Row style={{paddingTop: '50px'}}>
+          <Col onClick={this.toggleCollapse} xs="12" >
+            {this.props.item.title ? this.props.item.title : 'Untitled'}
+            {this.state.open ? <FaMinus style={{float: 'right'}} /> : <FaPlus style={{float: 'right'}} />}
+          </Col>
+          <Collapse isOpen={this.state.open}>
+            <WrappedComponent {...this.props as P} />
+          </Collapse>
+        </Row>
+      );
+    }
+  };
+}
+
+export const ItemEditorWithCollapse = connect(mapStateToProps, { modalToggle, getProfileDetails })(withCollapse(ItemEditorClass));
