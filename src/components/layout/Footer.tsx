@@ -24,6 +24,7 @@ class Footer extends React.Component<Props, {}> {
                 <Button color="link" onClick={() => this.props.aboutModalToggle(true)}>About</Button>
                 <Button color="link" onClick={() => this.props.modalToggle('TC_MODAL', true)}>Terms Of Use</Button>
                 <Button color="link" onClick={() => this.props.modalToggle('PP_MODAL', true)}>Privacy Policy</Button>
+                <Button color="link"><a href="https://tba21.us18.list-manage.com/subscribe?u=8fe0e1048c67fb6cd5aa55bbf&id=f533c9b80d" rel="noopener noreferrer" target="_blank">Mailing List</a></Button>
               </Col>
             </Row>
           </Col>
