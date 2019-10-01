@@ -31,6 +31,10 @@ a, .btn-link {
   }
   &.blue {
     background-color: $dark-blue;
+
+    &.container-fluid {
+      padding: 0;
+    }
   }
 }
 

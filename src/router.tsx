@@ -129,7 +129,7 @@ export const AppRouter = () => {
               <Route
                 path="/view/:id"
                 render={() => (
-                  <div className="container-fluid main blue">
+                  <div className="main blue">
                     <ViewItem />
                     <Footer />
                   </div>)
@@ -138,7 +138,7 @@ export const AppRouter = () => {
               <Route
                 path="/collection/:id"
                 render={() => (
-                  <div className="container-fluid main blue">
+                  <div className="main blue">
                     <ViewCollection />
                     <Footer />
                   </div>)
