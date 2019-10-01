@@ -7,8 +7,12 @@ footer {
   padding-top: 50px;
   padding-bottom: 50px;
   @media screen and (min-width: 992px) {
-    padding-top: 20px;
-    padding-bottom: 20px;
+    position: fixed;
+    padding-top: 0;
+    padding-bottom: 0;
+    width: 100%;
+    bottom: 0;
+    z-index: 4;
   }
   align-items: center;
 
