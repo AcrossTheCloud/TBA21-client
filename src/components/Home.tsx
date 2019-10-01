@@ -361,7 +361,7 @@ class HomePage extends React.Component<Props, {}> {
 
         <Logo loaded={logoLoaded}/>
 
-        <Container fluid id="main">
+        <Container fluid id="main" className="pb">
           <Row>
             {loadedItems.map( (e: HomepageData, i: number) => (<this.DisplayLayout key={i} data={e} />))}
           </Row>
