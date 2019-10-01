@@ -375,10 +375,11 @@ class HomePage extends React.Component<Props, {}> {
           </Row>
 
           { !items.length && !collections.length && !audio.length ?
-              <Footer />
+              <></>
             : <div style={{paddingTop: '100px'}}></div>
           }
         </Container>
+        <Footer />
       </div>
     );
   }

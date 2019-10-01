@@ -39,6 +39,13 @@ class About extends React.Component<Props, {}> {
             <p>Created to stimulate action and policy change through collaboration and education, Ocean Archive fosters synergy among art, science and policy to make a range of perspectives visible, discoverable and understandable.</p>
           </Col>
 
+          <Col md="12" className="text-center">
+            <h3>Contact</h3>
+            <p>
+              <a href="mailto:info@ocean-archive.org">info@ocean-archive.org</a>
+            </p>
+          </Col>
+
           <br />
           <p>Spearheaded by <a href="http://academy.tba21.org" target="_blank" rel="noopener noreferrer">TBA21–Academy</a>, an ocean initiative for all kind, Ocean Archive is being developed in collaboration with <a href="https://acrossthecloud.net" target="_blank" rel="noopener noreferrer">Across the Cloud</a>.</p>
 

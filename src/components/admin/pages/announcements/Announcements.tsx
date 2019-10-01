@@ -74,12 +74,12 @@ class Announcements extends React.Component<RouteComponentProps, State> {
         }
       },
       {
-        dataField: 'created_at',
-        text: 'Created Date',
-      },
-      {
         dataField: 'title',
         text: 'Title'
+      },
+      {
+        dataField: 'created_at',
+        text: 'Created Date',
       },
       {
         dataField: 'options',
