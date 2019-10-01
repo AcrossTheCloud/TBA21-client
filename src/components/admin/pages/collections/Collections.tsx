@@ -15,6 +15,7 @@ import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css';
 
 import 'styles/components/admin/tables/modal.scss';
+import { FaCheck, FaTimes } from 'react-icons/fa';
 
 interface State extends Alerts {
   collections: Collection[];
@@ -60,7 +61,16 @@ class Collections extends React.Component<RouteComponentProps, State> {
       },
       {
         dataField: 'status',
+        align: 'center',
         text: 'Published',
+        headerStyle: () => {
+          return { width: '10%' };
+        },
+        formatter: (status) => {
+          return(
+            status === true ? <FaCheck color="green" size={25}/> : <FaTimes color="red" size={25}/>
+          );
+        }
       },
       {
         dataField: 'title',
@@ -73,7 +83,7 @@ class Collections extends React.Component<RouteComponentProps, State> {
         formatter: (e, row, rowIndex) => {
           return (
             <>
-              <Button color="warning" size="sm" onClick={() => this.onEditButtonClick(rowIndex)}>Edit</Button>
+              <Button color="warning" size="sm" className="mr-3"  onClick={() => this.onEditButtonClick(rowIndex)}>Edit</Button>
               <Button color="danger" size="sm" onClick={() => this.onDeleteButtonClick(rowIndex)}>Delete</Button>
             </>
           );

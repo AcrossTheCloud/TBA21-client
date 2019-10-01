@@ -6,6 +6,7 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import { Button, Container, Modal, ModalBody, ModalFooter, ModalHeader, Spinner } from 'reactstrap';
 
+import { FaCheck, FaTimes } from 'react-icons/fa';
 import { Item } from 'types/Item';
 import { ItemEditor } from 'components/metadata/ItemEditor';
 import { Alerts, ErrorMessage, SuccessMessage } from 'components/utils/alerts';
@@ -60,21 +61,28 @@ class Items extends React.Component<RouteComponentProps, State> {
       {
         dataField: 'status',
         text: 'Published',
-      },
-      {
-        dataField: 'creators',
-        formatter: (cell: string[]) => {
-          return Array.isArray(cell) ? 
-            cell.join(', ')
-            :
-            ''
+        align: 'center',
+        headerStyle: () => {
+          return { width: '10%' };
         },
-        hidden: !!this.isContributorPath,
-        text: 'Creator(s)'
+        formatter: (status) => {
+          return status === true ? <FaCheck color="green" size={25}/> : <FaTimes color="red" size={25}/> ;
+        }
       },
       {
         dataField: 'title',
         text: 'Title'
+      },
+      {
+        dataField: 'creators',
+        formatter: (cell: string[]) => {
+          return Array.isArray(cell) ?
+            cell.join(', ')
+            :
+            '';
+        },
+        hidden: !!this.isContributorPath,
+        text: 'Creator(s)'
       },
       {
         dataField: 'options',
@@ -83,7 +91,7 @@ class Items extends React.Component<RouteComponentProps, State> {
         formatter: (e, row, rowIndex) => {
           return (
             <>
-              <Button color="warning" size="sm" onClick={() => this.onEditButtonClick(rowIndex)}>Edit</Button>
+              <Button color="warning" size="sm" className="mr-3" onClick={() => this.onEditButtonClick(rowIndex)}>Edit</Button>
               <Button color="danger" size="sm" onClick={() => this.onDeleteButtonClick(rowIndex)}>Delete</Button>
             </>
           );

@@ -6,6 +6,7 @@
   transform: translate(0, 0);
   transition: transform .5s cubic-bezier(0.22, 0.61, 0.36, 1), opacity .2s linear;
   overflow-x: hidden;
+  z-index: 12;
 
   @media screen and (min-width: 768px) {
     padding-top: 20px;
@@ -26,7 +27,6 @@
   &.inv {
     position: sticky;
     top: 0;
-    z-index: 12;
   }
 
   header {
