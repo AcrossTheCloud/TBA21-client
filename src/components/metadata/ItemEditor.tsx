@@ -59,6 +59,7 @@ import { getProfileDetails } from '../../actions/user/profile';
 import { Profile } from '../../types/Profile';
 import 'styles/components/metadata/itemEditor.scss';
 import 'styles/components/metadata/editors.scss';
+import { FaMinus, FaPlus } from 'react-icons/fa';
 
 interface Props {
   item: Item;

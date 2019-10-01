@@ -4,7 +4,7 @@ import { has } from 'lodash';
 
 import { FileUpload } from './FileUpload';
 import { Item } from '../../types/Item';
-import { ItemEditor } from './ItemEditor';
+import { ItemEditorWithCollapse } from './ItemEditor';
 import { Button, Col, Row } from 'reactstrap';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { AuthContext } from '../../providers/AuthProvider';
@@ -31,15 +31,12 @@ const ItemsDisplay = (props: { isContributorPath: boolean, removeItem: Function 
 
   if (props.item && Object.keys(props.item).length && !props.item.isLoading && props.item.loaded && props.item.details) {
     return (
-      <Row style={{paddingTop: '50px'}}>
+      <ItemEditorWithCollapse item={props.item.details} isContributorPath={props.isContributorPath}>
         {props.removeItem && typeof props.removeItem === 'function' ?
-          <Col xs="12">
-            <Button onClick={() => {if (props.removeItem) { props.removeItem(props.s3Key); }}}>Remove</Button>
-          </Col>
+          <Button onClick={() => {if (props.removeItem) { props.removeItem(props.s3Key); }}}>Remove</Button>
           : <></>
         }
-        <ItemEditor item={props.item.details} isContributorPath={props.isContributorPath}/>
-      </Row>
+      </ItemEditorWithCollapse>
     );
   } else {
     if (props.item.isLoading) {

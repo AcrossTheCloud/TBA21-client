@@ -8,7 +8,7 @@ import { Button, Container, Modal, ModalBody, ModalFooter, ModalHeader, Spinner 
 
 import { FaCheck, FaTimes } from 'react-icons/fa';
 import { Item } from 'types/Item';
-import { ItemEditor } from 'components/metadata/ItemEditor';
+import ItemEditor from 'components/metadata/ItemEditor';
 import { Alerts, ErrorMessage, SuccessMessage } from 'components/utils/alerts';
 import { AuthContext } from '../../../../providers/AuthProvider';
 

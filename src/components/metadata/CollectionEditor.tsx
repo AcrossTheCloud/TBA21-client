@@ -1503,14 +1503,12 @@ class CollectionEditorClass extends React.Component<Props, State> {
                     />
                   </Col>
                 </Row>
-                <Row>
-                  {
-                    this.state.loadingItems ?
-                      <>Loading</>
-                      :
-                      <Items callback={this.itemsCallback} items={this.state.loadedItems} allowRemoveItem/>
-                  }
-                </Row>
+                {
+                  this.state.loadingItems ?
+                    <Row><Col>Loading</Col></Row>
+                    :
+                    <Items callback={this.itemsCallback} items={this.state.loadedItems} allowRemoveItem/>
+                }
               </TabPane>
             </TabContent>
           </Col>
