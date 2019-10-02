@@ -325,7 +325,7 @@ export const loadMore = () => async (dispatch, getState) => {
     return (
       <Col lg={colSize(!!file ? file.type : '')} className="pt-4">
         {item_type === itemType.Audio || file.type === FileTypes.Audio ?
-          <HomePageAudioPreview data={props.data}/>
+          <HomePageAudioPreview data={props.data} openModal={() => dispatch(openModal(props.data))} />
           :
           <div onClick={() => dispatch(openModal(props.data))}>
             <DetailPreview data={props.data} onLoad={() => dispatch(waitForLoad(loadedCount - 1))}/>
