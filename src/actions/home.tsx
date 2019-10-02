@@ -8,9 +8,10 @@ import { itemType } from '../types/Item';
 import { COLLECTION_MODAL_TOGGLE } from './modals/collectionModal';
 import { ITEM_MODAL_TOGGLE } from './modals/itemModal';
 import * as React from 'react';
-import { DetailPreview } from '../components/utils/DetailPreview';
-import { Col } from 'reactstrap';
+import { DetailPreview, FileStaticPreview } from '../components/utils/DetailPreview';
+import { Col, Row } from 'reactstrap';
 import AudioPreview from '../components/layout/audio/AudioPreview';
+import { FaCircle, FaPlay } from 'react-icons/all';
 
 // Defining our Actions for the reducers
 export const LOGO_STATE_HOMEPAGE = 'LOGO_STATE_HOMEPAGE';
@@ -34,6 +35,7 @@ export const loadHomepage = () => async dispatch => {
       oa_highlight: false
     };
 
+  // Push the ID's into the queryString for the next API call, so it excludes them
   if (oaHighlights.oa_highlight && oaHighlights.oa_highlight.length) {
     Object.assign(queryStringParams, { id: oaHighlights.oa_highlight.map(o => o.id) });
   }
@@ -41,11 +43,165 @@ export const loadHomepage = () => async dispatch => {
   const response: {items: HomepageData[], collections: HomepageData[]} = await API.get('tba21', 'pages/homepage', { queryStringParameters: queryStringParams });
   const announcementResponse = await API.get('tba21', 'announcements', { queryStringParameters: { limit: '1'}});
 
+  const highlightsWithFiles = await addFilesToData(oaHighlights.oa_highlight);
+
+  const HighlightsItemDetails = (props: { index: number }) => {
+    const tags = highlightsWithFiles[props.index].concept_tags;
+    const creators = !!highlightsWithFiles[props.index].creators ? highlightsWithFiles[props.index].creators : [];
+
+    return (
+      <>
+        <div className="title-wrapper d-flex" onClick={() => dispatch(openModal(highlightsWithFiles[props.index]))}>
+          {creators && creators.length ?
+            <div className="creators">
+              {creators[0]}{creators.length > 1 ? <em>, et al.</em> : <></>}
+            </div>
+            : <></>
+          }
+          {creators && creators.length ?
+            <div className="d-none d-md-block dotwrap">
+              <FaCircle className="dot"/>
+            </div>
+            : <></>
+          }
+          <div className="title" onClick={() => dispatch(openModal(highlightsWithFiles[props.index]))}>
+            {highlightsWithFiles[props.index].title}
+          </div>
+        </div>
+        <div className="type" onClick={() => dispatch(openModal(highlightsWithFiles[props.index]))}>
+          {highlightsWithFiles[props.index].item_subtype}, {new Date(highlightsWithFiles[props.index].date).getFullYear()}
+        </div>
+        {!!tags && tags.length ?
+          <div className="tags d-none d-lg-block">
+            {tags.map(t => `#${t}`).join(' ').toString()}
+          </div>
+          : <></>
+        }
+      </>
+    );
+  };
+
+  const HighLightsLayout = (props: { index: number }) => {
+    if (props.index === 0 && !!highlightsWithFiles[0]) {
+      return (
+        <Col xs="12" lg={highlightsWithFiles.length > 1 ? 8 : 12} className="item" onClick={() => { if (highlightsWithFiles[0].item_type !== itemType.Audio || (highlightsWithFiles[0].file && highlightsWithFiles[0].file.type) !== FileTypes.Audio) { dispatch(openModal(highlightsWithFiles[0])); }}}>
+          <div className="detailPreview">
+            {
+              highlightsWithFiles[0].file ?
+                highlightsWithFiles[0].item_type === itemType.Audio || highlightsWithFiles[0].file.type === FileTypes.Audio ?
+                  <HomePageAudioPreview data={highlightsWithFiles[0]} openModal={() => dispatch(openModal(highlightsWithFiles[0]))} />
+                  :
+                  <>
+                    <FileStaticPreview file={highlightsWithFiles[0].file} />
+                    <HighlightsItemDetails index={0}/>
+                  </>
+                : <></>
+            }
+            {highlightsWithFiles[0].file.type === FileTypes.Video ?
+              <div className="middle">
+                <FaPlay/>
+              </div>
+              : <></>}
+          </div>
+
+        </Col>
+      );
+    } else if (props.index === 1 && !!highlightsWithFiles[1]) {
+      return (
+        <Col xs="12" lg="4" className="item" onClick={() => { if (highlightsWithFiles[1].item_type !== itemType.Audio || (highlightsWithFiles[1].file && highlightsWithFiles[1].file.type) !== FileTypes.Audio) { dispatch(openModal(highlightsWithFiles[1])); }}}>
+          <Row className="d-none d-lg-block">
+            <Col xs="12">
+              <div className="detailPreview">
+                {
+                  highlightsWithFiles[1].file ?
+                    highlightsWithFiles[1].item_type === itemType.Audio || highlightsWithFiles[1].file.type === FileTypes.Audio ?
+                      <HomePageAudioPreview data={highlightsWithFiles[1]} openModal={() => dispatch(openModal(highlightsWithFiles[1]))} />
+                      :
+                      <FileStaticPreview file={highlightsWithFiles[1].file} />
+                    : <></>
+                }
+                {highlightsWithFiles[1].file.type === FileTypes.Video ?
+                  <div className="middle">
+                    <FaPlay/>
+                  </div>
+                  : <></>}
+
+              </div>
+              <HighlightsItemDetails index={1}/>
+            </Col>
+          </Row>
+          <Row className="d-lg-none py-4 py-lg-0">
+            <Col xs="12">
+              <div className="detailPreview">
+                {
+                  highlightsWithFiles[1].file ?
+                    highlightsWithFiles[1].item_type === itemType.Audio || highlightsWithFiles[1].file.type === FileTypes.Audio ?
+                      <HomePageAudioPreview data={highlightsWithFiles[1]} openModal={() => dispatch(openModal(highlightsWithFiles[1]))} />
+                      :
+                      <>
+                        <FileStaticPreview file={highlightsWithFiles[1].file} />
+                        <HighlightsItemDetails index={1}/>
+                      </>
+
+                    : <></>
+                }
+                {highlightsWithFiles[1].file.type === FileTypes.Video ?
+                  <div className="middle">
+                    <FaPlay/>
+                  </div>
+                  : <></>
+                }
+              </div>
+            </Col>
+          </Row>
+
+          {announcements && announcements.length ?
+            <div className="announcement pt-4 pt-lg-5">
+              <div className="type">
+                Announcement
+              </div>
+              <div className="title">
+                {announcements[0].title}
+              </div>
+              <div className="description">
+                {announcements[0].description}
+              </div>
+              {!!announcements[0].url ?
+                <div>
+                  <a href={announcements[0].url} target="_blank" rel="noopener noreferrer">
+                    View
+                    <svg width="21px" height="17px" viewBox="0 0 21 17" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
+                      <g stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
+                        <g transform="translate(-1114.000000, -760.000000)">
+                          <g transform="translate(1.000000, 0.000000)">
+                            <g transform="translate(1113.000000, 760.000000)">
+                              <path d="M14.3596565,16.9833984 C14.277748,16.9833984 14.198766,16.9695639 14.1227082,16.9418945 C14.0466503,16.9142251 13.9793693,16.8727216 13.9208632,16.8173828 C13.8038511,16.7067052 13.7453459,16.573894 13.7453459,16.4189453 C13.7453459,16.2639966 13.8038511,16.1311854 13.9208632,16.0205078 L19.5456081,9.56692708 L14.0437254,3.24615885 C13.9267132,3.13548122 13.8682081,2.99990315 13.8682081,2.83942057 C13.8682081,2.678938 13.9267132,2.54335993 14.0437254,2.43268229 C14.1607375,2.32200465 14.3040752,2.26666667 14.4737428,2.26666667 C14.6434104,2.26666667 14.7867481,2.32200465 14.9037602,2.43268229 L20.8093328,9.16848958 C20.9263449,9.27916722 20.9848501,9.41197839 20.9848501,9.56692708 C20.9848501,9.72187577 20.9263449,9.85468695 20.8093328,9.96536458 L14.7808981,16.8173828 C14.722392,16.8727216 14.6551111,16.9142251 14.5790532,16.9418945 C14.5029953,16.9695639 14.4298638,16.9833984 14.3596565,16.9833984 Z" fill="#FFFFFF" fillRule="nonzero"></path>
+                              <path d="M1.38568046,9.70416667 L19.3586534,9.70416667" stroke="#FFFFFF" strokeWidth="1.14932327" strokeLinecap="round"></path>
+                              <path d="M1.38568046,0.6375 L1.38568046,9.70416667" stroke="#FFFFFF" strokeWidth="1.14932327" strokeLinecap="round"></path>
+                            </g>
+                          </g>
+                        </g>
+                      </g>
+                    </svg>
+                  </a>
+                </div>
+                : <></>
+              }
+            </div>
+            : <></>
+          }
+        </Col>
+      );
+    } else {
+      return <></>;
+    }
+  };
+
   const
     items = response.items,
     collections = response.collections,
     announcements = announcementResponse.announcements,
-    loadedHighlights = await addFilesToData(oaHighlights.oa_highlight);
+    loadedHighlights = highlightsWithFiles.map( (oa: HomepageData, i: number) => <HighLightsLayout index={i} key={i} />);
 
   // Put all audio files into another list.
   const audio: HomepageData[] = [];
@@ -177,7 +333,7 @@ export const loadMore = () => async (dispatch, getState) => {
         }
       </Col>
     );
-  }
+  };
 
   const allItems = [
     ...loadedItems,
