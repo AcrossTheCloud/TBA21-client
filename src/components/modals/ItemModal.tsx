@@ -17,12 +17,21 @@ interface Props {
   fetchItem: Function;
 }
 
-class ItemModal extends React.Component<Props, {}> {
+interface State {
+  open: boolean;
+}
+
+class ItemModal extends React.Component<Props, State> {
   _isMounted;
 
   constructor(props: Props) {
     super(props);
     this._isMounted = false;
+
+    this.state = {
+      open: false
+    };
+
   }
 
   async componentDidMount(): Promise<void> {
@@ -37,12 +46,12 @@ class ItemModal extends React.Component<Props, {}> {
     if (this._isMounted) {
       const state = {};
 
-      if (this.props.open !== prevProps.open) {
-        Object.assign(state, { isOpen: this.props.open });
-      }
-
       if (this.props.data && !isEqual(this.props.data, prevProps.data)) {
         await this.props.fetchItem(this.props.data.id);
+      }
+
+      if (this.props.open !== prevProps.open) {
+        Object.assign(state, { open: this.props.open });
       }
 
       if (Object.keys(state).length > 0) {
@@ -59,7 +68,7 @@ class ItemModal extends React.Component<Props, {}> {
       } = this.props.data;
 
       return (
-        <Modal id="homePageModal" className="fullwidth" isOpen={this.props.open} backdrop toggle={() => this.props.toggle()}>
+        <Modal id="homePageModal" className="fullwidth" isOpen={this.state.open} backdrop toggle={() => this.props.toggle()}>
           <Row className="header align-content-center">
             <div className="col-11 title-wrapper d-flex align-content-center">
               {creators && creators.length ?

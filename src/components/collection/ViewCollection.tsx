@@ -95,7 +95,7 @@ class ViewCollection extends React.Component<Props, {}> {
     );
 
     return (
-      <div id="item">
+      <div id="item" className="container-fluid">
         <ErrorMessage message={this.props.errorMessage} />
         <CollectionSlider />
         <Row>
