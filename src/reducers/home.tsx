@@ -1,4 +1,4 @@
-import { LOAD_HOMEPAGE, LOGO_STATE_HOMEPAGE, LOAD_MORE_HOMEPAGE, MODAL_STATE_HOMEPAGE, LOAD_MORE_LOADING } from 'actions/home';
+import { LOAD_HOMEPAGE, LOGO_STATE_HOMEPAGE, LOAD_MORE_HOMEPAGE, MODAL_STATE_HOMEPAGE, LOAD_MORE_LOADING, LOAD_COUNT_HOMEPAGE } from 'actions/home';
 import { S3File } from '../types/s3File';
 import { Announcement } from '../types/Announcement';
 import { itemType } from '../types/Item';
@@ -38,8 +38,9 @@ export interface HomePageState {
   oa_highlight: HomepageData[];
 
   loaded_highlights: HomepageData[];
-  loadedItems: HomepageData[];
+  loadedItems: JSX.Element[];
   loadedMore: boolean;
+  loadedCount: number;
 
   isModalOpen: boolean;
   modalData?: HomepageData;
@@ -57,11 +58,13 @@ const initialState: HomePageState = {
   loaded_highlights: [],
   loadedItems: [],
   loadedMore: false,
+  loadedCount: 0,
 
   isModalOpen: false,
 };
 
 export default (state: HomePageState | null = initialState, action) => {
+  console.log(state, 'sdfsdfdsfdsfsdfsdfsd')
   if (state === undefined) { state = initialState; }
 
   switch (action.type) {
@@ -77,11 +80,20 @@ export default (state: HomePageState | null = initialState, action) => {
         collections: action.collections,
         audio: action.audio,
         announcements: action.announcements,
-        loaded_highlights: action.loaded_highlights,
+        loaded_highlights: action.loaded_highlights
       };
+
+    case LOAD_COUNT_HOMEPAGE:
+      console.log('LOAD_COUNT_HOMEPAGE', action.loadedCount);
+      return {
+        ...state,
+        loadedCount: action.loadedCount,
+      };
+
     case LOAD_MORE_HOMEPAGE:
       return {
         ...state,
+        loadedCount: action.loadedCount,
         loadedItems: action.loadedItems,
         loadedMore: action.loadedMore,
         audio: action.audio,

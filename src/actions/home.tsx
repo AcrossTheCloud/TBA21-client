@@ -7,11 +7,16 @@ import { FileTypes, S3File } from '../types/s3File';
 import { itemType } from '../types/Item';
 import { COLLECTION_MODAL_TOGGLE } from './modals/collectionModal';
 import { ITEM_MODAL_TOGGLE } from './modals/itemModal';
+import * as React from 'react';
+import { DetailPreview } from '../components/utils/DetailPreview';
+import { Col } from 'reactstrap';
+import AudioPreview from '../components/layout/audio/AudioPreview';
 
 // Defining our Actions for the reducers
 export const LOGO_STATE_HOMEPAGE = 'LOGO_STATE_HOMEPAGE';
 export const LOAD_HOMEPAGE = 'LOAD_HOMEPAGE';
 export const LOAD_MORE_HOMEPAGE = 'LOAD_MORE_HOMEPAGE';
+export const LOAD_COUNT_HOMEPAGE = 'LOAD_COUNT_HOMEPAGE';
 export const LOAD_MORE_LOADING = 'LOAD_MORE_LOADING';
 export const MODAL_STATE_HOMEPAGE = 'MODAL_STATE_HOMEPAGE';
 
@@ -125,6 +130,7 @@ export const loadMore = () => async (dispatch, getState) => {
       collections,
       audio,
       loadedItems,
+      loadedCount
     } = state.home;
 
   let data: HomepageData[] = [
@@ -137,18 +143,61 @@ export const loadMore = () => async (dispatch, getState) => {
     data.push(...audio.splice(0, 1));
   }
 
+  data = await addFilesToData(data);
+
+  const Layout = (props: {data: HomepageData}): JSX.Element => {
+    const {
+      file,
+      item_type
+    } = props.data;
+
+    if (!file) { return <></>; }
+
+    const colSize = (fileType: string): number => {
+      switch (fileType) {
+        case 'Audio':
+          return 12;
+
+        case 'Video':
+          return 8;
+
+        default:
+          return 4;
+      }
+    };
+
+    return (
+      <Col lg={colSize(!!file ? file.type : '')} className="pt-4">
+        {item_type === itemType.Audio || file.type === FileTypes.Audio ?
+          <HomePageAudioPreview data={props.data}/>
+          :
+          <div onClick={() => dispatch(openModal(props.data))}>
+            <DetailPreview data={props.data} onLoad={() => dispatch(waitForLoad(loadedCount - 1))}/>
+          </div>
+        }
+      </Col>
+    );
+  }
+
+  const allItems = [
+    ...loadedItems,
+    ...data.map( (e: HomepageData, i: number) => (<Layout key={loadedItems.length + i} data={e} />))
+  ];
+
   dispatch({
    type: LOAD_MORE_HOMEPAGE,
    items: items,
    collections: collections,
    audio: audio,
    loadedMore: true,
-   loadedItems: [
-     ...loadedItems,
-     ...await addFilesToData(data)
-   ],
+   loadedCount: allItems.length,
+   loadedItems: allItems
  });
   dispatch({ type: LOAD_MORE_LOADING, loading: false });
+};
+
+const waitForLoad = (loadedCount: number) => dispatch => {
+  dispatch({ type: LOAD_COUNT_HOMEPAGE, loadedCount: loadedCount });
 };
 
 // Modal
@@ -168,3 +217,29 @@ export const openModal = (data: HomepageData) => dispatch => {
      });
   }
 };
+
+export const HomePageAudioPreview = (props: { data: HomepageData, openModal?: Function }) => {
+  const {
+    id,
+    count,
+    item_subtype,
+    item_type,
+    title,
+    file,
+    creators,
+    date
+  } = props.data;
+
+  return (
+    <>
+      {item_type === itemType.Audio || (!!file && file.type === FileTypes.Audio) ?
+        !!count && count > 0 ?
+          <div onClick={() => typeof props.openModal === 'function' ? props.openModal(props.data) : false}>
+            <AudioPreview noClick data={{title, id, url: file.url, date, creators, item_subtype, isCollection: !!count}}/>
+          </div> :
+          <AudioPreview data={{title, id, url: file.url, date, creators, item_subtype, isCollection: !!count}}/>
+        : <></>
+      }
+    </>
+  );
+}

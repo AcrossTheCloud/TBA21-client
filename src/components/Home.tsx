@@ -5,17 +5,16 @@ import { Col, Container, Row, Spinner } from 'reactstrap';
 import { debounce } from 'lodash';
 import { Cookies, withCookies } from 'react-cookie';
 
-import { loadHomepage, loadMore, logoDispatch, openModal } from 'actions/home';
+import { HomePageAudioPreview, loadHomepage, loadMore, logoDispatch, openModal } from 'actions/home';
 import { toggle as searchOpenToggle } from 'actions/searchConsole';
 
-import { HomepageData, HomePageState } from '../reducers/home';
+import { HomePageState } from '../reducers/home';
 
 import Logo from './layout/Logo';
 import { FaCircle, FaPlay } from 'react-icons/all';
 import moment from 'moment';
-import AudioPreview from './layout/audio/AudioPreview';
 import { FileTypes } from '../types/s3File';
-import { DetailPreview, FileStaticPreview } from './utils/DetailPreview';
+import { FileStaticPreview } from './utils/DetailPreview';
 import { itemType } from '../types/Item';
 
 import { browser } from './utils/browser';
@@ -35,7 +34,6 @@ interface Props extends HomePageState {
 
 class HomePage extends React.Component<Props, {}> {
   _isMounted;
-  loadedCount: number = 0;
   scrollDebounce;
   windowHeightTimeout;
 
@@ -56,7 +54,6 @@ class HomePage extends React.Component<Props, {}> {
     if (!this.props.loadedItems.length) {
       await this.props.loadHomepage();
       await this.props.loadMore();
-      this.loadedCount = this.props.loadedItems.filter(t => (t.item_type === itemType.PDF || t.item_type === itemType.Text || t.item_type === itemType.DownloadText)).length;
     }
   }
 
@@ -66,19 +63,10 @@ class HomePage extends React.Component<Props, {}> {
     window.removeEventListener('scroll', this.handleScrollMobileSearch, false);
   }
 
-  componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>, snapshot?: any): void {
-    if (this.loadedCount === 0 && this.props.loadedMore) {
-      this.loadedCount = this.props.loadedItems.length;
-    }
-  }
-
-  waitForLoad = async () => {
-    if (this.props.loadedMore) { // We've loaded the OA Highlights prior to this being set.
-      this.loadedCount--;
-      if (!this.props.logoLoaded && this.loadedCount <= 0) {
-        this.props.logoDispatch(true);
-        await this.windowHeightCheck();
-      }
+  async componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>): Promise<void> {
+    if (this.props.loadedCount === this.props.loadedItems.length && this.props.loadedMore && !this.props.logoLoaded) {
+      this.props.logoDispatch(true);
+      await this.windowHeightCheck();
     }
   }
 
@@ -120,7 +108,7 @@ class HomePage extends React.Component<Props, {}> {
       const scrollTop = $(document).scrollTop() as number;
 
       if (!headerOffset) { return; }
-      if(
+      if (
         (headerOffset.top >= scrollTop) &&
         (headerOffset.top - 100 < scrollTop)
         && (window.innerWidth < 720 || browser() === 'ios')) {
@@ -171,66 +159,6 @@ class HomePage extends React.Component<Props, {}> {
     );
   }
 
-  DisplayLayout = (props: {data: HomepageData}): JSX.Element => {
-    const {
-      file,
-      item_type
-    } = props.data;
-
-    if (!file) { return <></>; }
-
-    const colSize = (fileType: string): number => {
-      switch (fileType) {
-        case 'Audio':
-          return 12;
-
-        case 'Video':
-          return 8;
-
-        default:
-          return 4;
-      }
-    };
-
-    return (
-      <Col lg={colSize(!!file ? file.type : '')} className="pt-4">
-        {item_type === itemType.Audio || file.type === FileTypes.Audio ?
-            <this.audioPreview data={props.data} />
-          :
-          <div onClick={() => this.props.openModal(props.data)}>
-            <DetailPreview data={props.data} onLoad={() => this.waitForLoad}/>
-          </div>
-        }
-      </Col>
-    );
-  };
-
-  audioPreview = (props: { data: HomepageData }) => {
-    const {
-      id,
-      count,
-      item_subtype,
-      item_type,
-      title,
-      file,
-      creators,
-      date
-    } = props.data;
-
-    return (
-      <>
-        {item_type === itemType.Audio || (!!file && file.type === FileTypes.Audio) ?
-          !!count && count > 0 ?
-            <div onClick={() => this.props.openModal(props.data)}>
-              <AudioPreview noClick data={{title, id, url: file.url, date, creators, item_subtype, isCollection: !!count}}/>
-            </div> :
-            <AudioPreview data={{title, id, url: file.url, date, creators, item_subtype, isCollection: !!count}}/>
-          : <></>
-        }
-      </>
-    );
-  }
-
   render() {
     const {
       loaded_highlights,
@@ -252,7 +180,7 @@ class HomePage extends React.Component<Props, {}> {
                   {
                     loaded_highlights[0].file ?
                       loaded_highlights[0].item_type === itemType.Audio || loaded_highlights[0].file.type === FileTypes.Audio ?
-                        <this.audioPreview data={loaded_highlights[0]} />
+                        <HomePageAudioPreview data={loaded_highlights[0]} openModal={() => this.props.openModal(true)} />
                         :
                         <FileStaticPreview file={loaded_highlights[0].file} />
                       : <></>
@@ -280,7 +208,7 @@ class HomePage extends React.Component<Props, {}> {
                       {
                         loaded_highlights[1].file ?
                           loaded_highlights[1].item_type === itemType.Audio || loaded_highlights[1].file.type === FileTypes.Audio ?
-                            <this.audioPreview data={loaded_highlights[1]} />
+                            <HomePageAudioPreview data={loaded_highlights[1]} openModal={() => this.props.openModal(true)} />
                             :
                             <FileStaticPreview file={loaded_highlights[1].file} />
                           : <></>
@@ -300,7 +228,7 @@ class HomePage extends React.Component<Props, {}> {
                     {
                       loaded_highlights[1].file ?
                         loaded_highlights[1].item_type === itemType.Audio || loaded_highlights[1].file.type === FileTypes.Audio ?
-                          <this.audioPreview data={loaded_highlights[1]} />
+                          <HomePageAudioPreview data={loaded_highlights[1]} openModal={() => this.props.openModal(true)} />
                           :
                           <FileStaticPreview file={loaded_highlights[1].file} />
                         : <></>
@@ -363,7 +291,7 @@ class HomePage extends React.Component<Props, {}> {
 
         <Container fluid id="main">
           <Row>
-            {loadedItems.map( (e: HomepageData, i: number) => (<this.DisplayLayout key={i} data={e} />))}
+            {loadedItems}
           </Row>
           <Row>
             { this.props.loading ?
@@ -376,7 +304,7 @@ class HomePage extends React.Component<Props, {}> {
 
           { !items.length && !collections.length && !audio.length ?
               <></>
-            : <div style={{paddingTop: '100px'}}></div>
+            : <div style={{paddingTop: '100px'}} />
           }
         </Container>
         <Footer />
@@ -397,6 +325,7 @@ const mapStateToProps = (state: { home: Props }) => ({
   oa_highlight: state.home.oa_highlight ? state.home.oa_highlight : [],
   loadedItems: state.home.loadedItems,
   loadedMore: state.home.loadedMore,
+  loadedCount: state.home.loadedCount,
   loaded_highlights: state.home.loaded_highlights
 });
 
