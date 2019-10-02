@@ -4,6 +4,7 @@ import { Label, Button, Col, Input, Modal, ModalBody, Row, Form, CustomInput } f
 import tbaLogo from 'images/logo/tba21-logo.svg';
 import { modalToggle as aboutModalToggle } from 'actions/pages/about';
 import { modalToggle } from 'actions/pages/privacyPolicy';
+import { AuthContext } from '../../providers/AuthProvider';
 
 import 'styles/layout/footer.scss';
 
@@ -14,16 +15,19 @@ interface Props {
 
 interface State {
   mailChimpModal: boolean;
+  email: string;
 }
 
 class Footer extends React.Component<Props, State> {
+  static contextType = AuthContext;
   _isMounted: boolean = false;
 
   constructor(props: Props) {
     super(props);
 
     this.state = {
-      mailChimpModal: false
+      mailChimpModal: false,
+      email: ''
     };
   }
 
@@ -63,6 +67,10 @@ class Footer extends React.Component<Props, State> {
     if (this._isMounted) {
       if (!this.state.mailChimpModal) {
         this.mailChimpScripts();
+
+        // Get the users email
+        const context: React.ContextType<typeof AuthContext> = this.context;
+        this.setState({ email: context.email || '' });
       }
       this.setState({ mailChimpModal: !this.state.mailChimpModal });
     }
@@ -105,7 +113,7 @@ class Footer extends React.Component<Props, State> {
                   <div className="indicates-required"><span className="asterisk">*</span> indicates required</div>
                   <div className="mc-field-group">
                     <Label htmlFor="mce-EMAIL">Email Address <span className="asterisk">*</span></Label>
-                    <Input type="email" defaultValue="" name="EMAIL" className="required email" id="mce-EMAIL" />
+                    <Input type="email" defaultValue={this.state.email} name="EMAIL" className="required email" id="mce-EMAIL" />
                   </div>
                   <div className="mc-field-group">
                     <Label htmlFor="mce-FULLNAME">Full Name </Label>
