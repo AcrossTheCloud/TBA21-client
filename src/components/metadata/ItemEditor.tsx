@@ -2303,8 +2303,6 @@ class ItemEditorClass extends React.Component<Props, State> {
                   }
                 </Col>
                 <Col xs="4">
-                  {this.props.children ? this.props.children : <></>}
-
                   <UncontrolledButtonDropdown className="float-right">
                     {this.state.originalItem.status ?
                       <Button className="caret" onClick={this.updateItem} disabled={!this.state.isDifferent}>Save</Button>
@@ -2641,9 +2639,13 @@ function withCollapse <P extends WithCollapseProps>(WrappedComponent: React.Comp
     render() {
       return (
         <Row style={{paddingTop: '50px'}}>
-          <Col onClick={this.toggleCollapse} xs="12" >
+          <Col onClick={this.toggleCollapse} xs="4" sm="10" >
+            {this.state.open ? <FaMinus /> : <FaPlus />}
             {this.props.item.title ? this.props.item.title : 'Untitled'}
-            {this.state.open ? <FaMinus style={{float: 'right'}} /> : <FaPlus style={{float: 'right'}} />}
+          </Col>
+
+          <Col xs="2" sm="2">
+            {this.props.children ? this.props.children : <></>}
           </Col>
           <Collapse isOpen={this.state.open}>
             <WrappedComponent {...this.props as P} />
