@@ -140,7 +140,7 @@ class HomePage extends React.Component<Props, {}> {
 
         <Logo loaded={logoLoaded}/>
 
-        <Container fluid id="main">
+        <Container fluid id="main" className="pb">
           <Row>
             {loadedItems}
           </Row>
