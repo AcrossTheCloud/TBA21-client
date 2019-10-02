@@ -1,6 +1,7 @@
 @import '../../base/variables';
 
 #item {
+
   color: $soft-gray;
   background-color: $dark-blue;
 
@@ -61,9 +62,13 @@
     font-size: 14px;
   }
 
+  .left, .right {
+    padding: 15px 15px;
+    //@media
+  }
+
   .left {
     border-color: $item-details-border !important;
-    padding: 15px 15px 0;
 
     .creators {
       font-size: 16px
@@ -76,7 +81,6 @@
   }
 
   .right {
-    padding: 15px 15px 0;
     @media screen and (max-width: 540px) {
       margin-top: 15px;
       border-top: 1px solid $item-details-border;
