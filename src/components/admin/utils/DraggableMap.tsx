@@ -3,7 +3,7 @@ import { Container, Row, Col, Input, InputGroup, InputGroupAddon } from 'reactst
 import { Map, Marker, TileLayer, Polyline } from 'react-leaflet';
 import { LatLngExpression, LocationEvent } from 'leaflet';
 
-import { getMapIcon } from './icons';
+import { getMapIcon } from '../../map/icons';
 import { Position } from 'types/Map';
 
 import 'leaflet/dist/leaflet.css';
@@ -79,10 +79,12 @@ export default class DraggableMap extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props, prevState: State): void {
-    this.callback();
+    if (this.state.marker !== prevState.marker || this.state.lineString !== prevState.lineString) {
+      this.callback();
+    }
   }
 
-  callback = (prevState?: State) => {
+  callback = () => {
     if (typeof this.props.positionCallback === 'function') {
       if (this.state.mode === 'marker') {
         this.props.positionCallback(this.state.marker);
