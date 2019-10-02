@@ -64,7 +64,6 @@ const initialState: HomePageState = {
 };
 
 export default (state: HomePageState | null = initialState, action) => {
-  console.log(state, 'sdfsdfdsfdsfsdfsdfsd')
   if (state === undefined) { state = initialState; }
 
   switch (action.type) {
@@ -84,7 +83,6 @@ export default (state: HomePageState | null = initialState, action) => {
       };
 
     case LOAD_COUNT_HOMEPAGE:
-      console.log('LOAD_COUNT_HOMEPAGE', action.loadedCount);
       return {
         ...state,
         loadedCount: action.loadedCount,
