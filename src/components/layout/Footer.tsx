@@ -1,21 +1,27 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { Label, Button, Col, Input, Modal, ModalBody, Row, Form, CustomInput } from 'reactstrap';
+import jsonp from 'jsonp';
+import { Label, Button, Col, Input, Modal, ModalBody, Row, Form, CustomInput, FormFeedback } from 'reactstrap';
 import tbaLogo from 'images/logo/tba21-logo.svg';
 import { modalToggle as aboutModalToggle } from 'actions/pages/about';
 import { modalToggle } from 'actions/pages/privacyPolicy';
 import { AuthContext } from '../../providers/AuthProvider';
-
+import { validateEmail } from '../utils/inputs/email';
+import { Alerts, ErrorMessage, SuccessMessage, WarningMessage } from '../utils/alerts';
+import { toggleOverlay } from '../../actions/loadingOverlay';
 import 'styles/layout/footer.scss';
 
 interface Props {
   aboutModalToggle: Function;
   modalToggle: Function;
+  toggleOverlay: Function;
 }
 
-interface State {
+interface State extends Alerts {
   mailChimpModal: boolean;
+  hide: boolean;
   email: string;
+  emailInvalid?: boolean;
 }
 
 class Footer extends React.Component<Props, State> {
@@ -27,6 +33,7 @@ class Footer extends React.Component<Props, State> {
 
     this.state = {
       mailChimpModal: false,
+      hide: false,
       email: ''
     };
   }
@@ -39,40 +46,93 @@ class Footer extends React.Component<Props, State> {
     this._isMounted = false;
   }
 
-  mailChimpScripts() {
-    const mcValidate = document.getElementById('mcValidate');
-    if (!mcValidate) {
-      const mcValidateScript = document.createElement('script');
-      mcValidateScript.src = 'https://s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js';
-      mcValidateScript.async = true;
-      mcValidateScript.id = 'mcValidate';
-      document.body.appendChild(mcValidateScript);
-
-      mcValidateScript.onload = () => {
-        const mcInline = document.getElementById('mcInline');
-        if (!mcInline) {
-          const mcInlineScript = document.createElement('script');
-          mcInlineScript.type = 'text/javascript';
-          mcInlineScript.async = true;
-          mcInlineScript.id = 'mcInline';
-          mcInlineScript.innerHTML = `(function($) {window.fnames = new Array(); window.ftypes = new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[1]='FNAME';ftypes[1]='text';fnames[2]='LNAME';ftypes[2]='text';fnames[3]='ADDRESS';ftypes[3]='address';fnames[4]='PHONE';ftypes[4]='phone';fnames[5]='FULLNAME';ftypes[5]='text';fnames[6]='MMERGE6';ftypes[6]='text';fnames[7]='MMERGE7';ftypes[7]='url';fnames[8]='MMERGE8';ftypes[8]='text';}(jQuery)); var $mcj = jQuery.noConflict(true);`;
-          document.body.appendChild(mcInlineScript);
-        }
-
-      };
-    }
-  }
-
   mailChimpModalToggle = () => {
     if (this._isMounted) {
       if (!this.state.mailChimpModal) {
-        this.mailChimpScripts();
 
         // Get the users email
         const context: React.ContextType<typeof AuthContext> = this.context;
         this.setState({ email: context.email || '' });
       }
       this.setState({ mailChimpModal: !this.state.mailChimpModal });
+    }
+  }
+
+  emailInvalid = (email: string) => !email.length || !validateEmail(email)
+
+  handleSubmit = async (event) => {
+    event.preventDefault();
+
+    this.props.toggleOverlay(true);
+
+    const scrollToAlert = function() {
+      if (state.warningMessage !== undefined || state.errorMessage !== undefined || state.successMessage !== undefined) {
+        const alertRow = document.getElementById('mc_alerts');
+        if (alertRow) {
+          alertRow.scrollIntoView();
+        }
+      }
+    };
+
+    const state = {
+      warningMessage: undefined,
+      errorMessage: undefined,
+      successMessage: undefined
+    };
+
+    const formData = new FormData(event.target);
+
+    // Only a bot would fill this out ...
+    const honeyBotInput = formData.get('b_8fe0e1048c67fb6cd5aa55bbf_f533c9b80d') as string;
+    if (honeyBotInput && honeyBotInput.length) {
+      return;
+    } else {
+      formData.delete('b_8fe0e1048c67fb6cd5aa55bbf_f533c9b80d');
+    }
+
+    const email = formData.get('EMAIL') as string;
+    const emailInvalid = this.emailInvalid(email);
+
+    if (emailInvalid && this._isMounted) {
+      Object.assign(state, { errorMessage: 'Please enter a valid email address', emailInvalid });
+      this.props.toggleOverlay(false);
+      this.setState(state, function() {
+        scrollToAlert();
+      });
+    } else {
+      const postData = [
+        `EMAIL=${email}`
+      ];
+
+      const website = formData.get('MMERGE7');
+      if (formData.get('MMERGE7')) {
+        postData.push(`MMERGE7=${website}`);
+      }
+      const fullname = formData.get('FULLNAME');
+      if (formData.get('FULLNAME')) {
+        postData.push(`FULLNAME=${fullname}`);
+      }
+
+      // send the request off.
+      jsonp(`https://tba21.us18.list-manage.com/subscribe/post-json?u=8fe0e1048c67fb6cd5aa55bbf&id=f533c9b80d&${postData.join('&')}`, {param: 'c'}, (err, data) => {
+        if (data.msg.includes('already subscribed')) {
+          Object.assign(state, {warningMessage: 'Looks like you\'re already subscribed!'});
+          Object.assign(state, { hide: true });
+        } else if (err) {
+          Object.assign(state, {errorMessage: 'We had some trouble signing you up.'});
+        } else if (data.result !== 'success') {
+          Object.assign(state, {errorMessage: 'We had some trouble signing you up.'});
+        } else {
+          Object.assign(state, {successMessage: 'Thank you for signing up to our newsletter! You\'ll receive a confirmation email shortly. '});
+        }
+
+        Object.assign(state, { hide: true });
+
+        this.props.toggleOverlay(false);
+        this.setState(state, function() {
+          scrollToAlert();
+        });
+      });
     }
   }
 
@@ -99,28 +159,41 @@ class Footer extends React.Component<Props, State> {
 
         <Modal isOpen={this.state.mailChimpModal} backdrop scrollable centered size="lg" toggle={this.mailChimpModalToggle} >
           <ModalBody>
+            <div id="mc_alerts">
+              <ErrorMessage message={this.state.errorMessage}/>
+              <SuccessMessage message={this.state.successMessage}/>
+              <WarningMessage message={this.state.warningMessage}/>
+            </div>
             <div id="mc_embed_signup">
-              <Form
-                action="https://tba21.us18.list-manage.com/subscribe/post?u=8fe0e1048c67fb6cd5aa55bbf&amp;id=f533c9b80d"
-                method="post"
-                id="mc-embedded-subscribe-form"
-                name="mc-embedded-subscribe-form"
-                className="validate"
-                noValidate
-              >
+              <Form id="mc_form" onSubmit={this.handleSubmit}>
                 <div id="mc_embed_signup_scroll">
-                  <div className="indicates-required"><span className="asterisk">*</span> indicates required</div>
                   <div className="mc-field-group">
-                    <Label htmlFor="mce-EMAIL">Email Address <span className="asterisk">*</span></Label>
-                    <Input type="email" defaultValue={this.state.email} name="EMAIL" className="required email" id="mce-EMAIL" />
+                    <Label htmlFor="mce-EMAIL">Email Address</Label>
+                    <Input
+                      type="email"
+                      defaultValue={this.state.email}
+                      name="EMAIL"
+                      className="required email"
+                      id="mce-EMAIL"
+                      onChange={e => {
+                        const emailInvalid = this.emailInvalid(e.target.value);
+                        if (this._isMounted) {
+                          this.setState({ emailInvalid });
+                        }
+                      }}
+                      disabled={this.state.hide}
+                    />
+                    <FormFeedback style={this.state.emailInvalid || !this.state.email.length ? { display: 'block' } : { display: 'none' }}>
+                      Email address is invalid.
+                    </FormFeedback>
                   </div>
                   <div className="mc-field-group">
                     <Label htmlFor="mce-FULLNAME">Full Name </Label>
-                    <Input type="text" defaultValue="" name="FULLNAME" className="" id="mce-FULLNAME" />
+                    <Input type="text" defaultValue="" name="FULLNAME" className="" id="mce-FULLNAME" disabled={this.state.hide} />
                   </div>
                   <div className="mc-field-group">
                     <Label htmlFor="mce-MMERGE7">Website </Label>
-                    <Input type="url" defaultValue="" name="MMERGE7" className=" url" id="mce-MMERGE7" />
+                    <Input type="url" defaultValue="" name="MMERGE7" className=" url" id="mce-MMERGE7" disabled={this.state.hide} />
                   </div>
                   <div id="mergeRow-gdpr" className="mergeRow gdpr-mergeRow content__gdprBlock mc-field-group">
                     <div className="content__gdpr">
@@ -138,8 +211,11 @@ class Footer extends React.Component<Props, State> {
                       <p className="pt-2">You can unsubscribe at any time by clicking the link in the footer of our emails. For information about our privacy practices, please visit our website.</p>
                     </div>
 
+                    <input type="hidden" name="u" value="8fe0e1048c67fb6cd5aa55bbf" />
+                    <input type="hidden" name="id" value="f533c9b80d" />
+
                     {/*Tag insert*/}
-                    <input type="checkbox" value="8" name="group[127205][40721]" checked />
+                    {/*<input type="checkbox" value="40721" name="group[127205]" defaultChecked />*/}
 
                     <div className="content__gdprLegal pt-1">
                       <p>We use Mailchimp as our marketing platform. By clicking below to subscribe, you acknowledge that your information will be transferred to Mailchimp for processing. <a href="https://mailchimp.com/legal/" target="_blank" rel="noreferrer noopener">Learn more about Mailchimp's privacy practices here.</a></p>
@@ -154,7 +230,7 @@ class Footer extends React.Component<Props, State> {
                     <Input type="text" name="b_8fe0e1048c67fb6cd5aa55bbf_f533c9b80d" tabIndex={-1} defaultValue="" />
                   </div>
                   <div className="clear">
-                    <Button type="submit" name="subscribe" id="mc-embedded-subscribe" className="button">
+                    <Button type="submit" name="subscribe" id="mc-embedded-subscribe" className="button" disabled={this.state.hide}>
                       Subscribe
                     </Button>
                   </div>
@@ -169,4 +245,4 @@ class Footer extends React.Component<Props, State> {
   }
 }
 
-export default connect(undefined, { aboutModalToggle, modalToggle })(Footer);
+export default connect(undefined, { aboutModalToggle, modalToggle, toggleOverlay })(Footer);
