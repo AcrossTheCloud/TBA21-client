@@ -12,6 +12,7 @@ import { collectionTypes } from '../../types/Collection';
 
 import textImage from 'images/defaults/Unscharfe_Zeitung.jpg';
 import { browser } from './browser';
+import PdfPreview from './PdfPreview';
 
 export type ItemOrHomePageData = Item | HomepageData;
 
@@ -43,6 +44,13 @@ export const FileStaticPreview = (props: { file: S3File, onLoad?: Function }): J
             alt={''}
           />
         </picture>
+      );
+
+    case FileTypes.Pdf:
+      return (
+        <div className="pdf">
+          <PdfPreview onLoad={typeof props.onLoad === 'function' ? props.onLoad() : () => { return; }} url={props.file.url}/>
+        </div>
       );
 
     default:
