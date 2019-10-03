@@ -19,8 +19,7 @@ class Footer extends React.Component<Props, {}> {
         <Row className="mx-0">
           <Col xs="12" lg="10">
             <Row>
-              <Col xs="12" lg="4" className="pt-2 py-md-0 pr-lg-0"><a href="mailto:info@ocean-archive.org">info@ocean-archive.org</a></Col>
-              <Col xs="12" lg="8" className="pt-2 py-md-0 px-lg-0">
+              <Col xs="12" lg="10" className="pt-2 py-md-0 px-lg-0">
                 <Button color="link" onClick={() => this.props.aboutModalToggle(true)}>About</Button>
                 <Button color="link" onClick={() => this.props.modalToggle('TC_MODAL', true)}>Terms Of Use</Button>
                 <Button color="link" onClick={() => this.props.modalToggle('PP_MODAL', true)}>Privacy Policy</Button>
