@@ -120,16 +120,8 @@ class Footer extends React.Component<Props, State> {
                     <Input type="text" defaultValue="" name="FULLNAME" className="" id="mce-FULLNAME" />
                   </div>
                   <div className="mc-field-group">
-                    <Label htmlFor="mce-MMERGE6">Institution </Label>
-                    <Input type="text" defaultValue="" name="MMERGE6" className="" id="mce-MMERGE6" />
-                  </div>
-                  <div className="mc-field-group">
                     <Label htmlFor="mce-MMERGE7">Website </Label>
                     <Input type="url" defaultValue="" name="MMERGE7" className=" url" id="mce-MMERGE7" />
-                  </div>
-                  <div className="mc-field-group">
-                    <Label htmlFor="mce-MMERGE8">Notes </Label>
-                    <Input type="text" defaultValue="" name="MMERGE8" className="" id="mce-MMERGE8" />
                   </div>
                   <div id="mergeRow-gdpr" className="mergeRow gdpr-mergeRow content__gdprBlock mc-field-group">
                     <div className="content__gdpr">
@@ -146,6 +138,10 @@ class Footer extends React.Component<Props, State> {
                       </fieldset>
                       <p className="pt-2">You can unsubscribe at any time by clicking the link in the footer of our emails. For information about our privacy practices, please visit our website.</p>
                     </div>
+
+                    {/*Tag insert*/}
+                    <input type="checkbox" value="8" name="group[127205][40721]" checked />
+
                     <div className="content__gdprLegal pt-1">
                       <p>We use Mailchimp as our marketing platform. By clicking below to subscribe, you acknowledge that your information will be transferred to Mailchimp for processing. <a href="https://mailchimp.com/legal/" target="_blank" rel="noreferrer noopener">Learn more about Mailchimp's privacy practices here.</a></p>
                     </div>
