@@ -24,13 +24,22 @@ a, .btn-link {
   }
 }
 
-.main {
+.main, #main {
   min-height: 100vh;
   &.pb {
-    padding-bottom: 100px;
+    @media screen and (min-width: 992px) {
+      padding-bottom: 115px; // offset the search and about bars
+    }
+    @media screen and (min-width: 1500px) {
+      padding-bottom: 145px; // offset the search and about bars
+    }
   }
   &.blue {
     background-color: $dark-blue;
+
+    &.container-fluid {
+      padding: 0;
+    }
   }
 }
 

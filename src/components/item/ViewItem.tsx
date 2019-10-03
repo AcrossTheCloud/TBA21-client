@@ -106,7 +106,7 @@ class ViewItem extends React.Component<Props, State> {
 
     const isAudio = (!!file && item_type === itemType.Audio) || (!!file && file.type === FileTypes.Audio);
     return (
-      <div id="item">
+      <div id="item" className="container-fluid">
         <ErrorMessage message={this.props.errorMessage} />
         {file && file.url ?
           <Row className="file">
