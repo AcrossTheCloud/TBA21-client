@@ -46,6 +46,14 @@ class Footer extends React.Component<Props, State> {
     this._isMounted = false;
   }
 
+  componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>): void {
+    if (this.state.mailChimpModal && !prevState.mailChimpModal && this.state.errorMessage && this.state.hide) {
+      if (this._isMounted) {
+        this.setState({hide: false, warningMessage: undefined, errorMessage: undefined});
+      }
+    }
+  }
+
   mailChimpModalToggle = () => {
     if (this._isMounted) {
       if (!this.state.mailChimpModal) {
@@ -58,7 +66,7 @@ class Footer extends React.Component<Props, State> {
     }
   }
 
-  emailInvalid = (email: string) => !email.length || !validateEmail(email)
+  emailInvalid = (email: string) => !email.length || !validateEmail(email);
 
   handleSubmit = async (event) => {
     event.preventDefault();
@@ -96,9 +104,11 @@ class Footer extends React.Component<Props, State> {
     if (emailInvalid && this._isMounted) {
       Object.assign(state, { errorMessage: 'Please enter a valid email address', emailInvalid });
       this.props.toggleOverlay(false);
-      this.setState(state, function() {
-        scrollToAlert();
-      });
+      if (this._isMounted) {
+        this.setState(state, function () {
+          scrollToAlert();
+        });
+      }
     } else {
       const postData = [
         `EMAIL=${email}`
@@ -129,9 +139,11 @@ class Footer extends React.Component<Props, State> {
         Object.assign(state, { hide: true });
 
         this.props.toggleOverlay(false);
-        this.setState(state, function() {
-          scrollToAlert();
-        });
+        if (this._isMounted) {
+          this.setState(state, function () {
+            scrollToAlert();
+          });
+        }
       });
     }
   }
@@ -211,11 +223,8 @@ class Footer extends React.Component<Props, State> {
                       <p className="pt-2">You can unsubscribe at any time by clicking the link in the footer of our emails. For information about our privacy practices, please visit our website.</p>
                     </div>
 
-                    <input type="hidden" name="u" value="8fe0e1048c67fb6cd5aa55bbf" />
-                    <input type="hidden" name="id" value="f533c9b80d" />
-
                     {/*Tag insert*/}
-                    {/*<input type="checkbox" value="40721" name="group[127205]" defaultChecked />*/}
+                    <input type="hidden" value="40721" name="group[127205]" defaultChecked style={{ display: 'none' }}/>
 
                     <div className="content__gdprLegal pt-1">
                       <p>We use Mailchimp as our marketing platform. By clicking below to subscribe, you acknowledge that your information will be transferred to Mailchimp for processing. <a href="https://mailchimp.com/legal/" target="_blank" rel="noreferrer noopener">Learn more about Mailchimp's privacy practices here.</a></p>
