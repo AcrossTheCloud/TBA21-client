@@ -229,10 +229,6 @@ class Footer extends React.Component<Props, State> {
 
                         <CustomInput type="checkbox" label="Email" id="gdpr_55561" name="gdpr[55561]" className="av-checkbox" defaultValue="Y" />
 
-                        <CustomInput type="checkbox" label="Direct Mail" id="gdpr_55565" name="gdpr[55565]" className="av-checkbox" defaultValue="Y" />
-
-                        <CustomInput type="checkbox" label="Customized Online Advertising" id="gdpr_55569" name="gdpr[55569]" className="av-checkbox" defaultValue="Y" />
-
                       </fieldset>
                       <p className="pt-2">You can unsubscribe at any time by clicking the link in the footer of our emails. For information about our privacy practices, please visit our website.</p>
                     </div>
