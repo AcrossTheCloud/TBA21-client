@@ -60,7 +60,7 @@ import { getProfileDetails } from '../../actions/user/profile';
 import { Profile } from '../../types/Profile';
 import 'styles/components/metadata/itemEditor.scss';
 import 'styles/components/metadata/editors.scss';
-import { FaMinus, FaPlus } from 'react-icons/fa';
+import { FaCheck, FaMinus, FaPlus, FaTimes } from 'react-icons/fa';
 
 export interface Props {
   item: Item;
@@ -2622,33 +2622,40 @@ interface WithCollapseProps extends Props {
 function withCollapse <P extends WithCollapseProps>(WrappedComponent: React.ComponentType<P>) {
   interface WithCollapseState {
     open: boolean;
+    hasLoaded: boolean;
   }
 
   return class CollapsedItemDisplay extends React.Component<P, WithCollapseState> {
     constructor(props: P) {
       super(props);
       this.state = {
-        open: props.isOpen || false
+        open: props.isOpen || false,
+        hasLoaded: false
       };
     }
 
     toggleCollapse = () => {
-      this.setState({ open: !this.state.open });
+      this.setState({ open: !this.state.open, hasLoaded: true });
     }
 
     render() {
       return (
         <Row style={{paddingTop: '50px'}}>
-          <Col onClick={this.toggleCollapse} xs="4" sm="10" >
+          <Col onClick={this.toggleCollapse} xs="4" sm="5" >
             {this.state.open ? <FaMinus /> : <FaPlus />}
             {this.props.item.title ? this.props.item.title : 'Untitled'}
           </Col>
-
+          <Col onClick={this.toggleCollapse} xs="2" sm="3">
+            {this.props.item.creators ? this.props.item.creators : <></>}
+          </Col>
+          <Col onClick={this.toggleCollapse} xs="2" sm="2">
+            {this.props.item.status ? <FaCheck color="green" size={25} /> : <FaTimes color="red" size={25} />}
+          </Col>
           <Col xs="2" sm="2">
             {this.props.children ? this.props.children : <></>}
           </Col>
           <Collapse isOpen={this.state.open}>
-            <WrappedComponent {...this.props as P} />
+            {this.state.hasLoaded ? <WrappedComponent {...this.props as P} /> : <></>}
           </Collapse>
         </Row>
       );
