@@ -2,35 +2,6 @@
 
 .mapWrapper {
   flex: 100%;
+  height: calc(100vh - 250px);
   position: relative;
-
-  #sidebar {
-    height: 100%;
-    width: 30%;
-    position: absolute;
-    top: 0;
-    left: -100%;
-    z-index: 99999;
-    background: rgba(255, 255, 255, 0.8);
-
-    transition: left 1s;
-    padding: 20px;
-    &.open {
-      left: 0;
-      transition: left 1s;
-    }
-
-    .content {
-      overflow-y: scroll;
-      overflow-x: hidden;
-    }
-
-    .closeButton {
-      position: absolute;
-      top: 0;
-      right: 20px;
-      cursor: pointer;
-    }
-  }
-
 }

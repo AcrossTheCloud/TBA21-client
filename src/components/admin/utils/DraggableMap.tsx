@@ -1,42 +1,48 @@
 import * as React from 'react';
 import { Container, Row, Col, Input, InputGroup, InputGroupAddon } from 'reactstrap';
-import { Map, Marker, TileLayer, Polyline } from 'react-leaflet';
+import { Map, Marker, TileLayer, Polyline, FeatureGroup } from 'react-leaflet';
 import { LatLngExpression, LocationEvent } from 'leaflet';
+import { EditControl } from 'react-leaflet-draw';
 
 import { getMapIcon } from '../../map/icons';
 import { Position } from 'types/Map';
 
 import 'leaflet/dist/leaflet.css';
+import 'leaflet-draw/dist/leaflet.draw.css';
 
 interface State {
   position: LatLngExpression;
-  marker: Position | undefined;
-  mode: 'marker' | 'lineString';
+  loadedMarkers: Position[] | undefined;
   lineString: LatLngExpression[] | undefined;
   zoom: number;
 }
 
 interface Props {
-  geojson: string | undefined;
+  geojson?: string;
   positionCallback?: Function;
 }
 
 export default class DraggableMap extends React.Component<Props, State> {
   _isMounted;
   map;
+  featureGroup;
 
   state: State = {
     position: [0, 0],
-    zoom: 13,
+    zoom: 5, // initial zoom level
     lineString: undefined,
-    mode: 'marker',
-    marker: {
-      lat: 51.505,
-      lng: -0.09,
-    }
+    loadedMarkers: [
+      {
+        lat: -34.4061715,
+        lng: 150.8809023
+      },
+      {
+        lat: -38.4061715,
+        lng: 150.8809023
+      }
+    ]
   };
 
-  refmarker = React.createRef<Marker>();
   latInputRef;
   lngInputRef;
 
@@ -57,41 +63,31 @@ export default class DraggableMap extends React.Component<Props, State> {
       if (type === 'Point') {
         const { coordinates }: { coordinates: LatLngExpression } = geoJSON;
         this.setState({
-          mode: 'marker',
-          marker: { lat: coordinates[0], lng: coordinates[1]},
+          loadedMarkers: [{ lat: coordinates[0], lng: coordinates[1] }],
           position: [coordinates[0], coordinates[1]]
         });
-      } else if (type === 'LineString') {
+      }
+
+      if (type === 'LineString') {
         const { coordinates }: { coordinates: LatLngExpression[] } = geoJSON;
         this.setState({
-          marker: undefined,
-          mode: 'lineString',
           lineString: coordinates,
           position: [coordinates[0][0], coordinates[0][1]]
         });
-
       }
     } else {
-      if (this.state.position === null) {
-        this.locateUser();
-      }
-    }
-  }
-
-  componentDidUpdate(prevProps: Props, prevState: State): void {
-    if (this.state.marker !== prevState.marker || this.state.lineString !== prevState.lineString) {
-      this.callback();
+      this.locateUser();
     }
   }
 
   callback = () => {
-    if (typeof this.props.positionCallback === 'function') {
-      if (this.state.mode === 'marker') {
-        this.props.positionCallback(this.state.marker);
-      } else if (this.state.mode === 'lineString') {
-        this.props.positionCallback(this.state.lineString);
-      }
-    }
+    const features = this.featureGroup.leafletElement.toGeoJSON();
+    console.log('Callback - features - ', features);
+
+    // if (typeof this.props.positionCallback === 'function') {
+    //   this.props.positionCallback(this.state.loadedMarkers);
+    //   this.props.positionCallback(this.state.lineString);
+    // }
   }
 
   componentWillUnmount(): void {
@@ -99,51 +95,11 @@ export default class DraggableMap extends React.Component<Props, State> {
     this._isMounted = false;
   }
 
-  getPosition = () => {
-    const marker = this.refmarker.current;
-    if (marker !== null) {
-      return marker.leafletElement.getLatLng();
-    } else {
-      return false;
-    }
-  }
-
-  onMapClick = (event) => {
-    const map = this.map;
-
-    if (map !== null && this._isMounted && this.state.mode === 'marker') {
-      const position = map.leafletElement.mouseEventToLatLng(event.originalEvent);
-
-      map.leafletElement.flyTo(position);
-      this.setState({ marker: position });
-    }
-  }
-
-  draggedMarker = () => {
-    const
-      marker = this.refmarker.current,
-      map = this.map;
-
-    if (marker !== null && map !== null && this._isMounted) {
-      const position = marker.leafletElement.getLatLng();
-
-      map.leafletElement.flyTo(position);
-      this.setState({
-        marker: position,
-      });
-    }
-  }
-
   inputChange = () => {
     const map = this.map;
     if (map !== null && this._isMounted) {
-      this.setState(
-        {
-          marker: {lat: parseFloat(this.latInputRef.value), lng: parseFloat(this.lngInputRef.value)},
-        },
-        () => {
-          map.leafletElement.flyTo(this.state.marker);
-        });
+      console.log(this.latInputRef.value, this.lngInputRef.value);
+      // map.leafletElement.flyTo(this.latInputRef.currentTarget.value, this.lngInputRef.currentTarget.value);
     }
   }
 
@@ -155,17 +111,19 @@ export default class DraggableMap extends React.Component<Props, State> {
     if (map !== null && this._isMounted) {
       map.leafletElement.locate()
         .on('locationfound', (location: LocationEvent) => {
-          console.log('locateUser data', location);
           if (location && location.latlng) {
-            map.leafletElement.flyTo(location.latlng, 15);
-            this.setState({marker: location.latlng});
+            map.leafletElement.flyTo(location.latlng, 10);
+            // Set the input fields
+            this.latInputRef.value = location.latlng.lat;
+            this.lngInputRef.value = location.latlng.lng;
           }
         })
         .on('locationerror', () => {
           // Fly to a default location if the user declines our request to get their GPS location or if we had trouble getting said location.
           // Ideally the map would already be in this location anyway.
-          map.leafletElement.flyTo([1, 1], 10);
-          this.setState({marker: {lat: 1, lng: 1}});
+          // Set the input fields
+          this.latInputRef.value = this.state.position[0];
+          this.lngInputRef.value = this.state.position[1];
         });
     }
   }
@@ -183,55 +141,74 @@ export default class DraggableMap extends React.Component<Props, State> {
 
     return (
       <div id="draggableMap" className="h-100">
-        {this.state.mode === 'marker' && this.state.marker ?
-          <Container>
-            <Row>
-              <Col md="6">
-                <InputGroup>
-                  <InputGroupAddon addonType="prepend">Lat</InputGroupAddon>
-                  <Input className="lat" type="number" value={this.state.marker.lat} innerRef={(el) => { this.latInputRef = el; }} onChange={this.inputChange}/>
-                </InputGroup>
-              </Col>
-              <Col md="6">
-                <InputGroup>
-                  <InputGroupAddon addonType="prepend">Lng</InputGroupAddon>
-                  <Input className="lng" type="number" value={this.state.marker.lng} innerRef={(el) => { this.lngInputRef = el; }} onChange={this.inputChange}/>
-                </InputGroup>
-              </Col>
-            </Row>
-          </Container>
-        :
-          <></>
-        }
+        <Container>
+          <Row>
+            <Col md="6">
+              <InputGroup>
+                <InputGroupAddon addonType="prepend">Lat</InputGroupAddon>
+                <Input className="lat" type="number" innerRef={(el) => { this.latInputRef = el; }} onChange={this.inputChange}/>
+              </InputGroup>
+            </Col>
+            <Col md="6">
+              <InputGroup>
+                <InputGroupAddon addonType="prepend">Lng</InputGroupAddon>
+                <Input className="lng" type="number" innerRef={(el) => { this.lngInputRef = el; }} onChange={this.inputChange}/>
+              </InputGroup>
+            </Col>
+          </Row>
+        </Container>
 
         <Map
           center={this.state.position}
           zoom={this.state.zoom}
           style={mapStyle}
           ref={map => this.map = map}
-          onclick={this.onMapClick}
         >
           <TileLayer
             url={tileLayer}
           />
 
-          {this.state.mode === 'lineString' && this.state.lineString ?
+          {this.state.lineString ?
             <Polyline color="lime" positions={this.state.lineString} />
             :
             <></>
           }
 
-          {this.state.mode === 'marker' && this.state.marker ?
-            <Marker
-              draggable={true}
-              position={this.state.marker}
-              ref={this.refmarker}
-              ondragend={this.draggedMarker}
-              icon={getMapIcon()}
-            />
-          :
-            <></>
-          }
+            <FeatureGroup
+              ref={fGroup => this.featureGroup = fGroup}
+            >
+              <EditControl
+                draw={{
+                  rectangle: false,
+                  circle: false,
+                  circlemarker: false,
+                  marker: {
+                    icon: getMapIcon()
+                  }
+                }}
+                edit={{
+                  edit: true,
+                  remove: true
+                }}
+
+                onCreated={this.callback}
+                onDeleted={this.callback}
+                onEdited={this.callback}
+              />
+
+              {this.state.loadedMarkers ? this.state.loadedMarkers.map((m, i) => {
+                  return (
+                    <Marker
+                      key={i}
+                      position={m}
+                      icon={getMapIcon()}
+                    />
+                  );
+                })
+                : <></>
+              }
+
+            </FeatureGroup>
         </Map>
       </div>
     );

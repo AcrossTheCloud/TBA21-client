@@ -6,7 +6,12 @@ import { MarkerData } from '../../components/map/map';
 export const FETCH_MARKERS = 'FETCH_MARKERS';
 export const FETCH_MARKERS_ERROR = 'FETCH_MARKERS_ERROR';
 
-export const fetchMarkers = (id: number) => async dispatch => {
+export const fetchMarkers = (
+    latNE: number,
+    latSW: number,
+    lngNE: number,
+    lngSW: number
+) => async dispatch => {
   try {
     const response = await API.get('tba21', 'items/get', {});
 

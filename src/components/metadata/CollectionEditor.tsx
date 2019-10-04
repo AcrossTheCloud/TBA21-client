@@ -39,6 +39,7 @@ import { getProfileDetails } from '../../actions/user/profile';
 import { Profile } from '../../types/Profile';
 
 import 'styles/components/metadata/editors.scss';
+import DraggableMap from '../admin/utils/DraggableMap';
 
 interface Props {
   collection?: Collection;
@@ -1253,6 +1254,8 @@ class CollectionEditorClass extends React.Component<Props, State> {
             <SuccessMessage message={this.state.successMessage} />
           </Col>
         </Row>
+
+        <DraggableMap />
 
         <Row>
           <Col md="12">
