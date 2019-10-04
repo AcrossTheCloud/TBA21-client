@@ -11,7 +11,8 @@ export interface HomepageData {
   s3_key: string;
   item_subtype?: string;
   item_type: itemType;
-  date: string;
+  year_produced: string;
+  time_produced: string;
   duration?: string;
   file_dimensions?: number[];
   creators?: string[];
