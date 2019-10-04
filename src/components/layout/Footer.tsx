@@ -5,6 +5,7 @@ import { Label, Button, Col, Input, Modal, ModalBody, Row, Form, CustomInput, Fo
 import tbaLogo from 'images/logo/tba21-logo.svg';
 import { modalToggle as aboutModalToggle } from 'actions/pages/about';
 import { modalToggle } from 'actions/pages/privacyPolicy';
+import { FaTimes } from 'react-icons/fa';
 import { AuthContext } from '../../providers/AuthProvider';
 import { validateEmail } from '../utils/inputs/email';
 import { Alerts, ErrorMessage, SuccessMessage, WarningMessage } from '../utils/alerts';
@@ -62,6 +63,7 @@ class Footer extends React.Component<Props, State> {
         const context: React.ContextType<typeof AuthContext> = this.context;
         this.setState({ email: context.email || '' });
       }
+
       this.setState({ mailChimpModal: !this.state.mailChimpModal });
     }
   }
@@ -173,7 +175,15 @@ class Footer extends React.Component<Props, State> {
           </Col>
         </Row>
 
-        <Modal isOpen={this.state.mailChimpModal} backdrop scrollable centered size="lg" toggle={this.mailChimpModalToggle} >
+        <Modal id="mailChimpModal" className="blue" isOpen={this.state.mailChimpModal} backdrop scrollable centered size="lg" toggle={this.mailChimpModalToggle} >
+          <Row className="header align-content-center">
+            <Col xs="11" className="pl-0">Join Our Mailing List</Col>
+            <Col xs={1} className="px-0">
+              <div className="text-right closeIcon">
+                <FaTimes className="closeButton" onClick={this.mailChimpModalToggle}/>
+              </div>
+            </Col>
+          </Row>
           <ModalBody>
             <div id="mc_alerts">
               <ErrorMessage message={this.state.errorMessage}/>
