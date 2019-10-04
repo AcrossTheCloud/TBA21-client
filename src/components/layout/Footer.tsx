@@ -115,12 +115,16 @@ class Footer extends React.Component<Props, State> {
       ];
 
       const website = formData.get('MMERGE7');
-      if (formData.get('MMERGE7')) {
+      if (website) {
         postData.push(`MMERGE7=${website}`);
       }
       const fullname = formData.get('FULLNAME');
-      if (formData.get('FULLNAME')) {
+      if (fullname) {
         postData.push(`FULLNAME=${fullname}`);
+      }
+      const oceanUpdatesGroup = formData.get('group[4449][1]');
+      if (oceanUpdatesGroup) {
+        postData.push(`group[4449][1]=${oceanUpdatesGroup}`);
       }
 
       // send the request off.
@@ -133,7 +137,7 @@ class Footer extends React.Component<Props, State> {
         } else if (data.result !== 'success') {
           Object.assign(state, {errorMessage: 'We had some trouble signing you up.'});
         } else {
-          Object.assign(state, {successMessage: 'Thank you for signing up to our newsletter! You\'ll receive a confirmation email shortly. '});
+          Object.assign(state, {successMessage: data.msg});
         }
 
         Object.assign(state, { hide: true });
@@ -223,8 +227,8 @@ class Footer extends React.Component<Props, State> {
                       <p className="pt-2">You can unsubscribe at any time by clicking the link in the footer of our emails. For information about our privacy practices, please visit our website.</p>
                     </div>
 
-                    {/*Tag insert*/}
-                    <input type="hidden" value="40721" name="group[127205]" defaultChecked style={{ display: 'none' }}/>
+                    {/*Add group*/}
+                    <input type="checkbox" value="1" name="group[4449][1]" id="mce-group[4449]-4449-0" checked style={{ display: 'none' }} />
 
                     <div className="content__gdprLegal pt-1">
                       <p>We use Mailchimp as our marketing platform. By clicking below to subscribe, you acknowledge that your information will be transferred to Mailchimp for processing. <a href="https://mailchimp.com/legal/" target="_blank" rel="noreferrer noopener">Learn more about Mailchimp's privacy practices here.</a></p>
