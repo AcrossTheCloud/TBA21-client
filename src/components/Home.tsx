@@ -60,7 +60,6 @@ class HomePage extends React.Component<Props, {}> {
   }
 
   async componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>): Promise<void> {
-    console.log(this.props.loadedCount, this.props.loadedMore, this.props.logoLoaded);
     if (this.props.loadedCount < 0 && this.props.loadedMore && !this.props.logoLoaded) {
       this.props.logoDispatch(true);
       await this.windowHeightCheck();
@@ -68,7 +67,6 @@ class HomePage extends React.Component<Props, {}> {
   }
 
   windowHeightCheck = async () => {
-    console.log('Should only run once on a normal screen size');
     // if the page is higher than the items and we have no scroll bar we need to get more items.
     clearTimeout(this.windowHeightTimeout);
     this.windowHeightTimeout = setTimeout( async () => {
