@@ -214,16 +214,15 @@ class Footer extends React.Component<Props, State> {
                     </FormFeedback>
                   </div>
                   <div className="mc-field-group">
-                    <Label htmlFor="mce-FULLNAME">Full Name </Label>
+                    <Label htmlFor="mce-FULLNAME" className="pt-3">Full Name </Label>
                     <Input type="text" defaultValue="" name="FULLNAME" className="" id="mce-FULLNAME" disabled={this.state.hide} />
                   </div>
                   <div className="mc-field-group">
-                    <Label htmlFor="mce-MMERGE7">Website </Label>
+                    <Label htmlFor="mce-MMERGE7" className="pt-3">Website </Label>
                     <Input type="url" defaultValue="" name="MMERGE7" className=" url" id="mce-MMERGE7" disabled={this.state.hide} />
                   </div>
                   <div id="mergeRow-gdpr" className="mergeRow gdpr-mergeRow content__gdprBlock mc-field-group">
-                    <div className="content__gdpr">
-                      <Label>Marketing Permissions</Label>
+                    <div className="content__gdpr pt-3">
                       <p>Please select all the ways you would like to hear from TBA21–Academy:</p>
                       <fieldset className="mc_fieldset gdprRequired mc-field-group" name="interestgroup_field">
 
