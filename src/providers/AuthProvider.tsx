@@ -111,7 +111,7 @@ class AuthProviderClass extends React.Component<Props, State> {
       );
       const auth: Authorisation = await checkAuth();
       if (!this._isMounted) { return; }
-      this.setState({ ...auth });
+      this.setState(auth);
       this.props.history.push('/');
 
     } catch (e) {

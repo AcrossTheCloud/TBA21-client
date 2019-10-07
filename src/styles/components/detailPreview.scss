@@ -97,7 +97,7 @@
       top: 20px;
       left: 20px;
     }
-    .duration {
+    .duration, .date {
       font-size: 15px;
 
       position: absolute;
@@ -127,7 +127,7 @@
 
   .pdf {
     position: relative;
-    max-height: 350px;
+    height: 350px;
     margin: 0 auto;
     overflow: hidden;
 
@@ -137,26 +137,22 @@
       height: auto !important;
     }
 
-    @media screen and (min-width: 992px) {
-      max-height: 500px;
-    }
-
     @media (min-height: 1200px) {
-      max-height: 30vh;
+      height: 30vh;
     }
     // ipad pro
     @media screen and (max-device-width: 1668px) and (device-height: 2388px) and (orientation:portrait) {
-      max-height: 500px;
+      height: 500px;
     }
     @media screen and (max-device-width: 2388px) and (device-height: 1668px) and (orientation:landscape) {}
     // ipad
     @media screen and (device-width: 768px) and (device-height: 1024px) and (orientation:portrait) {
-      max-height: 300px;
+      height: 300px;
     }
     @media screen and (device-width: 1024px) and (device-height: 768px) and (orientation:landscape) {}
 
     @media (max-height: 768px) and (orientation:landscape) {
-      max-height: 70vh;
+      height: 70vh;
     }
   }
 

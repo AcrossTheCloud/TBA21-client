@@ -114,7 +114,7 @@ class AudioPreview extends React.Component<Props, State> {
             </div>
             <Col xs="6" md="4" className="info">
               <div className="type_date">
-                {item_subtype ? item_subtype + ',' : ''} {date ? new Date(date).getFullYear() : <></>}
+                {item_subtype ? item_subtype + ',' : ''} {date}
               </div>
               {creators && creators.length ?
                 <div className="creator">

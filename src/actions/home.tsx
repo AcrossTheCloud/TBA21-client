@@ -28,6 +28,12 @@ export const logoDispatch = (state: boolean) => dispatch => {
   });
 };
 
+export const dateFromTimeYearProduced = (time: string | null, year: string | null): string => {
+  const timeProduced = time ? new Date(time).getFullYear().toString() : undefined;
+  const yearProduced = year ? year : undefined;
+  return yearProduced ? yearProduced : (timeProduced ? timeProduced : '');
+};
+
 export const loadHomepage = () => async dispatch => {
   const
     oaHighlights: {oa_highlight: HomepageData[]} = await API.get('tba21', 'pages/homepage', { queryStringParameters: {oa_highlight: true, oaHighlightLimit: 2}}),
@@ -69,7 +75,7 @@ export const loadHomepage = () => async dispatch => {
           </div>
         </div>
         <div className="type" onClick={() => dispatch(openModal(highlightsWithFiles[props.index]))}>
-          {highlightsWithFiles[props.index].item_subtype}, {new Date(highlightsWithFiles[props.index].date).getFullYear()}
+          {highlightsWithFiles[props.index].item_subtype}, {dateFromTimeYearProduced(highlightsWithFiles[props.index].time_produced, highlightsWithFiles[props.index].year_produced)}
         </div>
         {!!tags && tags.length ?
           <div className="tags d-none d-lg-block">
@@ -383,8 +389,11 @@ export const HomePageAudioPreview = (props: { data: HomepageData, openModal?: Fu
     title,
     file,
     creators,
-    date
+    year_produced,
+    time_produced
   } = props.data;
+
+  const date = dateFromTimeYearProduced(time_produced, year_produced);
 
   return (
     <>
