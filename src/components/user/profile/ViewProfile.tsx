@@ -5,6 +5,8 @@ import { State } from "reducers/user/viewProfile";
 
 import { RouteComponentProps, withRouter } from "react-router";
 
+import ViewCollection from '../../collection/ViewCollection';
+
 import "styles/components/pages/viewProfile.scss";
 import { Alerts, ErrorMessage } from "../../utils/alerts";
 import { Profile } from "../../../types/Profile";
@@ -120,6 +122,8 @@ class ViewProfile extends React.Component<Props, State> {
             </div>
           </Col>
         </Row>
+        <h4> Contributed Items </h4>
+        <ViewCollection userId="4"/>
       </div>
     );
   }

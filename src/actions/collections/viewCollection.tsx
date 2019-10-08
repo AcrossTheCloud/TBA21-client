@@ -42,7 +42,6 @@ export const fetchCollection = (id: string) => async (dispatch, getState) => {
       });
 
       if (!!response.collection && Object.keys(response.collection).length) {
-
         const itemResponse = await API.get('tba21', 'collections/getItemsInCollection', {
           queryStringParameters: {
             id,
