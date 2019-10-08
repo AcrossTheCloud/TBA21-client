@@ -1,4 +1,4 @@
-@import '../../base/variables';
+@import "../../base/variables";
 
 #profile {
   color: $soft-gray;
@@ -11,28 +11,29 @@
 
   .left {
     img {
-      max-width: 37%;
       z-index: 1;
     }
   }
 
-  .right {
-    padding: 15px 15px 0;
-    max-width: 40%;
-
-    .detailsRow {
-      margin-right: -150px;
-      .details {
-        border-color: .5px $subline-gray !important;
-        padding: 15px;
-        &:first-child {
-          padding-top: 15px;
-        }
-        &:last-child {
-          padding-bottom: 15px;
-        }
+  .details {
+    div {
+      display: flex;
+      box-sizing: border-box;
+      border: 0.1px $subline-gray solid !important;
+      padding: 15px;
+    }
+    a {
+      color: $subline-gray;
+      :hover {
+        color: $soft-gray;
       }
     }
+  }
 
+  .biography-section {
+    display: inline-grid;
+    .profession {
+      align-self: flex-end;
+    }
   }
 }
