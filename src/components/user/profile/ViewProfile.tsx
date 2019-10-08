@@ -94,7 +94,11 @@ class ViewProfile extends React.Component<Props, State> {
               <div>
                 Website:
                 <span className="ml-auto">
-                  <a href={website || ""} target="_blank">
+                  <a
+                    href={website || ""}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     {website}
                   </a>
                 </span>
