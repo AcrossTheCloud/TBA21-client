@@ -2,7 +2,6 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import jsonp from 'jsonp';
 import { Label, Button, Col, Input, Modal, ModalBody, Row, Form, CustomInput, FormFeedback } from 'reactstrap';
-import tbaLogo from 'images/logo/tba21-logo.svg';
 import { modalToggle as aboutModalToggle } from 'actions/pages/about';
 import { modalToggle } from 'actions/pages/privacyPolicy';
 import { FaTimes } from 'react-icons/fa';
@@ -169,9 +168,6 @@ class Footer extends React.Component<Props, State> {
                 </Button>
               </Col>
             </Row>
-          </Col>
-          <Col xs="12" lg="2">
-            <a href="https://www.tba21-academy.org" target="_blank" rel="noreferrer noopener"><img src={tbaLogo} alt=""/></a>
           </Col>
         </Row>
 
