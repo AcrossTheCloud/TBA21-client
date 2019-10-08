@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { Container, Row, Col, Input, InputGroup, InputGroupAddon } from 'reactstrap';
-import { Map, Marker, TileLayer, Polyline, FeatureGroup } from 'react-leaflet';
-import { LatLngExpression, LocationEvent } from 'leaflet';
-import { EditControl } from 'react-leaflet-draw';
+import { Map, Marker, TileLayer, Polyline } from 'react-leaflet';
+import * as L from 'leaflet';
+import '@geoman-io/leaflet-geoman-free';
+import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
 
 import { getMapIcon } from '../../map/icons';
 import { Position } from 'types/Map';
@@ -11,9 +12,9 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
 
 interface State {
-  position: LatLngExpression;
+  position: L.LatLngExpression;
   loadedMarkers: Position[] | undefined;
-  lineString: LatLngExpression[] | undefined;
+  lineString: L.LatLngExpression[] | undefined;
   zoom: number;
 }
 
@@ -25,7 +26,6 @@ interface Props {
 export default class DraggableMap extends React.Component<Props, State> {
   _isMounted;
   map;
-  featureGroup;
 
   state: State = {
     position: [0, 0],
@@ -55,13 +55,15 @@ export default class DraggableMap extends React.Component<Props, State> {
   componentDidMount(): void {
     this._isMounted = true;
 
+    this.addLeafletGeoMan();
+
     if (this.props.geojson) {
       const
         geoJSON = JSON.parse(this.props.geojson),
         { type }: { type: string } = geoJSON;
 
       if (type === 'Point') {
-        const { coordinates }: { coordinates: LatLngExpression } = geoJSON;
+        const { coordinates }: { coordinates: L.LatLngExpression } = geoJSON;
         this.setState({
           loadedMarkers: [{ lat: coordinates[0], lng: coordinates[1] }],
           position: [coordinates[0], coordinates[1]]
@@ -69,7 +71,7 @@ export default class DraggableMap extends React.Component<Props, State> {
       }
 
       if (type === 'LineString') {
-        const { coordinates }: { coordinates: LatLngExpression[] } = geoJSON;
+        const { coordinates }: { coordinates: L.LatLngExpression[] } = geoJSON;
         this.setState({
           lineString: coordinates,
           position: [coordinates[0][0], coordinates[0][1]]
@@ -81,8 +83,7 @@ export default class DraggableMap extends React.Component<Props, State> {
   }
 
   callback = () => {
-    const features = this.featureGroup.leafletElement.toGeoJSON();
-    console.log('Callback - features - ', features);
+    console.log('Callback - features - ');
 
     // if (typeof this.props.positionCallback === 'function') {
     //   this.props.positionCallback(this.state.loadedMarkers);
@@ -95,11 +96,38 @@ export default class DraggableMap extends React.Component<Props, State> {
     this._isMounted = false;
   }
 
+  /**
+   * Add controls from leaflet geoman, leaflet.pm
+   */
+  addLeafletGeoMan = () => {
+    const map = this.map.leafletElement;
+    map.pm.addControls();
+
+    // Enable marker, se the icon then disable it, this toggles the "clicked" state on the icon.
+    map.pm.enableDraw('Marker', {
+      markerStyle: {
+        icon: getMapIcon()
+      }
+    });
+    map.pm.disableDraw('Marker');
+
+    map.on('pm:create', e => {
+      this.callback();
+      e.layer.on('pm:edit', u => {
+        this.callback();
+      });
+      e.layer.on('pm:remove', u => {
+        this.callback();
+      });
+    });
+
+  }
+
   inputChange = () => {
     const map = this.map;
     if (map !== null && this._isMounted) {
       console.log(this.latInputRef.value, this.lngInputRef.value);
-      // map.leafletElement.flyTo(this.latInputRef.currentTarget.value, this.lngInputRef.currentTarget.value);
+      map.leafletElement.flyTo(this.latInputRef.currentTarget.value, this.lngInputRef.currentTarget.value);
     }
   }
 
@@ -110,7 +138,7 @@ export default class DraggableMap extends React.Component<Props, State> {
     const map = this.map;
     if (map !== null && this._isMounted) {
       map.leafletElement.locate()
-        .on('locationfound', (location: LocationEvent) => {
+        .on('locationfound', (location: L.LocationEvent) => {
           if (location && location.latlng) {
             map.leafletElement.flyTo(location.latlng, 10);
             // Set the input fields
@@ -164,51 +192,26 @@ export default class DraggableMap extends React.Component<Props, State> {
           style={mapStyle}
           ref={map => this.map = map}
         >
-          <TileLayer
-            url={tileLayer}
-          />
+          <TileLayer url={tileLayer} />
 
           {this.state.lineString ?
             <Polyline color="lime" positions={this.state.lineString} />
             :
             <></>
           }
-
-            <FeatureGroup
-              ref={fGroup => this.featureGroup = fGroup}
-            >
-              <EditControl
-                draw={{
-                  rectangle: false,
-                  circle: false,
-                  circlemarker: false,
-                  marker: {
-                    icon: getMapIcon()
-                  }
-                }}
-                edit={{
-                  edit: true,
-                  remove: true
-                }}
-
-                onCreated={this.callback}
-                onDeleted={this.callback}
-                onEdited={this.callback}
-              />
-
-              {this.state.loadedMarkers ? this.state.loadedMarkers.map((m, i) => {
-                  return (
-                    <Marker
-                      key={i}
-                      position={m}
-                      icon={getMapIcon()}
-                    />
-                  );
-                })
-                : <></>
-              }
-
-            </FeatureGroup>
+          {this.state.loadedMarkers ? this.state.loadedMarkers.map((m, i) => {
+              return (
+                <Marker
+                  key={i}
+                  position={m}
+                  icon={getMapIcon()}
+                  ondragend={this.callback}
+                  onremove={this.callback}
+                />
+              );
+            })
+            : <></>
+          }
         </Map>
       </div>
     );
