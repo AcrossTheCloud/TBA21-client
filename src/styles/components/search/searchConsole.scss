@@ -348,7 +348,7 @@
             position: relative;
             max-width: 200px;
             canvas {
-              max-width: 100%;
+              width: 100% !important;
               height: auto !important;
             }
           }

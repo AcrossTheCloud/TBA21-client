@@ -40,6 +40,7 @@ import { browser } from '../utils/browser';
 
 import 'styles/components/search/searchConsole.scss';
 import 'styles/components/admin/tables/modal.scss';
+import { dateFromTimeYearProduced } from '../../actions/home';
 
 interface Props extends SearchConsoleState {
   changeView: Function;
@@ -90,8 +91,11 @@ const FilePreview = (props: { data: any }) => { // tslint:disable-line: no-any
       title,
       file,
       creators,
-      date
+      year_produced,
+      time_produced
     } = props.data;
+
+    const date = dateFromTimeYearProduced(time_produced, year_produced);
     return <AudioPreview data={{title, id, url: file.url, date, creators, item_subtype, isCollection: !!count}} />;
   } else {
     return <FileStaticPreview file={props.data.file} />;

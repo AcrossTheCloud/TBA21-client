@@ -12,6 +12,8 @@ import { collectionTypes } from '../../types/Collection';
 
 import textImage from 'images/defaults/Unscharfe_Zeitung.jpg';
 import { browser } from './browser';
+import PdfPreview from './PdfPreview';
+import { dateFromTimeYearProduced } from '../../actions/home';
 
 export type ItemOrHomePageData = Item | HomepageData;
 
@@ -45,6 +47,13 @@ export const FileStaticPreview = (props: { file: S3File, onLoad?: Function }): J
         </picture>
       );
 
+    case FileTypes.Pdf:
+      return (
+        <div className="pdf">
+          <PdfPreview onLoad={typeof props.onLoad === 'function' ? props.onLoad() : () => { return; }} url={props.file.url}/>
+        </div>
+      );
+
     default:
       return (
         <picture className="image">
@@ -70,6 +79,8 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
     data = data as HomepageData;
     collectionType = data.type;
   }
+
+  const date = dateFromTimeYearProduced(data.time_produced, data.year_produced);
 
   return (
     <div className={`detailPreview ${browser()}`} onClick={() => { if (typeof props.modalToggle === 'function') { props.modalToggle(); } }}>
@@ -111,7 +122,9 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
           <div className="duration">
             {moment.duration((typeof data.duration === 'string' ? parseInt(data.duration, 0) : data.duration), 'seconds').format('hh:mm:ss')}
           </div>
-          : <></>}
+          :
+          date ? <div className="date">{date}</div> : <></>
+        }
         {!collectionType && data.file && data.file.type === FileTypes.Video ?
           <div className="middle">
             <FaPlay/>
