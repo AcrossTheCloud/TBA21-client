@@ -9,7 +9,8 @@ import { Collection } from '../../types/Collection';
 // Defining our Actions for the reducers.
 export const FETCH_COLLECTION = 'FETCH_COLLECTION';
 export const FETCH_COLLECTION_ERROR = 'FETCH_COLLECTION_ERROR';
-export const FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION = 'FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION';
+export const FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION =
+  'FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION';
 
 /**
  *
@@ -21,56 +22,61 @@ export const fetchCollection = (id: string) => async (dispatch, getState) => {
   const prevState = getState();
 
   dispatch({
-     type: LOADINGOVERLAY,
-     on: true
-   });
+    type: LOADINGOVERLAY,
+    on: true
+  });
 
   // Detect if we have the same collectionID and return the previous state.
   // We do this here to stop another API call and you can easily get the prevState in the Action.
-  if (prevState.viewCollection.collection && id === prevState.viewCollection.collection.id) {
+  if (
+    prevState.viewCollection.collection &&
+    id === prevState.viewCollection.collection.id
+  ) {
     dispatch({
-       type: LOADINGOVERLAY,
-       on: false
-     });
+      type: LOADINGOVERLAY,
+      on: false
+    });
     return prevState.viewCollection;
-
   } else {
-
     try {
       const response = await getById(id);
       const collection = removeTopology(response) as Collection[];
 
       if (!!collection && !!collection[0] && Object.keys(collection).length) {
-
         const itemResponse = await getItemsInCollection({ id, limit: 1000 });
 
         dispatch({
-           type: FETCH_COLLECTION,
-           collection: collection[0],
-           offset: 0,
-           ...await loadMore(removeTopology(itemResponse) as Item[])
+          type: FETCH_COLLECTION,
+          collection: collection[0],
+          offset: 0,
+          ...(await loadMore(removeTopology(itemResponse) as Item[]))
         });
       } else {
         dispatch({
-         type: FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION,
-         collection: undefined,
-         items: {}
-       });
+          type: FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION,
+          collection: undefined,
+          items: {}
+        });
       }
     } catch (e) {
       dispatch({
-         type: FETCH_COLLECTION_ERROR
-       });
+        type: FETCH_COLLECTION_ERROR
+      });
     } finally {
       dispatch({
-       type: LOADINGOVERLAY,
-       on: false
-     });
+        type: LOADINGOVERLAY,
+        on: false
+      });
     }
   }
 };
 
-export const loadMore = async (items: Item[], offset: number = -1, forward: boolean = true, dispatch?: Function) => {
+export const loadMore = async (
+  items: Item[],
+  offset: number = -1,
+  forward: boolean = true,
+  dispatch?: Function
+) => {
   if (items && items.length && offset < items.length) {
     for (let i = 0; i < 8; i++) {
       if (forward) {
@@ -92,7 +98,7 @@ export const loadMore = async (items: Item[], offset: number = -1, forward: bool
         }
         const file = await checkFile(items[offset]);
         if (file) {
-          Object.assign(items[offset], {file});
+          Object.assign(items[offset], { file });
         }
       }
     }
@@ -103,15 +109,23 @@ export const loadMore = async (items: Item[], offset: number = -1, forward: bool
   }
 
   return {
-     items: [...items],
-     offset: offset
-   };
+    items: [...items],
+    offset: offset
+  };
 };
 
-export const loadMoreDispatch = (forward: boolean = true) => async (dispatch, getState) => {
+export const loadMoreDispatch = (forward: boolean = true) => async (
+  dispatch,
+  getState
+) => {
   const state = getState();
   dispatch({
-   type: FETCH_COLLECTION_LOAD_MORE,
-   ...await loadMore(state.viewCollection.items, state.viewCollection.offset, forward, dispatch)
- });
+    type: FETCH_COLLECTION_LOAD_MORE,
+    ...(await loadMore(
+      state.viewCollection.items,
+      state.viewCollection.offset,
+      forward,
+      dispatch
+    ))
+  });
 };

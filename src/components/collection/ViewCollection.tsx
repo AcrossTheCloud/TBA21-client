@@ -19,6 +19,7 @@ type MatchParams = {
 };
 
 interface Props extends RouteComponentProps<MatchParams>, ViewCollectionState {
+  userId?: string;
   fetchCollection: Function;
 }
 
@@ -32,7 +33,7 @@ class ViewCollection extends React.Component<Props, {}> {
   }
 
   componentDidMount() {
-    const { match } = this.props;
+    const { match, userId } = this.props;
     let matchId: string | null = null;
 
     // Get our collectionId passed through from URL props
@@ -43,7 +44,9 @@ class ViewCollection extends React.Component<Props, {}> {
     // If we have an id from the URL pass it through, otherwise use the one from Redux State
     if (matchId) {
       this.props.fetchCollection(matchId);
-    } else {
+    } else if(userId) {
+      this.props.fetchCollection(userId); // TODO: allow fetchCollection to queries
+    }else {
       this.setState({ errorMessage: 'No collection with that id.' });
     }
   }
