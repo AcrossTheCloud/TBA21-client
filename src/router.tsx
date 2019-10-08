@@ -42,7 +42,7 @@ import SearchConsole from './components/search/SearchConsole';
 import { NotFound404Message } from './components/utils/alerts';
 import Announcements from './components/admin/pages/announcements/Announcements';
 import { AnnouncementEditor } from './components/metadata/AnnouncementEditor';
-import ViewProfile from './components/user/profile/ViewProfile';
+// import ViewProfile from './components/user/profile/ViewProfile';
 import ViewCollection from './components/collection/ViewCollection';
 import LoadingOverlay from './components/LoadingOverlay';
 import PrivacyPolicyPopUp from './components/PrivacyPolicyPopUp';
@@ -144,15 +144,15 @@ export const AppRouter = () => {
                   </div>)
                 }
               />
-              <Route
-                path="/profiles/:profileId"
-                render={() => (
-                  <div className="container-fluid main blue">
-                    <ViewProfile />
-                    <Footer />
-                  </div>)
-                }
-              />
+              {/*<Route*/}
+              {/*  path="/profiles/:profileId"*/}
+              {/*  render={() => (*/}
+              {/*    <div className="container-fluid main blue">*/}
+              {/*      <ViewProfile />*/}
+              {/*      <Footer />*/}
+              {/*    </div>)*/}
+              {/*  }*/}
+              {/*/>*/}
               <Route exact path="/login" component={Login} />
               <Route exact path="/signup" component={SignUp} />
               <Route exact path="/resetPassword/" component={ResetPassword} />
