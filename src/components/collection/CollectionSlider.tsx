@@ -3,13 +3,14 @@ import { connect } from 'react-redux';
 
 import { Carousel, CarouselControl, CarouselItem, Col, Row } from 'reactstrap';
 import { itemType } from '../../types/Item';
-import { checkTypeIsItem, DetailPreview, ItemOrHomePageData } from '../utils/DetailPreview';
+import { DetailPreview, ItemOrHomePageData } from '../utils/DetailPreview';
 import { FileTypes } from '../../types/s3File';
 import AudioPreview from '../layout/audio/AudioPreview';
 import { ErrorMessage } from '../utils/alerts';
 import { toggle } from 'actions/modals/itemModal';
 import { loadMoreDispatch } from 'actions/collections/viewCollection';
 import { ViewCollectionState } from '../../reducers/collections/viewCollection';
+import { dateFromTimeYearProduced } from '../../actions/home';
 
 interface Props extends ViewCollectionState {
   toggle: Function;
@@ -92,7 +93,7 @@ class CollectionSlider extends React.Component<Props, State> {
                         title: item.title ? item.title : '',
                         url: item.file.url,
                         isCollection: false,
-                        date: checkTypeIsItem(item) ? (!!item.created_at ? item.created_at : '') : (!!item.date ? item.date : '')
+                        date: dateFromTimeYearProduced(item.time_produced, item.year_produced)
                       }}
                     />
                     : <DetailPreview data={item} modalToggle={() => this.props.toggle(true, item)} />

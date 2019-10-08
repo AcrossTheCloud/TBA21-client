@@ -16,6 +16,7 @@ import Share from '../utils/Share';
 import moment from 'moment';
 import { FileTypes } from '../../types/s3File';
 import AudioPreview from '../layout/audio/AudioPreview';
+import { dateFromTimeYearProduced } from '../../actions/home';
 
 type MatchParams = {
   id: string;
@@ -81,7 +82,6 @@ class ViewItem extends React.Component<Props, State> {
       url,
       medium,
       item_type,
-      created_at,
     } = this.props.item;
 
     let focusTotal = 0;
@@ -119,7 +119,7 @@ class ViewItem extends React.Component<Props, State> {
                       title: title ? title : '',
                       url: file.url,
                       isCollection: false,
-                      date: !!created_at ? created_at : ''
+                      date: dateFromTimeYearProduced(time_produced, year_produced)
                     }}
                   />
                 </div>

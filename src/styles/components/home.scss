@@ -86,6 +86,12 @@
       position: relative;
       overflow: hidden;
     }
+    .pdf {
+      height: 85vh !important;
+    }
+    picture {
+      height: auto !important;
+    }
   }
 
   #header {
@@ -97,14 +103,15 @@
     .file {
       cursor: pointer;
       position: relative;
-      .middle {
-        line-height: 0;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        font-size: 50px;
-        transform: translate(-50%, -50%);
-      }
+    }
+
+    .middle {
+      line-height: 0;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      font-size: 50px;
+      transform: translate(-50%, -50%);
     }
   }
 
