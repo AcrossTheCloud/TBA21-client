@@ -37,10 +37,11 @@ import ViewCollection from '../collection/ViewCollection';
 import ViewProfile from '../user/profile/ViewProfile';
 import { fetchProfile } from '../../actions/user/viewProfile';
 import { browser } from '../utils/browser';
+import { dateFromTimeYearProduced } from '../../actions/home';
+import { APITag } from '../metadata/Tags';
 
 import 'styles/components/search/searchConsole.scss';
 import 'styles/components/admin/tables/modal.scss';
-import { dateFromTimeYearProduced } from '../../actions/home';
 
 interface Props extends SearchConsoleState {
   changeView: Function;
@@ -111,6 +112,7 @@ class SearchConsole extends React.Component<Props, State> {
   searchTimeout;
   searchInputRef;
   resultsHeightTimeout;
+  tagClickedTimeout;
 
   constructor(props: Props) {
     super(props);
@@ -314,6 +316,20 @@ class SearchConsole extends React.Component<Props, State> {
     }
   }
 
+  onTagClick = (tag: APITag) => {
+    const tagList = [
+      ...this.state.selectedCriteria,
+      createCriteriaOption(tag.tag_name, 'concept_tag')
+    ];
+
+    clearTimeout(this.tagClickedTimeout);
+    if (this._isMounted) {
+      this.setState({selectedCriteria: tagList, searchMenuOpen: false});
+    }
+
+    this.tagClickedTimeout = setTimeout(this.searchDispatch, 500);
+  }
+
   onSearchKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
     if (!this.state.searchMenuOpen && event.key === 'Enter') {
       this.searchDispatch();
@@ -435,6 +451,23 @@ class SearchConsole extends React.Component<Props, State> {
             </Col>
           </Row>
 
+          <Row>
+            <div className="tags">
+              {
+                !!this.props.concept_tags ?
+                  <div className={`list ${browser()}`}>
+                    {this.props.concept_tags
+                      .filter(a => !find(this.state.selectedCriteria, {'originalValue': a.tag_name}))
+                      .map((t: APITag, i) =>
+                         <span key={i} onClick={() => this.onTagClick(t)}>#{t.tag_name}</span>
+                      )
+                    }
+                  </div>
+                  : <></>
+              }
+            </div>
+          </Row>
+
           <div className="results">
             {
               (loadedResults && loadedResults.length) ? loadedResults.map((t, i) => {
@@ -502,35 +535,6 @@ class SearchConsole extends React.Component<Props, State> {
             </Row>
             : <></>
           }
-
-          <Row>
-            <div className="tags">
-              {
-                !!this.props.concept_tags ?
-                  <div className={`list ${browser()}`}>
-                    {this.props.concept_tags
-                      .filter(a => !find(this.state.selectedCriteria, {'originalValue': a.tag_name}))
-                      .map((t, i) =>
-                        <span
-                          key={i}
-                          onClick={() => {
-                              const tagList = [
-                                ...this.state.selectedCriteria,
-                                createCriteriaOption(t.tag_name, 'concept_tag')
-                              ];
-                              this.onSearchChange(tagList, { action: 'select-option' });
-                            }
-                          }
-                        >
-                          #{t.tag_name}
-                        </span>
-                      )
-                    }
-                  </div>
-                  : <></>
-              }
-            </div>
-          </Row>
 
           <Row className="bubbleRow">
             {this.props.open ?
