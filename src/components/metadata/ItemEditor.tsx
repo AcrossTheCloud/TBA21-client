@@ -2266,8 +2266,9 @@ class ItemEditorClass extends React.Component<Props, State> {
     }
 
     return (
-      <Form className="container-fluid itemEditor">
+      <Form className="container-fluid itemEditor" >
         <div className={`overlay ${this.state.isLoading ? 'show' : ''}`} />
+        <div className={`accessDenied ${this.props.profileDetails.cognito_uuid === this.props.item.contributor ? '' : 'show'}`} />
         <Row>
           <Col xs="12">
             <WarningMessage message={this.state.warningMessage} />
@@ -2625,12 +2626,12 @@ function withCollapse <P extends WithCollapseProps>(WrappedComponent: React.Comp
     hasLoaded: boolean;
   }
 
-  return class CollapsedItemDisplay extends React.Component<P, WithCollapseState> {
+  return class CollapsedItemDisplay extends React.Component<P & WithCollapseProps, WithCollapseState> {
     constructor(props: P) {
       super(props);
       this.state = {
-        open: props.isOpen || false,
-        hasLoaded: false
+        open: !!props.isOpen,
+        hasLoaded: !!props.isOpen
       };
     }
 
@@ -2640,24 +2641,28 @@ function withCollapse <P extends WithCollapseProps>(WrappedComponent: React.Comp
 
     render() {
       return (
-        <Row style={{paddingTop: '50px'}}>
-          <Col onClick={this.toggleCollapse} xs="4" sm="5" >
-            {this.state.open ? <FaMinus /> : <FaPlus />}
-            {this.props.item.title ? this.props.item.title : 'Untitled'}
-          </Col>
-          <Col onClick={this.toggleCollapse} xs="2" sm="3">
-            {this.props.item.creators ? this.props.item.creators : <></>}
-          </Col>
-          <Col onClick={this.toggleCollapse} xs="2" sm="2">
-            {this.props.item.status ? <FaCheck color="green" size={25} /> : <FaTimes color="red" size={25} />}
-          </Col>
-          <Col xs="2" sm="2">
-            {this.props.children ? this.props.children : <></>}
-          </Col>
-          <Collapse isOpen={this.state.open}>
-            {this.state.hasLoaded ? <WrappedComponent {...this.props as P} /> : <></>}
-          </Collapse>
-        </Row>
+        <>
+          <Row className="itemDetails" >
+            <Col className="itemIcons" sm="1" >
+              {this.state.open ? <FaMinus /> : <FaPlus />}
+            </Col>
+            <Col className="title" onClick={this.toggleCollapse} xs="4" sm="5" >
+              {this.props.item.title ? this.props.item.title : 'Untitled'}
+            </Col>
+            <Col className="creators" onClick={this.toggleCollapse} xs="2" sm="3">
+              {this.props.item.creators ? this.props.item.creators : <></>}
+            </Col>
+            <Col className="status" onClick={this.toggleCollapse} xs="2" sm="2">
+              {this.props.item.status ? <FaCheck color="green" size={25} /> : <FaTimes color="red" size={25} />}
+            </Col>
+            <Col className="removeButton" sm="1">
+              {this.props.children ? this.props.children : <></>}
+            </Col>
+            <Collapse isOpen={this.state.open}>
+              {this.state.hasLoaded ? <WrappedComponent {...this.props as P} /> : <></>}
+            </Collapse>
+          </Row>
+        </>
       );
     }
   };

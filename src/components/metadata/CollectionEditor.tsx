@@ -165,7 +165,6 @@ class CollectionEditorClass extends React.Component<Props, State> {
           );
         }
       };
-
       // don't wait for these.
       getItemsInCollection(this.props.collection.id);
     }
@@ -207,7 +206,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
         <>
           Missing required field(s) <br/>
           {invalidFields.map( (f, i) => ( <div key={i} style={{ textTransform: 'capitalize' }}>{
-            f.toLowerCase() === 'type'?
+            f.toLowerCase() === 'type' ?
               'Collection Category' :
               f.replace(/_/g, ' ')
             }<br/></div> ) )}
@@ -1503,12 +1502,14 @@ class CollectionEditorClass extends React.Component<Props, State> {
                     />
                   </Col>
                 </Row>
+
                 {
                   this.state.loadingItems ?
                     <Row><Col>Loading</Col></Row>
                     :
                     <Items callback={this.itemsCallback} items={this.state.loadedItems} allowRemoveItem/>
                 }
+
               </TabPane>
             </TabContent>
           </Col>

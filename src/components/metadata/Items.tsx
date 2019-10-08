@@ -31,7 +31,7 @@ const ItemsDisplay = (props: { isContributorPath: boolean, removeItem: Function 
 
   if (props.item && Object.keys(props.item).length && !props.item.isLoading && props.item.loaded && props.item.details) {
     return (
-      <ItemEditorWithCollapse item={props.item.details} isContributorPath={props.isContributorPath}>
+      <ItemEditorWithCollapse item={props.item.details} isContributorPath={props.isContributorPath} isOpen={typeof props.removeItem === 'undefined'}>
         {props.removeItem && typeof props.removeItem === 'function' ?
           <Button onClick={() => {if (props.removeItem) { props.removeItem(props.s3Key); }}}>Remove</Button>
           : <></>
@@ -224,10 +224,28 @@ class ItemsClass extends React.Component<Props, State> {
       <>
         <FileUpload callback={this.fileUploadCallback} />
         {
+          this.state.items && Object.keys(this.state.items).length ?
+            <Row>
+              <Col sm="1"/>
+              <Col sm="5">
+                Title
+              </Col>
+              <Col sm="3">
+                Creators
+              </Col>
+              <Col sm="2">
+                Status
+              </Col>
+            </Row>
+            :
+            <></>
+        }
+        {
           Object.entries(this.state.items).map( ( [s3Key, item] ) => {
             return <ItemsDisplay isContributorPath={this.isContributorPath} key={s3Key} s3Key={s3Key} item={item} callback={this.fileUploadCallback} removeItem={this.props.allowRemoveItem ? this.removeItem : undefined} />;
           })
         }
+
       </>
     );
   }
