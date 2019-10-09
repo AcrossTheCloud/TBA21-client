@@ -229,7 +229,7 @@ class Footer extends React.Component<Props, State> {
                     </div>
 
                     {/*Add group*/}
-                    <input type="checkbox" value="1" name="group[4449][1]" id="mce-group[4449]-4449-0" checked style={{ display: 'none' }} />
+                    <input type="checkbox" value="1" name="group[4449][1]" id="mce-group[4449]-4449-0" defaultChecked style={{ display: 'none' }} />
 
                     <div className="content__gdprLegal pt-1">
                       <p>We use Mailchimp as our marketing platform. By clicking below to subscribe, you acknowledge that your information will be transferred to Mailchimp for processing. <a href="https://mailchimp.com/legal/" target="_blank" rel="noreferrer noopener">Learn more about Mailchimp's privacy practices here.</a></p>
