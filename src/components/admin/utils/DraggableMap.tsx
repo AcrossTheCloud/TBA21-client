@@ -203,6 +203,7 @@ export default class DraggableMap extends React.Component<Props, State> {
           zoom={this.state.zoom}
           style={mapStyle}
           ref={map => this.map = map}
+          crs={L.CRS.EPSG4326}
         >
           <TileLayer url={tileLayer} />
         </Map>
