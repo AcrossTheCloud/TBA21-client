@@ -125,7 +125,7 @@ class Items extends React.Component<RouteComponentProps, State> {
       if (!this._isMounted) { return; }
       return {
         items: items,
-        totalSize: items[0] && items[0].count ? items[0].count : 0
+        totalSize: items[0] && items[0].count ? (typeof items[0].count === 'string' ? parseInt(items[0].count, 0) : items[0].count) : 0
       };
 
     } catch (e) {

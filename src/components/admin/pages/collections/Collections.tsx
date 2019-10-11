@@ -109,7 +109,7 @@ class Collections extends React.Component<RouteComponentProps, State> {
 
       return {
         collections,
-        totalSize: collections[0] && collections[0].count ? collections[0].count : 0
+        totalSize: collections[0] && collections[0].count ? (typeof collections[0].count === 'string' ? parseInt(collections[0].count, 0) : collections[0].count) : 0
       };
 
     } catch (e) {
