@@ -1,14 +1,9 @@
-import { FETCH_MARKERS, FETCH_MARKERS_ERROR } from '../../actions/map/map';
-import { MarkerData } from 'components/map/map';
+import { MAP_FETCH_DATA, MAP_FETCH_DATA_ERROR } from '../../actions/map/map';
 
 interface State {
-  markers: {
-    [id: string]: MarkerData
-  };
   hasError: boolean;
 }
 const initialState: State = {
-  markers: {},
   hasError: false
 };
 
@@ -16,16 +11,14 @@ export default (state: State | undefined = initialState, action) => {
   if (state === undefined) { state = initialState; }
 
   switch (action.type) {
-    case FETCH_MARKERS:
+    case MAP_FETCH_DATA:
       return {
-        ...state,
-        markers: {...state.markers, ...action.markers}
+        ...state
       };
-    case FETCH_MARKERS_ERROR:
+    case MAP_FETCH_DATA_ERROR:
       return {
         ...state,
-        hasError: true,
-        markers: {}
+        hasError: true
       };
 
     default:

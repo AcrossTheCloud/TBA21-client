@@ -81,11 +81,9 @@ export default class DraggableMap extends React.Component<Props, State> {
   callback = () => {
     console.log('Callback - features - ', Object.values(this.map.leafletElement._layers));
 
-    // Object.values(this.map.leafletElement._layers).map( (e: L.Layer) => {
-    //   if (e.feature) {
-    //     console.log(e)
-    //   }
-    // });
+    this.map.leafletElement.eachLayer( (layer: Layer) => {
+      console.log(layer);
+    });
 
     // if (typeof this.props.positionCallback === 'function') {
     //   this.props.positionCallback(this.state.loadedMarkers);
