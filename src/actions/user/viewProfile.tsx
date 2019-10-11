@@ -1,10 +1,10 @@
-import { API } from "aws-amplify";
+import { API } from 'aws-amplify';
 import {
   FETCH_PROFILE,
   FETCH_PROFILE_ERROR,
   FETCH_PROFILE_ERROR_NO_SUCH_PROFILE
-} from "../../reducers/user/viewProfile";
-import { LOADINGOVERLAY } from "../loadingOverlay";
+} from '../../reducers/user/viewProfile';
+import { LOADINGOVERLAY } from '../loadingOverlay';
 /**
  *
  * API call to fetch profile information based on the profileID and dispatch it through to Redux
@@ -28,7 +28,7 @@ export const fetchProfile = (profileId: string) => async (
     return prevState.viewItem;
   } else {
     try {
-      const response = await API.get("tba21", "profiles", {
+      const response = await API.get('tba21', 'profiles', {
         queryStringParameters: {
           id: profileId
         }

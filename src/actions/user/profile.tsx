@@ -133,7 +133,8 @@ export const getProfileDetails = (uuid: string) => async dispatch => {
       details: {...results.profile[0], profile_image: profileImage}
     });
   } catch (e) {
-    return;
+    const message = (e.message ? e.message : `Profile with uuid ${uuid} does not exit`);
+    dispatch({type: PROFILE_ERROR, message: message});
   }
 };
 
