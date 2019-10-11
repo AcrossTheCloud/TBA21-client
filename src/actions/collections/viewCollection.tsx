@@ -59,7 +59,7 @@ export const fetchCollection = (id: string) => async (dispatch, getState) => {
       } else {
         dispatch({
          type: FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION,
-         collection: {},
+         collection: undefined,
          items: {}
        });
       }
