@@ -87,6 +87,7 @@
     "@types/reactstrap": "^8.0.0",
     "@types/redux": "^3.6.0",
     "@types/redux-thunk": "^2.1.0",
+    "@types/topojson": "^3.2.2",
     "@types/uuid": "^3.4.4",
     "enzyme": "^3.9.0",
     "enzyme-adapter-react-16": "^1.13.1",

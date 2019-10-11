@@ -59,6 +59,8 @@ import { getProfileDetails } from '../../actions/user/profile';
 import { Profile } from '../../types/Profile';
 import 'styles/components/metadata/itemEditor.scss';
 import 'styles/components/metadata/editors.scss';
+import { adminGetItem } from '../../REST/items';
+import { removeTopology } from '../utils/removeTopology';
 
 interface Props {
   item: Item;
@@ -158,24 +160,22 @@ class ItemEditorClass extends React.Component<Props, State> {
     };
 
     try {
-      const response = await API.get('tba21', (this.props.isContributorPath ? 'contributor/items/getItem' : 'admin/items/getItemNC'), {
-        queryStringParameters : {
-          s3Key: this.props.item.s3_key
-        }
-      });
+      const response = await adminGetItem(this.props.isContributorPath, { s3Key: this.props.item.s3_key });
+      const responseItems = removeTopology(response) as Item[];
 
-      if (response.item && Object.keys(response.item).length) {
+      if (responseItems && responseItems.length) {
+        const item = responseItems[0];
 
         // Get the items s3 file
         const getFileResult: S3File | false = await sdkGetObject(this.state.originalItem.s3_key);
 
         if (getFileResult && getFileResult.type === FileTypes.Image) {
-          Object.assign(getFileResult, checkThumbnails(response.item, getFileResult));
+          Object.assign(getFileResult, checkThumbnails(item, getFileResult));
         }
 
         const data = {
-          originalItem: { ...response.item, file: getFileResult },
-          changedItem: { ...response.item, file: getFileResult }
+          originalItem: { ...item, file: getFileResult },
+          changedItem: { ...item, file: getFileResult }
         };
 
         Object.assign(state, data);

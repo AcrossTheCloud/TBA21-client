@@ -39,7 +39,9 @@ import { getProfileDetails } from '../../actions/user/profile';
 import { Profile } from '../../types/Profile';
 
 import 'styles/components/metadata/editors.scss';
-import DraggableMap from '../admin/utils/DraggableMap';
+import { getItemsInCollection } from '../../REST/collections';
+import { removeTopology } from '../utils/removeTopology';
+import { adminGetItems } from '../../REST/items';
 
 interface Props {
   collection?: Collection;
@@ -147,20 +149,18 @@ class CollectionEditorClass extends React.Component<Props, State> {
     }
 
     if (this.props.collection) {
-      const getItemsInCollection = async (id) => {
-        const results = await API.get('tba21', 'admin/collections/getItemsInCollection', {
-          queryStringParameters: {
-            id: id,
-            limit: 1000
-          }
-        });
+      const getAllItemsInCollection = async (id) => {
 
-        if (results && results.items && this._isMounted) {
+        const results = await getItemsInCollection({ id, limit: 1000 });
+        const items = removeTopology(results) as Item[];
+        const mappedItems: string[] = items.length ? items.map( i => i.s3_key) : [];
+
+        if (items && items.length && this._isMounted) {
           this.setState(
             {
-              collection: {...this.state.collection, items: results.items.map( i => i.s3_key)},
-              originalCollection: {...this.state.collection, items: results.items.map( i => i.s3_key)},
-              loadedItems: results.items,
+              collection: {...this.state.collection, items: mappedItems},
+              originalCollection: {...this.state.collection, items: mappedItems},
+              loadedItems: items,
               loadingItems: false
             }
           );
@@ -168,7 +168,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
       };
 
       // don't wait for these.
-      getItemsInCollection(this.props.collection.id);
+      getAllItemsInCollection(this.props.collection.id);
     }
   }
 
@@ -208,7 +208,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
         <>
           Missing required field(s) <br/>
           {invalidFields.map( (f, i) => ( <div key={i} style={{ textTransform: 'capitalize' }}>{
-            f.toLowerCase() === 'type'?
+            f.toLowerCase() === 'type' ?
               'Collection Category' :
               f.replace(/_/g, ' ')
             }<br/></div> ) )}
@@ -1182,9 +1182,14 @@ class CollectionEditorClass extends React.Component<Props, State> {
 
         const
           queryStringParameters = ( inputValue ? { inputQuery: inputValue, limit: 100 } : {} ),
-          response = await API.get('tba21', 'admin/items', { queryStringParameters: queryStringParameters });
+          response = await adminGetItems(queryStringParameters),
+          items = removeTopology(response) as Item[];
 
-        resolve(response.items.map( item => ({label: item.title || 'No title', value: item.s3_key, item: item}) ));
+        if (items && items.length) {
+          resolve(items.map( item => ({label: item.title || 'No title', value: item.s3_key, item: item}) ));
+        } else {
+          resolve([]);
+        }
       }, 500);
     });
   }
@@ -1254,8 +1259,6 @@ class CollectionEditorClass extends React.Component<Props, State> {
             <SuccessMessage message={this.state.successMessage} />
           </Col>
         </Row>
-
-        <DraggableMap />
 
         <Row>
           <Col md="12">
