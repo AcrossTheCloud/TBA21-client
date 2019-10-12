@@ -19,6 +19,6 @@ describe('ViewProfile', () => {
   it('renders a profile', () => {
     const wrapper = subject({});
 
-    expect(wrapper.find('div').find({ id: 'Profile' })).toBe(true);
+    expect(wrapper.find('div').find({ id: 'Profile' })).toEqual({});
   });
 });
