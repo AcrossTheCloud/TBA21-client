@@ -6,9 +6,10 @@ module.exports = {
     }
   },
   transform: {
-    '^.+\\.tsx?$': 'ts-jest'
+    '^.+\\.tsx?$': 'ts-jest',
+    '^.+\\.js$': 'babel-jest'
   },
-  transformIgnorePatterns: ['<rootDir>/node_modules/'],
+  transformIgnorePatterns: ['<rootDir>/node_modules/(?!(react-icons))'],
   testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$',
   modulePaths: ['<rootDir>/src/'],
   moduleDirectories: ['node_modules', 'src'],
