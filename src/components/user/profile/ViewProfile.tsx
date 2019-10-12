@@ -19,14 +19,14 @@ interface Props extends RouteComponentProps, Alerts {
 }
 
 class ViewProfile extends React.Component<Props, State> {
-  matchedId: string = "";
+  matchedId: string = '';
 
   constructor(props: Props) {
     super(props);
 
     // Get our profileId passed through from URL props
     if (props.location && props.location.pathname) {
-      this.matchedId = props.location.pathname.replace("/profiles/", "");
+      this.matchedId = props.location.pathname.replace('/profiles/', '');
     }
     this.renderRow = this.renderRow.bind(this);
     this.renderContact = this.renderContact.bind(this);
@@ -37,20 +37,18 @@ class ViewProfile extends React.Component<Props, State> {
     if (this.matchedId) {
       this.props.fetchProfile(this.matchedId);
     } else {
-      this.setState({ errorMessage: "No profile with that id." });
+      this.setState({ errorMessage: 'No profile with that id.' });
     }
   }
 
-  renderContact(){
-    const {profile} = this.props;
-    if(!profile) return;
-    const { contact_email, contact_person, contact_position} = profile;
+  renderContact() {
+    const { profile } = this.props;
+    if (!profile) return;
+    const { contact_email, contact_person, contact_position } = profile;
 
-    return (
-      [contact_person, contact_position, contact_email].map(contactField => (
-        contactField ? <div> {contactField} </div> : null
-      ))
-    )
+    return [contact_person, contact_position, contact_email].map(contactField =>
+      contactField ? <div> {contactField} </div> : null
+    );
   }
 
   renderRow(label: string, value: string, isLink: boolean = false) {
@@ -71,10 +69,10 @@ class ViewProfile extends React.Component<Props, State> {
   }
 
   render() {
-    if (typeof this.props.profile === "undefined") {
-      return "Loading...";
+    if (typeof this.props.profile === 'undefined') {
+      return 'Loading...';
     }
-    const {profile, errorMessage} = this.props;
+    const { profile, errorMessage } = this.props;
     const {
       full_name,
       position,
@@ -88,7 +86,7 @@ class ViewProfile extends React.Component<Props, State> {
       profile_image,
       public_profile
     } = profile;
-    const tags = ["marine wildlife", "adaptations at sea", "climate change"];
+    const tags = ['marine wildlife', 'adaptations at sea', 'climate change'];
 
     return (
       <div id="profile">
@@ -108,7 +106,9 @@ class ViewProfile extends React.Component<Props, State> {
                 <div className="align-bottom profession">
                   <div> {field_expertise} </div>
                   <div className="caption-text">
-                  {groupProfileTypes.includes(profile_type) ? this.renderContact() : `${profile_type} Contributor` }
+                    {groupProfileTypes.includes(profile_type)
+                      ? this.renderContact()
+                      : `${profile_type} Contributor`}
                   </div>
                 </div>
               </Col>
@@ -119,23 +119,27 @@ class ViewProfile extends React.Component<Props, State> {
             <Col xs="12" md="6">
               <div className="m-3 details caption-text">
                 {city || country
-                  ? this.renderRow("Location", [city, country].join(" "))
+                  ? this.renderRow('Location', [city, country].join(' '))
                   : null}
-                {website ? this.renderRow("Website", website, true) : null}
-                {position ? this.renderRow("Position", position) : null}
-                {affiliation ? this.renderRow("Affiliation", affiliation) : null}
+                {website ? this.renderRow('Website', website, true) : null}
+                {position ? this.renderRow('Position', position) : null}
+                {affiliation
+                  ? this.renderRow('Affiliation', affiliation)
+                  : null}
                 <div>
                   Most used concept tags
                   <p className="mt-5">
                     {tags.map((ea, index) => (
-                      <span className="tags" key={index}>{ea}</span>
+                      <span className="tags" key={index}>
+                        {ea}
+                      </span>
                     ))}
                   </p>
                 </div>
               </div>
             </Col>
           ) : (
-            ""
+            ''
           )}
         </Row>
         <h4> Contributed Items </h4>
@@ -161,3 +165,5 @@ export default withRouter(
     { fetchProfile }
   )(ViewProfile)
 );
+
+export { ViewProfile }; // for testing
