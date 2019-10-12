@@ -59,6 +59,7 @@
     "start": "bash src/link_config.sh && craco start",
     "build": "bash src/link_config.sh && craco build",
     "test": "jest --coverage",
+    "test:watch": "react-scripts test",
     "eject": "react-scripts eject",
     "winstart": "craco start",
     "winbuild": "craco build"

@@ -1,0 +1,52 @@
+[
+  {
+    "id": "0",
+    "cognito_uuid": "bbb4f1e6-28ca-4084-a51a-f4c4e98f5adc",
+    "contributors": null,
+    "profile_image": "https://image.png",
+    "featured_image": null,
+    "full_name": "A Person",
+    "field_expertise": "Marine plastics // Data visualization // Open ocean",
+    "city": "Portland, Oregon",
+    "country": null,
+    "biography": "a short biography",
+    "website": "http://www.personal.com/",
+    "social_media": [
+      "https://www.instagram.com/oceanlover/",
+      "https://twitter.com/oceanlover"
+    ],
+    "public_profile": true,
+    "affiliation": "Ocean Academy // Pacific Northwest College of Art",
+    "position": "Senior Researcher // Assistant Professor",
+    "contact_person": null,
+    "contact_position": null,
+    "contact_email": null,
+    "profile_type": "Individual",
+    "accepted_license": true
+  },
+  {
+    "id": "1",
+    "cognito_uuid": "73ad409d-0ce4-4a4d-b95a-95b67e416f06",
+    "contributors": null,
+    "profile_image": "https://logo.png",
+    "featured_image": null,
+    "full_name": "Marine Institute of Future Ecologies",
+    "field_expertise": "Ecologies // Microplastics ",
+    "city": null,
+    "country": null,
+    "biography": "a long biography",
+    "website": "http://www.marine-ecologies.institute/",
+    "social_media": [
+      "https://www.instagram.com/marine-ecologies/",
+      "https://twitter.com/marine-ecologies"
+    ],
+    "public_profile": true,
+    "affiliation": "Ocean Academy // Pacific Northwest College of Art",
+    "position": null,
+    "contact_person": "Sandy Beach",
+    "contact_position": "Assistant",
+    "contact_email": "contact@marine-ecologies.institute",
+    "profile_type": "Institution",
+    "accepted_license": true
+  }
+]
