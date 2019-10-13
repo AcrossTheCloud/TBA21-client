@@ -11,20 +11,31 @@
 
 .collectionEditor {
   .itemDetails {
+
     margin-top: 50px;
     .creators {
       word-break: break-word;
+      &:hover {
+        cursor: pointer
+      }
     }
     .title {
-
+      &:hover {
+        cursor: pointer
+      }
     }
     .status {
-
+      &:hover {
+        cursor: pointer
+      }
     }
     .removeButton {
       margin-right: 0;
     }
     .itemIcons {
+      &:hover {
+        cursor: pointer
+      }
     }
   }
 }
