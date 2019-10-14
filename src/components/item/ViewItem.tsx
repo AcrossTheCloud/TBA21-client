@@ -5,7 +5,7 @@ import { fetchItem } from 'actions/items/viewItem';
 import { State } from 'reducers/items/viewItem';
 import { Alerts, ErrorMessage } from '../utils/alerts';
 
-import { Item, itemType, itemVideo, Regions } from '../../types/Item';
+import { Item, itemType, Regions } from '../../types/Item';
 import { FilePreview } from '../utils/filePreview';
 import { Languages } from '../../types/Languages';
 import { browser } from '../utils/browser';
@@ -107,7 +107,6 @@ class ViewItem extends React.Component<Props, State> {
     );
 
     const isAudio = (!!file && item_type === itemType.Audio) || (!!file && file.type === FileTypes.Audio);
-    const isVideoType = Object.values(itemVideo).includes(item_subtype);
     return (
       <div id="item" className="container-fluid">
         <ErrorMessage message={this.props.errorMessage} />
@@ -185,8 +184,8 @@ class ViewItem extends React.Component<Props, State> {
             :
               ''
             }
-            {isVideoType && directors && directors.length ? <ItemDetails label={directors.length > 1 ? 'Directors' : 'Director'} value={directors.join(', ')} /> : <></>}
-            {isVideoType && collaborators && collaborators.length ? <ItemDetails label={collaborators.length > 1 ? 'Collaborators' : 'Collaborator'} value={collaborators.join(', ')} /> : <></>}
+            {directors && directors.length ? <ItemDetails label={directors.length > 1 ? 'Directors' : 'Director'} value={directors.join(', ')} /> : <></>}
+            {collaborators && collaborators.length ? <ItemDetails label={collaborators.length > 1 ? 'Collaborators' : 'Collaborator'} value={collaborators.join(', ')} /> : <></>}
 
             {!!language ? <ItemDetails label="Language" value={Languages[language]} /> : ''}
             {!!license ? <ItemDetails label="License" value={license} /> : ''}
