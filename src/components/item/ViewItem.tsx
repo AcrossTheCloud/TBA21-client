@@ -5,7 +5,7 @@ import { fetchItem } from 'actions/items/viewItem';
 import { State } from 'reducers/items/viewItem';
 import { Alerts, ErrorMessage } from '../utils/alerts';
 
-import { Item, itemType, Regions } from '../../types/Item';
+import { Item, itemType, itemVideo, Regions } from '../../types/Item';
 import { FilePreview } from '../utils/filePreview';
 import { Languages } from '../../types/Languages';
 import { browser } from '../utils/browser';
@@ -82,6 +82,8 @@ class ViewItem extends React.Component<Props, State> {
       url,
       medium,
       item_type,
+      directors,
+      collaborators
     } = this.props.item;
 
     let focusTotal = 0;
@@ -105,6 +107,7 @@ class ViewItem extends React.Component<Props, State> {
     );
 
     const isAudio = (!!file && item_type === itemType.Audio) || (!!file && file.type === FileTypes.Audio);
+    const isVideoType = Object.values(itemVideo).includes(item_subtype);
     return (
       <div id="item" className="container-fluid">
         <ErrorMessage message={this.props.errorMessage} />
@@ -170,7 +173,7 @@ class ViewItem extends React.Component<Props, State> {
               : year_produced ? <ItemDetails label="Year Produced" value={year_produced} /> : <></>
             }
             {!!venues && venues.length ?
-              <ItemDetails label="Publication Venue(s)" value={`${venues.join(', ')}`} />
+              <ItemDetails label={venues.length > 1 ? 'Publication Venue' : 'Publication Venues'} value={`${venues.join(', ')}`} />
               : <></>
             }
             {!!exhibited_at && exhibited_at.length ?
@@ -178,10 +181,13 @@ class ViewItem extends React.Component<Props, State> {
               : <></>
             }
             {!!regions && regions.length ?
-              <ItemDetails label="Region" value={regions.map((region) => (Regions[region])).join(', ')} />
+              <ItemDetails label={regions.length > 1 ? 'Regions' : 'Region'} value={regions.map((region) => (Regions[region])).join(', ')} />
             :
               ''
             }
+            {isVideoType && directors && directors.length ? <ItemDetails label={directors.length > 1 ? 'Directors' : 'Director'} value={directors.join(', ')} /> : <></>}
+            {isVideoType && collaborators && collaborators.length ? <ItemDetails label={collaborators.length > 1 ? 'Collaborators' : 'Collaborator'} value={collaborators.join(', ')} /> : <></>}
+
             {!!language ? <ItemDetails label="Language" value={Languages[language]} /> : ''}
             {!!license ? <ItemDetails label="License" value={license} /> : ''}
             {!!copyright_holder ? <ItemDetails label="Copyright Owner" value={copyright_holder} /> : ''}
