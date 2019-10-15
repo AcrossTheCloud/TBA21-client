@@ -13,7 +13,8 @@ export default (state: State | undefined = initialState, action) => {
   switch (action.type) {
     case MAP_FETCH_DATA:
       return {
-        ...state
+        ...state,
+        data: action.data
       };
     case MAP_FETCH_DATA_ERROR:
       return {
