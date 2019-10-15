@@ -119,9 +119,8 @@ class Items extends React.Component<RouteComponentProps, State> {
           offset: offset,
           limit: this.state.sizePerPage
         },
-        response = this.isContributorPath ? await contributorGetByPerson(this.isContributorPath, queryStringParameters) : await adminGetItems(queryStringParameters),
+        response = this.isContributorPath ? await contributorGetByPerson(queryStringParameters) : await adminGetItems(queryStringParameters),
         items = removeTopology(response) as Item[];
-
       if (!this._isMounted) { return; }
       return {
         items: items,
