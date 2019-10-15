@@ -198,23 +198,31 @@ class ItemsClass extends React.Component<Props, State> {
           counter --;
 
           const response = await adminGetItem(this.isContributorPath, { s3Key });
-          const responseItems = removeTopology(response) as Item[];
-
           timeoutSeconds = timeoutSeconds * 2;
-
-          if (responseItems && responseItems.length && !!responseItems[0]) {
-            const item = responseItems[0];
-            clearTimeout(apiTimeout);
-            return resolve(item);
-          } else {
+          
+          const tryApiAgain = async() => {
             if (!counter) {
               clearTimeout(apiTimeout);
               return resolve(null);
             } else {
               return resolve(await doAPICall(s3Key));
             }
-          }
-        }, timeoutSeconds);
+          };
+            
+          if (response) {
+            const responseItems = removeTopology(response) as Item[];
+
+            if (responseItems && responseItems.length && !!responseItems[0]) {
+              const item = responseItems[0];
+              clearTimeout(apiTimeout);
+              return resolve(item);
+            } else {
+              tryApiAgain();
+            }
+          } else {
+            tryApiAgain();
+          } 
+        },                             timeoutSeconds);
       });
     };
 
