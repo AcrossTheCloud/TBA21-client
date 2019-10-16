@@ -32,9 +32,13 @@ const ItemsDisplay = (props: { isNewItem: boolean, isContributorPath: boolean, r
 
   if (props.item && Object.keys(props.item).length && !props.item.isLoading && props.item.loaded && props.item.details) {
     return (
-      <ItemEditorWithCollapse item={props.item.details} isContributorPath={props.isContributorPath} isOpen={props.isNewItem} >
+      <ItemEditorWithCollapse
+        item={props.item.details}
+        isContributorPath={props.isContributorPath}
+        isOpen={props.isNewItem}
+      >
         {props.removeItem && typeof props.removeItem === 'function' ?
-          <Button onClick={() => {if (props.removeItem) { props.removeItem(props.s3Key); }}}>Remove</Button>
+          <Button color="danger" onClick={() => {if (props.removeItem) { props.removeItem(props.s3Key); }}}>Remove</Button>
           : <></>
         }
       </ItemEditorWithCollapse>

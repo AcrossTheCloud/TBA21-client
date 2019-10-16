@@ -348,9 +348,11 @@ class ItemEditorClass extends React.Component<Props, State> {
         Object.assign(state, { successMessage: 'Updated item!', changedFields: {}, originalItem: {...this.state.changedItem}, isDifferent: false});
 
         if (this.props.onChange && typeof this.props.onChange === 'function') {
+
           const onChangeResult = {
             item: this.state.changedItem
           };
+
           if (typeof this.props.index !== 'undefined') {
             Object.assign(onChangeResult, { index: this.props.index });
           }
@@ -2624,6 +2626,7 @@ function withCollapse <P extends WithCollapseProps>(WrappedComponent: React.Comp
   interface WithCollapseState {
     open: boolean;
     hasLoaded: boolean;
+    item: Item;
   }
 
   return class CollapsedItemDisplay extends React.Component<P & WithCollapseProps, WithCollapseState> {
@@ -2631,11 +2634,20 @@ function withCollapse <P extends WithCollapseProps>(WrappedComponent: React.Comp
       super(props);
       this.state = {
         open: !!props.isOpen,
-        hasLoaded: !!props.isOpen
+        hasLoaded: !!props.isOpen,
+        item: props.item
       };
     }
     toggleCollapse = () => {
       this.setState({ open: !this.state.open, hasLoaded: true });
+    }
+
+    onChangeCallback = onChangeResult => {
+      this.setState({ item: onChangeResult.item });
+
+      if (this.props.onChange && typeof this.props.onChange === 'function') {
+        this.props.onChange(onChangeResult);
+      }
     }
 
     render() {
@@ -2646,19 +2658,19 @@ function withCollapse <P extends WithCollapseProps>(WrappedComponent: React.Comp
               {this.state.open ? <FaMinus /> : <FaPlus />}
             </Col>
             <Col className="title" onClick={this.toggleCollapse} xs="4" sm="5" >
-              {this.props.item.title ? this.props.item.title : 'Untitled'}
+              {this.state.item.title ? this.state.item.title : 'Untitled'}
             </Col>
             <Col className="creators" onClick={this.toggleCollapse} xs="2" sm="3">
-              {this.props.item.creators ? this.props.item.creators : <></>}
+              {this.state.item.creators ? this.state.item.creators : <></>}
             </Col>
             <Col className="status" onClick={this.toggleCollapse} xs="2" sm="2">
-              {this.props.item.status ? <FaCheck color="green" size={25} /> : <FaTimes color="red" size={25} />}
+              {this.state.item.status ? <FaCheck color="green" size={25} /> : <FaTimes color="red" size={25} />}
             </Col>
             <Col className="removeButton" sm="1">
               {this.props.children ? this.props.children : <></>}
             </Col>
             <Collapse isOpen={this.state.open}>
-              {this.state.hasLoaded ? <WrappedComponent {...this.props as P} /> : <></>}
+              {this.state.hasLoaded ? <WrappedComponent {...this.props as P} onChange={this.onChangeCallback} /> : <></>}
             </Collapse>
           </Row>
         </>
