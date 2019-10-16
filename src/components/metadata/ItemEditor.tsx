@@ -2634,7 +2634,6 @@ function withCollapse <P extends WithCollapseProps>(WrappedComponent: React.Comp
         hasLoaded: !!props.isOpen
       };
     }
-
     toggleCollapse = () => {
       this.setState({ open: !this.state.open, hasLoaded: true });
     }

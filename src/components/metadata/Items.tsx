@@ -17,6 +17,7 @@ interface Props extends RouteComponentProps {
 
 interface State {
   items: ItemsObject;
+  isNewItem?: boolean;
 }
 
 interface ItemsObject {
@@ -27,11 +28,11 @@ interface ItemsObject {
   };
 }
 
-const ItemsDisplay = (props: { isContributorPath: boolean, removeItem: Function | undefined, s3Key: string, item: { loaded: boolean, isLoading: boolean, details?: Item }, callback: Function }): JSX.Element => {
+const ItemsDisplay = (props: { isNewItem: boolean, isContributorPath: boolean, removeItem: Function | undefined, s3Key: string, item: { loaded: boolean, isLoading: boolean, details?: Item }, callback: Function }): JSX.Element => {
 
   if (props.item && Object.keys(props.item).length && !props.item.isLoading && props.item.loaded && props.item.details) {
     return (
-      <ItemEditorWithCollapse item={props.item.details} isContributorPath={props.isContributorPath} isOpen={typeof props.removeItem === 'undefined'}>
+      <ItemEditorWithCollapse item={props.item.details} isContributorPath={props.isContributorPath} isOpen={props.isNewItem} >
         {props.removeItem && typeof props.removeItem === 'function' ?
           <Button onClick={() => {if (props.removeItem) { props.removeItem(props.s3Key); }}}>Remove</Button>
           : <></>
@@ -64,7 +65,8 @@ class ItemsClass extends React.Component<Props, State> {
     this._isMounted = false;
 
     this.state = {
-      items: {}
+      items: {},
+      isNewItem: false
     };
   }
 
@@ -128,7 +130,7 @@ class ItemsClass extends React.Component<Props, State> {
     // Load item
     this.loadItem(s3Key);
 
-    this.setState({ items: {...this.state.items, ...items} } );
+    this.setState({isNewItem: true, items: {...this.state.items, ...items} } );
   }
 
   /**
@@ -242,7 +244,7 @@ class ItemsClass extends React.Component<Props, State> {
         }
         {
           Object.entries(this.state.items).map( ( [s3Key, item] ) => {
-            return <ItemsDisplay isContributorPath={this.isContributorPath} key={s3Key} s3Key={s3Key} item={item} callback={this.fileUploadCallback} removeItem={this.props.allowRemoveItem ? this.removeItem : undefined} />;
+            return <ItemsDisplay isNewItem={!!this.state.isNewItem} isContributorPath={this.isContributorPath} key={s3Key} s3Key={s3Key} item={item} callback={this.fileUploadCallback} removeItem={this.props.allowRemoveItem ? this.removeItem : undefined} />;
           })
         }
 
