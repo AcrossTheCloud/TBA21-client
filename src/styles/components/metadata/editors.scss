@@ -11,28 +11,35 @@
 
 .collectionEditor {
   .itemDetails {
-
-    margin-top: 50px;
+    border-bottom: 1px solid darkgrey;
+    margin-top: 10px;
     .creators {
+      margin-top: 20px;
       word-break: break-word;
       &:hover {
         cursor: pointer
       }
     }
     .title {
+      margin-top: 20px;
       &:hover {
         cursor: pointer
       }
     }
     .status {
+      padding-left: 25px;
+      margin-top: 20px;
       &:hover {
         cursor: pointer
       }
     }
     .removeButton {
-      margin-right: 0;
+      margin-top: 10px;
+      margin-bottom: 20px;
     }
     .itemIcons {
+      margin-top: 20px;
+
       &:hover {
         cursor: pointer
       }
