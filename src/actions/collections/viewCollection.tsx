@@ -2,7 +2,7 @@ import { Item } from '../../types/Item';
 import { checkFile } from '../items/viewItem';
 import { LOADINGOVERLAY } from '../loadingOverlay';
 import { FETCH_COLLECTION_LOAD_MORE } from '../../reducers/collections/viewCollection';
-import { getById, getItemsInCollection } from '../../REST/collections';
+import { queryByUuid, getById, getItemsInCollection } from '../../REST/collections';
 import { removeTopology } from '../../components/utils/removeTopology';
 import { Collection } from '../../types/Collection';
 
@@ -18,7 +18,10 @@ export const FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION =
  *
  * @param id {string}
  */
-export const fetchCollection = (id: string) => async (dispatch, getState) => {
+export const fetchCollection = (id?: string, uuid?: string) => async (
+  dispatch,
+  getState
+) => {
   const prevState = getState();
 
   dispatch({
@@ -39,7 +42,13 @@ export const fetchCollection = (id: string) => async (dispatch, getState) => {
     return prevState.viewCollection;
   } else {
     try {
-      const response = await getById(id);
+      var response;
+      if(uuid){
+        response = await queryByUuid(uuid);
+      }else{
+        response = await getById(id);
+      }
+
       const collection = removeTopology(response) as Collection[];
 
       if (!!collection && !!collection[0] && Object.keys(collection).length) {

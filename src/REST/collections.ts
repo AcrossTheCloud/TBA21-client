@@ -6,6 +6,11 @@ export const getById = async (id: string) => {
   return response.data;
 };
 
+export const queryByUuid = async (uuid: string) => {
+  const response = await API.get('tba21', 'collections', { queryStringParameters: { uuid } });
+  return response.data;
+};
+
 export const getItemsInCollection = async (queryStringParameters: Object = {}) => {
   const response = await API.get('tba21', 'collections/getItemsInCollection', { queryStringParameters });
   return response.data;

@@ -5,9 +5,9 @@ export default {
     PROFILE_PIC_BUCKET: 'profile-pics.ocean-archive.org'
   },
   apiGateway: {
-    // URL: 'http://localhost:8080'
-    REGION: 'eu-central-1',
-    URL: 'https://demo-dev-api.ocean-archive.org/'
+    URL: 'http://localhost:3000/'
+    // REGION: 'eu-central-1',
+    // URL: 'https://demo-dev-api.ocean-archive.org/'
   },
   cognito: {
     REGION: 'eu-central-1',

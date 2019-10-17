@@ -79,20 +79,18 @@ class CollectionDetails extends React.Component<Props, {}> {
       copyright_holder
     } = this.props.collection;
 
-    const detailInfo: Array<
-      [string, string | string[] | null | undefined, detailType?]
-    > = [
-      ['Publication Venue(s)', venues],
-      ['Exhibited At', exhibited_at],
-      ['Region', regions, detailType.Region],
-      ['License', license],
-      ['Copyright Owner', copyright_holder],
-      ['Link', url]
+    const detailInfo = [
+      { label: 'Publication Venue(s)', value: venues },
+      { label: 'Exhibited At', value: exhibited_at },
+      { label: 'Region', value: regions, type: detailType.Region },
+      { label: 'License', value: license },
+      { label: 'Copyright Owner', value: copyright_holder },
+      { label: 'Link', value: url }
     ];
 
-    const detailTags: Array<[string, APITag[] | null | undefined]> = [
-      ['Concept Tags', aggregated_concept_tags],
-      ['Keyword Tags', aggregated_keyword_tags]
+    const detailTags = [
+      { label: 'Concept Tags', value: aggregated_concept_tags },
+      { label: 'Keyword Tags', value: aggregated_keyword_tags }
     ];
 
     return (
@@ -128,8 +126,10 @@ class CollectionDetails extends React.Component<Props, {}> {
           {!!time_produced
             ? this.renderRow('Date Produced', time_produced, detailType.Time)
             : this.renderRow('Year Produced', year_produced, detailType.Time)}
-          {detailInfo.map(row => this.renderRow(row[0], row[1], row[2]))}
-          {detailTags.map(tags => this.renderTags(tags[0], tags[1]))}
+          {detailInfo.map(row =>
+            this.renderRow(row.label, row.value, row.type)
+          )}
+          {detailTags.map(tags => this.renderTags(tags.label, tags.value))}
           <FocusVisualizer
             action={focus_action}
             arts={focus_arts}
