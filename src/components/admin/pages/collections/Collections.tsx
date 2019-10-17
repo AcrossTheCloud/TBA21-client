@@ -36,6 +36,7 @@ interface State extends Alerts {
 class Collections extends React.Component<RouteComponentProps, State> {
   _isMounted;
   tableColumns;
+  isAdmin;
 
   constructor(props: RouteComponentProps) {
     super(props);
@@ -94,6 +95,7 @@ class Collections extends React.Component<RouteComponentProps, State> {
 
   async componentDidMount() {
     this._isMounted = true;
+    this.isAdmin = !!this.props.location.pathname.match(/admin/i);
     this.getCollections();
   }
 
@@ -271,6 +273,7 @@ class Collections extends React.Component<RouteComponentProps, State> {
             {
               typeof this.state.editingCollectionIndex !== 'undefined' && this.state.editingCollectionIndex >= 0 ?
                 <CollectionEditor
+                    isAdmin={this.isAdmin}
                     editMode={true}
                     collection={this.state.collections[this.state.editingCollectionIndex]}
                     onChange={c => {

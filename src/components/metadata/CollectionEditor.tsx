@@ -44,6 +44,7 @@ interface Props {
   collection?: Collection;
   editMode: boolean;
   onChange?: Function;
+  isAdmin: boolean;
 
   // From Redux
   modalToggle: Function;
@@ -137,7 +138,6 @@ class CollectionEditorClass extends React.Component<Props, State> {
 
   async componentDidMount(): Promise<void> {
     this._isMounted = true;
-
     const context: React.ContextType<typeof AuthContext> = this.context;
 
     if (context && (context.uuid && context.uuid.length)) {
@@ -1507,7 +1507,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
                   this.state.loadingItems ?
                     <Row><Col>Loading</Col></Row>
                     :
-                    <Items callback={this.itemsCallback} items={this.state.loadedItems} allowRemoveItem/>
+                    <Items isAdmin={this.props.isAdmin} callback={this.itemsCallback} items={this.state.loadedItems} allowRemoveItem/>
                 }
 
               </TabPane>

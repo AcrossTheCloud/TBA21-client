@@ -1,6 +1,8 @@
 .itemEditor {
   position: relative;
   color: #fff;
+  width: 100%;
+
   .overlay {
     position: absolute;
     height: 100%;
@@ -19,15 +21,9 @@
     position: absolute;
     height: 100%;
     width: 100%;
-    background: rgba(0,0,0,0.4);
+    background: rgba(0,0,0,0.2);
     opacity: 0;
     z-index: 0;
-    transition: opacity 1s ease-in;
-
-    &.show {
-      z-index: 99;
-      opacity: 1;
-    }
   }
 
   .sticky {

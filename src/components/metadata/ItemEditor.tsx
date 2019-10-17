@@ -67,6 +67,7 @@ export interface Props {
   index?: number;
   onChange?: Function;
   isContributorPath?: boolean;
+  isAdmin: boolean;
 
   // From Redux
   modalToggle: Function;
@@ -143,7 +144,6 @@ class ItemEditorClass extends React.Component<Props, State> {
   async componentDidMount(): Promise<void> {
     this._isMounted = true;
     await this.getItemByS3Key();
-
   }
 
   componentWillUnmount() {
@@ -2270,7 +2270,7 @@ class ItemEditorClass extends React.Component<Props, State> {
     return (
       <Form className="container-fluid itemEditor" >
         <div className={`overlay ${this.state.isLoading ? 'show' : ''}`} />
-        <div className={`accessDenied ${this.props.profileDetails.cognito_uuid === this.props.item.contributor ? '' : 'show'}`} />
+        <div className={`accessDenied ${(this.props.profileDetails.cognito_uuid === this.props.item.contributor) || (this.props.isAdmin) ? '' : 'show'}`} />
         <Row>
           <Col xs="12">
             <WarningMessage message={this.state.warningMessage} />

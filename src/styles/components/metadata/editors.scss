@@ -1,6 +1,7 @@
 .itemEditor, .collectionEditor {
   position: relative;
   color: #000;
+  width: 100%;
 
   input, textarea{
     &.form-control {
