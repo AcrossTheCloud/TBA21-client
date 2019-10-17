@@ -6,7 +6,7 @@ import * as L from 'leaflet';
 import '@geoman-io/leaflet-geoman-free';
 import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
 
-import { getMapIcon } from '../../map/icons';
+import { jellyFish } from 'components/map/icons';
 
 import 'leaflet/dist/leaflet.css';
 import { Layer } from 'leaflet';
@@ -45,6 +45,7 @@ export default class DraggableMap extends React.Component<Props, State> {
 
   componentDidMount(): void {
     this._isMounted = true;
+    const jellyFishIcon = jellyFish();
 
     this.addLeafletGeoMan();
     this.globalMapEvents();
@@ -53,7 +54,7 @@ export default class DraggableMap extends React.Component<Props, State> {
     L.geoJSON(json, {
       // Add our custom icon to the map.
       pointToLayer: (feature: Feature<GeometryObject>, latlng: L.LatLngExpression) => {
-        return L.marker(latlng, {icon: getMapIcon()});
+        return L.marker(latlng, {icon: jellyFishIcon});
       },
       onEachFeature: (feature: Feature<GeometryObject>, layer: L.Layer) => {
         this.layerEvents(layer);
@@ -64,7 +65,7 @@ export default class DraggableMap extends React.Component<Props, State> {
     L.geoJSON(json2, { // todo-dan remove
       // Add our custom icon to the map.
       pointToLayer: (feature: Feature<GeometryObject>, latlng: L.LatLngExpression) => {
-        return L.marker(latlng, {icon: getMapIcon()});
+        return L.marker(latlng, {icon: jellyFishIcon});
       },
       onEachFeature: (feature: Feature<GeometryObject>, layer: L.Layer) => {
         this.layerEvents(layer);
@@ -121,7 +122,7 @@ export default class DraggableMap extends React.Component<Props, State> {
     // Enable marker, se the icon then disable it, this toggles the "clicked" state on the icon.
     map.pm.enableDraw('Marker', {
       markerStyle: {
-        icon: getMapIcon()
+        icon: jellyFish()
       }
     });
     map.pm.disableDraw('Marker');

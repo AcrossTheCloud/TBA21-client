@@ -25,4 +25,11 @@
       }
     }
   }
+
+  .leaflet-marker-icon {
+    &.leaflet-div-icon {
+      background: none !important;
+      border: none !important;
+    }
+  }
 }

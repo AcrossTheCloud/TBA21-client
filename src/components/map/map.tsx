@@ -8,7 +8,7 @@ import * as topojson from 'topojson-client';
 import { CSSTransition } from 'react-transition-group';
 
 import { Feature, GeometryObject } from 'geojson';
-import { getMapIcon } from './icons';
+import { jellyFish } from './icons';
 import { Map, TileLayer } from 'react-leaflet';
 
 import * as L from 'leaflet';
@@ -60,6 +60,9 @@ class MapView extends React.Component<Props, State> {
     const map = this.map.leafletElement;
     const self = this;
 
+    // Lets attempt to find the user.
+    this.locateUser();
+
     // @ts-ignore
     // Leaflet extension for TopoJSON, we ignore this as TS has a spaz
     L.TopoJSON = L.GeoJSON.extend(
@@ -95,7 +98,7 @@ class MapView extends React.Component<Props, State> {
     this.topoLayer = new L.TopoJSON(null, {
       // Add our custom marker to points.
       pointToLayer: (feature: Feature<GeometryObject>, latlng: L.LatLngExpression) => {
-        return L.marker(latlng, {icon: getMapIcon()});
+        return L.marker(latlng, {icon: jellyFish()});
       },
       // Each feature style it up
       onEachFeature: (feature: Feature<GeometryObject>, layer: L.Layer) => {
@@ -120,12 +123,6 @@ class MapView extends React.Component<Props, State> {
     });
     this.topoLayer.addTo(map);
 
-    // todo-dan remove test data
-    // this.testData();
-
-    // Lets attempt to find the user.
-    this.locateUser();
-
     // Add search to the map.
     this.map.leafletElement.addControl( new LeafletSearch({ layer: this.topoLayer }) );
   }
@@ -134,16 +131,6 @@ class MapView extends React.Component<Props, State> {
     if (!isEqual(prevProps.data, this.props.data)) {
       this.topoLayer.addData(this.props.data);
     }
-  }
-
-  // todo-dan remove test data
-  testData = async () => {
-    // https://github.com/cartdeco/Australia-json-data/blob/master/aus25fgd_r.topojson
-    // todo-dan remove test data
-    const randomTOPOFile = await fetch('https://raw.githubusercontent.com/cartdeco/Australia-json-data/master/aus25fgd_r.topojson');
-    const jdata = await randomTOPOFile.json();
-    this.topoLayer.addData(jdata);
-    // todo-dan
   }
 
   polygonLayerStyle = layer => {
