@@ -63,7 +63,7 @@ export enum Regions {
   CD = 'Congo, the Democratic Republic of the',
   CK = 'Cook Islands',
   CR = 'Costa Rica',
-  CI = 'C\u00f4te d\'Ivoire',
+  CI = "C\u00f4te d'Ivoire",
   HR = 'Croatia',
   CU = 'Cuba',
   CW = 'Cura\u00e7ao',
@@ -126,11 +126,11 @@ export enum Regions {
   KZ = 'Kazakhstan',
   KE = 'Kenya',
   KI = 'Kiribati',
-  KP = 'Korea, Democratic People\'s Republic of',
+  KP = "Korea, Democratic People's Republic of",
   KR = 'Korea, Republic of',
   KW = 'Kuwait',
   KG = 'Kyrgyzstan',
-  LA = 'Lao People\'s Democratic Republic',
+  LA = "Lao People's Democratic Republic",
   LV = 'Latvia',
   LB = 'Lebanon',
   LS = 'Lesotho',
@@ -258,6 +258,11 @@ export enum Regions {
   YE = 'Yemen',
   ZM = 'Zambia',
   ZW = 'Zimbabwe'
+}
+
+export enum detailType {
+  Time = 'Time',
+  Region = 'Region'
 }
 
 export enum itemType {

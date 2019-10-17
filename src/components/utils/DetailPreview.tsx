@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { FaCircle, FaPlay } from 'react-icons/all';
+import { FaCircle, FaPlay } from 'react-icons/fa';
 import moment from 'moment';
 
 import { FileTypes, S3File } from '../../types/s3File';
@@ -17,13 +17,23 @@ import { dateFromTimeYearProduced } from '../../actions/home';
 
 export type ItemOrHomePageData = Item | HomepageData;
 
-export const checkTypeIsItem = (toBeDetermined: ItemOrHomePageData): toBeDetermined is Item => {
+export const checkTypeIsItem = (
+  toBeDetermined: ItemOrHomePageData
+): toBeDetermined is Item => {
   // If we don't have created_at we can determine that we have a HomePageData item.
-  return !!(toBeDetermined as Item).item_type && !!(toBeDetermined as Item).created_at;
+  return (
+    !!(toBeDetermined as Item).item_type &&
+    !!(toBeDetermined as Item).created_at
+  );
 };
 
-export const FileStaticPreview = (props: { file: S3File, onLoad?: Function }): JSX.Element => {
-  if (props.file.type === FileTypes.Audio) { return <></>; }
+export const FileStaticPreview = (props: {
+  file: S3File;
+  onLoad?: Function;
+}): JSX.Element => {
+  if (props.file.type === FileTypes.Audio) {
+    return <></>;
+  }
   switch (props.file.type) {
     case FileTypes.Image:
       return (
@@ -32,7 +42,13 @@ export const FileStaticPreview = (props: { file: S3File, onLoad?: Function }): J
             srcSet={thumbnailsSRCSET(props.file)}
             src={props.file.url}
             alt={''}
-            onLoad={typeof props.onLoad === 'function' ? props.onLoad() : () => { return; }}
+            onLoad={
+              typeof props.onLoad === 'function'
+                ? props.onLoad()
+                : () => {
+                    return;
+                  }
+            }
           />
         </picture>
       );
@@ -40,7 +56,13 @@ export const FileStaticPreview = (props: { file: S3File, onLoad?: Function }): J
       return (
         <picture className="videoPreview">
           <img
-            onLoad={typeof props.onLoad === 'function' ? props.onLoad() : () => { return; }}
+            onLoad={
+              typeof props.onLoad === 'function'
+                ? props.onLoad()
+                : () => {
+                    return;
+                  }
+            }
             src={props.file.poster}
             alt={''}
           />
@@ -50,7 +72,16 @@ export const FileStaticPreview = (props: { file: S3File, onLoad?: Function }): J
     case FileTypes.Pdf:
       return (
         <div className="pdf">
-          <PdfPreview onLoad={typeof props.onLoad === 'function' ? props.onLoad() : () => { return; }} url={props.file.url}/>
+          <PdfPreview
+            onLoad={
+              typeof props.onLoad === 'function'
+                ? props.onLoad()
+                : () => {
+                    return;
+                  }
+            }
+            url={props.file.url}
+          />
         </div>
       );
 
@@ -58,7 +89,13 @@ export const FileStaticPreview = (props: { file: S3File, onLoad?: Function }): J
       return (
         <picture className="image">
           <img
-            onLoad={typeof props.onLoad === 'function' ? props.onLoad() : () => { return; }}
+            onLoad={
+              typeof props.onLoad === 'function'
+                ? props.onLoad()
+                : () => {
+                    return;
+                  }
+            }
             alt={''}
             src={textImage}
             className="image-fluid"
@@ -68,8 +105,17 @@ export const FileStaticPreview = (props: { file: S3File, onLoad?: Function }): J
   }
 };
 
-export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Function, modalToggle?: Function}): JSX.Element => {
-  if ((!!props.data.file && props.data.file.type === FileTypes.Audio) || props.data.item_type === itemType.Audio) { return <></>; }
+export const DetailPreview = (props: {
+  data: ItemOrHomePageData;
+  onLoad?: Function;
+  modalToggle?: Function;
+}): JSX.Element => {
+  if (
+    (!!props.data.file && props.data.file.type === FileTypes.Audio) ||
+    props.data.item_type === itemType.Audio
+  ) {
+    return <></>;
+  }
 
   let data: ItemOrHomePageData = props.data;
   let collectionType: collectionTypes | null | undefined = null;
@@ -83,66 +129,95 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
   const date = dateFromTimeYearProduced(data.time_produced, data.year_produced);
 
   return (
-    <div className={`detailPreview ${browser()}`} onClick={() => { if (typeof props.modalToggle === 'function') { props.modalToggle(); } }}>
-      {data.file ? <FileStaticPreview file={data.file} onLoad={typeof props.onLoad === 'function' ? props.onLoad : undefined}/> : <></>}
+    <div
+      className={`detailPreview ${browser()}`}
+      onClick={() => {
+        if (typeof props.modalToggle === 'function') {
+          props.modalToggle();
+        }
+      }}
+    >
+      {data.file ? (
+        <FileStaticPreview
+          file={data.file}
+          onLoad={typeof props.onLoad === 'function' ? props.onLoad : undefined}
+        />
+      ) : (
+        <></>
+      )}
       <div className="overlay">
         <div className="type">
           {data.item_subtype || !!collectionType ? collectionType : ''}
         </div>
 
-        {
-          !!data.count && data.count > 0 ?
-            <div className="count">
-              {data.count} item{data.count > 1 ? 's' : ''}
-            </div>
-            :
-            <></>
-        }
+        {!!data.count && data.count > 0 ? (
+          <div className="count">
+            {data.count} item{data.count > 1 ? 's' : ''}
+          </div>
+        ) : (
+          <></>
+        )}
 
         <div className="bottom">
           <div className="title-wrapper d-flex">
-            {data.creators && data.creators.length ?
+            {data.creators && data.creators.length ? (
               <div className="creators">
-                {data.creators[0]}{data.creators.length > 1 ? <em>, et al.</em> : <></>}
+                {data.creators[0]}
+                {data.creators.length > 1 ? <em>, et al.</em> : <></>}
               </div>
-              : <></>
-            }
-            {data.creators && data.creators.length ?
+            ) : (
+              <></>
+            )}
+            {data.creators && data.creators.length ? (
               <div className="d-none d-md-block dotwrap">
-                <FaCircle className="dot"/>
+                <FaCircle className="dot" />
               </div>
-              : <></>
-            }
-            <div className="title">
-              {data.title}
-            </div>
+            ) : (
+              <></>
+            )}
+            <div className="title">{data.title}</div>
           </div>
         </div>
-        {data.duration ?
+        {data.duration ? (
           <div className="duration">
-            {moment.duration((typeof data.duration === 'string' ? parseInt(data.duration, 0) : data.duration), 'seconds').format('hh:mm:ss')}
+            {moment
+              .duration(
+                typeof data.duration === 'string'
+                  ? parseInt(data.duration, 0)
+                  : data.duration,
+                'seconds'
+              )
+              .format('hh:mm:ss')}
           </div>
-          :
-          date ? <div className="date">{date}</div> : <></>
-        }
-        {!collectionType && data.file && data.file.type === FileTypes.Video ?
+        ) : date ? (
+          <div className="date">{date}</div>
+        ) : (
+          <></>
+        )}
+        {!collectionType && data.file && data.file.type === FileTypes.Video ? (
           <div className="middle">
-            <FaPlay/>
+            <FaPlay />
           </div>
-          :
-          collectionType ?
-            <div className="middle">
-              <svg className="collection_icon" viewBox="0 0 7 31" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
-                <g stroke="none" strokeWidth="1" fill="#fff">
-                  <rect id="Rectangle" x="3" y="6" width="1" height="19" />
-                  <circle id="Oval" cx="3.5" cy="3.5" r="3.5"/>
-                  <circle id="Oval-Copy-2" cx="3.5" cy="15.5" r="2.5"/>
-                  <circle id="Oval-Copy" cx="3.5" cy="27.5" r="3.5"/>
-                </g>
-              </svg>
-            </div>
-            : <></>
-        }
+        ) : collectionType ? (
+          <div className="middle">
+            <svg
+              className="collection_icon"
+              viewBox="0 0 7 31"
+              version="1.1"
+              xmlns="http://www.w3.org/2000/svg"
+              xmlnsXlink="http://www.w3.org/1999/xlink"
+            >
+              <g stroke="none" strokeWidth="1" fill="#fff">
+                <rect id="Rectangle" x="3" y="6" width="1" height="19" />
+                <circle id="Oval" cx="3.5" cy="3.5" r="3.5" />
+                <circle id="Oval-Copy-2" cx="3.5" cy="15.5" r="2.5" />
+                <circle id="Oval-Copy" cx="3.5" cy="27.5" r="3.5" />
+              </g>
+            </svg>
+          </div>
+        ) : (
+          <></>
+        )}
       </div>
     </div>
   );
