@@ -34,7 +34,8 @@ class ViewCollection extends React.Component<Props, {}> {
     if (matchId) {
       this.props.fetchCollection(matchId);
     } else if (userId) {
-      this.props.fetchCollection(userId); // TODO: allow fetchCollection to queries
+      // this.props.fetchCollection(userId); // TODO: allow fetchCollection to queries
+      this.props.fetchCollection(null, userId);
     } else {
       this.setState({ errorMessage: 'No collection with that id.' });
     }
