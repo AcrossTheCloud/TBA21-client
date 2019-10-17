@@ -5,7 +5,7 @@ import moment from 'moment';
 import { APITag } from '../metadata/Tags';
 import { Regions, detailType } from '../../types/Item';
 import { Collection } from '../../types/Collection';
-import FocusVisualiser from '../visualizer/FocusVisualizer';
+import FocusVisualizer from '../visualizer/FocusVisualizer';
 import renderForBrowser from '../utils/render-based-on-browser';
 
 interface Props {
@@ -130,7 +130,11 @@ class CollectionDetails extends React.Component<Props, {}> {
             : this.renderRow('Year Produced', year_produced, detailType.Time)}
           {detailInfo.map(row => this.renderRow(row[0], row[1], row[2]))}
           {detailTags.map(tags => this.renderTags(tags[0], tags[1]))}
-          {FocusVisualiser({ focus_action, focus_arts, focus_scitech })}
+          <FocusVisualizer
+            action={focus_action}
+            arts={focus_arts}
+            scitech={focus_scitech}
+          />
         </Col>
       </Row>
     );

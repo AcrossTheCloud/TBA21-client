@@ -1,17 +1,10 @@
 import * as React from 'react';
 import { Col, Row } from 'reactstrap';
 
-export default function FocusVisualiser({
-  focus_arts,
-  focus_scitech,
-  focus_action
-}) {
+export default function FocusVisualizer({ arts, scitech, action }) {
   let focusTotal = 0;
-  if (!!focus_action && !!focus_arts && !!focus_scitech) {
-    focusTotal =
-      parseInt(focus_action, 0) +
-      parseInt(focus_arts, 0) +
-      parseInt(focus_scitech, 0);
+  if (!!action && !!arts && !!scitech) {
+    focusTotal = parseInt(action, 0) + parseInt(arts, 0) + parseInt(scitech, 0);
   }
 
   const focusPercentage = (
@@ -33,10 +26,10 @@ export default function FocusVisualiser({
           style={{
             height: '15px',
             background: `linear-gradient(to right, #0076FF ${focusPercentage(
-              focus_arts
+              arts
             )}%, #9013FE ${focusPercentage(
-              focus_scitech
-            )}%, #50E3C2 ${focusPercentage(focus_action)}%)`
+              scitech
+            )}%, #50E3C2 ${focusPercentage(action)}%)`
           }}
         />
       </Col>
