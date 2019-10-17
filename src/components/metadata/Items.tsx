@@ -9,6 +9,8 @@ import { Button, Col, Row } from 'reactstrap';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { AuthContext } from '../../providers/AuthProvider';
 
+import 'styles/components/metadata/itemUpload.scss';
+
 interface Props extends RouteComponentProps {
   callback?: Function;
   items?: Item[];
@@ -232,17 +234,18 @@ class ItemsClass extends React.Component<Props, State> {
         <FileUpload callback={this.fileUploadCallback} />
         {
           this.state.items && Object.keys(this.state.items).length ?
-            <Row>
-              <Col sm="1"/>
-              <Col sm="5">
+            <Row className="itemDetailsAdd">
+              <Col className="itemIcons"  sm="1"/>
+              <Col className="title"  sm="5">
                 Title
               </Col>
-              <Col sm="3">
+              <Col className="creators"  sm="4">
                 Creators
               </Col>
-              <Col sm="2">
+              <Col className="status"  sm="1">
                 Status
               </Col>
+              <Col className="removeButton"  sm="1"/>
             </Row>
             :
             <></>

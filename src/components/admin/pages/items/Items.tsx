@@ -16,6 +16,7 @@ import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css';
 
 import 'styles/components/admin/tables/modal.scss';
+import 'styles/components/metadata/editors.scss';
 
 interface State extends Alerts {
   items: Item[];

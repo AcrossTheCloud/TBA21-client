@@ -1,3 +1,5 @@
+@import '../../base/variables';
+
 .itemEditor, .collectionEditor {
   position: relative;
   color: #000;
@@ -11,39 +13,35 @@
 }
 
 .collectionEditor {
+  .collapse {
+    width: 100%
+  }
   .itemDetails {
-    border-bottom: 1px solid darkgrey;
+    border-top: 1px solid $subline-gray;
     margin-top: 10px;
+    margin-bottom: 20px;
+    &:hover {
+      cursor: pointer
+    }
     .creators {
-      margin-top: 20px;
       word-break: break-word;
-      &:hover {
-        cursor: pointer
-      }
+
     }
     .title {
-      margin-top: 20px;
-      &:hover {
-        cursor: pointer
-      }
+
     }
     .status {
-      padding-left: 25px;
-      margin-top: 20px;
-      &:hover {
-        cursor: pointer
-      }
+      padding-left: 30px;
     }
     .removeButton {
-      margin-top: 10px;
-      margin-bottom: 20px;
+
     }
     .itemIcons {
-      margin-top: 20px;
 
-      &:hover {
-        cursor: pointer
-      }
     }
+  }
+  .itemDetails:last-child {
+    border-bottom: 1px solid $subline-gray;
+
   }
 }
