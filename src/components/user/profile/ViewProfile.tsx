@@ -166,4 +166,4 @@ export default withRouter(
   )(ViewProfile)
 );
 
-export { ViewProfile }; // for testing
+export { ViewProfile }; // for Unit testing

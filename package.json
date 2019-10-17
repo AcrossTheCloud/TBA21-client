@@ -58,8 +58,8 @@
   "scripts": {
     "start": "bash src/link_config.sh && craco start",
     "build": "bash src/link_config.sh && craco build",
-    "test": "bash src/link_config.sh && jest --no-cache --coverage",
-    "test:watch": "bash src/link_config.sh && react-scripts test",
+    "test": "bash src/link_config.sh && jest --coverage",
+    "test:watch": "bash src/link_config.sh && jest --watch",
     "eject": "react-scripts eject",
     "winstart": "craco start",
     "winbuild": "craco build"

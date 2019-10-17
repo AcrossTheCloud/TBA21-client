@@ -21,4 +21,11 @@ describe('ViewProfile', () => {
 
     expect(wrapper.find('div').find({ id: 'Profile' })).toEqual({});
   });
+
+  it('calls fetchProfile on mount with profile id', () => {
+    const fetchProfile = jest.fn();
+    const location = { pathname: '/profiles/1' };
+    subject({ fetchProfile, location });
+    expect(fetchProfile).toHaveBeenCalledWith('1');
+  });
 });
