@@ -42,12 +42,14 @@ export const fetchCollection = (id?: string, uuid?: string) => async (
     try {
       var response;
       if (uuid) {
+        // TODO: this returns an array of collections
         response = await API.get('tba21', 'collections', {
           queryStringParameters: {
             uuid
           }
         });
       } else {
+        // TODO: separate this to handle single collection
         response = await API.get('tba21', 'collections/getById', {
           queryStringParameters: {
             id

@@ -84,7 +84,8 @@ class ViewProfile extends React.Component<Props, State> {
       field_expertise,
       profile_type,
       profile_image,
-      public_profile
+      public_profile,
+      cognito_uuid
     } = profile;
     const tags = ['marine wildlife', 'adaptations at sea', 'climate change'];
 
@@ -143,7 +144,7 @@ class ViewProfile extends React.Component<Props, State> {
           )}
         </Row>
         <h4> Contributed Items </h4>
-        <ViewCollection userId="4" />
+        <ViewCollection uuid={cognito_uuid} />
       </div>
     );
   }
