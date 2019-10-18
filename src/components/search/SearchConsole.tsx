@@ -317,17 +317,18 @@ class SearchConsole extends React.Component<Props, State> {
   }
 
   onTagClick = (tag: APITag) => {
+    clearTimeout(this.tagClickedTimeout);
+
     const tagList = [
       ...this.state.selectedCriteria,
       createCriteriaOption(tag.tag_name, 'concept_tag')
     ];
 
-    clearTimeout(this.tagClickedTimeout);
     if (this._isMounted) {
       this.setState({selectedCriteria: tagList, searchMenuOpen: false});
     }
 
-    this.tagClickedTimeout = setTimeout(this.searchDispatch, 500);
+    this.tagClickedTimeout = setTimeout(this.searchDispatch, 2000);
   }
 
   onSearchKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {

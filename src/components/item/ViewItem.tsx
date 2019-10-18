@@ -82,6 +82,8 @@ class ViewItem extends React.Component<Props, State> {
       url,
       medium,
       item_type,
+      directors,
+      collaborators
     } = this.props.item;
 
     let focusTotal = 0;
@@ -170,7 +172,7 @@ class ViewItem extends React.Component<Props, State> {
               : year_produced ? <ItemDetails label="Year Produced" value={year_produced} /> : <></>
             }
             {!!venues && venues.length ?
-              <ItemDetails label="Publication Venue(s)" value={`${venues.join(', ')}`} />
+              <ItemDetails label={venues.length > 1 ? 'Publication Venue' : 'Publication Venues'} value={`${venues.join(', ')}`} />
               : <></>
             }
             {!!exhibited_at && exhibited_at.length ?
@@ -178,10 +180,13 @@ class ViewItem extends React.Component<Props, State> {
               : <></>
             }
             {!!regions && regions.length ?
-              <ItemDetails label="Region" value={regions.map((region) => (Regions[region])).join(', ')} />
+              <ItemDetails label={regions.length > 1 ? 'Regions' : 'Region'} value={regions.map((region) => (Regions[region])).join(', ')} />
             :
               ''
             }
+            {directors && directors.length ? <ItemDetails label={directors.length > 1 ? 'Directors' : 'Director'} value={directors.join(', ')} /> : <></>}
+            {collaborators && collaborators.length ? <ItemDetails label={collaborators.length > 1 ? 'Collaborators' : 'Collaborator'} value={collaborators.join(', ')} /> : <></>}
+
             {!!language ? <ItemDetails label="Language" value={Languages[language]} /> : ''}
             {!!license ? <ItemDetails label="License" value={license} /> : ''}
             {!!copyright_holder ? <ItemDetails label="Copyright Owner" value={copyright_holder} /> : ''}

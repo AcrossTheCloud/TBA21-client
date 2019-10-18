@@ -37,6 +37,8 @@ footer {
   }
 
   .btn-link, a {
+    padding-top: 10px;
+    padding-bottom: 10px;
     color: $dark-gray !important;
     transition: color 0.5s;
     margin: 0 auto;
