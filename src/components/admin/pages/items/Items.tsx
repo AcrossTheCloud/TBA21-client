@@ -36,7 +36,6 @@ interface State extends Alerts {
 class Items extends React.Component<RouteComponentProps, State> {
   _isMounted;
   isContributorPath;
-  isAdmin;
   tableColumns;
 
   constructor(props: RouteComponentProps) {
@@ -105,7 +104,6 @@ class Items extends React.Component<RouteComponentProps, State> {
   async componentDidMount() {
     this._isMounted = true;
     this.isContributorPath = (this.props.location.pathname.match(/contributor/i));
-    this.isAdmin = (this.props.location.pathname.match(/admin/i));
     this.getItems();
   }
 
@@ -290,7 +288,7 @@ class Items extends React.Component<RouteComponentProps, State> {
             {
               typeof this.state.itemIndex !== 'undefined' && this.state.itemIndex >= 0 ?
                 <ItemEditor
-                  isAdmin={this.isAdmin}
+                  isAdmin={context.authorisation.hasOwnProperty('admin')}
                   isContributorPath={context.authorisation.hasOwnProperty('admin') ? false : this.isContributorPath}
                   item={this.state.items[this.state.itemIndex]}
                   index={this.state.itemIndex}

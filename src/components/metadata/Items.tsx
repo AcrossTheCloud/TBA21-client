@@ -20,7 +20,7 @@ interface Props extends RouteComponentProps {
 
 interface State {
   items: ItemsObject;
-  isNewItem?: boolean;
+  isNewItem: boolean;
 }
 
 interface ItemsObject {
@@ -252,7 +252,7 @@ class ItemsClass extends React.Component<Props, State> {
         }
         {
           Object.entries(this.state.items).map( ( [s3Key, item] ) => {
-            return <ItemsDisplay isNewItem={!!this.state.isNewItem} isAdmin={!!this.props.isAdmin} isContributorPath={this.isContributorPath} key={s3Key} s3Key={s3Key} item={item} callback={this.fileUploadCallback} removeItem={this.props.allowRemoveItem ? this.removeItem : undefined} />;
+            return <ItemsDisplay isNewItem={this.state.isNewItem} isAdmin={this.props.isAdmin} isContributorPath={this.isContributorPath} key={s3Key} s3Key={s3Key} item={item} callback={this.fileUploadCallback} removeItem={this.props.allowRemoveItem ? this.removeItem : undefined} />;
           })
         }
 
