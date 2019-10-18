@@ -657,6 +657,7 @@ class ItemEditorClass extends React.Component<Props, State> {
               className="subtitle"
               required
               defaultValue={item.subtitle ? item.subtitle : ''}
+              maxLength={256}
               invalid={this.state.validate.hasOwnProperty('subtitle') && !this.state.validate.subtitle}
               onChange={e => this.validateLength('subtitle', e.target.value)}
             />
@@ -784,6 +785,7 @@ class ItemEditorClass extends React.Component<Props, State> {
               className="subtitle"
               required
               defaultValue={item.subtitle ? item.subtitle : ''}
+              maxLength={256}
               invalid={this.state.validate.hasOwnProperty('subtitle') && !this.state.validate.subtitle}
               onChange={e => this.validateLength('subtitle', e.target.value)}
             />
@@ -860,6 +862,7 @@ class ItemEditorClass extends React.Component<Props, State> {
               className="subtitle"
               required
               defaultValue={item.subtitle ? item.subtitle : ''}
+              maxLength={256}
               onChange={e => this.changeItem('subtitle', e.target.value)}
             />
           </FormGroup>
@@ -982,6 +985,7 @@ class ItemEditorClass extends React.Component<Props, State> {
               type="text"
               className="subtitle"
               defaultValue={item.subtitle ? item.subtitle : ''}
+              maxLength={256}
               onChange={e => this.changeItem('subtitle', e.target.value)}
             />
           </FormGroup>
@@ -1022,6 +1026,7 @@ class ItemEditorClass extends React.Component<Props, State> {
               type="text"
               className="subtitle"
               defaultValue={item.subtitle ? item.subtitle : ''}
+              maxLength={256}
               onChange={e => this.changeItem('subtitle', e.target.value)}
             />
           </FormGroup>

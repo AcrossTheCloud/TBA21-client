@@ -1362,6 +1362,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
                         type="text"
                         className="subtitle"
                         defaultValue={subtitle ? subtitle : ''}
+                        maxLength={256}
                         onChange={e => this.changeCollection('subtitle', e.target.value)}
                       />
                     </FormGroup>
