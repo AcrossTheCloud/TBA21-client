@@ -71,23 +71,25 @@ class MapView extends React.Component<Props, State> {
         // We technically un-nest each "feature" (line string) out of the collection it comes in, this makes styling it a hell of a lot easier.
         addData: function(data: any) {  // tslint:disable-line: no-any
           if (data.type === 'Topology') {
-            data.objects.output.geometries.forEach((g, index: number) => {
-              g.geometries.forEach(feature => {
-                // Add the properties to the feature, these are in the top level collection.
-                Object.assign(feature, { properties: data.objects.output.geometries[index].properties});
+            data.objects.output.geometries.forEach((geometryCollection, index: number) => {
+              if (geometryCollection && geometryCollection.geometries) {
+                geometryCollection.geometries.forEach(feature => {
+                  // Add the properties to the feature, these are in the top level collection.
+                  Object.assign(feature, {properties: data.objects.output.geometries[index].properties});
 
-                // Convert the feature to geoJSON for leaflet
-                const geojson = topojson.feature(data, feature);
+                  // Convert the feature to geoJSON for leaflet
+                  const geojson = topojson.feature(data, feature);
 
-                // If our loaded data array doesn't contain the ID of the feature, load it in.
-                if (findIndex(self.loadedData, data.objects.output.geometries[index].properties) === -1) {
-                  // Push out feature to an array so we can check if we've already loaded it (above)
-                  self.loadedData.push(data.objects.output.geometries[index].properties);
+                  // If our loaded data array doesn't contain the ID of the feature, load it in.
+                  if (findIndex(self.loadedData, data.objects.output.geometries[index].properties) === -1) {
+                    // Push out feature to an array so we can check if we've already loaded it (above)
+                    self.loadedData.push(data.objects.output.geometries[index].properties);
 
-                  // return the original extension call.
-                  L.GeoJSON.prototype.addData.call(this, geojson);
-                }
-              });
+                    // return the original extension call.
+                    L.GeoJSON.prototype.addData.call(this, geojson);
+                  }
+                });
+              }
             });
           }
         }

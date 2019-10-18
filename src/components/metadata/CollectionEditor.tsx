@@ -8,7 +8,7 @@ import {
   FormGroup, FormText,
   Input,
   InputGroup,
-  Label, Nav, NavItem, NavLink,
+  Label, Modal, ModalBody, ModalFooter, Nav, NavItem, NavLink,
   Row, TabContent, TabPane, UncontrolledButtonDropdown
 } from 'reactstrap';
 import { API } from 'aws-amplify';
@@ -42,6 +42,7 @@ import 'styles/components/metadata/editors.scss';
 import { getItemsInCollection } from '../../REST/collections';
 import { removeTopology } from '../utils/removeTopology';
 import { adminGetItems } from '../../REST/items';
+import DraggableMap from '../admin/utils/DraggableMap';
 
 interface Props {
   collection?: Collection;
@@ -55,6 +56,9 @@ interface Props {
 }
 
 interface State extends Alerts {
+  topojson?: Object;
+  itemTopoJSON?: Object;
+
   originalCollection: Collection;
   collection: Collection;
   changedFields: {
@@ -76,6 +80,8 @@ interface State extends Alerts {
   isDifferent: boolean;
   loadedItems: Item[];
   loadingItems: boolean;
+
+  mapModalOpen: boolean;
 }
 
 const defaultRequiredFields = (collection: Collection) => {
@@ -135,6 +141,8 @@ class CollectionEditorClass extends React.Component<Props, State> {
       validate: defaultRequiredFields(collection),
       activeTab: '1',
       selectInputValue: '',
+
+      mapModalOpen: false
     };
   }
 
@@ -155,9 +163,10 @@ class CollectionEditorClass extends React.Component<Props, State> {
         const items = removeTopology(results) as Item[];
         const mappedItems: string[] = items.length ? items.map( i => i.s3_key) : [];
 
-        if (items && items.length && this._isMounted) {
+        if (results && items && items.length && this._isMounted) {
           this.setState(
             {
+              itemTopoJSON: results,
               collection: {...this.state.collection, items: mappedItems},
               originalCollection: {...this.state.collection, items: mappedItems},
               loadedItems: items,
@@ -1221,6 +1230,12 @@ class CollectionEditorClass extends React.Component<Props, State> {
     }
   }
 
+  toggleMapModal = () => {
+    if (this._isMounted) {
+      this.setState({ mapModalOpen: !this.state.mapModalOpen });
+    }
+  }
+
   render() {
     const {
       id,
@@ -1299,6 +1314,9 @@ class CollectionEditorClass extends React.Component<Props, State> {
                         }
                       </DropdownMenu>
                     </UncontrolledButtonDropdown>
+
+                    <Button onClick={this.toggleMapModal}>Add coords</Button>
+
                   </Col>
 
                   {this.props.profileDetails && !this.props.profileDetails.accepted_license ?
@@ -1521,6 +1539,15 @@ class CollectionEditorClass extends React.Component<Props, State> {
             </TabContent>
           </Col>
         </Row>
+
+        <Modal isOpen={this.state.mapModalOpen} toggle={this.toggleMapModal} centered size="lg" scrollable className="fullwidth" backdrop>
+          <ModalBody>
+            <DraggableMap topoJSON={this.state.topojson} collectionItems={this.state.itemTopoJSON} />
+          </ModalBody>
+          <ModalFooter>
+            <Button color="secondary" onClick={this.toggleMapModal}>Cancel</Button>
+          </ModalFooter>
+        </Modal>
       </div>
     );
   }
