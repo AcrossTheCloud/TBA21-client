@@ -16,32 +16,5 @@
   .collapse {
     width: 100%
   }
-  .itemDetails {
-    border-top: 1px solid $subline-gray;
-    margin-top: 10px;
-    margin-bottom: 20px;
-    &:hover {
-      cursor: pointer
-    }
-    .creators {
-      word-break: break-word;
 
-    }
-    .title {
-
-    }
-    .status {
-      padding-left: 30px;
-    }
-    .removeButton {
-
-    }
-    .itemIcons {
-
-    }
-  }
-  .itemDetails:last-child {
-    border-bottom: 1px solid $subline-gray;
-
-  }
 }

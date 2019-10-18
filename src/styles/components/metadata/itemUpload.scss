@@ -1,24 +1,18 @@
 @import '../../base/variables';
 
-.itemDetailsAdd {
-  margin-bottom: 20px;
+.accordianHeadings {
+  padding: 20px 0;
 
   &:hover {
     cursor: pointer
   }
   .creators {
     word-break: break-word;
-    margin-top: 20px;
-
   }
   .title {
-    margin-top: 20px;
-
   }
   .status {
     padding-left: 25px;
-    margin-top: 20px;
-
   }
   .removeButton {
   }
@@ -27,7 +21,9 @@
   }
 }
 
-.itemDetails {
+.accordianCollapse {
+  padding: 20px 0;
+
   .collapse {
     width: 100%
   }
@@ -36,27 +32,22 @@
     cursor: pointer
   }
   .creators {
-    margin-top: 20px;
     word-break: break-word;
 
   }
   .title {
-    margin-top: 20px;
-    margin-bottom: 20px;
   }
   .status {
-    padding-left: 40px;
-    margin-top: 20px;
+    text-align: center;
   }
   .removeButton {
 
   }
   .itemIcons {
-    margin-top: 20px;
-    padding-left: 20px;
+    text-align: center;
   }
 }
-.itemDetails:last-child {
+.accordianCollapse:last-child {
   border-bottom: 1px solid $subline-gray;
 
 }

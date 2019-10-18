@@ -234,18 +234,18 @@ class ItemsClass extends React.Component<Props, State> {
         <FileUpload callback={this.fileUploadCallback} />
         {
           this.state.items && Object.keys(this.state.items).length ?
-            <Row className="itemDetailsAdd">
-              <Col className="itemIcons"  sm="1"/>
-              <Col className="title"  sm="5">
+            <Row className="accordianHeadings">
+              <Col className="itemIcons"  xs="1"/>
+              <Col className="title"  xs="5">
                 Title
               </Col>
-              <Col className="creators"  sm="4">
+              <Col className="creators"  xs="4">
                 Creators
               </Col>
-              <Col className="status"  sm="1">
+              <Col className="status"  xs="1">
                 Status
               </Col>
-              <Col className="removeButton"  sm="1"/>
+              <Col className="removeButton"  xs="1"/>
             </Row>
             :
             <></>

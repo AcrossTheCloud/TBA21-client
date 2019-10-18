@@ -2653,20 +2653,20 @@ function withCollapse <P extends WithCollapseProps>(WrappedComponent: React.Comp
     render() {
       return (
         <>
-          <Row className="itemDetails" >
-            <Col className="itemIcons" sm="1"  onClick={this.toggleCollapse}>
+          <Row className="accordianCollapse"   onClick={this.toggleCollapse}>
+            <Col className="itemIcons" xs="1">
               {this.state.open ? <FaMinus /> : <FaPlus />}
             </Col>
             <Col className="title" onClick={this.toggleCollapse} xs="4" sm="5" >
               {this.state.item.title ? this.state.item.title : 'Untitled'}
             </Col>
-            <Col className="creators" onClick={this.toggleCollapse} xs="4" sm="4">
+            <Col className="creators" onClick={this.toggleCollapse} xs="4">
               {this.state.item.creators ? this.state.item.creators.join(', ') : <></>}
             </Col>
-            <Col className="status" onClick={this.toggleCollapse}  sm="1">
+            <Col className="status" onClick={this.toggleCollapse}  xs="1">
               {this.state.item.status ? <FaCheck color="green" size={25} /> : <FaTimes color="red" size={25} />}
             </Col>
-            <Col className="removeButton" sm="1">
+            <Col className="removeButton" xs="1">
               {this.props.children ? this.props.children : <></>}
             </Col>
             <Collapse isOpen={this.state.open}>
