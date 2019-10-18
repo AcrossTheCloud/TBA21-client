@@ -9,7 +9,7 @@ import { Button, Col, Row } from 'reactstrap';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { AuthContext } from '../../providers/AuthProvider';
 
-import 'styles/components/metadata/itemUpload.scss';
+import 'styles/components/metadata/accordionCollapse.scss';
 
 interface Props extends RouteComponentProps {
   callback?: Function;
