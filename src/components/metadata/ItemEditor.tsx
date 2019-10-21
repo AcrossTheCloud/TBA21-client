@@ -2653,8 +2653,8 @@ function withCollapse <P extends WithCollapseProps>(WrappedComponent: React.Comp
     render() {
       return (
         <>
-          <Row className="accordianCollapse"   onClick={this.toggleCollapse}>
-            <Col className="itemIcons" xs="1">
+          <Row className="accordianCollapse">
+            <Col className="itemIcons" xs="1" onClick={this.toggleCollapse}>
               {this.state.open ? <FaMinus /> : <FaPlus />}
             </Col>
             <Col className="title" onClick={this.toggleCollapse} xs="4" sm="5" >
