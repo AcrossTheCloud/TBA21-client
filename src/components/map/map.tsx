@@ -7,7 +7,7 @@ import * as topojson from 'topojson-client';
 
 import { CSSTransition } from 'react-transition-group';
 
-import { Feature, GeometryObject } from 'geojson';
+import { Feature, GeoJsonObject, GeometryObject } from 'geojson';
 import { jellyFish } from './icons';
 import { Map, TileLayer } from 'react-leaflet';
 
@@ -26,7 +26,7 @@ interface Props {
   openModal: Function;
   fetchData: Function;
   hasError: boolean;
-  data: Object;
+  data: GeoJsonObject;
 }
 
 interface State {
@@ -67,10 +67,11 @@ class MapView extends React.Component<Props, State> {
     // Leaflet extension for TopoJSON, we ignore this as TS has a spaz
     L.TopoJSON = L.GeoJSON.extend(
       {
-        // When any data is added we need to get the geometries from the output
-        // We technically un-nest each "feature" (line string) out of the collection it comes in, this makes styling it a hell of a lot easier.
+        // Overwrite the addData function.
         addData: function(data: any) {  // tslint:disable-line: no-any
           if (data.type === 'Topology') {
+            // When any data is added we need to get the geometries from the output
+            // We technically un-nest each "feature" (line string) out of the collection it comes in, this makes styling it a hell of a lot easier.
             data.objects.output.geometries.forEach((geometryCollection, index: number) => {
               if (geometryCollection && geometryCollection.geometries) {
                 geometryCollection.geometries.forEach(feature => {

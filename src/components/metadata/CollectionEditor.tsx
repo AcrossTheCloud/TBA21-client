@@ -39,12 +39,14 @@ import { getProfileDetails } from '../../actions/user/profile';
 import { Profile } from '../../types/Profile';
 
 import 'styles/components/metadata/editors.scss';
-import { getItemsInCollection } from '../../REST/collections';
+import { adminGet, getItemsInCollection } from '../../REST/collections';
 import { removeTopology } from '../utils/removeTopology';
 import { adminGetItems } from '../../REST/items';
 import DraggableMap from '../admin/utils/DraggableMap';
+import { GeoJsonObject } from 'geojson';
+import { RouteComponentProps, withRouter } from 'react-router';
 
-interface Props {
+interface Props extends RouteComponentProps {
   collection?: Collection;
   editMode: boolean;
   onChange?: Function;
@@ -56,8 +58,8 @@ interface Props {
 }
 
 interface State extends Alerts {
-  topojson?: Object;
-  itemTopoJSON?: Object;
+  topojson?: GeoJsonObject;
+  itemTopoJSON?: GeoJsonObject;
 
   originalCollection: Collection;
   collection: Collection;
@@ -157,14 +159,22 @@ class CollectionEditorClass extends React.Component<Props, State> {
     }
 
     if (this.props.collection) {
+      const state = {};
+
+      // Get the collection and push the topoJSON into state.
+      const isContributorPath = (this.props.location.pathname.match(/contributor/i));
+      const topojson = await adminGet(isContributorPath, { id: this.props.collection.id });
+      Object.assign(state, { topojson });
+
+      // Get all the items in our collection.
       const getAllItemsInCollection = async (id) => {
 
         const results = await getItemsInCollection({ id, limit: 1000 });
         const items = removeTopology(results) as Item[];
         const mappedItems: string[] = items.length ? items.map( i => i.s3_key) : [];
 
-        if (results && items && items.length && this._isMounted) {
-          this.setState(
+        if (results && items && items.length) {
+          Object.assign(state,
             {
               itemTopoJSON: results,
               collection: {...this.state.collection, items: mappedItems},
@@ -173,6 +183,10 @@ class CollectionEditorClass extends React.Component<Props, State> {
               loadingItems: false
             }
           );
+        }
+
+        if (this._isMounted) {
+          this.setState(state);
         }
       };
 
@@ -1543,7 +1557,20 @@ class CollectionEditorClass extends React.Component<Props, State> {
 
         <Modal isOpen={this.state.mapModalOpen} toggle={this.toggleMapModal} centered size="lg" scrollable className="fullwidth" backdrop>
           <ModalBody>
-            <DraggableMap topoJSON={this.state.topojson} collectionItems={this.state.itemTopoJSON} />
+            <DraggableMap
+              topoJSON={this.state.topojson}
+              collectionItems={this.state.itemTopoJSON}
+              onChange={ geojson => {
+                if (this._isMounted) {
+                  this.setState(
+                    { collection: {...this.state.collection, geojson},
+                      changedFields: {...this.state.changedFields, geojson},
+                      isDifferent: !isEqual(this.state.originalCollection, this.state.collection)
+                    }
+                  );
+                }
+              }}
+            />
           </ModalBody>
           <ModalFooter>
             <Button color="secondary" onClick={this.toggleMapModal}>Cancel</Button>
@@ -1558,4 +1585,4 @@ const mapStateToProps = (state: { profile: { details: Profile} }) => ({
   profileDetails: state.profile.details,
 });
 
-export const CollectionEditor = connect(mapStateToProps, { modalToggle, getProfileDetails })(CollectionEditorClass);
+export const CollectionEditor = withRouter(connect(mapStateToProps, { modalToggle, getProfileDetails })(CollectionEditorClass));

@@ -11,7 +11,7 @@ import { jellyFish } from 'components/map/icons';
 import 'leaflet/dist/leaflet.css';
 import { Layer } from 'leaflet';
 import * as topojson from 'topojson-client';
-import { Feature, GeometryObject } from 'geojson';
+import { Feature, GeoJsonObject, GeometryObject } from 'geojson';
 
 interface State {
   position: L.LatLngExpression;
@@ -19,9 +19,9 @@ interface State {
 }
 
 interface Props {
-  topoJSON?: Object;
-  positionCallback?: Function;
-  collectionItems?: Object;
+  topoJSON?: GeoJsonObject;
+  onChange?: Function;
+  collectionItems?: GeoJsonObject;
 }
 
 export default class DraggableMap extends React.Component<Props, State> {
@@ -50,10 +50,10 @@ export default class DraggableMap extends React.Component<Props, State> {
     this.locateUser();
 
     this.addLeafletGeoMan();
-    this.globalMapEvents();
     this.topoLayer = this.setupTopoLayer();
 
     if (this.props.topoJSON && Object.keys(this.props.topoJSON).length) {
+      console.log('this.props.topoJSON', this.props.topoJSON); // todo-dan remove
       this.topoLayer.addData(this.props.topoJSON);
     }
     // If we're a collection disable all of the items on the map, so they're no editable.
@@ -73,7 +73,7 @@ export default class DraggableMap extends React.Component<Props, State> {
     }
 
     // Add our items data in an ignored layer.
-    if (this.props.collectionItems && !isEqual(prevProps.collectionItems, this.props.collectionItems)) {
+    if (this.ignoredTopoLayer && this.props.collectionItems && !isEqual(prevProps.collectionItems, this.props.collectionItems)) {
       this.ignoredTopoLayer.addData(this.props.collectionItems);
     }
 
@@ -122,7 +122,7 @@ export default class DraggableMap extends React.Component<Props, State> {
               if (geometryCollection && geometryCollection.geometries) {
                 geometryCollection.geometries.forEach(feature => {
                   // Add the properties to the feature, these are in the top level collection.
-                  Object.assign(feature, { properties: data.objects.output.geometries[index].properties});
+                  // Object.assign(feature, { properties: data.objects.output.geometries[index].properties});
 
                   // Convert the feature to geoJSON for leaflet
                   const geojson = topojson.feature(data, feature);
@@ -137,35 +137,67 @@ export default class DraggableMap extends React.Component<Props, State> {
   }
 
   callback = () => {
-    if (!this._isMounted) { return; }
-    const map = this.map.leafletElement;
-    if (map && map._layers && map._layers.length) {
-      console.log('Callback - features - ', map);
-
-      // Object.values(this.map.leafletElement._layers).forEach( (e: L.Layer) => {
-      //   if (e.type === 'feature') {
-      //     console.log(e);
-      //   }
-      // });
-
-      // this.map.leafletElement.eachLayer((layer: Layer) => {
-      //   console.log(layer);
-      // });
+    if (this.topoLayer && typeof this.props.onChange === 'function') {
+      this.props.onChange(this.topoLayer.toGeoJSON());
     }
-  }
-
-  globalMapEvents = () => {
-    this.map.leafletElement.on('layerremove', u => {
-      console.log('layerremove', u);
-      this.callback();
-    });
   }
 
   layerEvents = (layer: Layer) => {
     layer.on('pm:edit', u => {
+      console.log('pm:edit');
       this.callback();
     });
+
     layer.on('pm:cut', u => {
+      console.log('pm:cut');
+      this.callback();
+    });
+  }
+
+  addAltToLatLng(coords: L.LatLng, alt: number = 0): L.LatLng {
+    return new L.LatLng(coords.lat, coords.lng, alt);
+  }
+
+  mapEvents = () => {
+    const map = this.map.leafletElement;
+
+    // listen to vertexes being added to currently drawn layer (called workingLayer)
+    map.on('pm:drawstart', w => {
+      const workingLayer = w.workingLayer;
+
+      // Add the altitude to the coords to any vertex's, this includes Linestrings and Poly.
+      workingLayer.on('pm:vertexadded', e => {
+        console.log('pm:vertexadded', e);
+
+        let latlng = e.marker._latlng;
+        let index = workingLayer._latlngs.indexOf(latlng);
+
+        workingLayer._latlngs[index] = this.addAltToLatLng(e.latlng);
+        console.log(workingLayer._latlngs, latlng, index);
+      });
+    });
+
+    map.on('pm:create', e => {
+      this.topoLayer.addLayer(e.layer);
+      this.layerEvents(e.layer);
+
+      // Add the altitude to the coords to the Marker
+      if (e.shape === 'Marker') {
+        e.layer._latlng = this.addAltToLatLng(e.layer._latlng);
+      }
+
+      console.log('pm:create', e);
+
+      // if (e.feature.geometry.type !== 'GeometryCollection' && e.feature.geometry.coordinates) {
+      //   console.log('Hi', e.feature.geometry.coordinates);
+      // }
+
+      this.callback();
+    });
+
+    map.on('pm:remove', u => {
+      console.log('pm:remove');
+      this.topoLayer.removeLayer(u.layer);
       this.callback();
     });
   }
@@ -175,7 +207,13 @@ export default class DraggableMap extends React.Component<Props, State> {
    */
   addLeafletGeoMan = () => {
     const map = this.map.leafletElement;
-    map.pm.addControls();
+    map.pm.addControls(
+      {
+        drawCircle: false,
+        drawCircleMarker: false,
+        drawRectangle: false
+      }
+    );
 
     // Enable marker, set the icon then disable it, this toggles the "clicked" state on the icon.
     map.pm.enableDraw('Marker', {
@@ -185,11 +223,7 @@ export default class DraggableMap extends React.Component<Props, State> {
     });
     map.pm.disableDraw('Marker');
 
-    map.on('pm:create', e => {
-      this.callback();
-      this.layerEvents(e.layer);
-    });
-
+    this.mapEvents();
   }
 
   inputChange = () => {

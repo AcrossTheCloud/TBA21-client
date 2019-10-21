@@ -62,6 +62,7 @@ import 'styles/components/metadata/editors.scss';
 import { adminGetItem } from '../../REST/items';
 import { removeTopology } from '../utils/removeTopology';
 import DraggableMap from '../admin/utils/DraggableMap';
+import { GeoJsonObject } from 'geojson';
 
 interface Props {
   item: Item;
@@ -76,7 +77,7 @@ interface Props {
 }
 
 interface State extends Alerts {
-  topojson?: Object;
+  topojson?: GeoJsonObject;
 
   originalItem: Item;
   changedItem: Item;
@@ -252,19 +253,20 @@ class ItemEditorClass extends React.Component<Props, State> {
   updateItem = async () => {
     if (!this._isMounted) { return; }
 
-    if (!this.props.profileDetails.accepted_license && !this.state.acceptedLicense) {
-      this.setState({ errorMessage: 'You need to agree to our terms of use.' });
-      return;
-    } else if (!this.props.profileDetails.accepted_license && this.state.acceptedLicense) {
-      await API.patch('tba21', 'profiles', {
-        body: {
-          accepted_license: true
-        }
-      });
-
-      // Refresh the Profile Details.
-      this.props.getProfileDetails(this.props.profileDetails.cognito_uuid);
-    }
+    // todo-dan uncomment this block
+    // if (!this.props.profileDetails.accepted_license && !this.state.acceptedLicense) {
+    //   this.setState({ errorMessage: 'You need to agree to our terms of use.' });
+    //   return;
+    // } else if (!this.props.profileDetails.accepted_license && this.state.acceptedLicense) {
+    //   await API.patch('tba21', 'profiles', {
+    //     body: {
+    //       accepted_license: true
+    //     }
+    //   });
+    //
+    //   // Refresh the Profile Details.
+    //   this.props.getProfileDetails(this.props.profileDetails.cognito_uuid);
+    // }
 
     this.setState(
       {
@@ -2631,7 +2633,20 @@ class ItemEditorClass extends React.Component<Props, State> {
         </Form>
         <Modal isOpen={this.state.mapModalOpen} toggle={this.toggleMapModal} centered size="lg" scrollable className="fullwidth" backdrop>
           <ModalBody>
-            <DraggableMap topoJSON={this.state.topojson} />
+            <DraggableMap
+              topoJSON={this.state.topojson}
+              onChange={ geojson => {
+                if (this._isMounted) {
+                  this.setState(
+              {
+                      changedItem: {...this.state.changedItem, geojson},
+                      changedFields: {...this.state.changedFields, geojson},
+                      isDifferent: !isEqual(this.state.originalItem, this.state.changedItem)
+                    }
+                  );
+                }
+              }}
+            />
           </ModalBody>
           <ModalFooter>
             <Button color="secondary" onClick={this.toggleMapModal}>Cancel</Button>
