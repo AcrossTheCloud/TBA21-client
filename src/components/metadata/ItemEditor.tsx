@@ -253,20 +253,19 @@ class ItemEditorClass extends React.Component<Props, State> {
   updateItem = async () => {
     if (!this._isMounted) { return; }
 
-    // todo-dan uncomment this block
-    // if (!this.props.profileDetails.accepted_license && !this.state.acceptedLicense) {
-    //   this.setState({ errorMessage: 'You need to agree to our terms of use.' });
-    //   return;
-    // } else if (!this.props.profileDetails.accepted_license && this.state.acceptedLicense) {
-    //   await API.patch('tba21', 'profiles', {
-    //     body: {
-    //       accepted_license: true
-    //     }
-    //   });
-    //
-    //   // Refresh the Profile Details.
-    //   this.props.getProfileDetails(this.props.profileDetails.cognito_uuid);
-    // }
+    if (!this.props.profileDetails.accepted_license && !this.state.acceptedLicense) {
+      this.setState({ errorMessage: 'You need to agree to our terms of use.' });
+      return;
+    } else if (!this.props.profileDetails.accepted_license && this.state.acceptedLicense) {
+      await API.patch('tba21', 'profiles', {
+        body: {
+          accepted_license: true
+        }
+      });
+
+      // Refresh the Profile Details.
+      this.props.getProfileDetails(this.props.profileDetails.cognito_uuid);
+    }
 
     this.setState(
       {
