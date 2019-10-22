@@ -143,8 +143,10 @@ class ViewProfile extends React.Component<Props, State> {
             ''
           )}
         </Row>
-        <h4> Contributed Items </h4>
-        <ViewCollection uuid={cognito_uuid} />
+        <Row className="mx-3">
+          <div className="title my-3"> Contributed Items </div>
+          <ViewCollection uuid={cognito_uuid} />
+        </Row>
       </div>
     );
   }

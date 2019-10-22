@@ -1,9 +1,16 @@
-@import "../base/variables";
-@import "fonts.scss";
+@import '../base/variables';
+@import 'fonts.scss';
 
 .caption-text {
-  font-family: "Roboto Mono", monospace;
+  font-family: 'Roboto Mono', monospace;
   font-size: 14px;
+  line-height: 1.43;
+  color: $subline-gray;
+}
+
+.title {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 18px;
   line-height: 1.43;
   color: $subline-gray;
 }
