@@ -33,7 +33,7 @@ export const fetchProfileCollections = (uuid: string) => async (
     // TODO: this returns an array of collections
     const { collections } = await API.get('tba21', 'collections', {
       queryStringParameters: {
-        uuid
+        uuid: '7e32b7c6-c6d3-4e70-a101-12af2df21a19'
       }
     });
     if (!!collections && collections.length) {
@@ -60,7 +60,7 @@ export const fetchProfileCollections = (uuid: string) => async (
           type: FETCH_COLLECTION,
           collection: collections,
           offset: 0,
-          ...items
+          items
         });
       });
     }
