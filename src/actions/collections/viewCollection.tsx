@@ -8,6 +8,7 @@ import { Collection } from '../../types/Collection';
 
 // Defining our Actions for the reducers.
 export const FETCH_COLLECTION = 'FETCH_COLLECTION';
+export const FETCH_COLLECTIONS = 'FETCH_COLLECTIONS';
 export const FETCH_COLLECTION_ERROR = 'FETCH_COLLECTION_ERROR';
 export const FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION =
   'FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION';
@@ -18,10 +19,63 @@ export const FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION =
  *
  * @param id {string}
  */
-export const fetchCollection = (id?: string, uuid?: string) => async (
+
+export const fetchProfileCollections = (uuid: string) => async (
   dispatch,
   getState
 ) => {
+  // const prevState = getState();
+
+  dispatch({
+    type: LOADINGOVERLAY,
+    on: true
+  });
+
+  try {
+    // TODO: this returns an array of collections
+    const { collections } = await API.get('tba21', 'collections', {
+      queryStringParameters: {
+        uuid
+      }
+    });
+    if (!!collections && collections.length) {
+      Promise.all(
+        collections.map(async collection => {
+          console.log(collection.id);
+          const itemResponse = await API.get(
+            'tba21',
+            'collections/getItemsInCollection',
+            {
+              queryStringParameters: {
+                id: collection.id,
+                limit: 1000
+              }
+            }
+          );
+
+          return await loadMore(itemResponse.items);
+        })
+      ).then((collectionBundles: any[]) => {
+        const items = collectionBundles.flatMap(collection => collection.items);
+        console.log(collectionBundles, items);
+        dispatch({
+          type: FETCH_COLLECTION,
+          collection: collections,
+          offset: 0,
+          ...items
+        });
+      });
+    }
+  } catch {
+  } finally {
+    dispatch({
+      type: LOADINGOVERLAY,
+      on: false
+    });
+  }
+};
+
+export const fetchCollection = (id: string) => async (dispatch, getState) => {
   const prevState = getState();
 
   dispatch({

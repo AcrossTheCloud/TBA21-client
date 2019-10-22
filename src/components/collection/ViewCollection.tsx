@@ -1,6 +1,9 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { fetchCollection } from 'actions/collections/viewCollection';
+import {
+  fetchCollection,
+  fetchProfileCollections
+} from 'actions/collections/viewCollection';
 import { ViewCollectionState } from 'reducers/collections/viewCollection';
 import { ErrorMessage } from '../utils/alerts';
 
@@ -18,6 +21,7 @@ type MatchParams = {
 interface Props extends RouteComponentProps<MatchParams>, ViewCollectionState {
   uuid?: string | null;
   fetchCollection: Function;
+  fetchProfileCollections: Function;
 }
 
 class ViewCollection extends React.Component<Props, {}> {
@@ -35,7 +39,7 @@ class ViewCollection extends React.Component<Props, {}> {
       this.props.fetchCollection(matchId);
     } else if (uuid) {
       // this.props.fetchCollection(uuid); // TODO: allow fetchCollection to queries
-      this.props.fetchCollection(null, uuid);
+      this.props.fetchProfileCollections(uuid);
     } else {
       this.setState({ errorMessage: 'No collection with that id.' });
     }
@@ -73,6 +77,6 @@ const mapStateToProps = (state: { viewCollection: ViewCollectionState }) => {
 export default withRouter(
   connect(
     mapStateToProps,
-    { fetchCollection }
+    { fetchCollection, fetchProfileCollections }
   )(ViewCollection)
 );
