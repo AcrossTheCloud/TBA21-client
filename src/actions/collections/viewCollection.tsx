@@ -8,7 +8,6 @@ import { Collection } from '../../types/Collection';
 
 // Defining our Actions for the reducers.
 export const FETCH_COLLECTION = 'FETCH_COLLECTION';
-export const FETCH_COLLECTIONS = 'FETCH_COLLECTIONS';
 export const FETCH_COLLECTION_ERROR = 'FETCH_COLLECTION_ERROR';
 export const FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION =
   'FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION';
@@ -20,7 +19,7 @@ export const FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION =
  * @param id {string}
  */
 
-export const fetchProfileCollections = (uuid: string) => async (
+export const fetchContributedItemsForProfile = (uuid: string) => async (
   dispatch,
   getState
 ) => {
@@ -35,13 +34,12 @@ export const fetchProfileCollections = (uuid: string) => async (
     // TODO: this returns an array of collections
     const { collections } = await API.get('tba21', 'collections', {
       queryStringParameters: {
-        uuid: '7e32b7c6-c6d3-4e70-a101-12af2df21a19'
+        uuid
       }
     });
     if (!!collections && collections.length) {
       Promise.all(
         collections.map(async collection => {
-          console.log(collection.id);
           const itemResponse = await API.get(
             'tba21',
             'collections/getItemsInCollection',
@@ -57,7 +55,7 @@ export const fetchProfileCollections = (uuid: string) => async (
         })
       ).then((collectionBundles: any[]) => {
         const items = collectionBundles.flatMap(collection => collection.items);
-        console.log(collectionBundles, items);
+
         dispatch({
           type: FETCH_COLLECTION,
           collection: collections,

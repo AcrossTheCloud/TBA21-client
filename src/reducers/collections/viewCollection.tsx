@@ -4,7 +4,6 @@ import { Item } from '../../types/Item';
 
 // Defining our Actions for the reducers.
 export const FETCH_COLLECTION = 'FETCH_COLLECTION';
-export const FETCH_COLLECTIONS = 'FETCH_COLLECTIONS';
 export const FETCH_COLLECTION_LOAD_MORE = 'FETCH_COLLECTION_LOAD_MORE';
 export const FETCH_COLLECTION_ERROR = 'FETCH_COLLECTION_ERROR';
 export const FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION =
@@ -40,14 +39,6 @@ export default (state: ViewCollectionState = initialState, action) => {
       return {
         ...state,
         collection: action.collection,
-        offset: action.offset,
-        items: action.items,
-        errorMessage: undefined
-      };
-    case FETCH_COLLECTIONS:
-      return {
-        ...state,
-        collections: action.collections,
         offset: action.offset,
         items: action.items,
         errorMessage: undefined

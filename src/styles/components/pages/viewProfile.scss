@@ -1,4 +1,4 @@
-@import "../../base/variables";
+@import '../../base/variables';
 
 #profile {
   color: $soft-gray;
@@ -34,6 +34,9 @@
     display: inline-grid;
     .profession {
       align-self: flex-end;
+    }
+    .social-media {
+      color: $soft-gray;
     }
   }
 }
