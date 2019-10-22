@@ -64,7 +64,13 @@ class ViewProfile extends React.Component<Props, State> {
     return links.map((link, i) => {
       const icon = this.mapLinkToIcon(link);
       return (
-        <a className="mr-2 social-media" href={link} target="_blank" key={i}>
+        <a
+          className="mr-2 social-media"
+          href={link}
+          rel="noopener noreferrer"
+          target="_blank"
+          key={i}
+        >
           {icon}
         </a>
       );
