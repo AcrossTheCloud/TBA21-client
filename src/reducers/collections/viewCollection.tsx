@@ -4,9 +4,11 @@ import { Item } from '../../types/Item';
 
 // Defining our Actions for the reducers.
 export const FETCH_COLLECTION = 'FETCH_COLLECTION';
+export const FETCH_COLLECTIONS = 'FETCH_COLLECTIONS';
 export const FETCH_COLLECTION_LOAD_MORE = 'FETCH_COLLECTION_LOAD_MORE';
 export const FETCH_COLLECTION_ERROR = 'FETCH_COLLECTION_ERROR';
-export const FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION = 'FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION';
+export const FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION =
+  'FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION';
 
 export interface ViewCollectionState extends Alerts {
   collection?: Collection;
@@ -29,7 +31,9 @@ const initialState: ViewCollectionState = {
  * @returns {object} the state with modified values
  */
 export default (state: ViewCollectionState = initialState, action) => {
-  if (state === undefined) { state = initialState; }
+  if (state === undefined) {
+    state = initialState;
+  }
 
   switch (action.type) {
     case FETCH_COLLECTION:
@@ -40,17 +44,25 @@ export default (state: ViewCollectionState = initialState, action) => {
         items: action.items,
         errorMessage: undefined
       };
+    case FETCH_COLLECTIONS:
+      return {
+        ...state,
+        collections: action.collections,
+        offset: action.offset,
+        items: action.items,
+        errorMessage: undefined
+      };
     case FETCH_COLLECTION_LOAD_MORE:
       return {
         ...state,
         offset: action.offset,
-        items: action.items,
+        items: action.items
       };
 
     case FETCH_COLLECTION_ERROR:
       return {
         ...state,
-        errorMessage: `Looks like we've had a bit of a hiccup.`,
+        errorMessage: `Looks like we've had a bit of a hiccup.`
       };
 
     case FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION:
@@ -58,11 +70,10 @@ export default (state: ViewCollectionState = initialState, action) => {
         ...state,
         collection: action.collection,
         items: action.items,
-        errorMessage: `Are you sure you've got the right url? We can't find what you're looking for. Sorry!`,
+        errorMessage: `Are you sure you've got the right url? We can't find what you're looking for. Sorry!`
       };
 
     default:
       return state;
   }
-
 };
