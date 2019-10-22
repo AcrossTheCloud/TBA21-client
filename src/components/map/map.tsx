@@ -111,6 +111,22 @@ class MapView extends React.Component<Props, State> {
           layer.setStyle({ color: '#948fff' });
         }
 
+        // If we have properties (we always should) set our custom tool tip.
+        if (!!feature.properties) {
+          const toolTip = `
+          <div>
+            <div class="title">
+              ${feature.properties.title}
+            </div>
+          </div>
+        `;
+
+          layer.bindTooltip(toolTip, {
+            direction: 'top',
+            offset: [0, -38] // dependant on the icon
+          });
+        }
+
         // Setup out layer events
         layer.on({
           click: (x) => {
@@ -215,9 +231,7 @@ class MapView extends React.Component<Props, State> {
     const zoomedOutTooFar = this.checkZoom();
     if (zoomedOutTooFar) { return; }
 
-    this.moveEndTimeout = setTimeout( () => {
-      this.props.fetchData(this.getUserBounds());
-    }, 1000);
+    this.moveEndTimeout = setTimeout( () => this.props.fetchData(this.getUserBounds()), 1000);
   }
 
   render() {

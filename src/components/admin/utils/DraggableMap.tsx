@@ -16,6 +16,8 @@ import { Feature, GeoJsonObject, GeometryObject } from 'geojson';
 interface State {
   position: L.LatLngExpression;
   zoom: number;
+  inputLat: number;
+  inputLng: number;
 }
 
 interface Props {
@@ -33,6 +35,9 @@ export default class DraggableMap extends React.Component<Props, State> {
   state: State = {
     position: [0, 0],
     zoom: 5, // initial zoom level
+
+    inputLat: 0,
+    inputLng: 0
   };
 
   latInputRef;
@@ -143,15 +148,16 @@ export default class DraggableMap extends React.Component<Props, State> {
   }
 
   layerEvents = (layer: Layer) => {
-    layer.on('pm:edit', u => {
-      console.log('pm:edit');
-      this.callback();
-    });
-
-    layer.on('pm:cut', u => {
-      console.log('pm:cut');
-      this.callback();
-    });
+    layer.on({
+      'pm:edit': () => {
+        console.log('pm:edit');
+        this.callback();
+      },
+      'pm:cut': () => {
+        console.log('pm:cut');
+        this.callback();
+      }
+      });
   }
 
   addAltToLatLng(coords: L.LatLng, alt: number = 0): L.LatLng {
@@ -226,11 +232,20 @@ export default class DraggableMap extends React.Component<Props, State> {
     this.mapEvents();
   }
 
-  inputChange = () => {
-    const map = this.map;
-    if (map !== null && this._isMounted) {
-      console.log(this.latInputRef.value, this.lngInputRef.value);
-      map.leafletElement.flyTo(this.latInputRef.currentTarget.value, this.lngInputRef.currentTarget.value);
+  latInputChange = () => {
+    const map = this.map.leafletElement;
+    if (map !== null) {
+      this.setState({ inputLat: this.latInputRef.value }, () => {
+        map.flyTo({ lat: this.state.inputLat, lng: this.state.inputLng });
+      });
+    }
+  }
+  lngInputChange = () => {
+    const map = this.map.leafletElement;
+    if (map !== null) {
+      this.setState({ inputLng: this.lngInputRef.value }, () => {
+        map.flyTo({ lat: this.state.inputLat, lng: this.state.inputLng });
+      });
     }
   }
 
@@ -277,13 +292,13 @@ export default class DraggableMap extends React.Component<Props, State> {
             <Col md="6">
               <InputGroup>
                 <InputGroupAddon addonType="prepend">Lat</InputGroupAddon>
-                <Input className="lat" type="number" innerRef={(el) => { this.latInputRef = el; }} onChange={this.inputChange}/>
+                <Input className="lat" type="number" innerRef={(el) => { this.latInputRef = el; }} onChange={this.latInputChange}/>
               </InputGroup>
             </Col>
             <Col md="6">
               <InputGroup>
                 <InputGroupAddon addonType="prepend">Lng</InputGroupAddon>
-                <Input className="lng" type="number" innerRef={(el) => { this.lngInputRef = el; }} onChange={this.inputChange}/>
+                <Input className="lng" type="number" innerRef={(el) => { this.lngInputRef = el; }} onChange={this.lngInputChange}/>
               </InputGroup>
             </Col>
           </Row>
