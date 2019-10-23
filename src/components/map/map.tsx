@@ -85,9 +85,9 @@ class MapView extends React.Component<Props, State> {
                   const geojson = topojson.feature(data, feature);
 
                   // If our loaded data array doesn't contain the feature, push it in
-                  if (findIndex(self.loadedData, geometryCollection.geometries[featureIndex]) === -1) {
+                  if (findIndex(self.loadedData, geojson) === -1) {
                     // Push out feature to an array so we can check if we've already loaded it (above)
-                    self.loadedData.push(geometryCollection.geometries[featureIndex]);
+                    self.loadedData.push(geojson);
 
                     // return the original extension call.
                     L.GeoJSON.prototype.addData.call(this, geojson);
@@ -109,20 +109,6 @@ class MapView extends React.Component<Props, State> {
       },
       // Each feature style it up
       onEachFeature: (feature: Feature<GeometryObject>, layer: L.Layer) => {
-        if (layer instanceof L.Polygon) {
-          const latlngs = layer.getLatLngs() as L.LatLng[][];
-          const altitudes: number[] = latlngs[0].map(e => e.alt ? e.alt : 0);
-          const maxZLevel = Math.max(...altitudes);
-
-          this.polygonLayerStyle(maxZLevel, layer);
-        } else if (layer instanceof L.Polyline) {
-          const latlngs = layer.getLatLngs() as L.LatLng[];
-          const altitudes: number[] = latlngs.map(e => e.alt ? e.alt : 0);
-          const maxZLevel = Math.max(...altitudes);
-
-          layer.setStyle({ color: colourScale(maxZLevel).colour });
-        }
-
         // If we have properties (we always should) set our custom tool tip.
         if (!!feature.properties) {
           const toolTip = `
@@ -150,6 +136,20 @@ class MapView extends React.Component<Props, State> {
             this.props.openModal(id, metaType);
           }
         });
+
+        if (layer instanceof L.Polygon) {
+          const latlngs = layer.getLatLngs() as L.LatLng[][];
+          const altitudes: number[] = latlngs[0].map(e => e.alt ? e.alt : 0);
+          const maxZLevel = Math.max(...altitudes);
+
+          this.polygonLayerStyle(maxZLevel, layer);
+        } else if (layer instanceof L.Polyline) {
+          const latlngs = layer.getLatLngs() as L.LatLng[];
+          const altitudes: number[] = latlngs.map(e => e.alt ? e.alt : 0);
+          const maxZLevel = Math.max(...altitudes);
+
+          layer.setStyle({ color: colourScale(maxZLevel).colour });
+        }
       }
     });
     this.topoLayer.addTo(map);
@@ -165,8 +165,15 @@ class MapView extends React.Component<Props, State> {
   }
 
   polygonLayerStyle = (zLevel: number, layer) => {
-    const colours = colourScale(zLevel, [0, 10000])
-    layer.setStyle({ fillColor: colours.colour, fillOpacity: 0.9, color: colours.outline, weight: 0, opacity: 1 });
+    const colours = colourScale(zLevel, [0, 10000]);
+    layer.setStyle({
+      fillColor: colours.colour,
+      fillOpacity: 0.8,
+      color: colours.outline,
+      weight: 2,
+      opacity: 0.8,
+      fillRule: 'evenodd'
+    });
     layer.on({
       mouseover: function() {
         this.bringToFront();
