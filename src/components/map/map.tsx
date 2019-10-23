@@ -166,7 +166,7 @@ class MapView extends React.Component<Props, State> {
 
   polygonLayerStyle = (zLevel: number, layer) => {
     const colours = colourScale(zLevel, [0, 10000])
-    layer.setStyle({ fillColor: colours.colour, fillOpacity: 0.5, color: colours.outline, weight: 0, opacity: 0.5 });
+    layer.setStyle({ fillColor: colours.colour, fillOpacity: 0.9, color: colours.outline, weight: 0, opacity: 1 });
     layer.on({
       mouseover: function() {
         this.bringToFront();
