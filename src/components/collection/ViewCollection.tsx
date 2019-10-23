@@ -45,9 +45,7 @@ class ViewCollection extends React.Component<Props, {}> {
 
   render() {
     const { errorMessage, collection, uuid } = this.props;
-    if (uuid && !collection) {
-      return <div className="ml-5 my-3"> ... no activities yet </div>;
-    }
+
     if (typeof collection === 'undefined') {
       return <ErrorMessage message={errorMessage} />;
     }

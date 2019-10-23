@@ -10,7 +10,7 @@ import { ErrorMessage } from '../utils/alerts';
 import { toggle } from 'actions/modals/itemModal';
 import { loadMoreDispatch } from 'actions/collections/viewCollection';
 import { ViewCollectionState } from '../../reducers/collections/viewCollection';
-import { dateFromTimeYearProduced } from '../../actions/home';
+import dateFromTimeYearProduced from '../utils/date-from-time-year-produced';
 
 interface Props extends ViewCollectionState {
   toggle: Function;

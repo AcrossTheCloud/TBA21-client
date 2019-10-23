@@ -5,16 +5,20 @@ import { Col, Container, Row, Spinner } from 'reactstrap';
 import { debounce } from 'lodash';
 import { Cookies, withCookies } from 'react-cookie';
 
-import { loadHomepage, loadMore, logoDispatch, openModal } from 'actions/home';
+import { loadHomepage, loadMore, logoDispatch } from 'actions/home';
 import { toggle as searchOpenToggle } from 'actions/searchConsole';
 
 import { HomePageState } from '../reducers/home';
+import { openModal } from '../reducers/utils/modal';
 
 import Logo from './layout/Logo';
 import moment from 'moment';
 
 import { browser } from './utils/browser';
 import Footer from './layout/Footer';
+import FeedItem from './feed/FeedItem';
+import Announcements from './highlight/Announcements';
+import HighlightItem from './highlight/HighlightItem';
 
 import 'styles/components/home.scss';
 
@@ -38,13 +42,13 @@ class HomePage extends React.Component<Props, {}> {
 
     this._isMounted = false;
 
-    this.scrollDebounce = debounce( async () => await this.handleScroll(), 100);
+    this.scrollDebounce = debounce(async () => await this.handleScroll(), 100);
   }
 
   async componentDidMount(): Promise<void> {
     this._isMounted = true;
-    window.addEventListener('scroll',  this.scrollDebounce, false);
-    window.addEventListener('scroll',  this.handleScrollMobileSearch, false);
+    window.addEventListener('scroll', this.scrollDebounce, false);
+    window.addEventListener('scroll', this.handleScrollMobileSearch, false);
 
     // If we have no items go get em.
     if (!this.props.loadedItems.length) {
@@ -57,10 +61,17 @@ class HomePage extends React.Component<Props, {}> {
     this._isMounted = false;
     window.removeEventListener('scroll', this.scrollDebounce, false);
     window.removeEventListener('scroll', this.handleScrollMobileSearch, false);
-  }
+  };
 
-  async componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>): Promise<void> {
-    if (this.props.loadedCount < 0 && this.props.loadedMore && !this.props.logoLoaded) {
+  async componentDidUpdate(
+    prevProps: Readonly<Props>,
+    prevState: Readonly<{}>
+  ): Promise<void> {
+    if (
+      this.props.loadedCount < 0 &&
+      this.props.loadedMore &&
+      !this.props.logoLoaded
+    ) {
       this.props.logoDispatch(true);
       await this.windowHeightCheck();
     }
@@ -69,8 +80,15 @@ class HomePage extends React.Component<Props, {}> {
   windowHeightCheck = async () => {
     // if the page is higher than the items and we have no scroll bar we need to get more items.
     clearTimeout(this.windowHeightTimeout);
-    this.windowHeightTimeout = setTimeout( async () => {
-      if (this.props.loadedMore && (this.props.items.length || this.props.collections.length || this.props.audio.length) && window.innerHeight + document.documentElement.scrollTop === document.documentElement.offsetHeight) {
+    this.windowHeightTimeout = setTimeout(async () => {
+      if (
+        this.props.loadedMore &&
+        (this.props.items.length ||
+          this.props.collections.length ||
+          this.props.audio.length) &&
+        window.innerHeight + document.documentElement.scrollTop ===
+          document.documentElement.offsetHeight
+      ) {
         await this.props.loadMore();
         // Run again just in case
         this.windowHeightCheck();
@@ -78,11 +96,18 @@ class HomePage extends React.Component<Props, {}> {
         clearTimeout(this.windowHeightTimeout);
       }
     }, 3000);
-  }
+  };
 
   handleScroll = async () => {
-    if (this.props.loading) { return; }
-    if (this.props.loadedMore && (!this.props.items.length && !this.props.collections.length && !this.props.audio.length)) {
+    if (this.props.loading) {
+      return;
+    }
+    if (
+      this.props.loadedMore &&
+      (!this.props.items.length &&
+        !this.props.collections.length &&
+        !this.props.audio.length)
+    ) {
       window.removeEventListener('scroll', this.scrollDebounce, false);
       return;
     }
@@ -90,10 +115,10 @@ class HomePage extends React.Component<Props, {}> {
     const height = $(document).height() as number;
     const scrollTop = $(document).scrollTop() as number;
 
-    if (height >= (scrollTop - 200)) {
+    if (height >= scrollTop - 200) {
       await this.props.loadMore();
     }
-  }
+  };
 
   handleScrollMobileSearch = () => {
     const { cookies } = this.props;
@@ -103,58 +128,95 @@ class HomePage extends React.Component<Props, {}> {
       const headerOffset: undefined | JQuery.Coordinates = $header.offset();
       const scrollTop = $(document).scrollTop() as number;
 
-      if (!headerOffset) { return; }
+      if (!headerOffset) {
+        return;
+      }
       if (
-        (headerOffset.top >= scrollTop) &&
-        (headerOffset.top - 100 < scrollTop)
-        && (window.innerWidth < 720 || browser() === 'ios')) {
-        const expiry: Date = new Date(moment().add(2, 'w').format()); // 3 Months from now.
+        headerOffset.top >= scrollTop &&
+        headerOffset.top - 100 < scrollTop &&
+        (window.innerWidth < 720 || browser() === 'ios')
+      ) {
+        const expiry: Date = new Date(
+          moment()
+            .add(2, 'w')
+            .format()
+        ); // 3 Months from now.
         this.props.searchOpenToggle(true);
-        this.props.cookies.set(`searchMobileCookie`, true, { path: '/', expires: expiry });
-        window.removeEventListener('scroll', this.handleScrollMobileSearch, false);
+        this.props.cookies.set(`searchMobileCookie`, true, {
+          path: '/',
+          expires: expiry
+        });
+        window.removeEventListener(
+          'scroll',
+          this.handleScrollMobileSearch,
+          false
+        );
       } else {
-        window.removeEventListener('scroll', this.handleScrollMobileSearch, false);
+        window.removeEventListener(
+          'scroll',
+          this.handleScrollMobileSearch,
+          false
+        );
       }
     }
-  }
+  };
 
   render() {
     const {
+      announcements,
       loaded_highlights,
       logoLoaded,
       loadedItems,
+      loadedCount,
       items,
       collections,
-      audio
+      audio,
+      openModal
     } = this.props;
-
+    console.log(loadedCount);
     return (
       <div id="home" className="flex-fill">
         <Container fluid id="header">
           <Row className="highlights">
-            {loaded_highlights}
+            {loaded_highlights && loaded_highlights.length
+              ? loaded_highlights.map((ea, i) => (
+                  <HighlightItem
+                    highlight={ea}
+                    key={i}
+                    onOpenModal={openModal}
+                  />
+                ))
+              : null}
+            <Announcements news={announcements} />
           </Row>
         </Container>
 
-        <Logo loaded={logoLoaded}/>
+        <Logo loaded={logoLoaded} />
 
         <Container fluid id="main" className="pb">
           <Row>
-            {loadedItems}
+            {loadedItems.map((item, i) => (
+              <FeedItem item={item} key={i} loadedCount={loadedCount} />
+            ))}
           </Row>
           <Row>
-            { this.props.loading ?
+            {this.props.loading ? (
               <Col className="text-center pb-5">
-                <Spinner type="grow" style={{ color: '#50E3C2', fontSize: '20px'}}/>
+                <Spinner
+                  type="grow"
+                  style={{ color: '#50E3C2', fontSize: '20px' }}
+                />
               </Col>
-              : <></>
-            }
+            ) : (
+              <></>
+            )}
           </Row>
 
-          { !items.length && !collections.length && !audio.length ?
-              <></>
-            : <div style={{paddingTop: '100px'}} />
-          }
+          {!items.length && !collections.length && !audio.length ? (
+            <></>
+          ) : (
+            <div style={{ paddingTop: '100px' }} />
+          )}
         </Container>
         <Footer />
       </div>
@@ -178,4 +240,7 @@ const mapStateToProps = (state: { home: Props }) => ({
   loaded_highlights: state.home.loaded_highlights
 });
 
-export default connect(mapStateToProps, { logoDispatch, loadHomepage, loadMore, openModal, searchOpenToggle })(withCookies(HomePage));
+export default connect(
+  mapStateToProps,
+  { logoDispatch, loadHomepage, loadMore, openModal, searchOpenToggle }
+)(withCookies(HomePage));

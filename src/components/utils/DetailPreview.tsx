@@ -4,7 +4,7 @@ import moment from 'moment';
 
 import { FileTypes, S3File } from '../../types/s3File';
 import { Item, itemType } from '../../types/Item';
-import { HomepageData } from '../../reducers/home';
+import { HomepageData } from '../../types/Home';
 
 import 'styles/components/detailPreview.scss';
 import { thumbnailsSRCSET } from './s3File';
@@ -13,7 +13,7 @@ import { collectionTypes } from '../../types/Collection';
 import textImage from 'images/defaults/Unscharfe_Zeitung.jpg';
 import { browser } from './browser';
 import PdfPreview from './PdfPreview';
-import { dateFromTimeYearProduced } from '../../actions/home';
+import dateFromTimeYearProduced from '../utils/date-from-time-year-produced';
 
 export type ItemOrHomePageData = Item | HomepageData;
 
@@ -34,6 +34,9 @@ export const FileStaticPreview = (props: {
   if (props.file.type === FileTypes.Audio) {
     return <></>;
   }
+
+  const onLoadFile = () => (props.onLoad ? props.onLoad() : () => {});
+
   switch (props.file.type) {
     case FileTypes.Image:
       return (
@@ -42,46 +45,21 @@ export const FileStaticPreview = (props: {
             srcSet={thumbnailsSRCSET(props.file)}
             src={props.file.url}
             alt={''}
-            onLoad={
-              typeof props.onLoad === 'function'
-                ? props.onLoad()
-                : () => {
-                    return;
-                  }
-            }
+            onLoad={onLoadFile}
           />
         </picture>
       );
     case FileTypes.Video:
       return (
         <picture className="videoPreview">
-          <img
-            onLoad={
-              typeof props.onLoad === 'function'
-                ? props.onLoad()
-                : () => {
-                    return;
-                  }
-            }
-            src={props.file.poster}
-            alt={''}
-          />
+          <img onLoad={onLoadFile} src={props.file.poster} alt={''} />
         </picture>
       );
 
     case FileTypes.Pdf:
       return (
         <div className="pdf">
-          <PdfPreview
-            onLoad={
-              typeof props.onLoad === 'function'
-                ? props.onLoad()
-                : () => {
-                    return;
-                  }
-            }
-            url={props.file.url}
-          />
+          <PdfPreview onLoad={onLoadFile} url={props.file.url} />
         </div>
       );
 
@@ -89,13 +67,7 @@ export const FileStaticPreview = (props: {
       return (
         <picture className="image">
           <img
-            onLoad={
-              typeof props.onLoad === 'function'
-                ? props.onLoad()
-                : () => {
-                    return;
-                  }
-            }
+            onLoad={onLoadFile}
             alt={''}
             src={textImage}
             className="image-fluid"
