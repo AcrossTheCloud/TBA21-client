@@ -160,7 +160,7 @@ export default class DraggableMap extends React.Component<Props, State> {
       });
   }
 
-  addAltToLatLng(coords: L.LatLng, alt: number = 0): L.LatLng {
+  addAltToLatLng(coords: L.LatLng, alt: number = 3000): L.LatLng {
     return new L.LatLng(coords.lat, coords.lng, alt);
   }
 
@@ -193,11 +193,6 @@ export default class DraggableMap extends React.Component<Props, State> {
       }
 
       console.log('pm:create', e);
-
-      // if (e.feature.geometry.type !== 'GeometryCollection' && e.feature.geometry.coordinates) {
-      //   console.log('Hi', e.feature.geometry.coordinates);
-      // }
-
       this.callback();
     });
 

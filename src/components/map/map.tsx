@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import chroma from 'chroma-js';
 import { isEqual, findIndex } from 'lodash';
 
 import * as topojson from 'topojson-client';
@@ -21,6 +20,8 @@ import { fetchData, openModal } from 'actions/map/map';
 
 import 'animate.css/animate.min.css';
 import 'styles/components/map/map.scss';
+import { legend } from './controls/legend';
+import { colourScale } from './colorScale';
 
 interface Props {
   openModal: Function;
@@ -44,7 +45,7 @@ const MapStyle = {
 class MapView extends React.Component<Props, State> {
   map;
   topoLayer;
-  loadedData: number[] = [];
+  loadedData: object[] = [];
   moveEndTimeout;
   _isMounted: boolean = false;
 
@@ -63,6 +64,8 @@ class MapView extends React.Component<Props, State> {
     // Lets attempt to find the user.
     this.locateUser();
 
+    legend(this.map.leafletElement);
+
     // @ts-ignore
     // Leaflet extension for TopoJSON, we ignore this as TS has a spaz
     L.TopoJSON = L.GeoJSON.extend(
@@ -74,17 +77,17 @@ class MapView extends React.Component<Props, State> {
             // We technically un-nest each "feature" (line string) out of the collection it comes in, this makes styling it a hell of a lot easier.
             data.objects.output.geometries.forEach((geometryCollection, index: number) => {
               if (geometryCollection && geometryCollection.geometries) {
-                geometryCollection.geometries.forEach(feature => {
+                geometryCollection.geometries.forEach((feature, featureIndex: number) => {
                   // Add the properties to the feature, these are in the top level collection.
                   Object.assign(feature, {properties: data.objects.output.geometries[index].properties});
 
                   // Convert the feature to geoJSON for leaflet
                   const geojson = topojson.feature(data, feature);
 
-                  // If our loaded data array doesn't contain the ID of the feature, load it in.
-                  if (findIndex(self.loadedData, data.objects.output.geometries[index].properties) === -1) {
+                  // If our loaded data array doesn't contain the feature, push it in
+                  if (findIndex(self.loadedData, geometryCollection.geometries[featureIndex]) === -1) {
                     // Push out feature to an array so we can check if we've already loaded it (above)
-                    self.loadedData.push(data.objects.output.geometries[index].properties);
+                    self.loadedData.push(geometryCollection.geometries[featureIndex]);
 
                     // return the original extension call.
                     L.GeoJSON.prototype.addData.call(this, geojson);
@@ -100,15 +103,24 @@ class MapView extends React.Component<Props, State> {
     // @ts-ignore
     this.topoLayer = new L.TopoJSON(null, {
       // Add our custom marker to points.
-      pointToLayer: (feature: Feature<GeometryObject>, latlng: L.LatLngExpression) => {
-        return L.marker(latlng, {icon: jellyFish()});
+      pointToLayer: (feature: Feature<GeometryObject>, latlng: L.LatLng) => {
+        console.log(feature, latlng)
+        return new L.Marker(latlng, {icon: jellyFish(latlng.alt)});
       },
       // Each feature style it up
       onEachFeature: (feature: Feature<GeometryObject>, layer: L.Layer) => {
         if (layer instanceof L.Polygon) {
-          this.polygonLayerStyle(layer);
+          const latlngs = layer.getLatLngs() as L.LatLng[][];
+          const altitudes: number[] = latlngs[0].map(e => e.alt ? e.alt : 0);
+          const maxZLevel = Math.max(...altitudes);
+
+          this.polygonLayerStyle(maxZLevel, layer);
         } else if (layer instanceof L.Polyline) {
-          layer.setStyle({ color: '#948fff' });
+          const latlngs = layer.getLatLngs() as L.LatLng[];
+          const altitudes: number[] = latlngs.map(e => e.alt ? e.alt : 0);
+          const maxZLevel = Math.max(...altitudes);
+
+          layer.setStyle({ color: colourScale(maxZLevel).colour });
         }
 
         // If we have properties (we always should) set our custom tool tip.
@@ -152,13 +164,9 @@ class MapView extends React.Component<Props, State> {
     }
   }
 
-  polygonLayerStyle = layer => {
-    const colorScale = chroma.scale(['#D5E3FF', '#003171']).domain([0, 1]);
-
-    const randomValue = Math.random();
-    const fillColor = colorScale(randomValue).hex();
-
-    layer.setStyle({ fillColor: fillColor, fillOpacity: 0.5, color: '#555', weight: 0, opacity: 0.5 });
+  polygonLayerStyle = (zLevel: number, layer) => {
+    const colours = colourScale(zLevel, [0, 10000])
+    layer.setStyle({ fillColor: colours.colour, fillOpacity: 0.5, color: colours.outline, weight: 0, opacity: 0.5 });
     layer.on({
       mouseover: function() {
         this.bringToFront();
