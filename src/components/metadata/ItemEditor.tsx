@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import {
   Button,
   Col,
-  Collapse,
   CustomInput,
   DropdownItem,
   DropdownMenu,
@@ -60,14 +59,12 @@ import { getProfileDetails } from '../../actions/user/profile';
 import { Profile } from '../../types/Profile';
 import 'styles/components/metadata/itemEditor.scss';
 import 'styles/components/metadata/editors.scss';
-import { FaCheck, FaMinus, FaPlus, FaTimes } from 'react-icons/fa';
 
-export interface Props {
+interface Props {
   item: Item;
   index?: number;
   onChange?: Function;
   isContributorPath?: boolean;
-  isAdmin: boolean;
 
   // From Redux
   modalToggle: Function;
@@ -144,6 +141,7 @@ class ItemEditorClass extends React.Component<Props, State> {
   async componentDidMount(): Promise<void> {
     this._isMounted = true;
     await this.getItemByS3Key();
+
   }
 
   componentWillUnmount() {
@@ -348,11 +346,9 @@ class ItemEditorClass extends React.Component<Props, State> {
         Object.assign(state, { successMessage: 'Updated item!', changedFields: {}, originalItem: {...this.state.changedItem}, isDifferent: false});
 
         if (this.props.onChange && typeof this.props.onChange === 'function') {
-
           const onChangeResult = {
             item: this.state.changedItem
           };
-
           if (typeof this.props.index !== 'undefined') {
             Object.assign(onChangeResult, { index: this.props.index });
           }
@@ -2268,9 +2264,8 @@ class ItemEditorClass extends React.Component<Props, State> {
     }
 
     return (
-      <Form className="container-fluid itemEditor" >
+      <Form className="container-fluid itemEditor">
         <div className={`overlay ${this.state.isLoading ? 'show' : ''}`} />
-        <div className={`accessDenied ${(this.props.profileDetails.cognito_uuid === this.props.item.contributor) || (this.props.isAdmin) ? '' : 'show'}`} />
         <Row>
           <Col xs="12">
             <WarningMessage message={this.state.warningMessage} />
@@ -2617,66 +2612,4 @@ const mapStateToProps = (state: { profile: { details: Profile} }) => ({
   profileDetails: state.profile.details,
 });
 
-export default connect(mapStateToProps, { modalToggle, getProfileDetails })(ItemEditorClass);
-
-interface WithCollapseProps extends Props {
-  isOpen?: boolean;
-}
-function withCollapse <P extends WithCollapseProps>(WrappedComponent: React.ComponentType<P>) {
-  interface WithCollapseState {
-    open: boolean;
-    hasLoaded: boolean;
-    item: Item;
-  }
-
-  return class CollapsedItemDisplay extends React.Component<P & WithCollapseProps, WithCollapseState> {
-    constructor(props: P) {
-      super(props);
-      this.state = {
-        open: !!props.isOpen,
-        hasLoaded: !!props.isOpen,
-        item: props.item
-      };
-    }
-    toggleCollapse = () => {
-      this.setState({ open: !this.state.open, hasLoaded: true });
-    }
-
-    onChangeCallback = onChangeResult => {
-      this.setState({ item: onChangeResult.item });
-
-      if (this.props.onChange && typeof this.props.onChange === 'function') {
-        this.props.onChange(onChangeResult);
-      }
-    }
-
-    render() {
-      return (
-        <>
-          <Row className="accordianCollapse">
-            <Col className="itemIcons" xs="1" onClick={this.toggleCollapse}>
-              {this.state.open ? <FaMinus /> : <FaPlus />}
-            </Col>
-            <Col className="title" onClick={this.toggleCollapse} xs="4" sm="5" >
-              {this.state.item.title ? this.state.item.title : 'Untitled'}
-            </Col>
-            <Col className="creators" onClick={this.toggleCollapse} xs="4">
-              {this.state.item.creators ? this.state.item.creators.join(', ') : <></>}
-            </Col>
-            <Col className="status" onClick={this.toggleCollapse}  xs="1">
-              {this.state.item.status ? <FaCheck color="green" size={25} /> : <FaTimes color="red" size={25} />}
-            </Col>
-            <Col className="removeButton" xs="1">
-              {this.props.children ? this.props.children : <></>}
-            </Col>
-            <Collapse isOpen={this.state.open}>
-              {this.state.hasLoaded ? <WrappedComponent {...this.props as P} onChange={this.onChangeCallback} /> : <></>}
-            </Collapse>
-          </Row>
-        </>
-      );
-    }
-  };
-}
-
-export const ItemEditorWithCollapse = connect(mapStateToProps, { modalToggle, getProfileDetails })(withCollapse(ItemEditorClass));
+export const ItemEditor = connect(mapStateToProps, { modalToggle, getProfileDetails })(ItemEditorClass);
