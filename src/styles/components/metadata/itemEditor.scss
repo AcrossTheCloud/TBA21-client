@@ -1,10 +1,6 @@
 .itemEditor {
   position: relative;
   color: #fff;
-  width: 100%;
-.collapse {
-  width: 100%;
-}
   .overlay {
     position: absolute;
     height: 100%;
@@ -18,14 +14,6 @@
       z-index: 99;
       opacity: 1;
     }
-  }
-  .accessDenied {
-    position: absolute;
-    height: 100%;
-    width: 100%;
-    background: rgba(0,0,0,0.2);
-    opacity: 0;
-    z-index: 0;
   }
 
   .sticky {

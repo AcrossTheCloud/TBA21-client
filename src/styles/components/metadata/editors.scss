@@ -1,20 +1,10 @@
-@import '../../base/variables';
-
 .itemEditor, .collectionEditor {
   position: relative;
   color: #000;
-  width: 100%;
 
   input, textarea{
     &.form-control {
       border: 1px solid hsl(0,0%,80%);
     }
   }
-}
-
-.collectionEditor {
-  .collapse {
-    width: 100%
-  }
-
 }
