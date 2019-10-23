@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { isEqual, findIndex } from 'lodash';
+import { isEqual, findIndex, flatMap } from 'lodash';
 
 import * as topojson from 'topojson-client';
 
 import { CSSTransition } from 'react-transition-group';
 
 import { Feature, GeoJsonObject, GeometryObject } from 'geojson';
-import { jellyFish } from './icons';
+import { jellyFish, pin } from './icons';
 import { Map, TileLayer } from 'react-leaflet';
 
 import * as L from 'leaflet';
@@ -104,7 +104,7 @@ class MapView extends React.Component<Props, State> {
     this.topoLayer = new L.TopoJSON(null, {
       // Add our custom marker to points.
       pointToLayer: (feature: Feature<GeometryObject>, latlng: L.LatLng) => {
-        console.log(feature, latlng)
+        console.log(feature, latlng);
         return new L.Marker(latlng, {icon: jellyFish(latlng.alt)});
       },
       // Each feature style it up
@@ -125,7 +125,7 @@ class MapView extends React.Component<Props, State> {
           });
         }
 
-        // Setup out layer events
+        // Setup our layer events
         layer.on({
           click: (x) => {
             const {
@@ -137,18 +137,31 @@ class MapView extends React.Component<Props, State> {
           }
         });
 
-        if (layer instanceof L.Polygon) {
-          const latlngs = layer.getLatLngs() as L.LatLng[][];
-          const altitudes: number[] = latlngs[0].map(e => e.alt ? e.alt : 0);
-          const maxZLevel = Math.max(...altitudes);
+        if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
+          const latlngs = flatMap(layer.getLatLngs()) as L.LatLng[];
+          const altitudes: number[] = [];
 
+          // For each of our lat longs (vertex) add a pin.
+          latlngs.forEach( (latLng: L.LatLng) => {
+            const altitude = latLng.alt ? latLng.alt : 0;
+            // Push the vertex's altitude to the altitudes array for later
+            altitudes.push(altitude);
+
+            // Create markers at each vertex and add the title / alt to the tooltip
+            const vertexPin = new L.Marker(new L.LatLng(latLng.lat, latLng.lng, altitude), { icon: pin(altitude) });
+            const toolTip = `<div>Depth: ${altitude}</div>`;
+
+            vertexPin.bindTooltip(toolTip, {
+              direction: 'top',
+              offset: [0, -20] // dependant on the icon
+            });
+            vertexPin.addTo(map);
+          });
+
+          // Set the polygons style based on the maximum altitude
+          const maxZLevel = Math.max(...altitudes);
           this.polygonLayerStyle(maxZLevel, layer);
-        } else if (layer instanceof L.Polyline) {
-          const latlngs = layer.getLatLngs() as L.LatLng[];
-          const altitudes: number[] = latlngs.map(e => e.alt ? e.alt : 0);
-          const maxZLevel = Math.max(...altitudes);
 
-          layer.setStyle({ color: colourScale(maxZLevel).colour });
         }
       }
     });

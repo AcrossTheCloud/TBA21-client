@@ -20,3 +20,18 @@ export function jellyFish(zLevel: number = 0): DivIcon {
      iconAnchor:   [15, 38], // point of the icon which will correspond to marker's location [iconWidth/2, iconHeight]
    });
 }
+export function pin(zLevel: number = 0): DivIcon {
+  const
+    colour = colourScale(zLevel),
+    svg = `
+      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="20" height="25" viewBox="0 0 485.212 485.212" xml:space="preserve">
+        <path fill="${colour.colour}" stroke="${colour.outline}" stroke-width="30" d="M348.748,106.141C348.748,47.532,301.212,0,242.604,0c-58.609,0-106.139,47.532-106.139,106.141c0,53.424,39.61,97.196,90.976,104.598v274.473h30.327V210.739C309.119,203.337,348.748,159.565,348.748,106.141z"/>
+      </svg>
+`;
+
+  return divIcon({
+     html: svg,
+     iconSize:     [20, 23], // size of the icon
+     iconAnchor:   [10, 23], // point of the icon which will correspond to marker's location [iconWidth/2, iconHeight]
+   });
+}
