@@ -52,20 +52,21 @@ export default class DraggableMap extends React.Component<Props, State> {
 
   componentDidMount(): void {
     this._isMounted = true;
-    this.locateUser();
+    if (this.map && this.map.leafletElement) {
+      this.locateUser();
+      this.addLeafletGeoMan();
+      this.topoLayer = this.setupTopoLayer();
 
-    this.addLeafletGeoMan();
-    this.topoLayer = this.setupTopoLayer();
-
-    if (this.props.topoJSON && Object.keys(this.props.topoJSON).length) {
-      console.log('this.props.topoJSON', this.props.topoJSON); // todo-dan remove
-      this.topoLayer.addData(this.props.topoJSON);
-    }
-    // If we're a collection disable all of the items on the map, so they're no editable.
-    if (this.props.collectionItems) {
-      // Add our items data in an ignored layer.
-      this.ignoredTopoLayer = this.setupTopoLayer(true);
-      this.ignoredTopoLayer.addData(this.props.collectionItems);
+      if (this.props.topoJSON && Object.keys(this.props.topoJSON).length) {
+        console.log('this.props.topoJSON', this.props.topoJSON); // todo-dan remove
+        this.topoLayer.addData(this.props.topoJSON);
+      }
+      // If we're a collection disable all of the items on the map, so they're no editable.
+      if (this.props.collectionItems) {
+        // Add our items data in an ignored layer.
+        this.ignoredTopoLayer = this.setupTopoLayer(true);
+        this.ignoredTopoLayer.addData(this.props.collectionItems);
+      }
     }
   }
   componentWillUnmount(): void {
@@ -160,7 +161,7 @@ export default class DraggableMap extends React.Component<Props, State> {
       });
   }
 
-  addAltToLatLng(coords: L.LatLng, alt: number = 3000): L.LatLng {
+  addAltToLatLng(coords: L.LatLng, alt: number = 0): L.LatLng {
     return new L.LatLng(coords.lat, coords.lng, alt);
   }
 
@@ -249,24 +250,22 @@ export default class DraggableMap extends React.Component<Props, State> {
    */
   locateUser = (): void => {
     const map = this.map;
-    if (map !== null && this._isMounted) {
-      map.leafletElement.locate()
-        .on('locationfound', (location: L.LocationEvent) => {
-          if (location && location.latlng) {
-            map.leafletElement.flyTo(location.latlng, 10);
-            // Set the input fields
-            this.latInputRef.value = location.latlng.lat;
-            this.lngInputRef.value = location.latlng.lng;
-          }
-        })
-        .on('locationerror', () => {
-          // Fly to a default location if the user declines our request to get their GPS location or if we had trouble getting said location.
-          // Ideally the map would already be in this location anyway.
+    map.leafletElement.locate()
+      .on('locationfound', (location: L.LocationEvent) => {
+        if (location && location.latlng) {
+          map.leafletElement.flyTo(location.latlng, 10);
           // Set the input fields
-          this.latInputRef.value = this.state.position[0];
-          this.lngInputRef.value = this.state.position[1];
-        });
-    }
+          this.latInputRef.value = location.latlng.lat;
+          this.lngInputRef.value = location.latlng.lng;
+        }
+      })
+      .on('locationerror', () => {
+        // Fly to a default location if the user declines our request to get their GPS location or if we had trouble getting said location.
+        // Ideally the map would already be in this location anyway.
+        // Set the input fields
+        this.latInputRef.value = this.state.position[0];
+        this.lngInputRef.value = this.state.position[1];
+      });
   }
 
   render(): React.ReactNode {

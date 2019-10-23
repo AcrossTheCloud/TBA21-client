@@ -31,9 +31,9 @@ describe('Draggable map', () => {
   //   expect(wrapper.state('marker')).toMatchObject({ lat: geoJSON.coordinates[0], lng: geoJSON.coordinates[1] });
   // });
   //
-  // it(`Lat input field should equal our props lat ${geoJSON.coordinates[0]}`, () => {
-  //   expect(wrapper.find('#draggableMap Input.lat').props().value).toEqual(geoJSON.coordinates[0]);
-  // });
+  it(`We have the leaflet-container div in our mapWrapper`, () => {
+    expect(wrapper.find('#draggableMap .leaflet-container'));
+  });
   //
   // it(`Lng input field should equal our props lng ${geoJSON.coordinates[1]}`, () => {
   //   expect(wrapper.find('#draggableMap Input.lng').props().value).toEqual(geoJSON.coordinates[1]);
