@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { FaMapMarked } from 'react-icons/fa';
 import {
   Button,
   Col, CustomInput,
@@ -1312,7 +1313,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
             <TabContent activeTab={this.state.activeTab}>
               <TabPane tabId="1">
                 <Row>
-                  <Col md={{size: 3, offset: 9}}>
+                  <Col className="py-4">
                     <UncontrolledButtonDropdown className="float-right">
                       {this.state.originalCollection.status === true ?
                         <Button className="caret" onClick={this.putCollection} disabled={!this.state.isDifferent}>Save</Button>
@@ -1329,22 +1330,19 @@ class CollectionEditorClass extends React.Component<Props, State> {
                       </DropdownMenu>
                     </UncontrolledButtonDropdown>
 
-                    <Button onClick={this.toggleMapModal}>Add coords</Button>
+                    <Button onClick={this.toggleMapModal} className="location">Add Location(s) <FaMapMarked size={20}/></Button>
 
                   </Col>
 
-                  {this.props.profileDetails && !this.props.profileDetails.accepted_license ?
-                    <Col md={{size: 3, offset: 9}}>
-                      By checking this box you agree to the Ocean Archive's <Button color="link" onClick={e => {e.preventDefault(); this.props.modalToggle('TC_MODAL', true); }}>Terms Of Use</Button>
-                      <FormGroup check>
-                        <Label check>
-                          <Input type="checkbox" checked={this.state.acceptedLicense ? this.state.acceptedLicense : false} onChange={e => { if (this._isMounted) { this.setState({ acceptedLicense: e.target.checked }); } }}/>{' '}
-                          I agree
-                        </Label>
-                      </FormGroup>
-                    </Col>
-                    : <></>
-                  }
+                  <Col md={{size: 3, offset: 9}}>
+                    By checking this box you agree to the Ocean Archive's <Button color="link" onClick={e => {e.preventDefault(); this.props.modalToggle('TC_MODAL', true); }}>Terms Of Use</Button>
+                    <FormGroup check>
+                      <Label check>
+                        <Input type="checkbox" checked={this.state.acceptedLicense ? this.state.acceptedLicense : false} onChange={e => { if (this._isMounted) { this.setState({ acceptedLicense: e.target.checked }); } }}/>{' '}
+                        I agree
+                      </Label>
+                    </FormGroup>
+                  </Col>
                   <Col xs="12">
                     <FormGroup>
                       <Label for="title">Title</Label>

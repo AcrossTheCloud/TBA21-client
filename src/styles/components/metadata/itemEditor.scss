@@ -21,4 +21,10 @@
     top: 0;
     z-index: 0;
   }
+
+  button.btn.location {
+    svg {
+      margin-top: -5px
+    }
+  }
 }
