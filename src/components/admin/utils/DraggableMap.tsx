@@ -94,12 +94,6 @@ export default class DraggableMap extends React.Component<Props, State> {
       // Add our custom marker to points.
       pointToLayer: (feature: Feature<GeometryObject>, latlng: L.LatLngExpression) => {
         return L.marker(latlng, {icon: jellyFishIcon});
-      },
-      // Each feature style it up
-      onEachFeature: (feature: Feature<GeometryObject>, layer: L.Layer) => {
-        if (layer instanceof L.Polyline) {
-          layer.setStyle({ color: '#948fff' });
-        }
       }
     };
 
@@ -165,20 +159,25 @@ export default class DraggableMap extends React.Component<Props, State> {
     return new L.LatLng(coords.lat, coords.lng, alt);
   }
 
-  logScalePopUp = (workingLayer, marker) => {
+  logScalePopUp = (workingLayer, marker, index?: number) => {
     const _self = this;
+    let markerLatLng = marker._latlng; // the current vertex that we've added
 
-    let latlng = marker._latlng; // the current vertex that we've added
-    let index = workingLayer._latlngs.indexOf(latlng);
-
-    // Set the ALT to 0
-    workingLayer._latlngs[index] = this.addAltToLatLng(latlng);
+    const div = document.createElement('div');
+    div.innerHTML = '<div>Depth :</div>';
 
     const select = document.createElement('select');
+    div.appendChild(select);
 
     select.addEventListener('change', function() {
       console.log('On change', this.value);
-      workingLayer._latlngs[index] = _self.addAltToLatLng(latlng, parseInt(this.value, 0));
+      if (typeof index === 'undefined') {
+        workingLayer = _self.addAltToLatLng(markerLatLng, parseInt(this.value, 0));
+      } else {
+        workingLayer._latlngs[index] = _self.addAltToLatLng(markerLatLng, parseInt(this.value, 0));
+      }
+
+      console.log('workingLayer', workingLayer);
     });
 
     const createOption = (value: string, selected: boolean = false) => {
@@ -192,7 +191,7 @@ export default class DraggableMap extends React.Component<Props, State> {
     // todo-dan replace with log scale
     ['0', '100', '1000', '2000', '3000', '4000', '6000'].forEach(e => createOption(e));
 
-    marker.bindPopup(select);
+    marker.bindPopup(div);
     marker.openPopup();
   }
 
@@ -206,7 +205,12 @@ export default class DraggableMap extends React.Component<Props, State> {
       // Add the altitude to the coords to any vertex's, this includes Linestrings and Poly.
       workingLayer.on('pm:vertexadded', e => {
         console.log('pm:vertexadded', e);
-        this.logScalePopUp(workingLayer, e.marker);
+
+        const markerLatLng = e.marker._latlng;
+        const index = workingLayer._latlngs.indexOf(markerLatLng);
+        workingLayer._latlngs[index] = this.addAltToLatLng(workingLayer._latlngs[index]); // add a 0 level z index
+
+        this.logScalePopUp(workingLayer, e.marker, index);
       });
     });
 
@@ -216,7 +220,8 @@ export default class DraggableMap extends React.Component<Props, State> {
 
       // Add the altitude to the coords to the Marker
       if (e.shape === 'Marker') {
-        e.layer._latlng = this.addAltToLatLng(e.layer._latlng);
+        e.layer._latlng = this.addAltToLatLng(e.layer._latlng); // add a 0 level z index
+        this.logScalePopUp(e.layer, e.marker);
       }
 
       console.log('pm:create', e);
