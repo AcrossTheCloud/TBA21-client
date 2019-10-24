@@ -1573,7 +1573,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
             />
           </ModalBody>
           <ModalFooter>
-            <Button color="secondary" onClick={this.toggleMapModal}>Cancel</Button>
+            <Button color="secondary" onClick={this.toggleMapModal}>Close</Button>
           </ModalFooter>
         </Modal>
       </div>

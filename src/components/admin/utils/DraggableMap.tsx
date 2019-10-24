@@ -158,11 +158,42 @@ export default class DraggableMap extends React.Component<Props, State> {
         console.log('pm:cut');
         this.callback();
       }
-      });
+    });
   }
 
   addAltToLatLng(coords: L.LatLng, alt: number = 0): L.LatLng {
     return new L.LatLng(coords.lat, coords.lng, alt);
+  }
+
+  logScalePopUp = (workingLayer, marker) => {
+    const _self = this;
+
+    let latlng = marker._latlng; // the current vertex that we've added
+    let index = workingLayer._latlngs.indexOf(latlng);
+
+    // Set the ALT to 0
+    workingLayer._latlngs[index] = this.addAltToLatLng(latlng);
+
+    const select = document.createElement('select');
+
+    select.addEventListener('change', function() {
+      console.log('On change', this.value);
+      workingLayer._latlngs[index] = _self.addAltToLatLng(latlng, parseInt(this.value, 0));
+    });
+
+    const createOption = (value: string, selected: boolean = false) => {
+      const option = document.createElement('option');
+      option.value = value;
+      option.innerHTML = value;
+      option.selected = selected;
+      select.appendChild(option);
+    };
+
+    // todo-dan replace with log scale
+    ['0', '100', '1000', '2000', '3000', '4000', '6000'].forEach(e => createOption(e));
+
+    marker.bindPopup(select);
+    marker.openPopup();
   }
 
   mapEvents = () => {
@@ -175,12 +206,7 @@ export default class DraggableMap extends React.Component<Props, State> {
       // Add the altitude to the coords to any vertex's, this includes Linestrings and Poly.
       workingLayer.on('pm:vertexadded', e => {
         console.log('pm:vertexadded', e);
-
-        let latlng = e.marker._latlng;
-        let index = workingLayer._latlngs.indexOf(latlng);
-
-        workingLayer._latlngs[index] = this.addAltToLatLng(e.latlng);
-        console.log(workingLayer._latlngs, latlng, index);
+        this.logScalePopUp(workingLayer, e.marker);
       });
     });
 
