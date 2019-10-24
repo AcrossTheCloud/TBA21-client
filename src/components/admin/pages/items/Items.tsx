@@ -8,7 +8,7 @@ import { Button, Container, Modal, ModalBody, ModalFooter, ModalHeader, Spinner 
 
 import { FaCheck, FaTimes } from 'react-icons/fa';
 import { Item } from 'types/Item';
-import { ItemEditor } from 'components/metadata/ItemEditor';
+import ItemEditor from 'components/metadata/ItemEditor';
 import { Alerts, ErrorMessage, SuccessMessage } from 'components/utils/alerts';
 import { AuthContext } from '../../../../providers/AuthProvider';
 
@@ -289,6 +289,7 @@ class Items extends React.Component<RouteComponentProps, State> {
             {
               typeof this.state.itemIndex !== 'undefined' && this.state.itemIndex >= 0 ?
                 <ItemEditor
+                  isAdmin={context.authorisation.hasOwnProperty('admin')}
                   isContributorPath={context.authorisation.hasOwnProperty('admin') ? false : this.isContributorPath}
                   item={this.state.items[this.state.itemIndex]}
                   index={this.state.itemIndex}
