@@ -1,17 +1,19 @@
 import * as React from 'react';
 import { Col, Row } from 'reactstrap';
 
+import { HomepageData } from '../../types/Home';
 import { FileTypes } from '../../types/s3File';
 import { itemType } from '../../types/Item';
 import HighlightPreview from './HighlightPreview';
 
-export default function HighlightItem({
-  highlight,
-  index,
-  hasMultiple,
-  onOpenModal
-}) {
-  const isPrimary = index == 0;
+const HighlightItem = (props: {
+  highlight: HomepageData;
+  index: number;
+  hasMultiple: boolean;
+  onOpenModal: Function;
+}): JSX.Element => {
+  const { highlight, index, hasMultiple, onOpenModal } = props;
+  const isPrimary = index === 0;
   const primarySize = hasMultiple ? 8 : 12;
   const size = isPrimary ? primarySize : 4;
   return (
@@ -31,7 +33,7 @@ export default function HighlightItem({
       {isPrimary ? (
         <HighlightPreview
           highlight={highlight}
-          openModal={onOpenModal}
+          openModal={() => onOpenModal(highlight)}
           index={index}
         />
       ) : (
@@ -40,7 +42,7 @@ export default function HighlightItem({
             <Col xs="12">
               <HighlightPreview
                 highlight={highlight}
-                openModal={onOpenModal}
+                openModal={() => onOpenModal(highlight)}
                 index={index}
               />
             </Col>
@@ -49,7 +51,7 @@ export default function HighlightItem({
             <Col xs="12">
               <HighlightPreview
                 highlight={highlight}
-                openModal={onOpenModal}
+                openModal={() => onOpenModal(highlight)}
                 index={index}
               />
             </Col>
@@ -58,4 +60,6 @@ export default function HighlightItem({
       )}
     </Col>
   );
-}
+};
+
+export default HighlightItem;

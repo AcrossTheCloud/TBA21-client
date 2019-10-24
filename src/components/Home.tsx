@@ -17,7 +17,7 @@ import moment from 'moment';
 import { browser } from './utils/browser';
 import Footer from './layout/Footer';
 import FeedItem from './feed/FeedItem';
-import Announcements from './highlight/Announcements';
+import AnnouncementView from './highlight/AnnouncementView';
 import HighlightItem from './highlight/HighlightItem';
 
 import 'styles/components/home.scss';
@@ -32,10 +32,15 @@ interface Props extends HomePageState {
   cookies: Cookies;
 }
 
-class HomePage extends React.Component<Props, {}> {
+interface State {
+  loadCount: number;
+}
+
+class HomePage extends React.Component<Props, State> {
   _isMounted;
   scrollDebounce;
   windowHeightTimeout;
+  onLoadDebounce;
 
   constructor(props: Props) {
     super(props);
@@ -43,6 +48,11 @@ class HomePage extends React.Component<Props, {}> {
     this._isMounted = false;
 
     this.scrollDebounce = debounce(async () => await this.handleScroll(), 100);
+    this.state = {
+      loadCount: 0
+    };
+    // this.onLoad = this.onLoad.bind(this);
+    this.onLoadDebounce = debounce(count => this.handleLoad(count), 100);
   }
 
   async componentDidMount(): Promise<void> {
@@ -50,10 +60,13 @@ class HomePage extends React.Component<Props, {}> {
     window.addEventListener('scroll', this.scrollDebounce, false);
     window.addEventListener('scroll', this.handleScrollMobileSearch, false);
 
+    const { loadedCount, loadedItems, loadHomepage, loadMore } = this.props;
+    this.setState({ loadCount: loadedCount });
+
     // If we have no items go get em.
-    if (!this.props.loadedItems.length) {
-      await this.props.loadHomepage();
-      await this.props.loadMore();
+    if (!loadedItems.length) {
+      await loadHomepage();
+      await loadMore();
     }
   }
 
@@ -63,12 +76,16 @@ class HomePage extends React.Component<Props, {}> {
     window.removeEventListener('scroll', this.handleScrollMobileSearch, false);
   };
 
+  handleLoad(count) {
+    this.setState({ loadCount: count });
+  }
+
   async componentDidUpdate(
     prevProps: Readonly<Props>,
-    prevState: Readonly<{}>
+    prevState: Readonly<State>
   ): Promise<void> {
     if (
-      this.props.loadedCount < 0 &&
+      this.state.loadCount < 0 &&
       this.props.loadedMore &&
       !this.props.logoLoaded
     ) {
@@ -164,30 +181,32 @@ class HomePage extends React.Component<Props, {}> {
   render() {
     const {
       announcements,
-      loaded_highlights,
+      highlights,
       logoLoaded,
       loadedItems,
-      loadedCount,
       items,
       collections,
       audio,
       openModal
     } = this.props;
-    console.log(loadedCount);
     return (
       <div id="home" className="flex-fill">
         <Container fluid id="header">
           <Row className="highlights">
-            {loaded_highlights && loaded_highlights.length
-              ? loaded_highlights.map((ea, i) => (
-                  <HighlightItem
-                    highlight={ea}
-                    key={i}
-                    onOpenModal={openModal}
-                  />
-                ))
-              : null}
-            <Announcements news={announcements} />
+            {highlights &&
+              highlights.length &&
+              highlights.map((ea, index) => (
+                <HighlightItem
+                  highlight={ea}
+                  key={ea.id}
+                  index={index}
+                  hasMultiple={highlights.length > 1}
+                  onOpenModal={openModal}
+                />
+              ))}
+            {announcements && announcements.length && (
+              <AnnouncementView announcements={announcements} />
+            )}
           </Row>
         </Container>
 
@@ -196,7 +215,13 @@ class HomePage extends React.Component<Props, {}> {
         <Container fluid id="main" className="pb">
           <Row>
             {loadedItems.map((item, i) => (
-              <FeedItem item={item} key={i} loadedCount={loadedCount} />
+              <FeedItem
+                item={item}
+                key={i}
+                loadCount={this.state.loadCount}
+                onLoad={this.onLoadDebounce}
+                onOpenModal={openModal}
+              />
             ))}
           </Row>
           <Row>
@@ -237,7 +262,7 @@ const mapStateToProps = (state: { home: Props }) => ({
   loadedItems: state.home.loadedItems,
   loadedMore: state.home.loadedMore,
   loadedCount: state.home.loadedCount,
-  loaded_highlights: state.home.loaded_highlights
+  highlights: state.home.highlights
 });
 
 export default connect(

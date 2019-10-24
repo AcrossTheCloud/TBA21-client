@@ -19,7 +19,7 @@ export interface HomePageState {
   announcements: Announcement[];
   oa_highlight: HomepageData[];
 
-  loaded_highlights: HomepageData[];
+  highlights: HomepageData[];
   loadedItems: HomepageData[];
   loadedMore: boolean;
   loadedCount: number;
@@ -38,7 +38,7 @@ const initialState: HomePageState = {
   announcements: [],
   oa_highlight: [],
 
-  loaded_highlights: [],
+  highlights: [],
   loadedItems: [],
   loadedMore: false,
   loadedCount: 0,
@@ -64,7 +64,7 @@ export default (state: HomePageState | null = initialState, action) => {
         collections: action.collections,
         audio: action.audio,
         announcements: action.announcements,
-        loaded_highlights: action.loaded_highlights
+        highlights: action.highlights
       };
 
     case LOAD_COUNT_HOMEPAGE:

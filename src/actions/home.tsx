@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { API } from 'aws-amplify';
 import config from 'config';
 import { random } from 'lodash';
@@ -7,8 +6,6 @@ import { HomepageData } from '../types/Home';
 import { getCDNObject } from '../components/utils/s3File';
 import { FileTypes, S3File } from '../types/s3File';
 import { itemType } from '../types/Item';
-import dateFromTimeYearProduced from '../components/utils/date-from-time-year-produced';
-import AudioPreview from '../components/layout/audio/AudioPreview';
 
 // Defining our Actions for the reducers
 export const LOGO_STATE_HOMEPAGE = 'LOGO_STATE_HOMEPAGE';
@@ -326,7 +323,7 @@ export const loadHomepage = () => async dispatch => {
     audio,
     collections,
     announcements,
-    loaded_highlights: highlightsWithFiles
+    highlights: highlightsWithFiles
   });
 };
 
@@ -476,67 +473,4 @@ export const loadMore = () => async (dispatch, getState) => {
 
 export const waitForLoad = (loadedCount: number) => dispatch => {
   dispatch({ type: LOAD_COUNT_HOMEPAGE, loadedCount: loadedCount });
-};
-
-export const HomePageAudioPreview = (props: {
-  data: HomepageData;
-  openModal?: Function;
-}) => {
-  const {
-    id,
-    count,
-    item_subtype,
-    item_type,
-    title,
-    file,
-    creators,
-    year_produced,
-    time_produced
-  } = props.data;
-
-  const date = dateFromTimeYearProduced(time_produced, year_produced);
-
-  return (
-    <>
-      {item_type === itemType.Audio ||
-      (!!file && file.type === FileTypes.Audio) ? (
-        !!count && count > 0 ? (
-          <div
-            onClick={() =>
-              typeof props.openModal === 'function'
-                ? props.openModal(props.data)
-                : false
-            }
-          >
-            <AudioPreview
-              noClick
-              data={{
-                title,
-                id,
-                url: file.url,
-                date,
-                creators,
-                item_subtype,
-                isCollection: !!count
-              }}
-            />
-          </div>
-        ) : (
-          <AudioPreview
-            data={{
-              title,
-              id,
-              url: file.url,
-              date,
-              creators,
-              item_subtype,
-              isCollection: !!count
-            }}
-          />
-        )
-      ) : (
-        <></>
-      )}
-    </>
-  );
 };
