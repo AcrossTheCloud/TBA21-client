@@ -2,35 +2,44 @@
 
 .mapWrapper {
   flex: 100%;
+  height: calc(100vh - 100px);
   position: relative;
+  z-index: 1;
 
-  #sidebar {
-    height: 100%;
-    width: 30%;
-    position: absolute;
-    top: 0;
-    left: -100%;
-    z-index: 99999;
-    background: rgba(255, 255, 255, 0.8);
+  // Legend styling
+  .legend span, .legend label {
+    display: block;
+    width: 50px;
+    height: 18px;
+    float: left;
+    text-align: center;
+    font-size: 80%
+  }
 
-    transition: left 1s;
-    padding: 20px;
-    &.open {
-      left: 0;
-      transition: left 1s;
-    }
+  .zoomInBuddy {
+    div {
+      opacity: 0;
+      z-index: 0;
 
-    .content {
-      overflow-y: scroll;
-      overflow-x: hidden;
-    }
-
-    .closeButton {
-      position: absolute;
-      top: 0;
-      right: 20px;
-      cursor: pointer;
+      &.show {
+        padding: 20px;
+        background: #fff;
+        border-radius: 10px;
+        z-index: 400;
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        &.op {
+          opacity: 1;
+        }
+      }
     }
   }
 
+  .leaflet-marker-icon {
+    &.leaflet-div-icon {
+      background: none !important;
+      border: none !important;
+    }
+  }
 }

@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { API } from 'aws-amplify';
 import { has } from 'lodash';
 
 import { FileUpload } from './FileUpload';
@@ -8,6 +7,8 @@ import { ItemEditor } from './ItemEditor';
 import { Button, Col, Row } from 'reactstrap';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { AuthContext } from '../../providers/AuthProvider';
+import { adminGetItem } from '../../REST/items';
+import { removeTopology } from '../utils/removeTopology';
 
 interface Props extends RouteComponentProps {
   callback?: Function;
@@ -189,32 +190,38 @@ class ItemsClass extends React.Component<Props, State> {
       counter = 6,
       timeoutSeconds = 1000;
 
-    const doAPICall = async (s3key: string): Promise<Item | null> => {
+    const doAPICall = async (s3Key: string): Promise<Item | null> => {
       return new Promise( resolve => {
 
         const apiTimeout = setTimeout( async () => {
           if (!this._isMounted) { clearTimeout(apiTimeout); return; }
           counter --;
 
-          const response = await API.get('tba21', (this.isContributorPath ? 'contributor/items/getItem' : 'admin/items/getItemNC'), {
-            queryStringParameters: {
-              s3Key: s3key
-            }
-          });
-
+          const response = await adminGetItem(this.isContributorPath, { s3Key });
           timeoutSeconds = timeoutSeconds * 2;
-
-          if (response.item) {
-            clearTimeout(apiTimeout);
-            return resolve(response.item);
-          } else {
+          
+          const tryApiAgain = async() => {
             if (!counter) {
               clearTimeout(apiTimeout);
               return resolve(null);
             } else {
-              return resolve(await doAPICall(s3key));
+              return resolve(await doAPICall(s3Key));
             }
-          }
+          };
+            
+          if (response) {
+            const responseItems = removeTopology(response) as Item[];
+
+            if (responseItems && responseItems.length && !!responseItems[0]) {
+              const item = responseItems[0];
+              clearTimeout(apiTimeout);
+              return resolve(item);
+            } else {
+              tryApiAgain();
+            }
+          } else {
+            tryApiAgain();
+          } 
         },                             timeoutSeconds);
       });
     };
