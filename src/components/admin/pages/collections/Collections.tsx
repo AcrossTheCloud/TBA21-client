@@ -1,5 +1,3 @@
-import { API } from 'aws-amplify';
-
 import * as React from 'react';
 import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
@@ -16,11 +14,12 @@ import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.m
 
 import 'styles/components/admin/tables/modal.scss';
 import { FaCheck, FaTimes } from 'react-icons/fa';
+import { adminDel, adminGet } from '../../../../REST/collections';
+import { removeTopology } from '../../../utils/removeTopology';
 
 interface State extends Alerts {
   collections: Collection[];
   editingCollectionIndex?: number;
-  // items?: items[];
 
   componentModalOpen: boolean;
   deleteModalOpen: boolean;
@@ -46,7 +45,6 @@ class Collections extends React.Component<RouteComponentProps, State> {
       componentModalOpen: false,
       deleteModalOpen: false,
       collections: [],
-      // items: [],
 
       tableIsLoading: true,
       page: 1,
@@ -108,11 +106,12 @@ class Collections extends React.Component<RouteComponentProps, State> {
         };
 
       const isContributorPath = (this.props.location.pathname.match(/contributor/i));
-      const response = await API.get('tba21', `${ isContributorPath ? 'contributor/collections/get' :  'admin/collections/get' }`, { queryStringParameters: queryStringParameters });
+      const result = await adminGet(isContributorPath, queryStringParameters);
+      const collections: Collection[] = removeTopology(result) as Collection[];
 
       return {
-        collections: response.collections,
-        totalSize: response.collections[0] && response.collections[0].count ? parseInt(response.collections[0].count, 0) : 0
+        collections,
+        totalSize: collections[0] && collections[0].count ? (typeof collections[0].count === 'string' ? parseInt(collections[0].count, 0) : collections[0].count) : 0
       };
 
     } catch (e) {
@@ -190,11 +189,7 @@ class Collections extends React.Component<RouteComponentProps, State> {
     try {
       const collectionIndex: number | undefined = this.state.editingCollectionIndex;
       if (typeof collectionIndex !== 'undefined' && collectionIndex > -1) {
-        await API.del('tba21', 'admin/collections', {
-          queryStringParameters: {
-            id: this.state.collections[collectionIndex].id
-          }
-        });
+        await adminDel(this.state.collections[collectionIndex].id as string);
         this.getCollections();
         Object.assign(state, {
           deleteModalOpen: false,

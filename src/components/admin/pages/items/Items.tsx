@@ -16,6 +16,8 @@ import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css';
 
 import 'styles/components/admin/tables/modal.scss';
+import { adminGetItems, contributorGetByPerson } from '../../../../REST/items';
+import { removeTopology } from '../../../utils/removeTopology';
 
 interface State extends Alerts {
   items: Item[];
@@ -117,12 +119,12 @@ class Items extends React.Component<RouteComponentProps, State> {
           offset: offset,
           limit: this.state.sizePerPage
         },
-        response = await API.get('tba21', `${ this.isContributorPath ? 'contributor/items/getByPerson' :  'admin/items' }`, { queryStringParameters: queryStringParameters });
-
+        response = this.isContributorPath ? await contributorGetByPerson(queryStringParameters) : await adminGetItems(queryStringParameters),
+        items = removeTopology(response) as Item[];
       if (!this._isMounted) { return; }
       return {
-        items: response.items,
-        totalSize: response.items[0] && response.items[0].count ? parseInt(response.items[0].count, 0) : 0
+        items: items,
+        totalSize: items[0] && items[0].count ? (typeof items[0].count === 'string' ? parseInt(items[0].count, 0) : items[0].count) : 0
       };
 
     } catch (e) {

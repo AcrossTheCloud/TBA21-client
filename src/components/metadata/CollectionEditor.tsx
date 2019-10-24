@@ -8,7 +8,7 @@ import {
   FormGroup, FormText,
   Input,
   InputGroup,
-  Label, Nav, NavItem, NavLink,
+  Label, Modal, ModalBody, ModalFooter, Nav, NavItem, NavLink,
   Row, TabContent, TabPane, UncontrolledButtonDropdown
 } from 'reactstrap';
 import { API } from 'aws-amplify';
@@ -39,8 +39,14 @@ import { getProfileDetails } from '../../actions/user/profile';
 import { Profile } from '../../types/Profile';
 
 import 'styles/components/metadata/editors.scss';
+import { adminGet, getItemsInCollection } from '../../REST/collections';
+import { removeTopology } from '../utils/removeTopology';
+import { adminGetItems } from '../../REST/items';
+import DraggableMap from '../admin/utils/DraggableMap';
+import { GeoJsonObject } from 'geojson';
+import { RouteComponentProps, withRouter } from 'react-router';
 
-interface Props {
+interface Props extends RouteComponentProps {
   collection?: Collection;
   editMode: boolean;
   onChange?: Function;
@@ -53,6 +59,9 @@ interface Props {
 }
 
 interface State extends Alerts {
+  topojson?: GeoJsonObject;
+  itemTopoJSON?: GeoJsonObject;
+
   originalCollection: Collection;
   collection: Collection;
   changedFields: {
@@ -74,6 +83,8 @@ interface State extends Alerts {
   isDifferent: boolean;
   loadedItems: Item[];
   loadingItems: boolean;
+
+  mapModalOpen: boolean;
 }
 
 const defaultRequiredFields = (collection: Collection) => {
@@ -133,6 +144,8 @@ class CollectionEditorClass extends React.Component<Props, State> {
       validate: defaultRequiredFields(collection),
       activeTab: '1',
       selectInputValue: '',
+
+      mapModalOpen: false
     };
   }
 
@@ -146,27 +159,38 @@ class CollectionEditorClass extends React.Component<Props, State> {
     }
 
     if (this.props.collection) {
-      const getItemsInCollection = async (id) => {
-        const results = await API.get('tba21', 'admin/collections/getItemsInCollection', {
-          queryStringParameters: {
-            id: id,
-            limit: 1000
-          }
-        });
+      const state = {};
 
-        if (results && results.items && this._isMounted) {
-          this.setState(
+      // Get the collection and push the topoJSON into state.
+      const isContributorPath = (this.props.location.pathname.match(/contributor/i));
+      const topojson = await adminGet(isContributorPath, { id: this.props.collection.id });
+      Object.assign(state, { topojson });
+
+      // Get all the items in our collection.
+      const getAllItemsInCollection = async (id) => {
+
+        const results = await getItemsInCollection({ id, limit: 1000 });
+        const items = removeTopology(results) as Item[];
+        const mappedItems: string[] = items.length ? items.map( i => i.s3_key) : [];
+
+        if (results && items && items.length) {
+          Object.assign(state,
             {
-              collection: {...this.state.collection, items: results.items.map( i => i.s3_key)},
-              originalCollection: {...this.state.collection, items: results.items.map( i => i.s3_key)},
-              loadedItems: results.items,
+              itemTopoJSON: results,
+              collection: {...this.state.collection, items: mappedItems},
+              originalCollection: {...this.state.collection, items: mappedItems},
+              loadedItems: items,
               loadingItems: false
             }
           );
         }
+
+        if (this._isMounted) {
+          this.setState(state);
+        }
       };
       // don't wait for these.
-      getItemsInCollection(this.props.collection.id);
+      getAllItemsInCollection(this.props.collection.id);
     }
   }
 
@@ -1180,9 +1204,14 @@ class CollectionEditorClass extends React.Component<Props, State> {
 
         const
           queryStringParameters = ( inputValue ? { inputQuery: inputValue, limit: 100 } : {} ),
-          response = await API.get('tba21', 'admin/items', { queryStringParameters: queryStringParameters });
+          response = await adminGetItems(queryStringParameters),
+          items = removeTopology(response) as Item[];
 
-        resolve(response.items.map( item => ({label: item.title || 'No title', value: item.s3_key, item: item}) ));
+        if (items && items.length) {
+          resolve(items.map( item => ({label: item.title || 'No title', value: item.s3_key, item: item}) ));
+        } else {
+          resolve([]);
+        }
       }, 500);
     });
   }
@@ -1211,6 +1240,12 @@ class CollectionEditorClass extends React.Component<Props, State> {
           selectInputValue: ''
         }
       );
+    }
+  }
+
+  toggleMapModal = () => {
+    if (this._isMounted) {
+      this.setState({ mapModalOpen: !this.state.mapModalOpen });
     }
   }
 
@@ -1292,6 +1327,9 @@ class CollectionEditorClass extends React.Component<Props, State> {
                         }
                       </DropdownMenu>
                     </UncontrolledButtonDropdown>
+
+                    <Button onClick={this.toggleMapModal}>Add coords</Button>
+
                   </Col>
 
                   {this.props.profileDetails && !this.props.profileDetails.accepted_license ?
@@ -1337,6 +1375,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
                         type="text"
                         className="subtitle"
                         defaultValue={subtitle ? subtitle : ''}
+                        maxLength={256}
                         onChange={e => this.changeCollection('subtitle', e.target.value)}
                       />
                     </FormGroup>
@@ -1514,6 +1553,28 @@ class CollectionEditorClass extends React.Component<Props, State> {
             </TabContent>
           </Col>
         </Row>
+
+        <Modal isOpen={this.state.mapModalOpen} toggle={this.toggleMapModal} centered size="lg" scrollable className="fullwidth" backdrop>
+          <ModalBody>
+            <DraggableMap
+              topoJSON={this.state.topojson}
+              collectionItems={this.state.itemTopoJSON}
+              onChange={ geojson => {
+                if (this._isMounted) {
+                  this.setState(
+                    { collection: {...this.state.collection, geojson},
+                      changedFields: {...this.state.changedFields, geojson},
+                      isDifferent: !isEqual(this.state.originalCollection, this.state.collection)
+                    }
+                  );
+                }
+              }}
+            />
+          </ModalBody>
+          <ModalFooter>
+            <Button color="secondary" onClick={this.toggleMapModal}>Close</Button>
+          </ModalFooter>
+        </Modal>
       </div>
     );
   }
@@ -1523,4 +1584,4 @@ const mapStateToProps = (state: { profile: { details: Profile} }) => ({
   profileDetails: state.profile.details,
 });
 
-export const CollectionEditor = connect(mapStateToProps, { modalToggle, getProfileDetails })(CollectionEditorClass);
+export const CollectionEditor = withRouter(connect(mapStateToProps, { modalToggle, getProfileDetails })(CollectionEditorClass));

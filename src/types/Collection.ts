@@ -79,8 +79,9 @@ export interface Collection {
   expedition_route?: string | null;
   expedition_blog_link?: string | null;
   expedition_leader?: string | null;
-  expedition_start_point?: string | null;
-  expedition_end_point?: string | null;
+
+  linestring?: string | null;
+  point?: string | null;
 
   participants?: string[] | null;
 
