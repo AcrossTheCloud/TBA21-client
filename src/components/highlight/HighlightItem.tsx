@@ -16,6 +16,13 @@ const HighlightItem = (props: {
   const isPrimary = index === 0;
   const primarySize = hasMultiple ? 8 : 12;
   const size = isPrimary ? primarySize : 4;
+  const preview = (
+    <HighlightPreview
+      highlight={highlight}
+      openModal={() => onOpenModal(highlight)}
+      index={index}
+    />
+  );
   return (
     <Col
       xs="12"
@@ -30,34 +37,16 @@ const HighlightItem = (props: {
         }
       }}
     >
-      {isPrimary ? (
-        <HighlightPreview
-          highlight={highlight}
-          openModal={() => onOpenModal(highlight)}
-          index={index}
-        />
-      ) : (
-        [
-          <Row className="d-none d-lg-block">
-            <Col xs="12">
-              <HighlightPreview
-                highlight={highlight}
-                openModal={() => onOpenModal(highlight)}
-                index={index}
-              />
-            </Col>
-          </Row>,
-          <Row className="d-lg-none py-4 py-lg-0">
-            <Col xs="12">
-              <HighlightPreview
-                highlight={highlight}
-                openModal={() => onOpenModal(highlight)}
-                index={index}
-              />
-            </Col>
-          </Row>
-        ]
-      )}
+      {isPrimary
+        ? preview
+        : [
+            <Row className="d-none d-lg-block" key="lg">
+              <Col xs="12">{preview}</Col>
+            </Row>,
+            <Row className="d-lg-none py-4 py-lg-0" key="lg-none">
+              <Col xs="12">{preview}</Col>
+            </Row>
+          ]}
     </Col>
   );
 };

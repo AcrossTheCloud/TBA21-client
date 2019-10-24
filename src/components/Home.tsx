@@ -217,7 +217,7 @@ class HomePage extends React.Component<Props, State> {
             {loadedItems.map((item, i) => (
               <FeedItem
                 item={item}
-                key={i}
+                key={loadedItems.length + i}
                 loadCount={this.state.loadCount}
                 onLoad={this.onLoadDebounce}
                 onOpenModal={openModal}
