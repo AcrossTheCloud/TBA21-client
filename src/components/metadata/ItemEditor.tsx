@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { FaMapMarked } from 'react-icons/fa';
+import { FaMapMarked, FaCheck, FaMinus, FaPlus, FaTimes } from 'react-icons/fa';
 import {
   Button,
   Col,
+  Collapse,
   CustomInput,
   DropdownItem,
   DropdownMenu,
@@ -52,6 +53,11 @@ import { validateURL } from '../utils/inputs/url';
 import ShortPaths from '../admin/utils/ShortPaths';
 import YearSelect from './fields/YearSelect';
 
+import { adminGetItem } from '../../REST/items';
+import { removeTopology } from '../utils/removeTopology';
+import DraggableMap from '../admin/utils/DraggableMap';
+import { GeoJsonObject } from 'geojson';
+
 import * as moment from 'moment';
 import 'moment-duration-format';
 import { FileTypes, S3File } from '../../types/s3File';
@@ -60,16 +66,13 @@ import { getProfileDetails } from '../../actions/user/profile';
 import { Profile } from '../../types/Profile';
 import 'styles/components/metadata/itemEditor.scss';
 import 'styles/components/metadata/editors.scss';
-import { adminGetItem } from '../../REST/items';
-import { removeTopology } from '../utils/removeTopology';
-import DraggableMap from '../admin/utils/DraggableMap';
-import { GeoJsonObject } from 'geojson';
 
-interface Props {
+export interface Props {
   item: Item;
   index?: number;
   onChange?: Function;
   isContributorPath?: boolean;
+  isAdmin: boolean;
 
   // From Redux
   modalToggle: Function;
@@ -152,7 +155,6 @@ class ItemEditorClass extends React.Component<Props, State> {
   async componentDidMount(): Promise<void> {
     this._isMounted = true;
     await this.getItemByS3Key();
-
   }
 
   componentWillUnmount() {
@@ -359,9 +361,11 @@ class ItemEditorClass extends React.Component<Props, State> {
         Object.assign(state, { successMessage: 'Updated item!', changedFields: {}, originalItem: {...this.state.changedItem}, isDifferent: false});
 
         if (this.props.onChange && typeof this.props.onChange === 'function') {
+
           const onChangeResult = {
             item: this.state.changedItem
           };
+
           if (typeof this.props.index !== 'undefined') {
             Object.assign(onChangeResult, { index: this.props.index });
           }
@@ -2289,8 +2293,9 @@ class ItemEditorClass extends React.Component<Props, State> {
 
     return (
       <>
-        <Form className="container-fluid itemEditor">
+        <Form className="container-fluid itemEditor" >
           <div className={`overlay ${this.state.isLoading ? 'show' : ''}`} />
+          <div className={`accessDenied ${(this.props.profileDetails.cognito_uuid === this.props.item.contributor) || (this.props.isAdmin) ? '' : 'show'}`} />
           <Row>
             <Col xs="12">
               <WarningMessage message={this.state.warningMessage} />
@@ -2299,360 +2304,360 @@ class ItemEditorClass extends React.Component<Props, State> {
             </Col>
           </Row>
 
-          <Row>
-            <Col>
-              <div className="sticky">
-                <Row>
-                  <Col xs="12" className="text-center">
-                    <this.filePreview />
-                  </Col>
-                </Row>
+            <Row>
+              <Col>
+                <div className="sticky">
+                  <Row>
+                    <Col xs="12" className="text-center">
+                      <this.filePreview />
+                    </Col>
+                  </Row>
 
-                <Row>
-                  <Col xs="8">
-                    {!this.props.isContributorPath ?
-                      <>
-                        <InputGroup>
-                          <CustomInput type="switch" id={`${this.state.originalItem.s3_key}_oa_highlight`} name="OA_highlight" label="OA Highlight" checked={!!this.state.changedItem.oa_highlight || false} onChange={e => this.changeItem('oa_highlight', e.target.checked)} />
-                        </InputGroup>
-                        <InputGroup>
-                          <CustomInput type="switch" id={`${this.state.originalItem.s3_key}_oa_original`} name="OA_original" label="OA Original" checked={!!this.state.changedItem.oa_original || false} onChange={e => this.changeItem('oa_original', e.target.checked)} />
-                        </InputGroup>
-                        <InputGroup>
-                          <CustomInput type="switch" id={`${this.state.originalItem.s3_key}_tba21_material`} name="TBA21_material" label="TBA21 Material" checked={!!this.state.changedItem.tba21_material || false} onChange={e => this.changeItem('tba21_material', e.target.checked)} />
-                        </InputGroup>
-                      </>
-                      : <></>
-                    }
-                  </Col>
-                  <Col xs="4">
-                    <UncontrolledButtonDropdown className="float-right">
-                      {this.state.originalItem.status ?
-                        <Button className="caret" onClick={this.updateItem} disabled={!this.state.isDifferent}>Save</Button>
-                        :
-                        <Button className="caret" onClick={() => { this.changeItem('status', true, () => this.updateItem() ); }}>Publish</Button>
+                  <Row>
+                    <Col xs="8">
+                      {!this.props.isContributorPath ?
+                        <>
+                          <InputGroup>
+                            <CustomInput type="switch" id={`${this.state.originalItem.s3_key}_oa_highlight`} name="OA_highlight" label="OA Highlight" checked={!!this.state.changedItem.oa_highlight || false} onChange={e => this.changeItem('oa_highlight', e.target.checked)} />
+                          </InputGroup>
+                          <InputGroup>
+                            <CustomInput type="switch" id={`${this.state.originalItem.s3_key}_oa_original`} name="OA_original" label="OA Original" checked={!!this.state.changedItem.oa_original || false} onChange={e => this.changeItem('oa_original', e.target.checked)} />
+                          </InputGroup>
+                          <InputGroup>
+                            <CustomInput type="switch" id={`${this.state.originalItem.s3_key}_tba21_material`} name="TBA21_material" label="TBA21 Material" checked={!!this.state.changedItem.tba21_material || false} onChange={e => this.changeItem('tba21_material', e.target.checked)} />
+                          </InputGroup>
+                        </>
+                        : <></>
                       }
-                      <DropdownToggle caret />
-                      <DropdownMenu>
+                    </Col>
+                    <Col xs="4">
+                      <UncontrolledButtonDropdown className="float-right">
                         {this.state.originalItem.status ?
-                          <DropdownItem onClick={() => { this.changeItem('status', false, () => this.updateItem() ); }}>Unpublish</DropdownItem>
+                          <Button className="caret" onClick={this.updateItem} disabled={!this.state.isDifferent}>Save</Button>
                           :
-                          <DropdownItem onClick={() => { this.changeItem('status', false, () => this.updateItem() ); }}>Save Draft</DropdownItem>
+                          <Button className="caret" onClick={() => { this.changeItem('status', true, () => this.updateItem() ); }}>Publish</Button>
                         }
-                      </DropdownMenu>
-                    </UncontrolledButtonDropdown>
-                  </Col>
-                </Row>
+                        <DropdownToggle caret />
+                        <DropdownMenu>
+                          {this.state.originalItem.status ?
+                            <DropdownItem onClick={() => { this.changeItem('status', false, () => this.updateItem() ); }}>Unpublish</DropdownItem>
+                            :
+                            <DropdownItem onClick={() => { this.changeItem('status', false, () => this.updateItem() ); }}>Save Draft</DropdownItem>
+                          }
+                        </DropdownMenu>
+                      </UncontrolledButtonDropdown>
+                    </Col>
+                  </Row>
 
                 <Button onClick={this.toggleMapModal} className="mt-3 location">Add location(s) <FaMapMarked size={20}/></Button>
 
-                {this.props.profileDetails && !this.props.profileDetails.accepted_license ?
-                  <Row>
-                    <Col>
-                      By checking this box you agree to the Ocean Archive's <Button color="link" onClick={e => {e.preventDefault(); this.props.modalToggle('TC_MODAL', true); }}>Terms Of Use</Button>
-                      <FormGroup check>
-                        <Label check>
-                          <Input type="checkbox" checked={this.state.acceptedLicense ? this.state.acceptedLicense : false} onChange={e => { if (this._isMounted) { this.setState({ acceptedLicense: e.target.checked }); } }}/>{' '}
-                          I agree
-                        </Label>
-                      </FormGroup>
-                    </Col>
-                  </Row>
-                  : <></>
-                }
-              </div>
-            </Col>
+                  {this.props.profileDetails && !this.props.profileDetails.accepted_license ?
+                    <Row>
+                      <Col>
+                        By checking this box you agree to the Ocean Archive's <Button color="link" onClick={e => {e.preventDefault(); this.props.modalToggle('TC_MODAL', true); }}>Terms Of Use</Button>
+                        <FormGroup check>
+                          <Label check>
+                            <Input type="checkbox" checked={this.state.acceptedLicense ? this.state.acceptedLicense : false} onChange={e => { if (this._isMounted) { this.setState({ acceptedLicense: e.target.checked }); } }}/>{' '}
+                            I agree
+                          </Label>
+                        </FormGroup>
+                      </Col>
+                    </Row>
+                    : <></>
+                  }
+                </div>
+              </Col>
 
-            <Col md="8">
-              <Nav tabs>
-                <NavItem>
-                  <NavLink
-                    className={this.state.activeTab === '1' ? 'active' : ''}
-                    onClick={() => { if (this._isMounted) { this.setState({ activeTab: '1' }); }}}
-                  >
-                    Details
-                  </NavLink>
-                </NavItem>
-              </Nav>
-              <TabContent activeTab={this.state.activeTab}>
-                <TabPane tabId="1">
-                  <Row>
-                    <Col xs="12">
-                      <FormGroup>
-                        <Label for="title">Title</Label>
-                        <Input
-                          className="title"
-                          defaultValue={item.title ? item.title : ''}
-                          placeholder="Please Enter A Title"
-                          onChange={e => this.validateLength('title', e.target.value)}
-                          required
-                          invalid={this.state.validate.hasOwnProperty('title') && !this.state.validate.title}
-                        />
-                        <FormFeedback>This is a required field</FormFeedback>
+              <Col md="8">
+                <Nav tabs>
+                  <NavItem>
+                    <NavLink
+                      className={this.state.activeTab === '1' ? 'active' : ''}
+                      onClick={() => { if (this._isMounted) { this.setState({ activeTab: '1' }); }}}
+                    >
+                      Details
+                    </NavLink>
+                  </NavItem>
+                </Nav>
+                <TabContent activeTab={this.state.activeTab}>
+                  <TabPane tabId="1">
+                    <Row>
+                      <Col xs="12">
+                        <FormGroup>
+                          <Label for="title">Title</Label>
+                          <Input
+                            className="title"
+                            defaultValue={item.title ? item.title : ''}
+                            placeholder="Please Enter A Title"
+                            onChange={e => this.validateLength('title', e.target.value)}
+                            required
+                            invalid={this.state.validate.hasOwnProperty('title') && !this.state.validate.title}
+                          />
+                          <FormFeedback>This is a required field</FormFeedback>
 
-                        <ShortPaths
-                          type="Item"
-                          id={item.id ? item.id : undefined}
-                        />
+                          <ShortPaths
+                            type="Item"
+                            id={item.id ? item.id : undefined}
+                          />
 
-                      </FormGroup>
-                    </Col>
+                        </FormGroup>
+                      </Col>
 
-                    <Col xs="12">
-                      <FormGroup>
-                        <Label for="description">Description</Label>
-                        <Input
-                          type="textarea"
-                          className="description"
-                          defaultValue={item.description ? item.description : ''}
-                          onChange={e => this.validateLength('description', e.target.value)}
-                          invalid={this.state.validate.hasOwnProperty('description') && !this.state.validate.description}
-                          maxLength={2048}
-                        />
-                        <FormFeedback>This is a required field</FormFeedback>
-                      </FormGroup>
+                      <Col xs="12">
+                        <FormGroup>
+                          <Label for="description">Description</Label>
+                          <Input
+                            type="textarea"
+                            className="description"
+                            defaultValue={item.description ? item.description : ''}
+                            onChange={e => this.validateLength('description', e.target.value)}
+                            invalid={this.state.validate.hasOwnProperty('description') && !this.state.validate.description}
+                            maxLength={2048}
+                          />
+                          <FormFeedback>This is a required field</FormFeedback>
+                        </FormGroup>
 
-                      <FormGroup>
-                        <Label for="time_produced">Date Produced</Label>
-                        <Input
-                          type="date"
-                          className="time_produced"
-                          defaultValue={item.time_produced ? new Date(item.time_produced).toISOString().substr(0, 10) : ''}
-                          onChange={e => {
-                            const value = e.target.value;
-                            if (value && value.length) {
-                              this.validateLength('time_produced', value);
-                              this.validateLength('year_produced', new Date(value).getFullYear());
-                            } else {
-                              this.changeItem('time_produced', null);
-                            }
-                          }}
-                        />
+                        <FormGroup>
+                          <Label for="time_produced">Date Produced</Label>
+                          <Input
+                            type="date"
+                            className="time_produced"
+                            defaultValue={item.time_produced ? new Date(item.time_produced).toISOString().substr(0, 10) : ''}
+                            onChange={e => {
+                              const value = e.target.value;
+                              if (value && value.length) {
+                                this.validateLength('time_produced', value);
+                                this.validateLength('year_produced', new Date(value).getFullYear());
+                              } else {
+                                this.changeItem('time_produced', null);
+                              }
+                            }}
+                          />
 
-                        <Label for="year_produced">Year Produced</Label>
-                        <YearSelect
-                          value={item.year_produced}
-                          callback={e => this.validateLength('year_produced', e)}
-                        />
+                          <Label for="year_produced">Year Produced</Label>
+                          <YearSelect
+                            value={item.year_produced}
+                            callback={e => this.validateLength('year_produced', e)}
+                          />
 
-                        <FormFeedback style={!!item.year_produced ? {display: 'none'} : {display: 'block'}}>
-                          You must select either a Date and/or a Year produced.
-                        </FormFeedback>
-                      </FormGroup>
+                          <FormFeedback style={!!item.year_produced ? {display: 'none'} : {display: 'block'}}>
+                            You must select either a Date and/or a Year produced.
+                          </FormFeedback>
+                        </FormGroup>
 
-                      <FormGroup>
-                        <Label for="creators">Creator(s) /  Author(s)</Label>
-                        <CustomSelect values={!!item.creators ? item.creators : []} callback={values => this.changeItem('creators', values)} />
-                        {/*<FormFeedback style={{ display: (this.state.validate.hasOwnProperty('creators') && !this.state.validate.creators) || !!item.creators || (Array.isArray(item.creators) && !item.creators.length) ? 'block' : 'none' }}>This is a required field</FormFeedback>*/}
-                        <FormText>Use tab or enter to add a new Creator / Author.</FormText>
-                      </FormGroup>
+                        <FormGroup>
+                          <Label for="creators">Creator(s) /  Author(s)</Label>
+                          <CustomSelect values={!!item.creators ? item.creators : []} callback={values => this.changeItem('creators', values)} />
+                          {/*<FormFeedback style={{ display: (this.state.validate.hasOwnProperty('creators') && !this.state.validate.creators) || !!item.creators || (Array.isArray(item.creators) && !item.creators.length) ? 'block' : 'none' }}>This is a required field</FormFeedback>*/}
+                          <FormText>Use tab or enter to add a new Creator / Author.</FormText>
+                        </FormGroup>
 
-                      <FormGroup>
-                        <Label for="regions">Region(s) (Country/Ocean)</Label>
-                        <Select className="select" classNamePrefix="select" isMulti isSearchable menuPlacement="auto" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries } ]} defaultValue={selectedRegions} onChange={e => this.validateLength('regions', !!e && e.length ? e.map(r => r.value) : [])} />
-                        <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('regions') && !this.state.validate.regions ? 'block' : 'none') }}>This is a required field</FormFeedback>
-                      </FormGroup>
+                        <FormGroup>
+                          <Label for="regions">Region(s) (Country/Ocean)</Label>
+                          <Select className="select" classNamePrefix="select" isMulti isSearchable menuPlacement="auto" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries } ]} defaultValue={selectedRegions} onChange={e => this.validateLength('regions', !!e && e.length ? e.map(r => r.value) : [])} />
+                          <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('regions') && !this.state.validate.regions ? 'block' : 'none') }}>This is a required field</FormFeedback>
+                        </FormGroup>
 
-                      <FormGroup>
-                        <Label for="language">Language</Label>
-                        <Select menuPlacement="auto" className="select language" classNamePrefix="select" options={languages} value={item.language ? languages.find( c => c.value === item.language ) : []} onChange={e => this.changeItem('language', e.value)} isSearchable/>
-                      </FormGroup>
+                        <FormGroup>
+                          <Label for="language">Language</Label>
+                          <Select menuPlacement="auto" className="select language" classNamePrefix="select" options={languages} value={item.language ? languages.find( c => c.value === item.language ) : []} onChange={e => this.changeItem('language', e.value)} isSearchable/>
+                        </FormGroup>
 
-                      <FormGroup>
-                        <Label for="sub_type">Object Category</Label>
-                        <this.SubType />
-                        <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('item_subtype') && !this.state.validate.item_subtype ? 'block' : 'none') }}>This is a required field</FormFeedback>
-                      </FormGroup>
+                        <FormGroup>
+                          <Label for="sub_type">Object Category</Label>
+                          <this.SubType />
+                          <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('item_subtype') && !this.state.validate.item_subtype ? 'block' : 'none') }}>This is a required field</FormFeedback>
+                        </FormGroup>
 
-                      {/* Item Text */}
-                      {item.item_subtype === itemText.Academic_Publication ? <this.TextAcademicPublication /> : <></>}
-                      {item.item_subtype === itemText.Article ? <this.TextArticle /> : <></>}
-                      {item.item_subtype === itemText.News ? <this.TextNews /> : <></>}
-                      {item.item_subtype === itemText.Policy_Paper ? <this.TextPolicyPaperReport /> : <></>}
-                      {item.item_subtype === itemText.Report ? <this.TextPolicyPaperReport /> : <></>}
-                      {item.item_subtype === itemText.Book ? <this.TextBook /> : <></>}
-                      {item.item_subtype === itemText.Essay ? <this.TextEssay /> : <></>}
-                      {item.item_subtype === itemText.Historical_Text ? <this.TextHistoricalText /> : <></>}
-                      {item.item_subtype === itemText.Event_Press ? <this.TextEventPress /> : <></>}
-                      {item.item_subtype === itemText.Toolkit ? <this.TextToolkit /> : <></>}
-                      {(!!item.file && (item.file.type === FileTypes.Text || item.file.type === FileTypes.Pdf || item.file.type === FileTypes.DownloadText)) && item.item_subtype === itemText.Other ? <this.TextOther /> : <></>}
+                        {/* Item Text */}
+                        {item.item_subtype === itemText.Academic_Publication ? <this.TextAcademicPublication /> : <></>}
+                        {item.item_subtype === itemText.Article ? <this.TextArticle /> : <></>}
+                        {item.item_subtype === itemText.News ? <this.TextNews /> : <></>}
+                        {item.item_subtype === itemText.Policy_Paper ? <this.TextPolicyPaperReport /> : <></>}
+                        {item.item_subtype === itemText.Report ? <this.TextPolicyPaperReport /> : <></>}
+                        {item.item_subtype === itemText.Book ? <this.TextBook /> : <></>}
+                        {item.item_subtype === itemText.Essay ? <this.TextEssay /> : <></>}
+                        {item.item_subtype === itemText.Historical_Text ? <this.TextHistoricalText /> : <></>}
+                        {item.item_subtype === itemText.Event_Press ? <this.TextEventPress /> : <></>}
+                        {item.item_subtype === itemText.Toolkit ? <this.TextToolkit /> : <></>}
+                        {(!!item.file && (item.file.type === FileTypes.Text || item.file.type === FileTypes.Pdf || item.file.type === FileTypes.DownloadText)) && item.item_subtype === itemText.Other ? <this.TextOther /> : <></>}
 
-                      {/* Item Video */}
-                      {item.item_subtype === itemVideo.Video ? <this.Video /> : <></>}
-                      {item.item_subtype === itemVideo.Movie ? <this.VideoMovieTrailer /> : <></>}
-                      {item.item_subtype === itemVideo.Documentary ? <this.VideoDocumentaryArt /> : <></>}
-                      {(!!item.file && item.file.type === FileTypes.Video) && item.item_subtype === itemVideo.Research ? <this.VideoResearch /> : <></>}
-                      {(!!item.file && item.file.type === FileTypes.Video) && item.item_subtype === itemVideo.Interview ? <this.VideoInterview /> : <></>}
-                      {item.item_subtype === itemVideo.Art ? <this.VideoDocumentaryArt /> : <></>}
-                      {item.item_subtype === itemVideo.News_Journalism ? <this.VideoNewsJournalism /> : <></>}
-                      {item.item_subtype === itemVideo.Event_Recording ? <this.VideoEventRecording /> : <></>}
-                      {(item.item_subtype === itemVideo.Lecture_Recording) && (!!item.file && item.file.type === FileTypes.Video) ? <this.VideoLectureRecording /> : <></>}
-                      {item.item_subtype === itemVideo.Informational_Video ? <this.VideoInformationalVideo /> : <></>}
-                      {item.item_subtype === itemVideo.Trailer ? <this.VideoMovieTrailer /> : <></>}
-                      {((item.item_subtype === itemVideo.Video_Artwork_Documentation) && (!!item.file && item.file.type === FileTypes.Video)) ? <this.VideoArtworkDocumentation /> : <></>}
-                      {(!!item.file && item.file.type === FileTypes.Video) && item.item_subtype === itemVideo.Other ? <this.VideoOther /> : <></>}
+                        {/* Item Video */}
+                        {item.item_subtype === itemVideo.Video ? <this.Video /> : <></>}
+                        {item.item_subtype === itemVideo.Movie ? <this.VideoMovieTrailer /> : <></>}
+                        {item.item_subtype === itemVideo.Documentary ? <this.VideoDocumentaryArt /> : <></>}
+                        {(!!item.file && item.file.type === FileTypes.Video) && item.item_subtype === itemVideo.Research ? <this.VideoResearch /> : <></>}
+                        {(!!item.file && item.file.type === FileTypes.Video) && item.item_subtype === itemVideo.Interview ? <this.VideoInterview /> : <></>}
+                        {item.item_subtype === itemVideo.Art ? <this.VideoDocumentaryArt /> : <></>}
+                        {item.item_subtype === itemVideo.News_Journalism ? <this.VideoNewsJournalism /> : <></>}
+                        {item.item_subtype === itemVideo.Event_Recording ? <this.VideoEventRecording /> : <></>}
+                        {(item.item_subtype === itemVideo.Lecture_Recording) && (!!item.file && item.file.type === FileTypes.Video) ? <this.VideoLectureRecording /> : <></>}
+                        {item.item_subtype === itemVideo.Informational_Video ? <this.VideoInformationalVideo /> : <></>}
+                        {item.item_subtype === itemVideo.Trailer ? <this.VideoMovieTrailer /> : <></>}
+                        {((item.item_subtype === itemVideo.Video_Artwork_Documentation) && (!!item.file && item.file.type === FileTypes.Video)) ? <this.VideoArtworkDocumentation /> : <></>}
+                        {(!!item.file && item.file.type === FileTypes.Video) && item.item_subtype === itemVideo.Other ? <this.VideoOther /> : <></>}
 
-                      {/*Item Image */}
-                      {item.item_subtype === itemImage.Illustration ?  <this.ItemImage /> : <></>}
-                      {(item.item_subtype === itemImage.Artwork_Documentation) && (!!item.file && item.file.type === FileTypes.Image) ?  <this.ItemImage /> : <></>}
+                        {/*Item Image */}
+                        {item.item_subtype === itemImage.Illustration ?  <this.ItemImage /> : <></>}
+                        {(item.item_subtype === itemImage.Artwork_Documentation) && (!!item.file && item.file.type === FileTypes.Image) ?  <this.ItemImage /> : <></>}
 
-                      {
-                        item.item_subtype === itemImage.Sculpture ||
-                        item.item_subtype === itemImage.Drawing ||
-                        item.item_subtype === itemImage.Painting ? <this.ItemImageSculpturePaintingDrawing /> : <></>
-                      }
-
-                      {
-                        item.item_subtype === itemImage.Photograph ? <this.ItemImagePhotograph /> : <></>
-                      }
-
-                      {
-                        item.item_subtype === itemImage.Digital_Art ||
-                        (!!item.file && item.file.type === FileTypes.Image && item.item_subtype === itemImage.Other) ? <this.ItemDigitalArtOther />
-                          : <></>
-                      }
-
-                      {(!!item.file && item.file.type === FileTypes.Image) && item.item_subtype === itemImage.Research ? <this.ImageResearch /> : <></>}
-                      {item.item_subtype === itemImage.Graphics ? <this.ImageGraphics /> : <></>}
-                      {item.item_subtype === itemImage.Map ? <this.ImageMap /> : <></>}
-                      {item.item_subtype === itemImage.Film_Still ? <this.ImageFilmStill /> : <></>}
-
-                      {/* Item Audio */}
-                      {item.item_subtype === itemAudio.Field_Recording ? <this.AudioFieldRecording /> : <></>}
-                      {item.item_subtype === itemAudio.Sound_Art ? <this.AudioSoundArt /> : <></>}
-                      {item.item_subtype === itemAudio.Music ? <this.AudioMusic /> : <></>}
-                      {item.item_subtype === itemAudio.Podcast ? <this.AudioPodcast /> : <></>}
-                      {(!!item.file && item.file.type === FileTypes.Audio) && item.item_subtype === itemAudio.Lecture ? <this.AudioLecture /> : <></>}
-                      {(!!item.file && item.file.type === FileTypes.Audio) && item.item_subtype === itemAudio.Interview ? <this.AudioInterview /> : <></>}
-                      {item.item_subtype === itemAudio.Radio ? <this.AudioRadio /> : <></>}
-                      {item.item_subtype === itemAudio.Performance_Poetry ? <this.AudioPerformancePoetry /> : <></>}
-                      {(!!item.file && item.file.type === FileTypes.Audio) && item.item_subtype === itemAudio.Other ? <this.AudioOther /> : <></>}
-
-                      <FormGroup>
-                        <Label for="copyright_holder">Copyright Owner</Label>
-                        <Input type="text" className="copyright_holder" defaultValue={item.copyright_holder ? item.copyright_holder : ''} onChange={e => this.changeItem('copyright_holder', e.target.value)}/>
-                      </FormGroup>
-
-                      <FormGroup>
-                        <Label for="url">Original URL</Label>
-                        <Input
-                          type="url"
-                          className="url"
-                          defaultValue={item.url ? item.url : ''}
-                          invalid={this.state.validate.hasOwnProperty('url') && !this.state.validate.url}
-                          onChange={e => {
-                            const value = e.target.value;
-                            let valid = validateURL(value);
-                            if (!value) { valid = true; } // set valid to true for no content
-                            if (valid) { this.changeItem('url', value); } // if valid set the data in changedItem
-                            if (!this._isMounted) { return; }
-                            this.setState({ validate: { ...this.state.validate, url: valid } });
-                          }}
-                        />
-                        <FormFeedback>Not a valid URL</FormFeedback>
-                      </FormGroup>
-
-                      <FormGroup>
-                        <Label for="concept_tags">Concept Tag(s)</Label>
-                        <Tags
-                          className="concept_tags"
-                          type="concept"
-                          defaultValues={conceptTags}
-                          callback={tags => {
-                            const tagList = tags ? tags.map(tag => ({id: tag.id, tag_name: tag.label})) : [];
-                            this.validateLength('concept_tags', tags ? tags.map(tag => tag.id) : []);
-                            if (this._isMounted) {
-                              const { originalItem, changedItem } = this.state;
-                              this.setState({
-                                originalItem: {...originalItem, aggregated_concept_tags: tagList},
-                                changedItem: {...changedItem, aggregated_concept_tags: tagList}
-                              });
-                            }
-                          }}
-                        />
-                        <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('concept_tags') && !this.state.validate.concept_tags ? 'block' : 'none') }}>This is a required field</FormFeedback>
-                      </FormGroup>
-
-                      <FormGroup>
-                        <Label for="keyword_tags">Keyword Tag(s)</Label>
-                        <Tags
-                          className="keyword_tags"
-                          type="keyword"
-                          defaultValues={keywordTags}
-                          loadItemRekognitionTags={!keywordTags.length ? this.state.originalItem.s3_key : ''}
-                          callback={tags => {
-                            const tagList = tags ? tags.map(tag => ({id: tag.id, tag_name: tag.label})) : [];
-                            this.changeItem('keyword_tags', tags ? tags.map(tag => tag.id) : []);
-                            if (this._isMounted) {
-                              const { originalItem, changedItem } = this.state;
-                              this.setState({
-                                originalItem: {...originalItem, aggregated_keyword_tags: tagList},
-                                changedItem: {...changedItem, aggregated_keyword_tags: tagList}
-                              });
-                            }
-                          }}
-                        />
-                      </FormGroup>
-
-                      <FormGroup>
-                        <legend>Focus</legend>
                         {
-                          (item.focus_arts === null || item.focus_arts === '0') &&
-                          (item.focus_scitech === null || item.focus_scitech === '0') &&
-                          (item.focus_action === null || item.focus_action === '0') ?
-                            <FormFeedback style={{display: 'block'}}>You need to select at least one Focus area.</FormFeedback>
+                          item.item_subtype === itemImage.Sculpture ||
+                          item.item_subtype === itemImage.Drawing ||
+                          item.item_subtype === itemImage.Painting ? <this.ItemImageSculpturePaintingDrawing /> : <></>
+                        }
+
+                        {
+                          item.item_subtype === itemImage.Photograph ? <this.ItemImagePhotograph /> : <></>
+                        }
+
+                        {
+                          item.item_subtype === itemImage.Digital_Art ||
+                          (!!item.file && item.file.type === FileTypes.Image && item.item_subtype === itemImage.Other) ? <this.ItemDigitalArtOther />
                             : <></>
                         }
-                      </FormGroup>
-                      <FormGroup row className="my-0 align-items-center">
-                        <Label for={`${item.s3_key}_focus_arts`} sm="2">Art</Label>
-                        <Col sm="10">
-                          <CustomInput type="checkbox" id={`${item.s3_key}_focus_arts`} defaultChecked={item.focus_arts !== null && parseInt(item.focus_arts, 0) > 0} onChange={e => this.changeItem('focus_arts', e.target.checked ? '1' : '0')}/>
-                        </Col>
-                      </FormGroup>
-                      <FormGroup row className="my-0 align-items-center">
-                        <Label for={`${item.s3_key}_focus_scitech`} sm="2">Sci-Tech</Label>
-                        <Col sm="10">
-                          <CustomInput type="checkbox" id={`${item.s3_key}_focus_scitech`} defaultChecked={item.focus_scitech !== null && parseInt(item.focus_scitech, 0) > 0} onChange={e => this.changeItem('focus_scitech', !e.target.checked ? '0' : '1')}/>
-                        </Col>
-                      </FormGroup>
-                      <FormGroup row className="my-0 align-items-center">
-                        <Label for={`${item.s3_key}_focus_action`} sm="2">Action</Label>
-                        <Col sm="10">
-                          <CustomInput type="checkbox" id={`${item.s3_key}_focus_action`} defaultChecked={item.focus_action !== null && parseInt(item.focus_action, 0) > 0} onChange={e => this.changeItem('focus_action', !e.target.checked ? '0' : '1')}/>
-                        </Col>
-                      </FormGroup>
 
-                    </Col>
-                  </Row>
+                        {(!!item.file && item.file.type === FileTypes.Image) && item.item_subtype === itemImage.Research ? <this.ImageResearch /> : <></>}
+                        {item.item_subtype === itemImage.Graphics ? <this.ImageGraphics /> : <></>}
+                        {item.item_subtype === itemImage.Map ? <this.ImageMap /> : <></>}
+                        {item.item_subtype === itemImage.Film_Still ? <this.ImageFilmStill /> : <></>}
 
-                </TabPane>
-              </TabContent>
-            </Col>
-          </Row>
-        </Form>
-        <Modal isOpen={this.state.mapModalOpen} toggle={this.toggleMapModal} centered size="lg" scrollable className="fullwidth" backdrop>
-          <ModalBody>
-            <DraggableMap
-              topoJSON={this.state.topojson}
-              onChange={ geojson => {
-                if (this._isMounted) {
-                  this.setState(
-              {
-                      changedItem: {...this.state.changedItem, geojson},
-                      changedFields: {...this.state.changedFields, geojson},
-                      isDifferent: !isEqual(this.state.originalItem, this.state.changedItem)
-                    }
-                  );
-                }
-              }}
-            />
-          </ModalBody>
-          <ModalFooter>
-            <Button color="secondary" onClick={this.toggleMapModal}>Close</Button>
-          </ModalFooter>
-        </Modal>
-      </>
+                        {/* Item Audio */}
+                        {item.item_subtype === itemAudio.Field_Recording ? <this.AudioFieldRecording /> : <></>}
+                        {item.item_subtype === itemAudio.Sound_Art ? <this.AudioSoundArt /> : <></>}
+                        {item.item_subtype === itemAudio.Music ? <this.AudioMusic /> : <></>}
+                        {item.item_subtype === itemAudio.Podcast ? <this.AudioPodcast /> : <></>}
+                        {(!!item.file && item.file.type === FileTypes.Audio) && item.item_subtype === itemAudio.Lecture ? <this.AudioLecture /> : <></>}
+                        {(!!item.file && item.file.type === FileTypes.Audio) && item.item_subtype === itemAudio.Interview ? <this.AudioInterview /> : <></>}
+                        {item.item_subtype === itemAudio.Radio ? <this.AudioRadio /> : <></>}
+                        {item.item_subtype === itemAudio.Performance_Poetry ? <this.AudioPerformancePoetry /> : <></>}
+                        {(!!item.file && item.file.type === FileTypes.Audio) && item.item_subtype === itemAudio.Other ? <this.AudioOther /> : <></>}
+
+                        <FormGroup>
+                          <Label for="copyright_holder">Copyright Owner</Label>
+                          <Input type="text" className="copyright_holder" defaultValue={item.copyright_holder ? item.copyright_holder : ''} onChange={e => this.changeItem('copyright_holder', e.target.value)}/>
+                        </FormGroup>
+
+                        <FormGroup>
+                          <Label for="url">Original URL</Label>
+                          <Input
+                            type="url"
+                            className="url"
+                            defaultValue={item.url ? item.url : ''}
+                            invalid={this.state.validate.hasOwnProperty('url') && !this.state.validate.url}
+                            onChange={e => {
+                              const value = e.target.value;
+                              let valid = validateURL(value);
+                              if (!value) { valid = true; } // set valid to true for no content
+                              if (valid) { this.changeItem('url', value); } // if valid set the data in changedItem
+                              if (!this._isMounted) { return; }
+                              this.setState({ validate: { ...this.state.validate, url: valid } });
+                            }}
+                          />
+                          <FormFeedback>Not a valid URL</FormFeedback>
+                        </FormGroup>
+
+                        <FormGroup>
+                          <Label for="concept_tags">Concept Tag(s)</Label>
+                          <Tags
+                            className="concept_tags"
+                            type="concept"
+                            defaultValues={conceptTags}
+                            callback={tags => {
+                              const tagList = tags ? tags.map(tag => ({id: tag.id, tag_name: tag.label})) : [];
+                              this.validateLength('concept_tags', tags ? tags.map(tag => tag.id) : []);
+                              if (this._isMounted) {
+                                const { originalItem, changedItem } = this.state;
+                                this.setState({
+                                  originalItem: {...originalItem, aggregated_concept_tags: tagList},
+                                  changedItem: {...changedItem, aggregated_concept_tags: tagList}
+                                });
+                              }
+                            }}
+                          />
+                          <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('concept_tags') && !this.state.validate.concept_tags ? 'block' : 'none') }}>This is a required field</FormFeedback>
+                        </FormGroup>
+
+                        <FormGroup>
+                          <Label for="keyword_tags">Keyword Tag(s)</Label>
+                          <Tags
+                            className="keyword_tags"
+                            type="keyword"
+                            defaultValues={keywordTags}
+                            loadItemRekognitionTags={!keywordTags.length ? this.state.originalItem.s3_key : ''}
+                            callback={tags => {
+                              const tagList = tags ? tags.map(tag => ({id: tag.id, tag_name: tag.label})) : [];
+                              this.changeItem('keyword_tags', tags ? tags.map(tag => tag.id) : []);
+                              if (this._isMounted) {
+                                const { originalItem, changedItem } = this.state;
+                                this.setState({
+                                  originalItem: {...originalItem, aggregated_keyword_tags: tagList},
+                                  changedItem: {...changedItem, aggregated_keyword_tags: tagList}
+                                });
+                              }
+                            }}
+                          />
+                        </FormGroup>
+
+                        <FormGroup>
+                          <legend>Focus</legend>
+                          {
+                            (item.focus_arts === null || item.focus_arts === '0') &&
+                            (item.focus_scitech === null || item.focus_scitech === '0') &&
+                            (item.focus_action === null || item.focus_action === '0') ?
+                              <FormFeedback style={{display: 'block'}}>You need to select at least one Focus area.</FormFeedback>
+                              : <></>
+                          }
+                        </FormGroup>
+                        <FormGroup row className="my-0 align-items-center">
+                          <Label for={`${item.s3_key}_focus_arts`} sm="2">Art</Label>
+                          <Col sm="10">
+                            <CustomInput type="checkbox" id={`${item.s3_key}_focus_arts`} defaultChecked={item.focus_arts !== null && parseInt(item.focus_arts, 0) > 0} onChange={e => this.changeItem('focus_arts', e.target.checked ? '1' : '0')}/>
+                          </Col>
+                        </FormGroup>
+                        <FormGroup row className="my-0 align-items-center">
+                          <Label for={`${item.s3_key}_focus_scitech`} sm="2">Sci-Tech</Label>
+                          <Col sm="10">
+                            <CustomInput type="checkbox" id={`${item.s3_key}_focus_scitech`} defaultChecked={item.focus_scitech !== null && parseInt(item.focus_scitech, 0) > 0} onChange={e => this.changeItem('focus_scitech', !e.target.checked ? '0' : '1')}/>
+                          </Col>
+                        </FormGroup>
+                        <FormGroup row className="my-0 align-items-center">
+                          <Label for={`${item.s3_key}_focus_action`} sm="2">Action</Label>
+                          <Col sm="10">
+                            <CustomInput type="checkbox" id={`${item.s3_key}_focus_action`} defaultChecked={item.focus_action !== null && parseInt(item.focus_action, 0) > 0} onChange={e => this.changeItem('focus_action', !e.target.checked ? '0' : '1')}/>
+                          </Col>
+                        </FormGroup>
+
+                      </Col>
+                    </Row>
+
+                  </TabPane>
+                </TabContent>
+              </Col>
+            </Row>
+          </Form>
+          <Modal isOpen={this.state.mapModalOpen} toggle={this.toggleMapModal} centered size="lg" scrollable className="fullwidth" backdrop>
+            <ModalBody>
+              <DraggableMap
+                topoJSON={this.state.topojson}
+                onChange={ geojson => {
+                  if (this._isMounted) {
+                    this.setState(
+                {
+                        changedItem: {...this.state.changedItem, geojson},
+                        changedFields: {...this.state.changedFields, geojson},
+                        isDifferent: !isEqual(this.state.originalItem, this.state.changedItem)
+                      }
+                    );
+                  }
+                }}
+              />
+            </ModalBody>
+            <ModalFooter>
+              <Button color="secondary" onClick={this.toggleMapModal}>Close</Button>
+            </ModalFooter>
+          </Modal>
+        </>
     );
   }
 }
@@ -2661,4 +2666,66 @@ const mapStateToProps = (state: { profile: { details: Profile} }) => ({
   profileDetails: state.profile.details,
 });
 
-export const ItemEditor = connect(mapStateToProps, { modalToggle, getProfileDetails })(ItemEditorClass);
+export default connect(mapStateToProps, { modalToggle, getProfileDetails })(ItemEditorClass);
+
+interface WithCollapseProps extends Props {
+  isOpen?: boolean;
+}
+function withCollapse <P extends WithCollapseProps>(WrappedComponent: React.ComponentType<P>) {
+  interface WithCollapseState {
+    open: boolean;
+    hasLoaded: boolean;
+    item: Item;
+  }
+
+  return class CollapsedItemDisplay extends React.Component<P & WithCollapseProps, WithCollapseState> {
+    constructor(props: P) {
+      super(props);
+      this.state = {
+        open: !!props.isOpen,
+        hasLoaded: !!props.isOpen,
+        item: props.item
+      };
+    }
+    toggleCollapse = () => {
+      this.setState({ open: !this.state.open, hasLoaded: true });
+    }
+
+    onChangeCallback = onChangeResult => {
+      this.setState({ item: onChangeResult.item });
+
+      if (this.props.onChange && typeof this.props.onChange === 'function') {
+        this.props.onChange(onChangeResult);
+      }
+    }
+
+    render() {
+      return (
+        <>
+          <Row className="accordianCollapse">
+            <Col className="itemIcons" xs="1" onClick={this.toggleCollapse}>
+              {this.state.open ? <FaMinus /> : <FaPlus />}
+            </Col>
+            <Col className="title" onClick={this.toggleCollapse} xs="4" sm="5" >
+              {this.state.item.title ? this.state.item.title : 'Untitled'}
+            </Col>
+            <Col className="creators" onClick={this.toggleCollapse} xs="4">
+              {this.state.item.creators ? this.state.item.creators.join(', ') : <></>}
+            </Col>
+            <Col className="status" onClick={this.toggleCollapse}  xs="1">
+              {this.state.item.status ? <FaCheck color="green" size={25} /> : <FaTimes color="red" size={25} />}
+            </Col>
+            <Col className="removeButton" xs="1">
+              {this.props.children ? this.props.children : <></>}
+            </Col>
+            <Collapse isOpen={this.state.open}>
+              {this.state.hasLoaded ? <WrappedComponent {...this.props as P} onChange={this.onChangeCallback} /> : <></>}
+            </Collapse>
+          </Row>
+        </>
+      );
+    }
+  };
+}
+
+export const ItemEditorWithCollapse = connect(mapStateToProps, { modalToggle, getProfileDetails })(withCollapse(ItemEditorClass));
