@@ -2380,7 +2380,7 @@ class ItemEditorClass extends React.Component<Props, State> {
                         defaultValue={item.description ? item.description : ''}
                         onChange={e => this.validateLength('description', e.target.value)}
                         invalid={this.state.validate.hasOwnProperty('description') && !this.state.validate.description}
-                        maxLength={2048}
+                        maxLength={4096}
                       />
                       <FormFeedback>This is a required field</FormFeedback>
                     </FormGroup>
