@@ -18,6 +18,9 @@ jobs:
           name: Install npm
           command: npm install
       - run:
+          name: Node-SASS
+          command: npm rebuild node-sass
+      - run:
           name: Build
           command: npm run build
       - run:
