@@ -32,25 +32,13 @@ export const fetchContributedItemsForProfile = (uuid: string) => async (
 
   try {
     // TODO: this returns an array of collections
-    const { collections } = await API.get('tba21', 'collections', {
-      queryStringParameters: {
-        uuid
-      }
-    });
+    const { collections } = await queryByUuid(uuid);
+
     if (!!collections && collections.length) {
       Promise.all(
-        collections.map(async collection => {
-          const itemResponse = await API.get(
-            'tba21',
-            'collections/getItemsInCollection',
-            {
-              queryStringParameters: {
-                id: collection.id,
-                limit: 1000
-              }
-            }
-          );
 
+        collections.map(async collection => {
+          const itemResponse = await getItemsInCollection({ id: collection.id, limit: 1000 });
           return await loadMore(itemResponse.items);
         })
       ).then((collectionBundles: any[]) => {
@@ -94,12 +82,7 @@ export const fetchCollection = (id: string) => async (dispatch, getState) => {
     return prevState.viewCollection;
   } else {
     try {
-      var response;
-      if(uuid){
-        response = await queryByUuid(uuid);
-      }else{
-        response = await getById(id);
-      }
+      const response = await getById(id);
 
       const collection = removeTopology(response) as Collection[];
 

@@ -127,7 +127,7 @@ class ViewItem extends React.Component<Props, State> {
     return (
       <div id="item" className="container-fluid">
         <ErrorMessage message={this.props.errorMessage} />
-        {file && file.url &&
+        {file && file.url && (
           <Row className="file">
             {isAudio ? (
               <div className="w-100">

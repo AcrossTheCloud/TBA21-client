@@ -37,7 +37,6 @@ import ViewCollection from '../collection/ViewCollection';
 import ViewProfile from '../user/profile/ViewProfile';
 import { fetchProfile } from '../../actions/user/viewProfile';
 import { browser } from '../utils/browser';
-import { dateFromTimeYearProduced } from '../../actions/home';
 import { APITag } from '../metadata/Tags';
 
 import 'styles/components/search/searchConsole.scss';
