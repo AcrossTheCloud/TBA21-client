@@ -127,7 +127,7 @@ class ViewItem extends React.Component<Props, State> {
     return (
       <div id="item" className="container-fluid">
         <ErrorMessage message={this.props.errorMessage} />
-        {file && file.url ? (
+        {file && file.url &&
           <Row className="file">
             {isAudio ? (
               <div className="w-100">
@@ -145,8 +145,6 @@ class ViewItem extends React.Component<Props, State> {
               <FilePreview file={file} />
             )}
           </Row>
-        ) : (
-          <></>
         )}
         <Row>
           <Col xs="12" md="8" className="left border-right">
@@ -156,7 +154,7 @@ class ViewItem extends React.Component<Props, State> {
                 md={{ size: 8, order: 1 }}
                 className="creators"
               >
-                {creators ? creators.join(', ') : <></>}
+                {creators && creators.join(', ')}
               </Col>
               <Col
                 xs={{ size: 12, order: 1 }}
@@ -174,26 +172,22 @@ class ViewItem extends React.Component<Props, State> {
 
             <Row>
               <Col className="description">
-                {description ? (
+                {description && (
                   this.browser === 'ie6-11' ? (
                     description.split('\n').map((d, i) => <p key={i}>{d}</p>)
                   ) : (
                     description
                   )
-                ) : (
-                  <></>
                 )}
               </Col>
             </Row>
 
-            {!!id ? (
+            {!!id && (
               <Row>
                 <Col className="text-right">
                   <Share suffix={`view/${id}`} />
                 </Col>
               </Row>
-            ) : (
-              <></>
             )}
           </Col>
           <Col xs="12" md="4" className="right">
@@ -201,31 +195,21 @@ class ViewItem extends React.Component<Props, State> {
               <ItemDetails label="Date Produced" value={moment(time_produced).format('Do MMMM YYYY')} />
               : year_produced ? <ItemDetails label="Year Produced" value={year_produced} /> : <></>
             }
-            {!!venues && venues.length ?
-              <ItemDetails label={venues.length > 1 ? 'Publication Venue' : 'Publication Venues'} value={`${venues.join(', ')}`} />
-              : <></>
-            }
-            {!!exhibited_at && exhibited_at.length ?
+            {!!venues && venues.length && <ItemDetails label={venues.length > 1 ? 'Publication Venue' : 'Publication Venues'} value={`${venues.join(', ')}`} /> }
+            {!!exhibited_at && exhibited_at.length &&
               <ItemDetails label="Exhibited At" value={`${exhibited_at.join(', ')}`} />
-              : <></>
             }
-            {!!regions && regions.length ?
+            {!!regions && regions.length &&
               <ItemDetails label={regions.length > 1 ? 'Regions' : 'Region'} value={regions.map((region) => (Regions[region])).join(', ')} />
-            :
-              ''
             }
-            {directors && directors.length ? <ItemDetails label={directors.length > 1 ? 'Directors' : 'Director'} value={directors.join(', ')} /> : <></>}
-            {collaborators && collaborators.length ? <ItemDetails label={collaborators.length > 1 ? 'Collaborators' : 'Collaborator'} value={collaborators.join(', ')} /> : <></>}
+            {directors && directors.length && <ItemDetails label={directors.length > 1 ? 'Directors' : 'Director'} value={directors.join(', ')} />}
+            {collaborators && collaborators.length && <ItemDetails label={collaborators.length > 1 ? 'Collaborators' : 'Collaborator'} value={collaborators.join(', ')} />}
 
-            {!!language ? <ItemDetails label="Language" value={Languages[language]} /> : ''}
-            {!!license ? <ItemDetails label="License" value={license} /> : ''}
-            {!!copyright_holder ? (
-              <ItemDetails label="Copyright Owner" value={copyright_holder} />
-            ) : (
-              ''
-            )}
-            {!!medium ? <ItemDetails label="Medium" value={medium} /> : ''}
-            {!!url ? (
+            {!!language && <ItemDetails label="Language" value={Languages[language]} /> }
+            {!!license && <ItemDetails label="License" value={license} />}
+            {!!copyright_holder && <ItemDetails label="Copyright Owner" value={copyright_holder} />}
+            {!!medium && <ItemDetails label="Medium" value={medium} /> }
+            {!!url && (
               <ItemDetails
                 label="Link"
                 value={
@@ -233,30 +217,24 @@ class ViewItem extends React.Component<Props, State> {
                     Click here to view
                   </a>
                 }
-              />
-            ) : (
-              ''
-            )}
+              />)
+            }
 
-            {!!aggregated_concept_tags && aggregated_concept_tags.length ? (
+            {!!aggregated_concept_tags && aggregated_concept_tags.length && (
               <Row className="border-bottom subline details">
                 <Col xs="12">Concept Tags</Col>
                 <Col xs="12">
                   {aggregated_concept_tags.map(t => `#${t.tag_name} `)}
                 </Col>
               </Row>
-            ) : (
-              ''
             )}
-            {!!aggregated_keyword_tags && aggregated_keyword_tags.length ? (
+            {!!aggregated_keyword_tags && aggregated_keyword_tags.length && (
               <Row className="subline details">
                 <Col xs="12">Keyword Tags</Col>
                 <Col xs="12">
                   {aggregated_keyword_tags.map(t => `#${t.tag_name} `)}
                 </Col>
               </Row>
-            ) : (
-              ''
             )}
             <Row>
               <Col className="px-0">
