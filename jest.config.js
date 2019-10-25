@@ -9,6 +9,7 @@ module.exports = {
     '^.+\\.tsx?$': 'ts-jest',
     '^.+\\.js$': 'babel-jest'
   },
+  transformIgnorePatterns: ['<rootDir>/node_modules/?!(react-icons)'],
   testRegex: "(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$",
   moduleFileExtensions: [
     "ts",
