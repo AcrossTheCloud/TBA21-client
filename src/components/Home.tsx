@@ -145,7 +145,6 @@ class HomePage extends React.Component<Props, State> {
         _self.announcementsSlidesHeight = Math.max.apply(null, items.map(function () {
           return $(this).outerHeight();
         }).get());
-        console.log('Math.max.apply', _self.announcementsSlidesHeight);
       }
 
       items.css('min-height', _self.announcementsSlidesHeight + 'px');
