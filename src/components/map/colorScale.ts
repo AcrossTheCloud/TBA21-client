@@ -6,7 +6,7 @@ import chroma from 'chroma-js';
  * @param zLevel, zLevel number from the map feature.
  * @param domain an array of numbers, [0, 10, 100, 5000]
  */
-export function colourScale (zLevel: number, domain: number[] = [0, 10, 100, 5000]): { colour: string, outline: string } {
+export function colourScale (zLevel: number, domain: number[] = [0, 100, 1000, 2000, 3000, 4000, 5000]): { colour: string, outline: string } {
   const scale = chroma.scale(['#D5E3FF', '#003171']).domain(domain);
   const colour: string = scale(zLevel).hex();
   const outline: string = scale(zLevel).darken().hex();

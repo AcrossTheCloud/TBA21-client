@@ -42,4 +42,30 @@
       border: none !important;
     }
   }
+
+  .rangeSlider {
+    $bg: #434d5a;
+
+    .ui-slider,
+    .ui-slider .ui-slider-pip .ui-slider-line {
+      background: lighten($bg, 25%);
+    }
+
+    .ui-slider .ui-slider-handle .ui-slider-tip:after {
+      border-left-color: #434d5a;
+    }
+
+
+    .ui-slider .ui-slider-handle.ui-state-hover,
+    .ui-slider .ui-slider-handle.ui-state-focus,
+    .ui-slider .ui-slider-handle.ui-state-active { border-color: white; }
+  }
+
+  .logScalePopUp {
+    //.leaflet-popup-content-wrapper, .leaflet-popup-tip {
+    //  background: transparent;
+    //  color: #000;
+    //  box-shadow: none;
+    //}
+  }
 }
