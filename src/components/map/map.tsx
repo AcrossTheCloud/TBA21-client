@@ -112,12 +112,14 @@ class MapView extends React.Component<Props, State> {
         // If we have properties (we always should) set our custom tool tip.
         if (!!feature.properties) {
           const toolTip = `
-          <div>
-            <div class="title">
-              ${feature.properties.title}
+            <div>
+              <div class="title">
+                ${feature.properties.title}
+              </div>
+              
+              ${layer instanceof L.Marker ? `<div>Depth: ${layer.getLatLng().alt}</div>` : ''}
             </div>
-          </div>
-        `;
+          `;
 
           layer.bindTooltip(toolTip, {
             direction: 'top',
@@ -125,7 +127,7 @@ class MapView extends React.Component<Props, State> {
           });
         }
 
-        // Setup our layer events
+        // On click open the item or collection.
         layer.on({
           click: (x) => {
             const {
@@ -161,7 +163,6 @@ class MapView extends React.Component<Props, State> {
           // Set the polygons style based on the maximum altitude
           const maxZLevel = Math.max(...altitudes);
           this.polygonLayerStyle(maxZLevel, layer);
-
         }
       }
     });
