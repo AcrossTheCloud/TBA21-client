@@ -13,9 +13,6 @@ import { Map, TileLayer } from 'react-leaflet';
 import * as L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-import LeafletSearch from 'leaflet-search';
-import 'leaflet-search/dist/leaflet-search.min.css';
-
 import { fetchData, openModal } from 'actions/map/map';
 
 import 'animate.css/animate.min.css';
@@ -110,6 +107,7 @@ class MapView extends React.Component<Props, State> {
       // Each feature style it up
       onEachFeature: (feature: Feature<GeometryObject>, layer: L.Layer) => {
         // If we have properties (we always should) set our custom tool tip.
+        // If the layer is a Marker, add the depth (alt) to the tooltip.
         if (!!feature.properties) {
           const toolTip = `
             <div>
@@ -167,9 +165,6 @@ class MapView extends React.Component<Props, State> {
       }
     });
     this.topoLayer.addTo(map);
-
-    // Add search to the map.
-    this.map.leafletElement.addControl( new LeafletSearch({ layer: this.topoLayer }) );
   }
 
   componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>): void {
