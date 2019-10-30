@@ -6,22 +6,14 @@ export const MAP_FETCH_DATA = 'MAP_FETCH_DATA';
 export const MAP_FETCH_DATA_ERROR = 'MAP_FETCH_DATA_ERROR';
 
 // Modal
-export const openModal = (id: string, type: 'item' | 'collection') => async dispatch => {
+export const openModal = (id: string, metaType: 'item' | 'collection') => async dispatch => {
+  const type = metaType === 'collection' ? COLLECTION_MODAL_TOGGLE : ITEM_MODAL_TOGGLE;
 
-  if (type === 'collection') {
-    // We have a collection.
-    dispatch({
-      type: COLLECTION_MODAL_TOGGLE,
-      open: true,
-      data: { id }
-    });
-  } else {
-    dispatch({
-      type: ITEM_MODAL_TOGGLE,
-      open: true,
-      data: { id }
-    });
-  }
+  dispatch({
+     type,
+     open: true,
+     data: { id }
+   });
 };
 
 export const fetchData = (coords: {

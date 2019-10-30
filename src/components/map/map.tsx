@@ -151,9 +151,8 @@ class MapView extends React.Component<Props, State> {
             const toolTip = `<div>Depth: ${altitude}</div>`;
 
             vertexPin.feature = {
-              type: 'Feature',
+              ...feature,
               geometry: feature.geometry as Point,
-              properties: feature.properties
             };
 
             vertexPin.bindTooltip(toolTip, {
@@ -217,10 +216,12 @@ class MapView extends React.Component<Props, State> {
       click: (x) => {
         const {
           id,
-          metaType
+          metatype
         } = x.target.feature.properties;
 
-        this.props.openModal(id, metaType);
+        console.log('x.target', x.target);
+
+        this.props.openModal(id, metatype);
       }
     });
   }
