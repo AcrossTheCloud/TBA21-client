@@ -27,10 +27,8 @@ export default class Search {
 
         if (feature.properties && searchCriteria.concept_tag_ids && searchCriteria.concept_tag_ids.length) {
           if (feature.properties.aggregated_concept_tags.filter(a => searchCriteria.concept_tag_ids.indexOf(a.id) !== -1).length) {
-            console.log('Block');
             element.style.display = 'block';
           } else {
-            console.log('None');
             element.style.display = 'none';
           }
         }

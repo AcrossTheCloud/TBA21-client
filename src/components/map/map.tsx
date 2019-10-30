@@ -219,8 +219,6 @@ class MapView extends React.Component<Props, State> {
           metatype
         } = x.target.feature.properties;
 
-        console.log('x.target', x.target);
-
         this.props.openModal(id, metatype);
       }
     });
