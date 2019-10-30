@@ -5,6 +5,7 @@ import { Map, TileLayer } from 'react-leaflet';
 import * as L from 'leaflet';
 import '@geoman-io/leaflet-geoman-free';
 import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
+import './VerticalRangeSlider.scss';
 
 import { jellyFish } from 'components/map/icons';
 
@@ -12,6 +13,7 @@ import 'leaflet/dist/leaflet.css';
 import { Layer } from 'leaflet';
 import * as topojson from 'topojson-client';
 import { Feature, GeoJsonObject, GeometryObject } from 'geojson';
+import { colourScale } from '../../map/colorScale';
 
 interface State {
   position: L.LatLngExpression;
@@ -138,14 +140,15 @@ export default class DraggableMap extends React.Component<Props, State> {
 
   callback = () => {
     if (this.topoLayer && typeof this.props.onChange === 'function') {
+      console.log(this.topoLayer.toGeoJSON());
       this.props.onChange(this.topoLayer.toGeoJSON());
     }
   }
 
   layerEvents = (layer: Layer) => {
     layer.on({
-      'pm:edit': () => {
-        console.log('pm:edit');
+      'pm:edit': l => {
+        console.log('pm:edit', l);
         this.callback();
       },
       'pm:cut': () => {
@@ -160,38 +163,70 @@ export default class DraggableMap extends React.Component<Props, State> {
   }
 
   logScalePopUp = (workingLayer, marker, index?: number) => {
+    const div = document.createElement('div');
+    div.innerHTML = `<div>Depth :</div>`;
+
+    const sliderWrapper = document.createElement('div');
+    sliderWrapper.className = 'slider-wrapper';
+    const sliderInput = document.createElement('input');
+    sliderInput.id = 'range-slider';
+    sliderInput.className = 'fluid-slider';
+    sliderInput.type = 'range';
+    sliderInput.value = '0';
+    sliderInput.min = '0';
+    sliderInput.max = '10000';
+
+    const sliderLabel = document.createElement('span');
+    sliderLabel.id = 'range-label';
+    sliderLabel.className = 'range-label';
+
     const _self = this;
     let markerLatLng = marker._latlng; // the current vertex that we've added
 
-    const div = document.createElement('div');
-    div.innerHTML = '<div>Depth :</div>';
+    function sliderOnChange() {
+      const
+        sliderValue = sliderInput.value,
+        parsedSliderValue = parseInt(sliderValue, 0);
 
-    const select = document.createElement('select');
-    div.appendChild(select);
-
-    select.addEventListener('change', function() {
-      console.log('On change', this.value);
+      // Update the working layer's LatLng(s)
       if (typeof index === 'undefined') {
-        workingLayer = _self.addAltToLatLng(markerLatLng, parseInt(this.value, 0));
+        workingLayer.setLatLng(_self.addAltToLatLng(markerLatLng, parsedSliderValue));
       } else {
-        workingLayer._latlngs[index] = _self.addAltToLatLng(markerLatLng, parseInt(this.value, 0));
+        // Get all LatLngs and set the LatLngExpressions of the indexed one
+        const latlngs = workingLayer.getLatLngs();
+        latlngs[index] = _self.addAltToLatLng(markerLatLng, parsedSliderValue);
+        workingLayer.setLatLngs(latlngs);
       }
+      _self.callback();
 
-      console.log('workingLayer', workingLayer);
-    });
+      sliderLabel.innerHTML = sliderValue;
+      sliderLabel.style.backgroundColor = '#' + colourScale(parsedSliderValue).colour;
+      const labelPosition = (parseInt(sliderValue, 0) / parseInt(sliderInput.max, 0));
 
-    const createOption = (value: string, selected: boolean = false) => {
-      const option = document.createElement('option');
-      option.value = value;
-      option.innerHTML = value;
-      option.selected = selected;
-      select.appendChild(option);
-    };
+      if (sliderValue === sliderInput.min) {
+        sliderLabel.style.left = ((labelPosition * 100) + 2) + '%';
+      } else if (sliderValue === sliderInput.max) {
+        sliderLabel.style.left = ((labelPosition * 100) - 2) + '%';
+      } else {
+        sliderLabel.style.left = (labelPosition * 100) + '%';
+      }
+    }
 
-    // todo-dan replace with log scale
-    ['0', '100', '1000', '2000', '3000', '4000', '6000'].forEach(e => createOption(e));
+    const manualInput = document.createElement('input');
+    manualInput.type = 'number';
+    manualInput.value = '0';
+    manualInput.min = '0';
+    manualInput.max = '10000';
 
-    marker.bindPopup(div);
+    sliderInput.addEventListener('input', () => { manualInput.value = sliderInput.value; sliderOnChange(); }, true);
+    manualInput.addEventListener('input', () => { sliderInput.value = manualInput.value; sliderOnChange(); }, true);
+
+    sliderWrapper.append(sliderInput);
+    sliderWrapper.append(sliderLabel);
+    div.append(manualInput);
+    div.append(sliderWrapper);
+
+    marker.bindPopup(div, { 'className' : 'logScalePopUp' });
     marker.openPopup();
   }
 
