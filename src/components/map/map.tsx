@@ -6,7 +6,7 @@ import * as topojson from 'topojson-client';
 
 import { CSSTransition } from 'react-transition-group';
 
-import { Feature, GeoJsonObject, GeometryObject } from 'geojson';
+import { Feature, GeoJsonObject, GeometryObject, Point } from 'geojson';
 import { jellyFish, pin } from './icons';
 import { Map, TileLayer } from 'react-leaflet';
 
@@ -15,10 +15,13 @@ import 'leaflet/dist/leaflet.css';
 
 import { fetchData, openModal } from 'actions/map/map';
 
+import { legend } from './controls/legend';
+import Search from './controls/Search';
+import { colourScale } from './colorScale';
+
 import 'animate.css/animate.min.css';
 import 'styles/components/map/map.scss';
-import { legend } from './controls/legend';
-import { colourScale } from './colorScale';
+import { APITag } from '../metadata/Tags';
 
 interface Props {
   openModal: Function;
@@ -45,6 +48,8 @@ class MapView extends React.Component<Props, State> {
   loadedData: object[] = [];
   moveEndTimeout;
   _isMounted: boolean = false;
+  existingConceptTags: number[] = [];
+  searchControl;
 
   state = {
     lat: -34.4282514,
@@ -56,52 +61,56 @@ class MapView extends React.Component<Props, State> {
   componentDidMount(): void {
     this._isMounted = true;
     const map = this.map.leafletElement;
-    const self = this;
+    const _self = this;
 
     // Lets attempt to find the user.
     this.locateUser();
 
-    legend(this.map.leafletElement);
+    // Add the legend to the map
+    legend(map);
 
     // @ts-ignore
     // Leaflet extension for TopoJSON, we ignore this as TS has a spaz
-    L.TopoJSON = L.GeoJSON.extend(
-      {
-        // Overwrite the addData function.
-        addData: function(data: any) {  // tslint:disable-line: no-any
-          if (data.type === 'Topology') {
-            // When any data is added we need to get the geometries from the output
-            // We technically un-nest each "feature" (line string) out of the collection it comes in, this makes styling it a hell of a lot easier.
-            data.objects.output.geometries.forEach((geometryCollection, index: number) => {
-              if (geometryCollection && geometryCollection.geometries) {
-                geometryCollection.geometries.forEach((feature, featureIndex: number) => {
-                  // Add the properties to the feature, these are in the top level collection.
-                  Object.assign(feature, {properties: data.objects.output.geometries[index].properties});
+    L.TopoJSON = L.GeoJSON.extend( {
+      // Overwrite the addData function.
+      addData: function(data: any) {  // tslint:disable-line: no-any
+        if (data.type === 'Topology') {
+          // When any data is added we need to get the geometries from the output
+          // We technically un-nest each "feature" (line string) out of the collection it comes in, this makes styling it a hell of a lot easier.
+          data.objects.output.geometries.forEach((geometryCollection, index: number) => {
 
-                  // Convert the feature to geoJSON for leaflet
-                  const geojson = topojson.feature(data, feature);
+            if (geometryCollection && geometryCollection.geometries) {
 
-                  // If our loaded data array doesn't contain the feature, push it in
-                  if (findIndex(self.loadedData, geojson) === -1) {
-                    // Push out feature to an array so we can check if we've already loaded it (above)
-                    self.loadedData.push(geojson);
-
-                    // return the original extension call.
-                    L.GeoJSON.prototype.addData.call(this, geojson);
-                  }
-                });
+              if (geometryCollection.properties) {
+                _self.addTagsToSearch(geometryCollection.properties.aggregated_concept_tags);
               }
-            });
-          }
+
+              geometryCollection.geometries.forEach((feature, featureIndex: number) => {
+                // Add the properties to the feature, these are in the top level collection.
+                Object.assign(feature, {properties: geometryCollection.properties});
+
+                // Convert the feature to geoJSON for leaflet
+                const geojson = topojson.feature(data, feature);
+
+                // If our loaded data array doesn't contain the feature, push it in
+                if (findIndex(_self.loadedData, geojson) === -1) {
+                  // Push out feature to an array so we can check if we've already loaded it (above)
+                  _self.loadedData.push(geojson);
+
+                  // return the original extension call.
+                  L.GeoJSON.prototype.addData.call(this, geojson);
+                }
+              });
+            }
+          });
         }
       }
-    );
+    });
 
     // @ts-ignore
     this.topoLayer = new L.TopoJSON(null, {
       // Add our custom marker to points.
       pointToLayer: (feature: Feature<GeometryObject>, latlng: L.LatLng) => {
-        console.log(feature, latlng);
         return new L.Marker(latlng, {icon: jellyFish(latlng.alt)});
       },
       // Each feature style it up
@@ -125,17 +134,7 @@ class MapView extends React.Component<Props, State> {
           });
         }
 
-        // On click open the item or collection.
-        layer.on({
-          click: (x) => {
-            const {
-              id,
-              metaType
-            } = x.target.feature.properties;
-
-            this.props.openModal(id, metaType);
-          }
-        });
+        this.onClick(layer);
 
         if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
           const latlngs = flatMap(layer.getLatLngs()) as L.LatLng[];
@@ -151,11 +150,21 @@ class MapView extends React.Component<Props, State> {
             const vertexPin = new L.Marker(new L.LatLng(latLng.lat, latLng.lng, altitude), { icon: pin(altitude) });
             const toolTip = `<div>Depth: ${altitude}</div>`;
 
+            vertexPin.feature = {
+              type: 'Feature',
+              geometry: feature.geometry as Point,
+              properties: feature.properties
+            };
+
             vertexPin.bindTooltip(toolTip, {
               direction: 'top',
               offset: [0, -20] // dependant on the icon
             });
-            vertexPin.addTo(map);
+
+            // Adds openModal event to the vertex.
+            this.onClick(vertexPin);
+
+            vertexPin.addTo(this.topoLayer);
           });
 
           // Set the polygons style based on the maximum altitude
@@ -165,40 +174,84 @@ class MapView extends React.Component<Props, State> {
       }
     });
     this.topoLayer.addTo(map);
+
+    // Setup search controls
+    this.searchControl = new Search(map, this.topoLayer);
   }
 
   componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>): void {
     if (!isEqual(prevProps.data, this.props.data)) {
       this.topoLayer.addData(this.props.data);
+      Search.filterLayers(this.topoLayer, this.searchControl.searchCriteria);
     }
-  }
-
-  polygonLayerStyle = (zLevel: number, layer) => {
-    const colours = colourScale(zLevel, [0, 10000]);
-    layer.setStyle({
-      fillColor: colours.colour,
-      fillOpacity: 0.8,
-      color: colours.outline,
-      weight: 2,
-      opacity: 0.8,
-      fillRule: 'evenodd'
-    });
-    layer.on({
-      mouseover: function() {
-        this.bringToFront();
-        this.setStyle({ weight: 2, opacity: 1 });
-      },
-      mouseout: function() {
-        this.bringToBack();
-        this.setStyle({ weight: 1, opacity: .5 });
-      }
-     });
   }
 
   componentWillUnmount(): void {
     this._isMounted = false;
   }
 
+  /**
+   * Adds loaded concept tags from the topoJSON into the search component
+   * @param tags { APITag[] }
+   */
+  addTagsToSearch = (tags: APITag[]) => {
+    // Check that we don't have already existing tags by this name.
+    const conceptTags: APITag[] = [];
+    tags.forEach(tag => {
+      if (this.existingConceptTags.indexOf(tag.id) === -1) {
+        conceptTags.push(tag);
+        // Push the ids to an array so we can compare later.
+        this.existingConceptTags.push(tag.id);
+      }
+    });
+    this.searchControl.appendConceptTags(conceptTags);
+  }
+
+  /**
+   * Sets the onClick open Collection/Item event on the layer.
+   * @param layer { L.Layer }
+   */
+  onClick = (layer: L.Layer) => {
+    // On click open the item or collection.
+    layer.on({
+      click: (x) => {
+        const {
+          id,
+          metaType
+        } = x.target.feature.properties;
+
+        this.props.openModal(id, metaType);
+      }
+    });
+  }
+
+  /**
+   * Sets the style of the layer sent to it, this layer should be a polygon.
+   * Set's up mouse over/out styles
+   * @param zLevel { number }
+   * @param layer { L.Layer }
+   */
+  polygonLayerStyle = (zLevel: number, layer) => {
+    const colours = colourScale(zLevel);
+    layer.setStyle({
+       fillColor: colours.colour,
+       fillOpacity: 0.8,
+       color: colours.outline,
+       weight: 2,
+       opacity: 0.8,
+       fillRule: 'evenodd'
+     });
+    layer.on({
+       mouseover: function() {
+         this.bringToFront();
+         this.setStyle({ weight: 2, opacity: 1 });
+       },
+       mouseout: function() {
+         this.bringToBack();
+         this.setStyle({ weight: 1, opacity: .5 });
+       }
+     });
+  }
   /**
    * Use leaflet's locate method to locate the use and set the view to that location.
    */
@@ -234,7 +287,7 @@ class MapView extends React.Component<Props, State> {
    */
   checkZoom = (callback?: Function): boolean | void => {
     let zoomedOutTooFar = false;
-    if (this.map.leafletElement.getZoom() < 1) {
+    if (this.map.leafletElement.getZoom() < 5) {
       zoomedOutTooFar = true;
     }
 
@@ -273,6 +326,7 @@ class MapView extends React.Component<Props, State> {
           style={MapStyle}
           ref={map => this.map = map}
           onmoveend={this.moveEnd}
+          boxZoom={false}
         >
           <div className="zoomInBuddy">
             <CSSTransition

@@ -61,11 +61,16 @@
     .ui-slider .ui-slider-handle.ui-state-active { border-color: white; }
   }
 
-  .logScalePopUp {
-    //.leaflet-popup-content-wrapper, .leaflet-popup-tip {
-    //  background: transparent;
-    //  color: #000;
-    //  box-shadow: none;
-    //}
+  #searchControlContent {
+    position: absolute;
+    left: 35px;
+    top: 0;
+    background: #fff;
+    margin: 0;
+    width: 300px;
+    height: 300px;
+    border: 2px solid rgba(0,0,0,0.2);
+    overflow: hidden;
+    transition: height 1s, width 2s, border-width 1.5s;
   }
 }
