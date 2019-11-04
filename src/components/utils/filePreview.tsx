@@ -51,6 +51,15 @@ export const FilePreview = (props: { file: S3File }): JSX.Element => {
         </Col>
       );
 
+    case FileTypes.DownloadText:
+      return (
+        <Col className="px-0 image text-center">
+          <a href={props.file.url} target="_blank" rel="noopener noreferrer">
+            <img alt="" src={textImage} className="image-fluid"/>
+          </a>
+        </Col>
+      );
+
     default:
       return (
         <Col className="px-0 image text-center">
