@@ -215,11 +215,11 @@ export default class DraggableMap extends React.Component<Props, State> {
 
       // Update the working layer's LatLng(s)
       if (typeof index === 'undefined') {
-        workingLayer.setLatLng(_self.addAltToLatLng(markerLatLng, parsedSliderValue));
+        workingLayer.setLatLng(_self.addAltToLatLng(markerLatLng, -Math.abs(parsedSliderValue)));
       } else {
         // Get all LatLngs and set the LatLngExpressions of the indexed one
         const latlngs = workingLayer.getLatLngs();
-        latlngs[index] = _self.addAltToLatLng(markerLatLng, parsedSliderValue);
+        latlngs[index] = _self.addAltToLatLng(markerLatLng, -Math.abs(parsedSliderValue));
         workingLayer.setLatLngs(latlngs);
       }
       _self.callback();

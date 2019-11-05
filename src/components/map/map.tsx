@@ -134,18 +134,19 @@ class MapView extends React.Component<Props, State> {
                 _self.addTagsToSearch(geometryCollection.properties.aggregated_concept_tags);
               }
 
-              const id = geometryCollection.properties.id;
+              const featureId = geometryCollection.properties.id;
+              const id = typeof featureId === 'string' ? parseInt(featureId, 0) : 0;
               if (geometryCollection.properties.metatype === 'item') {
                 if (findIndex(_self.loadedItemIds, id) === -1) {
                   addData(geometryCollection.properties, geometryCollection);
                   // Push the feature to an array so we can check if we've already loaded it (above)
-                  _self.loadedItemIds.push(parseInt(id, 0));
+                  _self.loadedItemIds.push(id);
                 }
               } else if (geometryCollection.properties.metatype === 'collection') {
                 if (findIndex(_self.loadedCollectionIds, id) === -1) {
                   addData(geometryCollection.properties, geometryCollection);
                   // Push the feature to an array so we can check if we've already loaded it (above)
-                  _self.loadedCollectionIds.push(parseInt(id, 0));
+                  _self.loadedCollectionIds.push(id);
                 }
               }
             }
