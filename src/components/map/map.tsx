@@ -71,6 +71,7 @@ class MapView extends React.Component<Props, State> {
     this._isMounted = true;
 
     this.initialiseMap();
+    this.initialseMarkerCluster();
     this.mapMoveEnd();
 
     const map = this.map;
@@ -96,16 +97,19 @@ class MapView extends React.Component<Props, State> {
            */
           const addData = (properties, featureCollection) => {
             featureCollection.geometries.forEach((feature, featureIndex: number) => {
-              // Add tje geometry collection properties to this feature, as sub features don't have the collections properties.
-              Object.assign(feature, { properties });
 
               // If we're a point add it to the Marker Cluster Layer
               if (feature.type === 'Point') {
-                const markerLayer: L.Layer = new L.Marker(feature.coordinates, {icon: jellyFish()});
+                const markerLayer: L.Marker = L.marker(feature.coordinates, {icon: jellyFish(feature.coordinates[2])});
+                // Add the geometry collection properties to this feature, as sub features don't have the collections properties.
+                markerLayer.feature = { type: 'Feature', properties, geometry: feature.coordinates };
+                _self.layerTooltip(markerLayer.feature, markerLayer);
                 _self.markerClusterLayer.addLayer(markerLayer);
               } else {
                 // Convert the feature to geoJSON for leaflet
                 const geojson = topojson.feature(data, feature);
+                // Add the geometry collection properties to this feature, as sub features don't have the collections properties.
+                Object.assign(feature, { properties });
                 // return the original extension call.
                 L.GeoJSON.prototype.addData.call(this, geojson);
               }
@@ -150,25 +154,7 @@ class MapView extends React.Component<Props, State> {
       // },
       // Each feature style it up
       onEachFeature: (feature: Feature<GeometryObject>, layer: L.Layer) => {
-        // If we have properties (we always should) set our custom tool tip.
-        // If the layer is a Marker, add the depth (alt) to the tooltip.
-        if (!!feature.properties) {
-          const toolTip = `
-            <div>
-              <div class="title">
-                ${feature.properties.title}
-              </div>
-              
-              ${layer instanceof L.Marker ? `<div>Depth: ${layer.getLatLng().alt}</div>` : ''}
-            </div>
-          `;
-
-          layer.bindTooltip(toolTip, {
-            direction: 'top',
-            offset: [0, -38] // dependant on the icon
-          });
-        }
-
+        this.layerTooltip(feature, layer);
         this.onClick(layer);
 
         if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
@@ -235,25 +221,62 @@ class MapView extends React.Component<Props, State> {
       preferCanvas: true
     }).setView([this.state.lat, this.state.lng], 13);
 
-    // initialise marker cluster
-    this.markerClusterLayer = L.markerClusterGroup({
-       spiderfyOnMaxZoom: false,
-       showCoverageOnHover: false,
-       zoomToBoundsOnClick: false
-     });
-    this.map.addLayer(this.markerClusterLayer, {
-      chunkedLoading: true
-    });
-    this.markerClusterLayer.on('clusterclick', a => {
-      a.layer.zoomToBounds({padding: [20, 20]});
-    });
-
     L.tileLayer(tileLayerURL, {
       attribution: '',
       maxZoom: 18,
       id: mapID,
       accessToken: accessToken
     }).addTo(this.map);
+  }
+
+  /**
+   * Initialises the markerCluster layer and the events
+   */
+  initialseMarkerCluster = () => {
+    // initialise marker cluster
+    this.markerClusterLayer = L.markerClusterGroup({
+      spiderfyOnMaxZoom: false,
+      showCoverageOnHover: false,
+      zoomToBoundsOnClick: false
+    });
+    this.map.addLayer(this.markerClusterLayer, {
+      chunkedLoading: true
+    });
+
+    this.markerClusterLayer.on({
+      click: (x) => {
+        const {
+          id,
+          metatype
+        } = x.layer.feature.properties;
+
+        this.props.openModal(id, metatype);
+      },
+      clusterclick: a => {
+        a.layer.zoomToBounds({padding: [20, 20]});
+      }
+    });
+  }
+
+  layerTooltip(feature: Feature<GeometryObject>, layer: L.Layer) {
+      // If we have properties (we always should) set our custom tool tip.
+      // If the layer is a Marker, add the depth (alt) to the tooltip.
+      if (!!feature.properties) {
+        const toolTip = `
+            <div>
+              <div class="title">
+                ${feature.properties.title}
+              </div>
+              
+              ${layer instanceof L.Marker ? `<div>Depth: ${layer.getLatLng().alt}</div>` : ''}
+            </div>
+          `;
+
+        layer.bindTooltip(toolTip, {
+          direction: 'top',
+          offset: [0, -38] // dependant on the icon
+        });
+      }
   }
 
   /**
