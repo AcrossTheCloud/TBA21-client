@@ -54,6 +54,8 @@ class MapView extends React.Component<Props, State> {
   loadedItemIds: number[] = [];
   loadedCollectionIds: number[] = [];
 
+  points: L.Marker[] = [];
+
   moveEndTimeout;
   _isMounted: boolean = false;
   existingConceptTags: number[] = [];
@@ -70,7 +72,7 @@ class MapView extends React.Component<Props, State> {
     this._isMounted = true;
 
     this.initialiseMap();
-    this.initialseMarkerCluster();
+    this.initialiseMarkerCluster();
     this.mapMoveEnd();
 
     const map = this.map;
@@ -99,16 +101,24 @@ class MapView extends React.Component<Props, State> {
 
               // If we're a point add it to the Marker Cluster Layer
               if (feature.type === 'Point') {
-                const markerLayer: L.Marker = L.marker([feature.coordinates[1], feature.coordinates[0]], {icon: jellyFish(feature.coordinates[2])});
+                const latLng = new L.LatLng(feature.coordinates[1], feature.coordinates[0], feature.coordinates[2]);
+                const markerLayer: L.Marker = L.marker(latLng, {icon: jellyFish(feature.coordinates[2])});
                 // Add the geometry collection properties to this feature, as sub features don't have the collections properties.
                 markerLayer.feature = { type: 'Feature', properties, geometry: feature.coordinates };
                 _self.layerTooltip(markerLayer.feature, markerLayer);
-                _self.markerClusterLayer.addLayer(markerLayer);
+
+                if (map.getBounds().contains(latLng)) {
+                  if (Search.hasSearchTerm(markerLayer.feature, _self.searchControl.searchCriteria)) {
+                    _self.markerClusterLayer.addLayer(markerLayer);
+                  }
+                }
+
+                _self.points.push(markerLayer);
               } else {
-                // Convert the feature to geoJSON for leaflet
-                const geojson = topojson.feature(data, feature);
                 // Add the geometry collection properties to this feature, as sub features don't have the collections properties.
                 Object.assign(feature, { properties });
+                // Convert the feature to geoJSON for leaflet
+                const geojson = topojson.feature(data, feature);
                 // return the original extension call.
                 L.GeoJSON.prototype.addData.call(this, geojson);
               }
@@ -125,7 +135,6 @@ class MapView extends React.Component<Props, State> {
               }
 
               const id = geometryCollection.properties.id;
-              console.log('geometryCollection.properties.metatype', geometryCollection.properties.metatype);
               if (geometryCollection.properties.metatype === 'item') {
                 if (findIndex(_self.loadedItemIds, id) === -1) {
                   addData(geometryCollection.properties, geometryCollection);
@@ -195,13 +204,14 @@ class MapView extends React.Component<Props, State> {
     this.topoLayer.addTo(map);
 
     // Setup search controls
-    this.searchControl = new Search(map, this.topoLayer);
+    this.searchControl = new Search(map, this.searchOnChange);
   }
 
   componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>): void {
     if (!isEqual(prevProps.data, this.props.data)) {
       this.topoLayer.addData(this.props.data);
-      Search.filterLayers(this.topoLayer, this.searchControl.searchCriteria);
+      Search.filterLayer(this.topoLayer, this.searchControl.searchCriteria);
+      Search.filterMarkerCluster(this.markerClusterLayer, this.points, this.searchControl.searchCriteria);
     }
   }
 
@@ -209,6 +219,9 @@ class MapView extends React.Component<Props, State> {
     this._isMounted = false;
   }
 
+  /**
+   * Sets up the leaflet map and tile layer
+   */
   initialiseMap = () => {
     const
       mapID: string = 'mapbox.outdoors',
@@ -231,7 +244,7 @@ class MapView extends React.Component<Props, State> {
   /**
    * Initialises the markerCluster layer and the events
    */
-  initialseMarkerCluster = () => {
+  initialiseMarkerCluster = () => {
     // initialise marker cluster
     this.markerClusterLayer = L.markerClusterGroup({
       spiderfyOnMaxZoom: false,
@@ -257,6 +270,11 @@ class MapView extends React.Component<Props, State> {
     });
   }
 
+  /**
+   * Binds the tool tip to the layer.
+   * @param feature
+   * @param layer
+   */
   layerTooltip(feature: Feature<GeometryObject>, layer: L.Layer) {
       // If we have properties (we always should) set our custom tool tip.
       // If the layer is a Marker, add the depth (alt) to the tooltip.
@@ -293,6 +311,14 @@ class MapView extends React.Component<Props, State> {
       }
     });
     this.searchControl.appendConceptTags(conceptTags);
+  }
+
+  /**
+   * When a user selects something in the search control we run these passing in our data and layers
+   */
+  searchOnChange = () => {
+    Search.filterLayer(this.topoLayer, this.searchControl.searchCriteria);
+    Search.filterMarkerCluster(this.markerClusterLayer, this.points , this.searchControl.searchCriteria);
   }
 
   /**
@@ -358,7 +384,6 @@ class MapView extends React.Component<Props, State> {
   }
 
   getUserBounds = () => {
-    console.log(this.map.getBounds().toBBoxString());
     const
       mapBounds = this.map.getBounds(),
       southWest = mapBounds._southWest,
