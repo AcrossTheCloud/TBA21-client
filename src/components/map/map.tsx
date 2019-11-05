@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { isEqual, findIndex, flatMap } from 'lodash';
+import { isEqual, flatMap, findIndex } from 'lodash';
 
 import * as topojson from 'topojson-client';
 
@@ -8,20 +8,24 @@ import { CSSTransition } from 'react-transition-group';
 
 import { Feature, GeoJsonObject, GeometryObject, Point } from 'geojson';
 import { jellyFish, pin } from './icons';
-import { Map, TileLayer } from 'react-leaflet';
 
 import * as L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-import { fetchData, openModal } from 'actions/map/map';
+import { APITag } from '../metadata/Tags';
 
+import { fetchData, openModal } from 'actions/map/map';
 import { legend } from './controls/legend';
 import Search from './controls/Search';
-import { colourScale } from './colorScale';
 
+import { colourScale } from './colorScale';
 import 'animate.css/animate.min.css';
 import 'styles/components/map/map.scss';
-import { APITag } from '../metadata/Tags';
+
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
+import 'leaflet.markercluster/dist/leaflet.markercluster';
+
+// import '';
 
 interface Props {
   openModal: Function;
@@ -44,8 +48,13 @@ const MapStyle = {
 
 class MapView extends React.Component<Props, State> {
   map;
+  markerClusterLayer;
   topoLayer;
+
   loadedData: object[] = [];
+  loadedItemIds: number[] = [];
+  loadedCollectionIds: number[] = [];
+
   moveEndTimeout;
   _isMounted: boolean = false;
   existingConceptTags: number[] = [];
@@ -60,7 +69,11 @@ class MapView extends React.Component<Props, State> {
 
   componentDidMount(): void {
     this._isMounted = true;
-    const map = this.map.leafletElement;
+
+    this.initialiseMap();
+    this.mapMoveEnd();
+
+    const map = this.map;
     const _self = this;
 
     // Lets attempt to find the user.
@@ -75,32 +88,54 @@ class MapView extends React.Component<Props, State> {
       // Overwrite the addData function.
       addData: function(data: any) {  // tslint:disable-line: no-any
         if (data.type === 'Topology') {
-          // When any data is added we need to get the geometries from the output
-          // We technically un-nest each "feature" (line string) out of the collection it comes in, this makes styling it a hell of a lot easier.
-          data.objects.output.geometries.forEach((geometryCollection, index: number) => {
 
+          /**
+           * Adds the properties to the geo data and either pushes it to Marker Cluster if it's a point or calls L.GeoJSON's add data.
+           * @param properties { object }
+           * @param featureCollection { FeatureCollection }
+           */
+          const addData = (properties, featureCollection) => {
+            featureCollection.geometries.forEach((feature, featureIndex: number) => {
+              // Add tje geometry collection properties to this feature, as sub features don't have the collections properties.
+              Object.assign(feature, { properties });
+
+              // If we're a point add it to the Marker Cluster Layer
+              if (feature.type === 'Point') {
+                const markerLayer: L.Layer = new L.Marker(feature.coordinates, {icon: jellyFish()});
+                _self.markerClusterLayer.addLayer(markerLayer);
+              } else {
+                // Convert the feature to geoJSON for leaflet
+                const geojson = topojson.feature(data, feature);
+                // return the original extension call.
+                L.GeoJSON.prototype.addData.call(this, geojson);
+              }
+            });
+          };
+
+          // When any data is added we need to get the geometries from the output
+          // We technically un-nest each "feature" (line string etc) out of the collection it comes in.
+          data.objects.output.geometries.forEach((geometryCollection, index: number) => {
             if (geometryCollection && geometryCollection.geometries) {
 
               if (geometryCollection.properties) {
                 _self.addTagsToSearch(geometryCollection.properties.aggregated_concept_tags);
               }
 
-              geometryCollection.geometries.forEach((feature, featureIndex: number) => {
-                // Add the properties to the feature, these are in the top level collection.
-                Object.assign(feature, {properties: geometryCollection.properties});
-
-                // Convert the feature to geoJSON for leaflet
-                const geojson = topojson.feature(data, feature);
-
-                // If our loaded data array doesn't contain the feature, push it in
-                if (findIndex(_self.loadedData, geojson) === -1) {
-                  // Push out feature to an array so we can check if we've already loaded it (above)
-                  _self.loadedData.push(geojson);
-
-                  // return the original extension call.
-                  L.GeoJSON.prototype.addData.call(this, geojson);
+              const id = geometryCollection.properties.id;
+              console.log('geometryCollection.properties.metatype', geometryCollection.properties.metatype);
+              if (geometryCollection.properties.metatype === 'item') {
+                if (findIndex(_self.loadedItemIds, id) === -1) {
+                  addData(geometryCollection.properties, geometryCollection);
+                  // Push the feature to an array so we can check if we've already loaded it (above)
+                  _self.loadedItemIds.push(parseInt(id, 0));
                 }
-              });
+              } else if (geometryCollection.properties.metatype === 'collection') {
+                if (findIndex(_self.loadedCollectionIds, id) === -1) {
+                  addData(geometryCollection.properties, geometryCollection);
+                  // Push the feature to an array so we can check if we've already loaded it (above)
+                  _self.loadedCollectionIds.push(parseInt(id, 0));
+                }
+              }
             }
           });
         }
@@ -110,9 +145,9 @@ class MapView extends React.Component<Props, State> {
     // @ts-ignore
     this.topoLayer = new L.TopoJSON(null, {
       // Add our custom marker to points.
-      pointToLayer: (feature: Feature<GeometryObject>, latlng: L.LatLng) => {
-        return new L.Marker(latlng, {icon: jellyFish(latlng.alt)});
-      },
+      // pointToLayer: (feature: Feature<GeometryObject>, latlng: L.LatLng) => {
+      //   return false;
+      // },
       // Each feature style it up
       onEachFeature: (feature: Feature<GeometryObject>, layer: L.Layer) => {
         // If we have properties (we always should) set our custom tool tip.
@@ -189,6 +224,38 @@ class MapView extends React.Component<Props, State> {
     this._isMounted = false;
   }
 
+  initialiseMap = () => {
+    const
+      mapID: string = 'mapbox.outdoors',
+      accessToken: string = 'pk.eyJ1IjoiYWNyb3NzdGhlY2xvdWQiLCJhIjoiY2ppNnQzNG9nMDRiMDNscDh6Zm1mb3dzNyJ9.nFFwx_YtN04_zs-8uvZKZQ',
+      tileLayerURL: string = 'https://api.tiles.mapbox.com/v4/' + mapID + '/{z}/{x}/{y}.png?access_token=' + accessToken;
+
+    this.map = L.map('oa_map', {
+      maxZoom: 18,
+      preferCanvas: true
+    }).setView([this.state.lat, this.state.lng], 13);
+
+    // initialise marker cluster
+    this.markerClusterLayer = L.markerClusterGroup({
+       spiderfyOnMaxZoom: false,
+       showCoverageOnHover: false,
+       zoomToBoundsOnClick: false
+     });
+    this.map.addLayer(this.markerClusterLayer, {
+      chunkedLoading: true
+    });
+    this.markerClusterLayer.on('clusterclick', a => {
+      a.layer.zoomToBounds({padding: [20, 20]});
+    });
+
+    L.tileLayer(tileLayerURL, {
+      attribution: '',
+      maxZoom: 18,
+      id: mapID,
+      accessToken: accessToken
+    }).addTo(this.map);
+  }
+
   /**
    * Adds loaded concept tags from the topoJSON into the search component
    * @param tags { APITag[] }
@@ -255,20 +322,22 @@ class MapView extends React.Component<Props, State> {
    * Use leaflet's locate method to locate the use and set the view to that location.
    */
   locateUser = () => {
-    this.map.leafletElement.locate()
-      .on('locationfound', (location: L.LocationEvent) => {
-        this.map.leafletElement.flyTo(location.latlng, 10);
-      })
-      .on('locationerror', () => {
-        // Fly to a default location if the user declines our request to get their GPS location or if we had trouble getting said location.
-        // Ideally the map would already be in this location anyway.
-        this.map.leafletElement.flyTo([this.state.lat, this.state.lng], 10);
-      });
+    if (this.map) {
+      this.map.locate()
+        .on('locationfound', (location: L.LocationEvent) => {
+          this.map.flyTo(location.latlng, 10);
+        })
+        .on('locationerror', () => {
+          // Fly to a default location if the user declines our request to get their GPS location or if we had trouble getting said location.
+          // Ideally the map would already be in this location anyway.
+          this.map.flyTo([this.state.lat, this.state.lng], 10);
+        });
+    }
   }
 
   getUserBounds = () => {
     const
-      mapBounds = this.map.leafletElement.getBounds(),
+      mapBounds = this.map.getBounds(),
       southWest = mapBounds._southWest,
       northEast = mapBounds._northEast;
 
@@ -286,7 +355,7 @@ class MapView extends React.Component<Props, State> {
    */
   checkZoom = (callback?: Function): boolean | void => {
     let zoomedOutTooFar = false;
-    if (this.map.leafletElement.getZoom() < 5) {
+    if (this.map.getZoom() <= -1) {
       zoomedOutTooFar = true;
     }
 
@@ -301,52 +370,44 @@ class MapView extends React.Component<Props, State> {
    * If we've stopped moving wait 1 second then get more markers.
    *
    */
-  moveEnd = () => {
-    clearTimeout(this.moveEndTimeout);
+  mapMoveEnd = () => {
+    if (this.map) {
+      this.map.on('moveend', () => {
+        clearTimeout(this.moveEndTimeout);
 
-    const zoomedOutTooFar = this.checkZoom();
-    if (zoomedOutTooFar) { return; }
+        const zoomedOutTooFar = this.checkZoom();
+        if (zoomedOutTooFar) { return; }
 
-    this.moveEndTimeout = setTimeout( () => this.props.fetchData(this.getUserBounds()), 1000);
+        this.moveEndTimeout = setTimeout( () => this.props.fetchData(this.getUserBounds(), this.loadedItemIds, this.loadedCollectionIds), 1000);
+      });
+    }
   }
 
   render() {
-    const
-      position: [number, number] = [this.state.lat, this.state.lng],
-      mapID: string = 'mapbox.outdoors',
-      accessToken: string = 'pk.eyJ1IjoiYWNyb3NzdGhlY2xvdWQiLCJhIjoiY2ppNnQzNG9nMDRiMDNscDh6Zm1mb3dzNyJ9.nFFwx_YtN04_zs-8uvZKZQ',
-      tileLayer: string = 'https://api.tiles.mapbox.com/v4/' + mapID + '/{z}/{x}/{y}.png?access_token=' + accessToken;
-
     return (
       <div className="mapWrapper">
-        <Map
-          center={position}
-          zoom={this.state.zoom}
+        <div
+          id="oa_map"
           style={MapStyle}
-          ref={map => this.map = map}
-          onmoveend={this.moveEnd}
-          boxZoom={false}
-        >
-          <div className="zoomInBuddy">
-            <CSSTransition
-              in={this.state.zoomedOutTooFar}
-              timeout={3000}
-              appear={true}
-              classNames={
-                {
-                  enter: 'show animated',
-                  enterActive: 'show bounceIn',
-                  enterDone: 'show op',
-                  exit: 'show animated op',
-                  exitActive: 'show bounceOut',
-                }
+        />
+        <div className="zoomInBuddy">
+          <CSSTransition
+            in={this.state.zoomedOutTooFar}
+            timeout={3000}
+            appear={true}
+            classNames={
+              {
+                enter: 'show animated',
+                enterActive: 'show bounceIn',
+                enterDone: 'show op',
+                exit: 'show animated op',
+                exitActive: 'show bounceOut',
               }
-            >
-              <div>You need to zoom in a bit further to load more data.</div>
-            </CSSTransition>
-          </div>
-          <TileLayer url={tileLayer} />
-        </Map>
+            }
+          >
+            <div>You need to zoom in a bit further to load more data.</div>
+          </CSSTransition>
+        </div>
       </div>
     );
   }

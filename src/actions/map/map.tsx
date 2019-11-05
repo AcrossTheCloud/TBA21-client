@@ -21,7 +21,7 @@ export const fetchData = (coords: {
   lat_sw: number,
   lng_ne: number,
   lng_sw: number
-}) => async dispatch => {
+}, itemids: number[], collectionids: number[]) => async dispatch => {
   try {
     const {
       lat_sw,
@@ -31,15 +31,15 @@ export const fetchData = (coords: {
       lng_ne
     } = coords;
 
-    const items = await API.get('tba21', 'map', {
-      queryStringParameters: { lat_sw, lat_ne, lng_sw, lng_ne, type: 'item' }
+    const items = await API.post('tba21', 'map', {
+      body: { lat_sw, lat_ne, lng_sw, lng_ne, type: 'item', itemids: itemids ? itemids : [] }
     });
 
     if (items && items.data) {
       dispatch({ type: MAP_FETCH_DATA, data: items.data });
     }
-    const collections = await API.get('tba21', 'map', {
-      queryStringParameters: { lat_sw, lat_ne, lng_sw, lng_ne, type: 'collection' }
+    const collections = await API.post('tba21', 'map', {
+      body: { lat_sw, lat_ne, lng_sw, lng_ne, type: 'collection', collectionids: collectionids ? collectionids : [] }
     });
 
     if (collections && collections.data) {
