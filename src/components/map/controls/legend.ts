@@ -2,11 +2,14 @@ import * as L from 'leaflet';
 import chroma from 'chroma-js';
 import { colourScale } from '../colorScale';
 
+/**
+ * Adds the legend to the map and set's the colour scale.
+ * @param map { L.Map }
+ */
 export function legend(map: L.Map) {
   const control = new L.Control({ position: 'bottomright' });
 
   control.onAdd = function () {
-
     const
       div = L.DomUtil.create('div', 'info legend'),
       grades = [0, 100, 1000, 2000, 3000, 4000, 5000];
