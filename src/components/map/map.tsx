@@ -41,7 +41,7 @@ interface State {
 
   zoomedOutTooFar: boolean;
 }
-const MapStyle = {
+const mapStyle = {
   width: '100%',
   height: '100%'
 };
@@ -51,7 +51,6 @@ class MapView extends React.Component<Props, State> {
   markerClusterLayer;
   topoLayer;
 
-  loadedData: object[] = [];
   loadedItemIds: number[] = [];
   loadedCollectionIds: number[] = [];
 
@@ -100,7 +99,7 @@ class MapView extends React.Component<Props, State> {
 
               // If we're a point add it to the Marker Cluster Layer
               if (feature.type === 'Point') {
-                const markerLayer: L.Marker = L.marker(feature.coordinates, {icon: jellyFish(feature.coordinates[2])});
+                const markerLayer: L.Marker = L.marker([feature.coordinates[1], feature.coordinates[0]], {icon: jellyFish(feature.coordinates[2])});
                 // Add the geometry collection properties to this feature, as sub features don't have the collections properties.
                 markerLayer.feature = { type: 'Feature', properties, geometry: feature.coordinates };
                 _self.layerTooltip(markerLayer.feature, markerLayer);
@@ -359,6 +358,7 @@ class MapView extends React.Component<Props, State> {
   }
 
   getUserBounds = () => {
+    console.log(this.map.getBounds().toBBoxString());
     const
       mapBounds = this.map.getBounds(),
       southWest = mapBounds._southWest,
@@ -411,7 +411,7 @@ class MapView extends React.Component<Props, State> {
       <div className="mapWrapper">
         <div
           id="oa_map"
-          style={MapStyle}
+          style={mapStyle}
         />
         <div className="zoomInBuddy">
           <CSSTransition

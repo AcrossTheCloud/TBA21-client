@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { Container, Row, Col, Input, InputGroup, InputGroupAddon } from 'reactstrap';
 import { isEqual } from 'lodash';
-import { Map, TileLayer } from 'react-leaflet';
 import * as L from 'leaflet';
 import '@geoman-io/leaflet-geoman-free';
 import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
@@ -27,6 +26,11 @@ interface Props {
   onChange?: Function;
   collectionItems?: GeoJsonObject;
 }
+
+const mapStyle = {
+  width: '100%',
+  height: '100%'
+};
 
 export default class DraggableMap extends React.Component<Props, State> {
   _isMounted;
@@ -54,7 +58,8 @@ export default class DraggableMap extends React.Component<Props, State> {
 
   componentDidMount(): void {
     this._isMounted = true;
-    if (this.map && this.map.leafletElement) {
+    this.initialiseMap();
+    if (this.map) {
       this.locateUser();
       this.addLeafletGeoMan();
       this.topoLayer = this.setupTopoLayer();
@@ -87,8 +92,27 @@ export default class DraggableMap extends React.Component<Props, State> {
 
   }
 
+  initialiseMap = () => {
+    const
+      mapID: string = 'mapbox.outdoors',
+      accessToken: string = 'pk.eyJ1IjoiYWNyb3NzdGhlY2xvdWQiLCJhIjoiY2ppNnQzNG9nMDRiMDNscDh6Zm1mb3dzNyJ9.nFFwx_YtN04_zs-8uvZKZQ',
+      tileLayerURL: string = 'https://api.tiles.mapbox.com/v4/' + mapID + '/{z}/{x}/{y}.png?access_token=' + accessToken;
+
+    this.map = L.map('oa_map', {
+      maxZoom: 18,
+      preferCanvas: true
+    }).setView([this.state.inputLat, this.state.inputLng], 13);
+
+    L.tileLayer(tileLayerURL, {
+      attribution: '',
+      maxZoom: 18,
+      id: mapID,
+      accessToken: accessToken
+    }).addTo(this.map);
+  }
+
   setupTopoLayer = (isIgnored: boolean = false): L.GeoJSON => {
-    const map = this.map.leafletElement;
+    const map = this.map;
     const jellyFishIcon = jellyFish();
     let mapLayer = !isIgnored ? this.topoLayer : this.ignoredTopoLayer;
 
@@ -106,6 +130,7 @@ export default class DraggableMap extends React.Component<Props, State> {
 
     // @ts-ignore
     mapLayer = new L.TopoJSON(null, options);
+
     mapLayer.addTo(map);
 
     return mapLayer;
@@ -231,7 +256,7 @@ export default class DraggableMap extends React.Component<Props, State> {
   }
 
   mapEvents = () => {
-    const map = this.map.leafletElement;
+    const map = this.map;
 
     // listen to vertexes being added to currently drawn layer (called workingLayer)
     map.on('pm:drawstart', w => {
@@ -274,7 +299,7 @@ export default class DraggableMap extends React.Component<Props, State> {
    * Add controls from leaflet geoman, leaflet.pm
    */
   addLeafletGeoMan = () => {
-    const map = this.map.leafletElement;
+    const map = this.map;
     map.pm.addControls(
       {
         drawCircle: false,
@@ -295,7 +320,7 @@ export default class DraggableMap extends React.Component<Props, State> {
   }
 
   latInputChange = () => {
-    const map = this.map.leafletElement;
+    const map = this.map;
     if (map !== null) {
       this.setState({ inputLat: this.latInputRef.value }, () => {
         map.flyTo({ lat: this.state.inputLat, lng: this.state.inputLng });
@@ -303,7 +328,7 @@ export default class DraggableMap extends React.Component<Props, State> {
     }
   }
   lngInputChange = () => {
-    const map = this.map.leafletElement;
+    const map = this.map;
     if (map !== null) {
       this.setState({ inputLng: this.lngInputRef.value }, () => {
         map.flyTo({ lat: this.state.inputLat, lng: this.state.inputLng });
@@ -316,10 +341,10 @@ export default class DraggableMap extends React.Component<Props, State> {
    */
   locateUser = (): void => {
     const map = this.map;
-    map.leafletElement.locate()
+    map.locate()
       .on('locationfound', (location: L.LocationEvent) => {
         if (location && location.latlng) {
-          map.leafletElement.flyTo(location.latlng, 10);
+          map.flyTo(location.latlng, 10);
           // Set the input fields
           this.latInputRef.value = location.latlng.lat;
           this.lngInputRef.value = location.latlng.lng;
@@ -335,16 +360,6 @@ export default class DraggableMap extends React.Component<Props, State> {
   }
 
   render(): React.ReactNode {
-    const
-      mapID: string = 'mapbox.outdoors',
-      accessToken: string = 'pk.eyJ1IjoiYWNyb3NzdGhlY2xvdWQiLCJhIjoiY2ppNnQzNG9nMDRiMDNscDh6Zm1mb3dzNyJ9.nFFwx_YtN04_zs-8uvZKZQ',
-      tileLayer: string = 'https://api.tiles.mapbox.com/v4/' + mapID + '/{z}/{x}/{y}.png?access_token=' + accessToken,
-
-      mapStyle = {
-        height: '100%',
-        minHeight: '400px'
-      };
-
     return (
       <div id="draggableMap" className="h-100">
         <Container>
@@ -365,14 +380,10 @@ export default class DraggableMap extends React.Component<Props, State> {
         </Container>
 
         <div className="mapWrapper">
-          <Map
-            center={this.state.position}
-            zoom={this.state.zoom}
+          <div
+            id="oa_map"
             style={mapStyle}
-            ref={map => this.map = map}
-          >
-            <TileLayer url={tileLayer} />
-          </Map>
+          />
         </div>
       </div>
     );
