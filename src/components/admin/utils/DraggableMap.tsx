@@ -13,8 +13,14 @@ import { Layer } from 'leaflet';
 import * as topojson from 'topojson-client';
 import { Feature, GeoJsonObject, GeometryObject } from 'geojson';
 import { colourScale } from '../../map/colorScale';
+import Dropzone from 'react-dropzone';
+import { Alerts, ErrorMessage } from '../../utils/alerts';
 
-interface State {
+import 'styles/components/_dropzone.scss';
+
+const toGeoJSON = require('@mapbox/togeojson');
+
+interface State extends Alerts {
   position: L.LatLngExpression;
   zoom: number;
   inputLat: number;
@@ -157,6 +163,9 @@ export default class DraggableMap extends React.Component<Props, State> {
                 });
               }
             });
+          } else {
+            // We're sending through just GeoJSON data not Topo, Leaflet lovesss it so we don't need to do anything.
+            L.GeoJSON.prototype.addData.call(this, data);
           }
         }
       }
@@ -359,10 +368,64 @@ export default class DraggableMap extends React.Component<Props, State> {
       });
   }
 
+  fileUpload = async (acceptedFiles: Array<any>, rejectedFiles: any) => {  // tslint:disable-line:no-any
+    const fileContents = (file: File, callback: Function) => {
+      const reader = new FileReader();
+      reader.onload = function () {
+        if (this.result && typeof this.result === 'string') {
+          const parsed = (new DOMParser()).parseFromString(this.result, 'text/xml');
+          callback(parsed);
+        }
+      };
+      reader.readAsText(file);
+    };
+
+    const addLayerAndFlyTo = geoJSON => {
+      this.topoLayer.addData(geoJSON);
+
+      this.map.fitWorld();
+    };
+
+    for (const file of acceptedFiles) {
+      let fileType = file.name.includes('.kml') ? 'kml' : file.name.includes('.gpx') ? 'gpx' : null;
+
+      if (fileType !== null) {
+        fileContents(file, result => {
+          try {
+            const geoJSON = fileType === 'kml' ? toGeoJSON.kml(result) : toGeoJSON.gpx(result);
+            if (geoJSON) {
+              addLayerAndFlyTo(geoJSON);
+            }
+          } catch (e) {
+            console.log(e);
+            this.setState({ errorMessage: `Looks like we've had an issue with your ${fileType === 'kml' ? 'KML' : 'GPX'} file.`});
+          }
+        });
+      }
+    }
+  }
+
   render(): React.ReactNode {
     return (
       <div id="draggableMap" className="h-100">
+        <ErrorMessage message={this.state.errorMessage}/>
         <Container>
+          <Row>
+            <Col className="dropzone_wrapper">
+              <Dropzone
+                onDrop={this.fileUpload}
+              >
+                {({getRootProps, getInputProps, isDragActive, isDragReject, isDragAccept}) => (
+                  <div {...getRootProps()} className="dropzone">
+                    <input {...getInputProps()} />
+                    {!isDragActive && 'Click here or drop a file to upload!'}
+                    {isDragReject && 'File type not accepted, sorry!'}
+                    {isDragAccept && 'Drop!'}
+                  </div>
+                )}
+              </Dropzone>
+            </Col>
+          </Row>
           <Row>
             <Col md="6">
               <InputGroup>

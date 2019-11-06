@@ -5,6 +5,7 @@
   "dependencies": {
     "@craco/craco": "^5.3.0",
     "@geoman-io/leaflet-geoman-free": "^2.3.0",
+    "@mapbox/togeojson": "^0.16.0",
     "animate.css": "^3.7.2",
     "aws-amplify": "1.1.35",
     "aws-amplify-react": "^2.3.10",
@@ -16,7 +17,7 @@
     "geojson": "^0.5.0",
     "jquery": "^3.4.1",
     "jsonp": "^0.2.1",
-    "leaflet": "^1.4.0",
+    "leaflet": "^1.5.1",
     "leaflet.markercluster": "^1.4.1",
     "lodash-es": "^4.17.14",
     "moment": "^2.24.0",
@@ -98,7 +99,7 @@
     "ts-jest": "^24.0.2",
     "tslint": "^5.16.0",
     "tslint-react": "^4.0.0",
-    "typescript": "^3.4.5"
+    "typescript": "~3.4.5"
   },
   "browserslist": [
     ">0.2%",
