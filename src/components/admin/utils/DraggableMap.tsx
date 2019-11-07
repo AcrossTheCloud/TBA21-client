@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Container, Row, Col, Input, InputGroup, InputGroupAddon, Button } from 'reactstrap';
+import { Container, Row, Col, Input, InputGroup, InputGroupAddon, Button, UncontrolledPopover, PopoverBody } from 'reactstrap';
 import { isEqual } from 'lodash';
 import * as L from 'leaflet';
 import '@geoman-io/leaflet-geoman-free';
@@ -453,14 +453,18 @@ export default class DraggableMap extends React.Component<Props, State> {
             <Col md="3" className="px-0">
               <input
                 type="file"
-                id="fileupload"
                 onChange={this.fileUpload}
                 style={{display: 'none'}}
                 ref={e => this.uploadInputRef = e}
               />
-              <Button size="small" color="primary" onClick={e => this.uploadInputRef.click()}>
+              <Button id="fileupload" size="small" color="primary" onClick={e => this.uploadInputRef.click()}>
                 Upload a GPX or KML file.
               </Button>
+              <UncontrolledPopover trigger="hover" placement="bottom" target="fileupload">
+                <PopoverBody>
+                  <div className="py-1">Upload a GPX or KML file.</div>
+                </PopoverBody>
+              </UncontrolledPopover>
             </Col>
             <Col md="4">
               <InputGroup>
