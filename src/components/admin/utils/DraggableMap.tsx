@@ -35,7 +35,7 @@ interface Props {
 
 const mapStyle = {
   width: '100%',
-  height: '90%'
+  height: '100%'
 };
 
 export default class DraggableMap extends React.Component<Props, State> {
