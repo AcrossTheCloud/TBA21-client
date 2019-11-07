@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Container, Row, Col, Input, InputGroup, InputGroupAddon, UncontrolledPopover, PopoverBody } from 'reactstrap';
+import { Container, Row, Col, Input, InputGroup, InputGroupAddon, Button } from 'reactstrap';
 import { isEqual } from 'lodash';
 import * as L from 'leaflet';
 import '@geoman-io/leaflet-geoman-free';
@@ -41,6 +41,8 @@ export default class DraggableMap extends React.Component<Props, State> {
   map;
   topoLayer;
   ignoredTopoLayer; // A layer of pmIgnore data
+
+  uploadInputRef;
 
   inputLngTimeout;
   inputLatTimeout;
@@ -447,18 +449,18 @@ export default class DraggableMap extends React.Component<Props, State> {
       <div id="draggableMap" className="h-100">
         <ErrorMessage message={this.state.errorMessage}/>
         <Container>
-          <Row className="pb-1">
-            <Col md="3">
-              <Input
+          <Row className="pb-1 align-items-center">
+            <Col md="3" className="px-0">
+              <input
                 type="file"
                 id="fileupload"
                 onChange={this.fileUpload}
+                style={{display: 'none'}}
+                ref={e => this.uploadInputRef = e}
               />
-              <UncontrolledPopover trigger="hover" placement="bottom" target="fileupload">
-                <PopoverBody>
-                  <div className="py-1">Upload a GPX or KML file.</div>
-                </PopoverBody>
-              </UncontrolledPopover>
+              <Button size="small" color="primary" onClick={e => this.uploadInputRef.click()}>
+                Upload a GPX or KML file.
+              </Button>
             </Col>
             <Col md="4">
               <InputGroup>
@@ -476,7 +478,7 @@ export default class DraggableMap extends React.Component<Props, State> {
         </Container>
         <Container>
           <Row>
-            <Col xs="12">
+            <Col xs="12" className="px-0">
               <div className="mapWrapper">
                 <div
                   id="oa_map"
