@@ -1552,7 +1552,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
           </Col>
         </Row>
 
-        <Modal isOpen={this.state.mapModalOpen} toggle={this.toggleMapModal} centered size="lg" scrollable className="fullwidth" backdrop>
+        <Modal autoFocus={false} isOpen={this.state.mapModalOpen} toggle={this.toggleMapModal} centered size="lg" scrollable className="fullwidth showscroll" backdrop>
           <ModalBody>
             <DraggableMap
               topoJSON={this.state.topojson}

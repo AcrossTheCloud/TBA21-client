@@ -28,14 +28,14 @@ interface State extends Alerts {
 }
 
 interface Props {
-  topoJSON?: GeoJsonObject;
+  topoJSON?: any;  // tslint:disable-line: no-any
   onChange?: Function;
   collectionItems?: GeoJsonObject;
 }
 
 const mapStyle = {
   width: '100%',
-  height: '100%'
+  height: '90%'
 };
 
 export default class DraggableMap extends React.Component<Props, State> {
@@ -69,9 +69,16 @@ export default class DraggableMap extends React.Component<Props, State> {
       this.addLeafletGeoMan();
       this.topoLayer = this.setupTopoLayer();
 
-      if (this.props.topoJSON && Object.keys(this.props.topoJSON).length) {
-        console.log('this.props.topoJSON', this.props.topoJSON); // todo-dan remove
-        this.topoLayer.addData(this.props.topoJSON);
+      const topo = this.props.topoJSON;
+      if (topo && topo.objects && topo.objects.output.geometries && topo.objects.output.geometries.length) {
+        const geometries = topo.objects.output.geometries;
+        if ((geometries[0].type === null || geometries[0].type === 'null') && geometries.length === 1) {
+          this.locateUser();
+        } else {
+          this.topoLayer.addData(this.props.topoJSON);
+        }
+      } else {
+        this.locateUser();
       }
       // If we're a collection disable all of the items on the map, so they're no editable.
       if (this.props.collectionItems) {
@@ -105,6 +112,7 @@ export default class DraggableMap extends React.Component<Props, State> {
 
     this.map = L.map('oa_map', {
       maxZoom: 18,
+      zoom: 5,
       preferCanvas: true
     }).setView([this.state.inputLat, this.state.inputLng], 13);
 
@@ -154,18 +162,23 @@ export default class DraggableMap extends React.Component<Props, State> {
             data.objects.output.geometries.forEach((geometryCollection, index: number) => {
               if (geometryCollection && geometryCollection.geometries) {
                 geometryCollection.geometries.forEach(feature => {
-                  // Add the properties to the feature, these are in the top level collection.
-                  // Object.assign(feature, { properties: data.objects.output.geometries[index].properties});
+                  if (feature.type !== null) {
+                    // Add the properties to the feature, these are in the top level collection.
+                    // Object.assign(feature, { properties: data.objects.output.geometries[index].properties});
 
-                  // Convert the feature to geoJSON for leaflet
-                  const geojson = topojson.feature(data, feature);
-                  L.GeoJSON.prototype.addData.call(this, geojson);
+                    // Convert the feature to geoJSON for leaflet
+                    const geojson = topojson.feature(data, feature);
+                    L.GeoJSON.prototype.addData.call(this, geojson);
+                  }
                 });
               }
             });
 
             // Fit the map to the bounds of the loaded content.
-            _self.map.fitBounds(_self.topoLayer.getBounds());
+            const bounds = _self.topoLayer.getBounds();
+            if (bounds.isValid()) {
+              _self.map.fitBounds(bounds);
+            }
           } else {
             // We're sending through just GeoJSON data not Topo, Leaflet lovesss it so we don't need to do anything.
             L.GeoJSON.prototype.addData.call(this, data);
@@ -351,6 +364,29 @@ export default class DraggableMap extends React.Component<Props, State> {
         map.flyTo({ lat: this.state.inputLat, lng: this.state.inputLng });
       });
     }
+  }
+
+  /**
+   * Use leaflet's locate method to locate the use and set the view to that location.
+   */
+  locateUser = (): void => {
+    const map = this.map;
+    map.locate()
+      .on('locationfound', (location: L.LocationEvent) => {
+        if (location && location.latlng) {
+          map.flyTo(location.latlng, 8);
+          // Set the input fields
+          this.latInputRef.value = location.latlng.lat;
+          this.lngInputRef.value = location.latlng.lng;
+        }
+      })
+      .on('locationerror', () => {
+        // Fly to a default location if the user declines our request to get their GPS location or if we had trouble getting said location.
+        // Ideally the map would already be in this location anyway.
+        // Set the input fields
+        this.latInputRef.value = this.state.position[0];
+        this.lngInputRef.value = this.state.position[1];
+      });
   }
 
   fileUpload = async (acceptedFiles: Array<any>, rejectedFiles: any) => {  // tslint:disable-line:no-any
