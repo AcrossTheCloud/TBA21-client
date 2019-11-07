@@ -7,8 +7,8 @@ import { debounce } from 'lodash';
 import { API } from 'aws-amplify';
 import { FaTimes } from 'react-icons/fa';
 import { uniqBy } from 'lodash';
-import { Col, Row, Container, Modal, ModalBody, Spinner } from 'reactstrap';
-import { SearchConsoleState } from '../../reducers/searchConsole'; // Props from Redux.
+import { Col, Row, Container, Modal, ModalBody, Spinner, Input, Label, FormGroup } from 'reactstrap';
+import { SearchConsoleState } from '../../reducers/searchConsole';
 
 import {
   search as dispatchSearch,
@@ -17,12 +17,11 @@ import {
   CriteriaOption,
   toggle,
   getConceptTags
-} from '../../actions/searchConsole'; // Props from Redux.
+} from '../../actions/searchConsole';
 
 import { find } from 'lodash';
 import ViewItem from '../item/ViewItem';
 import AudioPlayer from '../layout/audio/AudioPlayer';
-import { Bubble } from './Bubble';
 import AudioPreview from '../layout/audio/AudioPreview';
 import { fetchItem } from '../../actions/items/viewItem';
 import { fetchCollection } from 'actions/collections/viewCollection';
@@ -586,6 +585,31 @@ class SearchConsole extends React.Component<Props, State> {
             </div>
           </Row>
 
+          <Row className="focus pt-1" style={{ height: isOpen ? 'auto' : 0 }}>
+            <Col xs="12" sm="auto">Focus: </Col>
+            <Col xs sm="auto" className="pr-0">
+              <FormGroup check inline>
+                <Label check>
+                  Arts <Input type="checkbox" name="arts" onChange={e => { if (this._isMounted) { this.setState({ focus_arts: e.target.checked }); } }} />
+                </Label>
+              </FormGroup>
+            </Col>
+            <Col xs sm="auto" className="px-0">
+              <FormGroup check inline>
+                <Label check>
+                  Sci Tech <Input type="checkbox" name="scitech" onChange={e => { if (this._isMounted) { this.setState({ focus_scitech: e.target.checked }); } }} />
+                </Label>
+              </FormGroup>
+            </Col>
+            <Col xs sm="auto" className="pl-0">
+              <FormGroup check inline>
+                <Label check>
+                  Action <Input type="checkbox" name="action" onChange={e => { if (this._isMounted) { this.setState({ focus_action: e.target.checked }); } }} />
+                </Label>
+              </FormGroup>
+            </Col>
+          </Row>
+
           <div className="results">
             {loadedResults && loadedResults.length ? (
               loadedResults.map((t, i) => {
@@ -676,23 +700,8 @@ class SearchConsole extends React.Component<Props, State> {
                 />
               </Col>
             </Row>
-          ) : (
-            <></>
-          )}
-
-          <Row className="bubbleRow">
-            {this.props.open ? (
-              <Bubble
-                callback={e => {
-                  if (this._isMounted) {
-                    this.setState(e);
-                  }
-                }}
-              />
-            ) : (
-              <></>
-            )}
-          </Row>
+            : <></>
+          }
         </Container>
 
         <Modal

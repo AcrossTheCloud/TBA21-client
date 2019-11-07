@@ -45,7 +45,7 @@ export const loadHomepage = () => async dispatch => {
   });
 
   const announcementResponse = await API.get('tba21', 'announcements', {
-    queryStringParameters: { limit: '1' }
+    queryStringParameters: { limit: '9' }
   });
 
   const highlightsWithFiles = await addFilesToData(oaHighlights.oa_highlight);

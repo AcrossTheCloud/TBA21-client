@@ -40,7 +40,6 @@ export default (state: State = initialState, action) => {
     case FETCH_ITEM_ERROR_NO_SUCH_ITEM:
       return {
         ...state,
-        item: action.item,
         errorMessage: `Are you sure you've got the right url? We can't find what you're looking for. Sorry!`,
       };
 

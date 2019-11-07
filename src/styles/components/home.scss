@@ -115,25 +115,37 @@
     }
   }
 
-  .announcement {
-    .title {
-      font-size: 18px;
-      @media screen and (min-width: 768px) {
-        font-size: 20px;
+  .announcements {
+    h3 {
+      color: #000;
+    }
+    .announcement {
+      color: #000;
+
+      .title {
+        font-size: 18px;
+        @media screen and (min-width: 768px) {
+          font-size: 20px;
+        }
       }
-    }
-    .description {
-      font-size: 14px;
-      @media screen and (min-width: 768px) {
-        font-size: 16px;
+
+      .description {
+        font-size: 14px;
+        @media screen and (min-width: 768px) {
+          font-size: 16px;
+        }
       }
-    }
-    .type {
-      font-size: 13px;
-    }
-    a {
-      svg {
-        margin-left: 20px;
+
+      .type {
+        font-size: 13px;
+      }
+
+      a {
+        color: #000;
+
+        svg {
+          margin-left: 20px;
+        }
       }
     }
   }

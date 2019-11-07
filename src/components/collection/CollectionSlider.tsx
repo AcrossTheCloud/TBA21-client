@@ -34,30 +34,21 @@ class CollectionSlider extends React.Component<Props, State> {
   }
 
   componentDidMount(): void {
-    const slides = this.props.items ? this.slides([...this.props.items]) : [];
+    const slides = (this.props.items && Object.keys(this.props.items).length) ? this.slides([...this.props.items]) : [];
     this.setState({ slides });
   }
 
   componentDidUpdate(prevProps: Readonly<Props>): void {
-    const currentCollectionID = this.props.collection
-      ? this.props.collection.id
-      : 0;
+    const currentCollectionID = this.props.collection ? this.props.collection.id : 0;
     const prevCollectionID = prevProps.collection ? prevProps.collection.id : 0;
-    if (
-      currentCollectionID !== prevCollectionID ||
-      this.props.offset !== prevProps.offset
-    ) {
-      const slides = this.props.items ? this.slides(this.props.items) : [];
+    if (currentCollectionID !== prevCollectionID || this.props.offset !== prevProps.offset) {
+      const slides = (this.props.items && Object.keys(this.props.items).length) ? this.slides(this.props.items) : [];
       this.setState({ slides: slides });
     }
   }
 
   slides = (slides: ItemOrHomePageData[]): JSX.Element[] => {
-    if (!slides) {
-      return [
-        <ErrorMessage key={1} message={'This collection has no items.'} />
-      ];
-    }
+    if (!slides) { return [<ErrorMessage key={1} message={'This collection has no items.'} />]; }
 
     let itemAmount: number = 1;
     if (window.innerWidth >= 540) {
@@ -145,11 +136,11 @@ class CollectionSlider extends React.Component<Props, State> {
 
   onExiting = () => {
     this.animating = true;
-  };
+  }
 
   onExited = () => {
     this.animating = false;
-  };
+  }
 
   windowForceResizeEvent() {
     // If we have Audio previews in the slides, we must force a resize event for the display to show (unfortunately)
@@ -160,36 +151,30 @@ class CollectionSlider extends React.Component<Props, State> {
     if (this.animating) {
       return;
     }
-    const nextIndex =
-      this.state.activeIndex === this.state.slides.length - 1
-        ? 0
-        : this.state.activeIndex + 1;
+    const nextIndex = this.state.activeIndex === this.state.slides.length - 1 ? 0 : this.state.activeIndex + 1;
     await this.props.loadMoreDispatch(nextIndex);
-    this.setState({ activeIndex: nextIndex });
+    this.setState({activeIndex: nextIndex});
     this.windowForceResizeEvent();
-  };
+  }
 
   previous = async () => {
     if (this.animating) {
       return;
     }
-    const prevIndex =
-      this.state.activeIndex === 0
-        ? this.state.slides.length - 1
-        : this.state.activeIndex - 1;
+    const prevIndex = this.state.activeIndex === 0 ? this.state.slides.length - 1 : this.state.activeIndex - 1;
     await this.props.loadMoreDispatch(false);
-    this.setState({ activeIndex: prevIndex });
+    this.setState({activeIndex: prevIndex});
     this.windowForceResizeEvent();
-  };
+  }
 
   goToIndex = async (newIndex: number) => {
     if (this.animating) {
       return;
     }
     await this.props.loadMoreDispatch(newIndex);
-    this.setState({ activeIndex: newIndex });
+    this.setState({activeIndex: newIndex});
     this.windowForceResizeEvent();
-  };
+  }
 
   render() {
     const { activeIndex, slides } = this.state;
@@ -230,7 +215,6 @@ class CollectionSlider extends React.Component<Props, State> {
 
 // State to props
 const mapStateToProps = (state: { viewCollection: ViewCollectionState }) => {
-  // tslint:disable-line: no-any
   return {
     items: state.viewCollection.items,
     collection: state.viewCollection.collection,
@@ -238,7 +222,4 @@ const mapStateToProps = (state: { viewCollection: ViewCollectionState }) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  { toggle, loadMoreDispatch }
-)(CollectionSlider);
+export default connect(mapStateToProps, { toggle, loadMoreDispatch })(CollectionSlider);
