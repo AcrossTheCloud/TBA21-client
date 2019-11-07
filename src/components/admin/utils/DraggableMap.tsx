@@ -66,7 +66,6 @@ export default class DraggableMap extends React.Component<Props, State> {
     this._isMounted = true;
     this.initialiseMap();
     if (this.map) {
-      this.locateUser();
       this.addLeafletGeoMan();
       this.topoLayer = this.setupTopoLayer();
 
@@ -142,7 +141,8 @@ export default class DraggableMap extends React.Component<Props, State> {
     return mapLayer;
   }
 
-  topoExtension() {
+  topoExtension = () => {
+    const _self = this;
     // @ts-ignore
     // Leaflet extension for TopoJSON, we ignore this as TS has a spaz
     L.TopoJSON = L.GeoJSON.extend(
@@ -163,6 +163,9 @@ export default class DraggableMap extends React.Component<Props, State> {
                 });
               }
             });
+
+            // Fit the map to the bounds of the loaded content.
+            _self.map.fitBounds(_self.topoLayer.getBounds());
           } else {
             // We're sending through just GeoJSON data not Topo, Leaflet lovesss it so we don't need to do anything.
             L.GeoJSON.prototype.addData.call(this, data);
@@ -182,13 +185,59 @@ export default class DraggableMap extends React.Component<Props, State> {
   layerEvents = (layer: Layer) => {
     layer.on({
       'pm:edit': l => {
-        console.log('pm:edit', l);
+        console.log('Layer pm:edit', l);
         this.callback();
       },
       'pm:cut': () => {
         console.log('pm:cut');
         this.callback();
       }
+    });
+  }
+
+  mapEvents = () => {
+    const map = this.map;
+
+    // listen to vertexes being added to currently drawn layer
+    map.on('pm:drawstart', w => {
+      const workingLayer = w.workingLayer;
+
+      // Add the altitude to the coords to any vertex's, this includes Linestrings and Poly.
+      workingLayer.on('pm:vertexadded', e => {
+        console.log('pm:vertexadded', e);
+
+        const markerLatLng = e.marker._latlng;
+        const index = workingLayer._latlngs.indexOf(markerLatLng);
+        workingLayer._latlngs[index] = this.addAltToLatLng(workingLayer._latlngs[index]); // add a 0 level z index
+
+        this.logScalePopUp(workingLayer, e.marker, index);
+      });
+    });
+
+    // On create of a new polyline/polygon/marker
+    map.on('pm:create', e => {
+      this.topoLayer.addLayer(e.layer);
+      this.layerEvents(e.layer);
+
+      // Add the altitude to the coords to the Marker
+      if (e.shape === 'Marker') {
+        e.layer._latlng = this.addAltToLatLng(e.layer._latlng); // add a 0 level z index
+        this.logScalePopUp(e.layer, e.marker);
+      }
+
+      console.log('pm:create', e);
+      this.callback();
+    });
+
+    map.on('pm:edit', e => {
+      this.logScalePopUp(e.layer, e.marker);
+      console.log('pm:edit', e);
+    });
+
+    map.on('pm:remove', u => {
+      console.log('pm:remove');
+      this.topoLayer.removeLayer(u.layer);
+      this.callback();
     });
   }
 
@@ -263,47 +312,6 @@ export default class DraggableMap extends React.Component<Props, State> {
     marker.bindPopup(div, { 'className' : 'logScalePopUp' });
     marker.openPopup();
   }
-
-  mapEvents = () => {
-    const map = this.map;
-
-    // listen to vertexes being added to currently drawn layer (called workingLayer)
-    map.on('pm:drawstart', w => {
-      const workingLayer = w.workingLayer;
-
-      // Add the altitude to the coords to any vertex's, this includes Linestrings and Poly.
-      workingLayer.on('pm:vertexadded', e => {
-        console.log('pm:vertexadded', e);
-
-        const markerLatLng = e.marker._latlng;
-        const index = workingLayer._latlngs.indexOf(markerLatLng);
-        workingLayer._latlngs[index] = this.addAltToLatLng(workingLayer._latlngs[index]); // add a 0 level z index
-
-        this.logScalePopUp(workingLayer, e.marker, index);
-      });
-    });
-
-    map.on('pm:create', e => {
-      this.topoLayer.addLayer(e.layer);
-      this.layerEvents(e.layer);
-
-      // Add the altitude to the coords to the Marker
-      if (e.shape === 'Marker') {
-        e.layer._latlng = this.addAltToLatLng(e.layer._latlng); // add a 0 level z index
-        this.logScalePopUp(e.layer, e.marker);
-      }
-
-      console.log('pm:create', e);
-      this.callback();
-    });
-
-    map.on('pm:remove', u => {
-      console.log('pm:remove');
-      this.topoLayer.removeLayer(u.layer);
-      this.callback();
-    });
-  }
-
   /**
    * Add controls from leaflet geoman, leaflet.pm
    */
@@ -343,29 +351,6 @@ export default class DraggableMap extends React.Component<Props, State> {
         map.flyTo({ lat: this.state.inputLat, lng: this.state.inputLng });
       });
     }
-  }
-
-  /**
-   * Use leaflet's locate method to locate the use and set the view to that location.
-   */
-  locateUser = (): void => {
-    const map = this.map;
-    map.locate()
-      .on('locationfound', (location: L.LocationEvent) => {
-        if (location && location.latlng) {
-          map.flyTo(location.latlng, 10);
-          // Set the input fields
-          this.latInputRef.value = location.latlng.lat;
-          this.lngInputRef.value = location.latlng.lng;
-        }
-      })
-      .on('locationerror', () => {
-        // Fly to a default location if the user declines our request to get their GPS location or if we had trouble getting said location.
-        // Ideally the map would already be in this location anyway.
-        // Set the input fields
-        this.latInputRef.value = this.state.position[0];
-        this.lngInputRef.value = this.state.position[1];
-      });
   }
 
   fileUpload = async (acceptedFiles: Array<any>, rejectedFiles: any) => {  // tslint:disable-line:no-any
@@ -418,7 +403,7 @@ export default class DraggableMap extends React.Component<Props, State> {
                 {({getRootProps, getInputProps, isDragActive, isDragReject, isDragAccept}) => (
                   <div {...getRootProps()} className="dropzone">
                     <input {...getInputProps()} />
-                    {!isDragActive && 'Click here or drop a file to upload!'}
+                    {!isDragActive && 'Click here or drop a gpx/kml file to add location data.'}
                     {isDragReject && 'File type not accepted, sorry!'}
                     {isDragAccept && 'Drop!'}
                   </div>
@@ -441,13 +426,18 @@ export default class DraggableMap extends React.Component<Props, State> {
             </Col>
           </Row>
         </Container>
-
-        <div className="mapWrapper">
-          <div
-            id="oa_map"
-            style={mapStyle}
-          />
-        </div>
+        <Container>
+          <Row>
+            <Col xs="12">
+              <div className="mapWrapper">
+                <div
+                  id="oa_map"
+                  style={mapStyle}
+                />
+              </div>
+            </Col>
+          </Row>
+        </Container>
       </div>
     );
   }
