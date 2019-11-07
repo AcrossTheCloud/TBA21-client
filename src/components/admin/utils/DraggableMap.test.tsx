@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { shallow } from 'enzyme';
+import { mount } from 'enzyme';
 import DraggableMap from './DraggableMap';
 
 describe('Draggable map', () => {
@@ -11,29 +11,27 @@ describe('Draggable map', () => {
     };
 
   beforeAll( () => {
-    wrapper = shallow(<DraggableMap {...props} />);
+    const div = window.document.createElement('div');
+    window.document.body.appendChild(div);
+
+    wrapper = mount(<DraggableMap {...props} />, {attachTo: div});
   });
 
   afterAll( () => {
     wrapper.unmount();
   });
 
-  it('It should mount', () => {
-    const instance = wrapper.instance();
-
-    jest.spyOn(instance, 'componentDidMount');
-    instance.componentDidMount();
-
-    expect(instance.componentDidMount).toHaveBeenCalledTimes(1);
+  it('It should mount and we have a map container', () => {
+    expect(wrapper.find('#draggableMap .leaflet-container'));
   });
 
   // it('State should have LAT LNG from props after mount', () => {
   //   expect(wrapper.state('marker')).toMatchObject({ lat: geoJSON.coordinates[0], lng: geoJSON.coordinates[1] });
   // });
   //
-  it(`We have the leaflet-container div in our mapWrapper`, () => {
-    expect(wrapper.find('#draggableMap .leaflet-container'));
-  });
+  // it(`We have the leaflet-container div in our mapWrapper`, () => {
+  //   expect(wrapper.find('#draggableMap .leaflet-container'));
+  // });
   //
   // it(`Lng input field should equal our props lng ${geoJSON.coordinates[1]}`, () => {
   //   expect(wrapper.find('#draggableMap Input.lng').props().value).toEqual(geoJSON.coordinates[1]);

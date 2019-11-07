@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { FaCheck, FaMinus, FaPlus, FaTimes } from 'react-icons/fa';
+import { FaMapMarked, FaCheck, FaMinus, FaPlus, FaTimes } from 'react-icons/fa';
 import {
   Button,
   Col,
@@ -2349,7 +2349,7 @@ class ItemEditorClass extends React.Component<Props, State> {
                     </Col>
                   </Row>
 
-                  <Button onClick={this.toggleMapModal}>Add coords</Button>
+                <Button onClick={this.toggleMapModal} className="mt-3 location">Add location(s) <FaMapMarked size={20}/></Button>
 
                   {this.props.profileDetails && !this.props.profileDetails.accepted_license ?
                     <Row>
@@ -2636,7 +2636,7 @@ class ItemEditorClass extends React.Component<Props, State> {
               </Col>
             </Row>
           </Form>
-          <Modal isOpen={this.state.mapModalOpen} toggle={this.toggleMapModal} centered size="lg" scrollable className="fullwidth" backdrop>
+          <Modal autoFocus={false} isOpen={this.state.mapModalOpen} toggle={this.toggleMapModal} centered size="lg" className="fullwidth showscroll" backdrop>
             <ModalBody>
               <DraggableMap
                 topoJSON={this.state.topojson}
