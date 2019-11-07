@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Container, Row, Col, Input, InputGroup, InputGroupAddon } from 'reactstrap';
+import { Container, Row, Col, Input, InputGroup, InputGroupAddon, Button, UncontrolledPopover, PopoverBody } from 'reactstrap';
 import { isEqual } from 'lodash';
 import * as L from 'leaflet';
 import '@geoman-io/leaflet-geoman-free';
@@ -13,16 +13,20 @@ import { Layer } from 'leaflet';
 import * as topojson from 'topojson-client';
 import { Feature, GeoJsonObject, GeometryObject } from 'geojson';
 import { colourScale } from '../../map/colorScale';
+import { Alerts, ErrorMessage } from '../../utils/alerts';
 
-interface State {
-  position: L.LatLngExpression;
+import 'styles/components/_dropzone.scss';
+
+const toGeoJSON = require('@mapbox/togeojson');
+
+interface State extends Alerts {
   zoom: number;
   inputLat: number;
   inputLng: number;
 }
 
 interface Props {
-  topoJSON?: GeoJsonObject;
+  topoJSON?: any;  // tslint:disable-line: no-any
   onChange?: Function;
   collectionItems?: GeoJsonObject;
 }
@@ -38,16 +42,17 @@ export default class DraggableMap extends React.Component<Props, State> {
   topoLayer;
   ignoredTopoLayer; // A layer of pmIgnore data
 
+  uploadInputRef;
+
+  inputLngTimeout;
+  inputLatTimeout;
+
   state: State = {
-    position: [0, 0],
     zoom: 5, // initial zoom level
 
     inputLat: 0,
     inputLng: 0
   };
-
-  latInputRef;
-  lngInputRef;
 
   constructor(props: Props) {
     super(props);
@@ -60,13 +65,19 @@ export default class DraggableMap extends React.Component<Props, State> {
     this._isMounted = true;
     this.initialiseMap();
     if (this.map) {
-      this.locateUser();
       this.addLeafletGeoMan();
       this.topoLayer = this.setupTopoLayer();
 
-      if (this.props.topoJSON && Object.keys(this.props.topoJSON).length) {
-        console.log('this.props.topoJSON', this.props.topoJSON); // todo-dan remove
-        this.topoLayer.addData(this.props.topoJSON);
+      const topo = this.props.topoJSON;
+      if (topo && topo.objects && topo.objects.output.geometries && topo.objects.output.geometries.length) {
+        const geometries = topo.objects.output.geometries;
+        if ((geometries[0].type === null || geometries[0].type === 'null') && geometries.length === 1) {
+          this.locateUser();
+        } else {
+          this.topoLayer.addData(this.props.topoJSON);
+        }
+      } else {
+        this.locateUser();
       }
       // If we're a collection disable all of the items on the map, so they're no editable.
       if (this.props.collectionItems) {
@@ -100,8 +111,9 @@ export default class DraggableMap extends React.Component<Props, State> {
 
     this.map = L.map('oa_map', {
       maxZoom: 18,
+      zoom: 5,
       preferCanvas: true
-    }).setView([this.state.inputLat, this.state.inputLng], 13);
+    }).setView([this.state.inputLat, this.state.inputLng], 5);
 
     L.tileLayer(tileLayerURL, {
       attribution: '',
@@ -136,7 +148,8 @@ export default class DraggableMap extends React.Component<Props, State> {
     return mapLayer;
   }
 
-  topoExtension() {
+  topoExtension = () => {
+    const _self = this;
     // @ts-ignore
     // Leaflet extension for TopoJSON, we ignore this as TS has a spaz
     L.TopoJSON = L.GeoJSON.extend(
@@ -148,16 +161,25 @@ export default class DraggableMap extends React.Component<Props, State> {
             data.objects.output.geometries.forEach((geometryCollection, index: number) => {
               if (geometryCollection && geometryCollection.geometries) {
                 geometryCollection.geometries.forEach(feature => {
-                  // Add the properties to the feature, these are in the top level collection.
-                  // Object.assign(feature, { properties: data.objects.output.geometries[index].properties});
+                  if (feature.type !== null) {
+                    // Add the properties to the feature, these are in the top level collection.
+                    // Object.assign(feature, { properties: data.objects.output.geometries[index].properties});
 
-                  // Convert the feature to geoJSON for leaflet
-                  const geojson = topojson.feature(data, feature);
-                  L.GeoJSON.prototype.addData.call(this, geojson);
+                    // Convert the feature to geoJSON for leaflet
+                    const geojson = topojson.feature(data, feature);
+                    L.GeoJSON.prototype.addData.call(this, geojson);
+                  }
                 });
               }
             });
+
+          } else {
+            // We're sending through just GeoJSON data not Topo, Leaflet lovesss it so we don't need to do anything.
+            L.GeoJSON.prototype.addData.call(this, data);
           }
+
+          // Fit the map to the bounds of the loaded content.
+          _self.mapLayerFitBounds(_self.topoLayer);
         }
       }
     );
@@ -173,13 +195,80 @@ export default class DraggableMap extends React.Component<Props, State> {
   layerEvents = (layer: Layer) => {
     layer.on({
       'pm:edit': l => {
-        console.log('pm:edit', l);
+        console.log('Layer pm:edit', l);
         this.callback();
       },
       'pm:cut': () => {
         console.log('pm:cut');
         this.callback();
       }
+    });
+  }
+
+  mapLayerFitBounds = (layer: L.FeatureGroup) => {
+    // Fit the map to the bounds of the loaded content.
+    const bounds = layer.getBounds();
+    if (bounds.isValid()) {
+      this.map.fitBounds(bounds);
+    }
+  }
+
+  mapEvents = () => {
+    const map = this.map;
+
+    map.on('moveend', e => {
+      if (this._isMounted) {
+        const center = this.map.getCenter();
+        if (center.lat && center.lng) {
+          console.log(center);
+          this.setState({
+            inputLng: center.lng,
+            inputLat: center.lat
+          }, () => console.log(this.state));
+        }
+      }
+    });
+
+    // listen to vertexes being added to currently drawn layer
+    map.on('pm:drawstart', w => {
+      const workingLayer = w.workingLayer;
+
+      // Add the altitude to the coords to any vertex's, this includes Linestrings and Poly.
+      workingLayer.on('pm:vertexadded', e => {
+        console.log('pm:vertexadded', e);
+
+        const markerLatLng = e.marker._latlng;
+        const index = workingLayer._latlngs.indexOf(markerLatLng);
+        workingLayer._latlngs[index] = this.addAltToLatLng(workingLayer._latlngs[index]); // add a 0 level z index
+
+        this.logScalePopUp(workingLayer, e.marker, index);
+      });
+    });
+
+    // On create of a new polyline/polygon/marker
+    map.on('pm:create', e => {
+      this.topoLayer.addLayer(e.layer);
+      this.layerEvents(e.layer);
+
+      // Add the altitude to the coords to the Marker
+      if (e.shape === 'Marker') {
+        e.layer._latlng = this.addAltToLatLng(e.layer._latlng); // add a 0 level z index
+        this.logScalePopUp(e.layer, e.marker);
+      }
+
+      console.log('pm:create', e);
+      this.callback();
+    });
+
+    map.on('pm:edit', e => {
+      this.logScalePopUp(e.layer, e.marker);
+      console.log('pm:edit', e);
+    });
+
+    map.on('pm:remove', u => {
+      console.log('pm:remove');
+      this.topoLayer.removeLayer(u.layer);
+      this.callback();
     });
   }
 
@@ -254,47 +343,6 @@ export default class DraggableMap extends React.Component<Props, State> {
     marker.bindPopup(div, { 'className' : 'logScalePopUp' });
     marker.openPopup();
   }
-
-  mapEvents = () => {
-    const map = this.map;
-
-    // listen to vertexes being added to currently drawn layer (called workingLayer)
-    map.on('pm:drawstart', w => {
-      const workingLayer = w.workingLayer;
-
-      // Add the altitude to the coords to any vertex's, this includes Linestrings and Poly.
-      workingLayer.on('pm:vertexadded', e => {
-        console.log('pm:vertexadded', e);
-
-        const markerLatLng = e.marker._latlng;
-        const index = workingLayer._latlngs.indexOf(markerLatLng);
-        workingLayer._latlngs[index] = this.addAltToLatLng(workingLayer._latlngs[index]); // add a 0 level z index
-
-        this.logScalePopUp(workingLayer, e.marker, index);
-      });
-    });
-
-    map.on('pm:create', e => {
-      this.topoLayer.addLayer(e.layer);
-      this.layerEvents(e.layer);
-
-      // Add the altitude to the coords to the Marker
-      if (e.shape === 'Marker') {
-        e.layer._latlng = this.addAltToLatLng(e.layer._latlng); // add a 0 level z index
-        this.logScalePopUp(e.layer, e.marker);
-      }
-
-      console.log('pm:create', e);
-      this.callback();
-    });
-
-    map.on('pm:remove', u => {
-      console.log('pm:remove');
-      this.topoLayer.removeLayer(u.layer);
-      this.callback();
-    });
-  }
-
   /**
    * Add controls from leaflet geoman, leaflet.pm
    */
@@ -319,19 +367,19 @@ export default class DraggableMap extends React.Component<Props, State> {
     this.mapEvents();
   }
 
-  latInputChange = () => {
+  inputOnChange = (inputValue: string, type: 'inputLat' | 'inputLng') => {
     const map = this.map;
-    if (map !== null) {
-      this.setState({ inputLat: this.latInputRef.value }, () => {
-        map.flyTo({ lat: this.state.inputLat, lng: this.state.inputLng });
-      });
-    }
-  }
-  lngInputChange = () => {
-    const map = this.map;
-    if (map !== null) {
-      this.setState({ inputLng: this.lngInputRef.value }, () => {
-        map.flyTo({ lat: this.state.inputLat, lng: this.state.inputLng });
+    if (map !== null && this._isMounted) {
+      const value = parseInt(inputValue, 0);
+      let timeout = type === 'inputLat' ? this.inputLatTimeout : this.inputLngTimeout;
+      clearTimeout(timeout);
+
+      const state = {};
+      Object.assign(state, { [type]: !isNaN(value) ? value : this.state[type] });
+      this.setState(state, () => {
+        timeout = setTimeout(() => {
+          map.flyTo({ lat: this.state.inputLat, lng: this.state.inputLng });
+        }, 300);
       });
     }
   }
@@ -344,47 +392,106 @@ export default class DraggableMap extends React.Component<Props, State> {
     map.locate()
       .on('locationfound', (location: L.LocationEvent) => {
         if (location && location.latlng) {
-          map.flyTo(location.latlng, 10);
+          map.flyTo(location.latlng, 8);
           // Set the input fields
-          this.latInputRef.value = location.latlng.lat;
-          this.lngInputRef.value = location.latlng.lng;
+          if (this._isMounted) {
+            this.setState({inputLng: location.latlng.lng, inputLat: location.latlng.lat});
+          }
         }
       })
       .on('locationerror', () => {
         // Fly to a default location if the user declines our request to get their GPS location or if we had trouble getting said location.
         // Ideally the map would already be in this location anyway.
         // Set the input fields
-        this.latInputRef.value = this.state.position[0];
-        this.lngInputRef.value = this.state.position[1];
       });
+  }
+
+  fileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {  // tslint:disable-line:no-any
+    const files: FileList | null = e.target.files;
+
+    if (!files) { return; }
+
+    const fileContents = (file: File, callback: Function) => {
+      const reader = new FileReader();
+      reader.onload = function () {
+        if (this.result && typeof this.result === 'string') {
+          const parsed = (new DOMParser()).parseFromString(this.result, 'text/xml');
+          callback(parsed);
+        }
+      };
+      reader.readAsText(file);
+    };
+
+    for (let i = 0; i < files.length; i++) {
+
+      let fileType = files[i].name.includes('.kml') ? 'kml' : files[i].name.includes('.gpx') ? 'gpx' : null;
+
+      if (fileType !== null) {
+        fileContents(files[i], result => {
+          try {
+            const geoJSON = fileType === 'kml' ? toGeoJSON.kml(result) : toGeoJSON.gpx(result);
+            if (geoJSON) {
+              this.topoLayer.addData(geoJSON);
+            }
+          } catch (e) {
+            console.log(e);
+            this.setState({ errorMessage: `Looks like we've had an issue with your ${fileType === 'kml' ? 'KML' : 'GPX'} file.`});
+          }
+        });
+      }
+    }
+
+    e.target.value = '';
   }
 
   render(): React.ReactNode {
     return (
       <div id="draggableMap" className="h-100">
+        <ErrorMessage message={this.state.errorMessage}/>
         <Container>
-          <Row>
-            <Col md="6">
+          <Row className="pb-1 align-items-center">
+            <Col md="3" className="px-0">
+              <input
+                type="file"
+                onChange={this.fileUpload}
+                style={{display: 'none'}}
+                ref={e => this.uploadInputRef = e}
+              />
+              <Button id="fileupload" size="small" color="primary" onClick={e => this.uploadInputRef.click()}>
+                Upload a GPX or KML file.
+              </Button>
+              <UncontrolledPopover trigger="hover" placement="bottom" target="fileupload">
+                <PopoverBody>
+                  <div className="py-1">Upload a GPX or KML file.</div>
+                </PopoverBody>
+              </UncontrolledPopover>
+            </Col>
+            <Col md="4">
               <InputGroup>
                 <InputGroupAddon addonType="prepend">Lat</InputGroupAddon>
-                <Input className="lat" type="number" innerRef={(el) => { this.latInputRef = el; }} onChange={this.latInputChange}/>
+                <Input pattern="-?[0-9]*" className="lat" value={this.state.inputLat.toString()} type="text" onChange={e => this.inputOnChange(e.target.value, 'inputLat')}/>
               </InputGroup>
             </Col>
-            <Col md="6">
+            <Col md="4">
               <InputGroup>
                 <InputGroupAddon addonType="prepend">Lng</InputGroupAddon>
-                <Input className="lng" type="number" innerRef={(el) => { this.lngInputRef = el; }} onChange={this.lngInputChange}/>
+                <Input pattern="-?[0-9]" className="lng" value={this.state.inputLng.toString()} type="text" onChange={e => this.inputOnChange(e.target.value, 'inputLng')}/>
               </InputGroup>
             </Col>
           </Row>
         </Container>
-
-        <div className="mapWrapper">
-          <div
-            id="oa_map"
-            style={mapStyle}
-          />
-        </div>
+        <Container>
+          <Row>
+            <Col xs="12" className="px-0">
+              <div className="mapWrapper">
+                <div
+                  id="oa_map"
+                  style={mapStyle}
+                />
+              </div>
+            </Col>
+          </Row>
+        </Container>
       </div>
     );
   }

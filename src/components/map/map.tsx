@@ -178,7 +178,7 @@ class MapView extends React.Component<Props, State> {
 
             // Create markers at each vertex and add the title / alt to the tooltip
             const vertexPin = new L.Marker(new L.LatLng(latLng.lat, latLng.lng, altitude), { icon: pin(altitude) });
-            const toolTip = `<div>Depth: ${altitude}</div>`;
+            const toolTip = `<div>${Math.sign(altitude) <= 0 ? 'Depth' : 'Altitude'}: ${altitude}</div>`;
 
             vertexPin.feature = {
               ...feature,

@@ -1,10 +1,12 @@
 @import "../../base/variables";
 
 .mapWrapper {
-  flex: 100%;
-  height: calc(100vh - 100px);
+  flex: 100% 1;
+  min-height: 360px;
+  height: calc(100vh - 334px); // Minus dropzone/inputs / modal dialog margin / modal body padding
   position: relative;
   z-index: 1;
+  margin-bottom: 20px;
 
   // Legend styling
   .legend span, .legend label {
