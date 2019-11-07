@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Container, Row, Col, Input, InputGroup, InputGroupAddon } from 'reactstrap';
+import { Container, Row, Col, Input, InputGroup, InputGroupAddon, UncontrolledPopover, PopoverBody } from 'reactstrap';
 import { isEqual } from 'lodash';
 import * as L from 'leaflet';
 import '@geoman-io/leaflet-geoman-free';
@@ -13,7 +13,6 @@ import { Layer } from 'leaflet';
 import * as topojson from 'topojson-client';
 import { Feature, GeoJsonObject, GeometryObject } from 'geojson';
 import { colourScale } from '../../map/colorScale';
-import Dropzone from 'react-dropzone';
 import { Alerts, ErrorMessage } from '../../utils/alerts';
 
 import 'styles/components/_dropzone.scss';
@@ -21,7 +20,6 @@ import 'styles/components/_dropzone.scss';
 const toGeoJSON = require('@mapbox/togeojson');
 
 interface State extends Alerts {
-  position: L.LatLngExpression;
   zoom: number;
   inputLat: number;
   inputLng: number;
@@ -44,16 +42,15 @@ export default class DraggableMap extends React.Component<Props, State> {
   topoLayer;
   ignoredTopoLayer; // A layer of pmIgnore data
 
+  inputLngTimeout;
+  inputLatTimeout;
+
   state: State = {
-    position: [0, 0],
     zoom: 5, // initial zoom level
 
     inputLat: 0,
     inputLng: 0
   };
-
-  latInputRef;
-  lngInputRef;
 
   constructor(props: Props) {
     super(props);
@@ -114,7 +111,7 @@ export default class DraggableMap extends React.Component<Props, State> {
       maxZoom: 18,
       zoom: 5,
       preferCanvas: true
-    }).setView([this.state.inputLat, this.state.inputLng], 13);
+    }).setView([this.state.inputLat, this.state.inputLng], 5);
 
     L.tileLayer(tileLayerURL, {
       attribution: '',
@@ -174,15 +171,13 @@ export default class DraggableMap extends React.Component<Props, State> {
               }
             });
 
-            // Fit the map to the bounds of the loaded content.
-            const bounds = _self.topoLayer.getBounds();
-            if (bounds.isValid()) {
-              _self.map.fitBounds(bounds);
-            }
           } else {
             // We're sending through just GeoJSON data not Topo, Leaflet lovesss it so we don't need to do anything.
             L.GeoJSON.prototype.addData.call(this, data);
           }
+
+          // Fit the map to the bounds of the loaded content.
+          _self.mapLayerFitBounds(_self.topoLayer);
         }
       }
     );
@@ -208,8 +203,29 @@ export default class DraggableMap extends React.Component<Props, State> {
     });
   }
 
+  mapLayerFitBounds = (layer: L.FeatureGroup) => {
+    // Fit the map to the bounds of the loaded content.
+    const bounds = layer.getBounds();
+    if (bounds.isValid()) {
+      this.map.fitBounds(bounds);
+    }
+  }
+
   mapEvents = () => {
     const map = this.map;
+
+    map.on('moveend', e => {
+      if (this._isMounted) {
+        const center = this.map.getCenter();
+        if (center.lat && center.lng) {
+          console.log(center);
+          this.setState({
+            inputLng: center.lng,
+            inputLat: center.lat
+          }, () => console.log(this.state));
+        }
+      }
+    });
 
     // listen to vertexes being added to currently drawn layer
     map.on('pm:drawstart', w => {
@@ -349,19 +365,19 @@ export default class DraggableMap extends React.Component<Props, State> {
     this.mapEvents();
   }
 
-  latInputChange = () => {
+  inputOnChange = (inputValue: string, type: 'inputLat' | 'inputLng') => {
     const map = this.map;
-    if (map !== null) {
-      this.setState({ inputLat: this.latInputRef.value }, () => {
-        map.flyTo({ lat: this.state.inputLat, lng: this.state.inputLng });
-      });
-    }
-  }
-  lngInputChange = () => {
-    const map = this.map;
-    if (map !== null) {
-      this.setState({ inputLng: this.lngInputRef.value }, () => {
-        map.flyTo({ lat: this.state.inputLat, lng: this.state.inputLng });
+    if (map !== null && this._isMounted) {
+      const value = parseInt(inputValue, 0);
+      let timeout = type === 'inputLat' ? this.inputLatTimeout : this.inputLngTimeout;
+      clearTimeout(timeout);
+
+      const state = {};
+      Object.assign(state, { [type]: !isNaN(value) ? value : this.state[type] });
+      this.setState(state, () => {
+        timeout = setTimeout(() => {
+          map.flyTo({ lat: this.state.inputLat, lng: this.state.inputLng });
+        }, 300);
       });
     }
   }
@@ -376,20 +392,23 @@ export default class DraggableMap extends React.Component<Props, State> {
         if (location && location.latlng) {
           map.flyTo(location.latlng, 8);
           // Set the input fields
-          this.latInputRef.value = location.latlng.lat;
-          this.lngInputRef.value = location.latlng.lng;
+          if (this._isMounted) {
+            this.setState({inputLng: location.latlng.lng, inputLat: location.latlng.lat});
+          }
         }
       })
       .on('locationerror', () => {
         // Fly to a default location if the user declines our request to get their GPS location or if we had trouble getting said location.
         // Ideally the map would already be in this location anyway.
         // Set the input fields
-        this.latInputRef.value = this.state.position[0];
-        this.lngInputRef.value = this.state.position[1];
       });
   }
 
-  fileUpload = async (acceptedFiles: Array<any>, rejectedFiles: any) => {  // tslint:disable-line:no-any
+  fileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {  // tslint:disable-line:no-any
+    const files: FileList | null = e.target.files;
+
+    if (!files) { return; }
+
     const fileContents = (file: File, callback: Function) => {
       const reader = new FileReader();
       reader.onload = function () {
@@ -401,21 +420,16 @@ export default class DraggableMap extends React.Component<Props, State> {
       reader.readAsText(file);
     };
 
-    const addLayerAndFlyTo = geoJSON => {
-      this.topoLayer.addData(geoJSON);
+    for (let i = 0; i < files.length; i++) {
 
-      this.map.fitWorld();
-    };
-
-    for (const file of acceptedFiles) {
-      let fileType = file.name.includes('.kml') ? 'kml' : file.name.includes('.gpx') ? 'gpx' : null;
+      let fileType = files[i].name.includes('.kml') ? 'kml' : files[i].name.includes('.gpx') ? 'gpx' : null;
 
       if (fileType !== null) {
-        fileContents(file, result => {
+        fileContents(files[i], result => {
           try {
             const geoJSON = fileType === 'kml' ? toGeoJSON.kml(result) : toGeoJSON.gpx(result);
             if (geoJSON) {
-              addLayerAndFlyTo(geoJSON);
+              this.topoLayer.addData(geoJSON);
             }
           } catch (e) {
             console.log(e);
@@ -424,6 +438,8 @@ export default class DraggableMap extends React.Component<Props, State> {
         });
       }
     }
+
+    e.target.value = '';
   }
 
   render(): React.ReactNode {
@@ -431,33 +447,29 @@ export default class DraggableMap extends React.Component<Props, State> {
       <div id="draggableMap" className="h-100">
         <ErrorMessage message={this.state.errorMessage}/>
         <Container>
-          <Row>
-            <Col className="dropzone_wrapper">
-              <Dropzone
-                onDrop={this.fileUpload}
-              >
-                {({getRootProps, getInputProps, isDragActive, isDragReject, isDragAccept}) => (
-                  <div {...getRootProps()} className="dropzone">
-                    <input {...getInputProps()} />
-                    {!isDragActive && 'Click here or drop a gpx/kml file to add location data.'}
-                    {isDragReject && 'File type not accepted, sorry!'}
-                    {isDragAccept && 'Drop!'}
-                  </div>
-                )}
-              </Dropzone>
+          <Row className="pb-1">
+            <Col md="3">
+              <Input
+                type="file"
+                id="fileupload"
+                onChange={this.fileUpload}
+              />
+              <UncontrolledPopover trigger="hover" placement="bottom" target="fileupload">
+                <PopoverBody>
+                  <div className="py-1">Upload a GPX or KML file.</div>
+                </PopoverBody>
+              </UncontrolledPopover>
             </Col>
-          </Row>
-          <Row>
-            <Col md="6">
+            <Col md="4">
               <InputGroup>
                 <InputGroupAddon addonType="prepend">Lat</InputGroupAddon>
-                <Input className="lat" type="number" innerRef={(el) => { this.latInputRef = el; }} onChange={this.latInputChange}/>
+                <Input pattern="-?[0-9]*" className="lat" value={this.state.inputLat.toString()} type="text" onChange={e => this.inputOnChange(e.target.value, 'inputLat')}/>
               </InputGroup>
             </Col>
-            <Col md="6">
+            <Col md="4">
               <InputGroup>
                 <InputGroupAddon addonType="prepend">Lng</InputGroupAddon>
-                <Input className="lng" type="number" innerRef={(el) => { this.lngInputRef = el; }} onChange={this.lngInputChange}/>
+                <Input pattern="-?[0-9]" className="lng" value={this.state.inputLng.toString()} type="text" onChange={e => this.inputOnChange(e.target.value, 'inputLng')}/>
               </InputGroup>
             </Col>
           </Row>

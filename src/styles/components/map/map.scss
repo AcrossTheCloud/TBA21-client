@@ -3,7 +3,7 @@
 .mapWrapper {
   flex: 100% 1;
   min-height: 360px;
-  height: calc(100vh - 260px); // Minus dropzone/inputs / modal dialog margin / modal body padding
+  height: calc(100vh - 334px); // Minus dropzone/inputs / modal dialog margin / modal body padding
   position: relative;
   z-index: 1;
   margin-bottom: 20px;
