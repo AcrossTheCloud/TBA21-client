@@ -7,7 +7,7 @@ import * as topojson from 'topojson-client';
 import { CSSTransition } from 'react-transition-group';
 
 import { Feature, GeoJsonObject, GeometryObject, Point } from 'geojson';
-import { jellyFish, pin } from './icons';
+import { OALogo, pin } from './icons';
 
 import * as L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -102,7 +102,7 @@ class MapView extends React.Component<Props, State> {
               // If we're a point add it to the Marker Cluster Layer
               if (feature.type === 'Point') {
                 const latLng = new L.LatLng(feature.coordinates[1], feature.coordinates[0], feature.coordinates[2]);
-                const markerLayer: L.Marker = L.marker(latLng, {icon: jellyFish(feature.coordinates[2])});
+                const markerLayer: L.Marker = L.marker(latLng, {icon: OALogo(feature.coordinates[2])});
                 // Add the geometry collection properties to this feature, as sub features don't have the collections properties.
                 markerLayer.feature = { type: 'Feature', properties, geometry: feature.coordinates };
                 _self.layerTooltip(markerLayer.feature, markerLayer);
@@ -248,9 +248,8 @@ class MapView extends React.Component<Props, State> {
   initialiseMarkerCluster = () => {
     // initialise marker cluster
     this.markerClusterLayer = L.markerClusterGroup({
-      spiderfyOnMaxZoom: false,
       showCoverageOnHover: false,
-      zoomToBoundsOnClick: false
+      zoomToBoundsOnClick: true
     });
     this.map.addLayer(this.markerClusterLayer, {
       chunkedLoading: true
@@ -264,9 +263,6 @@ class MapView extends React.Component<Props, State> {
         } = x.layer.feature.properties;
 
         this.props.openModal(id, metatype);
-      },
-      clusterclick: a => {
-        a.layer.zoomToBounds({padding: [20, 20]});
       }
     });
   }
@@ -404,7 +400,7 @@ class MapView extends React.Component<Props, State> {
    */
   checkZoom = (callback?: Function): boolean | void => {
     let zoomedOutTooFar = false;
-    if (this.map.getZoom() <= -1) {
+    if (this.map.getZoom() <= 5) {
       zoomedOutTooFar = true;
     }
 
@@ -434,7 +430,7 @@ class MapView extends React.Component<Props, State> {
 
   render() {
     return (
-      <div className="mapWrapper">
+      <div className="mapWrapper mx-0">
         <div
           id="oa_map"
           style={mapStyle}

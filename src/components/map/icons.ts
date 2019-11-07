@@ -35,3 +35,24 @@ export function pin(zLevel: number = 0): DivIcon {
      iconAnchor:   [10, 23], // point of the icon which will correspond to marker's location [iconWidth/2, iconHeight]
    });
 }
+export function OALogo(zLevel: number = 0): DivIcon {
+  const
+    colour = colourScale(zLevel),
+    svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 295 285">
+          <defs>
+              <style xmlns="http://www.w3.org/2000/svg">.cls-1{fill-rule:evenodd; fill: ${colour.colour}; stroke: ${colour.outline}; stroke-width: 10px</style>
+          </defs>
+          <g>
+            <path class="cls-1" d="M174.39,185.08h35.87v35H174.39l-57.54-30.65L93.43,220.09H49l57.53-75.19Zm35.87,0V150h35.86v35.05Z"/>
+            <path class="cls-1" d="M238.1,71.47H202.77c.45,5.57-.17,18.39-7.41,23.14-5.49,3.61-16.86,2-39-10.18-3-1.68-6-3.18-8.93-4.59-29-14.69-53.38-20.08-70.43-8.77-22.23,14.74-21.63,47.54-20.76,59.22H91.56c-.44-5.56,0-18.3,7.29-23,5.49-3.61,17.51-2,39.65,10.18,3,1.68,6,3.18,8.93,4.6,29,14.68,53.29,18.88,70.34,7.57C240,114.86,239,83.16,238.1,71.47"/>
+          </g>
+        </svg>
+    `;
+
+  return divIcon({
+     html: svg,
+     iconSize:     [40, 40], // size of the icon
+     iconAnchor:   [20, 40], // point of the icon which will correspond to marker's location [iconWidth/2, iconHeight]
+   });
+}
