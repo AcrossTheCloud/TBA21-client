@@ -18,7 +18,6 @@ import moment from 'moment';
 import { browser } from './utils/browser';
 import Footer from './layout/Footer';
 import FeedItem from './feed/FeedItem';
-import AnnouncementView from './highlight/AnnouncementView';
 import HighlightItem from './highlight/HighlightItem';
 
 import 'styles/components/home.scss';
@@ -301,9 +300,6 @@ class HomePage extends React.Component<Props, State> {
                   onOpenModal={openModal}
                 />
               ))}
-            {announcements && announcements.length && (
-              <AnnouncementView announcements={announcements} />
-            )}
           </Row>
         </Container>
 
@@ -312,7 +308,7 @@ class HomePage extends React.Component<Props, State> {
         <Container fluid id="main" className="pb">
 
           <Row className="announcements">
-            {this.props.announcements && this.props.announcements.length ?
+            {announcements && announcements.length ?
               <Col>
                 <h3>Announcements</h3>
                 <Carousel

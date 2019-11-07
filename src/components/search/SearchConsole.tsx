@@ -43,7 +43,6 @@ import 'styles/components/admin/tables/modal.scss';
 
 import dateFromTimeYearProduced from '../utils/date-from-time-year-produced';
 
-
 interface Props extends SearchConsoleState {
   changeView: Function;
   dispatchSearch: Function;
@@ -691,7 +690,7 @@ class SearchConsole extends React.Component<Props, State> {
             )}
           </div>
 
-          {this.props.searchResultsLoading ? (
+          {this.props.searchResultsLoading ?
             <Row>
               <Col className="text-center pb-5">
                 <Spinner
