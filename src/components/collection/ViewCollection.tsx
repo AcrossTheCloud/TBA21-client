@@ -2,7 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import {
   fetchCollection,
-  fetchProfileCollections
+  fetchContributedItemsForProfile
 } from 'actions/collections/viewCollection';
 import { ViewCollectionState } from 'reducers/collections/viewCollection';
 import { ErrorMessage } from '../utils/alerts';
@@ -21,7 +21,7 @@ type MatchParams = {
 interface Props extends RouteComponentProps<MatchParams>, ViewCollectionState {
   uuid?: string | null;
   fetchCollection: Function;
-  fetchProfileCollections: Function;
+  fetchContributedItemsForProfile: Function;
 }
 
 class ViewCollection extends React.Component<Props, {}> {
@@ -33,13 +33,11 @@ class ViewCollection extends React.Component<Props, {}> {
     if (match.params.id) {
       matchId = match.params.id;
     }
-
     // If we have an id from the URL pass it through, otherwise use the one from Redux State
     if (matchId) {
       this.props.fetchCollection(matchId);
     } else if (uuid) {
-      // this.props.fetchCollection(uuid); // TODO: allow fetchCollection to queries
-      this.props.fetchProfileCollections(uuid);
+      this.props.fetchContributedItemsForProfile(uuid);
     } else {
       this.setState({ errorMessage: 'No collection with that id.' });
     }
@@ -51,7 +49,6 @@ class ViewCollection extends React.Component<Props, {}> {
     if (typeof collection === 'undefined') {
       return <ErrorMessage message={errorMessage} />;
     }
-
     return (
       <div id="item" className="container-fluid">
         <ErrorMessage message={errorMessage} />
@@ -77,6 +74,6 @@ const mapStateToProps = (state: { viewCollection: ViewCollectionState }) => {
 export default withRouter(
   connect(
     mapStateToProps,
-    { fetchCollection, fetchProfileCollections }
+    { fetchCollection, fetchContributedItemsForProfile }
   )(ViewCollection)
 );

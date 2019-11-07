@@ -32,7 +32,7 @@ import {
   Login,
   SignUp,
   ResetPassword,
-  AccountConfirmation,
+  AccountConfirmation, MapView,
   // END USER
 
 } from './components/';
@@ -144,6 +144,7 @@ export const AppRouter = () => {
                   </div>)
                 }
               />
+              <Route exact path="/map" component={MapView} />
               <Route
                 path="/profiles/:profileId"
                 render={() => (

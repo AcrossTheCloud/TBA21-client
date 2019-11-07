@@ -1,12 +1,13 @@
-import { API } from 'aws-amplify';
 import { Item } from '../../types/Item';
 import { checkFile } from '../items/viewItem';
 import { LOADINGOVERLAY } from '../loadingOverlay';
 import { FETCH_COLLECTION_LOAD_MORE } from '../../reducers/collections/viewCollection';
+import { queryByUuid, getById, getItemsInCollection } from '../../REST/collections';
+import { removeTopology } from '../../components/utils/removeTopology';
+import { Collection } from '../../types/Collection';
 
 // Defining our Actions for the reducers.
 export const FETCH_COLLECTION = 'FETCH_COLLECTION';
-export const FETCH_COLLECTIONS = 'FETCH_COLLECTIONS';
 export const FETCH_COLLECTION_ERROR = 'FETCH_COLLECTION_ERROR';
 export const FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION =
   'FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION';
@@ -18,7 +19,7 @@ export const FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION =
  * @param id {string}
  */
 
-export const fetchProfileCollections = (uuid: string) => async (
+export const fetchContributedItemsForProfile = (uuid: string) => async (
   dispatch,
   getState
 ) => {
@@ -31,31 +32,18 @@ export const fetchProfileCollections = (uuid: string) => async (
 
   try {
     // TODO: this returns an array of collections
-    const { collections } = await API.get('tba21', 'collections', {
-      queryStringParameters: {
-        uuid: '7e32b7c6-c6d3-4e70-a101-12af2df21a19'
-      }
-    });
+    const { collections } = await queryByUuid(uuid);
+
     if (!!collections && collections.length) {
       Promise.all(
-        collections.map(async collection => {
-          console.log(collection.id);
-          const itemResponse = await API.get(
-            'tba21',
-            'collections/getItemsInCollection',
-            {
-              queryStringParameters: {
-                id: collection.id,
-                limit: 1000
-              }
-            }
-          );
 
+        collections.map(async collection => {
+          const itemResponse = await getItemsInCollection({ id: collection.id, limit: 1000 });
           return await loadMore(itemResponse.items);
         })
       ).then((collectionBundles: any[]) => {
         const items = collectionBundles.flatMap(collection => collection.items);
-        console.log(collectionBundles, items);
+
         dispatch({
           type: FETCH_COLLECTION,
           collection: collections,
@@ -94,34 +82,23 @@ export const fetchCollection = (id: string) => async (dispatch, getState) => {
     return prevState.viewCollection;
   } else {
     try {
-      const response = await API.get('tba21', 'collections/getById', {
-        queryStringParameters: {
-          id
-        }
-      });
+      const response = await getById(id);
 
-      if (!!response.collection && Object.keys(response.collection).length) {
-        const itemResponse = await API.get(
-          'tba21',
-          'collections/getItemsInCollection',
-          {
-            queryStringParameters: {
-              id,
-              limit: 1000
-            }
-          }
-        );
+      const collection = removeTopology(response) as Collection[];
+
+      if (!!collection && !!collection[0] && Object.keys(collection).length) {
+        const itemResponse = await getItemsInCollection({ id, limit: 1000 });
 
         dispatch({
           type: FETCH_COLLECTION,
-          collection: response.collection,
+          collection: collection[0],
           offset: 0,
-          ...(await loadMore(itemResponse.items))
+          ...(await loadMore(removeTopology(itemResponse) as Item[]))
         });
       } else {
         dispatch({
           type: FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION,
-          collection: {},
+          collection: undefined,
           items: {}
         });
       }

@@ -4,10 +4,10 @@ import { isEqual } from 'lodash';
 
 import { fetchCollection } from 'actions/collections/viewCollection';
 import { toggle } from 'actions/modals/collectionModal';
-import { HomepageData } from 'reducers/home';
 import { FaTimes } from 'react-icons/fa';
 import { Col, Modal, ModalBody, Row } from 'reactstrap';
 import ViewCollection from '../collection/ViewCollection';
+import { HomepageData } from '../../types/Home';
 import { Collection } from '../../types/Collection';
 
 interface Props {
@@ -39,7 +39,7 @@ class CollectionModal extends React.Component<Props, State> {
 
   componentWillUnmount = () => {
     this._isMounted = false;
-  }
+  };
 
   async componentDidUpdate(prevProps: Readonly<Props>): Promise<void> {
     if (this._isMounted) {
@@ -61,23 +61,29 @@ class CollectionModal extends React.Component<Props, State> {
 
   render() {
     if (this.props.data) {
-      const {
-        title
-      } = this.props.data;
+      const { title } = this.props.data;
 
       return (
-        <Modal id="homePageModal" scrollable className="fullwidth" isOpen={this.state.open} backdrop toggle={() => this.props.toggle()}>
+        <Modal
+          id="homePageModal"
+          scrollable
+          className="fullwidth"
+          isOpen={this.state.open}
+          backdrop
+          toggle={() => this.props.toggle()}
+        >
           <Row className="header align-content-center">
             <div className="col-11 title-wrapper d-flex align-content-center">
               <div className="title">
-                <span className="ellipsis">
-                  {title}
-                </span>
+                <span className="ellipsis">{title}</span>
               </div>
             </div>
             <Col xs="1" className="pl-0 pr-3">
               <div className="text-right">
-                <FaTimes className="closeButton" onClick={() => this.props.toggle(false)}/>
+                <FaTimes
+                  className="closeButton"
+                  onClick={() => this.props.toggle(false)}
+                />
               </div>
             </Col>
           </Row>
@@ -85,7 +91,6 @@ class CollectionModal extends React.Component<Props, State> {
           <ModalBody>
             <ViewCollection />
           </ModalBody>
-
         </Modal>
       );
     } else {
@@ -94,9 +99,14 @@ class CollectionModal extends React.Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: { collectionModal: { open: boolean, data?: HomepageData | Collection } }) => ({
+const mapStateToProps = (state: {
+  collectionModal: { open: boolean; data?: HomepageData | Collection };
+}) => ({
   data: state.collectionModal.data,
   open: state.collectionModal.open
 });
 
-export default connect(mapStateToProps, { toggle, fetchCollection })(CollectionModal);
+export default connect(
+  mapStateToProps,
+  { toggle, fetchCollection }
+)(CollectionModal);

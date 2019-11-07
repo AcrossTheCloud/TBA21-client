@@ -499,6 +499,7 @@ export interface Item {
   location: string | null;
   provenance: string[] | null;
 
-  geom: string | null;
+  linestring: string | null;
+  point: string | null;
   geojson: { [name: string]: any } | null; // tslint:disable-line: no-any
 }

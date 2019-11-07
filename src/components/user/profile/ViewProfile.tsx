@@ -1,17 +1,17 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { RouteComponentProps, withRouter } from 'react-router';
+import { Col, Row } from 'reactstrap';
+import { FaInstagram, FaTwitter, FaTint } from 'react-icons/fa';
 
 import { State } from 'reducers/user/viewProfile';
-
-import { RouteComponentProps, withRouter } from 'react-router';
+import { Profile, groupProfileTypes } from '../../../types/Profile';
+import { fetchProfile } from '../../../actions/user/viewProfile';
 
 import ViewCollection from '../../collection/ViewCollection';
 
 import 'styles/components/pages/viewProfile.scss';
 import { Alerts, ErrorMessage } from '../../utils/alerts';
-import { Profile, groupProfileTypes } from '../../../types/Profile';
-import { fetchProfile } from '../../../actions/user/viewProfile';
-import { Col, Row } from 'reactstrap';
 
 interface Props extends RouteComponentProps, Alerts {
   fetchProfile: Function;
@@ -51,6 +51,31 @@ class ViewProfile extends React.Component<Props, State> {
     );
   }
 
+  mapLinkToIcon(link) {
+    if (link.includes('instagram')) {
+      return <FaInstagram size="25" />;
+    } else if (link.includes('twitter')) {
+      return <FaTwitter size="25" />;
+    } else {
+      return <FaTint size="25" />;
+    }
+  }
+  renderSocialMedia(links) {
+    return links.map((link, i) => {
+      const icon = this.mapLinkToIcon(link);
+      return (
+        <a
+          className="mr-2 social-media"
+          href={link}
+          rel="noopener noreferrer"
+          target="_blank"
+          key={i}
+        >
+          {icon}
+        </a>
+      );
+    });
+  }
   renderRow(label: string, value: string, isLink: boolean = false) {
     return (
       <div>
@@ -81,13 +106,16 @@ class ViewProfile extends React.Component<Props, State> {
       country,
       biography,
       website,
+      social_media,
       field_expertise,
       profile_type,
       profile_image,
       public_profile,
       cognito_uuid
     } = profile;
-    const tags = ['marine wildlife', 'adaptations at sea', 'climate change'];
+    const tags = [];
+    // TODO: how to fetch tags via the API?
+    // const tags = ['marine wildlife', 'adaptations at sea', 'climate change'];
 
     return (
       <div id="profile">
@@ -111,10 +139,15 @@ class ViewProfile extends React.Component<Props, State> {
                       ? this.renderContact()
                       : `${profile_type} Contributor`}
                   </div>
+                  {social_media ? (
+                    <div>{this.renderSocialMedia(social_media)}</div>
+                  ) : null}
                 </div>
               </Col>
             </Row>
-            <Col xs="12">{biography}</Col>
+            <Col xs="12">
+              <p className="m-3">{biography}</p>
+            </Col>
           </Col>
           {!public_profile ? (
             <Col xs="12" md="6">
@@ -123,6 +156,7 @@ class ViewProfile extends React.Component<Props, State> {
                   ? this.renderRow('Location', [city, country].join(' '))
                   : null}
                 {website ? this.renderRow('Website', website, true) : null}
+
                 {position ? this.renderRow('Position', position) : null}
                 {affiliation
                   ? this.renderRow('Affiliation', affiliation)
@@ -143,10 +177,8 @@ class ViewProfile extends React.Component<Props, State> {
             ''
           )}
         </Row>
-        <Row className="mx-3">
-          <div className="title my-3"> Contributed Items </div>
-          <ViewCollection uuid={cognito_uuid} />
-        </Row>
+        <div className="title my-3 mx-3"> Contributed Items </div>
+        <ViewCollection uuid={cognito_uuid} />
       </div>
     );
   }
