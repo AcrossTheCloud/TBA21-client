@@ -7,34 +7,17 @@ interface Props {
   url: string;
   onLoad: Function;
 }
-interface State {
-  url: string;
-}
 
-export default class PdfPreview extends React.Component<Props, State> {
-  _isMounted: boolean = false;
-
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      url: this.props.url
-    };
-  }
-
-  componentDidMount(): void {
-    this._isMounted = true;
-  }
-
-  componentWillUnmount(): void {
-    this._isMounted = false;
+export default class PdfPreview extends React.Component<Props> {
+  shouldComponentUpdate(nextProps: Props) {
+    return this.props.url !== nextProps.url;
   }
 
   render() {
     return (
       <Document
         onLoadSuccess={typeof this.props.onLoad === 'function' ? this.props.onLoad() : () => { return; }}
-        file={{url: this.state.url}}
+        file={{url: this.props.url}}
       >
         <Page
           pageNumber={1}
