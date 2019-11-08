@@ -33,7 +33,6 @@ interface Props extends HomePageState {
 }
 
 interface State {
-  loadCount: number;
   announcements: Announcement[];
   announcementsActiveIndex: number;
 }
@@ -42,22 +41,19 @@ class HomePage extends React.Component<Props, State> {
   _isMounted;
   scrollDebounce;
   windowHeightTimeout;
-  onLoadDebounce;
   announcementsSlidesHeight: number = 0;
+  loadedCount: number = 0;
 
   constructor(props: Props) {
     super(props);
 
     this._isMounted = false;
 
-    this.scrollDebounce = debounce(async () => await this.handleScroll(), 100);
+    this.scrollDebounce = debounce(async () => { this.scrollDebounce.cancel(); await this.handleScroll(); }, 100);
     this.state = {
       announcements: [],
-      announcementsActiveIndex: 0,
-      loadCount: 0
+      announcementsActiveIndex: 0
     };
-    // this.onLoad = this.onLoad.bind(this);
-    this.onLoadDebounce = debounce(count => this.handleLoad(count), 100);
   }
 
   async componentDidMount(): Promise<void> {
@@ -66,7 +62,7 @@ class HomePage extends React.Component<Props, State> {
     window.addEventListener('scroll', this.handleScrollMobileSearch, false);
 
     const { loadedCount, loadedItems, loadHomepage, loadMore } = this.props;
-    this.setState({ loadCount: loadedCount });
+    this.loadedCount = loadedCount;
 
     // If we have no items go get em.
     if (!loadedItems.length) {
@@ -83,8 +79,8 @@ class HomePage extends React.Component<Props, State> {
     window.removeEventListener('scroll', this.handleScrollMobileSearch, false);
   };
 
-  handleLoad(count) {
-    this.setState({ loadCount: count });
+  handleLoad = () => {
+    this.loadedCount = this.loadedCount - 1;
   }
 
   async componentDidUpdate(
@@ -92,7 +88,7 @@ class HomePage extends React.Component<Props, State> {
     prevState: Readonly<State>
   ): Promise<void> {
     if (
-      this.state.loadCount < 0 &&
+      this.loadedCount < 0 &&
       this.props.loadedMore &&
       !this.props.logoLoaded
     ) {
@@ -330,8 +326,7 @@ class HomePage extends React.Component<Props, State> {
               <FeedItem
                 item={item}
                 key={loadedItems.length + i}
-                loadCount={this.state.loadCount}
-                onLoad={this.onLoadDebounce}
+                onLoad={this.handleLoad}
                 onOpenModal={openModal}
               />
             ))}
