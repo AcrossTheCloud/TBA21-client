@@ -321,11 +321,11 @@ class HomePage extends React.Component<Props, State> {
             }
           </Row>
 
-          <Row>
+          <Row key="loadedItemsRow">
             {loadedItems.map((item, i) => (
               <FeedItem
                 item={item}
-                key={loadedItems.length + i}
+                key={'feedItem_' + i}
                 onLoad={this.handleLoad}
                 onOpenModal={openModal}
               />
