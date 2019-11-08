@@ -61,13 +61,13 @@ class HomePage extends React.Component<Props, State> {
     window.addEventListener('scroll', this.scrollDebounce, false);
     window.addEventListener('scroll', this.handleScrollMobileSearch, false);
 
-    const { loadedCount, loadedItems, loadHomepage, loadMore } = this.props;
+    const { loadedCount, loadedItems } = this.props;
     this.loadedCount = loadedCount;
 
     // If we have no items go get em.
     if (!loadedItems.length) {
-      await loadHomepage();
-      await loadMore();
+      await this.props.loadHomepage();
+      await this.props.loadMore();
     }
 
     $(window).on('load resize orientationchange', this.normalizeSlideHeights);
@@ -287,11 +287,11 @@ class HomePage extends React.Component<Props, State> {
           <Row className="highlights">
             {highlights &&
               highlights.length &&
-              highlights.map((ea, index) => (
+              highlights.map((ea, i) => (
                 <HighlightItem
                   highlight={ea}
                   key={ea.id}
-                  index={index}
+                  index={i}
                   hasMultiple={highlights.length > 1}
                   onOpenModal={openModal}
                 />

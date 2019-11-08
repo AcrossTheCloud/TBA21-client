@@ -6,22 +6,29 @@ import { itemType } from '../../types/Item';
 import { FileStaticPreview } from '../utils/DetailPreview';
 import HighlightItemDetails from './HighlightItemDetails';
 import FeedAudioPreview from '../feed/FeedAudioPreview';
+import { HomepageData } from '../../types/Home';
 
-export default function HighlightPreview(highlight, onOpenModal, index) {
-  if (!highlight.file) return <></>;
+export default function HighlightPreview(props: { highlight: HomepageData, openModal: Function, index: number }) {
+  const { highlight, openModal } = props;
+
+  if (!highlight.file) { return <></>; }
+
   return (
     <div className="detailPreview">
       {highlight.item_type === itemType.Audio ||
       highlight.file.type === FileTypes.Audio ? (
         <FeedAudioPreview
           feedItem={highlight}
-          openModal={() => onOpenModal(highlight)}
+          openModal={() => openModal(highlight)}
         />
       ) : (
-        [
-          <FileStaticPreview file={highlight.file} />,
-          <HighlightItemDetails index={index} />
-        ]
+        <>
+          <FileStaticPreview file={highlight.file} />
+          <HighlightItemDetails
+            highlight={highlight}
+            openModal={openModal}
+          />
+        </>
       )}
       {highlight.file.type === FileTypes.Video && (
         <div className="middle">

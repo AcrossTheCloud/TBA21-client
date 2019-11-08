@@ -21,7 +21,8 @@ export const logoDispatch = (state: boolean) => dispatch => {
 };
 
 export const loadHomepage = () => async dispatch => {
-  const oaHighlights: { oa_highlight: HomepageData[] } = await API.get(
+  const
+    oaHighlights: { oa_highlight: HomepageData[] } = await API.get(
       'tba21',
       'pages/homepage',
       { queryStringParameters: { oa_highlight: true, oaHighlightLimit: 2 } }
@@ -48,7 +49,10 @@ export const loadHomepage = () => async dispatch => {
     queryStringParameters: { limit: '9' }
   });
 
-  const highlightsWithFiles = await addFilesToData(oaHighlights.oa_highlight);
+  let highlightsWithFiles: HomepageData[] = [];
+  if (oaHighlights.oa_highlight && oaHighlights.oa_highlight.length) {
+    highlightsWithFiles = await addFilesToData(oaHighlights.oa_highlight);
+  }
 
   const items = response.items,
     collections = response.collections,
