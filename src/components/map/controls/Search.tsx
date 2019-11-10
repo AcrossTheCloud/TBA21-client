@@ -184,6 +184,7 @@ export default class Search {
     select.id = 'conceptTags';
     select.className = 'custom-select';
     this.selectInput = select;
+    L.DomEvent.on(select, 'mousewheel', L.DomEvent.stopPropagation);
 
     // A All option
     const allOption = document.createElement('option');
