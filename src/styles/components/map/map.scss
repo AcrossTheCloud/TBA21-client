@@ -1,36 +1,79 @@
 @import "../../base/variables";
 
 .mapWrapper {
-  flex: 100%;
+  flex: 100% 1;
+  min-height: 360px;
+  height: calc(100vh - 334px); // Minus dropzone/inputs / modal dialog margin / modal body padding
   position: relative;
+  z-index: 1;
+  margin-bottom: 20px;
 
-  #sidebar {
-    height: 100%;
-    width: 30%;
-    position: absolute;
-    top: 0;
-    left: -100%;
-    z-index: 99999;
-    background: rgba(255, 255, 255, 0.8);
+  // Legend styling
+  .legend span, .legend label {
+    display: block;
+    width: 50px;
+    height: 18px;
+    float: left;
+    text-align: center;
+    font-size: 80%
+  }
 
-    transition: left 1s;
-    padding: 20px;
-    &.open {
-      left: 0;
-      transition: left 1s;
-    }
+  .zoomInBuddy {
+    font-size: 14px;
+    div {
+      opacity: 0;
+      z-index: 0;
 
-    .content {
-      overflow-y: scroll;
-      overflow-x: hidden;
-    }
-
-    .closeButton {
-      position: absolute;
-      top: 0;
-      right: 20px;
-      cursor: pointer;
+      &.show {
+        padding: 20px;
+        background: #fff;
+        border-radius: 10px;
+        z-index: 400;
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        &.op {
+          opacity: 1;
+        }
+      }
     }
   }
 
+  .leaflet-marker-icon {
+    &.leaflet-div-icon {
+      background: none !important;
+      border: none !important;
+    }
+  }
+
+  .rangeSlider {
+    $bg: #434d5a;
+
+    .ui-slider,
+    .ui-slider .ui-slider-pip .ui-slider-line {
+      background: lighten($bg, 25%);
+    }
+
+    .ui-slider .ui-slider-handle .ui-slider-tip:after {
+      border-left-color: #434d5a;
+    }
+
+
+    .ui-slider .ui-slider-handle.ui-state-hover,
+    .ui-slider .ui-slider-handle.ui-state-focus,
+    .ui-slider .ui-slider-handle.ui-state-active { border-color: white; }
+  }
+
+  #searchControlContent {
+    position: absolute;
+    left: 35px;
+    top: 0;
+    background: #fff;
+    margin: 0;
+    width: 300px;
+    height: 300px;
+    border: 2px solid rgba(0,0,0,0.2);
+    overflow: hidden;
+    transition: height 1s, width 2s, border-width 1.5s;
+  }
 }

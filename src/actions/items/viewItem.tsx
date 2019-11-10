@@ -1,8 +1,9 @@
-import { API } from 'aws-amplify';
 import { getCDNObject, checkThumbnails } from '../../components/utils/s3File';
 import { Item } from '../../types/Item';
 import { FileTypes, S3File } from '../../types/s3File';
 import { LOADINGOVERLAY } from '../loadingOverlay';
+import { getItem } from '../../REST/items';
+import { removeTopology } from '../../components/utils/removeTopology';
 
 // Defining our Actions for the reducers.
 export const FETCH_ITEM = 'FETCH_ITEM';
@@ -43,14 +44,11 @@ export const fetchItem = (id: string) => async (dispatch, getState) => {
   } else {
 
     try {
-      const response = await API.get('tba21', 'items/getItem', {
-        queryStringParameters: {
-          id: id
-        }
-      });
+      const response = await getItem({ id });
+      const items = removeTopology(response) as Item[];
 
-      if (!!response.item && Object.keys(response.item).length) {
-        const item = response.item;
+      if (!!items && items[0]) {
+        const item = items[0];
 
         // Get the items file
         const file = await checkFile(item);
