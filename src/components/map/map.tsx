@@ -7,7 +7,7 @@ import * as topojson from 'topojson-client';
 import { CSSTransition } from 'react-transition-group';
 
 import { Feature, GeoJsonObject, GeometryObject, Point } from 'geojson';
-import { OALogo, pin } from './icons';
+import { OALogo } from './utils/icons';
 
 import * as L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -18,14 +18,14 @@ import { fetchData, openModal } from 'actions/map/map';
 import { legend } from './controls/legend';
 import Search from './controls/Search';
 
-import { colourScale } from './colorScale';
+import { colourScale } from './utils/colorScale';
 import 'animate.css/animate.min.css';
 import 'styles/components/map/map.scss';
 
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import 'leaflet.markercluster/dist/leaflet.markercluster';
-
-// import '';
+import { locateUser } from './utils/locateUser';
+import { initialiseMap } from './utils/initialiseMap';
 
 interface Props {
   openModal: Function;
@@ -71,7 +71,7 @@ class MapView extends React.Component<Props, State> {
   componentDidMount(): void {
     this._isMounted = true;
 
-    this.initialiseMap();
+    this.map = initialiseMap();
     this.initialiseMarkerCluster();
     this.mapMoveEnd();
 
@@ -79,7 +79,8 @@ class MapView extends React.Component<Props, State> {
     const _self = this;
 
     // Lets attempt to find the user.
-    this.locateUser();
+    locateUser(map, [this.state.lat, this.state.lng]);
+    this.checkZoom();
 
     // Add the legend to the map
     legend(map);
@@ -157,39 +158,38 @@ class MapView extends React.Component<Props, State> {
 
     // @ts-ignore
     this.topoLayer = new L.TopoJSON(null, {
-      // Add our custom marker to points.
-      // pointToLayer: (feature: Feature<GeometryObject>, latlng: L.LatLng) => {
-      //   return false;
-      // },
       // Each feature style it up
+      // All markers are handled in AddData L.TopoJSON, this is because we push them off to MarkerCluster
       onEachFeature: (feature: Feature<GeometryObject>, layer: L.Layer) => {
-        this.layerTooltip(feature, layer);
-        this.onClick(layer);
-
         if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
           const latlngs = flatMap(layer.getLatLngs()) as L.LatLng[];
           const altitudes: number[] = [];
 
           // For each of our lat longs (vertex) add a pin.
           latlngs.forEach( (latLng: L.LatLng) => {
-            const altitude = latLng.alt ? latLng.alt : 0;
+            const altitude = typeof latLng.alt !== 'undefined' ? latLng.alt : 0;
             // Push the vertex's altitude to the altitudes array for later
             altitudes.push(altitude);
 
             // Create markers at each vertex and add the title / alt to the tooltip
-            const vertexPin = new L.Marker(new L.LatLng(latLng.lat, latLng.lng, altitude), { icon: pin(altitude) });
-            const toolTip = `<div>${Math.sign(altitude) <= 0 ? 'Depth' : 'Altitude'}: ${altitude}</div>`;
+            const zLevelColour = colourScale(altitude);
+            const vertexPin = new L.CircleMarker(new L.LatLng(latLng.lat, latLng.lng, altitude), {
+              fillColor: zLevelColour.colour,
+              fill: true,
+              fillOpacity: 0.8,
+              color: zLevelColour.outline,
+              stroke: true,
+              radius: 5,
+              weight: 2
+            });
+
+            // Set the vertex's tool tip with it's altitude/depth
+            this.layerTooltip(feature, vertexPin, [0, -7]);
 
             vertexPin.feature = {
               ...feature,
               geometry: feature.geometry as Point,
             };
-
-            vertexPin.bindTooltip(toolTip, {
-              direction: 'top',
-              offset: [0, -20] // dependant on the icon
-            });
-
             // Adds openModal event to the vertex.
             this.onClick(vertexPin);
 
@@ -197,8 +197,11 @@ class MapView extends React.Component<Props, State> {
           });
 
           // Set the polygons style based on the maximum altitude
-          const maxZLevel = Math.max(...altitudes);
+          const maxZLevel = Math.min(...altitudes);
           this.polygonLayerStyle(maxZLevel, layer);
+
+          // Set the Lines tooltip, not the vertex
+          this.layerTooltip(feature, layer, undefined, maxZLevel);
         }
       }
     });
@@ -218,28 +221,6 @@ class MapView extends React.Component<Props, State> {
 
   componentWillUnmount(): void {
     this._isMounted = false;
-  }
-
-  /**
-   * Sets up the leaflet map and tile layer
-   */
-  initialiseMap = () => {
-    const
-      mapID: string = 'mapbox.outdoors',
-      accessToken: string = 'pk.eyJ1IjoiYWNyb3NzdGhlY2xvdWQiLCJhIjoiY2ppNnQzNG9nMDRiMDNscDh6Zm1mb3dzNyJ9.nFFwx_YtN04_zs-8uvZKZQ',
-      tileLayerURL: string = 'https://api.tiles.mapbox.com/v4/' + mapID + '/{z}/{x}/{y}.png?access_token=' + accessToken;
-
-    this.map = L.map('oa_map', {
-      maxZoom: 18,
-      preferCanvas: true
-    }).setView([this.state.lat, this.state.lng], 13);
-
-    L.tileLayer(tileLayerURL, {
-      attribution: '',
-      maxZoom: 18,
-      id: mapID,
-      accessToken: accessToken
-    }).addTo(this.map);
   }
 
   /**
@@ -269,27 +250,43 @@ class MapView extends React.Component<Props, State> {
 
   /**
    * Binds the tool tip to the layer.
-   * @param feature
-   * @param layer
+   * @param feature { Feature<GeometryObject> }
+   * @param layer { L.Layer }
+   * @param offset { [x, y] }
+   * @param maxZLevel { number }
    */
-  layerTooltip(feature: Feature<GeometryObject>, layer: L.Layer) {
+  layerTooltip(feature: Feature<GeometryObject>, layer: L.Layer, offset?: [number, number], maxZLevel?: number) {
       // If we have properties (we always should) set our custom tool tip.
       // If the layer is a Marker, add the depth (alt) to the tooltip.
       if (!!feature.properties) {
-        const toolTip = `
-            <div>
-              <div class="title">
-                ${feature.properties.title}
-              </div>
-              
-              ${layer instanceof L.Marker ? `<div>Depth: ${layer.getLatLng().alt}</div>` : ''}
-            </div>
-          `;
+        let depthDiv = '';
+        if (layer instanceof L.Marker || layer instanceof L.CircleMarker) {
+          const altitude = layer.getLatLng().alt;
+          depthDiv = `<div>${Math.sign(altitude ? altitude : 0) <= 0 ? 'Depth' : 'Altitude'}: ${altitude}</div>`;
+        } else if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
+          if (typeof maxZLevel !== 'undefined') {
+            depthDiv = `<div>${Math.sign(maxZLevel ? maxZLevel : 0) <= 0 ? 'Maximum Depth' : 'Maximum Altitude'}: ${maxZLevel}</div>`;
+          }
+        }
 
-        layer.bindTooltip(toolTip, {
+        const toolTip = `
+          <div>
+            <div class="title">
+              ${feature.properties.title}
+            </div>
+            
+            ${depthDiv}
+          </div>
+        `;
+        const options: L.TooltipOptions = {
           direction: 'top',
-          offset: [0, -38] // dependant on the icon
-        });
+        };
+
+        if (offset) {
+          Object.assign(options,  { offset: offset });
+        }
+
+        layer.bindTooltip(toolTip, options);
       }
   }
 
@@ -362,22 +359,6 @@ class MapView extends React.Component<Props, State> {
          this.setStyle({ weight: 1, opacity: .5 });
        }
      });
-  }
-  /**
-   * Use leaflet's locate method to locate the use and set the view to that location.
-   */
-  locateUser = () => {
-    if (this.map) {
-      this.map.locate()
-        .on('locationfound', (location: L.LocationEvent) => {
-          this.map.flyTo(location.latlng, 10);
-        })
-        .on('locationerror', () => {
-          // Fly to a default location if the user declines our request to get their GPS location or if we had trouble getting said location.
-          // Ideally the map would already be in this location anyway.
-          this.map.flyTo([this.state.lat, this.state.lng], 10);
-        });
-    }
   }
 
   getUserBounds = () => {

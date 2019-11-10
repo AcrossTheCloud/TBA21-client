@@ -6,16 +6,18 @@ import '@geoman-io/leaflet-geoman-free';
 import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
 import './VerticalRangeSlider.scss';
 
-import { OALogo } from 'components/map/icons';
+import { OALogo } from 'components/map/utils/icons';
 
 import 'leaflet/dist/leaflet.css';
 import { Layer } from 'leaflet';
 import * as topojson from 'topojson-client';
 import { Feature, GeoJsonObject, GeometryObject } from 'geojson';
-import { colourScale } from '../../map/colorScale';
+import { colourScale } from '../../map/utils/colorScale';
 import { Alerts, ErrorMessage } from '../../utils/alerts';
 
 import 'styles/components/_dropzone.scss';
+import { locateUser } from '../../map/utils/locateUser';
+import { initialiseMap } from '../../map/utils/initialiseMap';
 
 const toGeoJSON = require('@mapbox/togeojson');
 
@@ -63,7 +65,7 @@ export default class DraggableMap extends React.Component<Props, State> {
 
   componentDidMount(): void {
     this._isMounted = true;
-    this.initialiseMap();
+    this.map = initialiseMap();
     if (this.map) {
       this.addLeafletGeoMan();
       this.topoLayer = this.setupTopoLayer();
@@ -72,12 +74,12 @@ export default class DraggableMap extends React.Component<Props, State> {
       if (topo && topo.objects && topo.objects.output.geometries && topo.objects.output.geometries.length) {
         const geometries = topo.objects.output.geometries;
         if ((geometries[0].type === null || geometries[0].type === 'null') && geometries.length === 1) {
-          this.locateUser();
+          this.locate();
         } else {
           this.topoLayer.addData(this.props.topoJSON);
         }
       } else {
-        this.locateUser();
+        this.locate();
       }
       // If we're a collection disable all of the items on the map, so they're no editable.
       if (this.props.collectionItems) {
@@ -103,24 +105,16 @@ export default class DraggableMap extends React.Component<Props, State> {
 
   }
 
-  initialiseMap = () => {
-    const
-      mapID: string = 'mapbox.outdoors',
-      accessToken: string = 'pk.eyJ1IjoiYWNyb3NzdGhlY2xvdWQiLCJhIjoiY2ppNnQzNG9nMDRiMDNscDh6Zm1mb3dzNyJ9.nFFwx_YtN04_zs-8uvZKZQ',
-      tileLayerURL: string = 'https://api.tiles.mapbox.com/v4/' + mapID + '/{z}/{x}/{y}.png?access_token=' + accessToken;
-
-    this.map = L.map('oa_map', {
-      maxZoom: 18,
-      zoom: 5,
-      preferCanvas: true
-    }).setView([this.state.inputLat, this.state.inputLng], 5);
-
-    L.tileLayer(tileLayerURL, {
-      attribution: '',
-      maxZoom: 18,
-      id: mapID,
-      accessToken: accessToken
-    }).addTo(this.map);
+  /**
+   * Locates the user and updates the position in state.
+   */
+  locate = () => {
+    locateUser(this.map, undefined, (data: {inputLng: number, inputLat: number}) => {
+      if (this._isMounted) {
+        const {inputLng, inputLat} = data;
+        this.setState({inputLng, inputLat});
+      }
+    });
   }
 
   setupTopoLayer = (isIgnored: boolean = false): L.GeoJSON => {
@@ -385,28 +379,6 @@ export default class DraggableMap extends React.Component<Props, State> {
         }, 300);
       });
     }
-  }
-
-  /**
-   * Use leaflet's locate method to locate the use and set the view to that location.
-   */
-  locateUser = (): void => {
-    const map = this.map;
-    map.locate()
-      .on('locationfound', (location: L.LocationEvent) => {
-        if (location && location.latlng) {
-          map.flyTo(location.latlng, 8);
-          // Set the input fields
-          if (this._isMounted) {
-            this.setState({inputLng: location.latlng.lng, inputLat: location.latlng.lat});
-          }
-        }
-      })
-      .on('locationerror', () => {
-        // Fly to a default location if the user declines our request to get their GPS location or if we had trouble getting said location.
-        // Ideally the map would already be in this location anyway.
-        // Set the input fields
-      });
   }
 
   fileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {  // tslint:disable-line:no-any

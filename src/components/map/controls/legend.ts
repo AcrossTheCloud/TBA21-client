@@ -1,6 +1,6 @@
 import * as L from 'leaflet';
 import chroma from 'chroma-js';
-import { colourScale } from '../colorScale';
+import { colourScale } from '../utils/colorScale';
 
 /**
  * Adds the legend to the map and set's the colour scale.

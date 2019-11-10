@@ -53,6 +53,6 @@ export function OALogo(zLevel: number = 0): DivIcon {
   return divIcon({
      html: svg,
      iconSize:     [40, 40], // size of the icon
-     iconAnchor:   [20, 40], // point of the icon which will correspond to marker's location [iconWidth/2, iconHeight]
+     iconAnchor:   [20, 0], // point of the icon which will correspond to marker's location [iconWidth/2, iconHeight]
    });
 }
