@@ -295,7 +295,7 @@ class SearchConsole extends React.Component<Props, State> {
   /**
    * Pulls the values from the search input ref. So we don't rely on waiting for state to update.
    * Then dispatches the redux action.
-  */
+   */
   searchDispatch = () => {
     this.animateResults(false);
     if (this.props.open && this.state.selectedCriteria && this.state.selectedCriteria.length) {

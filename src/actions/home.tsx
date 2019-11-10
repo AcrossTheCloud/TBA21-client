@@ -12,6 +12,7 @@ import { DetailPreview, FileStaticPreview } from '../components/utils/DetailPrev
 import { Col, Row } from 'reactstrap';
 import AudioPreview from '../components/layout/audio/AudioPreview';
 import { FaCircle, FaPlay } from 'react-icons/all';
+import { CriteriaOption, search, toggle } from './searchConsole';
 
 // Defining our Actions for the reducers
 export const LOGO_STATE_HOMEPAGE = 'LOGO_STATE_HOMEPAGE';
@@ -45,7 +46,18 @@ export const loadHomepage = () => async dispatch => {
   if (oaHighlights.oa_highlight && oaHighlights.oa_highlight.length) {
     Object.assign(queryStringParams, { id: oaHighlights.oa_highlight.map(o => o.id) });
   }
-
+  const searchCreators =  (creators) => async dispatch => {
+    if (creators) {
+      const criteria: CriteriaOption[] = [{
+        label: 'creators',
+        value: creators,
+        originalValue: creators,
+        field: 'creators'
+      }];
+      dispatch(search(criteria, true));
+      dispatch(toggle(true));
+    }
+  };
   const response: {items: HomepageData[], collections: HomepageData[]} = await API.get('tba21', 'pages/homepage', { queryStringParameters: queryStringParams });
   const announcementResponse = await API.get('tba21', 'announcements', { queryStringParameters: { limit: '9'}});
 
@@ -59,7 +71,7 @@ export const loadHomepage = () => async dispatch => {
       <>
         <div className="title-wrapper d-flex" onClick={() => dispatch(openModal(highlightsWithFiles[props.index]))}>
           {creators && creators.length ?
-            <div className="creators">
+            <div className="creators"  onClick={() => searchCreators(creators[0])}>
               {creators[0]}{creators.length > 1 ? <em>, et al.</em> : <></>}
             </div>
             : <></>
