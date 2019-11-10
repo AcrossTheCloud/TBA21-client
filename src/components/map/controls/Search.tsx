@@ -1,6 +1,7 @@
 import * as L from 'leaflet';
 import { APITag } from '../../metadata/Tags';
 import { Feature } from 'geojson';
+import searchIcon from '../icons/search-solid.svg';
 
 interface SearchCriteria {
   concept_tag_ids: number[];
@@ -126,6 +127,7 @@ export default class Search {
 
       const controlUI = L.DomUtil.create('a', 'icon', controlDiv);
       controlUI.title = 'Search';
+      controlUI.innerHTML = `<img alt="Search" src="${searchIcon}" width="17" height="15" />`;
       L.DomEvent.on(controlUI, 'click', event => {
         L.DomEvent.stopPropagation(event);
         L.DomEvent.preventDefault(event);
