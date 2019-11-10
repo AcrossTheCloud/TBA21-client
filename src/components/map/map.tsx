@@ -197,11 +197,15 @@ class MapView extends React.Component<Props, State> {
           });
 
           // Set the polygons style based on the maximum altitude
-          const maxZLevel = Math.min(...altitudes);
-          this.polygonLayerStyle(maxZLevel, layer);
+          let highestZLevel = Math.min(...altitudes);
+          // If we have no highestZLevel check for altitude instead
+          if (highestZLevel === 0) {
+            highestZLevel = Math.max(...altitudes);
+          }
+          this.polygonLayerStyle(highestZLevel, layer);
 
           // Set the Lines tooltip, not the vertex
-          this.layerTooltip(feature, layer, undefined, maxZLevel);
+          this.layerTooltip(feature, layer, undefined, highestZLevel);
         }
       }
     });
