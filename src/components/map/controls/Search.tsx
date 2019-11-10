@@ -32,7 +32,7 @@ export default class Search {
               layer.setStyle({opacity: 0.8, fillOpacity: 0.8});
             } else {
               if (feature.properties.aggregated_concept_tags.filter(a => searchCriteria.concept_tag_ids.indexOf(a.id) !== -1).length) {
-                layer.setStyle({opacity: 0, fillOpacity: 0});
+                layer.setStyle({opacity: 0.8, fillOpacity: 0.8});
               } else {
                 layer.setStyle({opacity: 0, fillOpacity: 0});
               }
