@@ -6,7 +6,7 @@ import '@geoman-io/leaflet-geoman-free';
 import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
 import './VerticalRangeSlider.scss';
 
-import { jellyFish } from 'components/map/icons';
+import { OALogo } from 'components/map/icons';
 
 import 'leaflet/dist/leaflet.css';
 import { Layer } from 'leaflet';
@@ -125,13 +125,13 @@ export default class DraggableMap extends React.Component<Props, State> {
 
   setupTopoLayer = (isIgnored: boolean = false): L.GeoJSON => {
     const map = this.map;
-    const jellyFishIcon = jellyFish();
+    const OALogoIcon = OALogo();
     let mapLayer = !isIgnored ? this.topoLayer : this.ignoredTopoLayer;
 
     const options = {
       // Add our custom marker to points.
       pointToLayer: (feature: Feature<GeometryObject>, latlng: L.LatLngExpression) => {
-        return L.marker(latlng, {icon: jellyFishIcon});
+        return L.marker(latlng, {icon: OALogoIcon});
       }
     };
 
@@ -277,6 +277,9 @@ export default class DraggableMap extends React.Component<Props, State> {
   }
 
   logScalePopUp = (workingLayer, marker, index?: number) => {
+    const markerLatLng: L.LatLng = marker._latlng; // the current vertex that we've added
+    const zLevel = markerLatLng[2] ? markerLatLng[2] : 0;
+
     const div = document.createElement('div');
     div.innerHTML = `<div>Depth :</div>`;
 
@@ -286,7 +289,7 @@ export default class DraggableMap extends React.Component<Props, State> {
     sliderInput.id = 'range-slider';
     sliderInput.className = 'fluid-slider';
     sliderInput.type = 'range';
-    sliderInput.value = '0';
+    sliderInput.value = zLevel;
     sliderInput.min = '0';
     sliderInput.max = '10000';
 
@@ -295,12 +298,12 @@ export default class DraggableMap extends React.Component<Props, State> {
     sliderLabel.className = 'range-label';
 
     const _self = this;
-    let markerLatLng = marker._latlng; // the current vertex that we've added
 
     function sliderOnChange() {
       const
         sliderValue = sliderInput.value,
-        parsedSliderValue = parseInt(sliderValue, 0);
+        parsedSliderValue = parseInt(sliderValue, 0),
+        colour = colourScale(parsedSliderValue);
 
       // Update the working layer's LatLng(s)
       if (typeof index === 'undefined') {
@@ -314,8 +317,8 @@ export default class DraggableMap extends React.Component<Props, State> {
       _self.callback();
 
       sliderLabel.innerHTML = sliderValue;
-      sliderLabel.style.backgroundColor = '#' + colourScale(parsedSliderValue).colour;
-      const labelPosition = (parseInt(sliderValue, 0) / parseInt(sliderInput.max, 0));
+      sliderLabel.style.backgroundColor = '#' + colour.colour;
+      const labelPosition = (parsedSliderValue / parseInt(sliderInput.max, 0));
 
       if (sliderValue === sliderInput.min) {
         sliderLabel.style.left = ((labelPosition * 100) + 2) + '%';
@@ -328,7 +331,7 @@ export default class DraggableMap extends React.Component<Props, State> {
 
     const manualInput = document.createElement('input');
     manualInput.type = 'number';
-    manualInput.value = '0';
+    manualInput.value = zLevel;
     manualInput.min = '0';
     manualInput.max = '10000';
 
@@ -359,7 +362,7 @@ export default class DraggableMap extends React.Component<Props, State> {
     // Enable marker, set the icon then disable it, this toggles the "clicked" state on the icon.
     map.pm.enableDraw('Marker', {
       markerStyle: {
-        icon: jellyFish()
+        icon: OALogo()
       }
     });
     map.pm.disableDraw('Marker');
