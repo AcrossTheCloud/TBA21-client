@@ -275,7 +275,9 @@ class CollectionEditorClass extends React.Component<Props, State> {
         Object.assign(collectionProperties, { 'license': 'CC BY-NC' });
       }
 
-      const result = await API.put('tba21', `admin/collections/${editMode ? 'update' : 'create'}`, {
+      const result = editMode ? await API.patch('tba21', `admin/collections/update`, {body: {
+              ...collectionProperties
+            }}) :  await API.put('tba21', `admin/collections/create}`, {
         body: {
           ...collectionProperties
         }

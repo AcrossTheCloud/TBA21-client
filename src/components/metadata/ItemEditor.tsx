@@ -333,7 +333,7 @@ class ItemEditorClass extends React.Component<Props, State> {
       // Assign s3_key
       Object.assign(itemsProperties, { 's3_key': this.state.originalItem.s3_key });
 
-      const result = await API.put('tba21', (this.props.isContributorPath ? 'contributor/items/update' : 'admin/items/update'), {
+      const result = await API.patch('tba21', (this.props.isContributorPath ? 'contributor/items/update' : 'admin/items/update'), {
         body: {
           ...itemsProperties
         }
