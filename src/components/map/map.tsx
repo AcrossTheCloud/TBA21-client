@@ -4,8 +4,6 @@ import { isEqual, flatMap, findIndex } from 'lodash';
 
 import * as topojson from 'topojson-client';
 
-import { CSSTransition } from 'react-transition-group';
-
 import { Feature, GeoJsonObject, GeometryObject, Point } from 'geojson';
 import { OALogo } from './utils/icons';
 
@@ -19,7 +17,6 @@ import { legend } from './controls/legend';
 import Search from './controls/Search';
 
 import { colourScale } from './utils/colorScale';
-import 'animate.css/animate.min.css';
 import 'styles/components/map/map.scss';
 
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
@@ -405,8 +402,7 @@ class MapView extends React.Component<Props, State> {
       this.map.on('moveend', () => {
         clearTimeout(this.moveEndTimeout);
 
-        const zoomedOutTooFar = this.checkZoom();
-        if (zoomedOutTooFar) { return; }
+        if (this.checkZoom()) { return; }
 
         this.moveEndTimeout = setTimeout( () => this.props.fetchData(this.getUserBounds(), this.loadedItemIds, this.loadedCollectionIds), 1000);
       });
@@ -421,22 +417,9 @@ class MapView extends React.Component<Props, State> {
           style={mapStyle}
         />
         <div className="zoomInBuddy">
-          <CSSTransition
-            in={this.state.zoomedOutTooFar}
-            timeout={3000}
-            appear={true}
-            classNames={
-              {
-                enter: 'show animated',
-                enterActive: 'show bounceIn',
-                enterDone: 'show op',
-                exit: 'show animated op',
-                exitActive: 'show bounceOut',
-              }
-            }
-          >
-            <div>You need to zoom in a bit further to load more data.</div>
-          </CSSTransition>
+          <div className={this.state.zoomedOutTooFar ? 'show op' : ''}>
+            You need to zoom in a bit further to load more data.
+          </div>
         </div>
       </div>
     );
