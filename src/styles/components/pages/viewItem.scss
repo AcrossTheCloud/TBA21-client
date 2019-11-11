@@ -86,19 +86,19 @@
       margin-top: 15px;
       border-top: 1px solid $item-details-border;
     }
-    .details {
-      border-color: $item-details-border !important;
-      padding: 15px;
-      word-break: break-word;
-      &:first-child {
-        padding-top: 0;
-      }
-      &:last-child {
-        padding-bottom: 0;
-      }
-    }
   }
 
+  .details {
+    border-color: $item-details-border !important;
+    padding: 15px;
+    word-break: break-word;
+    &:first-child {
+      padding-top: 0;
+    }
+    &:last-child {
+      padding-bottom: 0;
+    }
+  }
 
   // NOTE this is the same height as .detailPreview picture image
   .carousel {
