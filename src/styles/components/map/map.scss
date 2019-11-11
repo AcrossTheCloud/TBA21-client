@@ -3,7 +3,7 @@
 .mapWrapper {
   flex: 100% 1;
   min-height: 360px;
-  height: calc(100vh - 334px); // Minus dropzone/inputs / modal dialog margin / modal body padding
+  height: calc(100vh - 100px);
   position: relative;
   z-index: 1;
   margin-bottom: 20px;
@@ -75,5 +75,11 @@
     border: 2px solid rgba(0,0,0,0.2);
     overflow: hidden;
     transition: height 1s, width 2s, border-width 1.5s;
+  }
+}
+
+#draggableMap {
+  .mapWrapper {
+    height: calc(100vh - 334px); // Minus dropzone/inputs / modal dialog margin / modal body padding
   }
 }

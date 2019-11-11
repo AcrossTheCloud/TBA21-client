@@ -1,6 +1,7 @@
 import * as L from 'leaflet';
 import { APITag } from '../../metadata/Tags';
 import { Feature } from 'geojson';
+import searchIcon from '../icons/search-solid.svg';
 
 interface SearchCriteria {
   concept_tag_ids: number[];
@@ -18,22 +19,23 @@ export default class Search {
     concept_tag_ids: [-1] // -1 is "All"
   };
 
+  // Filter polylines / polygons
   static filterLayer = (layerGroup: L.FeatureGroup, searchCriteria: SearchCriteria) => {
     if (layerGroup) {
       layerGroup.eachLayer(layer => {
         // @ts-ignore feature does exist, jerk.
         const feature = layer.feature;
-        // @ts-ignore it does..
-        const element = layer.getElement();
 
-        if (element && feature.properties && feature.properties.aggregated_concept_tags && feature.properties.aggregated_concept_tags.length && searchCriteria.concept_tag_ids && searchCriteria.concept_tag_ids.length) {
-          if (searchCriteria.concept_tag_ids.includes(-1)) {
-            element.style.display = 'block';
-          } else {
-            if (feature.properties.aggregated_concept_tags.filter(a => searchCriteria.concept_tag_ids.indexOf(a.id) !== -1).length) {
-              element.style.display = 'block';
+        if (layer instanceof L.Polygon || layer instanceof L.Polyline || layer instanceof L.CircleMarker) {
+          if (feature.properties && feature.properties.aggregated_concept_tags && feature.properties.aggregated_concept_tags.length && searchCriteria.concept_tag_ids && searchCriteria.concept_tag_ids.length) {
+            if (searchCriteria.concept_tag_ids.includes(-1)) {
+              layer.setStyle({opacity: 0.8, fillOpacity: 0.8});
             } else {
-              element.style.display = 'none';
+              if (feature.properties.aggregated_concept_tags.filter(a => searchCriteria.concept_tag_ids.indexOf(a.id) !== -1).length) {
+                layer.setStyle({opacity: 0.8, fillOpacity: 0.8});
+              } else {
+                layer.setStyle({opacity: 0, fillOpacity: 0});
+              }
             }
           }
         }
@@ -126,6 +128,7 @@ export default class Search {
 
       const controlUI = L.DomUtil.create('a', 'icon', controlDiv);
       controlUI.title = 'Search';
+      controlUI.innerHTML = `<img alt="Search" src="${searchIcon}" width="17" height="15" />`;
       L.DomEvent.on(controlUI, 'click', event => {
         L.DomEvent.stopPropagation(event);
         L.DomEvent.preventDefault(event);
@@ -182,6 +185,7 @@ export default class Search {
     select.id = 'conceptTags';
     select.className = 'custom-select';
     this.selectInput = select;
+    L.DomEvent.on(select, 'mousewheel', L.DomEvent.stopPropagation);
 
     // A All option
     const allOption = document.createElement('option');

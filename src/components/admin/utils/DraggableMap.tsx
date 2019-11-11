@@ -6,16 +6,18 @@ import '@geoman-io/leaflet-geoman-free';
 import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
 import './VerticalRangeSlider.scss';
 
-import { jellyFish } from 'components/map/icons';
+import { OALogo } from 'components/map/utils/icons';
 
 import 'leaflet/dist/leaflet.css';
 import { Layer } from 'leaflet';
 import * as topojson from 'topojson-client';
 import { Feature, GeoJsonObject, GeometryObject } from 'geojson';
-import { colourScale } from '../../map/colorScale';
+import { colourScale } from '../../map/utils/colorScale';
 import { Alerts, ErrorMessage } from '../../utils/alerts';
 
 import 'styles/components/_dropzone.scss';
+import { locateUser } from '../../map/utils/locateUser';
+import { initialiseMap } from '../../map/utils/initialiseMap';
 
 const toGeoJSON = require('@mapbox/togeojson');
 
@@ -63,7 +65,7 @@ export default class DraggableMap extends React.Component<Props, State> {
 
   componentDidMount(): void {
     this._isMounted = true;
-    this.initialiseMap();
+    this.map = initialiseMap();
     if (this.map) {
       this.addLeafletGeoMan();
       this.topoLayer = this.setupTopoLayer();
@@ -72,12 +74,12 @@ export default class DraggableMap extends React.Component<Props, State> {
       if (topo && topo.objects && topo.objects.output.geometries && topo.objects.output.geometries.length) {
         const geometries = topo.objects.output.geometries;
         if ((geometries[0].type === null || geometries[0].type === 'null') && geometries.length === 1) {
-          this.locateUser();
+          this.locate();
         } else {
           this.topoLayer.addData(this.props.topoJSON);
         }
       } else {
-        this.locateUser();
+        this.locate();
       }
       // If we're a collection disable all of the items on the map, so they're no editable.
       if (this.props.collectionItems) {
@@ -103,35 +105,27 @@ export default class DraggableMap extends React.Component<Props, State> {
 
   }
 
-  initialiseMap = () => {
-    const
-      mapID: string = 'mapbox.outdoors',
-      accessToken: string = 'pk.eyJ1IjoiYWNyb3NzdGhlY2xvdWQiLCJhIjoiY2ppNnQzNG9nMDRiMDNscDh6Zm1mb3dzNyJ9.nFFwx_YtN04_zs-8uvZKZQ',
-      tileLayerURL: string = 'https://api.tiles.mapbox.com/v4/' + mapID + '/{z}/{x}/{y}.png?access_token=' + accessToken;
-
-    this.map = L.map('oa_map', {
-      maxZoom: 18,
-      zoom: 5,
-      preferCanvas: true
-    }).setView([this.state.inputLat, this.state.inputLng], 5);
-
-    L.tileLayer(tileLayerURL, {
-      attribution: '',
-      maxZoom: 18,
-      id: mapID,
-      accessToken: accessToken
-    }).addTo(this.map);
+  /**
+   * Locates the user and updates the position in state.
+   */
+  locate = () => {
+    locateUser(this.map, undefined, (data: {inputLng: number, inputLat: number}) => {
+      if (this._isMounted) {
+        const {inputLng, inputLat} = data;
+        this.setState({inputLng, inputLat});
+      }
+    });
   }
 
   setupTopoLayer = (isIgnored: boolean = false): L.GeoJSON => {
     const map = this.map;
-    const jellyFishIcon = jellyFish();
+    const OALogoIcon = OALogo();
     let mapLayer = !isIgnored ? this.topoLayer : this.ignoredTopoLayer;
 
     const options = {
       // Add our custom marker to points.
       pointToLayer: (feature: Feature<GeometryObject>, latlng: L.LatLngExpression) => {
-        return L.marker(latlng, {icon: jellyFishIcon});
+        return L.marker(latlng, {icon: OALogoIcon});
       }
     };
 
@@ -277,6 +271,9 @@ export default class DraggableMap extends React.Component<Props, State> {
   }
 
   logScalePopUp = (workingLayer, marker, index?: number) => {
+    const markerLatLng: L.LatLng = marker._latlng; // the current vertex that we've added
+    const zLevel = markerLatLng[2] ? markerLatLng[2] : 0;
+
     const div = document.createElement('div');
     div.innerHTML = `<div>Depth :</div>`;
 
@@ -286,7 +283,7 @@ export default class DraggableMap extends React.Component<Props, State> {
     sliderInput.id = 'range-slider';
     sliderInput.className = 'fluid-slider';
     sliderInput.type = 'range';
-    sliderInput.value = '0';
+    sliderInput.value = zLevel;
     sliderInput.min = '0';
     sliderInput.max = '10000';
 
@@ -295,12 +292,12 @@ export default class DraggableMap extends React.Component<Props, State> {
     sliderLabel.className = 'range-label';
 
     const _self = this;
-    let markerLatLng = marker._latlng; // the current vertex that we've added
 
     function sliderOnChange() {
       const
         sliderValue = sliderInput.value,
-        parsedSliderValue = parseInt(sliderValue, 0);
+        parsedSliderValue = parseInt(sliderValue, 0),
+        colour = colourScale(parsedSliderValue);
 
       // Update the working layer's LatLng(s)
       if (typeof index === 'undefined') {
@@ -314,8 +311,8 @@ export default class DraggableMap extends React.Component<Props, State> {
       _self.callback();
 
       sliderLabel.innerHTML = sliderValue;
-      sliderLabel.style.backgroundColor = '#' + colourScale(parsedSliderValue).colour;
-      const labelPosition = (parseInt(sliderValue, 0) / parseInt(sliderInput.max, 0));
+      sliderLabel.style.backgroundColor = '#' + colour.colour;
+      const labelPosition = (parsedSliderValue / parseInt(sliderInput.max, 0));
 
       if (sliderValue === sliderInput.min) {
         sliderLabel.style.left = ((labelPosition * 100) + 2) + '%';
@@ -328,7 +325,7 @@ export default class DraggableMap extends React.Component<Props, State> {
 
     const manualInput = document.createElement('input');
     manualInput.type = 'number';
-    manualInput.value = '0';
+    manualInput.value = zLevel;
     manualInput.min = '0';
     manualInput.max = '10000';
 
@@ -359,7 +356,7 @@ export default class DraggableMap extends React.Component<Props, State> {
     // Enable marker, set the icon then disable it, this toggles the "clicked" state on the icon.
     map.pm.enableDraw('Marker', {
       markerStyle: {
-        icon: jellyFish()
+        icon: OALogo()
       }
     });
     map.pm.disableDraw('Marker');
@@ -382,28 +379,6 @@ export default class DraggableMap extends React.Component<Props, State> {
         }, 300);
       });
     }
-  }
-
-  /**
-   * Use leaflet's locate method to locate the use and set the view to that location.
-   */
-  locateUser = (): void => {
-    const map = this.map;
-    map.locate()
-      .on('locationfound', (location: L.LocationEvent) => {
-        if (location && location.latlng) {
-          map.flyTo(location.latlng, 8);
-          // Set the input fields
-          if (this._isMounted) {
-            this.setState({inputLng: location.latlng.lng, inputLat: location.latlng.lat});
-          }
-        }
-      })
-      .on('locationerror', () => {
-        // Fly to a default location if the user declines our request to get their GPS location or if we had trouble getting said location.
-        // Ideally the map would already be in this location anyway.
-        // Set the input fields
-      });
   }
 
   fileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {  // tslint:disable-line:no-any
