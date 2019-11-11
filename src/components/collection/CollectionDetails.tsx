@@ -23,7 +23,8 @@ class CollectionDetails extends React.Component<Props, {}> {
     value?: string | string[] | null,
     type?: detailType
   ) {
-    if (!value) return;
+    if (!value) { return; }
+
     if (value instanceof Array && value.length > 0) {
       if (type === detailType.Region) {
         value = value.map(ea => Regions[ea]);
@@ -48,7 +49,7 @@ class CollectionDetails extends React.Component<Props, {}> {
   }
 
   renderTags(label: string, tags?: APITag[] | null) {
-    if (!tags) return;
+    if (!tags) { return; }
     const hashTags = tags.length > 0 ? tags.map(t => `#${t.tag_name} `) : null;
     return (
       <Row className="border-bottom subline details" key={label}>
@@ -95,7 +96,7 @@ class CollectionDetails extends React.Component<Props, {}> {
 
     return (
       <Row>
-        <Col xs="12" md="8" className="border-right">
+        <Col xs="12" md="8" className="left">
           <Row>
             <Col
               xs={{ size: 12, order: 2 }}

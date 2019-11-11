@@ -65,10 +65,10 @@
 
   .left, .right {
     padding: 15px 15px;
-    //@media
   }
 
   .left {
+    border-right: 1px solid;
     border-color: $item-details-border !important;
 
     .creators {
