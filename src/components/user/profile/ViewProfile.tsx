@@ -41,7 +41,7 @@ class ViewProfile extends React.Component<Props, State> {
 
   renderContact() {
     const { profile } = this.props;
-    if (!profile) return;
+    if (!profile) { return; }
     const { contact_email, contact_person, contact_position } = profile;
 
     return [contact_person, contact_position, contact_email].map(contactField =>
@@ -49,7 +49,7 @@ class ViewProfile extends React.Component<Props, State> {
     );
   }
 
-  mapLinkToIcon(link) {
+  mapLinkToIcon(link: string) {
     if (link.includes('instagram')) {
       return <FaInstagram size="25" />;
     } else if (link.includes('twitter')) {
@@ -58,7 +58,7 @@ class ViewProfile extends React.Component<Props, State> {
       return <FaTint size="25" />;
     }
   }
-  renderSocialMedia(links) {
+  renderSocialMedia(links: string[]) {
     return links.map((link, i) => {
       const icon = this.mapLinkToIcon(link);
       return (
