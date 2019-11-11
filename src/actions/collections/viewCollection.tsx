@@ -2,7 +2,7 @@ import { Item } from '../../types/Item';
 import { checkFile } from '../items/viewItem';
 import { LOADINGOVERLAY } from '../loadingOverlay';
 import { FETCH_COLLECTION_LOAD_MORE } from '../../reducers/collections/viewCollection';
-import { queryByUuid, getById, getItemsInCollection } from '../../REST/collections';
+import { getById, getItemsInCollection } from '../../REST/collections';
 import { removeTopology } from '../../components/utils/removeTopology';
 import { Collection } from '../../types/Collection';
 
@@ -18,49 +18,6 @@ export const FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION =
  *
  * @param id {string}
  */
-
-export const fetchContributedItemsForProfile = (uuid: string) => async (
-  dispatch,
-  getState
-) => {
-  // const prevState = getState();
-
-  dispatch({
-    type: LOADINGOVERLAY,
-    on: true
-  });
-
-  try {
-    // TODO: this returns an array of collections
-    const { collections } = await queryByUuid(uuid);
-
-    if (!!collections && collections.length) {
-      Promise.all(
-
-        collections.map(async collection => {
-          const itemResponse = await getItemsInCollection({ id: collection.id, limit: 1000 });
-          return await loadMore(itemResponse.items);
-        })
-      ).then((collectionBundles: any[]) => {
-        const items = collectionBundles.flatMap(collection => collection.items);
-
-        dispatch({
-          type: FETCH_COLLECTION,
-          collection: collections,
-          offset: 0,
-          items
-        });
-      });
-    }
-  } catch {
-  } finally {
-    dispatch({
-      type: LOADINGOVERLAY,
-      on: false
-    });
-  }
-};
-
 export const fetchCollection = (id: string) => async (dispatch, getState) => {
   const prevState = getState();
 
