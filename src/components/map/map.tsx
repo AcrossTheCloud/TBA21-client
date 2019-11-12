@@ -270,17 +270,20 @@ class MapView extends React.Component<Props, State> {
           }
         }
 
+        const { title, aggregated_concept_tags} = feature.properties;
         const toolTip = `
           <div>
             <div class="title">
-              ${feature.properties.title}
+              ${title}
             </div>
             
             ${depthDiv}
+            
+            ${aggregated_concept_tags.length ? `<small>Concept Tag(s): ${aggregated_concept_tags.map(t => `#${t.tag_name}`).join(', ')}</small>` : ''}
           </div>
         `;
         const options: L.TooltipOptions = {
-          direction: 'top',
+          direction: 'top'
         };
 
         if (offset) {
