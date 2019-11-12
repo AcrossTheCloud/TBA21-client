@@ -536,6 +536,9 @@ class Map extends React.Component<Props, State> {
                   id="oa_map"
                   style={mapStyle}
                 />
+                <div id="progressWrapper" className="progress">
+                  <div id="progressBar" className="progress-bar h-100" role="progressbar">0%</div>
+                </div>
               </div>
             </Col>
           </Row>
