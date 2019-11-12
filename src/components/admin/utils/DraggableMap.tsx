@@ -275,7 +275,7 @@ export default class DraggableMap extends React.Component<Props, State> {
     const zLevel = markerLatLng[2] ? markerLatLng[2] : 0;
 
     const div = document.createElement('div');
-    div.innerHTML = `<div>Depth :</div>`;
+    div.innerHTML = `<div>Depth (m):</div>`;
 
     const sliderWrapper = document.createElement('div');
     sliderWrapper.className = 'slider-wrapper';
