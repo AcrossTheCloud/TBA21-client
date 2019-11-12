@@ -124,7 +124,7 @@ export default class Search {
     searchControl.onAdd = function () {
       const controlDiv = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
       controlDiv.id = 'searchControl';
-      controlDiv.setAttribute('data-display', 'false');
+      controlDiv.setAttribute('data-display', 'true');
 
       const controlUI = L.DomUtil.create('a', 'icon', controlDiv);
       controlUI.title = 'Search';
@@ -137,8 +137,7 @@ export default class Search {
 
       const contents = L.DomUtil.create('div', 'leaflet-bar leaflet-control', controlDiv);
       contents.id = 'searchControlContent';
-      contents.innerHTML = `<h3>Search</h3>`;
-      contents.style.cssText = 'height: 0; width: 0; border-width: 0;';
+      contents.innerHTML = `<h3>Search</h3><h5>Concept Tags</h5>`;
       contents.appendChild(_self.conceptTagsInput());
 
       return controlDiv;
