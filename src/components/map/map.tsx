@@ -23,6 +23,7 @@ import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import 'leaflet.markercluster/dist/leaflet.markercluster';
 import { locateUser } from './utils/locateUser';
 import { initialiseMap } from './utils/initialiseMap';
+import { initialiseMarkerCluster } from './utils/initialiseMarkerCluster';
 
 interface Props {
   openModal: Function;
@@ -69,7 +70,9 @@ class MapView extends React.Component<Props, State> {
     this._isMounted = true;
 
     this.map = initialiseMap();
-    this.initialiseMarkerCluster();
+
+    this.markerCluster();
+
     this.mapMoveEnd();
 
     const map = this.map;
@@ -225,27 +228,19 @@ class MapView extends React.Component<Props, State> {
   }
 
   /**
-   * Initialises the markerCluster layer and the events
+   * Enabled mark cluster and adds an on click event to the layers
    */
-  initialiseMarkerCluster = () => {
-    // initialise marker cluster
-    this.markerClusterLayer = L.markerClusterGroup({
-      showCoverageOnHover: false,
-      zoomToBoundsOnClick: true
-    });
-    this.map.addLayer(this.markerClusterLayer, {
-      chunkedLoading: true
-    });
-
+  markerCluster = () => {
+    this.markerClusterLayer = initialiseMarkerCluster(this.map);
     this.markerClusterLayer.on({
-      click: (x) => {
-        const {
-          id,
-          metatype
-        } = x.layer.feature.properties;
+    click: (x) => {
+     const {
+       id,
+       metatype
+     } = x.layer.feature.properties;
 
-        this.props.openModal(id, metatype);
-      }
+     this.props.openModal(id, metatype);
+    }
     });
   }
 

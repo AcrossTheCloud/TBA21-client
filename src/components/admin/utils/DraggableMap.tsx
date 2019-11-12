@@ -18,6 +18,9 @@ import { Alerts, ErrorMessage } from '../../utils/alerts';
 import 'styles/components/_dropzone.scss';
 import { locateUser } from '../../map/utils/locateUser';
 import { initialiseMap } from '../../map/utils/initialiseMap';
+import { connect } from 'react-redux';
+import { toggleOverlay } from '../../../actions/loadingOverlay';
+import { initialiseMarkerCluster } from '../../map/utils/initialiseMarkerCluster';
 
 const toGeoJSON = require('@mapbox/togeojson');
 
@@ -28,6 +31,7 @@ interface State extends Alerts {
 }
 
 interface Props {
+  toggleOverlay: Function;
   topoJSON?: any;  // tslint:disable-line: no-any
   onChange?: Function;
   collectionItems?: GeoJsonObject;
@@ -38,10 +42,11 @@ const mapStyle = {
   height: '100%'
 };
 
-export default class DraggableMap extends React.Component<Props, State> {
+class Map extends React.Component<Props, State> {
   _isMounted;
   map;
   topoLayer;
+  markerClusterLayer;
   ignoredTopoLayer; // A layer of pmIgnore data
 
   uploadInputRef;
@@ -66,6 +71,7 @@ export default class DraggableMap extends React.Component<Props, State> {
   componentDidMount(): void {
     this._isMounted = true;
     this.map = initialiseMap();
+    this.markerClusterLayer = initialiseMarkerCluster(this.map);
     if (this.map) {
       this.addLeafletGeoMan();
       this.topoLayer = this.setupTopoLayer();
@@ -150,14 +156,17 @@ export default class DraggableMap extends React.Component<Props, State> {
       {
         // When any data is added we need to get the geometries from the output
         // We technically un-nest each "feature" (line string) out of the collection it comes in, this makes styling it a hell of a lot easier.
-        addData: function(data: any) {  // tslint:disable-line: no-any
+        addData: function(data: any, upload: 'kml' | 'gpx') {  // tslint:disable-line: no-any
           if (data.type === 'Topology') {
             data.objects.output.geometries.forEach((geometryCollection, index: number) => {
               if (geometryCollection && geometryCollection.geometries) {
                 geometryCollection.geometries.forEach(feature => {
                   if (feature.type !== null) {
-                    // Add the properties to the feature, these are in the top level collection.
-                    // Object.assign(feature, { properties: data.objects.output.geometries[index].properties});
+
+                    // Remove empty properties as we don't care about them.
+                    if (feature.properties) {
+                      delete feature.properties;
+                    }
 
                     // Convert the feature to geoJSON for leaflet
                     const geojson = topojson.feature(data, feature);
@@ -169,11 +178,47 @@ export default class DraggableMap extends React.Component<Props, State> {
 
           } else {
             // We're sending through just GeoJSON data not Topo, Leaflet lovesss it so we don't need to do anything.
-            L.GeoJSON.prototype.addData.call(this, data);
+            if (upload) {
+              data.features.forEach( (feature, index) => {
+                // Remove empty properties as we don't care about them.
+                if (feature.properties) {
+                  delete feature.properties;
+                }
+                if (feature.geometry && feature.geometry.coordinates && feature.geometry.coordinates.length) {
+                  feature.geometry.coordinates = feature.geometry.coordinates.map(x => {
+                    if (!x) { return false; }
+
+                    // If we don't have a Z level, add it
+                    if (x.length === 2) {
+                      x.push(0);
+                    }
+                    return x;
+                  });
+                }
+
+                if (feature.geometry && feature.geometry.type === 'Point') {
+                  const { coordinates } = feature.geometry;
+                  const latLng = new L.LatLng(coordinates[1], coordinates[0], coordinates[2] ? coordinates[2] : 0);
+                  const markerLayer: L.Marker = L.marker(latLng, {icon: OALogo(coordinates[2])});
+                  _self.markerClusterLayer.addLayer(markerLayer);
+                } else {
+                  L.GeoJSON.prototype.addData.call(this, feature);
+                }
+
+                console.log(index, data.features.length, (index + 1) === data.features.length);
+                if ((index + 1) === data.features.length) {
+                  _self.props.toggleOverlay(false);
+                }
+              });
+
+              setTimeout(() => _self.callback(), 500);
+            } else {
+              L.GeoJSON.prototype.addData.call(this, data);
+            }
           }
 
           // Fit the map to the bounds of the loaded content.
-          _self.mapLayerFitBounds(_self.topoLayer);
+          setTimeout(() => _self.mapLayerFitBounds(_self.topoLayer), 500);
         }
       }
     );
@@ -181,8 +226,15 @@ export default class DraggableMap extends React.Component<Props, State> {
 
   callback = () => {
     if (this.topoLayer && typeof this.props.onChange === 'function') {
-      console.log(this.topoLayer.toGeoJSON());
-      this.props.onChange(this.topoLayer.toGeoJSON());
+      const topoLayerJSON = this.topoLayer.toGeoJSON();
+      const markerClusterJSON = this.markerClusterLayer.toGeoJSON();
+
+      console.log(this.markerClusterLayer.toGeoJSON());
+
+      if (markerClusterJSON.features.length) {
+        topoLayerJSON.features.push(...markerClusterJSON.features);
+      }
+      this.props.onChange(topoLayerJSON);
     }
   }
 
@@ -404,12 +456,14 @@ export default class DraggableMap extends React.Component<Props, State> {
       if (fileType !== null) {
         fileContents(files[i], result => {
           try {
+            this.props.toggleOverlay(true);
             const geoJSON = fileType === 'kml' ? toGeoJSON.kml(result) : toGeoJSON.gpx(result);
             if (geoJSON) {
-              this.topoLayer.addData(geoJSON);
+              this.topoLayer.addData(geoJSON, fileType);
             }
           } catch (e) {
             console.log(e);
+            this.props.toggleOverlay(false);
             this.setState({ errorMessage: `Looks like we've had an issue with your ${fileType === 'kml' ? 'KML' : 'GPX'} file.`});
           }
         });
@@ -471,3 +525,5 @@ export default class DraggableMap extends React.Component<Props, State> {
     );
   }
 }
+
+export default connect(undefined, { toggleOverlay })(Map);
