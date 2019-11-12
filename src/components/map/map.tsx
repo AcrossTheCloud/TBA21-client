@@ -24,8 +24,11 @@ import 'leaflet.markercluster/dist/leaflet.markercluster';
 import { locateUser } from './utils/locateUser';
 import { initialiseMap } from './utils/initialiseMap';
 import { initialiseMarkerCluster } from './utils/initialiseMarkerCluster';
+import { toggleOverlay } from '../../actions/loadingOverlay';
+import { progressBar } from './utils/progressBar';
 
 interface Props {
+  toggleOverlay: Function;
   openModal: Function;
   fetchData: Function;
   hasError: boolean;
@@ -46,6 +49,7 @@ const mapStyle = {
 
 class MapView extends React.Component<Props, State> {
   map;
+  loading: boolean = false;
   markerClusterLayer;
   topoLayer;
 
@@ -90,69 +94,88 @@ class MapView extends React.Component<Props, State> {
     L.TopoJSON = L.GeoJSON.extend( {
       // Overwrite the addData function.
       addData: function(data: any) {  // tslint:disable-line: no-any
-        if (data.type === 'Topology') {
+        _self.loadingOverlay(true);
 
-          /**
-           * Adds the properties to the geo data and either pushes it to Marker Cluster if it's a point or calls L.GeoJSON's add data.
-           * @param properties { object }
-           * @param featureCollection { FeatureCollection }
-           */
-          const addData = (properties, featureCollection) => {
-            featureCollection.geometries.forEach((feature, featureIndex: number) => {
+        setTimeout(() => {
+          if (data.type === 'Topology') {
 
-              // If we're a point add it to the Marker Cluster Layer
-              if (feature.type === 'Point') {
-                const latLng = new L.LatLng(feature.coordinates[1], feature.coordinates[0], feature.coordinates[2]);
-                const markerLayer: L.Marker = L.marker(latLng, {icon: OALogo(feature.coordinates[2])});
-                // Add the geometry collection properties to this feature, as sub features don't have the collections properties.
-                markerLayer.feature = { type: 'Feature', properties, geometry: feature.coordinates };
-                _self.layerTooltip(markerLayer.feature, markerLayer);
+            /**
+             * Adds the properties to the geo data and either pushes it to Marker Cluster if it's a point or calls L.GeoJSON's add data.
+             * @param properties { object }
+             * @param featureCollection { FeatureCollection }
+             */
+            const addData = (properties, featureCollection) => {
+              const points: L.Layer[] = [];
+              const promises = featureCollection.geometries.map((feature, featureIndex: number) => {
+                return new Promise(resolve => {
+                  setTimeout(() => {
+                    // If we're a point add it to the Marker Cluster Layer array (points)
+                    if (feature.type === 'Point') {
+                      const latLng = new L.LatLng(feature.coordinates[1], feature.coordinates[0], feature.coordinates[2]);
+                      const markerLayer: L.Marker = L.marker(latLng, {icon: OALogo(feature.coordinates[2])});
+                      // Add the geometry collection properties to this feature, as sub features don't have the collections properties.
+                      markerLayer.feature = {type: 'Feature', properties, geometry: feature.coordinates};
+                      _self.layerTooltip(markerLayer.feature, markerLayer);
 
-                if (map.getBounds().contains(latLng)) {
-                  if (Search.hasSearchTerm(markerLayer.feature, _self.searchControl.searchCriteria)) {
-                    _self.markerClusterLayer.addLayer(markerLayer);
+                      if (Search.hasSearchTerm(markerLayer.feature, _self.searchControl.searchCriteria)) {
+                        points.push(markerLayer);
+                      }
+
+                      _self.points.push(markerLayer);
+                    } else {
+                      // Add the geometry collection properties to this feature, as sub features don't have the collections properties.
+                      Object.assign(feature, {properties});
+                      // Convert the feature to geoJSON for leaflet
+                      const geojson = topojson.feature(data, feature);
+                      // return the original extension call.
+                      L.GeoJSON.prototype.addData.call(this, geojson);
+                    }
+
+                    progressBar(featureIndex, (featureCollection.geometries.length - 1));
+
+                    resolve();
+                  }, 200 + featureIndex);
+                });
+              });
+
+              Promise.all(promises).then(() => {
+                console.log('All done', points);
+                if (points.length) {
+                  // Add all points from the array into the map
+                  _self.markerClusterLayer.addLayers(points);
+                }
+              });
+            };
+
+            // When any data is added we need to get the geometries from the output
+            // We technically un-nest each "feature" (line string etc) out of the collection it comes in.
+            data.objects.output.geometries.forEach((geometryCollection, index: number) => {
+              if (geometryCollection && geometryCollection.geometries) {
+
+                if (geometryCollection.properties) {
+                  _self.addTagsToSearch(geometryCollection.properties.aggregated_concept_tags);
+                }
+
+                const featureId = geometryCollection.properties.id;
+                const id = typeof featureId === 'string' ? parseInt(featureId, 0) : 0;
+                if (geometryCollection.properties.metatype === 'item') {
+                  if (findIndex(_self.loadedItemIds, id) === -1) {
+                    addData(geometryCollection.properties, geometryCollection);
+                    // Push the feature to an array so we can check if we've already loaded it (above)
+                    _self.loadedItemIds.push(id);
+                  }
+                } else if (geometryCollection.properties.metatype === 'collection') {
+                  if (findIndex(_self.loadedCollectionIds, id) === -1) {
+                    addData(geometryCollection.properties, geometryCollection);
+                    // Push the feature to an array so we can check if we've already loaded it (above)
+                    _self.loadedCollectionIds.push(id);
                   }
                 }
-
-                _self.points.push(markerLayer);
-              } else {
-                // Add the geometry collection properties to this feature, as sub features don't have the collections properties.
-                Object.assign(feature, { properties });
-                // Convert the feature to geoJSON for leaflet
-                const geojson = topojson.feature(data, feature);
-                // return the original extension call.
-                L.GeoJSON.prototype.addData.call(this, geojson);
               }
             });
-          };
-
-          // When any data is added we need to get the geometries from the output
-          // We technically un-nest each "feature" (line string etc) out of the collection it comes in.
-          data.objects.output.geometries.forEach((geometryCollection, index: number) => {
-            if (geometryCollection && geometryCollection.geometries) {
-
-              if (geometryCollection.properties) {
-                _self.addTagsToSearch(geometryCollection.properties.aggregated_concept_tags);
-              }
-
-              const featureId = geometryCollection.properties.id;
-              const id = typeof featureId === 'string' ? parseInt(featureId, 0) : 0;
-              if (geometryCollection.properties.metatype === 'item') {
-                if (findIndex(_self.loadedItemIds, id) === -1) {
-                  addData(geometryCollection.properties, geometryCollection);
-                  // Push the feature to an array so we can check if we've already loaded it (above)
-                  _self.loadedItemIds.push(id);
-                }
-              } else if (geometryCollection.properties.metatype === 'collection') {
-                if (findIndex(_self.loadedCollectionIds, id) === -1) {
-                  addData(geometryCollection.properties, geometryCollection);
-                  // Push the feature to an array so we can check if we've already loaded it (above)
-                  _self.loadedCollectionIds.push(id);
-                }
-              }
-            }
-          });
-        }
+          }
+        }, 500);
+        _self.loadingOverlay(false);
       }
     });
 
@@ -168,6 +191,9 @@ class MapView extends React.Component<Props, State> {
           // For each of our lat longs (vertex) add a pin.
           latlngs.forEach( (latLng: L.LatLng) => {
             const altitude = typeof latLng.alt !== 'undefined' ? latLng.alt : 0;
+
+            if (altitude === 0) { return; } // don't create a circle marker for a 0 alt path, you may end up with a bunch of circles..
+
             // Push the vertex's altitude to the altitudes array for later
             altitudes.push(altitude);
 
@@ -196,11 +222,15 @@ class MapView extends React.Component<Props, State> {
             vertexPin.addTo(this.topoLayer);
           });
 
-          // Set the polygons style based on the maximum altitude
-          let highestZLevel = Math.min(...altitudes);
-          // If we have no highestZLevel check for altitude instead
-          if (highestZLevel === 0) {
-            highestZLevel = Math.max(...altitudes);
+          let highestZLevel = 0;
+          if (altitudes.length) {
+            // Set the polygons style based on the maximum altitude
+            highestZLevel = Math.min(...altitudes);
+
+            // If we have no highestZLevel check for altitude instead
+            if (highestZLevel === 0) {
+              highestZLevel = Math.max(...altitudes);
+            }
           }
           this.polygonLayerStyle(highestZLevel, layer);
 
@@ -217,6 +247,7 @@ class MapView extends React.Component<Props, State> {
 
   componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>): void {
     if (!isEqual(prevProps.data, this.props.data)) {
+      this.loadingOverlay(true);
       this.topoLayer.addData(this.props.data);
       Search.filterLayer(this.topoLayer, this.searchControl.searchCriteria);
       Search.filterMarkerCluster(this.markerClusterLayer, this.points, this.searchControl.searchCriteria);
@@ -225,6 +256,15 @@ class MapView extends React.Component<Props, State> {
 
   componentWillUnmount(): void {
     this._isMounted = false;
+  }
+
+  /**
+   * Toggles the loading overlay
+   * @param state { boolean }
+   */
+  loadingOverlay = (state: boolean) => {
+    this.loading = state;
+    // this.props.toggleOverlay(state);
   }
 
   /**
@@ -260,8 +300,8 @@ class MapView extends React.Component<Props, State> {
           const altitude = layer.getLatLng().alt;
           depthDiv = `<div>${Math.sign(altitude ? altitude : 0) <= 0 ? 'Depth' : 'Altitude'}: ${altitude}m</div>`;
         } else if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
-          if (typeof maxZLevel !== 'undefined') {
-            depthDiv = `<div>${Math.sign(maxZLevel ? maxZLevel : 0) <= 0 ? 'Maximum Depth' : 'Maximum Altitude'}: ${maxZLevel}m</div>`;
+          if (typeof maxZLevel !== 'undefined' || maxZLevel !== 0) {
+            depthDiv = `<div>${Math.sign(maxZLevel ? maxZLevel : 0) < 0 ? 'Maximum Depth' : 'Maximum Altitude'}: ${maxZLevel}m</div>`;
           }
         }
 
@@ -400,7 +440,7 @@ class MapView extends React.Component<Props, State> {
       this.map.on('moveend', () => {
         clearTimeout(this.moveEndTimeout);
 
-        if (this.checkZoom()) { return; }
+        if (this.checkZoom() || this.loading) { return; }
 
         this.moveEndTimeout = setTimeout( () => this.props.fetchData(this.getUserBounds(), this.loadedItemIds, this.loadedCollectionIds), 1000);
       });
@@ -414,6 +454,9 @@ class MapView extends React.Component<Props, State> {
           id="oa_map"
           style={mapStyle}
         />
+        <div id="progressWrapper" className="progress">
+          <div id="progressBar" className="progress-bar h-100" role="progressbar">0%</div>
+        </div>
         <div className="zoomInBuddy">
           <div className={this.state.zoomedOutTooFar ? 'show op' : ''}>
             You need to zoom in a bit further to load more data.
@@ -429,4 +472,4 @@ const mapStateToProps = (state: { map: Props }) => ({
   data: state.map.data
 });
 
-export default connect(mapStateToProps, { fetchData, openModal })(MapView);
+export default connect(mapStateToProps, { fetchData, openModal, toggleOverlay })(MapView);

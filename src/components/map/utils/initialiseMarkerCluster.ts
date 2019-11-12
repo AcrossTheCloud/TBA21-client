@@ -2,17 +2,20 @@
  * Initialises the markerCluster layer and the events
  */
 import * as L from 'leaflet';
+import { progressBar } from './progressBar';
 
 export const initialiseMarkerCluster = map => {
   // initialise marker cluster
-  const cluster = L.markerClusterGroup({
-     showCoverageOnHover: false,
-     zoomToBoundsOnClick: true
-   });
 
-  map.addLayer(cluster, {
-    chunkedLoading: true
-  });
+  const options = {
+    showCoverageOnHover: false,
+    zoomToBoundsOnClick: true,
+    chunkedLoading: true,
+    chunkProgress: progressBar
+  };
+  const cluster = L.markerClusterGroup(options);
+
+  map.addLayer(cluster);
 
   return cluster;
 }
