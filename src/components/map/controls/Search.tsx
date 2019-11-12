@@ -116,7 +116,7 @@ export default class Search {
         div.setAttribute('data-display', `${!display}`);
         const contentsDiv = document.getElementById('searchControlContent');
         if (contentsDiv) {
-          contentsDiv.style.cssText = `${display ? 'height: 0; width: 0; border-width: 0;' : ''}`;
+          contentsDiv.style.cssText = `${display ? 'height: 0; width: 0; border-width: 0; padding: 0;' : ''}`;
         }
       }
     }

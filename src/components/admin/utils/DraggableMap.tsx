@@ -11,7 +11,7 @@ import { OALogo } from 'components/map/utils/icons';
 import 'leaflet/dist/leaflet.css';
 import { Layer } from 'leaflet';
 import * as topojson from 'topojson-client';
-import { Feature, GeoJsonObject, GeometryObject } from 'geojson';
+import { GeoJsonObject } from 'geojson';
 import { colourScale } from '../../map/utils/colorScale';
 import { Alerts, ErrorMessage } from '../../utils/alerts';
 
@@ -82,7 +82,8 @@ class Map extends React.Component<Props, State> {
         if ((geometries[0].type === null || geometries[0].type === 'null') && geometries.length === 1) {
           this.locate();
         } else {
-          this.topoLayer.addData(this.props.topoJSON);
+          this.props.toggleOverlay(true);
+          setTimeout( () => this.topoLayer.addData(this.props.topoJSON), 500);
         }
       } else {
         this.locate();
@@ -91,7 +92,7 @@ class Map extends React.Component<Props, State> {
       if (this.props.collectionItems) {
         // Add our items data in an ignored layer.
         this.ignoredTopoLayer = this.setupTopoLayer(true);
-        this.ignoredTopoLayer.addData(this.props.collectionItems);
+        setTimeout( () => this.ignoredTopoLayer.addData(this.props.collectionItems), 500);
       }
     }
   }
@@ -125,14 +126,14 @@ class Map extends React.Component<Props, State> {
 
   setupTopoLayer = (isIgnored: boolean = false): L.GeoJSON => {
     const map = this.map;
-    const OALogoIcon = OALogo();
+    // const OALogoIcon = OALogo();
     let mapLayer = !isIgnored ? this.topoLayer : this.ignoredTopoLayer;
 
     const options = {
-      // Add our custom marker to points.
-      pointToLayer: (feature: Feature<GeometryObject>, latlng: L.LatLngExpression) => {
-        return L.marker(latlng, {icon: OALogoIcon});
-      }
+      // // Add our custom marker to points.
+      // pointToLayer: (feature: Feature<GeometryObject>, latlng: L.LatLngExpression) => {
+      //   return L.marker(latlng, {icon: OALogoIcon});
+      // }
     };
 
     // Add the Geoman pmIgnore option to the layer
@@ -157,6 +158,8 @@ class Map extends React.Component<Props, State> {
         // When any data is added we need to get the geometries from the output
         // We technically un-nest each "feature" (line string) out of the collection it comes in, this makes styling it a hell of a lot easier.
         addData: function(data: any, upload: 'kml' | 'gpx') {  // tslint:disable-line: no-any
+          const points: L.Layer[] = [];
+
           if (data.type === 'Topology') {
             data.objects.output.geometries.forEach((geometryCollection, index: number) => {
               if (geometryCollection && geometryCollection.geometries) {
@@ -168,14 +171,21 @@ class Map extends React.Component<Props, State> {
                       delete feature.properties;
                     }
 
-                    // Convert the feature to geoJSON for leaflet
-                    const geojson = topojson.feature(data, feature);
-                    L.GeoJSON.prototype.addData.call(this, geojson);
+                    if (feature.type === 'Point') {
+                      if (feature.coordinates) {
+                        const latLng = new L.LatLng(feature.coordinates[1], feature.coordinates[0], feature.coordinates[2] ? feature.coordinates[2] : 0);
+                        const markerLayer: L.Marker = L.marker(latLng, {icon: OALogo(feature.coordinates[2])});
+                        points.push(markerLayer);
+                      }
+                    } else {
+                      // Convert the feature to geoJSON for leaflet
+                      const geojson = topojson.feature(data, feature);
+                      L.GeoJSON.prototype.addData.call(this, geojson);
+                    }
                   }
                 });
               }
             });
-
           } else {
             // We're sending through just GeoJSON data not Topo, Leaflet lovesss it so we don't need to do anything.
             if (upload) {
@@ -197,15 +207,16 @@ class Map extends React.Component<Props, State> {
                 }
 
                 if (feature.geometry && feature.geometry.type === 'Point') {
-                  const { coordinates } = feature.geometry;
-                  const latLng = new L.LatLng(coordinates[1], coordinates[0], coordinates[2] ? coordinates[2] : 0);
-                  const markerLayer: L.Marker = L.marker(latLng, {icon: OALogo(coordinates[2])});
-                  _self.markerClusterLayer.addLayer(markerLayer);
+                  if (feature.geometry.coordinates) {
+                    const { coordinates } = feature.geometry;
+                    const latLng = new L.LatLng(coordinates[1], coordinates[0], coordinates[2] ? coordinates[2] : 0);
+                    const markerLayer: L.Marker = L.marker(latLng, {icon: OALogo(coordinates[2])});
+                    points.push(markerLayer);
+                  }
                 } else {
                   L.GeoJSON.prototype.addData.call(this, feature);
                 }
 
-                console.log(index, data.features.length, (index + 1) === data.features.length);
                 if ((index + 1) === data.features.length) {
                   _self.props.toggleOverlay(false);
                 }
@@ -217,6 +228,11 @@ class Map extends React.Component<Props, State> {
             }
           }
 
+          if (points.length) {
+            _self.markerClusterLayer.addLayers(points);
+          }
+
+          _self.props.toggleOverlay(false);
           // Fit the map to the bounds of the loaded content.
           setTimeout(() => _self.mapLayerFitBounds(_self.topoLayer), 500);
         }
@@ -224,12 +240,16 @@ class Map extends React.Component<Props, State> {
     );
   }
 
+  addPointToMarkerCluster = (coordinates: L.LatLngExpression) => {
+    const latLng = new L.LatLng(coordinates[1], coordinates[0], coordinates[2] ? coordinates[2] : 0);
+    const markerLayer: L.Marker = L.marker(latLng, {icon: OALogo(coordinates[2])});
+    this.markerClusterLayer.addLayer(markerLayer);
+  }
+
   callback = () => {
     if (this.topoLayer && typeof this.props.onChange === 'function') {
       const topoLayerJSON = this.topoLayer.toGeoJSON();
       const markerClusterJSON = this.markerClusterLayer.toGeoJSON();
-
-      console.log(this.markerClusterLayer.toGeoJSON());
 
       if (markerClusterJSON.features.length) {
         topoLayerJSON.features.push(...markerClusterJSON.features);
@@ -266,11 +286,10 @@ class Map extends React.Component<Props, State> {
       if (this._isMounted) {
         const center = this.map.getCenter();
         if (center.lat && center.lng) {
-          console.log(center);
           this.setState({
             inputLng: center.lng,
             inputLat: center.lat
-          }, () => console.log(this.state));
+          });
         }
       }
     });
