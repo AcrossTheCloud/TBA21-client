@@ -1,22 +1,27 @@
 import * as React from 'react';
-import { API } from 'aws-amplify';
 import { has } from 'lodash';
 
 import { FileUpload } from './FileUpload';
 import { Item } from '../../types/Item';
-import { ItemEditor } from './ItemEditor';
+import { ItemEditorWithCollapse } from './ItemEditor';
 import { Button, Col, Row } from 'reactstrap';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { AuthContext } from '../../providers/AuthProvider';
+import { adminGetItem } from '../../REST/items';
+import { removeTopology } from '../utils/removeTopology';
+
+import 'styles/components/metadata/accordionCollapse.scss';
 
 interface Props extends RouteComponentProps {
   callback?: Function;
   items?: Item[];
   allowRemoveItem?: boolean;
+  isAdmin: boolean;
 }
 
 interface State {
   items: ItemsObject;
+  isNewItem: boolean;
 }
 
 interface ItemsObject {
@@ -27,19 +32,21 @@ interface ItemsObject {
   };
 }
 
-const ItemsDisplay = (props: { isContributorPath: boolean, removeItem: Function | undefined, s3Key: string, item: { loaded: boolean, isLoading: boolean, details?: Item }, callback: Function }): JSX.Element => {
+const ItemsDisplay = (props: { isNewItem: boolean, isAdmin: boolean, isContributorPath: boolean, removeItem: Function | undefined, s3Key: string, item: { loaded: boolean, isLoading: boolean, details?: Item }, callback: Function }): JSX.Element => {
 
   if (props.item && Object.keys(props.item).length && !props.item.isLoading && props.item.loaded && props.item.details) {
     return (
-      <Row style={{paddingTop: '50px'}}>
+      <ItemEditorWithCollapse
+        item={props.item.details}
+        isContributorPath={props.isContributorPath}
+        isOpen={props.isNewItem}
+        isAdmin={props.isAdmin}
+      >
         {props.removeItem && typeof props.removeItem === 'function' ?
-          <Col xs="12">
-            <Button onClick={() => {if (props.removeItem) { props.removeItem(props.s3Key); }}}>Remove</Button>
-          </Col>
+          <Button color="danger" onClick={() => {if (props.removeItem) { props.removeItem(props.s3Key); }}}>Remove</Button>
           : <></>
         }
-        <ItemEditor item={props.item.details} isContributorPath={props.isContributorPath}/>
-      </Row>
+      </ItemEditorWithCollapse>
     );
   } else {
     if (props.item.isLoading) {
@@ -67,7 +74,8 @@ class ItemsClass extends React.Component<Props, State> {
     this._isMounted = false;
 
     this.state = {
-      items: {}
+      items: {},
+      isNewItem: false
     };
   }
 
@@ -75,7 +83,6 @@ class ItemsClass extends React.Component<Props, State> {
     this._isMounted = true;
     // If we have items from props, put them into the items state
     this.setState({ items: this.checkPropsItems() });
-
     const context: React.ContextType<typeof AuthContext> = this.context;
     if (!context.authorisation.hasOwnProperty('admin')) {
       this.isContributorPath = (this.props.location.pathname.match(/contributor/i));
@@ -131,7 +138,7 @@ class ItemsClass extends React.Component<Props, State> {
     // Load item
     this.loadItem(s3Key);
 
-    this.setState({ items: {...this.state.items, ...items} } );
+    this.setState({isNewItem: true, items: {...this.state.items, ...items} } );
   }
 
   /**
@@ -189,32 +196,38 @@ class ItemsClass extends React.Component<Props, State> {
       counter = 6,
       timeoutSeconds = 1000;
 
-    const doAPICall = async (s3key: string): Promise<Item | null> => {
+    const doAPICall = async (s3Key: string): Promise<Item | null> => {
       return new Promise( resolve => {
 
         const apiTimeout = setTimeout( async () => {
           if (!this._isMounted) { clearTimeout(apiTimeout); return; }
           counter --;
 
-          const response = await API.get('tba21', (this.isContributorPath ? 'contributor/items/getItem' : 'admin/items/getItemNC'), {
-            queryStringParameters: {
-              s3Key: s3key
-            }
-          });
-
+          const response = await adminGetItem(this.isContributorPath, { s3Key });
           timeoutSeconds = timeoutSeconds * 2;
-
-          if (response.item) {
-            clearTimeout(apiTimeout);
-            return resolve(response.item);
-          } else {
+          
+          const tryApiAgain = async() => {
             if (!counter) {
               clearTimeout(apiTimeout);
               return resolve(null);
             } else {
-              return resolve(await doAPICall(s3key));
+              return resolve(await doAPICall(s3Key));
             }
-          }
+          };
+            
+          if (response) {
+            const responseItems = removeTopology(response) as Item[];
+
+            if (responseItems && responseItems.length && !!responseItems[0]) {
+              const item = responseItems[0];
+              clearTimeout(apiTimeout);
+              return resolve(item);
+            } else {
+              tryApiAgain();
+            }
+          } else {
+            tryApiAgain();
+          } 
         },                             timeoutSeconds);
       });
     };
@@ -227,10 +240,29 @@ class ItemsClass extends React.Component<Props, State> {
       <>
         <FileUpload callback={this.fileUploadCallback} />
         {
+          this.state.items && Object.keys(this.state.items).length ?
+            <Row className="accordianHeadings">
+              <Col className="itemIcons"  xs="1"/>
+              <Col className="title"  xs="5">
+                Title
+              </Col>
+              <Col className="creators"  xs="4">
+                Creators
+              </Col>
+              <Col className="status"  xs="1">
+                Status
+              </Col>
+              <Col className="removeButton"  xs="1"/>
+            </Row>
+            :
+            <></>
+        }
+        {
           Object.entries(this.state.items).map( ( [s3Key, item] ) => {
-            return <ItemsDisplay isContributorPath={this.isContributorPath} key={s3Key} s3Key={s3Key} item={item} callback={this.fileUploadCallback} removeItem={this.props.allowRemoveItem ? this.removeItem : undefined} />;
+            return <ItemsDisplay isNewItem={this.state.isNewItem} isAdmin={this.props.isAdmin} isContributorPath={this.isContributorPath} key={s3Key} s3Key={s3Key} item={item} callback={this.fileUploadCallback} removeItem={this.props.allowRemoveItem ? this.removeItem : undefined} />;
           })
         }
+
       </>
     );
   }
