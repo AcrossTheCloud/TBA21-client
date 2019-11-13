@@ -69,10 +69,11 @@ class MapView extends React.Component<Props, State> {
     zoomedOutTooFar: false
   };
 
-  componentDidMount(): void {
+  async componentDidMount(): Promise<void> {
     this._isMounted = true;
 
-    this.map = initialiseMap();
+    this.map = await initialiseMap();
+    console.log('nope', this.map);
 
     this.markerCluster();
 

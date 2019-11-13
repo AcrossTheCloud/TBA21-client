@@ -1,6 +1,12 @@
 import * as React from 'react';
+import { connect } from 'react-redux';
+
 import { Container, Row, Col, Input, InputGroup, InputGroupAddon, Button, UncontrolledPopover, PopoverBody } from 'reactstrap';
 import { isEqual } from 'lodash';
+
+import * as topojson from 'topojson-client';
+import { GeoJsonObject } from 'geojson';
+
 import * as L from 'leaflet';
 import '@geoman-io/leaflet-geoman-free';
 import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
@@ -8,19 +14,20 @@ import './VerticalRangeSlider.scss';
 
 import { OALogo } from 'components/map/utils/icons';
 
+import 'styles/components/_dropzone.scss';
+
 import 'leaflet/dist/leaflet.css';
-import { Layer } from 'leaflet';
-import * as topojson from 'topojson-client';
-import { GeoJsonObject } from 'geojson';
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
+import 'leaflet.markercluster/dist/leaflet.markercluster';
+
 import { colourScale } from '../../map/utils/colorScale';
 import { Alerts, ErrorMessage } from '../../utils/alerts';
 
-import 'styles/components/_dropzone.scss';
-import { locateUser } from '../../map/utils/locateUser';
 import { initialiseMap } from '../../map/utils/initialiseMap';
-import { connect } from 'react-redux';
-import { toggleOverlay } from '../../../actions/loadingOverlay';
 import { initialiseMarkerCluster } from '../../map/utils/initialiseMarkerCluster';
+import { locateUser } from '../../map/utils/locateUser';
+
+import { toggleOverlay } from '../../../actions/loadingOverlay';
 
 const toGeoJSON = require('@mapbox/togeojson');
 
@@ -68,9 +75,11 @@ class Map extends React.Component<Props, State> {
     this.topoExtension();
   }
 
-  componentDidMount(): void {
+  async componentDidMount(): Promise<void> {
     this._isMounted = true;
-    this.map = initialiseMap();
+    this.map = await initialiseMap();
+    console.log(this.map);
+
     this.markerClusterLayer = initialiseMarkerCluster(this.map);
     if (this.map) {
       this.addLeafletGeoMan();
@@ -258,7 +267,7 @@ class Map extends React.Component<Props, State> {
     }
   }
 
-  layerEvents = (layer: Layer) => {
+  layerEvents = (layer: L.Layer) => {
     layer.on({
       'pm:edit': l => {
         console.log('Layer pm:edit', l);
