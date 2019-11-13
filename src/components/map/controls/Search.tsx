@@ -122,9 +122,11 @@ export default class Search {
     }
 
     searchControl.onAdd = function () {
+      const isMobileOrTablet = window.innerWidth <= 768;
+
       const controlDiv = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
       controlDiv.id = 'searchControl';
-      controlDiv.setAttribute('data-display', 'true');
+      controlDiv.setAttribute('data-display', `${isMobileOrTablet}`);
 
       const controlUI = L.DomUtil.create('a', 'icon', controlDiv);
       controlUI.title = 'Search';
@@ -139,6 +141,10 @@ export default class Search {
       contents.id = 'searchControlContent';
       contents.innerHTML = `<h3>Search</h3><h5>Concept Tags</h5>`;
       contents.appendChild(_self.conceptTagsInput());
+
+      if (isMobileOrTablet) {
+        contents.style.cssText = 'height: 0; width: 0; border-width: 0; padding: 0;';
+      }
 
       return controlDiv;
     };
