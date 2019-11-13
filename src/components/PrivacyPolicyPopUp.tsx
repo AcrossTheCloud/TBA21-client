@@ -59,7 +59,7 @@ class PrivacyPolicyPopUp extends React.Component<Props, {isPrivacyPolicyAccepted
           <Col xs="12" lg="4">
             <Row>
               <Col>
-                <Button className="decline" block onClick={() => window.location.assign('https://www.tba21.org/')}>No, Thanks</Button>
+                <Button className="decline" block onClick={() => window.location.assign('https://www.tba21.org/academy')}>No, Thanks</Button>
               </Col>
               <Col>
                 <Button block onClick={this.onAcceptClick}>I Agree</Button>

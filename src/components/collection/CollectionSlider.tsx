@@ -34,7 +34,7 @@ class CollectionSlider extends React.Component<Props, State> {
   }
 
   componentDidMount(): void {
-    const slides = this.props.items ? this.slides([...this.props.items]) : [];
+    const slides = (this.props.items && Object.keys(this.props.items).length) ? this.slides([...this.props.items]) : [];
     this.setState({ slides });
   }
 
@@ -42,7 +42,7 @@ class CollectionSlider extends React.Component<Props, State> {
     const currentCollectionID = this.props.collection ? this.props.collection.id : 0;
     const prevCollectionID = prevProps.collection ? prevProps.collection.id : 0;
     if (currentCollectionID !== prevCollectionID || this.props.offset !== prevProps.offset) {
-      const slides = this.props.items ? this.slides(this.props.items) : [];
+      const slides = (this.props.items && Object.keys(this.props.items).length) ? this.slides(this.props.items) : [];
       this.setState({ slides: slides });
     }
   }

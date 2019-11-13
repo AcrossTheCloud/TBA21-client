@@ -213,21 +213,27 @@
         }
       }
 
-      .focus {
-        min-height: 25px;
-        padding: 0 !important;
-        max-width: 100%;
+      // Bubble styling
+      //.focus {
+      //  min-height: 25px;
+      //  padding: 0 !important;
+      //  max-width: 100%;
+      //
+      //  div {
+      //    position: absolute;
+      //    top: 0;
+      //    left: 0;
+      //    height: 100%;
+      //    width: 100%;
+      //    background: linear-gradient(to right, #0076FF 0%, #9013FE 20%, #50E3C2 50%);
+      //    transition: left 1s !important;
+      //  }
+      //}
+    }
 
-        div {
-          position: absolute;
-          top: 0;
-          left: 0;
-          height: 100%;
-          width: 100%;
-          background: linear-gradient(to right, #0076FF 0%, #9013FE 20%, #50E3C2 50%);
-          transition: left 1s !important;
-        }
-      }
+    // Focus checkboxes
+    .focus {
+      font-size: 90%;
     }
 
     .results {
@@ -356,7 +362,7 @@
       }
 
       .tags {
-        height: 60px;
+        height: 40px;
         width: 100%;
         .list {
           position: absolute;
