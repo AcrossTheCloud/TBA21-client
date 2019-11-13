@@ -1,12 +1,13 @@
 import * as React from 'react';
 import $ from 'jquery';
 import { connect } from 'react-redux';
-import { Col, Container, Row, Spinner } from 'reactstrap';
-import { debounce } from 'lodash';
+import { Carousel, CarouselItem, Col, Container, Row, Spinner } from 'reactstrap';
+import { debounce, isEqual } from 'lodash';
 import { Cookies, withCookies } from 'react-cookie';
 
 import { loadHomepage, loadMore, logoDispatch, openModal } from 'actions/home';
 import { toggle as searchOpenToggle } from 'actions/searchConsole';
+import { Announcement } from '../types/Announcement';
 
 import { HomePageState } from '../reducers/home';
 
@@ -28,15 +29,26 @@ interface Props extends HomePageState {
   cookies: Cookies;
 }
 
-class HomePage extends React.Component<Props, {}> {
+interface State {
+  announcements: Announcement[];
+  announcementsActiveIndex: number;
+}
+
+class HomePage extends React.Component<Props, State> {
   _isMounted;
   scrollDebounce;
   windowHeightTimeout;
+  announcementsSlidesHeight: number = 0;
 
   constructor(props: Props) {
     super(props);
 
     this._isMounted = false;
+
+    this.state = {
+      announcements: [],
+      announcementsActiveIndex: 0
+    };
 
     this.scrollDebounce = debounce( async () => await this.handleScroll(), 100);
   }
@@ -51,6 +63,8 @@ class HomePage extends React.Component<Props, {}> {
       await this.props.loadHomepage();
       await this.props.loadMore();
     }
+
+    $(window).on('load resize orientationchange', this.normalizeSlideHeights);
   }
 
   componentWillUnmount = () => {
@@ -63,6 +77,10 @@ class HomePage extends React.Component<Props, {}> {
     if (this.props.loadedCount < 0 && this.props.loadedMore && !this.props.logoLoaded) {
       this.props.logoDispatch(true);
       await this.windowHeightCheck();
+    }
+
+    if (!isEqual(this.state.announcements, this.props.announcements)) {
+      this.setState({ announcements: this.props.announcements }, () => this.normalizeSlideHeights());
     }
   }
 
@@ -118,6 +136,91 @@ class HomePage extends React.Component<Props, {}> {
     }
   }
 
+  normalizeSlideHeights = () => {
+    const _self = this;
+    $('.carousel').each(function() {
+      const items = $('.carousel-item', this);
+      // set the height
+      if (!_self.announcementsSlidesHeight) {
+        _self.announcementsSlidesHeight = Math.max.apply(null, items.map(function () {
+          return $(this).outerHeight();
+        }).get());
+      }
+
+      items.css('min-height', _self.announcementsSlidesHeight + 'px');
+    });
+  }
+
+  announcementsCarouselSlides = (): JSX.Element[] => {
+    let amountToShow: number = 1;
+    if (window.innerWidth >= 540) {
+      amountToShow = 2;
+    }
+    if (window.innerWidth >= 1000) {
+      amountToShow = 3;
+    }
+
+    return this.state.announcements.reduce( (accumulator: Announcement[][], currentValue: Announcement, currentIndex, array: Announcement[]) => {
+      if (currentIndex % 3 === 0) {
+        accumulator.push(array.slice(currentIndex, currentIndex + amountToShow));
+      }
+      return accumulator;
+    }, []).map((a: Announcement[], index) => (
+      <CarouselItem key={index}>
+        <Row>
+          {
+            a.map((announcement: Announcement, i) => (
+              <Col xs="12" sm="6" md="4" key={i} className="announcement">
+                <div className="title">
+                  {announcement.title}
+                </div>
+                <div className="description">
+                  {announcement.description}
+                </div>
+                {!!announcement.url ?
+                  <div>
+                    <a href={announcement.url} target="_blank" rel="noopener noreferrer">
+                      View
+                      <svg width="21px" height="17px" viewBox="0 0 21 17" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
+                        <g stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
+                          <g transform="translate(-1114.000000, -760.000000)">
+                            <g transform="translate(1.000000, 0.000000)">
+                              <g transform="translate(1113.000000, 760.000000)">
+                                <path d="M14.3596565,16.9833984 C14.277748,16.9833984 14.198766,16.9695639 14.1227082,16.9418945 C14.0466503,16.9142251 13.9793693,16.8727216 13.9208632,16.8173828 C13.8038511,16.7067052 13.7453459,16.573894 13.7453459,16.4189453 C13.7453459,16.2639966 13.8038511,16.1311854 13.9208632,16.0205078 L19.5456081,9.56692708 L14.0437254,3.24615885 C13.9267132,3.13548122 13.8682081,2.99990315 13.8682081,2.83942057 C13.8682081,2.678938 13.9267132,2.54335993 14.0437254,2.43268229 C14.1607375,2.32200465 14.3040752,2.26666667 14.4737428,2.26666667 C14.6434104,2.26666667 14.7867481,2.32200465 14.9037602,2.43268229 L20.8093328,9.16848958 C20.9263449,9.27916722 20.9848501,9.41197839 20.9848501,9.56692708 C20.9848501,9.72187577 20.9263449,9.85468695 20.8093328,9.96536458 L14.7808981,16.8173828 C14.722392,16.8727216 14.6551111,16.9142251 14.5790532,16.9418945 C14.5029953,16.9695639 14.4298638,16.9833984 14.3596565,16.9833984 Z" fill="#000" fillRule="nonzero"></path>
+                                <path d="M1.38568046,9.70416667 L19.3586534,9.70416667" stroke="#000" strokeWidth="1.14932327" strokeLinecap="round"></path>
+                                <path d="M1.38568046,0.6375 L1.38568046,9.70416667" stroke="#000" strokeWidth="1.14932327" strokeLinecap="round"></path>
+                              </g>
+                            </g>
+                          </g>
+                        </g>
+                      </svg>
+                    </a>
+                  </div>
+                  : <></>
+                }
+              </Col>
+            ))
+          }
+        </Row>
+      </CarouselItem>
+    ));
+  }
+
+  announcementsCarouselNext = () => {
+    if (this._isMounted) {
+      const nextIndex = this.state.announcementsActiveIndex === this.state.announcements.length % 3 ? 0 : this.state.announcementsActiveIndex + 1;
+
+      this.setState({ announcementsActiveIndex: nextIndex });
+    }
+  }
+
+  announcementsCarouselPrevious = () => {
+    if (this._isMounted) {
+      const nextIndex = this.state.announcementsActiveIndex === 0 ? this.state.announcements.length % 3 : this.state.announcementsActiveIndex - 1;
+      this.setState({ announcementsActiveIndex: nextIndex });
+    }
+  }
+
   render() {
     const {
       loaded_highlights,
@@ -139,6 +242,25 @@ class HomePage extends React.Component<Props, {}> {
         <Logo loaded={logoLoaded}/>
 
         <Container fluid id="main" className="pb">
+
+          <Row className="announcements">
+            {this.props.announcements && this.props.announcements.length ?
+              <Col>
+                <h3>Announcements</h3>
+                <Carousel
+                  className="announcementsCarousel"
+                  autoPlay
+                  next={this.announcementsCarouselNext}
+                  previous={this.announcementsCarouselPrevious}
+                  activeIndex={this.state.announcementsActiveIndex}
+                >
+                  {this.announcementsCarouselSlides()}
+                </Carousel>
+              </Col>
+              : <></>
+            }
+          </Row>
+
           <Row>
             {loadedItems}
           </Row>

@@ -175,7 +175,7 @@ export class FileUpload extends React.Component<Props, State> {
         <div className="dropzone_wrapper container-fluid">
           <Dropzone
             onDrop={this.onDrop}
-            accept="image/jpeg, image/gif, image/png, image/svg+xml, application/pdf, audio/*, text/*, video/*"
+            accept="image/jpeg, image/gif, image/png, image/svg+xml, application/pdf, audio/*, text/*, video/*, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document"
           >
             {({getRootProps, getInputProps, isDragActive, isDragReject, isDragAccept}) => (
               <div {...getRootProps()} className="dropzone">
