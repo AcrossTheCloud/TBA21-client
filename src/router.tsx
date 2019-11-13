@@ -32,7 +32,7 @@ import {
   Login,
   SignUp,
   ResetPassword,
-  AccountConfirmation,
+  AccountConfirmation, MapView,
   // END USER
 
 } from './components/';
@@ -153,6 +153,8 @@ export const AppRouter = () => {
               {/*    </div>)*/}
               {/*  }*/}
               {/*/>*/}
+              <Route exact path="/map" component={MapView} />
+
               <Route exact path="/login" component={Login} />
               <Route exact path="/signup" component={SignUp} />
               <Route exact path="/resetPassword/" component={ResetPassword} />

@@ -1,0 +1,53 @@
+@import '../../base/variables';
+
+.accordianHeadings {
+  padding: 20px 0;
+
+  &:hover {
+    cursor: pointer
+  }
+  .creators {
+    word-break: break-word;
+  }
+  .title {
+  }
+  .status {
+    padding-left: 25px;
+  }
+  .removeButton {
+  }
+  .itemIcons {
+
+  }
+}
+
+.accordianCollapse {
+  padding: 20px 0;
+
+  .collapse {
+    width: 100%
+  }
+  border-top: 1px solid $subline-gray;
+  &:hover {
+    cursor: pointer
+  }
+  .creators {
+    word-break: break-word;
+
+  }
+  .title {
+  }
+  .status {
+    text-align: center;
+  }
+  .removeButton {
+
+  }
+  .itemIcons {
+    text-align: center;
+  }
+}
+.accordianCollapse:last-child {
+  border-bottom: 1px solid $subline-gray;
+
+}
