@@ -25,7 +25,6 @@ import { locateUser } from './utils/locateUser';
 import { initialiseMap } from './utils/initialiseMap';
 import { initialiseMarkerCluster } from './utils/initialiseMarkerCluster';
 import { toggleOverlay } from '../../actions/loadingOverlay';
-import { progressBar } from './utils/progressBar';
 
 interface Props {
   toggleOverlay: Function;
@@ -130,8 +129,6 @@ class MapView extends React.Component<Props, State> {
                       // return the original extension call.
                       L.GeoJSON.prototype.addData.call(this, geojson);
                     }
-
-                    progressBar(featureIndex, (featureCollection.geometries.length - 1));
 
                     resolve();
                   }, 200 + featureIndex);
@@ -454,9 +451,6 @@ class MapView extends React.Component<Props, State> {
           id="oa_map"
           style={mapStyle}
         />
-        <div id="progressWrapper" className="progress">
-          <div id="progressBar" className="progress-bar h-100" role="progressbar">0%</div>
-        </div>
         <div className="zoomInBuddy">
           <div className={this.state.zoomedOutTooFar ? 'show op' : ''}>
             You need to zoom in a bit further to load more data.
