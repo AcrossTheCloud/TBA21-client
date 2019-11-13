@@ -147,6 +147,10 @@ class HeaderClass extends React.Component<RouteComponentProps, State> { // tslin
                       : <></>
                     }
 
+                    <NavItem>
+                      <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/map">Map</NavLink>
+                    </NavItem>
+
                     {isAuthenticated ?
                       <>
                         <NavItem>
