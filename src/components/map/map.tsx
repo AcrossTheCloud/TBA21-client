@@ -453,7 +453,7 @@ class MapView extends React.Component<Props, State> {
         />
         <div className="zoomInBuddy">
           <div className={this.state.zoomedOutTooFar ? 'show op' : ''}>
-            You need to zoom in a bit further to load more data.
+            Data displayed changes on zoom and pan, please be patient.
           </div>
         </div>
       </div>
