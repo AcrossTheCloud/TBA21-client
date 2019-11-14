@@ -17,6 +17,7 @@ import { has } from 'lodash';
 import { AuthConsumer } from '../../providers/AuthProvider';
 
 import 'styles/layout/_navigation.scss';
+import history from '../../history';
 
 interface State {
   isOpen: boolean;
@@ -129,7 +130,6 @@ class HeaderClass extends React.Component<RouteComponentProps, State> { // tslin
           return (
             <div id="navigation">
               <Navbar dark expand="md">
-                {/*<NavbarBrand href="/">TBA21</NavbarBrand>*/}
                 <NavbarToggler onClick={this.toggle}/>
                 <Collapse isOpen={this.state.isOpen} navbar>
                   <Nav className="ml-auto" navbar>
@@ -163,9 +163,17 @@ class HeaderClass extends React.Component<RouteComponentProps, State> { // tslin
                         </NavItem>
                       </>
                       :
-                      <NavItem>
-                        <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/login">Login</NavLink>
-                      </NavItem>
+                      history.location.pathname.match(/^\/$/i)
+                      ||
+                      history.location.pathname.match(/^\/view/i)
+                      ||
+                      history.location.pathname.match(/^\/collection/i)
+                      ||
+                      history.location.pathname.match(/^\/map$/i) ? <></> : (
+                        <NavItem>
+                          <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/login">Login</NavLink>
+                        </NavItem>
+                      )
                     }
                   </Nav>
                 </Collapse>
