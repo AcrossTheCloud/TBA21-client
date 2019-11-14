@@ -103,15 +103,7 @@ export const AppRouter = () => {
               path="/"
               render={() => (
                 <>
-                  <AuthConsumer>
-                    {({ isAuthenticated }) => {
-                      if (!history.location.pathname.match(/^\/$/i) || isAuthenticated) {
-                        return <Header />;
-                      } else {
-                        return <></>;
-                      }
-                    }}
-                  </AuthConsumer>
+                  <Header />
                   <SearchConsole />
                   <PrivacyPolicyPopUp />
                   <PrivacyPolicy />
@@ -132,8 +124,8 @@ export const AppRouter = () => {
                   <div className="main pb blue">
                     <ViewItem />
                     <Footer />
-                  </div>)
-                }
+                  </div>
+                )}
               />
               <Route
                 path="/collection/:id"
@@ -141,8 +133,8 @@ export const AppRouter = () => {
                   <div className="main pb blue">
                     <ViewCollection />
                     <Footer />
-                  </div>)
-                }
+                  </div>
+                )}
               />
               {/*<Route*/}
               {/*  path="/profiles/:profileId"*/}
@@ -161,7 +153,15 @@ export const AppRouter = () => {
 
               <Route exact path="/confirm/:email" component={AccountConfirmation} />
 
-              <Route component={NoMatch} />
+              <AuthConsumer>
+                {({ isLoading }) => {
+                  if (!isLoading) {
+                    return <Route component={NoMatch} />;
+                  } else {
+                    return <></>;
+                  }
+                }}
+              </AuthConsumer>
             </Switch>
             <AuthConsumer>
               {({ isLoading, authorisation, isAuthenticated }) => {
@@ -171,6 +171,46 @@ export const AppRouter = () => {
                       <AdminRoutes authorisation={authorisation} history={history} />
                       <ContributorsRoutes authorisation={authorisation} history={history} />
                       <LoggedInRoutes isAuthenticated={isAuthenticated} history={history} />
+
+                      {!isAuthenticated ? (
+                          <Route
+                            exact
+                            path="/admin"
+                            render={() => (
+                              <Redirect to={'/login'} />
+                            )}
+                          />
+                        )
+                        : (
+                          <Route
+                            exact
+                            path="/admin"
+                            render={() => (
+                              <Redirect to={'/admin/Items'} />
+                            )}
+                          />
+                        )
+                      }
+
+                      {!isAuthenticated ? (
+                          <Route
+                            exact
+                            path="/contributor"
+                            render={() => (
+                              <Redirect to={'/login'} />
+                            )}
+                          />
+                        )
+                        : (
+                          <Route
+                            exact
+                            path="/contributor"
+                            render={() => (
+                              <Redirect to={'/contributor/items'} />
+                            )}
+                          />
+                        )
+                      }
                     </>
                   );
                 } else {
