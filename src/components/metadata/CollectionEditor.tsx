@@ -301,7 +301,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
 
       const result = editMode ? await API.patch('tba21', `admin/collections/update`, {body: {
               ...collectionProperties
-            }}) :  await API.put('tba21', `admin/collections/create}`, {
+            }}) :  await API.post('tba21', `admin/collections/create}`, {
         body: {
           ...collectionProperties
         }

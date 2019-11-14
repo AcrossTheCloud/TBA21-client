@@ -198,7 +198,7 @@ export default class Tags extends React.Component<Props, State> {
 
     this.setState( { isLoading: true });
 
-    const results = await API.put('tba21', 'contributor/tags', {
+    const results = await API.post('tba21', 'contributor/tags', {
       body: {
         // type: this.props.type,
         tags: [inputValue]

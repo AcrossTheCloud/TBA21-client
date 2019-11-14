@@ -262,7 +262,7 @@ export class AddUser extends React.Component<{}, State> {
           });
 
         if (profileAttributes) {
-          await API.put('tba21', 'admin/profiles', {
+          await API.post('tba21', 'admin/profiles', {
             body: { ...profileAttributes, uuid: response.User.Username }
           });
         }

@@ -158,7 +158,7 @@ export class AnnouncementEditor extends React.Component<Props, State> {
           }
         });
       } else {
-        result = await API.put('tba21', `${this.isContributorPath ? 'contributor' : 'admin'}/announcements`, {
+        result = await API.post('tba21', `${this.isContributorPath ? 'contributor' : 'admin'}/announcements`, {
           body: {
             ...announcementProperties
           }

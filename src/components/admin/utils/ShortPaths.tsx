@@ -124,7 +124,7 @@ export default class ShortPaths extends React.Component<Props, State> {
       };
       try {
         // Re-Slugify the value first, just incase a wild ending dash or space got through.
-        await API.put('tba21', 'admin/shortpaths', {
+        await API.post('tba21', 'admin/shortpaths', {
           body: {
             short_path: slugify(value.label, true),
             id: this.state.id,
