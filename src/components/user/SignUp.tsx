@@ -104,7 +104,7 @@ export class SignUp extends React.Component<{}, State> {
         },
         newUser = await Auth.signUp(userDetails);
 
-      await API.put('tba21', 'profiles', {
+      await API.post('tba21', 'profiles', {
         body: {
           uuid: newUser.userSub,
           full_name: this.state.fullName,
