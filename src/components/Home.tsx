@@ -151,7 +151,7 @@ class HomePage extends React.Component<Props, State> {
     });
   }
 
-  announcementsCarouselSlides = (): JSX.Element[] => {
+  announcementsAmountToShow (): number {
     let amountToShow: number = 1;
     if (window.innerWidth >= 540) {
       amountToShow = 2;
@@ -160,8 +160,14 @@ class HomePage extends React.Component<Props, State> {
       amountToShow = 3;
     }
 
+    return amountToShow;
+  }
+
+  announcementsCarouselSlides = (): JSX.Element[] => {
+    let amountToShow: number = this.announcementsAmountToShow();
+
     return this.state.announcements.reduce( (accumulator: Announcement[][], currentValue: Announcement, currentIndex, array: Announcement[]) => {
-      if (currentIndex % 3 === 0) {
+      if (currentIndex % amountToShow === 0) {
         accumulator.push(array.slice(currentIndex, currentIndex + amountToShow));
       }
       return accumulator;
@@ -208,20 +214,22 @@ class HomePage extends React.Component<Props, State> {
 
   announcementsCarouselNext = () => {
     if (this._isMounted) {
-      const total = Math.round(this.state.announcements.length / 3) - 1;
+      const amountShown: number = this.announcementsAmountToShow();
+      const total = Math.round(this.state.announcements.length / amountShown) - 1;
       const indexInt = this.state.announcementsActiveIndex + 1;
 
-      const nextIndex = this.state.announcementsActiveIndex === total ? 0 : indexInt;
+      const nextIndex = this.state.announcementsActiveIndex >= total ? 0 : indexInt;
 
-      if (this.state.announcementsActiveIndex !== nextIndex) {
-        this.setState({announcementsActiveIndex: nextIndex});
-      }
+      console.log(amountShown, total, indexInt, nextIndex);
+
+      this.setState({announcementsActiveIndex: nextIndex});
     }
   }
 
   announcementsCarouselPrevious = () => {
     if (this._isMounted) {
-      const total = Math.round(this.state.announcements.length / 3) - 1;
+      const amountShown: number = this.announcementsAmountToShow();
+      const total = Math.round(this.state.announcements.length / amountShown) - 1;
       const indexInt = this.state.announcementsActiveIndex - 1;
 
       const nextIndex = this.state.announcementsActiveIndex === total ? 0 : indexInt;
