@@ -220,8 +220,6 @@ class HomePage extends React.Component<Props, State> {
 
       const nextIndex = this.state.announcementsActiveIndex >= total ? 0 : indexInt;
 
-      console.log(amountShown, total, indexInt, nextIndex);
-
       this.setState({announcementsActiveIndex: nextIndex});
     }
   }
@@ -232,11 +230,9 @@ class HomePage extends React.Component<Props, State> {
       const total = Math.round(this.state.announcements.length / amountShown) - 1;
       const indexInt = this.state.announcementsActiveIndex - 1;
 
-      const nextIndex = this.state.announcementsActiveIndex === total ? 0 : indexInt;
+      const nextIndex = this.state.announcementsActiveIndex >= total ? 0 : indexInt;
 
-      if (this.state.announcementsActiveIndex !== nextIndex) {
-        this.setState({announcementsActiveIndex: nextIndex});
-      }
+      this.setState({announcementsActiveIndex: nextIndex});
     }
   }
 
