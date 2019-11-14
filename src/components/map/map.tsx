@@ -73,7 +73,6 @@ class MapView extends React.Component<Props, State> {
     this._isMounted = true;
 
     this.map = await initialiseMap();
-    console.log('nope', this.map);
 
     this.markerCluster();
 
@@ -137,7 +136,6 @@ class MapView extends React.Component<Props, State> {
               });
 
               Promise.all(promises).then(() => {
-                console.log('All done', points);
                 if (points.length) {
                   // Add all points from the array into the map
                   _self.markerClusterLayer.addLayers(points);

@@ -166,7 +166,7 @@ class HomePage extends React.Component<Props, State> {
       }
       return accumulator;
     }, []).map((a: Announcement[], index) => (
-      <CarouselItem key={index}>
+      <CarouselItem key={`CarouselItem_${index}`}>
         <Row>
           {
             a.map((announcement: Announcement, i) => (
@@ -208,16 +208,27 @@ class HomePage extends React.Component<Props, State> {
 
   announcementsCarouselNext = () => {
     if (this._isMounted) {
-      const nextIndex = this.state.announcementsActiveIndex === this.state.announcements.length % 3 ? 0 : this.state.announcementsActiveIndex + 1;
+      const total = Math.round(this.state.announcements.length / 3) - 1;
+      const indexInt = this.state.announcementsActiveIndex + 1;
 
-      this.setState({ announcementsActiveIndex: nextIndex });
+      const nextIndex = this.state.announcementsActiveIndex === total ? 0 : indexInt;
+
+      if (this.state.announcementsActiveIndex !== nextIndex) {
+        this.setState({announcementsActiveIndex: nextIndex});
+      }
     }
   }
 
   announcementsCarouselPrevious = () => {
     if (this._isMounted) {
-      const nextIndex = this.state.announcementsActiveIndex === 0 ? this.state.announcements.length % 3 : this.state.announcementsActiveIndex - 1;
-      this.setState({ announcementsActiveIndex: nextIndex });
+      const total = Math.round(this.state.announcements.length / 3) - 1;
+      const indexInt = this.state.announcementsActiveIndex - 1;
+
+      const nextIndex = this.state.announcementsActiveIndex === total ? 0 : indexInt;
+
+      if (this.state.announcementsActiveIndex !== nextIndex) {
+        this.setState({announcementsActiveIndex: nextIndex});
+      }
     }
   }
 
