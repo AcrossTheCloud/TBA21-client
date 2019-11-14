@@ -151,7 +151,7 @@ class HomePage extends React.Component<Props, State> {
     });
   }
 
-  announcementsCarouselSlides = (): JSX.Element[] => {
+  announcementsAmountToShow (): number {
     let amountToShow: number = 1;
     if (window.innerWidth >= 540) {
       amountToShow = 2;
@@ -160,13 +160,19 @@ class HomePage extends React.Component<Props, State> {
       amountToShow = 3;
     }
 
+    return amountToShow;
+  }
+
+  announcementsCarouselSlides = (): JSX.Element[] => {
+    let amountToShow: number = this.announcementsAmountToShow();
+
     return this.state.announcements.reduce( (accumulator: Announcement[][], currentValue: Announcement, currentIndex, array: Announcement[]) => {
-      if (currentIndex % 3 === 0) {
+      if (currentIndex % amountToShow === 0) {
         accumulator.push(array.slice(currentIndex, currentIndex + amountToShow));
       }
       return accumulator;
     }, []).map((a: Announcement[], index) => (
-      <CarouselItem key={index}>
+      <CarouselItem key={`CarouselItem_${index}`}>
         <Row>
           {
             a.map((announcement: Announcement, i) => (
@@ -208,16 +214,25 @@ class HomePage extends React.Component<Props, State> {
 
   announcementsCarouselNext = () => {
     if (this._isMounted) {
-      const nextIndex = this.state.announcementsActiveIndex === this.state.announcements.length % 3 ? 0 : this.state.announcementsActiveIndex + 1;
+      const amountShown: number = this.announcementsAmountToShow();
+      const total = Math.round(this.state.announcements.length / amountShown) - 1;
+      const indexInt = this.state.announcementsActiveIndex + 1;
 
-      this.setState({ announcementsActiveIndex: nextIndex });
+      const nextIndex = this.state.announcementsActiveIndex >= total ? 0 : indexInt;
+
+      this.setState({announcementsActiveIndex: nextIndex});
     }
   }
 
   announcementsCarouselPrevious = () => {
     if (this._isMounted) {
-      const nextIndex = this.state.announcementsActiveIndex === 0 ? this.state.announcements.length % 3 : this.state.announcementsActiveIndex - 1;
-      this.setState({ announcementsActiveIndex: nextIndex });
+      const amountShown: number = this.announcementsAmountToShow();
+      const total = Math.round(this.state.announcements.length / amountShown) - 1;
+      const indexInt = this.state.announcementsActiveIndex - 1;
+
+      const nextIndex = this.state.announcementsActiveIndex >= total ? 0 : indexInt;
+
+      this.setState({announcementsActiveIndex: nextIndex});
     }
   }
 
