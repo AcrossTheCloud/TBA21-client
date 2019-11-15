@@ -35,6 +35,8 @@ interface State extends Alerts {
   zoom: number;
   inputLat: number;
   inputLng: number;
+  typedLat: string;
+  typedLng: string;
 }
 
 interface Props {
@@ -65,7 +67,9 @@ class Map extends React.Component<Props, State> {
     zoom: 5, // initial zoom level
 
     inputLat: 0,
-    inputLng: 0
+    inputLng: 0,
+    typedLat: "0",
+    typedLng: "0"
   };
 
   constructor(props: Props) {
@@ -297,7 +301,9 @@ class Map extends React.Component<Props, State> {
         if (center.lat && center.lng) {
           this.setState({
             inputLng: center.lng,
-            inputLat: center.lat
+            inputLat: center.lat,
+            typedLng: center.lng.toString(),
+            typedLat: center.lat.toString()
           });
         }
       }
@@ -444,10 +450,13 @@ class Map extends React.Component<Props, State> {
     this.mapEvents();
   }
 
-  inputOnChange = (inputValue: string, type: 'inputLat' | 'inputLng') => {
+  setLatLng = (type: 'inputLat' | 'inputLng') => {
     const map = this.map;
+    const inputValue = (type==='inputLat') ? this.state.typedLat : this.state.typedLng;
+    console.log(inputValue);
     if (map !== null && this._isMounted) {
-      const value = parseInt(inputValue, 0);
+      const value = parseFloat(inputValue);
+      console.log(value);
       let timeout = type === 'inputLat' ? this.inputLatTimeout : this.inputLngTimeout;
       clearTimeout(timeout);
 
@@ -526,13 +535,13 @@ class Map extends React.Component<Props, State> {
             <Col md="4">
               <InputGroup>
                 <InputGroupAddon addonType="prepend">Lat</InputGroupAddon>
-                <Input pattern="-?[0-9]*" className="lat" value={this.state.inputLat.toString()} type="text" onChange={e => this.inputOnChange(e.target.value, 'inputLat')}/>
+                <Input className="lat" type="text" value={this.state.typedLat.toString()} onChange={e => this.setState({'typedLat': e.target.value})} onKeyPress={e => {if (e.key==='Enter') { this.setLatLng('inputLat') }}}/>
               </InputGroup>
             </Col>
             <Col md="4">
               <InputGroup>
                 <InputGroupAddon addonType="prepend">Lng</InputGroupAddon>
-                <Input pattern="-?[0-9]" className="lng" value={this.state.inputLng.toString()} type="text" onChange={e => this.inputOnChange(e.target.value, 'inputLng')}/>
+                <Input className="lng" type="text" value={this.state.typedLng.toString()} onChange={e => this.setState({'typedLng': e.target.value})} onKeyPress={e => { if (e.key==='Enter') { this.setLatLng('inputLng') }}}/>
               </InputGroup>
             </Col>
           </Row>
