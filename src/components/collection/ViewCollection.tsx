@@ -1,6 +1,9 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { fetchCollection } from 'actions/collections/viewCollection';
+import {
+  fetchCollection,
+  fetchContributedItemsForProfile
+} from 'actions/collections/viewCollection';
 import { ViewCollectionState } from 'reducers/collections/viewCollection';
 import { ErrorMessage } from '../utils/alerts';
 
@@ -16,12 +19,14 @@ type MatchParams = {
 };
 
 interface Props extends RouteComponentProps<MatchParams>, ViewCollectionState {
+  uuid?: string | null;
   fetchCollection: Function;
+  fetchContributedItemsForProfile: Function;
 }
 
 class ViewCollection extends React.Component<Props, {}> {
   componentDidMount() {
-    const { match } = this.props;
+    const { match, uuid } = this.props;
     let matchId: string | null = null;
 
     // Get our collectionId passed through from URL props
@@ -31,13 +36,15 @@ class ViewCollection extends React.Component<Props, {}> {
     // If we have an id from the URL pass it through, otherwise use the one from Redux State
     if (matchId) {
       this.props.fetchCollection(matchId);
+    } else if (uuid) {
+      this.props.fetchContributedItemsForProfile(uuid);
     } else {
       this.setState({ errorMessage: 'No collection with that id.' });
     }
   }
 
   render() {
-    const { errorMessage, collection } = this.props;
+    const { errorMessage, collection, uuid } = this.props;
 
     if (typeof collection === 'undefined') {
       return <ErrorMessage message={errorMessage} />;
@@ -46,7 +53,7 @@ class ViewCollection extends React.Component<Props, {}> {
       <div id="item" className="container-fluid">
         <ErrorMessage message={errorMessage} />
         <CollectionSlider />
-        <CollectionDetails collection={collection} />
+        {!uuid ? <CollectionDetails collection={collection} /> : <></>}
       </div>
     );
   }
@@ -67,6 +74,6 @@ const mapStateToProps = (state: { viewCollection: ViewCollectionState }) => {
 export default withRouter(
   connect(
     mapStateToProps,
-    { fetchCollection }
+    { fetchCollection, fetchContributedItemsForProfile }
   )(ViewCollection)
 );
