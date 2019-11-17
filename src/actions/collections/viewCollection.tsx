@@ -2,7 +2,11 @@ import { Item } from '../../types/Item';
 import { checkFile } from '../items/viewItem';
 import { LOADINGOVERLAY } from '../loadingOverlay';
 import { FETCH_COLLECTION_LOAD_MORE } from '../../reducers/collections/viewCollection';
-import { queryByUuid, getById, getItemsInCollection } from '../../REST/collections';
+import {
+  queryByUuid,
+  getById,
+  getItemsInCollection
+} from '../../REST/collections';
 import { removeTopology } from '../../components/utils/removeTopology';
 import { Collection } from '../../types/Collection';
 
@@ -24,7 +28,6 @@ export const fetchContributedItemsForProfile = (uuid: string) => async (
   getState
 ) => {
   // const prevState = getState();
-
   dispatch({
     type: LOADINGOVERLAY,
     on: true
@@ -32,21 +35,25 @@ export const fetchContributedItemsForProfile = (uuid: string) => async (
 
   try {
     // TODO: this returns an array of collections
-    const { collections } = await queryByUuid(uuid);
+    const response = await queryByUuid(uuid);
+    const collections = removeTopology(response) as Collection[]
 
     if (!!collections && collections.length) {
       Promise.all(
-
         collections.map(async collection => {
-          const itemResponse = await getItemsInCollection({ id: collection.id, limit: 1000 });
-          return await loadMore(itemResponse.items);
+          const itemResponse = await getItemsInCollection({
+            id: collection.id,
+            limit: 1000
+          });
+
+          return await loadMore(removeTopology(itemResponse) as Item[]);
         })
       ).then((collectionBundles: any[]) => {
         const items = collectionBundles.flatMap(collection => collection.items);
 
         dispatch({
-          type: FETCH_COLLECTION,
-          collection: collections,
+          type: FETCH_COLLECTION, // NOTE this is left singular for now
+          collection: collections, // AS it is also here for the key
           offset: 0,
           items
         });
