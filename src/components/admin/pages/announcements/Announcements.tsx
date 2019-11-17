@@ -74,13 +74,17 @@ class Announcements extends React.Component<RouteComponentProps, State> {
         }
       },
       {
+        dataField: 'created_at',
+        text: 'Created Date',
+        headerStyle: () => {
+          return { width: '14%' };
+      },
+      },
+      {
         dataField: 'title',
         text: 'Title'
       },
-      {
-        dataField: 'created_at',
-        text: 'Created Date',
-      },
+
       {
         dataField: 'options',
         text: 'options',
@@ -92,7 +96,9 @@ class Announcements extends React.Component<RouteComponentProps, State> {
               <Button color="danger" size="sm" onClick={() => this.onDeleteButtonClick(rowIndex)}>Delete</Button>
             </>
           );
-        }
+        }, headerStyle: () => {
+          return { width: '18%' };
+        },
       }
     ];
   }

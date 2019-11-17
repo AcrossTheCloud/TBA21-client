@@ -72,6 +72,16 @@ class Items extends React.Component<RouteComponentProps, State> {
         }
       },
       {
+        dataField: 'created_at',
+        text: 'Created Date',
+        formatter: (cell: string) => {
+          return cell.toString().slice(0, 10);
+        },
+        headerStyle: () => {
+          return { width: '14%' };
+        },
+      },
+      {
         dataField: 'title',
         text: 'Title'
       },
@@ -97,7 +107,10 @@ class Items extends React.Component<RouteComponentProps, State> {
               <Button color="danger" size="sm" onClick={() => this.onDeleteButtonClick(rowIndex)}>Delete</Button>
             </>
           );
-        }
+        },
+        headerStyle: () => {
+          return { width: '18%' };
+        },
       }
     ];
   }
