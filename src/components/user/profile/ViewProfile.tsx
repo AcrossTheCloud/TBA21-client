@@ -41,7 +41,9 @@ class ViewProfile extends React.Component<Props, State> {
 
   renderContact() {
     const { profile } = this.props;
-    if (!profile) { return; }
+    if (!profile) {
+      return;
+    }
     const { contact_email, contact_person, contact_position } = profile;
 
     return [contact_person, contact_position, contact_email].map(contactField =>
@@ -110,9 +112,8 @@ class ViewProfile extends React.Component<Props, State> {
       profile_image,
       public_profile
     } = profile;
-    const tags = [];
     // TODO: how to fetch tags via the API?
-    // const tags = ['marine wildlife', 'adaptations at sea', 'climate change'];
+    const tags = [];
 
     return (
       <div id="profile">
@@ -146,7 +147,7 @@ class ViewProfile extends React.Component<Props, State> {
               <p className="m-3">{biography}</p>
             </Col>
           </Col>
-          {!public_profile ? (
+          {!public_profile && (
             <Col xs="12" md="6">
               <div className="m-3 details caption-text">
                 {city || country
@@ -158,20 +159,20 @@ class ViewProfile extends React.Component<Props, State> {
                 {affiliation
                   ? this.renderRow('Affiliation', affiliation)
                   : null}
-                <div>
-                  Most used concept tags
-                  <p className="mt-5">
-                    {tags.map((ea, index) => (
-                      <span className="tags" key={index}>
-                        {ea}
-                      </span>
-                    ))}
-                  </p>
-                </div>
+                {tags.length > 0 && (
+                  <div>
+                    Most used concept tags
+                    <p className="mt-5">
+                      {tags.map((ea, index) => (
+                        <span className="tags" key={index}>
+                          {ea}
+                        </span>
+                      ))}
+                    </p>
+                  </div>
+                )}
               </div>
             </Col>
-          ) : (
-            ''
           )}
         </Row>
         <Row>

@@ -1,18 +1,26 @@
 @font-face {
-  font-family: "Recta W01 Regular";
-  src: url("./fonts/recta/1097216/ee158e13-049f-46ce-b894-2efb34a9031a.eot?#iefix");
-  src: url("./fonts/recta/1097216/ee158e13-049f-46ce-b894-2efb34a9031a.eot?#iefix") format("eot"),
-      url("./fonts/recta/1097216/2aafa9c2-51ba-46d6-81da-07ad5f6c218e.woff2") format("woff2"),
-      url("./fonts/recta/1097216/85365e5b-bcea-41e6-90fc-fe80f09f402e.woff") format("woff"),
-      url("./fonts/recta/1097216/be7380ab-dcb7-41d4-9c21-b031cc218776.ttf") format("truetype");
+  font-family: 'Recta W01 Regular';
+  src: url('./recta/1097216/ee158e13-049f-46ce-b894-2efb34a9031a.eot?#iefix');
+  src: url('./recta/1097216/ee158e13-049f-46ce-b894-2efb34a9031a.eot?#iefix')
+      format('eot'),
+    url('./recta/1097216/2aafa9c2-51ba-46d6-81da-07ad5f6c218e.woff2')
+      format('woff2'),
+    url('./recta/1097216/85365e5b-bcea-41e6-90fc-fe80f09f402e.woff')
+      format('woff'),
+    url('./recta/1097216/be7380ab-dcb7-41d4-9c21-b031cc218776.ttf')
+      format('truetype');
 }
 @font-face {
-  font-family: "Recta W01 Italic";
-  src: url("./fonts/recta/1097237/da0429d7-fb45-465a-88c4-5968e153df37.eot?#iefix");
-  src: url("./fonts/recta/1097237/da0429d7-fb45-465a-88c4-5968e153df37.eot?#iefix") format("eot"),
-      url("./fonts/recta/1097237/17160f23-477f-4a96-ab09-9f93ef127ed2.woff2") format("woff2"),
-      url("./fonts/recta/1097237/f8add38e-a896-487f-9d2a-16c1bbe9e81f.woff") format("woff"),
-      url("./fonts/recta/1097237/371f3dd5-d261-450a-939b-27fe39a1dbae.ttf") format("truetype");
+  font-family: 'Recta W01 Italic';
+  src: url('./recta/1097237/da0429d7-fb45-465a-88c4-5968e153df37.eot?#iefix');
+  src: url('./recta/1097237/da0429d7-fb45-465a-88c4-5968e153df37.eot?#iefix')
+      format('eot'),
+    url('./recta/1097237/17160f23-477f-4a96-ab09-9f93ef127ed2.woff2')
+      format('woff2'),
+    url('./recta/1097237/f8add38e-a896-487f-9d2a-16c1bbe9e81f.woff')
+      format('woff'),
+    url('./recta/1097237/371f3dd5-d261-450a-939b-27fe39a1dbae.ttf')
+      format('truetype');
 }
 
 @font-face {
@@ -20,9 +28,8 @@
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: local('Roboto Mono'),
-       local('RobotoMono-Regular'),
-       url('./fonts/roboto-mono/RobotoMono-Regular.ttf') format('truetype');
+  src: local('Roboto Mono'), local('RobotoMono-Regular'),
+    url('./roboto-mono/RobotoMono-Regular.ttf') format('truetype');
 }
 
 @font-face {
@@ -30,8 +37,6 @@
   font-style: italic;
   font-weight: 400;
   font-display: swap;
-  src: local('Roboto Mono'),
-       local('RobotoMono-Italic'),
-       url('./fonts/roboto-mono/RobotoMono-RegularItalic.ttf') format('truetype');
+  src: local('Roboto Mono'), local('RobotoMono-Italic'),
+    url('./roboto-mono/RobotoMono-RegularItalic.ttf') format('truetype');
 }
-
