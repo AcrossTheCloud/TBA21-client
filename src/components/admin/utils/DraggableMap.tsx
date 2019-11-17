@@ -1,21 +1,33 @@
 import * as React from 'react';
+import { connect } from 'react-redux';
+
 import { Container, Row, Col, Input, InputGroup, InputGroupAddon, Button, UncontrolledPopover, PopoverBody } from 'reactstrap';
 import { isEqual } from 'lodash';
+
+import * as topojson from 'topojson-client';
+import { GeoJsonObject } from 'geojson';
+
 import * as L from 'leaflet';
 import '@geoman-io/leaflet-geoman-free';
 import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
 import './VerticalRangeSlider.scss';
 
-import { jellyFish } from 'components/map/icons';
-
-import 'leaflet/dist/leaflet.css';
-import { Layer } from 'leaflet';
-import * as topojson from 'topojson-client';
-import { Feature, GeoJsonObject, GeometryObject } from 'geojson';
-import { colourScale } from '../../map/colorScale';
-import { Alerts, ErrorMessage } from '../../utils/alerts';
+import { OALogo } from 'components/map/utils/icons';
 
 import 'styles/components/_dropzone.scss';
+
+import 'leaflet/dist/leaflet.css';
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
+import 'leaflet.markercluster/dist/leaflet.markercluster';
+
+import { colourScale } from '../../map/utils/colorScale';
+import { Alerts, ErrorMessage } from '../../utils/alerts';
+
+import { initialiseMap } from '../../map/utils/initialiseMap';
+import { initialiseMarkerCluster } from '../../map/utils/initialiseMarkerCluster';
+import { locateUser } from '../../map/utils/locateUser';
+
+import { toggleOverlay } from '../../../actions/loadingOverlay';
 
 const toGeoJSON = require('@mapbox/togeojson');
 
@@ -23,9 +35,12 @@ interface State extends Alerts {
   zoom: number;
   inputLat: number;
   inputLng: number;
+  typedLat: string;
+  typedLng: string;
 }
 
 interface Props {
+  toggleOverlay: Function;
   topoJSON?: any;  // tslint:disable-line: no-any
   onChange?: Function;
   collectionItems?: GeoJsonObject;
@@ -36,10 +51,11 @@ const mapStyle = {
   height: '100%'
 };
 
-export default class DraggableMap extends React.Component<Props, State> {
+class Map extends React.Component<Props, State> {
   _isMounted;
   map;
   topoLayer;
+  markerClusterLayer;
   ignoredTopoLayer; // A layer of pmIgnore data
 
   uploadInputRef;
@@ -51,7 +67,9 @@ export default class DraggableMap extends React.Component<Props, State> {
     zoom: 5, // initial zoom level
 
     inputLat: 0,
-    inputLng: 0
+    inputLng: 0,
+    typedLat: "0",
+    typedLng: "0"
   };
 
   constructor(props: Props) {
@@ -61,9 +79,12 @@ export default class DraggableMap extends React.Component<Props, State> {
     this.topoExtension();
   }
 
-  componentDidMount(): void {
+  async componentDidMount(): Promise<void> {
     this._isMounted = true;
-    this.initialiseMap();
+    this.map = await initialiseMap();
+    console.log(this.map);
+
+    this.markerClusterLayer = initialiseMarkerCluster(this.map);
     if (this.map) {
       this.addLeafletGeoMan();
       this.topoLayer = this.setupTopoLayer();
@@ -72,18 +93,19 @@ export default class DraggableMap extends React.Component<Props, State> {
       if (topo && topo.objects && topo.objects.output.geometries && topo.objects.output.geometries.length) {
         const geometries = topo.objects.output.geometries;
         if ((geometries[0].type === null || geometries[0].type === 'null') && geometries.length === 1) {
-          this.locateUser();
+          this.locate();
         } else {
-          this.topoLayer.addData(this.props.topoJSON);
+          this.props.toggleOverlay(true);
+          setTimeout( () => this.topoLayer.addData(this.props.topoJSON), 500);
         }
       } else {
-        this.locateUser();
+        this.locate();
       }
       // If we're a collection disable all of the items on the map, so they're no editable.
       if (this.props.collectionItems) {
         // Add our items data in an ignored layer.
         this.ignoredTopoLayer = this.setupTopoLayer(true);
-        this.ignoredTopoLayer.addData(this.props.collectionItems);
+        setTimeout( () => this.ignoredTopoLayer.addData(this.props.collectionItems), 500);
       }
     }
   }
@@ -103,36 +125,28 @@ export default class DraggableMap extends React.Component<Props, State> {
 
   }
 
-  initialiseMap = () => {
-    const
-      mapID: string = 'mapbox.outdoors',
-      accessToken: string = 'pk.eyJ1IjoiYWNyb3NzdGhlY2xvdWQiLCJhIjoiY2ppNnQzNG9nMDRiMDNscDh6Zm1mb3dzNyJ9.nFFwx_YtN04_zs-8uvZKZQ',
-      tileLayerURL: string = 'https://api.tiles.mapbox.com/v4/' + mapID + '/{z}/{x}/{y}.png?access_token=' + accessToken;
-
-    this.map = L.map('oa_map', {
-      maxZoom: 18,
-      zoom: 5,
-      preferCanvas: true
-    }).setView([this.state.inputLat, this.state.inputLng], 5);
-
-    L.tileLayer(tileLayerURL, {
-      attribution: '',
-      maxZoom: 18,
-      id: mapID,
-      accessToken: accessToken
-    }).addTo(this.map);
+  /**
+   * Locates the user and updates the position in state.
+   */
+  locate = () => {
+    locateUser(this.map, undefined, (data: {inputLng: number, inputLat: number}) => {
+      if (this._isMounted) {
+        const {inputLng, inputLat} = data;
+        this.setState({inputLng, inputLat});
+      }
+    });
   }
 
   setupTopoLayer = (isIgnored: boolean = false): L.GeoJSON => {
     const map = this.map;
-    const jellyFishIcon = jellyFish();
+    // const OALogoIcon = OALogo();
     let mapLayer = !isIgnored ? this.topoLayer : this.ignoredTopoLayer;
 
     const options = {
-      // Add our custom marker to points.
-      pointToLayer: (feature: Feature<GeometryObject>, latlng: L.LatLngExpression) => {
-        return L.marker(latlng, {icon: jellyFishIcon});
-      }
+      // // Add our custom marker to points.
+      // pointToLayer: (feature: Feature<GeometryObject>, latlng: L.LatLngExpression) => {
+      //   return L.marker(latlng, {icon: OALogoIcon});
+      // }
     };
 
     // Add the Geoman pmIgnore option to the layer
@@ -156,43 +170,108 @@ export default class DraggableMap extends React.Component<Props, State> {
       {
         // When any data is added we need to get the geometries from the output
         // We technically un-nest each "feature" (line string) out of the collection it comes in, this makes styling it a hell of a lot easier.
-        addData: function(data: any) {  // tslint:disable-line: no-any
+        addData: function(data: any, upload: 'kml' | 'gpx') {  // tslint:disable-line: no-any
+          const points: L.Layer[] = [];
+
           if (data.type === 'Topology') {
             data.objects.output.geometries.forEach((geometryCollection, index: number) => {
               if (geometryCollection && geometryCollection.geometries) {
                 geometryCollection.geometries.forEach(feature => {
                   if (feature.type !== null) {
-                    // Add the properties to the feature, these are in the top level collection.
-                    // Object.assign(feature, { properties: data.objects.output.geometries[index].properties});
 
-                    // Convert the feature to geoJSON for leaflet
-                    const geojson = topojson.feature(data, feature);
-                    L.GeoJSON.prototype.addData.call(this, geojson);
+                    // Remove empty properties as we don't care about them.
+                    if (feature.properties) {
+                      delete feature.properties;
+                    }
+
+                    if (feature.type === 'Point') {
+                      if (feature.coordinates) {
+                        const latLng = new L.LatLng(feature.coordinates[1], feature.coordinates[0], feature.coordinates[2] ? feature.coordinates[2] : 0);
+                        const markerLayer: L.Marker = L.marker(latLng, {icon: OALogo(feature.coordinates[2])});
+                        points.push(markerLayer);
+                      }
+                    } else {
+                      // Convert the feature to geoJSON for leaflet
+                      const geojson = topojson.feature(data, feature);
+                      L.GeoJSON.prototype.addData.call(this, geojson);
+                    }
                   }
                 });
               }
             });
-
           } else {
             // We're sending through just GeoJSON data not Topo, Leaflet lovesss it so we don't need to do anything.
-            L.GeoJSON.prototype.addData.call(this, data);
+            if (upload) {
+              data.features.forEach( (feature, index) => {
+                // Remove empty properties as we don't care about them.
+                if (feature.properties) {
+                  delete feature.properties;
+                }
+                if (feature.geometry && feature.geometry.coordinates && feature.geometry.coordinates.length) {
+                  feature.geometry.coordinates = feature.geometry.coordinates.map(x => {
+                    if (!x) { return false; }
+
+                    // If we don't have a Z level, add it
+                    if (x.length === 2) {
+                      x.push(0);
+                    }
+                    return x;
+                  });
+                }
+
+                if (feature.geometry && feature.geometry.type === 'Point') {
+                  if (feature.geometry.coordinates) {
+                    const { coordinates } = feature.geometry;
+                    const latLng = new L.LatLng(coordinates[1], coordinates[0], coordinates[2] ? coordinates[2] : 0);
+                    const markerLayer: L.Marker = L.marker(latLng, {icon: OALogo(coordinates[2])});
+                    points.push(markerLayer);
+                  }
+                } else {
+                  L.GeoJSON.prototype.addData.call(this, feature);
+                }
+
+                if ((index + 1) === data.features.length) {
+                  _self.props.toggleOverlay(false);
+                }
+              });
+
+              setTimeout(() => _self.callback(), 500);
+            } else {
+              L.GeoJSON.prototype.addData.call(this, data);
+            }
           }
 
+          if (points.length) {
+            _self.markerClusterLayer.addLayers(points);
+          }
+
+          _self.props.toggleOverlay(false);
           // Fit the map to the bounds of the loaded content.
-          _self.mapLayerFitBounds(_self.topoLayer);
+          setTimeout(() => _self.mapLayerFitBounds(_self.topoLayer), 500);
         }
       }
     );
   }
 
+  addPointToMarkerCluster = (coordinates: L.LatLngExpression) => {
+    const latLng = new L.LatLng(coordinates[1], coordinates[0], coordinates[2] ? coordinates[2] : 0);
+    const markerLayer: L.Marker = L.marker(latLng, {icon: OALogo(coordinates[2])});
+    this.markerClusterLayer.addLayer(markerLayer);
+  }
+
   callback = () => {
     if (this.topoLayer && typeof this.props.onChange === 'function') {
-      console.log(this.topoLayer.toGeoJSON());
-      this.props.onChange(this.topoLayer.toGeoJSON());
+      const topoLayerJSON = this.topoLayer.toGeoJSON();
+      const markerClusterJSON = this.markerClusterLayer.toGeoJSON();
+
+      if (markerClusterJSON.features.length) {
+        topoLayerJSON.features.push(...markerClusterJSON.features);
+      }
+      this.props.onChange(topoLayerJSON);
     }
   }
 
-  layerEvents = (layer: Layer) => {
+  layerEvents = (layer: L.Layer) => {
     layer.on({
       'pm:edit': l => {
         console.log('Layer pm:edit', l);
@@ -220,11 +299,12 @@ export default class DraggableMap extends React.Component<Props, State> {
       if (this._isMounted) {
         const center = this.map.getCenter();
         if (center.lat && center.lng) {
-          console.log(center);
           this.setState({
             inputLng: center.lng,
-            inputLat: center.lat
-          }, () => console.log(this.state));
+            inputLat: center.lat,
+            typedLng: center.lng.toString(),
+            typedLat: center.lat.toString()
+          });
         }
       }
     });
@@ -277,8 +357,11 @@ export default class DraggableMap extends React.Component<Props, State> {
   }
 
   logScalePopUp = (workingLayer, marker, index?: number) => {
+    const markerLatLng: L.LatLng = marker._latlng; // the current vertex that we've added
+    const zLevel = markerLatLng[2] ? markerLatLng[2] : 0;
+
     const div = document.createElement('div');
-    div.innerHTML = `<div>Depth :</div>`;
+    div.innerHTML = `<div>Depth (m):</div>`;
 
     const sliderWrapper = document.createElement('div');
     sliderWrapper.className = 'slider-wrapper';
@@ -286,7 +369,7 @@ export default class DraggableMap extends React.Component<Props, State> {
     sliderInput.id = 'range-slider';
     sliderInput.className = 'fluid-slider';
     sliderInput.type = 'range';
-    sliderInput.value = '0';
+    sliderInput.value = zLevel;
     sliderInput.min = '0';
     sliderInput.max = '10000';
 
@@ -295,12 +378,12 @@ export default class DraggableMap extends React.Component<Props, State> {
     sliderLabel.className = 'range-label';
 
     const _self = this;
-    let markerLatLng = marker._latlng; // the current vertex that we've added
 
     function sliderOnChange() {
       const
         sliderValue = sliderInput.value,
-        parsedSliderValue = parseInt(sliderValue, 0);
+        parsedSliderValue = parseInt(sliderValue, 0),
+        colour = colourScale(parsedSliderValue);
 
       // Update the working layer's LatLng(s)
       if (typeof index === 'undefined') {
@@ -314,8 +397,8 @@ export default class DraggableMap extends React.Component<Props, State> {
       _self.callback();
 
       sliderLabel.innerHTML = sliderValue;
-      sliderLabel.style.backgroundColor = '#' + colourScale(parsedSliderValue).colour;
-      const labelPosition = (parseInt(sliderValue, 0) / parseInt(sliderInput.max, 0));
+      sliderLabel.style.backgroundColor = '#' + colour.colour;
+      const labelPosition = (parsedSliderValue / parseInt(sliderInput.max, 0));
 
       if (sliderValue === sliderInput.min) {
         sliderLabel.style.left = ((labelPosition * 100) + 2) + '%';
@@ -328,7 +411,7 @@ export default class DraggableMap extends React.Component<Props, State> {
 
     const manualInput = document.createElement('input');
     manualInput.type = 'number';
-    manualInput.value = '0';
+    manualInput.value = zLevel;
     manualInput.min = '0';
     manualInput.max = '10000';
 
@@ -359,7 +442,7 @@ export default class DraggableMap extends React.Component<Props, State> {
     // Enable marker, set the icon then disable it, this toggles the "clicked" state on the icon.
     map.pm.enableDraw('Marker', {
       markerStyle: {
-        icon: jellyFish()
+        icon: OALogo()
       }
     });
     map.pm.disableDraw('Marker');
@@ -367,10 +450,13 @@ export default class DraggableMap extends React.Component<Props, State> {
     this.mapEvents();
   }
 
-  inputOnChange = (inputValue: string, type: 'inputLat' | 'inputLng') => {
+  setLatLng = (type: 'inputLat' | 'inputLng') => {
     const map = this.map;
+    const inputValue = (type==='inputLat') ? this.state.typedLat : this.state.typedLng;
+    console.log(inputValue);
     if (map !== null && this._isMounted) {
-      const value = parseInt(inputValue, 0);
+      const value = parseFloat(inputValue);
+      console.log(value);
       let timeout = type === 'inputLat' ? this.inputLatTimeout : this.inputLngTimeout;
       clearTimeout(timeout);
 
@@ -382,28 +468,6 @@ export default class DraggableMap extends React.Component<Props, State> {
         }, 300);
       });
     }
-  }
-
-  /**
-   * Use leaflet's locate method to locate the use and set the view to that location.
-   */
-  locateUser = (): void => {
-    const map = this.map;
-    map.locate()
-      .on('locationfound', (location: L.LocationEvent) => {
-        if (location && location.latlng) {
-          map.flyTo(location.latlng, 8);
-          // Set the input fields
-          if (this._isMounted) {
-            this.setState({inputLng: location.latlng.lng, inputLat: location.latlng.lat});
-          }
-        }
-      })
-      .on('locationerror', () => {
-        // Fly to a default location if the user declines our request to get their GPS location or if we had trouble getting said location.
-        // Ideally the map would already be in this location anyway.
-        // Set the input fields
-      });
   }
 
   fileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {  // tslint:disable-line:no-any
@@ -429,12 +493,14 @@ export default class DraggableMap extends React.Component<Props, State> {
       if (fileType !== null) {
         fileContents(files[i], result => {
           try {
+            this.props.toggleOverlay(true);
             const geoJSON = fileType === 'kml' ? toGeoJSON.kml(result) : toGeoJSON.gpx(result);
             if (geoJSON) {
-              this.topoLayer.addData(geoJSON);
+              this.topoLayer.addData(geoJSON, fileType);
             }
           } catch (e) {
             console.log(e);
+            this.props.toggleOverlay(false);
             this.setState({ errorMessage: `Looks like we've had an issue with your ${fileType === 'kml' ? 'KML' : 'GPX'} file.`});
           }
         });
@@ -469,13 +535,13 @@ export default class DraggableMap extends React.Component<Props, State> {
             <Col md="4">
               <InputGroup>
                 <InputGroupAddon addonType="prepend">Lat</InputGroupAddon>
-                <Input pattern="-?[0-9]*" className="lat" value={this.state.inputLat.toString()} type="text" onChange={e => this.inputOnChange(e.target.value, 'inputLat')}/>
+                <Input className="lat" type="text" value={this.state.typedLat.toString()} onChange={e => this.setState({'typedLat': e.target.value})} onKeyPress={e => {if (e.key==='Enter') { this.setLatLng('inputLat') }}}/>
               </InputGroup>
             </Col>
             <Col md="4">
               <InputGroup>
                 <InputGroupAddon addonType="prepend">Lng</InputGroupAddon>
-                <Input pattern="-?[0-9]" className="lng" value={this.state.inputLng.toString()} type="text" onChange={e => this.inputOnChange(e.target.value, 'inputLng')}/>
+                <Input className="lng" type="text" value={this.state.typedLng.toString()} onChange={e => this.setState({'typedLng': e.target.value})} onKeyPress={e => { if (e.key==='Enter') { this.setLatLng('inputLng') }}}/>
               </InputGroup>
             </Col>
           </Row>
@@ -496,3 +562,5 @@ export default class DraggableMap extends React.Component<Props, State> {
     );
   }
 }
+
+export default connect(undefined, { toggleOverlay })(Map);
