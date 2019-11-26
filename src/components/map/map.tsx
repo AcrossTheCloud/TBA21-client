@@ -399,8 +399,8 @@ class MapView extends React.Component<Props, State> {
   getUserBounds = () => {
     const
       mapBounds = this.map.getBounds(),
-      southWest = mapBounds._southWest,
-      northEast = mapBounds._northEast;
+      southWest = mapBounds.getSouthWest().wrap(),
+      northEast = mapBounds.getNorthEast().wrap();
 
     return {
       lat_sw: southWest.lat,
