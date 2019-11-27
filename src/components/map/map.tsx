@@ -293,11 +293,17 @@ class MapView extends React.Component<Props, State> {
       if (!!feature.properties) {
         let depthDiv = '';
         if (layer instanceof L.Marker || layer instanceof L.CircleMarker) {
-          const altitude = layer.getLatLng().alt;
-          depthDiv = `<div>${Math.sign(altitude ? altitude : 0) <= 0 ? 'Depth' : 'Altitude'}: ${altitude}m</div>`;
+          const zLevel: number | undefined = layer.getLatLng().alt;
+          if (typeof zLevel !== 'undefined') {
+            const altitude: number = Math.round(zLevel * 1852);
+            depthDiv = `<div>${Math.sign(altitude ? altitude : 0) <= 0 ? 'Depth' : 'Altitude'}: ${altitude}m</div>`;
+          }
         } else if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
-          if (typeof maxZLevel !== 'undefined' || maxZLevel !== 0) {
-            depthDiv = `<div>${Math.sign(maxZLevel ? maxZLevel : 0) < 0 ? 'Maximum Depth' : 'Maximum Altitude'}: ${maxZLevel}m</div>`;
+          if (typeof maxZLevel !== 'undefined') {
+            if (maxZLevel !== 0) {
+              const altitude: number = Math.round(maxZLevel * 1852);
+              depthDiv = `<div>${Math.sign(maxZLevel ? maxZLevel : 0) < 0 ? 'Maximum Depth' : 'Maximum Altitude'}: ${altitude}m</div>`;
+            }
           }
         }
 
