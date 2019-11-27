@@ -297,7 +297,7 @@ class Map extends React.Component<Props, State> {
 
     map.on('moveend', e => {
       if (this._isMounted) {
-        const center = this.map.getCenter();
+        const center = this.map.getCenter().wrap();
         if (center.lat && center.lng) {
           this.setState({
             inputLng: center.lng,
