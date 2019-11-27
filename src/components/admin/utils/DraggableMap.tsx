@@ -253,12 +253,6 @@ class Map extends React.Component<Props, State> {
     );
   }
 
-  addPointToMarkerCluster = (coordinates: L.LatLngExpression) => {
-    const latLng = new L.LatLng(coordinates[1], coordinates[0], coordinates[2] ? coordinates[2] : 0);
-    const markerLayer: L.Marker = L.marker(latLng, {icon: OALogo(coordinates[2])});
-    this.markerClusterLayer.addLayer(markerLayer);
-  }
-
   callback = () => {
     if (this.topoLayer && typeof this.props.onChange === 'function') {
       const topoLayerJSON = this.topoLayer.toGeoJSON();
@@ -358,7 +352,7 @@ class Map extends React.Component<Props, State> {
 
   logScalePopUp = (workingLayer, marker, index?: number) => {
     const markerLatLng: L.LatLng = marker._latlng; // the current vertex that we've added
-    const zLevel = markerLatLng[2] ? markerLatLng[2] : 0;
+    const zLevel = markerLatLng[2] ? (markerLatLng[2] * 1852) : 0; // convert the pointers Nautical Mile Alt to Meters
 
     const div = document.createElement('div');
     div.innerHTML = `<div>Depth (m):</div>`;
@@ -369,7 +363,7 @@ class Map extends React.Component<Props, State> {
     sliderInput.id = 'range-slider';
     sliderInput.className = 'fluid-slider';
     sliderInput.type = 'range';
-    sliderInput.value = zLevel;
+    sliderInput.value = zLevel.toString();
     sliderInput.min = '0';
     sliderInput.max = '10000';
 
@@ -386,8 +380,9 @@ class Map extends React.Component<Props, State> {
         colour = colourScale(parsedSliderValue);
 
       // Update the working layer's LatLng(s)
+      const convertToNauticalMile = (parsedSliderValue / 1852);
       if (typeof index === 'undefined') {
-        workingLayer.setLatLng(_self.addAltToLatLng(markerLatLng, -Math.abs(parsedSliderValue)));
+        workingLayer.setLatLng(_self.addAltToLatLng(markerLatLng, -Math.abs(convertToNauticalMile)));
       } else {
         // Get all LatLngs and set the LatLngExpressions of the indexed one
         const latlngs = workingLayer.getLatLngs();
@@ -411,7 +406,7 @@ class Map extends React.Component<Props, State> {
 
     const manualInput = document.createElement('input');
     manualInput.type = 'number';
-    manualInput.value = zLevel;
+    manualInput.value = zLevel.toString();
     manualInput.min = '0';
     manualInput.max = '10000';
 
@@ -452,7 +447,7 @@ class Map extends React.Component<Props, State> {
 
   setLatLng = (type: 'inputLat' | 'inputLng') => {
     const map = this.map;
-    const inputValue = (type==='inputLat') ? this.state.typedLat : this.state.typedLng;
+    const inputValue = (type === 'inputLat') ? this.state.typedLat : this.state.typedLng;
     console.log(inputValue);
     if (map !== null && this._isMounted) {
       const value = parseFloat(inputValue);
