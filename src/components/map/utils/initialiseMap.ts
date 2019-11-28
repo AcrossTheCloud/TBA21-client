@@ -16,6 +16,7 @@ export function initialiseMap(element: string = 'oa_map', viewPosition?: L.LatLn
     const map = L.map(element, {
       minZoom: 3,
       maxZoom: 18,
+      maxBounds: L.latLngBounds([-90, -180], [90, 180]),
       zoom: 5,
       center: [0, 0],
       preferCanvas: true
