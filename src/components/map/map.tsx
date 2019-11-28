@@ -442,7 +442,7 @@ class MapView extends React.Component<Props, State> {
       this.map.on('moveend', () => {
         clearTimeout(this.moveEndTimeout);
 
-        if (this.checkZoom() || this.loading) { return; }
+        this.checkZoom();
 
         this.moveEndTimeout = setTimeout( () => this.props.fetchData(this.getUserBounds(), this.loadedItemIds, this.loadedCollectionIds), 1000);
       });
