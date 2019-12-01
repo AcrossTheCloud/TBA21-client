@@ -31,6 +31,8 @@ interface State extends Alerts {
   sizePerPage: number;
   totalSize: number;
 
+  order?: string;
+
   deleteErrorMessage: string | JSX.Element | undefined;
 }
 
@@ -52,7 +54,8 @@ class Items extends React.Component<RouteComponentProps, State> {
       page: 1,
       sizePerPage: 15,
       totalSize: 0,
-      deleteErrorMessage: undefined
+      deleteErrorMessage: undefined,
+      order: 'none'
     };
 
     this.tableColumns = [
@@ -74,11 +77,14 @@ class Items extends React.Component<RouteComponentProps, State> {
       {
         dataField: 'created_at',
         text: 'Created Date',
+        sort: true,
         formatter: (cell: string) => {
           return cell.toString().slice(0, 10);
         },
         headerStyle: () => {
-          return { width: '14%' };
+          return (
+              { width: '15%' }
+          );
         },
       },
       {
@@ -130,7 +136,8 @@ class Items extends React.Component<RouteComponentProps, State> {
       const
         queryStringParameters = {
           offset: offset,
-          limit: this.state.sizePerPage
+          limit: this.state.sizePerPage,
+          order: this.state.order
         },
         response = this.isContributorPath ? await contributorGetByPerson(queryStringParameters) : await adminGetItems(queryStringParameters),
         items = removeTopology(response) as Item[];

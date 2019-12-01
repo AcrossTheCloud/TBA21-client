@@ -29,6 +29,8 @@ interface State extends Alerts {
   sizePerPage: number;
   totalSize: number;
 
+  order?: string;
+
   deleteErrorMessage: string | JSX.Element | undefined;
 }
 
@@ -50,7 +52,8 @@ class Collections extends React.Component<RouteComponentProps, State> {
       page: 1,
       sizePerPage: 15,
       totalSize: 0,
-      deleteErrorMessage: undefined
+      deleteErrorMessage: undefined,
+      order: 'none'
     };
 
     this.tableColumns = [
@@ -74,11 +77,12 @@ class Collections extends React.Component<RouteComponentProps, State> {
       {
         dataField: 'created_at',
         text: 'Created Date',
+        sort: true,
         formatter: (cell: string) => {
           return cell.toString().slice(0, 10);
           },
         headerStyle: () => {
-          return { width: '14%' };
+          return { width: '15%' };
         },
       },
       {
@@ -115,8 +119,9 @@ class Collections extends React.Component<RouteComponentProps, State> {
       const
         queryStringParameters = {
           offset: offset,
-          limit: this.state.sizePerPage
-        };
+          limit: this.state.sizePerPage,
+          order: this.state.order
+      };
 
       const isContributorPath = (this.props.location.pathname.match(/contributor/i));
       const result = await adminGet(isContributorPath, queryStringParameters);
