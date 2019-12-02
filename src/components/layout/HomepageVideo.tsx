@@ -64,12 +64,17 @@ export default class HomepageVideo extends Component<Props, State> {
     }
   }
 
+  onVideoPlay = () => {
+    console.log('Yo')
+    $('#video .content').fadeIn();
+  }
+
   render() {
     if (this.state.finallyLoaded) { return <></>; } // remove the content so the video isn't in the DOM
 
     return (
       <div id="video">
-        <Container fluid className="content">
+        <Container fluid className="content" style={{ display: 'none' }}>
           <Row>
             <Col xs="12">
               <h1>Take a swim in the digital ocean.</h1>
@@ -96,7 +101,7 @@ export default class HomepageVideo extends Component<Props, State> {
             </Col>
           </Row>
         </Container>
-        <video src="https://video-streaming.ocean-archive.org/loading_video.mp4" muted={true} autoPlay={true} controls={false} loop={true}/>
+        <video onPlay={() => this.onVideoPlay()} src="https://video-streaming.ocean-archive.org/loading_video.mp4" muted={true} autoPlay={true} controls={false} loop={true}/>
       </div>
     );
   }
