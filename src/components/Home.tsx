@@ -16,6 +16,7 @@ import moment from 'moment';
 
 import { browser } from './utils/browser';
 import Footer from './layout/Footer';
+import HomepageVideo from './layout/HomepageVideo';
 
 import 'styles/components/home.scss';
 
@@ -254,7 +255,8 @@ class HomePage extends React.Component<Props, State> {
           </Row>
         </Container>
 
-        <Logo loaded={logoLoaded}/>
+        <HomepageVideo loaded={logoLoaded} />
+        <Logo loaded={true}/>
 
         <Container fluid id="main" className="pb">
 
