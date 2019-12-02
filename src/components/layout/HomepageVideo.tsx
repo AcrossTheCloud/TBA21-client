@@ -96,7 +96,7 @@ export default class HomepageVideo extends Component<Props, State> {
             </Col>
             <Col xs="12" md="6" className="right pt-3 pt-md-0">
               <div className="logo d-flex align-items-baseline">
-                <img src={logo} alt="Ocean Archive" /> <span className="arrows">>>></span>
+                <img src={logo} alt="Ocean Archive" />
               </div>
             </Col>
           </Row>
