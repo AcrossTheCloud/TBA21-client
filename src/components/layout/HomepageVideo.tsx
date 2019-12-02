@@ -96,7 +96,7 @@ export default class HomepageVideo extends Component<Props, State> {
             </Col>
           </Row>
         </Container>
-        <video src="https://video-streaming.ocean-archive.org/loading_video.mp4" muted={true} autoPlay={true} controls={false} />
+        <video src="https://video-streaming.ocean-archive.org/loading_video.mp4" muted={true} autoPlay={true} controls={false} loop={true}/>
       </div>
     );
   }
