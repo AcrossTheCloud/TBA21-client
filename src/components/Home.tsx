@@ -64,8 +64,6 @@ class HomePage extends React.Component<Props, State> {
       await this.props.loadHomepage();
       await this.props.loadMore();
     }
-
-    $(window).on('load resize orientationchange', this.normalizeSlideHeights);
   }
 
   componentWillUnmount = () => {
@@ -81,7 +79,7 @@ class HomePage extends React.Component<Props, State> {
     }
 
     if (!isEqual(this.state.announcements, this.props.announcements)) {
-      this.setState({ announcements: this.props.announcements }, () => this.normalizeSlideHeights());
+      this.setState({ announcements: this.props.announcements });
     }
   }
 
@@ -135,21 +133,6 @@ class HomePage extends React.Component<Props, State> {
         window.removeEventListener('scroll', this.handleScrollMobileSearch, false);
       }
     }
-  }
-
-  normalizeSlideHeights = () => {
-    const _self = this;
-    $('.carousel').each(function() {
-      const items = $('.carousel-item', this);
-      // set the height
-      if (!_self.announcementsSlidesHeight) {
-        _self.announcementsSlidesHeight = Math.max.apply(null, items.map(function () {
-          return $(this).outerHeight();
-        }).get());
-      }
-
-      items.css('min-height', _self.announcementsSlidesHeight + 'px');
-    });
   }
 
   announcementsAmountToShow (): number {
