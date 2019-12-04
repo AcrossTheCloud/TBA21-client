@@ -64,8 +64,12 @@ export default class HomepageVideo extends Component<Props, State> {
     }
   }
 
-  onVideoPlay = () => {
-    console.log('Yo')
+  onLoad = () => {
+    const $video: HTMLVideoElement = $('#video video').get(0) as HTMLVideoElement;
+    if ($video) {
+      $video.play();
+    }
+
     $('#video .content').fadeIn();
   }
 
@@ -103,7 +107,7 @@ export default class HomepageVideo extends Component<Props, State> {
         </Container>
         <video
           poster="https://video-streaming.ocean-archive.org/loading_video_first_frame.jpg"
-          onLoadedData={() => this.onVideoPlay()}
+          onLoadedData={() => this.onLoad()}
           muted
           autoPlay
           controls={false}
