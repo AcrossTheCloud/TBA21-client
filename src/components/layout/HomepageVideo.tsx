@@ -101,7 +101,17 @@ export default class HomepageVideo extends Component<Props, State> {
             </Col>
           </Row>
         </Container>
-        <video onPlay={() => this.onVideoPlay()} src="https://video-streaming.ocean-archive.org/loading_video.mp4" muted={true} autoPlay={true} controls={false} loop={true}/>
+        <video
+          poster="https://video-streaming.ocean-archive.org/loading_video_first_frame.jpg"
+          onLoadedData={() => this.onVideoPlay()}
+          muted
+          autoPlay
+          controls={false}
+          loop
+          playsinline
+        >
+          <source src="https://video-streaming.ocean-archive.org/loading_video.mp4" type="video/mp4"/>
+        </video>
       </div>
     );
   }
