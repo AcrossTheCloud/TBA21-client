@@ -25,12 +25,12 @@ export default class Logo extends Component<Props, State> {
     this._isMounted = false;
 
     this.state = {
-      finallyLoaded: false
+      finallyLoaded: props.loaded
     };
 
     this.detectScroll = () => {
       const $main = $('#main');
-      if (window.scrollY > $main!.offset()!.top - 43) {
+      if (window.scrollY > ($main!.offset()!.top - 83)) {
       // if (window.innerHeight + document.documentElement.scrollTop === document.documentElement.offsetHeight) {
         $('#logo').addClass('inv');
       } else {
@@ -65,7 +65,7 @@ export default class Logo extends Component<Props, State> {
       }, 3000);
     } else {
       $('#logo .left, #logo .right').addClass('init');
-      $('#body').removeClass('fixed').addClass('logoLoaded');
+      // $('#body').removeClass('fixed').addClass('logoLoaded');
       $('#body #logo').addClass('loaded');
     }
 
@@ -79,7 +79,6 @@ export default class Logo extends Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Readonly<Props>): void {
-
     if (this.props.loaded !== prevProps.loaded && this.props.loaded) {
       this.animating = true;
       clearInterval(this.animatingInterval);
