@@ -70,6 +70,7 @@ class HomePage extends React.Component<Props, State> {
 
   componentWillUnmount = () => {
     this._isMounted = false;
+    $(window).off('load resize orientationchange', this.normalizeSlideHeights);
     window.removeEventListener('scroll', this.scrollDebounce, false);
     window.removeEventListener('scroll', this.handleScrollMobileSearch, false);
   }

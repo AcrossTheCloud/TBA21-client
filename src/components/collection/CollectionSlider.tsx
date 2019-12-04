@@ -11,6 +11,7 @@ import { toggle } from 'actions/modals/itemModal';
 import { loadMoreDispatch } from 'actions/collections/viewCollection';
 import { ViewCollectionState } from '../../reducers/collections/viewCollection';
 import { dateFromTimeYearProduced } from '../../actions/home';
+import $ from 'jquery';
 
 interface Props extends ViewCollectionState {
   toggle: Function;
@@ -23,6 +24,7 @@ interface State {
 
 class CollectionSlider extends React.Component<Props, State> {
   animating: boolean = false;
+  announcementsSlidesHeight: number = 0;
 
   constructor(props: Props) {
     super(props);
@@ -36,6 +38,11 @@ class CollectionSlider extends React.Component<Props, State> {
   componentDidMount(): void {
     const slides = (this.props.items && Object.keys(this.props.items).length) ? this.slides([...this.props.items]) : [];
     this.setState({ slides });
+    $(window).on('load resize orientationchange', this.normalizeSlideHeights);
+  }
+
+  componentWillUnmount(): void {
+    $(window).off('load resize orientationchange', this.normalizeSlideHeights);
   }
 
   componentDidUpdate(prevProps: Readonly<Props>): void {
@@ -43,8 +50,23 @@ class CollectionSlider extends React.Component<Props, State> {
     const prevCollectionID = prevProps.collection ? prevProps.collection.id : 0;
     if (currentCollectionID !== prevCollectionID || this.props.offset !== prevProps.offset) {
       const slides = (this.props.items && Object.keys(this.props.items).length) ? this.slides(this.props.items) : [];
-      this.setState({ slides: slides });
+      this.setState({ slides: slides }, () => this.normalizeSlideHeights());
     }
+  }
+
+  normalizeSlideHeights = () => {
+    const _self = this;
+    $('.carousel').each(function() {
+      const items = $('.carousel-item', this);
+      // set the height
+      if (!_self.announcementsSlidesHeight) {
+        _self.announcementsSlidesHeight = Math.max.apply(null, items.map(function () {
+          return $(this).outerHeight();
+        }).get());
+      }
+
+      items.css('min-height', _self.announcementsSlidesHeight + 'px');
+    });
   }
 
   slides = (slides: ItemOrHomePageData[]): JSX.Element[] => {
