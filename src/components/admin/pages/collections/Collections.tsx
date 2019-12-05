@@ -78,6 +78,9 @@ class Collections extends React.Component<RouteComponentProps, State> {
         dataField: 'created_at',
         text: 'Created Date',
         sort: true,
+        onSort: (field, order) => {
+          this.dateFormatter(field, order);
+        },
         formatter: (cell: string) => {
           return cell.toString().slice(0, 10);
           },
