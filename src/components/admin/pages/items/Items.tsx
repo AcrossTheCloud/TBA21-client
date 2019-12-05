@@ -31,8 +31,6 @@ interface State extends Alerts {
   sizePerPage: number;
   totalSize: number;
 
-  order?: string;
-
   deleteErrorMessage: string | JSX.Element | undefined;
 }
 
@@ -54,8 +52,7 @@ class Items extends React.Component<RouteComponentProps, State> {
       page: 1,
       sizePerPage: 15,
       totalSize: 0,
-      deleteErrorMessage: undefined,
-      order: 'none'
+      deleteErrorMessage: undefined
     };
 
     this.tableColumns = [
@@ -134,13 +131,13 @@ class Items extends React.Component<RouteComponentProps, State> {
     this._isMounted = false;
   }
 
-  getItemsQuery = async (offset: number): Promise<{ items: Item[], totalSize: number } | void> => {
+  getItemsQuery = async (offset: number, order?: string): Promise<{ items: Item[], totalSize: number } | void> => {
     try {
       const
         queryStringParameters = {
           offset: offset,
           limit: this.state.sizePerPage,
-          order: this.state.order
+          order: order ? order : 'none'
         },
         response = this.isContributorPath ? await contributorGetByPerson(queryStringParameters) : await adminGetItems(queryStringParameters),
         items = removeTopology(response) as Item[];
@@ -156,11 +153,11 @@ class Items extends React.Component<RouteComponentProps, State> {
     }
   }
 
-  getItems = async (): Promise<void> => {
+  getItems = async (order?: string): Promise<void> => {
     try {
       const
         currentIndex = (this.state.page - 1) * this.state.sizePerPage,
-        response = await this.getItemsQuery(currentIndex);
+        response = await this.getItemsQuery(currentIndex, order);
 
       if (response) {
         const { items, totalSize } = response;
@@ -282,39 +279,13 @@ class Items extends React.Component<RouteComponentProps, State> {
   }
   
   dateFormatter = async (field, order) => {
-    const currentIndex = (this.state.page - 1) * this.state.sizePerPage;
+    this.setState({
+                    tableIsLoading: true
+                  });
     if (order === 'asc') {
-      this.setState({
-        order: order
-                    });
-      const response = await this.getItemsQuery(currentIndex);
-      if (response) {
-        const { items, totalSize } = response;
-        if (!this._isMounted) { return; }
-        this.setState(
-          {
-            items: items,
-            tableIsLoading: false,
-            totalSize: totalSize
-          }
-        );
-      }
+      await this.getItems(order);
     } else if (order === 'desc') {
-      this.setState({
-        order: order
-                    });
-      const response = await this.getItemsQuery(currentIndex);
-      if (response) {
-        const { items, totalSize } = response;
-        if (!this._isMounted) { return; }
-        this.setState(
-          {
-            items: items,
-            tableIsLoading: false,
-            totalSize: totalSize
-          }
-        );
-      }
+      await this.getItems(order);
     }
   }
 
@@ -342,7 +313,6 @@ class Items extends React.Component<RouteComponentProps, State> {
           onTableChange={this.handleTableChange}
           noDataIndication={() => !this.state.tableIsLoading && !slicedItems.length ? 'No data to display.' : <Spinner style={{ width: '10rem', height: '10rem' }} type="grow" />}
           dataSort={true}
-          // onSort={this.dateFormatter}
         />
         {/* Edit Item Modal */}
         <Modal isOpen={this.state.componentModalOpen} centered size="lg" scrollable backdrop className="fullwidth">

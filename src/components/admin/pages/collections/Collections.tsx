@@ -29,8 +29,6 @@ interface State extends Alerts {
   sizePerPage: number;
   totalSize: number;
 
-  order?: string;
-
   deleteErrorMessage: string | JSX.Element | undefined;
 }
 
@@ -52,8 +50,7 @@ class Collections extends React.Component<RouteComponentProps, State> {
       page: 1,
       sizePerPage: 15,
       totalSize: 0,
-      deleteErrorMessage: undefined,
-      order: 'none'
+      deleteErrorMessage: undefined
     };
 
     this.tableColumns = [
@@ -117,13 +114,13 @@ class Collections extends React.Component<RouteComponentProps, State> {
     this.getCollections();
   }
 
-  getCollectionsQuery = async (offset: number): Promise<{ collections: Collection[], totalSize: number } | void> => {
+  getCollectionsQuery = async (offset: number, order?: string): Promise<{ collections: Collection[], totalSize: number } | void> => {
     try {
       const
         queryStringParameters = {
           offset: offset,
           limit: this.state.sizePerPage,
-          order: this.state.order
+          order: order ? order : 'none'
       };
 
       const isContributorPath = (this.props.location.pathname.match(/contributor/i));
@@ -141,11 +138,11 @@ class Collections extends React.Component<RouteComponentProps, State> {
     }
   }
 
-  getCollections = async (): Promise<void> => {
+  getCollections = async (order?: string): Promise<void> => {
     try {
       const
         currentIndex = (this.state.page - 1) * this.state.sizePerPage,
-        response = await this.getCollectionsQuery(currentIndex);
+        response = await this.getCollectionsQuery(currentIndex, order);
 
       if (response) {
         const { collections, totalSize } = response;
@@ -262,39 +259,13 @@ class Collections extends React.Component<RouteComponentProps, State> {
   }
 
   dateFormatter = async (field, order) => {
-    const currentIndex = (this.state.page - 1) * this.state.sizePerPage;
+    this.setState({
+                    tableIsLoading: true
+                  });
     if (order === 'asc') {
-      this.setState({
-                      order: order
-                    });
-      const response = await this.getCollectionsQuery(currentIndex);
-      if (response) {
-        const { collections, totalSize } = response;
-        if (!this._isMounted) { return; }
-        this.setState(
-          {
-            collections: collections,
-            tableIsLoading: false,
-            totalSize: totalSize
-          }
-        );
-      }
+      await this.getCollections(order);
     } else if (order === 'desc') {
-      this.setState({
-                      order: order
-                    });
-      const response = await this.getCollectionsQuery(currentIndex);
-      if (response) {
-        const { collections, totalSize } = response;
-        if (!this._isMounted) { return; }
-        this.setState(
-          {
-            collections: collections,
-            tableIsLoading: false,
-            totalSize: totalSize
-          }
-        );
-      }
+      await this.getCollections(order);
     }
   }
 
