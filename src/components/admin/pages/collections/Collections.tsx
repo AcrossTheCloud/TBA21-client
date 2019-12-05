@@ -258,6 +258,43 @@ class Collections extends React.Component<RouteComponentProps, State> {
     }
   }
 
+  dateFormatter = async (field, order) => {
+    const currentIndex = (this.state.page - 1) * this.state.sizePerPage;
+    if (order === 'asc') {
+      this.setState({
+                      order: order
+                    });
+      const response = await this.getCollectionsQuery(currentIndex);
+      if (response) {
+        const { collections, totalSize } = response;
+        if (!this._isMounted) { return; }
+        this.setState(
+          {
+            collections: collections,
+            tableIsLoading: false,
+            totalSize: totalSize
+          }
+        );
+      }
+    } else if (order === 'desc') {
+      this.setState({
+                      order: order
+                    });
+      const response = await this.getCollectionsQuery(currentIndex);
+      if (response) {
+        const { collections, totalSize } = response;
+        if (!this._isMounted) { return; }
+        this.setState(
+          {
+            collections: collections,
+            tableIsLoading: false,
+            totalSize: totalSize
+          }
+        );
+      }
+    }
+  }
+
   render() {
     const
       { page, sizePerPage, totalSize } = this.state,

@@ -78,6 +78,9 @@ class Items extends React.Component<RouteComponentProps, State> {
         dataField: 'created_at',
         text: 'Created Date',
         sort: true,
+        onSort: (field, order) => {
+          this.dateFormatter(field, order);
+        },
         formatter: (cell: string) => {
           return cell.toString().slice(0, 10);
         },
@@ -277,6 +280,43 @@ class Items extends React.Component<RouteComponentProps, State> {
       }
     }
   }
+  
+  dateFormatter = async (field, order) => {
+    const currentIndex = (this.state.page - 1) * this.state.sizePerPage;
+    if (order === 'asc') {
+      this.setState({
+        order: order
+                    });
+      const response = await this.getItemsQuery(currentIndex);
+      if (response) {
+        const { items, totalSize } = response;
+        if (!this._isMounted) { return; }
+        this.setState(
+          {
+            items: items,
+            tableIsLoading: false,
+            totalSize: totalSize
+          }
+        );
+      }
+    } else if (order === 'desc') {
+      this.setState({
+        order: order
+                    });
+      const response = await this.getItemsQuery(currentIndex);
+      if (response) {
+        const { items, totalSize } = response;
+        if (!this._isMounted) { return; }
+        this.setState(
+          {
+            items: items,
+            tableIsLoading: false,
+            totalSize: totalSize
+          }
+        );
+      }
+    }
+  }
 
   render() {
     const
@@ -301,6 +341,8 @@ class Items extends React.Component<RouteComponentProps, State> {
           pagination={paginationFactory({ page, sizePerPage, totalSize })}
           onTableChange={this.handleTableChange}
           noDataIndication={() => !this.state.tableIsLoading && !slicedItems.length ? 'No data to display.' : <Spinner style={{ width: '10rem', height: '10rem' }} type="grow" />}
+          dataSort={true}
+          // onSort={this.dateFormatter}
         />
         {/* Edit Item Modal */}
         <Modal isOpen={this.state.componentModalOpen} centered size="lg" scrollable backdrop className="fullwidth">
