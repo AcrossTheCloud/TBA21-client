@@ -91,7 +91,7 @@ class Collections extends React.Component<RouteComponentProps, State> {
       },
       {
         dataField: 'options',
-        text: 'options',
+        text: 'Options',
         isDummyField: true,
         formatter: (e, row, rowIndex) => {
           return (

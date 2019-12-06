@@ -76,6 +76,10 @@ class Announcements extends React.Component<RouteComponentProps, State> {
       {
         dataField: 'created_at',
         text: 'Created Date',
+        sort: true,
+        onSort: (field, order) => {
+          this.dateFormatter(field, order);
+        },
         headerStyle: () => {
           return { width: '14%' };
       },
@@ -87,7 +91,7 @@ class Announcements extends React.Component<RouteComponentProps, State> {
 
       {
         dataField: 'options',
-        text: 'options',
+        text: 'Options',
         isDummyField: true,
         formatter: (e, row, rowIndex) => {
           return (
@@ -108,12 +112,13 @@ class Announcements extends React.Component<RouteComponentProps, State> {
     this.getAnnouncement();
   }
 
-  getAnnouncementQuery = async (offset: number): Promise<{ announcements: Announcement[], totalSize: number } | void> => {
+  getAnnouncementQuery = async (offset: number, order?: string): Promise<{ announcements: Announcement[], totalSize: number } | void> => {
     try {
       const
         queryStringParameters = {
           offset: offset,
-          limit: this.state.sizePerPage
+          limit: this.state.sizePerPage,
+          order: order ? order : 'none'
         },
         response = await API.get('tba21', `${this.isContributorPath ? 'contributor' : 'admin'}/announcements`, { queryStringParameters: queryStringParameters });
 
@@ -128,11 +133,11 @@ class Announcements extends React.Component<RouteComponentProps, State> {
     }
   }
 
-  getAnnouncement = async (): Promise<void> => {
+  getAnnouncement = async (order?: string): Promise<void> => {
     try {
       const
         currentIndex = (this.state.page - 1) * this.state.sizePerPage,
-        response = await this.getAnnouncementQuery(currentIndex);
+        response = await this.getAnnouncementQuery(currentIndex, order);
 
       if (response) {
         const { announcements, totalSize } = response;
@@ -251,6 +256,17 @@ class Announcements extends React.Component<RouteComponentProps, State> {
         if (!this._isMounted) { return; }
         this.setState({page: this.state.page - 1, errorMessage: `We've had some trouble getting your list of announcements.`, tableIsLoading: false});
       }
+    }
+  }
+
+  dateFormatter = async (field, order) => {
+    this.setState({
+                    tableIsLoading: true
+                  });
+    if (order === 'asc') {
+      await this.getAnnouncement(order);
+    } else if (order === 'desc') {
+      await this.getAnnouncement(order);
     }
   }
 
