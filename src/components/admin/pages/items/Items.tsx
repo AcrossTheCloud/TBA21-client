@@ -282,11 +282,7 @@ class Items extends React.Component<RouteComponentProps, State> {
     this.setState({
                     tableIsLoading: true
                   });
-    if (order === 'asc') {
-      await this.getItems(order);
-    } else if (order === 'desc') {
-      await this.getItems(order);
-    }
+    await this.getItems(order);
   }
 
   render() {

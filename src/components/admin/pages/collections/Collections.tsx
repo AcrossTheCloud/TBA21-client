@@ -262,11 +262,7 @@ class Collections extends React.Component<RouteComponentProps, State> {
     this.setState({
                     tableIsLoading: true
                   });
-    if (order === 'asc') {
-      await this.getCollections(order);
-    } else if (order === 'desc') {
-      await this.getCollections(order);
-    }
+    await this.getCollections(order);
   }
 
   render() {

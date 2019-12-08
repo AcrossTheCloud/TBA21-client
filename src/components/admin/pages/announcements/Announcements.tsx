@@ -263,11 +263,7 @@ class Announcements extends React.Component<RouteComponentProps, State> {
     this.setState({
                     tableIsLoading: true
                   });
-    if (order === 'asc') {
-      await this.getAnnouncement(order);
-    } else if (order === 'desc') {
-      await this.getAnnouncement(order);
-    }
+    await this.getAnnouncement(order);
   }
 
   render() {
