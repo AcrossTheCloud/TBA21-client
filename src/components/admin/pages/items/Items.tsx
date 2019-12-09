@@ -65,7 +65,7 @@ class Items extends React.Component<RouteComponentProps, State> {
         text: 'Published',
         align: 'center',
         headerStyle: () => {
-          return { width: '10%', overflowWrap: 'break-word' };
+          return { width: '13%', overflowWrap: 'break-word' };
         },
         formatter: (status) => {
           return status === true ? <FaCheck color="green" size={25}/> : <FaTimes color="red" size={25}/> ;
@@ -79,17 +79,20 @@ class Items extends React.Component<RouteComponentProps, State> {
           this.dateFormatter(field, order);
         },
         formatter: (cell: string) => {
-          return cell.toString().slice(0, 10);
+          return ( cell.toString().slice(0, 10) );
         },
         headerStyle: () => {
           return (
-              { width: '15%' }
+              { width: '15%', overflowWrap: 'break-word' }
           );
         },
       },
       {
         dataField: 'title',
-        text: 'Title'
+        text: 'Title',
+        headerStyle: () => {
+          return { width: '20%', overflowWrap: 'break-word' };
+        },
       },
       {
         dataField: 'creators',
@@ -98,6 +101,8 @@ class Items extends React.Component<RouteComponentProps, State> {
             cell.join(', ')
             :
             '';
+        }, headerStyle: () => {
+          return { width: '20%', overflowWrap: 'break-word'  };
         },
         hidden: !!this.isContributorPath,
         text: 'Creator(s)'
@@ -115,7 +120,7 @@ class Items extends React.Component<RouteComponentProps, State> {
           );
         },
         headerStyle: () => {
-          return { width: '18%' };
+          return { width: '18%', overflowWrap: 'break-word' };
         },
       }
     ];

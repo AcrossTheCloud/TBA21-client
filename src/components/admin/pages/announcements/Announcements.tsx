@@ -65,7 +65,7 @@ class Announcements extends React.Component<RouteComponentProps, State> {
         text: 'Published',
         align: 'center',
         headerStyle: () => {
-          return { width: '10%', overflowWrap: 'break-word' };
+          return { width: '9%', overflowWrap: 'break-word' };
         },
         formatter: (status) => {
           return(
@@ -81,12 +81,15 @@ class Announcements extends React.Component<RouteComponentProps, State> {
           this.dateFormatter(field, order);
         },
         headerStyle: () => {
-          return { width: '14%' };
+          return { width: '14%', overflowWrap: 'break-word'  };
       },
       },
       {
         dataField: 'title',
-        text: 'Title'
+        text: 'Title',
+        headerStyle: () => {
+          return { width: '20%', overflowWrap: 'break-word'  };
+        },
       },
 
       {
@@ -101,7 +104,7 @@ class Announcements extends React.Component<RouteComponentProps, State> {
             </>
           );
         }, headerStyle: () => {
-          return { width: '18%' };
+          return { width: '10%', overflowWrap: 'break-word' };
         },
       }
     ];
