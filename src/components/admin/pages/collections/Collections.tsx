@@ -63,7 +63,7 @@ class Collections extends React.Component<RouteComponentProps, State> {
         align: 'center',
         text: 'Published',
         headerStyle: () => {
-          return { width: '9%', overflowWrap: 'break-word' };
+          return { overflowWrap: 'break-word'  };
         },
         formatter: (status) => {
           return(
@@ -82,14 +82,20 @@ class Collections extends React.Component<RouteComponentProps, State> {
           return cell.toString().slice(0, 10);
           },
         headerStyle: () => {
-          return { width: '14%' };
+          return { overflowWrap: 'break-word'  };
+        },
+        style: () => {
+          return {  overflowWrap: 'break-word' };
         },
       },
       {
         dataField: 'title',
         text: 'Title',
         headerStyle: () => {
-          return { width: '20%', overflowWrap: 'break-word'  };
+          return { overflowWrap: 'break-word' };
+        },
+        style: () => {
+          return {  overflowWrap: 'break-word' };
         },
       },
       {
@@ -105,7 +111,7 @@ class Collections extends React.Component<RouteComponentProps, State> {
           );
         },
         headerStyle: () => {
-          return { width: '10%', overflowWrap: 'break-word' };
+          return { overflowWrap: 'break-word'  };
         },
       }
     ];
