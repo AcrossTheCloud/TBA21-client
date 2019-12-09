@@ -63,7 +63,7 @@ class Collections extends React.Component<RouteComponentProps, State> {
         align: 'center',
         text: 'Published',
         headerStyle: () => {
-          return { width: '10%' };
+          return { width: '10%', overflowWrap: 'break-word' };
         },
         formatter: (status) => {
           return(

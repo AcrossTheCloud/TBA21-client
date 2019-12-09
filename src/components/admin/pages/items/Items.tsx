@@ -65,7 +65,7 @@ class Items extends React.Component<RouteComponentProps, State> {
         text: 'Published',
         align: 'center',
         headerStyle: () => {
-          return { width: '10%' };
+          return { width: '10%', overflowWrap: 'break-word' };
         },
         formatter: (status) => {
           return status === true ? <FaCheck color="green" size={25}/> : <FaTimes color="red" size={25}/> ;
@@ -104,7 +104,7 @@ class Items extends React.Component<RouteComponentProps, State> {
       },
       {
         dataField: 'options',
-        text: 'options',
+        text: 'Options',
         isDummyField: true,
         formatter: (e, row, rowIndex) => {
           return (

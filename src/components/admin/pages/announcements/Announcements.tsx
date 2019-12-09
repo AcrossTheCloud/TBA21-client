@@ -65,7 +65,7 @@ class Announcements extends React.Component<RouteComponentProps, State> {
         text: 'Published',
         align: 'center',
         headerStyle: () => {
-          return { width: '10%' };
+          return { width: '10%', overflowWrap: 'break-word' };
         },
         formatter: (status) => {
           return(
