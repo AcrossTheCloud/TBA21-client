@@ -372,7 +372,17 @@ class Map extends React.Component<Props, State> {
     div.append(this.manualLatLngInputs(workingLayer, marker, index));
     div.append(this.logScaleControls(workingLayer, marker, index));
 
-    const popup = new L.Popup({ pane: 'controlPopUp', 'className' : 'fixed', 'maxWidth': 500, 'minWidth': 450, 'autoPan': false }).setContent(div);
+    const popup = new L.Popup(
+      {
+        pane: 'controlPopUp',
+        className : 'fixed',
+        maxWidth: 500,
+        minWidth: 450,
+        autoPan: false,
+        autoClose: true,
+        closeOnClick: true
+      }
+    ).setContent(div);
 
     marker.bindPopup(popup);
     marker.openPopup();
