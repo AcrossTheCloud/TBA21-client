@@ -1,5 +1,14 @@
 #draggableMap {
 
+  &.ipad {
+    // This is a fix for iPad see OC-385
+    .leaflet-control-container {
+      position: relative;
+      z-index: 7000;
+      height: 100%;
+    }
+  }
+
   #mapWrapper {
     position: relative;
 

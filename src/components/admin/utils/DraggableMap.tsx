@@ -638,8 +638,9 @@ class Map extends React.Component<Props, State> {
   }
 
   render(): React.ReactNode {
+    const isIPad = navigator.userAgent.match(/iPad/i) || 'standalone' in navigator;
     return (
-      <div id="draggableMap" className="h-100">
+      <div id="draggableMap" className={`h-100 ${isIPad ? 'ipad' : ''}`}>
         <ErrorMessage message={this.state.errorMessage}/>
         <Container>
           <Row className="pb-1 align-items-center">
