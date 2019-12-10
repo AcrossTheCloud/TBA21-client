@@ -30,6 +30,16 @@
           font-size: 20px;
         }
       }
+
+      input {
+        &.error {
+          color: red;
+          border-color: red;
+          &:focus {
+          outline: red;
+        }
+        }
+      }
     }
   }
 

@@ -52,6 +52,14 @@ const mapStyle = {
   height: '100%'
 };
 
+function isLatitude(lat) {
+  return isFinite(lat) && Math.abs(lat) <= 90;
+}
+
+function isLongitude(lng) {
+  return isFinite(lng) && Math.abs(lng) <= 180;
+}
+
 class Map extends React.Component<Props, State> {
   _isMounted;
   map;
@@ -399,7 +407,22 @@ class Map extends React.Component<Props, State> {
       inputWrapper.append(inputField);
       formGroup.append(inputWrapper);
 
-      inputField.addEventListener('input', () => { onChange(type, parseFloat(inputField.value)); }, true);
+      inputField.addEventListener('input', () => {
+        clearTimeout(_self.manualLatLngInputOnChange);
+        if (inputField.classList.contains('error')) {
+          inputField.classList.remove('error');
+        }
+
+        if (type === 'lat' && !isLatitude(inputField.value)) {
+          inputField.classList.add('error');
+          return;
+        } else if (!isLongitude(inputField.value)) {
+          inputField.classList.add('error');
+          return;
+        } else {
+          onChange(type, parseFloat(inputField.value));
+        }
+      }, true);
 
       return formGroup;
     };
@@ -408,7 +431,6 @@ class Map extends React.Component<Props, State> {
     const lngInput = createInputLayout('lng');
 
     function onChange(type: 'lat' | 'lng', value: number) {
-      clearTimeout(_self.manualLatLngInputOnChange);
       _self.manualLatLngInputOnChange = setTimeout(function() {
         const alt = markerLatLng.alt ? markerLatLng.alt : 0;
 
