@@ -24,7 +24,7 @@ const isChrome = !!window.chrome && (!!window.chrome.webstore || !!window.chrome
 const isBlink = (isChrome || isOpera) && !!window.CSS;
 
 // IOS
-// 'standalone' in navigator thansk to https://medium.com/@firt/iphone-11-ipados-and-ios-13-for-pwas-and-web-development-5d5d9071cc49
+// 'standalone' in navigator thanks to https://medium.com/@firt/iphone-11-ipados-and-ios-13-for-pwas-and-web-development-5d5d9071cc49
 const isIOS = navigator.userAgent.match(/iPhone|iPad|iPod/i) || 'standalone' in navigator;
 /* tslint:enable */
 
