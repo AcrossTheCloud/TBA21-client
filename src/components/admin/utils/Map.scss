@@ -1,0 +1,67 @@
+#draggableMap {
+
+  #mapWrapper {
+    position: relative;
+
+    .leaflet-controlPopUp-pane {
+      z-index: 9999;
+      right: 0 !important;
+      left: auto !important;
+      .leaflet-popup.fixed {
+        position: sticky;
+        top: 20px !important;
+        bottom: 0 !important;
+        right: 0 !important;
+        left: auto !important;
+        margin: 0;
+        overflow-x: scroll;
+        height: 100%;
+        z-index: 9999;
+        font-size: 14px;
+        transform: none !important;
+        @media screen and (max-width: 760px) {
+          .leaflet-popup-content {
+            width: auto !important;
+          }
+        }
+
+        .leaflet-popup-content-wrapper {
+          max-height: 350px;
+          overflow-y: scroll;
+          overflow-x: hidden;
+          box-shadow: none;
+        }
+
+        .leaflet-popup-tip-container {
+          display: none;
+        }
+
+        a.leaflet-popup-close-button {
+          position: absolute;
+          top: 0;
+          right: 20px;
+          color: #ccc;
+          font-size: 20px;
+        }
+
+        .form-group {
+          margin-bottom: 5px;
+        }
+
+        input {
+          &.error {
+            color: red;
+            border-color: red;
+
+            &:focus {
+              outline: red;
+              border-color: #FF0000;
+              box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(255, 0, 0, 0.6);
+            }
+          }
+        }
+      }
+    }
+  }
+
+}

@@ -11,6 +11,7 @@ import * as L from 'leaflet';
 import '@geoman-io/leaflet-geoman-free';
 import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
 import './VerticalRangeSlider.scss';
+import './Map.scss';
 
 import { OALogo } from 'components/map/utils/icons';
 
@@ -51,6 +52,14 @@ const mapStyle = {
   height: '100%'
 };
 
+function isLatitude(lat) {
+  return isFinite(lat) && Math.abs(lat) <= 90;
+}
+
+function isLongitude(lng) {
+  return isFinite(lng) && Math.abs(lng) <= 180;
+}
+
 class Map extends React.Component<Props, State> {
   _isMounted;
   map;
@@ -62,6 +71,8 @@ class Map extends React.Component<Props, State> {
 
   inputLngTimeout;
   inputLatTimeout;
+
+  manualLatLngInputOnChange; // Timeout for manual input change of lat and lng on marker/vertex
 
   state: State = {
     zoom: 5, // initial zoom level
@@ -82,10 +93,13 @@ class Map extends React.Component<Props, State> {
   async componentDidMount(): Promise<void> {
     this._isMounted = true;
     this.map = await initialiseMap();
-    console.log(this.map);
 
     this.markerClusterLayer = initialiseMarkerCluster(this.map);
     if (this.map) {
+
+      // Creates a pane for the pop content
+      this.map.createPane('controlPopUp', document.getElementById('mapWrapper'));
+
       this.addLeafletGeoMan();
       this.topoLayer = this.setupTopoLayer();
 
@@ -188,6 +202,7 @@ class Map extends React.Component<Props, State> {
                       if (feature.coordinates) {
                         const latLng = new L.LatLng(feature.coordinates[1], feature.coordinates[0], feature.coordinates[2] ? feature.coordinates[2] : 0);
                         const markerLayer: L.Marker = L.marker(latLng, {icon: OALogo(feature.coordinates[2])});
+                        _self.layerEvents(markerLayer);
                         points.push(markerLayer);
                       }
                     } else {
@@ -315,7 +330,7 @@ class Map extends React.Component<Props, State> {
         const index = workingLayer._latlngs.indexOf(markerLatLng);
         workingLayer._latlngs[index] = this.addAltToLatLng(workingLayer._latlngs[index]); // add a 0 level z index
 
-        this.logScalePopUp(workingLayer, e.marker, index);
+        this.controlPopUp(workingLayer, e.marker, index);
       });
     });
 
@@ -327,7 +342,7 @@ class Map extends React.Component<Props, State> {
       // Add the altitude to the coords to the Marker
       if (e.shape === 'Marker') {
         e.layer._latlng = this.addAltToLatLng(e.layer._latlng); // add a 0 level z index
-        this.logScalePopUp(e.layer, e.marker);
+        this.controlPopUp(e.layer, e.marker);
       }
 
       console.log('pm:create', e);
@@ -335,8 +350,8 @@ class Map extends React.Component<Props, State> {
     });
 
     map.on('pm:edit', e => {
-      this.logScalePopUp(e.layer, e.marker);
       console.log('pm:edit', e);
+      this.controlPopUp(e.layer, e.marker);
     });
 
     map.on('pm:remove', u => {
@@ -350,15 +365,127 @@ class Map extends React.Component<Props, State> {
     return new L.LatLng(coords.lat, coords.lng, alt);
   }
 
-  logScalePopUp = (workingLayer, marker, index?: number) => {
-    const markerLatLng: L.LatLng = marker._latlng; // the current vertex that we've added
+  controlPopUp = (workingLayer, marker: L.Marker, index?: number) => {
+    const div = document.createElement('div');
+    div.className = 'container p-0';
+
+    div.append(this.manualLatLngInputs(workingLayer, marker, index));
+    div.append(this.logScaleControls(workingLayer, marker, index));
+
+    const popup = new L.Popup(
+      {
+        pane: 'controlPopUp',
+        className : 'fixed',
+        maxWidth: 500,
+        minWidth: 450,
+        autoPan: false,
+        autoClose: true,
+        closeOnClick: true
+      }
+    ).setContent(div);
+
+    marker.bindPopup(popup);
+    marker.openPopup();
+  }
+
+  manualLatLngInputs = (workingLayer, marker: L.Marker, index?: number): HTMLElement => {
+    const _self = this;
+    const markerLatLng: L.LatLng = marker.getLatLng(); // the current vertex/marker that we've added
+
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = `<div class="col-12 p-0 mb-2">Manually enter coordinates:</div>`;
+    wrapper.className = 'manual-input-wrapper mb-2 border-bottom';
+
+    function createInputLayout(type: 'lat' | 'lng'): HTMLElement {
+      const formGroup = document.createElement('div');
+      formGroup.className = 'form-group row';
+
+      const labelField = document.createElement('label');
+      labelField.htmlFor = type + 'Input';
+      labelField.className = 'col-sm-2 col-form-label';
+      labelField.innerHTML = type === 'lat' ? 'Latitude' : 'Longitude';
+      formGroup.append(labelField);
+
+      const inputWrapper = document.createElement('div');
+      inputWrapper.className = 'col-sm-10';
+
+      const inputField = document.createElement('input');
+      inputField.id = type + 'Input';
+      inputField.className = 'form-control form-control-sm mb-2';
+      inputField.type = 'number';
+      inputField.value = markerLatLng[type].toString();
+      inputWrapper.append(inputField);
+      formGroup.append(inputWrapper);
+
+      inputField.addEventListener('input', () => {
+        clearTimeout(_self.manualLatLngInputOnChange);
+        if (inputField.classList.contains('error')) {
+          inputField.classList.remove('error');
+        }
+
+        if (type === 'lat' && !isLatitude(inputField.value)) {
+          inputField.classList.add('error');
+          return;
+        } else if (!isLongitude(inputField.value)) {
+          inputField.classList.add('error');
+          return;
+        } else {
+          onChange(type, parseFloat(inputField.value));
+        }
+      }, true);
+
+      return formGroup;
+    };
+
+    const latInput = createInputLayout('lat');
+    const lngInput = createInputLayout('lng');
+
+    function onChange(type: 'lat' | 'lng', value: number) {
+      _self.manualLatLngInputOnChange = setTimeout(function() {
+        const alt = markerLatLng.alt ? markerLatLng.alt : 0;
+
+        if (type === 'lat') {
+          markerLatLng.lat = value;
+        } else {
+          markerLatLng.lng = value;
+        }
+
+        marker.setLatLng(markerLatLng);
+
+        // Update the working layer's LatLng(s)
+        if (typeof index === 'undefined') {
+          workingLayer.setLatLng(_self.addAltToLatLng(markerLatLng, alt));
+        } else {
+          // Get all LatLngs and set the LatLngExpressions of the indexed one
+          const latlngs = workingLayer.getLatLngs();
+          latlngs[index] = _self.addAltToLatLng(markerLatLng, alt);
+          workingLayer.setLatLngs(latlngs);
+        }
+        _self.map.panTo(markerLatLng);
+        _self.callback();
+      }, 500);
+    }
+
+    wrapper.append(latInput);
+    wrapper.append(lngInput);
+
+    return wrapper;
+  }
+
+  logScaleControls = (workingLayer, marker, index?: number): HTMLElement => {
+    const markerLatLng: L.LatLng = marker._latlng; // the current vertex/marker that we've added
     const zLevel = markerLatLng[2] ? (markerLatLng[2] * 1852) : 0; // convert the pointers Nautical Mile Alt to Meters
 
     const div = document.createElement('div');
-    div.innerHTML = `<div>Depth (m):</div>`;
+    div.className = 'row';
+    div.innerHTML = `<div class="col-12">Depth (m):</div>`;
+
+    const col = document.createElement('div');
+    col.className = 'col-6';
 
     const sliderWrapper = document.createElement('div');
     sliderWrapper.className = 'slider-wrapper';
+
     const sliderInput = document.createElement('input');
     sliderInput.id = 'range-slider';
     sliderInput.className = 'fluid-slider';
@@ -370,6 +497,10 @@ class Map extends React.Component<Props, State> {
     const sliderLabel = document.createElement('span');
     sliderLabel.id = 'range-label';
     sliderLabel.className = 'range-label';
+
+    sliderWrapper.append(sliderInput);
+    sliderWrapper.append(sliderLabel);
+    col.append(sliderWrapper);
 
     const _self = this;
 
@@ -404,23 +535,26 @@ class Map extends React.Component<Props, State> {
       }
     }
 
+    const inputWrapper = document.createElement('div');
+    inputWrapper.className = 'col-6';
     const manualInput = document.createElement('input');
+    manualInput.className = 'form-control form-control-sm';
     manualInput.type = 'number';
     manualInput.value = zLevel.toString();
     manualInput.min = '0';
     manualInput.max = '10000';
 
+    inputWrapper.append(manualInput);
+    div.append(inputWrapper);
+
     sliderInput.addEventListener('input', () => { manualInput.value = sliderInput.value; sliderOnChange(); }, true);
     manualInput.addEventListener('input', () => { sliderInput.value = manualInput.value; sliderOnChange(); }, true);
 
-    sliderWrapper.append(sliderInput);
-    sliderWrapper.append(sliderLabel);
-    div.append(manualInput);
-    div.append(sliderWrapper);
+    div.append(col);
 
-    marker.bindPopup(div, { 'className' : 'logScalePopUp' });
-    marker.openPopup();
+    return div;
   }
+
   /**
    * Add controls from leaflet geoman, leaflet.pm
    */
@@ -448,10 +582,8 @@ class Map extends React.Component<Props, State> {
   setLatLng = (type: 'inputLat' | 'inputLng') => {
     const map = this.map;
     const inputValue = (type === 'inputLat') ? this.state.typedLat : this.state.typedLng;
-    console.log(inputValue);
     if (map !== null && this._isMounted) {
       const value = parseFloat(inputValue);
-      console.log(value);
       let timeout = type === 'inputLat' ? this.inputLatTimeout : this.inputLngTimeout;
       clearTimeout(timeout);
 
@@ -544,7 +676,7 @@ class Map extends React.Component<Props, State> {
         <Container>
           <Row>
             <Col xs="12" className="px-0">
-              <div className="mapWrapper">
+              <div className="mapWrapper" id="mapWrapper">
                 <div
                   id="oa_map"
                   style={mapStyle}
