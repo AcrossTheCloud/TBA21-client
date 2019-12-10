@@ -54,6 +54,7 @@ class Announcements extends React.Component<RouteComponentProps, State> {
       totalSize: 0,
       deleteErrorMessage: undefined
     };
+    const style = { overflowWrap: 'break-word', wordWrap: 'break-word'  } ;
 
     this.tableColumns = [
       {
@@ -65,7 +66,7 @@ class Announcements extends React.Component<RouteComponentProps, State> {
         text: 'Published',
         align: 'center',
         headerStyle: () => {
-          return {  overflowWrap: 'break-word' };
+          return style;
         },
         formatter: (status) => {
           return(
@@ -81,17 +82,17 @@ class Announcements extends React.Component<RouteComponentProps, State> {
           this.dateFormatter(field, order);
         },
         headerStyle: () => {
-          return { overflowWrap: 'break-word'  };
+          return { overflowWrap: 'break-word'};
       },
       },
       {
         dataField: 'title',
         text: 'Title',
         headerStyle: () => {
-          return { overflowWrap: 'break-word'  };
+          return style;
         },
         style: () => {
-          return {  overflowWrap: 'break-word' };
+          return style;
         },
       },
 
@@ -107,7 +108,7 @@ class Announcements extends React.Component<RouteComponentProps, State> {
             </>
           );
         }, headerStyle: () => {
-          return { overflowWrap: 'break-word' };
+          return style;
         },
       }
     ];

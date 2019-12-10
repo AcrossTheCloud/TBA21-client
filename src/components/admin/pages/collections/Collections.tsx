@@ -52,6 +52,7 @@ class Collections extends React.Component<RouteComponentProps, State> {
       totalSize: 0,
       deleteErrorMessage: undefined
     };
+    const style = { overflowWrap: 'break-word', wordWrap: 'break-word'  } ;
 
     this.tableColumns = [
       {
@@ -63,7 +64,7 @@ class Collections extends React.Component<RouteComponentProps, State> {
         align: 'center',
         text: 'Published',
         headerStyle: () => {
-          return { overflowWrap: 'break-word'  };
+          return style;
         },
         formatter: (status) => {
           return(
@@ -82,20 +83,20 @@ class Collections extends React.Component<RouteComponentProps, State> {
           return cell.toString().slice(0, 10);
           },
         headerStyle: () => {
-          return { overflowWrap: 'break-word'  };
+          return style;
         },
         style: () => {
-          return {  overflowWrap: 'break-word' };
+          return style;
         },
       },
       {
         dataField: 'title',
         text: 'Title',
         headerStyle: () => {
-          return { overflowWrap: 'break-word' };
+          return style;
         },
         style: () => {
-          return {  overflowWrap: 'break-word' };
+          return style;
         },
       },
       {
@@ -111,7 +112,7 @@ class Collections extends React.Component<RouteComponentProps, State> {
           );
         },
         headerStyle: () => {
-          return { overflowWrap: 'break-word'  };
+          return style;
         },
       }
     ];

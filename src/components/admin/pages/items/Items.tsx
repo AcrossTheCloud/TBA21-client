@@ -54,6 +54,7 @@ class Items extends React.Component<RouteComponentProps, State> {
       totalSize: 0,
       deleteErrorMessage: undefined
     };
+    const style = { overflowWrap: 'break-word', wordWrap: 'break-word'  } ;
 
     this.tableColumns = [
       {
@@ -65,7 +66,7 @@ class Items extends React.Component<RouteComponentProps, State> {
         text: 'Published',
         align: 'center',
         headerStyle: () => {
-          return { overflowWrap: 'break-word' };
+          return style;
         },
         formatter: (status) => {
           return status === true ? <FaCheck color="green" size={25}/> : <FaTimes color="red" size={25}/> ;
@@ -82,17 +83,17 @@ class Items extends React.Component<RouteComponentProps, State> {
           return ( cell.toString().slice(0, 10) );
         },
         headerStyle: () => {
-          return { overflowWrap: 'break-word' };
+          return style;
         },
       },
       {
         dataField: 'title',
         text: 'Title',
         headerStyle: () => {
-          return { overflowWrap: 'break-word' };
+          return style;
         },
         style: () => {
-          return {  overflowWrap: 'break-word' };
+          return style;
         },
       },
       {
@@ -103,10 +104,10 @@ class Items extends React.Component<RouteComponentProps, State> {
             :
             '';
         }, headerStyle: () => {
-          return { overflowWrap: 'break-word'  };
+          return style;
         },
         style: () => {
-          return {  overflowWrap: 'break-word' };
+          return style;
         },
         hidden: !!this.isContributorPath,
         text: 'Creator(s)'
@@ -124,7 +125,7 @@ class Items extends React.Component<RouteComponentProps, State> {
           );
         },
         headerStyle: () => {
-          return { overflowWrap: 'break-word' };
+          return style;
         },
       }
     ];
@@ -317,7 +318,6 @@ class Items extends React.Component<RouteComponentProps, State> {
           pagination={paginationFactory({ page, sizePerPage, totalSize })}
           onTableChange={this.handleTableChange}
           noDataIndication={() => !this.state.tableIsLoading && !slicedItems.length ? 'No data to display.' : <Spinner style={{ width: '10rem', height: '10rem' }} type="grow" />}
-          dataSort={true}
         />
         {/* Edit Item Modal */}
         <Modal isOpen={this.state.componentModalOpen} centered size="lg" scrollable backdrop className="fullwidth">
