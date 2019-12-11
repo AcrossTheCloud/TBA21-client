@@ -30,6 +30,7 @@ interface State extends Alerts {
   totalSize: number;
 
   deleteErrorMessage: string | JSX.Element | undefined;
+  order?: string;
 }
 
 class Announcements extends React.Component<RouteComponentProps, State> {
@@ -80,6 +81,7 @@ class Announcements extends React.Component<RouteComponentProps, State> {
         sort: true,
         onSort: (field, order) => {
           this.dateFormatter(field, order);
+          this.setState({order: order});
         },
         headerStyle: () => {
           return { overflowWrap: 'break-word'};
@@ -246,7 +248,10 @@ class Announcements extends React.Component<RouteComponentProps, State> {
       this.setState({ tableIsLoading: true });
 
       try {
-        const response = await this.getAnnouncementQuery(currentIndex);
+        let response;
+        if (this.state.order === 'desc' || this.state.order === 'asc') {
+          response = await this.getAnnouncementQuery(currentIndex, this.state.order);
+        } else {  response = await this.getAnnouncementQuery(currentIndex); }
         if (response) {
           if (!this._isMounted) { return; }
 

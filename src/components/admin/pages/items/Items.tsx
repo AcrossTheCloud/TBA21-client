@@ -32,6 +32,7 @@ interface State extends Alerts {
   totalSize: number;
 
   deleteErrorMessage: string | JSX.Element | undefined;
+  order?: string;
 }
 
 class Items extends React.Component<RouteComponentProps, State> {
@@ -78,6 +79,7 @@ class Items extends React.Component<RouteComponentProps, State> {
         sort: true,
         onSort: (field, order) => {
           this.dateFormatter(field, order);
+          this.setState({order: order});
         },
         formatter: (cell: string) => {
           return ( cell.toString().slice(0, 10) );
@@ -268,7 +270,10 @@ class Items extends React.Component<RouteComponentProps, State> {
       this.setState({ tableIsLoading: true });
 
       try {
-        const response = await this.getItemsQuery(currentIndex);
+        let response;
+        if (this.state.order === 'desc' || this.state.order === 'asc') {
+          response = await this.getItemsQuery(currentIndex, this.state.order);
+        } else {  response = await this.getItemsQuery(currentIndex); }
         if (response) {
           if (!this._isMounted) { return; }
 
