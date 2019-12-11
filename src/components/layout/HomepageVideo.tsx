@@ -65,7 +65,6 @@ export default class HomepageVideo extends Component<Props, State> {
   }
 
   onVideoPlay = () => {
-    console.log('Yo')
     $('#video .content').fadeIn();
   }
 
@@ -108,7 +107,7 @@ export default class HomepageVideo extends Component<Props, State> {
           autoPlay
           controls={false}
           loop
-          playsinline
+          playsInline
         >
           <source src="https://video-streaming.ocean-archive.org/loading_video.mp4" type="video/mp4"/>
         </video>

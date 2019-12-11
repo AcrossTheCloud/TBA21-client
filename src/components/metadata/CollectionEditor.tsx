@@ -1333,15 +1333,18 @@ class CollectionEditorClass extends React.Component<Props, State> {
 
                   </Col>
 
-                  <Col md={{size: 3, offset: 9}}>
-                    By checking this box you agree to the Ocean Archive's <Button color="link" onClick={e => {e.preventDefault(); this.props.modalToggle('TC_MODAL', true); }}>Terms Of Use</Button>
-                    <FormGroup check>
-                      <Label check>
-                        <Input type="checkbox" checked={this.state.acceptedLicense ? this.state.acceptedLicense : false} onChange={e => { if (this._isMounted) { this.setState({ acceptedLicense: e.target.checked }); } }}/>{' '}
-                        I agree
-                      </Label>
-                    </FormGroup>
-                  </Col>
+                  {this.props.profileDetails && !this.props.profileDetails.accepted_license ?
+                    <Col md={{size: 3, offset: 9}}>
+                      By checking this box you agree to the Ocean Archive's <Button color="link" onClick={e => {e.preventDefault(); this.props.modalToggle('TC_MODAL', true); }}>Terms Of Use</Button>
+                      <FormGroup check>
+                        <Label check>
+                          <Input type="checkbox" checked={this.state.acceptedLicense ? this.state.acceptedLicense : false} onChange={e => { if (this._isMounted) { this.setState({ acceptedLicense: e.target.checked }); } }}/>{' '}
+                          I agree
+                        </Label>
+                      </FormGroup>
+                    </Col>
+                    : <></>
+                  }
                   <Col xs="12">
                     <FormGroup>
                       <Label for="title">Title</Label>
