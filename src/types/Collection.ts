@@ -124,6 +124,7 @@ export interface Collection {
 
   // For the API
   items?: string[] | null; // a list of item s3_keys
+  collections?: string[] | null; // a list of collection ids
   file?: S3File;
 
   digital_collection?: boolean;

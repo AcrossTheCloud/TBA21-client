@@ -14,7 +14,7 @@ export const getItemsInCollection = async (queryStringParameters: Object = {}) =
 /*
  * ADMIN FUNCTIONS
  */
-export const adminGet = async (isContributorPath: boolean, queryStringParameters: Object = {}): Promise<TopoJSON> => {
+export const adminGet = async (isContributorPath: boolean = true, queryStringParameters: Object = {}): Promise<TopoJSON> => {
   const response = await API.get('tba21', `${ isContributorPath ? 'contributor/collections/get' :  'admin/collections/get' }`, { queryStringParameters: queryStringParameters });
   return response.data;
 };
