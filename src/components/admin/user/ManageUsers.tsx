@@ -131,6 +131,7 @@ class ManageUsers extends React.Component<Props, State> {
         <AdminResetPassword ref={this.resetUserPasswordRef} />
         <AddUser ref={this.addUserRef} />
         {/* END MODALS */}
+        <SearchUsers limit={this.props.limit} />
 
         <div className="list">
           <Row>
@@ -193,7 +194,6 @@ class ManageUsers extends React.Component<Props, State> {
           }
         </div>
 
-        <SearchUsers limit={this.props.limit} />
       </Container>
     );
   }
