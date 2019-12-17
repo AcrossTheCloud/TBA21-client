@@ -2,13 +2,14 @@ import * as React from 'react';
 import { Item } from '../../types/Item';
 import { Col, Collapse, Row } from 'reactstrap';
 import { FaCheck, FaMinus, FaPlus, FaTimes } from 'react-icons/fa';
-import { Props } from './ItemEditor';
 import { Collection } from '../../types/Collection';
 
-interface WithCollapseProps extends Props {
+export interface WithCollapseProps {
   isOpen?: boolean;
+  onChange?: Function;
+  data: Item | Collection;
 }
-export function withCollapse <P extends WithCollapseProps>(WrappedComponent: React.ComponentType<P>) {
+export function withCollapse <P extends object>(WrappedComponent: React.ComponentType<P>) {
   interface WithCollapseState {
     open: boolean;
     hasLoaded: boolean;
@@ -16,12 +17,12 @@ export function withCollapse <P extends WithCollapseProps>(WrappedComponent: Rea
   }
 
   return class CollapsedDisplay extends React.Component<P & WithCollapseProps, WithCollapseState> {
-    constructor(props: P) {
+    constructor(props: P & WithCollapseProps) {
       super(props);
       this.state = {
         open: !!props.isOpen,
         hasLoaded: !!props.isOpen,
-        data: props.item
+        data: props.data
       };
     }
     toggleCollapse = () => {
