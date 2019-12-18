@@ -65,7 +65,6 @@ export default class HomepageVideo extends Component<Props, State> {
   }
 
   onVideoPlay = () => {
-    console.log('Yo')
     $('#video .content').fadeIn();
   }
 

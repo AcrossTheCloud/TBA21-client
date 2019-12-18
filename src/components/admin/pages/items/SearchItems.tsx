@@ -84,7 +84,6 @@ export class SearchItems extends React.Component<Props, State> {
       {
         dataField: 'created_at',
         text: 'Created Date',
-        sort: true,
         formatter: (cell: string) => {
           return ( cell.toString().slice(0, 10) );
         },
@@ -159,10 +158,26 @@ export class SearchItems extends React.Component<Props, State> {
             limit: this.state.sizePerPage,
             byField: this.state.byField,
             inputQuery: inputQuery
-          },
-          response = this.isContributorPath ? await contributorGetByPerson(queryStringParameters) : await adminGetItems(queryStringParameters),
-          items = removeTopology(response) as Item[];
-      console.log(items, 'items');
+          };
+      try {
+        const 
+            response = this.isContributorPath ? await contributorGetByPerson(queryStringParameters) : await adminGetItems(queryStringParameters),
+            items = removeTopology(response) as Item[];
+        if (items && items.length) {
+          this.setState({
+            tableIsLoading: false,
+            errorMessage: undefined,
+            items: items
+          });
+        }
+      } catch (error) {
+        this.setState({
+          tableIsLoading: false,
+          errorMessage: 'Please try again',
+          items: []
+        });
+      }
+          
     }
   }
 
