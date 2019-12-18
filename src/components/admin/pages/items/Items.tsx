@@ -11,6 +11,7 @@ import { Item } from 'types/Item';
 import ItemEditor from 'components/metadata/ItemEditor';
 import { Alerts, ErrorMessage, SuccessMessage } from 'components/utils/alerts';
 import { AuthContext } from '../../../../providers/AuthProvider';
+import { SearchItems } from './SearchItems';
 
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css';
@@ -313,6 +314,7 @@ class Items extends React.Component<RouteComponentProps, State> {
       <Container>
         <ErrorMessage message={this.state.errorMessage}/>
         <SuccessMessage message={this.state.successMessage}/>
+        <SearchItems limit={this.state.sizePerPage}/>
         <BootstrapTable
           remote
           bootstrap4
