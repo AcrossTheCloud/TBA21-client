@@ -16,6 +16,8 @@ import {
 } from 'reactstrap';
 
 import { Item } from 'types/Item';
+import { Collection } from '../../../../types/Collection';
+import { Announcement } from '../../../../types/Announcement';
 
 import { Alerts, ErrorMessage } from '../../../utils/alerts';
 import { FaCheck, FaTimes } from 'react-icons/fa';
@@ -25,10 +27,12 @@ import { get } from 'lodash';
 
 interface Props {
   limit: number;
+  isContributorPath: boolean;
+  path: string;
 }
 
 interface State extends Alerts {
-  items: Item[];
+  results: Item[] | Collection[] | Announcement[];
   itemIndex?: number;
 
   byField: string;
@@ -45,14 +49,13 @@ interface State extends Alerts {
 export class SearchItems extends React.Component<Props, State> {
   searchInputRef;
   tableColumns;
-  isContributorPath;
 
   constructor(props: Props) {
     super(props);
 
     this.state = {
       errorMessage: undefined,
-      items: [],
+      results: [],
       inputQuery: 'title',
       byField: 'Title',
       tableIsLoading: false,
@@ -114,7 +117,7 @@ export class SearchItems extends React.Component<Props, State> {
         style: () => {
           return style;
         },
-        hidden: !!this.isContributorPath,
+        hidden: this.props.isContributorPath,
         text: 'Creator(s)'
       },
       {
@@ -142,13 +145,14 @@ export class SearchItems extends React.Component<Props, State> {
    */
   searchByOption = (event: React.MouseEvent<HTMLInputElement>): void => {
     const target = event.target as HTMLInputElement;
-    console.log(target.value, 'value');
     this.setState({
       byField: target.value
     });
   }
 
-  getItemsQuery = async (): Promise<{ items: Item[], totalSize: number } | void> => {
+  getResultsQuery = async (): Promise<{ results: Item[], totalSize: number } | void> => {
+    let path = this.props.path;
+
     const inputQuery = get(this.searchInputRef, 'current.value');
 
     if (inputQuery && inputQuery.length) {
@@ -160,21 +164,23 @@ export class SearchItems extends React.Component<Props, State> {
             inputQuery: inputQuery
           };
       try {
-        const 
-            response = this.isContributorPath ? await contributorGetByPerson(queryStringParameters) : await adminGetItems(queryStringParameters),
-            items = removeTopology(response) as Item[];
-        if (items && items.length) {
+        let results;
+        if (path === 'items') {
+          const response = this.props.isContributorPath ? await contributorGetByPerson(queryStringParameters) : await adminGetItems(queryStringParameters);
+          results = removeTopology(response) as Item[];
+        }
+        if (results && results.length) {
           this.setState({
             tableIsLoading: false,
             errorMessage: undefined,
-            items: items
+            results: results
           });
         }
       } catch (error) {
         this.setState({
           tableIsLoading: false,
           errorMessage: 'Please try again',
-          items: []
+          results: []
         });
       }
           
@@ -184,9 +190,9 @@ export class SearchItems extends React.Component<Props, State> {
   render() {
     const
         { page, sizePerPage, totalSize } = this.state,
-        items = this.state.items,
+        results = this.state.results,
         currentIndex = (page - 1) * sizePerPage,
-        slicedItems = items.length ? items.slice(currentIndex, currentIndex + sizePerPage) : [];
+        slicedItems = results.length ? results.slice(currentIndex, currentIndex + sizePerPage) : [];
     return (
       <Container>
 
@@ -207,20 +213,20 @@ export class SearchItems extends React.Component<Props, State> {
             <Input type="text" name="search" id="search" placeholder="Search Items" innerRef={this.searchInputRef} />
 
             <InputGroupAddon addonType="append">
-              <Button type="submit" onClick={this.getItemsQuery}>Search</Button>
+              <Button type="submit" onClick={this.getResultsQuery}>Search</Button>
             </InputGroupAddon>
           </InputGroup>
 
           <ErrorMessage message={this.state.errorMessage}/>
 
           {
-            this.state.items.length ?
+            this.state.results.length ?
                 <BootstrapTable
                     remote
                     bootstrap4
                     className="itemTable"
                     keyField="s3_key"
-                    data={this.state.tableIsLoading ? [] : items}
+                    data={this.state.tableIsLoading ? [] : results}
                     columns={this.tableColumns}
                     pagination={paginationFactory({ page, sizePerPage, totalSize })}
                     // onTableChange={this.handleTableChange}

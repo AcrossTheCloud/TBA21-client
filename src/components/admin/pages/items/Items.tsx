@@ -314,7 +314,7 @@ class Items extends React.Component<RouteComponentProps, State> {
       <Container>
         <ErrorMessage message={this.state.errorMessage}/>
         <SuccessMessage message={this.state.successMessage}/>
-        <SearchItems limit={this.state.sizePerPage}/>
+        <SearchItems limit={this.state.sizePerPage} isContributorPath={this.isContributorPath} path={'items'}/>
         <BootstrapTable
           remote
           bootstrap4
