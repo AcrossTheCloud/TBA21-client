@@ -8,7 +8,6 @@ import {
   Input,
   InputGroup,
   InputGroupAddon,
-  Label,
   UncontrolledDropdown,
   DropdownMenu,
   DropdownItem,
@@ -16,14 +15,15 @@ import {
 } from 'reactstrap';
 
 import { Item } from 'types/Item';
-import { Collection } from '../../../../types/Collection';
-import { Announcement } from '../../../../types/Announcement';
+import { Collection } from '../../../types/Collection';
+import { Announcement } from '../../../types/Announcement';
 
-import { Alerts, ErrorMessage } from '../../../utils/alerts';
+import { Alerts, ErrorMessage } from '../../utils/alerts';
 import { FaCheck, FaTimes } from 'react-icons/fa';
-import { adminGetItems, contributorGetByPerson } from '../../../../REST/items';
-import { removeTopology } from '../../../utils/removeTopology';
+import { adminGetItems, contributorGetByPerson } from '../../../REST/items';
+import { removeTopology } from '../../utils/removeTopology';
 import { get } from 'lodash';
+import { adminGet } from '../../../REST/collections';
 
 interface Props {
   limit: number;
@@ -46,7 +46,7 @@ interface State extends Alerts {
   tableIsLoading: boolean;
 }
 
-export class SearchItems extends React.Component<Props, State> {
+export class AdminSearch extends React.Component<Props, State> {
   searchInputRef;
   tableColumns;
 
@@ -169,6 +169,10 @@ export class SearchItems extends React.Component<Props, State> {
           const response = this.props.isContributorPath ? await contributorGetByPerson(queryStringParameters) : await adminGetItems(queryStringParameters);
           results = removeTopology(response) as Item[];
         }
+        if (path === 'collections') {
+          const response = await adminGet(this.props.isContributorPath, queryStringParameters);
+          results = removeTopology(response) as Collection[];
+        }
         if (results && results.length) {
           this.setState({
             tableIsLoading: false,
@@ -201,7 +205,6 @@ export class SearchItems extends React.Component<Props, State> {
         {/* END MODALS */}
 
         <FormGroup name="search" className="search">
-          <Label for="search">Search Items</Label>
           <InputGroup>
             <UncontrolledDropdown addonType="prepend" type="select" name="searchBy" id="searchBy">
               <DropdownToggle caret>{this.state.byField}</DropdownToggle>
@@ -210,7 +213,7 @@ export class SearchItems extends React.Component<Props, State> {
                 <DropdownItem onClick={this.searchByOption} value="Creator">Creator</DropdownItem>
               </DropdownMenu>
             </UncontrolledDropdown>
-            <Input type="text" name="search" id="search" placeholder="Search Items" innerRef={this.searchInputRef} />
+            <Input type="text" name="search" id="search" placeholder={'Search ' + this.props.path} innerRef={this.searchInputRef} />
 
             <InputGroupAddon addonType="append">
               <Button type="submit" onClick={this.getResultsQuery}>Search</Button>

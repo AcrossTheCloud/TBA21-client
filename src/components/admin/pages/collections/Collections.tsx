@@ -5,6 +5,7 @@ import { Button, Container, Modal, ModalBody, ModalFooter, ModalHeader, Spinner 
 
 import { Collection } from 'types/Collection';
 import { CollectionEditor } from 'components/metadata/CollectionEditor';
+import { AdminSearch } from '../../utils/AdminSearch';
 
 import { Alerts, ErrorMessage, SuccessMessage } from 'components/utils/alerts';
 import { RouteComponentProps, withRouter } from 'react-router';
@@ -37,6 +38,7 @@ class Collections extends React.Component<RouteComponentProps, State> {
   _isMounted;
   tableColumns;
   isAdmin;
+  isContributorPath;
 
   constructor(props: RouteComponentProps) {
     super(props);
@@ -123,6 +125,7 @@ class Collections extends React.Component<RouteComponentProps, State> {
   async componentDidMount() {
     this._isMounted = true;
     this.isAdmin = !!this.props.location.pathname.match(/admin/i);
+    this.isContributorPath = (this.props.location.pathname.match(/contributor/i));
     this.getCollections();
   }
 
@@ -135,8 +138,7 @@ class Collections extends React.Component<RouteComponentProps, State> {
           order: order ? order : 'none'
       };
 
-      const isContributorPath = (this.props.location.pathname.match(/contributor/i));
-      const result = await adminGet(isContributorPath, queryStringParameters);
+      const result = await adminGet(this.isContributorPath, queryStringParameters);
       const collections: Collection[] = removeTopology(result) as Collection[];
 
       return {
@@ -291,6 +293,7 @@ class Collections extends React.Component<RouteComponentProps, State> {
       <Container>
         <ErrorMessage message={this.state.errorMessage}/>
         <SuccessMessage message={this.state.successMessage}/>
+        <AdminSearch limit={this.state.sizePerPage} isContributorPath={this.isContributorPath} path={'collections'}/>
         <BootstrapTable
           remote
           bootstrap4
