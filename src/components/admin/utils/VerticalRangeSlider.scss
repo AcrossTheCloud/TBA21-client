@@ -4,7 +4,7 @@ $slider-height: 25px;
 $slider-label-height: 40px;
 $slider-label-width: 50px;
 
-$slider-edge-box-width: 40px;
+$slider-edge-box-width: 60px;
 $slider-edge-box-bg: #d0d0d0;
 $slider-edge-box-color: #000;
 
@@ -81,12 +81,12 @@ $slider-label-border: 6px solid $slider-bg;
     border-radius: 2px;
   }
   &:before {
-    left: - ($slider-edge-box-width + 10);
-    content:  attr(min);
+    left: - ($slider-edge-box-width);
+    content: attr(min);
   }
   &:after {
-    right: - ($slider-edge-box-width + 10);
-    content:  attr(max);
+    right: - ($slider-edge-box-width);
+    content: attr(max);
   }
 }
 
