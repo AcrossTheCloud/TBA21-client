@@ -24,6 +24,7 @@ import { adminGetItems, contributorGetByPerson } from '../../../REST/items';
 import { removeTopology } from '../../utils/removeTopology';
 import { get } from 'lodash';
 import { adminGet } from '../../../REST/collections';
+import { API } from 'aws-amplify';
 
 interface Props {
   limit: number;
@@ -117,7 +118,7 @@ export class AdminSearch extends React.Component<Props, State> {
         style: () => {
           return style;
         },
-        hidden: this.props.isContributorPath,
+        hidden: this.props.isContributorPath || this.props.path !== 'items',
         text: 'Creator(s)'
       },
       {
@@ -173,6 +174,10 @@ export class AdminSearch extends React.Component<Props, State> {
           const response = await adminGet(this.props.isContributorPath, queryStringParameters);
           results = removeTopology(response) as Collection[];
         }
+        if (path === 'announcements') {
+          const response = await API.get('tba21', `${this.props.isContributorPath ? 'contributor' : 'admin'}/announcements`, { queryStringParameters: queryStringParameters });
+          results = response.announcements.map(a => ({ ...a, created_at: new Date(a.created_at).toISOString().substr(0, 10) }));
+        }
         if (results && results.length) {
           this.setState({
             tableIsLoading: false,
@@ -210,10 +215,12 @@ export class AdminSearch extends React.Component<Props, State> {
               <DropdownToggle caret>{this.state.byField}</DropdownToggle>
               <DropdownMenu>
                 <DropdownItem onClick={this.searchByOption} value="Title">Title</DropdownItem>
-                <DropdownItem onClick={this.searchByOption} value="Creator">Creator</DropdownItem>
-              </DropdownMenu>
-            </UncontrolledDropdown>
-            <Input type="text" name="search" id="search" placeholder={'Search ' + this.props.path} innerRef={this.searchInputRef} />
+                { this.props.path === 'announcements' ? <></> :
+                  <DropdownItem onClick={this.searchByOption} value="Creator">Creator</DropdownItem>
+                }
+                    </DropdownMenu>
+                    </UncontrolledDropdown>
+                    <Input type="text" name="search" id="search" placeholder={'Search ' + this.props.path} innerRef={this.searchInputRef} />
 
             <InputGroupAddon addonType="append">
               <Button type="submit" onClick={this.getResultsQuery}>Search</Button>

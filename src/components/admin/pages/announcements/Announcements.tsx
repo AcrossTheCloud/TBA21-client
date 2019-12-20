@@ -16,6 +16,7 @@ import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.m
 import 'styles/components/admin/tables/modal.scss';
 import { AnnouncementEditor } from '../../../metadata/AnnouncementEditor';
 import { FaCheck, FaTimes } from 'react-icons/fa';
+import { AdminSearch } from '../../utils/AdminSearch';
 
 interface State extends Alerts {
   announcements: Announcement[];
@@ -289,6 +290,8 @@ class Announcements extends React.Component<RouteComponentProps, State> {
       <Container>
         <ErrorMessage message={this.state.errorMessage}/>
         <SuccessMessage message={this.state.successMessage}/>
+        <AdminSearch limit={this.state.sizePerPage} isContributorPath={this.isContributorPath} path={'announcements'}/>
+
         <BootstrapTable
           remote
           bootstrap4
