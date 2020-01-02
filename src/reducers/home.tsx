@@ -10,7 +10,7 @@ export interface HomepageData {
   title: string;
   s3_key: string;
   item_subtype?: string;
-  item_type: itemType;
+  item_type?: itemType;
   year_produced: string;
   time_produced: string;
   duration?: string;

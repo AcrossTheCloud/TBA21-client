@@ -42,7 +42,7 @@ import { Profile } from '../../types/Profile';
 import 'styles/components/metadata/editors.scss';
 import { adminGet, getCollectionsInCollection, getItemsInCollection } from '../../REST/collections';
 import { removeTopology } from '../utils/removeTopology';
-import { adminGetItems } from '../../REST/items';
+import { adminGetItems, contributorGetByPerson } from '../../REST/items';
 import DraggableMap from '../admin/utils/DraggableMap';
 import { GeoJsonObject } from 'geojson';
 import { RouteComponentProps, withRouter } from 'react-router';
@@ -174,11 +174,11 @@ class CollectionEditorClass extends React.Component<Props, State> {
       this.setState({ userUUID: context.uuid });
     }
 
+    this.isAdmin = context.authorisation.hasOwnProperty('admin');
+    this.isContributorPath = (this.props.location.pathname.match(/contributor/i));
+
     if (this.props.collection) {
       const state = {};
-
-      this.isAdmin = context.authorisation.hasOwnProperty('admin');
-      this.isContributorPath = (this.props.location.pathname.match(/contributor/i));
 
       // Get the collection and push the topoJSON into state.
       const topojson = await adminGet(this.isAdmin, { id: this.props.collection.id });
@@ -1283,11 +1283,10 @@ class CollectionEditorClass extends React.Component<Props, State> {
         clearTimeout(this.queryMetaDataObjectsTimeout);
 
         const
-          id = this.state.collection.id ? {id: this.state.collection.id} : {},
           queryStringParameters = (
-            inputValue ? { ...id, inputQuery: inputValue, limit: 100 } : {}
+            inputValue ? { inputQuery: inputValue, limit: 100 } : {}
           ),
-          response = type === 'item' ? await adminGetItems(queryStringParameters) : await adminGet(this.isAdmin, queryStringParameters),
+          response = type === 'item' ? (this.isContributorPath && !this.isAdmin ? await contributorGetByPerson(queryStringParameters) : await adminGetItems(queryStringParameters)) : await adminGet(!this.isAdmin, queryStringParameters),
           data = removeTopology(response);
 
         if (data && data.length) {

@@ -1,15 +1,34 @@
 import { Item } from '../../types/Item';
 import { checkFile } from '../items/viewItem';
 import { LOADINGOVERLAY } from '../loadingOverlay';
-import { FETCH_COLLECTION_LOAD_MORE } from '../../reducers/collections/viewCollection';
-import { getById, getItemsInCollection } from '../../REST/collections';
+import { getById, getCollectionsInCollection, getItemsInCollection } from '../../REST/collections';
 import { removeTopology } from '../../components/utils/removeTopology';
 import { Collection } from '../../types/Collection';
+import { ItemWithType, CollectionWithType } from '../../components/collection/ViewCollection';
+import { S3File } from '../../types/s3File';
+import { getItem } from '../../REST/items';
+import { FETCH_COLLECTION_LOAD_MORE } from '../../reducers/collections/viewCollection';
 
 // Defining our Actions for the reducers.
 export const FETCH_COLLECTION = 'FETCH_COLLECTION';
 export const FETCH_COLLECTION_ERROR = 'FETCH_COLLECTION_ERROR';
 export const FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION = 'FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION';
+
+const removeTopologyAddType = (geoData: any, type: 'item' | 'collection'): ItemWithType[] | CollectionWithType[] => { // tslint:disable-line: no-any
+  const geometries = geoData.objects.output.geometries;
+  const data = geometries.map( e => e.properties );
+
+  if (type === 'item') {
+    const items = data as ItemWithType[];
+    items.forEach(i => Object.assign(i, { dataType: 'item' }));
+    return items;
+  } else {
+    const collections = data as CollectionWithType[];
+    collections.forEach(i => Object.assign(i, { dataType: 'collection' }));
+    return collections;
+  }
+
+};
 
 /**
  *
@@ -41,15 +60,14 @@ export const fetchCollection = (id: string) => async (dispatch, getState) => {
       const collection = removeTopology(response) as Collection[];
 
       if (!!collection && !!collection[0] && Object.keys(collection).length) {
-
-        const itemResponse = await getItemsInCollection({ id, limit: 1000 });
-
         dispatch({
            type: FETCH_COLLECTION,
-           collection: collection[0],
-           offset: 0,
-           ...await loadMore(removeTopology(itemResponse) as Item[])
+           collection: collection[0]
         });
+
+        // Load initial 10 items/collections.
+        dispatch(await loadMore(id, 0));
+
       } else {
         dispatch({
          type: FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION,
@@ -70,48 +88,47 @@ export const fetchCollection = (id: string) => async (dispatch, getState) => {
   }
 };
 
-export const loadMore = async (items: Item[], offset: number = -1, forward: boolean = true, dispatch?: Function) => {
-  if (items && items.length && offset < items.length) {
-    for (let i = 0; i < 8; i++) {
-      if (forward) {
-        offset++;
-      } else {
-        offset--;
+export const loadMore = async (id: string, offset: number = 0) => async (dispatch, getState) => {
+  try {
+    const itemResponse = await getItemsInCollection({id, limit: 10, offset});
+    const collectionResponse = await getCollectionsInCollection({id, limit: 10, offset});
+
+    const data = [...removeTopologyAddType(itemResponse, 'item'), ...removeTopologyAddType(collectionResponse, 'collection')];
+
+    if (data && data.length) {
+      for (let i = 0; i < data.length; i++) {
+        if (data[i]) {
+          let file: S3File | false = false;
+          if (data[i].dataType === 'item') {
+            file = await checkFile(data[i] as unknown as Item);
+          } else if (data[i].dataType === 'collection') {
+            console.log('here');
+            const collection: Collection = data[i] as Collection;
+            console.log('collection', collection);
+            if (collection && collection.s3_key && collection.s3_key.length) {
+              if (collection.s3_key[0]) {
+                const getItemResponse: Item[] = removeTopology(await getItem({s3Key: collection.s3_key[0]})) as Item[];
+                file = await checkFile(getItemResponse[0]);
+              }
+            }
+          }
+
+          if (file) {
+            Object.assign(data[i], {file});
+          }
+        }
       }
 
-      if (offset < 0) {
-        offset = items.length - 1;
-      } else if (offset >= items.length) {
-        offset = 0;
-      }
-
-      // Get the items file
-      if (items[offset] && !items[offset].file) {
-        if (typeof dispatch === 'function') {
-          dispatch({ type: LOADINGOVERLAY, on: true }); // Turn on the loading overlay
-        }
-        const file = await checkFile(items[offset]);
-        if (file) {
-          Object.assign(items[offset], {file});
-        }
-      }
+      dispatch({
+         type: FETCH_COLLECTION_LOAD_MORE,
+         data,
+         offset
+       });
     }
+  } catch (e) {
+    dispatch({
+      type: FETCH_COLLECTION_ERROR,
+      errorMessage: e
+    });
   }
-
-  if (typeof dispatch === 'function') {
-    dispatch({ type: LOADINGOVERLAY, on: false }); // Turn on the loading overlay
-  }
-
-  return {
-     items: [...items],
-     offset: offset
-   };
-};
-
-export const loadMoreDispatch = (forward: boolean = true) => async (dispatch, getState) => {
-  const state = getState();
-  dispatch({
-   type: FETCH_COLLECTION_LOAD_MORE,
-   ...await loadMore(state.viewCollection.items, state.viewCollection.offset, forward, dispatch)
- });
 };

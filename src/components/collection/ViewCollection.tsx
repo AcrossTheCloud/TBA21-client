@@ -1,32 +1,53 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Col, Row } from 'reactstrap';
-import { fetchCollection } from 'actions/collections/viewCollection';
+import { fetchCollection, loadMore } from 'actions/collections/viewCollection';
 import { ViewCollectionState } from 'reducers/collections/viewCollection';
 import { ErrorMessage } from '../utils/alerts';
 
 import { browser } from '../utils/browser';
 import { RouteComponentProps, withRouter } from 'react-router';
 
-import CollectionSlider from './CollectionSlider';
 import Share from '../utils/Share';
 import moment from 'moment';
 import 'styles/components/pages/viewItem.scss';
-import { Regions } from '../../types/Item';
+import { Item, itemType, Regions } from '../../types/Item';
+import { Collection } from '../../types/Collection';
+import { DetailPreview } from '../utils/DetailPreview';
+import { FileTypes } from '../../types/s3File';
+import AudioPreview from '../layout/audio/AudioPreview';
+import { dateFromTimeYearProduced } from '../../actions/home';
 
 type MatchParams = {
   id: string;
 };
 
-interface Props extends RouteComponentProps<MatchParams>, ViewCollectionState {
-  fetchCollection: Function;
+export interface ItemWithType extends Item {
+  dataType: 'item';
+}
+export interface CollectionWithType extends Collection {
+  dataType: 'collection';
 }
 
-class ViewCollection extends React.Component<Props, {}> {
+interface Props extends RouteComponentProps<MatchParams>, ViewCollectionState {
+  fetchCollection: Function;
+  loadMore: Function;
+}
+
+interface State {
+  data: (ItemWithType & CollectionWithType)[];
+  errorMessage?: string;
+}
+
+class ViewCollection extends React.Component<Props, State> {
   browser: string;
 
   constructor(props: any) { // tslint:disable-line: no-any
     super(props);
+
+    this.state = {
+      data: []
+    };
 
     this.browser = browser();
   }
@@ -45,6 +66,12 @@ class ViewCollection extends React.Component<Props, {}> {
       this.props.fetchCollection(matchId);
     } else {
       this.setState({ errorMessage: 'No collection with that id.' });
+    }
+  }
+
+  componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>): void {
+    if (!!this.props.data && prevProps.data !== this.props.data) {
+      this.setState({ data: [...this.state.data, ...this.props.data] });
     }
   }
 
@@ -97,7 +124,6 @@ class ViewCollection extends React.Component<Props, {}> {
     return (
       <div id="item" className="container-fluid">
         <ErrorMessage message={this.props.errorMessage} />
-        <CollectionSlider />
         <Row>
           <Col xs="12" md="8" className="left border-right">
             <Row>
@@ -122,11 +148,13 @@ class ViewCollection extends React.Component<Props, {}> {
             </Row>
 
             {!!id ?
-              <Row>
-                <Col className="text-right">
-                  <Share suffix={`collection/${id}`}/>
-                </Col>
-              </Row>
+              (
+                <Row>
+                  <Col className="text-right">
+                    <Share suffix={`collection/${id}`}/>
+                  </Col>
+                </Row>
+              )
               : <></>
             }
           </Col>
@@ -153,24 +181,28 @@ class ViewCollection extends React.Component<Props, {}> {
             {!!url ? <CollectionDetails label="Link" value={url} /> : ''}
 
             {!!aggregated_concept_tags && aggregated_concept_tags.length ?
-              <Row className="border-bottom subline details">
-                <Col xs="12">Concept Tags</Col>
-                <Col xs="12">
-                  {
-                    aggregated_concept_tags.map(t => `#${t.tag_name} `)
-                  }
-                </Col>
-              </Row>
+              (
+                <Row className="border-bottom subline details">
+                  <Col xs="12">Concept Tags</Col>
+                  <Col xs="12">
+                    {
+                      aggregated_concept_tags.map(t => `#${t.tag_name} `)
+                    }
+                  </Col>
+                </Row>
+              )
             : ''}
             {!!aggregated_keyword_tags && aggregated_keyword_tags.length ?
-              <Row className="subline details">
-                <Col xs="12">Keyword Tags</Col>
-                <Col xs="12">
-                  {
-                    aggregated_keyword_tags.map(t => `#${t.tag_name} `)
-                  }
-                </Col>
-              </Row>
+              (
+                <Row className="subline details">
+                  <Col xs="12">Keyword Tags</Col>
+                  <Col xs="12">
+                    {
+                      aggregated_keyword_tags.map(t => `#${t.tag_name} `)
+                    }
+                  </Col>
+                </Row>
+              )
               : ''}
             <Row>
               <Col className="px-0">
@@ -178,6 +210,60 @@ class ViewCollection extends React.Component<Props, {}> {
               </Col>
             </Row>
           </Col>
+        </Row>
+
+        <Row>
+          {
+            this.state.data ?
+              this.state.data.map((data: ItemWithType & CollectionWithType, i) => {
+                const date = dateFromTimeYearProduced(data.time_produced, data.year_produced);
+
+                return (
+                  <Col key={i} md={!!data.file && data.file.type === 'Audio' ? '8' : '4'} className="pt-4">
+
+                    {data.item_type === itemType.Audio || data.file.type === FileTypes.Audio ?
+                      <AudioPreview
+                        data={{
+                          id: data.id,
+                          url: data.file.url,
+                          title: data.title ? data.title : '',
+                          creators: data.creators ? data.creators : undefined,
+                          item_subtype: data.item_subtype ? data.item_subtype : undefined,
+                          date: date,
+                          isCollection: data.dataType !== 'item'
+                        }}
+                        noClick={data.dataType !== 'item'}
+                      />
+                      :
+                        data.dataType === 'item' ?
+                          <DetailPreview data={data}/>
+                          : data.file && data.id ?
+                              <DetailPreview
+                                data={{
+                                  file: data.file,
+                                  id: data.id,
+                                  title: data.title ? data.title : '',
+                                  s3_key: '',
+                                  year_produced: data.year_produced ? data.year_produced : '',
+                                  time_produced: data.time_produced ? data.time_produced : '',
+                                  creators: data.creators ? data.creators : [],
+                                  regions: data.regions ? data.regions : [],
+
+                                  // Collection specific
+                                  count: data.count ? data.count : 0,
+                                  type: data.type ? data.type : undefined,
+
+                                  concept_tags: [],
+                                  keyword_tags: []
+                                }}
+                              />
+                            : <></>
+                    }
+                  </Col>
+                );
+              })
+            : <></>
+          }
         </Row>
       </div>
     );
@@ -189,10 +275,10 @@ const mapStateToProps = (state: { viewCollection: ViewCollectionState }) => { //
   return {
     errorMessage: state.viewCollection.errorMessage,
     collection: state.viewCollection.collection,
-    items: state.viewCollection.items,
+    data: state.viewCollection.data,
     offset: state.viewCollection.offset
   };
 };
 
 // Connect our redux store State to Props, and pass through the fetchCollection function.
-export default withRouter(connect(mapStateToProps, { fetchCollection })(ViewCollection));
+export default withRouter(connect(mapStateToProps, { fetchCollection, loadMore })(ViewCollection));

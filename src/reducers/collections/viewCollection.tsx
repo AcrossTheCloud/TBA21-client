@@ -1,6 +1,6 @@
 import { Alerts } from '../../components/utils/alerts';
 import { Collection } from '../../types/Collection';
-import { Item } from '../../types/Item';
+import { CollectionWithType, ItemWithType } from '../../components/collection/ViewCollection';
 
 // Defining our Actions for the reducers.
 export const FETCH_COLLECTION = 'FETCH_COLLECTION';
@@ -11,13 +11,12 @@ export const FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION = 'FETCH_COLLECTION_ERROR
 export interface ViewCollectionState extends Alerts {
   collection?: Collection;
   offset: number;
-  items: Item[];
+  data?: (ItemWithType & CollectionWithType)[];
 }
 
 const initialState: ViewCollectionState = {
   errorMessage: undefined,
-  offset: 0,
-  items: []
+  offset: 0
 };
 
 /**
@@ -36,28 +35,26 @@ export default (state: ViewCollectionState = initialState, action) => {
       return {
         ...state,
         collection: action.collection,
-        offset: action.offset,
-        items: action.items,
         errorMessage: undefined
       };
     case FETCH_COLLECTION_LOAD_MORE:
       return {
         ...state,
         offset: action.offset,
-        items: action.items,
+        data: action.data
       };
 
     case FETCH_COLLECTION_ERROR:
       return {
         ...state,
-        errorMessage: `Looks like we've had a bit of a hiccup.`,
+        errorMessage: action.errorMessage ? action.errorMessage : `Looks like we've had a bit of a hiccup.`,
       };
 
     case FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION:
       return {
         ...state,
-        collection: action.collection,
-        items: action.items,
+        collection: undefined,
+        data: undefined,
         errorMessage: `Are you sure you've got the right url? We can't find what you're looking for. Sorry!`,
       };
 
