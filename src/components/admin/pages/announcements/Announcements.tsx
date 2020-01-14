@@ -3,7 +3,7 @@ import { API } from 'aws-amplify';
 import * as React from 'react';
 import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
-import { Button, Container, Modal, ModalBody, ModalFooter, ModalHeader, Spinner } from 'reactstrap';
+import { Button, Container, Modal, ModalBody, ModalFooter, Spinner } from 'reactstrap';
 import { RouteComponentProps, withRouter } from 'react-router';
 
 import { Announcement } from 'types/Announcement';
@@ -17,6 +17,7 @@ import 'styles/components/admin/tables/modal.scss';
 import { AnnouncementEditor } from '../../../metadata/AnnouncementEditor';
 import { FaCheck, FaTimes } from 'react-icons/fa';
 import { AdminSearch } from '../../utils/AdminSearch';
+import Delete from '../../utils/Delete';
 
 interface State extends Alerts {
   announcements: Announcement[];
@@ -104,13 +105,22 @@ class Announcements extends React.Component<RouteComponentProps, State> {
         text: 'Options',
         isDummyField: true,
         formatter: (e, row, rowIndex) => {
-          return (
-            <>
-              <Button color="warning" size="sm" className="mr-3"  onClick={() => this.onEditButtonClick(rowIndex)}>Edit</Button>
-              <Button color="danger" size="sm" onClick={() => this.onDeleteButtonClick(rowIndex)}>Delete</Button>
-            </>
-          );
-        }, headerStyle: () => {
+          const identifier = this.state.announcements[rowIndex].id;
+          if (identifier) {
+            return (
+                <>
+                  <Button color="warning" size="sm" className="mr-3"  onClick={() => this.onEditButtonClick(rowIndex)}>Edit</Button>
+                  <Delete
+                      path={'announcements'}
+                      isContributorPath={this.isContributorPath}
+                      index={rowIndex}
+                      identifier={identifier}
+                  />
+                </>
+            );
+          } else { return <></>; }
+        },
+        headerStyle: () => {
           return style;
         },
       }
@@ -176,15 +186,6 @@ class Announcements extends React.Component<RouteComponentProps, State> {
       }
     );
   }
-  onDeleteButtonClick = (collectionIndex: number) => {
-    if (!this._isMounted) { return; }
-    this.setState(
-      {
-        deleteModalOpen: true,
-        editingIndex: collectionIndex,
-      }
-    );
-  }
 
   componentModalToggle = () => {
     if (!this._isMounted) { return; }
@@ -193,53 +194,6 @@ class Announcements extends React.Component<RouteComponentProps, State> {
        componentModalOpen: !prevState.componentModalOpen
      })
     );
-  }
-  deleteModalToggle = () => {
-    if (!this._isMounted) { return; }
-    this.setState( prevState => ({
-       ...prevState,
-       deleteModalOpen: !prevState.deleteModalOpen,
-       deleteErrorMessage: undefined,
-       successMessage: undefined
-     })
-    );
-  }
-  deleteAnnouncement = async () => {
-    const state = {
-      deleteErrorMessage: undefined,
-      successMessage: undefined
-    };
-    try {
-      const announcementIndex: number | undefined = this.state.editingIndex;
-      if (typeof announcementIndex !== 'undefined' && announcementIndex > -1) {
-
-        await API.del('tba21', `${this.isContributorPath ? 'contributor' : 'admin'}/announcements`, {
-          queryStringParameters: {
-            id: this.state.announcements[announcementIndex].id
-          }
-        });
-        this.getAnnouncement();
-        Object.assign(state, {
-          deleteModalOpen: false,
-          successMessage: 'Announcement deleted'
-        });
-      } else {
-        Object.assign(state, {
-          deleteErrorMessage: 'This announcement may have already been deleted.',
-          deleteModalOpen: false
-        });
-        this.getAnnouncement();
-      }
-
-    } catch (e) {
-      Object.assign(state, {
-        deleteErrorMessage: 'We had some trouble deleting this announcement. Please try again later.'
-      });
-    } finally {
-      if (this._isMounted) {
-        this.setState(state);
-      }
-    }
   }
 
   handleTableChange = async (type, { page, sizePerPage }): Promise<void> => {
@@ -324,16 +278,6 @@ class Announcements extends React.Component<RouteComponentProps, State> {
           </ModalBody>
           <ModalFooter>
             <Button className="mr-auto" color="secondary" onClick={this.componentModalToggle}>Close</Button>
-          </ModalFooter>
-        </Modal>
-
-        <Modal isOpen={this.state.deleteModalOpen} className="tableModal">
-          <ErrorMessage message={this.state.deleteErrorMessage}/>
-          <ModalHeader>Delete Announcement?</ModalHeader>
-          <ModalBody>Are you 100% sure you want to delete this announcement?</ModalBody>
-          <ModalFooter>
-            <Button color="danger" className="mr-auto" onClick={this.deleteAnnouncement}>I'm Sure</Button>{' '}
-            <Button color="secondary" onClick={this.deleteModalToggle}>Cancel</Button>
           </ModalFooter>
         </Modal>
       </Container>

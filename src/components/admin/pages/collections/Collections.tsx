@@ -1,7 +1,7 @@
 import * as React from 'react';
 import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
-import { Button, Container, Modal, ModalBody, ModalFooter, ModalHeader, Spinner } from 'reactstrap';
+import { Button, Container, Modal, ModalBody, ModalFooter, Spinner } from 'reactstrap';
 
 import { Collection } from 'types/Collection';
 import { CollectionEditor } from 'components/metadata/CollectionEditor';
@@ -15,8 +15,9 @@ import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.m
 
 import 'styles/components/admin/tables/modal.scss';
 import { FaCheck, FaTimes } from 'react-icons/fa';
-import { adminDel, adminGet } from '../../../../REST/collections';
+import { adminGet } from '../../../../REST/collections';
 import { removeTopology } from '../../../utils/removeTopology';
+import Delete from '../../utils/Delete';
 
 interface State extends Alerts {
   collections: Collection[];
@@ -108,12 +109,20 @@ class Collections extends React.Component<RouteComponentProps, State> {
         text: 'Options',
         isDummyField: true,
         formatter: (e, row, rowIndex) => {
-          return (
-            <>
-              <Button color="warning" size="sm" className="mr-3"  onClick={() => this.onEditButtonClick(rowIndex)}>Edit</Button>
-              <Button color="danger" size="sm" onClick={() => this.onDeleteButtonClick(rowIndex)}>Delete</Button>
-            </>
-          );
+          const identifier = this.state.collections[rowIndex].id;
+          if (identifier) {
+            return (
+              <>
+                <Button color="warning" size="sm" className="mr-3"  onClick={() => this.onEditButtonClick(rowIndex)}>Edit</Button>
+                <Delete
+                    path={'collections'}
+                    isContributorPath={this.isContributorPath}
+                    index={rowIndex}
+                    identifier={identifier}
+                />
+              </>
+            );
+          } else { return <></>; }
         },
         headerStyle: () => {
           return style;
@@ -185,15 +194,6 @@ class Collections extends React.Component<RouteComponentProps, State> {
       }
     );
   }
-  onDeleteButtonClick = (collectionIndex: number) => {
-    if (!this._isMounted) { return; }
-    this.setState(
-      {
-        deleteModalOpen: true,
-        editingCollectionIndex: collectionIndex,
-      }
-    );
-  }
 
   componentModalToggle = () => {
     if (!this._isMounted) { return; }
@@ -202,47 +202,6 @@ class Collections extends React.Component<RouteComponentProps, State> {
        componentModalOpen: !prevState.componentModalOpen
      })
     );
-  }
-  deleteModalToggle = () => {
-    if (!this._isMounted) { return; }
-    this.setState( prevState => ({
-       ...prevState,
-       deleteModalOpen: !prevState.deleteModalOpen,
-       deleteErrorMessage: undefined,
-       successMessage: undefined
-     })
-    );
-  }
-  deleteCollection = async () => {
-    const state = {
-      deleteErrorMessage: undefined,
-      successMessage: undefined
-    };
-    try {
-      const collectionIndex: number | undefined = this.state.editingCollectionIndex;
-      if (typeof collectionIndex !== 'undefined' && collectionIndex > -1) {
-        await adminDel(this.state.collections[collectionIndex].id as string);
-        this.getCollections();
-        Object.assign(state, {
-          deleteModalOpen: false,
-          successMessage: 'Collection deleted'
-        });
-      } else {
-        Object.assign(state, {
-          deleteErrorMessage: 'This collection may have already been deleted.',
-          deleteModalOpen: false
-        });
-        this.getCollections();
-      }
-
-    } catch (e) {
-      Object.assign(state, {
-        deleteErrorMessage: 'We had some trouble deleting this collection. Please try again later.'
-      });
-    } finally {
-      if (!this._isMounted) { return; }
-      this.setState(state);
-    }
   }
 
   handleTableChange = async (type, { page, sizePerPage }): Promise<void> => {
@@ -329,19 +288,6 @@ class Collections extends React.Component<RouteComponentProps, State> {
           </ModalBody>
           <ModalFooter>
             <Button className="mr-auto" color="secondary" onClick={this.componentModalToggle}>Close</Button>
-          </ModalFooter>
-        </Modal>
-        {/* Delete Collection Modal */}
-        <Modal isOpen={this.state.deleteModalOpen}>
-          <ErrorMessage message={this.state.deleteErrorMessage}/>
-          <ModalHeader>Delete Collection?</ModalHeader>
-          <ModalBody>Are you 100% sure you want to delete this collection?
-
-          </ModalBody>
-
-          <ModalFooter>
-            <Button color="danger" className="mr-auto" onClick={this.deleteCollection}>I'm Sure</Button>{' '}
-            <Button color="secondary" onClick={this.deleteModalToggle}>Cancel</Button>
           </ModalFooter>
         </Modal>
       </Container>

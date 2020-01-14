@@ -25,6 +25,7 @@ import { removeTopology } from '../../utils/removeTopology';
 import { get } from 'lodash';
 import { adminGet } from '../../../REST/collections';
 import { API } from 'aws-amplify';
+import Delete from './Delete';
 
 interface Props {
   limit: number;
@@ -72,6 +73,10 @@ export class AdminSearch extends React.Component<Props, State> {
     this.tableColumns = [
       {
         dataField: 's3_key',
+        hidden: true
+      },
+      {
+        dataField: 'id',
         hidden: true
       },
       {
@@ -126,18 +131,45 @@ export class AdminSearch extends React.Component<Props, State> {
         text: 'Options',
         isDummyField: true,
         formatter: (e, row, rowIndex) => {
-          return (
-              <>
-                <Button color="warning" size="sm" className="mr-3">Edit</Button>
-                <Button color="danger" size="sm">Delete</Button>
-              </>
-          );
+          let result: Item | Collection | Announcement = this.state.results[rowIndex] as Collection | Announcement;
+          let identifier = result.id;
+          if (this.props.path === 'items') {
+            result = this.state.results[rowIndex] as Item;
+            identifier = result.s3_key;
+          }
+          if (identifier) {
+            return (
+                <>
+                  <Button color="warning" size="sm" className="mr-3" onClick={() => this.getEditor(rowIndex)}>Edit</Button>
+                  <Delete
+                      path={this.props.path}
+                      isContributorPath={this.props.isContributorPath}
+                      index={rowIndex}
+                      identifier={identifier}
+                  />
+                </>
+            );
+          } else { return <></>; }
         },
         headerStyle: () => {
           return style;
         },
       }
     ];
+  }
+  getEditor = (rowIndex) => {
+    let path = this.props.path;
+    console.log(path, 'pathy path', rowIndex, 'row index');
+    if (path === 'collections') {
+      // collections editor
+    }
+    if (path === 'items') {
+      // items editor
+    }
+    if (path === 'announcements') {
+      // announcements editor
+    }
+    // some error handling here
   }
 
   /**

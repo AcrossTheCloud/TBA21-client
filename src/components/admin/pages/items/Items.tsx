@@ -1,10 +1,9 @@
-import { API } from 'aws-amplify';
 import { RouteComponentProps, withRouter } from 'react-router';
 
 import * as React from 'react';
 import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
-import { Button, Container, Modal, ModalBody, ModalFooter, ModalHeader, Spinner } from 'reactstrap';
+import { Button, Container, Modal, ModalBody, ModalFooter, Spinner } from 'reactstrap';
 
 import { FaCheck, FaTimes } from 'react-icons/fa';
 import { Item } from 'types/Item';
@@ -19,6 +18,7 @@ import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.m
 import 'styles/components/admin/tables/modal.scss';
 import { adminGetItems, contributorGetByPerson } from '../../../../REST/items';
 import { removeTopology } from '../../../utils/removeTopology';
+import Delete from '../../utils/Delete';
 
 interface State extends Alerts {
   items: Item[];
@@ -120,12 +120,20 @@ class Items extends React.Component<RouteComponentProps, State> {
         text: 'Options',
         isDummyField: true,
         formatter: (e, row, rowIndex) => {
-          return (
-            <>
-              <Button color="warning" size="sm" className="mr-3" onClick={() => this.onEditButtonClick(rowIndex)}>Edit</Button>
-              <Button color="danger" size="sm" onClick={() => this.onDeleteButtonClick(rowIndex)}>Delete</Button>
-            </>
-          );
+          const identifier = this.state.items[rowIndex].s3_key;
+          if (identifier) {
+            return (
+              <>
+                <Button color="warning" size="sm" className="mr-3" onClick={() => this.onEditButtonClick(rowIndex)}>Edit</Button>
+                <Delete
+                    path={'items'}
+                    isContributorPath={this.isContributorPath}
+                    index={rowIndex}
+                    identifier={identifier}
+                />
+              </>
+              );
+          } else { return <></>; }
         },
         headerStyle: () => {
           return style;
@@ -199,15 +207,6 @@ class Items extends React.Component<RouteComponentProps, State> {
       }
     );
   }
-  onDeleteButtonClick = (itemIndex: number) => {
-    if (!this._isMounted) { return; }
-    this.setState(
-      {
-        deleteModalOpen: true,
-        itemIndex: itemIndex,
-      }
-    );
-  }
 
   componentModalToggle = () => {
     if (!this._isMounted) { return; }
@@ -216,52 +215,6 @@ class Items extends React.Component<RouteComponentProps, State> {
        componentModalOpen: !prevState.componentModalOpen
      })
     );
-  }
-
-  deleteModalToggle = () => {
-    if (!this._isMounted) { return; }
-    this.setState( prevState => ({
-       ...prevState,
-      deleteModalOpen: !prevState.deleteModalOpen,
-      deleteErrorMessage: undefined,
-      successMessage: undefined
-     })
-    );
-  }
-
-  deleteItem = async () => {
-    const state = {
-      deleteErrorMessage: undefined,
-      successMessage: undefined
-    };
-    try {
-      const itemIndex: number | undefined = this.state.itemIndex;
-      if (typeof itemIndex !== 'undefined' && itemIndex > -1) {
-        await API.del('tba21', (this.isContributorPath ? 'contributor/items' :  'admin/items'), {
-          queryStringParameters: {
-            s3Key: this.state.items[itemIndex].s3_key
-          }
-        });
-        await this.getItems();
-        Object.assign(state, {
-          deleteModalOpen: false,
-          successMessage: 'Item deleted'
-        });
-      } else {
-        Object.assign(state, {
-          deleteErrorMessage: 'This item may have already been deleted.',
-          deleteModalOpen: false
-        });
-        await this.getItems();
-      }
-
-    } catch (e) {
-        Object.assign(state, {
-          deleteErrorMessage: 'We had some trouble deleting this item. Please try again later.'
-        });
-    } finally {
-      this.setState(state);
-    }
   }
 
   handleTableChange = async (type, { page, sizePerPage }): Promise<void> => {
@@ -355,16 +308,6 @@ class Items extends React.Component<RouteComponentProps, State> {
           </ModalFooter>
         </Modal>
 
-        {/* Delete Item Modal */}
-        <Modal isOpen={this.state.deleteModalOpen}>
-          <ErrorMessage message={this.state.deleteErrorMessage}/>
-          <ModalHeader>Delete Item?</ModalHeader>
-          <ModalBody>Are you 100% sure you want to delete this item?</ModalBody>
-            <ModalFooter>
-              <Button color="danger" className="mr-auto" onClick={this.deleteItem}>I'm Sure</Button>{' '}
-              <Button color="secondary" onClick={this.deleteModalToggle}>Cancel</Button>
-            </ModalFooter>
-        </Modal>
       </Container>
     );
   }
