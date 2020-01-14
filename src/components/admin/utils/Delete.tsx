@@ -58,7 +58,6 @@ export default class Delete extends React.Component<Props, State> {
             const itemIndex: number | undefined = this.props.index;
             if (typeof itemIndex !== 'undefined' && itemIndex > -1) {
                 if (this.props.path === 'items') {
-                    console.log('items');
                     await API.del('tba21', (this.props.isContributorPath ? 'contributor/items' :  'admin/items'), {
                         queryStringParameters: {
                             s3Key: this.props.identifier
@@ -66,11 +65,9 @@ export default class Delete extends React.Component<Props, State> {
                     });
                 }
                 if (this.props.path === 'collections') {
-                    console.log('collections');
                     await adminDel(this.props.identifier);
                 }
                 if (this.props.path === 'announcements') {
-                    console.log('announcements');
                     await API.del('tba21', `${this.props.isContributorPath ? 'contributor' : 'admin'}/announcements`, {
                         queryStringParameters: {
                             id: this.props.identifier
