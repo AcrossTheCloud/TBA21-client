@@ -333,6 +333,7 @@ class ItemEditorClass extends React.Component<Props, State> {
             (value === null && key !== 'time_produced') ||
             key === 'aggregated_concept_tags' ||
             key === 'aggregated_keyword_tags' ||
+            key === '__typename' ||
             key === 'id' // use this to exclude things, you shouldn't need to (eg don't put them in changedFields...
           );
         })

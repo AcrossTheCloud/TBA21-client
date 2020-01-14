@@ -4,7 +4,6 @@ import { LOADINGOVERLAY } from '../loadingOverlay';
 import { getById, getCollectionsInCollection, getItemsInCollection } from '../../REST/collections';
 import { removeTopology } from '../../components/utils/removeTopology';
 import { Collection } from '../../types/Collection';
-import { ItemWithType, CollectionWithType } from '../../components/collection/ViewCollection';
 import { S3File } from '../../types/s3File';
 import { getItem } from '../../REST/items';
 import { FETCH_COLLECTION_LOAD_MORE } from '../../reducers/collections/viewCollection';
@@ -13,22 +12,6 @@ import { FETCH_COLLECTION_LOAD_MORE } from '../../reducers/collections/viewColle
 export const FETCH_COLLECTION = 'FETCH_COLLECTION';
 export const FETCH_COLLECTION_ERROR = 'FETCH_COLLECTION_ERROR';
 export const FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION = 'FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION';
-
-const removeTopologyAddType = (geoData: any, type: 'item' | 'collection'): ItemWithType[] | CollectionWithType[] => { // tslint:disable-line: no-any
-  const geometries = geoData.objects.output.geometries;
-  const data = geometries.map( e => e.properties );
-
-  if (type === 'item') {
-    const items = data as ItemWithType[];
-    items.forEach(i => Object.assign(i, { dataType: 'item' }));
-    return items;
-  } else {
-    const collections = data as CollectionWithType[];
-    collections.forEach(i => Object.assign(i, { dataType: 'collection' }));
-    return collections;
-  }
-
-};
 
 /**
  *
@@ -66,7 +49,7 @@ export const fetchCollection = (id: string) => async (dispatch, getState) => {
         });
 
         // Load initial 10 items/collections.
-        dispatch(await loadMore(id, 0));
+        dispatch(await dispatchLoadMore(id, 0));
 
       } else {
         dispatch({
@@ -88,23 +71,23 @@ export const fetchCollection = (id: string) => async (dispatch, getState) => {
   }
 };
 
-export const loadMore = async (id: string, offset: number = 0) => async (dispatch, getState) => {
+const getItemsAndCollectionsInCollection = async (id: string, offset: number = 0): Promise<(Item | Collection)[]> => {
+  const itemResponse = await getItemsInCollection({id, limit: 10, offset});
+  const collectionResponse = await getCollectionsInCollection({id, limit: 10, offset});
+  return [...removeTopology(itemResponse, 'item'), ...removeTopology(collectionResponse, 'collection')];
+}
+
+export const loadMore = async (id: string, offset: number = 0, callback: Function) => {
   try {
-    const itemResponse = await getItemsInCollection({id, limit: 10, offset});
-    const collectionResponse = await getCollectionsInCollection({id, limit: 10, offset});
-
-    const data = [...removeTopologyAddType(itemResponse, 'item'), ...removeTopologyAddType(collectionResponse, 'collection')];
-
+    const data = await getItemsAndCollectionsInCollection(id, offset);
     if (data && data.length) {
       for (let i = 0; i < data.length; i++) {
         if (data[i]) {
           let file: S3File | false = false;
-          if (data[i].dataType === 'item') {
+          if (data[i].__typename === 'item') {
             file = await checkFile(data[i] as unknown as Item);
-          } else if (data[i].dataType === 'collection') {
-            console.log('here');
+          } else if (data[i].__typename === 'collection') {
             const collection: Collection = data[i] as Collection;
-            console.log('collection', collection);
             if (collection && collection.s3_key && collection.s3_key.length) {
               if (collection.s3_key[0]) {
                 const getItemResponse: Item[] = removeTopology(await getItem({s3Key: collection.s3_key[0]})) as Item[];
@@ -115,20 +98,23 @@ export const loadMore = async (id: string, offset: number = 0) => async (dispatc
 
           if (file) {
             Object.assign(data[i], {file});
+
+            callback(data[i]);
           }
         }
       }
-
-      dispatch({
-         type: FETCH_COLLECTION_LOAD_MORE,
-         data,
-         offset
-       });
     }
   } catch (e) {
-    dispatch({
-      type: FETCH_COLLECTION_ERROR,
-      errorMessage: e
+    throw Error('We\'ve had a bit of an issue.');
+  }
+};
+
+export const dispatchLoadMore = (id: string, offset: number = 0) => async dispatch => {
+  try {
+    await loadMore(id, offset, (data) => {
+      dispatch({ type: FETCH_COLLECTION_LOAD_MORE, datum: data });
     });
+  } catch (e) {
+    dispatch({ type: FETCH_COLLECTION_ERROR, errorMessage: e });
   }
 };

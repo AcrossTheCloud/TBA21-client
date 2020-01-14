@@ -69,6 +69,7 @@ interface State extends Alerts {
   originalCollection: Collection;
   collection: Collection;
   changedFields: {
+    __typename: 'collection',
     [key: string]: string
   };
   acceptedLicense?: boolean;
@@ -137,12 +138,14 @@ class CollectionEditorClass extends React.Component<Props, State> {
 
     this._isMounted = false;
 
-    const collection = props.collection || {};
+    const collection: Collection = props.collection || { __typename: 'collection' };
 
     this.state = {
       originalCollection: collection,
       collection: {...collection},
-      changedFields: {},
+      changedFields: {
+        __typename: 'collection'
+      },
 
       userUUID: '',
 
@@ -307,8 +310,8 @@ class CollectionEditorClass extends React.Component<Props, State> {
       const collectionProperties = {};
 
       let
-        fields = this.state.collection,
-        editMode = this.state.editMode;
+        fields: Collection = this.state.collection,
+        editMode: boolean = this.state.editMode;
 
       // if we're in edit more add the id to props
       if (editMode) {
@@ -338,7 +341,8 @@ class CollectionEditorClass extends React.Component<Props, State> {
           return !(
             value === null ||
             key === 'aggregated_concept_tags' ||
-            key === 'aggregated_keyword_tags'
+            key === 'aggregated_keyword_tags' ||
+            key === '__typename'
             // || key === 'id' // use this to exclude things, you shouldn't need to (eg don't put them in changedFields...
           );
         })
@@ -359,7 +363,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
 
       if (!result.success && result.message && result.message.length > 1) {
         // If we've failed set collection back to the original
-        Object.assign(state, { errorMessage: result.message, collection: {...this.state.originalCollection}, changedFields: {}, status: false, isDifferent: false });
+        Object.assign(state, { errorMessage: result.message, collection: {...this.state.originalCollection}, changedFields: {__typename: 'collection'}, status: false, isDifferent: false });
       } else if (result.success) {
         const
           modeMessage = editMode ? 'Updated collection!' : 'Created collection!',
@@ -370,7 +374,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
         if (!editMode) {
           editMode = true;
         }
-        Object.assign(state, { editMode: editMode, successMessage: modeMessage, changedFields: {}, originalCollection: originalCollection, collection: collection, isDifferent: false });
+        Object.assign(state, { editMode: editMode, successMessage: modeMessage, changedFields: {__typename: 'collection'}, originalCollection: originalCollection, collection: collection, isDifferent: false });
       } else {
         Object.assign(state, { warningMessage: result });
       }

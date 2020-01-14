@@ -18,6 +18,8 @@ export enum collectionTypes {
 }
 
 export interface Collection {
+  __typename: 'collection';
+
   count?: number;
   id?: string;
 
