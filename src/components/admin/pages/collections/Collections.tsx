@@ -119,6 +119,7 @@ class Collections extends React.Component<RouteComponentProps, State> {
                     isContributorPath={this.isContributorPath}
                     index={rowIndex}
                     identifier={identifier}
+                    callback={() => this.getCollections()}
                 />
               </>
             );

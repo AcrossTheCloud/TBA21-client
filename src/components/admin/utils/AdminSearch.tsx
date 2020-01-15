@@ -146,6 +146,7 @@ export class AdminSearch extends React.Component<Props, State> {
                       isContributorPath={this.props.isContributorPath}
                       index={rowIndex}
                       identifier={identifier}
+                      callback={() => this.getResultsQuery()}
                   />
                 </>
             );

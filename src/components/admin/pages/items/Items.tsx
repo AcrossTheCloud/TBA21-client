@@ -130,6 +130,7 @@ class Items extends React.Component<RouteComponentProps, State> {
                     isContributorPath={this.isContributorPath}
                     index={rowIndex}
                     identifier={identifier}
+                    callback={() => this.getItems()}
                 />
               </>
               );

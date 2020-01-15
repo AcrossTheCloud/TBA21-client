@@ -9,6 +9,7 @@ interface Props {
     path: string | undefined;
     isContributorPath: boolean;
     identifier: string;
+    callback: Function;
 }
 interface State {
     deleteErrorMessage: string | JSX.Element | undefined;
@@ -63,15 +64,24 @@ export default class Delete extends React.Component<Props, State> {
                             s3Key: this.props.identifier
                         }
                     });
+                    await this.props.callback();
+                    Object.assign(state, {
+                        deleteModalOpen: false,
+                    });
                 }
                 if (this.props.path === 'collections') {
                     await adminDel(this.props.identifier);
+                    await this.props.callback()
                 }
                 if (this.props.path === 'announcements') {
                     await API.del('tba21', `${this.props.isContributorPath ? 'contributor' : 'admin'}/announcements`, {
                         queryStringParameters: {
                             id: this.props.identifier
                         }
+                    });
+                    await this.props.callback();
+                    Object.assign(state, {
+                        deleteModalOpen: false,
                     });
                 }
 
