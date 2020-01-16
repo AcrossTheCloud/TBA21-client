@@ -253,7 +253,12 @@ class Collections extends React.Component<RouteComponentProps, State> {
       <Container>
         <ErrorMessage message={this.state.errorMessage}/>
         <SuccessMessage message={this.state.successMessage}/>
-        <AdminSearch limit={this.state.sizePerPage} isContributorPath={this.isContributorPath} path={'collections'}/>
+        <AdminSearch
+          limit={this.state.sizePerPage}
+          isContributorPath={this.isContributorPath}
+          path={'collections'}
+          isAdmin={this.isAdmin}
+        />
         <BootstrapTable
           remote
           bootstrap4

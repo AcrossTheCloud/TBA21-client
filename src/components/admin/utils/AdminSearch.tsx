@@ -11,14 +11,18 @@ import {
   UncontrolledDropdown,
   DropdownMenu,
   DropdownItem,
-  DropdownToggle, Container, Spinner
+  DropdownToggle,
+  Container,
+  Spinner,
+  Modal,
+  ModalBody, ModalFooter
 } from 'reactstrap';
 
 import { Item } from 'types/Item';
 import { Collection } from '../../../types/Collection';
 import { Announcement } from '../../../types/Announcement';
 
-import { Alerts, ErrorMessage } from '../../utils/alerts';
+import { Alerts, ErrorMessage, SuccessMessage } from '../../utils/alerts';
 import { FaCheck, FaTimes } from 'react-icons/fa';
 import { adminGetItems, contributorGetByPerson } from '../../../REST/items';
 import { removeTopology } from '../../utils/removeTopology';
@@ -26,16 +30,21 @@ import { get } from 'lodash';
 import { adminGet } from '../../../REST/collections';
 import { API } from 'aws-amplify';
 import Delete from './Delete';
+import { CollectionEditor } from '../..';
+import ItemEditor from '../../metadata/ItemEditor';
+import { AnnouncementEditor } from '../../metadata/AnnouncementEditor';
 
 interface Props {
   limit: number;
   isContributorPath: boolean;
+  isAdmin: boolean;
   path: string;
 }
 
 interface State extends Alerts {
   results: Item[] | Collection[] | Announcement[];
   itemIndex?: number;
+  editResult?: Item | Collection | Announcement;
 
   byField: string;
   inputQuery: string;
@@ -46,6 +55,7 @@ interface State extends Alerts {
   totalSize: number;
 
   tableIsLoading: boolean;
+  componentModalOpen: boolean;
 }
 
 export class AdminSearch extends React.Component<Props, State> {
@@ -57,13 +67,15 @@ export class AdminSearch extends React.Component<Props, State> {
 
     this.state = {
       errorMessage: undefined,
+      successMessage: undefined,
       results: [],
       inputQuery: 'title',
       byField: 'Title',
       tableIsLoading: false,
       page: 1,
       sizePerPage: 15,
-      totalSize: 0
+      totalSize: 0,
+      componentModalOpen: false
     };
 
     this.searchInputRef = React.createRef();
@@ -137,10 +149,10 @@ export class AdminSearch extends React.Component<Props, State> {
             result = this.state.results[rowIndex] as Item;
             identifier = result.s3_key;
           }
-          if (identifier) {
+          if (identifier && result) {
             return (
                 <>
-                  <Button color="warning" size="sm" className="mr-3" onClick={() => this.getEditor(rowIndex)}>Edit</Button>
+                  <Button color="warning" size="sm" className="mr-3" onClick={() => this.editResult(result)}>Edit</Button>
                   <Delete
                       path={this.props.path}
                       isContributorPath={this.props.isContributorPath}
@@ -158,19 +170,23 @@ export class AdminSearch extends React.Component<Props, State> {
       }
     ];
   }
-  getEditor = (rowIndex) => {
-    let path = this.props.path;
-    console.log(path, 'pathy path', rowIndex, 'row index');
-    if (path === 'collections') {
-      // collections editor
+
+  editResult = (result) => {
+    if (result) {
+      this.setState({
+                      componentModalOpen: true,
+                      editResult: result
+                    });
     }
-    if (path === 'items') {
-      // items editor
-    }
-    if (path === 'announcements') {
-      // announcements editor
-    }
-    // some error handling here
+  }
+
+  componentModalToggle = () => {
+    this.setState( prevState => ({
+                     ...prevState,
+                     componentModalOpen: !prevState.componentModalOpen
+                   })
+    );
+
   }
 
   /**
@@ -234,14 +250,12 @@ export class AdminSearch extends React.Component<Props, State> {
         { page, sizePerPage, totalSize } = this.state,
         results = this.state.results,
         currentIndex = (page - 1) * sizePerPage,
-        slicedItems = results.length ? results.slice(currentIndex, currentIndex + sizePerPage) : [];
+        slicedItems = results.length ? results.slice(currentIndex, currentIndex + sizePerPage) : [],
+        path = this.props.path;
     return (
       <Container>
-
-        {/* START MODALS */}
-
-        {/* END MODALS */}
-
+        <ErrorMessage message={this.state.errorMessage}/>
+        <SuccessMessage message={this.state.successMessage}/>
         <FormGroup name="search" className="search">
           <InputGroup>
             <UncontrolledDropdown addonType="prepend" type="select" name="searchBy" id="searchBy">
@@ -285,6 +299,43 @@ export class AdminSearch extends React.Component<Props, State> {
               : <></>
           }
         </FormGroup>
+
+        {/*Start Modals*/}
+          <Modal isOpen={this.state.componentModalOpen} className="fullwidth">
+            <ModalBody>
+              {
+                path === 'items' && this.state.editResult ?
+                    <ItemEditor
+                        item={this.state.editResult as Item}
+                        isAdmin={this.props.isAdmin}
+                    />
+                    : <></>
+              }
+              {
+                path === 'collections' && this.state.editResult ?
+                    <CollectionEditor
+                        editMode={true}
+                        collection={this.state.editResult as Collection}
+                        isAdmin={this.props.isAdmin}
+                    />
+                    : <></>
+              }
+              {
+                path === 'announcements' && this.state.editResult ?
+                    <AnnouncementEditor
+                        editMode={true}
+                        announcement={this.state.editResult as Announcement}
+                        path={path}
+                    />
+                    : <></>
+              }
+            </ModalBody>
+            <ModalFooter>
+              <Button className="mr-auto" color="secondary" onClick={this.componentModalToggle}>Close</Button>
+            </ModalFooter>
+          </Modal>
+        {/*End Modals*/}
+
       </Container>
     );
   }

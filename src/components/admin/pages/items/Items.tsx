@@ -39,6 +39,7 @@ interface State extends Alerts {
 class Items extends React.Component<RouteComponentProps, State> {
   _isMounted;
   isContributorPath;
+  isAdmin;
   tableColumns;
 
   constructor(props: RouteComponentProps) {
@@ -146,6 +147,7 @@ class Items extends React.Component<RouteComponentProps, State> {
   async componentDidMount() {
     this._isMounted = true;
     this.isContributorPath = (this.props.location.pathname.match(/contributor/i));
+    this.isAdmin = !!this.props.location.pathname.match(/admin/i);
     this.getItems();
   }
 
@@ -268,7 +270,12 @@ class Items extends React.Component<RouteComponentProps, State> {
       <Container>
         <ErrorMessage message={this.state.errorMessage}/>
         <SuccessMessage message={this.state.successMessage}/>
-        <AdminSearch limit={this.state.sizePerPage} isContributorPath={this.isContributorPath} path={'items'}/>
+        <AdminSearch
+            limit={this.state.sizePerPage}
+            isContributorPath={this.isContributorPath}
+            path={'items'}
+            isAdmin={this.isAdmin}
+        />
         <BootstrapTable
           remote
           bootstrap4

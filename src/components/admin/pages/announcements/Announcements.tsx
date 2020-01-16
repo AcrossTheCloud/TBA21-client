@@ -39,6 +39,7 @@ class Announcements extends React.Component<RouteComponentProps, State> {
   _isMounted;
   tableColumns;
   isContributorPath;
+  isAdmin;
 
   constructor(props: RouteComponentProps) {
     super(props);
@@ -130,6 +131,7 @@ class Announcements extends React.Component<RouteComponentProps, State> {
 
   async componentDidMount() {
     this._isMounted = true;
+    this.isAdmin = !!this.props.location.pathname.match(/admin/i);
     this.getAnnouncement();
   }
 
@@ -245,7 +247,12 @@ class Announcements extends React.Component<RouteComponentProps, State> {
       <Container>
         <ErrorMessage message={this.state.errorMessage}/>
         <SuccessMessage message={this.state.successMessage}/>
-        <AdminSearch limit={this.state.sizePerPage} isContributorPath={this.isContributorPath} path={'announcements'}/>
+        <AdminSearch
+          limit={this.state.sizePerPage}
+          isContributorPath={this.isContributorPath}
+          path={'announcements'}
+          isAdmin={this.isAdmin}
+        />
 
         <BootstrapTable
           remote
