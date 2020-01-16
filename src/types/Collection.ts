@@ -129,5 +129,5 @@ export interface Collection {
   collections?: string[] | null; // a list of collection ids
   file?: S3File;
 
-  digital_collection?: boolean;
+  digital_only?: boolean;
 }
