@@ -21,6 +21,7 @@ interface Props {
 
 interface State {
   open: boolean;
+  modalBodyID?: string;
 }
 
 class CollectionModal extends React.Component<Props, State> {
@@ -43,6 +44,11 @@ class CollectionModal extends React.Component<Props, State> {
     if (this.props.data && typeof this.props.fetchCollection === 'function') {
       this.props.fetchCollection(this.props.data.id);
     }
+
+    const modalBodyID = this.generateModalBodyID();
+    if (modalBodyID.length) {
+      this.setState({ modalBodyID });
+    }
   }
 
   componentWillUnmount = () => {
@@ -53,8 +59,16 @@ class CollectionModal extends React.Component<Props, State> {
     if (this._isMounted) {
       const state = {};
 
-      if (typeof this.props.fetchCollection === 'function' && this.props.data && !isEqual(this.props.data, prevProps.data)) {
+      if (this.props.data && !isEqual(this.props.data, prevProps.data) && typeof this.props.fetchCollection === 'function') {
         this.props.fetchCollection(this.props.data.id);
+
+        const data = this.props.collection || this.props.data;
+        if (data) {
+          const modalBodyID = this.generateModalBodyID();
+          if (modalBodyID.length) {
+            Object.assign(state, { modalBodyID });
+          }
+        }
       }
 
       if (this.props.open !== prevProps.open) {
@@ -67,6 +81,15 @@ class CollectionModal extends React.Component<Props, State> {
     }
   }
 
+  generateModalBodyID = (): string => {
+    const data = this.props.collection || this.props.data;
+    if (data) {
+      return `${data.id}_${Date.now()}`;
+    } else {
+      return '';
+    }
+  }
+
   render() {
     const data = this.props.collection || this.props.data;
 
@@ -76,7 +99,7 @@ class CollectionModal extends React.Component<Props, State> {
       } else if (typeof this.props.toggle === 'function') {
          this.props.toggle(state);
       }
-    }
+    };
 
     if (data) {
       return (
@@ -96,12 +119,12 @@ class CollectionModal extends React.Component<Props, State> {
             </Col>
           </Row>
 
-          <ModalBody>
+          <ModalBody id={this.state.modalBodyID}>
             {
               this.props.collection ?
                 <ViewCollection noRedux={true} collection={this.props.collection}/>
                 :
-                <ViewCollection/>
+                <ViewCollection modalBodyID={this.state.modalBodyID}/>
             }
           </ModalBody>
 

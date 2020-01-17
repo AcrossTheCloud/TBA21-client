@@ -19,6 +19,7 @@ import { FileTypes } from '../../types/s3File';
 import AudioPreview from '../layout/audio/AudioPreview';
 import { dateFromTimeYearProduced } from '../../actions/home';
 import CollectionModal from '../modals/CollectionModal';
+import { debounce, isEqual } from 'lodash';
 
 type MatchParams = {
   id: string;
@@ -28,6 +29,10 @@ interface Props extends RouteComponentProps<MatchParams>, ViewCollectionState {
   fetchCollection?: Function;
   itemModalToggle?: Function;
   dispatchLoadMore?: Function;
+  parentReference?: Function;
+
+  // ID string passed from the Parent that gives you the modal's body.
+  modalBodyID?: string;
 }
 
 interface State {
@@ -37,6 +42,9 @@ interface State {
   collection?: Collection;
   collectionModalToggled: boolean;
   collectionModalData?: Collection;
+  dataRowID?: string;
+  noMoreData: boolean;
+  loading: boolean;
 }
 
 const CollectionDetails = (props: { label: string, value: string }): JSX.Element => (
@@ -107,74 +115,159 @@ const DataLayout = (props: { data: Item | Collection, itemModalToggle?: Function
 
 class ViewCollection extends React.Component<Props, State> {
   browser: string;
+  _isMounted: boolean;
+  scrollDebounce;
+  modalBodyDiv;
 
   constructor(props: Props) {
     super(props);
 
-    this.state = {
+    this._isMounted = false;
+    const state = {
       data: [],
       offset: 0,
+      loading: false,
+      noMoreData: false,
       collectionModalToggled: false
     };
 
+    const { match } = this.props;
+    if (!this.props.noRedux && match && match.params.id) {
+      if (!this.props.collection && typeof this.props.fetchCollection !== 'undefined') {
+        Object.assign(state, { loading: true });
+        this.props.fetchCollection(match.params.id);
+      }
+    }
+
+    this.state = state;
+
     this.browser = browser();
+
+    this.scrollDebounce = debounce( async () => await this.handleScroll(), 300);
   }
 
   async componentDidMount(): Promise<void> {
-    const { match } = this.props;
+    this._isMounted = true;
+    const { modalBodyID, collection } = this.props;
 
-    if (match && match.params.id) {
-      if (typeof this.props.fetchCollection !== 'undefined') {
-        this.props.fetchCollection(match.params.id);
-        return;
+    if (modalBodyID) {
+      this.modalBodyDiv = document.getElementById(modalBodyID);
+      this.modalBodyDiv.addEventListener('scroll',  this.scrollDebounce, true);
+      await this.loadData();
+    } else {
+      if (collection && this._isMounted) {
+        this.setState({ collection, dataRowID: `dataRow_${collection.id}_${Date.now()}`} , async () => await this.loadData());
       }
-    }
-
-    // If we have an id from the URL pass it through, otherwise use the one from Redux State
-    if (this.props.collection && this.props.collection.id) {
-      this.setState({ collection: this.props.collection });
-
-      if (this.props.noRedux) {
-        this.setState({data: []});
-        try {
-          await loadMore(this.props.collection.id, this.state.offset, (data) => {
-            this.setState({data: [...this.state.data, data]});
-          });
-        } catch (e) {
-          this.setState({ errorMessage: 'Something went wrong loading the data for this collection, sorry!' });
-        }
-      } else {
-        if (this.props.data) {
-          this.setState({data: this.props.data});
-        }
-      }
+      window.addEventListener('scroll',  this.scrollDebounce, true);
     }
   }
 
+  componentWillUnmount(): void {
+    if (this.modalBodyDiv) {
+      this.modalBodyDiv.removeEventListener('scroll', this.scrollDebounce, false);
+    } else {
+      window.removeEventListener('scroll',  this.scrollDebounce, true);
+    }
+
+    this._isMounted = false;
+  }
+
   componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>): void {
+    if (!this._isMounted) { return; }
+
     const state = {};
 
     if (!this.props.noRedux) {
-      if (!!this.props.collection && this.props.collection !== this.state.collection) {
-        Object.assign(state, {collection: this.props.collection});
+      if (typeof prevProps.collection === 'undefined' && !!this.props.collection) {
+        // We've just loaded our collection via fetchCollection
+        this.setState({ collection: this.props.collection, dataRowID: `dataRow_${this.props.collection.id}_${Date.now()}` }, async () => await this.loadData());
+        return;
       }
 
-      if (this.props.data !== this.state.data) {
+      if (!!this.props.collection && !isEqual(this.props.collection, this.state.collection)) {
+        Object.assign(state, {collection: this.props.collection, dataRowID: `dataRow_${this.props.collection.id}_${Date.now()}`});
+      }
+
+      if (!isEqual(this.props.data, this.state.data)) {
         Object.assign(state, {data: this.props.data});
       }
 
-      if (this.props.offset !== this.state.offset) {
-        Object.assign(state, {offset: this.props.offset});
+      if (this.props.noMoreData !== prevProps.noMoreData && this.props.noMoreData) {
+        Object.assign(state, { noMoreData: true });
       }
 
-      if (Object.keys(state).length) {
+      if (Object.keys(state).length && this._isMounted) {
         this.setState(state);
       }
     }
   }
 
+  loadData = async () => {
+    if (!this._isMounted || this.state.noMoreData) { return; }
+
+    this.setState({ loading: true });
+    // If we have an id from the URL pass it through, otherwise use the one from Redux State
+    if (this.state.collection && this.state.collection.id) {
+      if (this.props.noRedux) {
+        try {
+          await loadMore(this.state.collection.id, this.state.offset, (datum) => {
+            if (!this._isMounted) { return; }
+            if (datum) {
+              this.setState({data: [...this.state.data, datum], offset: this.state.offset + 10});
+            } else {
+              this.setState({ noMoreData: true });
+            }
+          });
+        } catch (e) {
+          this.setState({ errorMessage: 'Something went wrong loading the data for this collection, sorry!' });
+        }
+      } else {
+        if (this.props.collection && typeof this.props.dispatchLoadMore === 'function') {
+          await this.props.dispatchLoadMore(this.props.collection.id, this.props.offset);
+        }
+      }
+
+      if (this._isMounted) {
+        this.setState({loading: false}, () => {
+          if (this.scrollCheck()) {
+            this.loadData();
+          }
+        });
+      }
+    }
+  }
+
   collectionModalToggle = (collectionModalData: Collection) => {
+    if (!this._isMounted) { return; }
     this.setState({ collectionModalData, collectionModalToggled: !this.state.collectionModalToggled });
+  }
+
+  /**
+   * returns true for the bottom of the page or false for anywhere above the bottom
+   */
+  scrollCheck = (): boolean => {
+    if (this.modalBodyDiv) {
+      return ( this.modalBodyDiv.scrollTop >= ((this.modalBodyDiv.scrollHeight - this.modalBodyDiv.offsetHeight) / 1.7) );
+    } else {
+      if (this.state.dataRowID) {
+        const dataRowElement = document.getElementById(this.state.dataRowID);
+        if (dataRowElement) {
+          return (document.documentElement.scrollTop >= (document.body.offsetHeight - dataRowElement.offsetHeight) / 1.7);
+        } else {
+          return false;
+        }
+      } else {
+        return false;
+      }
+    }
+  }
+
+  handleScroll = async () => {
+    if (this.state.noMoreData) { return; }
+
+    if (!this.state.loading && this.scrollCheck()) {
+      await this.loadData();
+    }
   }
 
   render() {
@@ -307,7 +400,7 @@ class ViewCollection extends React.Component<Props, State> {
           </Col>
         </Row>
 
-        <Row>
+        <Row id={this.state.dataRowID}>
           {
             this.state.data ?
               this.state.data.map((data: Item | Collection, i) => <DataLayout data={data} key={i} itemModalToggle={this.props.itemModalToggle} collectionModalToggle={this.collectionModalToggle}/>)
@@ -316,11 +409,13 @@ class ViewCollection extends React.Component<Props, State> {
         </Row>
 
         {this.state.collectionModalData ?
-          (<CollectionModal
-            collection={this.state.collectionModalData}
-            open={this.state.collectionModalToggled}
-            toggle={this.collectionModalToggle}
-          />)
+          (
+            <CollectionModal
+              collection={this.state.collectionModalData}
+              open={this.state.collectionModalToggled}
+              toggle={this.collectionModalToggle}
+            />
+          )
           : <></>
         }
       </div>
@@ -329,13 +424,15 @@ class ViewCollection extends React.Component<Props, State> {
 }
 
 // State to props
-const mapStateToProps = (state: { viewCollection: ViewCollectionState }, props: { collection?: Collection, noRedux?: boolean }) => { // tslint:disable-line: no-any
+const mapStateToProps = (state: { viewCollection: ViewCollectionState }, props: { modalBodyID?: string, collection?: Collection, noRedux?: boolean }) => {
   return {
     errorMessage: state.viewCollection.errorMessage,
     collection: props.collection || state.viewCollection.collection,
     data: state.viewCollection.data,
     offset: state.viewCollection.offset,
+    noMoreData: state.viewCollection.noMoreData,
     noRedux: !!props.noRedux || false,
+    modalBodyID: props.modalBodyID,
   };
 };
 

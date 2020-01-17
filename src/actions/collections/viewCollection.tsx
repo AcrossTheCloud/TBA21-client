@@ -6,12 +6,7 @@ import { removeTopology } from '../../components/utils/removeTopology';
 import { Collection } from '../../types/Collection';
 import { S3File } from '../../types/s3File';
 import { getItem } from '../../REST/items';
-import { FETCH_COLLECTION_LOAD_MORE } from '../../reducers/collections/viewCollection';
-
-// Defining our Actions for the reducers.
-export const FETCH_COLLECTION = 'FETCH_COLLECTION';
-export const FETCH_COLLECTION_ERROR = 'FETCH_COLLECTION_ERROR';
-export const FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION = 'FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION';
+import { FETCH_COLLECTION_NO_MORE_TO_LOAD, FETCH_COLLECTION_LOAD_MORE, FETCH_COLLECTION_UPDATE_OFFSET, FETCH_COLLECTION_ERROR, FETCH_COLLECTION, FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION} from '../../reducers/collections/viewCollection';
 
 /**
  *
@@ -48,9 +43,6 @@ export const fetchCollection = (id: string) => async (dispatch, getState) => {
            collection: collection[0]
         });
 
-        // Load initial 10 items/collections.
-        dispatch(await dispatchLoadMore(id, 0));
-
       } else {
         dispatch({
          type: FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION,
@@ -72,8 +64,8 @@ export const fetchCollection = (id: string) => async (dispatch, getState) => {
 };
 
 const getItemsAndCollectionsInCollection = async (id: string, offset: number = 0): Promise<(Item | Collection)[]> => {
-  const itemResponse = await getItemsInCollection({id, limit: 10, offset});
-  const collectionResponse = await getCollectionsInCollection({id, limit: 10, offset});
+  const itemResponse = await getItemsInCollection({id, limit: 1, offset});
+  const collectionResponse = await getCollectionsInCollection({id, limit: 1, offset});
   return [...removeTopology(itemResponse, 'item'), ...removeTopology(collectionResponse, 'collection')];
 }
 
@@ -103,6 +95,8 @@ export const loadMore = async (id: string, offset: number = 0, callback: Functio
           }
         }
       }
+    } else {
+      callback(false);
     }
   } catch (e) {
     throw Error('We\'ve had a bit of an issue.');
@@ -111,10 +105,16 @@ export const loadMore = async (id: string, offset: number = 0, callback: Functio
 
 export const dispatchLoadMore = (id: string, offset: number = 0) => async dispatch => {
   try {
+    dispatch({type: FETCH_COLLECTION_UPDATE_OFFSET, offset: offset + 10});
     await loadMore(id, offset, (data) => {
-      dispatch({ type: FETCH_COLLECTION_LOAD_MORE, datum: data });
+      if (data) {
+        dispatch({type: FETCH_COLLECTION_LOAD_MORE, datum: data});
+      } else {
+        console.info('dispatchLoadMore', 'FETCH_COLLECTION_NO_MORE_TO_LOAD');
+        dispatch({type: FETCH_COLLECTION_NO_MORE_TO_LOAD});
+      }
     });
   } catch (e) {
-    dispatch({ type: FETCH_COLLECTION_ERROR, errorMessage: e });
+    dispatch({ type: FETCH_COLLECTION_ERROR, errorMessage: `${e}` });
   }
 };

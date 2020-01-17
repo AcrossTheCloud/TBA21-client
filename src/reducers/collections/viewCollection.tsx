@@ -5,6 +5,8 @@ import { Item } from '../../types/Item';
 // Defining our Actions for the reducers.
 export const FETCH_COLLECTION = 'FETCH_COLLECTION';
 export const FETCH_COLLECTION_LOAD_MORE = 'FETCH_COLLECTION_LOAD_MORE';
+export const FETCH_COLLECTION_NO_MORE_TO_LOAD = 'FETCH_COLLECTION_NO_MORE_TO_LOAD';
+export const FETCH_COLLECTION_UPDATE_OFFSET = 'FETCH_COLLECTION_UPDATE_OFFSET';
 export const FETCH_COLLECTION_ERROR = 'FETCH_COLLECTION_ERROR';
 export const FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION = 'FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION';
 
@@ -13,6 +15,7 @@ export interface ViewCollectionState extends Alerts {
   offset?: number;
   data?: (Item & Collection)[];
   noRedux?: boolean;
+  noMoreData?: boolean;
 }
 
 const initialState: ViewCollectionState = {
@@ -46,9 +49,20 @@ export default (state: ViewCollectionState = initialState, action) => {
 
       return {
         ...state,
-        offset: action.offset,
         data,
         noRedux: false
+      };
+
+    case FETCH_COLLECTION_NO_MORE_TO_LOAD:
+      return {
+        ...state,
+        noMoreData: true
+      };
+
+    case FETCH_COLLECTION_UPDATE_OFFSET:
+      return {
+        ...state,
+        offset: action.offset
       };
 
     case FETCH_COLLECTION_ERROR:
