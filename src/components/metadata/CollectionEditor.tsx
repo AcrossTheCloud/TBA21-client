@@ -1290,13 +1290,14 @@ class CollectionEditorClass extends React.Component<Props, State> {
           queryStringParameters = (
             inputValue ? { inputQuery: inputValue, limit: 100 } : {}
           ),
-          response = type === 'item' ? (this.isContributorPath && !this.isAdmin ? await contributorGetByPerson(queryStringParameters) : await adminGetItems(queryStringParameters)) : await adminGet(!this.isAdmin, queryStringParameters),
+          isAdmin: boolean = !this.isContributorPath && !this.isAdmin,
+          response = type === 'item' ? (isAdmin ? await contributorGetByPerson(queryStringParameters) : await adminGetItems(queryStringParameters)) : await adminGet(isAdmin, queryStringParameters),
           data = removeTopology(response);
 
         if (data && data.length) {
           if (type === 'collection') {
             const metaDataObject = data as Collection[];
-            resolve(metaDataObject.map(item => ({label: item.title || 'No title', id: item.id, data: item})));
+            resolve(metaDataObject.map(collection => ({label: collection.title || 'No title', id: collection.id, data: collection})));
           } else {
             const metaDataObject = data as Item[];
             resolve(metaDataObject.map(item => ({label: item.title || 'No title', id: item.s3_key, data: item})));
@@ -1683,7 +1684,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
                       classNamePrefix="select"
                       isClearable
                       loadOptions={v => this.queryMetaDataObjects(v, 'collection')}
-                      placeholder="Start typing the item title then select..."
+                      placeholder="Start typing the collection title then select..."
                       onChange={(v, m: ActionMeta) => this.addMetaObjects(v, m, 'collection')}
                       onInputChange={v => { if (this._isMounted) { this.setState({ selectCollectionQuery: v }); } }}
                       inputValue={this.state.selectCollectionQuery}
