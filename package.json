@@ -85,7 +85,7 @@
     "@types/react-redux": "^6.0.14",
     "@types/react-router": "^4.4.5",
     "@types/react-router-dom": "^4.3.5",
-    "@types/react-select": "^3.0.10",
+    "@types/react-select": "^3.0.0",
     "@types/react-transition-group": "^4.2.3",
     "@types/reactstrap": "^8.0.0",
     "@types/redux": "^3.6.0",
