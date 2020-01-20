@@ -68,14 +68,17 @@ export class AdminSearch extends React.Component<Props, State> {
     this.state = {
       errorMessage: undefined,
       successMessage: undefined,
+
       results: [],
       inputQuery: 'title',
       byField: 'Title',
+
+      componentModalOpen: false,
       tableIsLoading: false,
+
       page: 1,
       sizePerPage: 15,
       totalSize: 0,
-      componentModalOpen: false
     };
 
     this.searchInputRef = React.createRef();
@@ -186,20 +189,15 @@ export class AdminSearch extends React.Component<Props, State> {
                      componentModalOpen: !prevState.componentModalOpen
                    })
     );
-
   }
-
-  /**
-   * Sets the searchByOption in state to one of the supplied options, used in the listUsers userQuery filter.
-   * @param event {React.MouseEvent}
-   */
+  // Puts our field value in to state for GetResultsQuery to use
   searchByOption = (event: React.MouseEvent<HTMLInputElement>): void => {
     const target = event.target as HTMLInputElement;
     this.setState({
       byField: target.value
     });
   }
-
+  // We get user input and check the path and put the results in to state
   getResultsQuery = async (): Promise<{ results: Item[], totalSize: number } | void> => {
     let path = this.props.path;
 
@@ -233,6 +231,12 @@ export class AdminSearch extends React.Component<Props, State> {
             errorMessage: undefined,
             results: results
           });
+        } else { // if we have no results, set an error message
+          this.setState({
+            tableIsLoading: false,
+            errorMessage: 'No results found, please try again',
+            results: []
+          });
         }
       } catch (error) {
         this.setState({
@@ -249,8 +253,6 @@ export class AdminSearch extends React.Component<Props, State> {
     const
         { page, sizePerPage, totalSize } = this.state,
         results = this.state.results,
-        currentIndex = (page - 1) * sizePerPage,
-        slicedItems = results.length ? results.slice(currentIndex, currentIndex + sizePerPage) : [],
         path = this.props.path;
     return (
       <Container>
@@ -267,14 +269,12 @@ export class AdminSearch extends React.Component<Props, State> {
                 }
                     </DropdownMenu>
                     </UncontrolledDropdown>
-                    <Input type="text" name="search" id="search" placeholder={'Search ' + this.props.path} innerRef={this.searchInputRef} />
+                    <Input type="text" name="search" id="search" className="h-auto" placeholder={'Search ' + this.props.path} innerRef={this.searchInputRef} />
 
             <InputGroupAddon addonType="append">
               <Button type="submit" onClick={this.getResultsQuery}>Search</Button>
             </InputGroupAddon>
           </InputGroup>
-
-          <ErrorMessage message={this.state.errorMessage}/>
 
           {
             this.state.results.length ?
@@ -286,10 +286,13 @@ export class AdminSearch extends React.Component<Props, State> {
                     data={this.state.tableIsLoading ? [] : results}
                     columns={this.tableColumns}
                     pagination={paginationFactory({ page, sizePerPage, totalSize })}
-                    // onTableChange={this.handleTableChange}
-                    noDataIndication={() => !this.state.tableIsLoading && !slicedItems.length ? 'No data to display.' : <Spinner style={{ width: '10rem', height: '10rem' }} type="grow" />}
                 />
               : <></>
+          }
+          { this.state.tableIsLoading ?
+              <div  className="mx-auto" style={{ width: '5rem', height: '5rem' }}>
+                <Spinner style={{ width: '5rem', height: '5rem' }} type="grow" />
+              </div> : <></>
           }
           {
             this.state.paginationToken ?
