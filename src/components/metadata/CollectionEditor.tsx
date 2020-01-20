@@ -984,7 +984,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
         </Col>
         <Col md="6">
           <InputGroup>
-            <CustomInput type="switch" id="digital_collection" name="digital_collection" label="Digital Collection Only?" checked={this.state.collection.digital_collection || false} onChange={e => this.changeCollection('digital_collection', e.target.checked)} />
+            <CustomInput type="switch" id="digital_only" name="digital_only" label="Digital Collection Only?" checked={this.state.collection.digital_only || false} onChange={e => this.changeCollection('digital_only', e.target.checked)} />
           </InputGroup>
         </Col>
         <Col md="6">
