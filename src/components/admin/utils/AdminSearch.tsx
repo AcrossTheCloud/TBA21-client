@@ -204,7 +204,7 @@ export class AdminSearch extends React.Component<Props, State> {
     const inputQuery = get(this.searchInputRef, 'current.value');
 
     if (inputQuery && inputQuery.length) {
-      this.setState({ tableIsLoading: true });
+      this.setState({ tableIsLoading: true, errorMessage: undefined });
       const
          queryStringParameters = {
             limit: this.state.sizePerPage,
