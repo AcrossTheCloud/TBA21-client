@@ -11,10 +11,15 @@ export const getItemsInCollection = async (queryStringParameters: Object = {}) =
   return response.data;
 };
 
+export const getCollectionsInCollection = async (queryStringParameters: Object = {}) => {
+  const response = await API.get('tba21', 'collections/getCollectionsInCollection', { queryStringParameters });
+  return response.data;
+};
+
 /*
  * ADMIN FUNCTIONS
  */
-export const adminGet = async (isContributorPath: boolean, queryStringParameters: Object = {}): Promise<TopoJSON> => {
+export const adminGet = async (isContributorPath: boolean = true, queryStringParameters: Object = {}): Promise<TopoJSON> => {
   const response = await API.get('tba21', `${ isContributorPath ? 'contributor/collections/get' :  'admin/collections/get' }`, { queryStringParameters: queryStringParameters });
   return response.data;
 };
