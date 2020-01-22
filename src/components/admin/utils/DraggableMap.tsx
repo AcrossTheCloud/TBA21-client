@@ -281,15 +281,13 @@ class Map extends React.Component<Props, State> {
   }
 
   layerEvents = (layer: L.Layer) => {
-    layer.on({
-      'pm:edit': l => {
-        console.log('Layer pm:edit', l);
-        this.callback();
-      },
-      'pm:cut': () => {
-        console.log('pm:cut');
-        this.callback();
-      }
+    layer.on('pm:edit', l => {
+      console.log('Layer pm:edit', l);
+      this.callback();
+    });
+    layer.on('pm:cut', l => {
+      console.log('pm:cut');
+      this.callback();
     });
   }
 
