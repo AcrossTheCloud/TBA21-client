@@ -1538,7 +1538,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
                       onChange={this.selectItemOnChange}
                       onInputChange={v => { if (this._isMounted) { this.setState({ selectInputValue: v }); } }}
                       inputValue={this.state.selectInputValue}
-                      value={this.state.selectInputValue}
+                      value={[this.state.selectInputValue]}
                     />
                   </Col>
                 </Row>
