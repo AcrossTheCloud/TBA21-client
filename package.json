@@ -47,11 +47,11 @@
     "react-spring": "^8.0.27",
     "react-telephone-input": "^4.73.4",
     "react-transition-group": "^4.3.0",
-    "reactstrap": "^8.0.1",
+    "reactstrap": "^8.4.0",
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
     "simple-line-icons": "^2.4.1",
-    "topojson-client": "^3.0.1",
+    "topojson-client": "^3.1.0",
     "uuid": "^3.4.0",
     "wavesurfer.js": "^3.3.1"
   },
