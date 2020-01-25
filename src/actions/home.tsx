@@ -7,6 +7,7 @@ import { FileTypes, S3File } from '../types/s3File';
 import { itemType } from '../types/Item';
 import { COLLECTION_MODAL_TOGGLE } from './modals/collectionModal';
 import { ITEM_MODAL_TOGGLE } from './modals/itemModal';
+import { LIVESTREAM_MODAL_TOGGLE} from './modals/liveStreamModal';
 import * as React from 'react';
 import { DetailPreview, FileStaticPreview } from '../components/utils/DetailPreview';
 import { Col, Row } from 'reactstrap';
@@ -27,6 +28,15 @@ export const logoDispatch = (state: boolean) => dispatch => {
     logoLoaded: state
   });
 };
+
+export const liveStreamDispatch = (state: boolean) => dispatch => {
+  if (Date.now() > 0) {
+    dispatch({
+      type: LIVESTREAM_MODAL_TOGGLE,
+      open: true
+    });
+  }
+}
 
 export const dateFromTimeYearProduced = (time: string | null, year: string | null): string => {
   const timeProduced = time ? new Date(time).getFullYear().toString() : undefined;

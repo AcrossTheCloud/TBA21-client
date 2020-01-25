@@ -5,7 +5,7 @@ import { Carousel, CarouselItem, Col, Container, Row, Spinner } from 'reactstrap
 import { debounce, isEqual } from 'lodash';
 import { Cookies, withCookies } from 'react-cookie';
 
-import { loadHomepage, loadMore, logoDispatch, openModal } from 'actions/home';
+import { loadHomepage, loadMore, logoDispatch, liveStreamDispatch, openModal } from 'actions/home';
 import { toggle as searchOpenToggle } from 'actions/searchConsole';
 import { Announcement } from '../types/Announcement';
 
@@ -22,6 +22,7 @@ import 'styles/components/home.scss';
 
 interface Props extends HomePageState {
   logoDispatch: Function;
+  liveStreamDispatch: Function;
   loadHomepage: Function;
   loadMore: Function;
   oaHighlights: Function;
@@ -79,6 +80,10 @@ class HomePage extends React.Component<Props, State> {
     if (this.props.loadedCount < 0 && this.props.loadedMore && !this.props.logoLoaded) {
       this.props.logoDispatch(true);
       await this.windowHeightCheck();
+    }
+
+    if (this.props.logoLoaded) {
+      liveStreamDispatch(true);
     }
 
     if (!isEqual(this.state.announcements, this.props.announcements)) {
