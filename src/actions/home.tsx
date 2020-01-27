@@ -24,14 +24,14 @@ export const MODAL_STATE_HOMEPAGE = 'MODAL_STATE_HOMEPAGE';
 
 const DATES_LIVESTREAM1 = {
   'begin': (new Date("2020-01-27T14:30+0800")).getTime(),
-  'end': (new Date("2020-01-27T17:00+0800")).getTime(),
-  'stream': 'embed/NM-cBJJxXe8'
+  'end': (new Date("2020-01-27T18:00+0800")).getTime(),
+  'stream': 'embed/nwqP_yoszCE?&autoplay=1'
 };
 
 const DATES_LIVESTREAM2 = {
   'begin': (new Date("2020-01-28T13:00+0800")).getTime(),
   'end': (new Date("2020-01-28T14:00+0800")).getTime(),
-  'stream': 'embed/NM-cBJJxXe8'
+  'stream': 'embed/nwqP_yoszCE?&autoplay=1'
 };
 
 export const logoDispatch = (state: boolean) => dispatch => {

@@ -82,8 +82,8 @@ class HomePage extends React.Component<Props, State> {
       await this.windowHeightCheck();
     }
 
-    if (this.props.logoLoaded) {
-      await this.props.liveStreamDispatch(true);
+    if (this.props.logoLoaded && this.state.announcements.length > 0) {
+      setTimeout(() => this.props.liveStreamDispatch(true), 3000);
     }
 
     if (!isEqual(this.state.announcements, this.props.announcements)) {
