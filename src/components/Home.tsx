@@ -82,8 +82,6 @@ class HomePage extends React.Component<Props, State> {
       await this.windowHeightCheck();
     }
 
-    console.log('component updated');
-    console.log(this.props.logoLoaded);
     if (this.props.logoLoaded) {
       await this.props.liveStreamDispatch(true);
     }

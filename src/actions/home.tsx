@@ -30,9 +30,7 @@ export const logoDispatch = (state: boolean) => dispatch => {
 };
 
 export const liveStreamDispatch = (state: boolean) => async dispatch => {
-  console.log('dispatched');
   if (Date.now() > 0) {
-    console.log('date > 0');
     dispatch({
       type: LIVESTREAM_MODAL_TOGGLE,
       open: true
