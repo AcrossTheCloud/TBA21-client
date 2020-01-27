@@ -47,7 +47,7 @@ export const fetchData = (coords: {
     }
 
   } catch (e) {
-    console.log('ERROR', e);
+    console.log('error', e);
     dispatch({ type: MAP_FETCH_DATA_ERROR });
   }
 };
