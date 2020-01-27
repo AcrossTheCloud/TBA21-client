@@ -1,12 +1,9 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 
-import { fetchItem } from 'actions/items/viewItem';
-import { toggle } from 'actions/modals/itemModal';
-import { HomepageData } from 'reducers/home';
+import { toggle } from 'actions/modals/liveStreamModal';
 import { FaTimes } from 'react-icons/fa';
 import { Col, Modal, ModalBody, Row } from 'reactstrap';
-import { Item } from '../../types/Item';
 
 interface Props {
   open: boolean;
@@ -17,7 +14,7 @@ interface State {
   open: boolean;
 }
 
-class ItemModal extends React.Component<Props, State> {
+class LiveStreamModal extends React.Component<Props, State> {
   _isMounted;
 
   constructor(props: Props) {
@@ -79,9 +76,8 @@ class ItemModal extends React.Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: { itemModal: { open: boolean, data?: HomepageData | Item } }) => ({
-  data: state.itemModal.data,
-  open: state.itemModal.open
+const mapStateToProps = (state: { liveStreamModal: { open: boolean } }) => ({
+  open: state.liveStreamModal.open
 });
 
-export default connect(mapStateToProps, { toggle, fetchItem })(ItemModal);
+export default connect(mapStateToProps, { toggle, })(LiveStreamModal);
