@@ -1,6 +1,10 @@
 import * as React from 'react';
+import { combineReducers, createStore, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
 import { mount } from 'enzyme';
 import DraggableMap from './DraggableMap';
+import map from '../../../reducers/map/map';
+import { Provider } from 'react-redux';
 
 describe('Draggable map', () => {
   let wrapper;
@@ -10,11 +14,23 @@ describe('Draggable map', () => {
       topoJSON: JSON.parse(topojson)
     };
 
+  const reducer = combineReducers({ map });
+
+  const store = createStore(
+    reducer,
+    applyMiddleware(thunk)
+  );
+
   beforeAll( () => {
     const div = window.document.createElement('div');
     window.document.body.appendChild(div);
 
-    wrapper = mount(<DraggableMap {...props} />, {attachTo: div});
+    wrapper = mount(
+      (
+        <Provider store={store}>
+          <DraggableMap {...props} />
+        </Provider>
+      ), { attachTo: div });
   });
 
   afterAll( () => {

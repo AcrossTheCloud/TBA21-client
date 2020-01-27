@@ -28,5 +28,6 @@ module.exports = {
     "\\.(css|less|scss)$": "<rootDir>/__mocks__/styleMock.js"
   },
   "snapshotSerializers": ["enzyme-to-json/serializer"],
-  "setupFilesAfterEnv": ["<rootDir>/src/setupEnzyme.ts"]
+  "setupFilesAfterEnv": ["<rootDir>/src/setupEnzyme.ts"],
+  "setupFiles": ["jest-canvas-mock"]
 }

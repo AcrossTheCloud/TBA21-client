@@ -126,5 +126,5 @@ export interface Collection {
   items?: string[] | null; // a list of item s3_keys
   file?: S3File;
 
-  digital_collection?: boolean;
+  digital_only?: boolean;
 }

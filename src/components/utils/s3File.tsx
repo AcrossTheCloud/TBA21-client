@@ -104,7 +104,7 @@ export const getCDNObject = async (key: string): Promise<S3File | false> => {
     }
 
   } catch (e) {
-    console.log('e', e);
+    console.log('error', e);
     return false;
   }
 };
@@ -159,7 +159,7 @@ export const sdkGetObject = async (key: string): Promise<S3File | false> => {
 
     // return await contentType();
   } catch (e) {
-    console.log('e', e);
+    console.log('error', e);
     return false;
   }
 };

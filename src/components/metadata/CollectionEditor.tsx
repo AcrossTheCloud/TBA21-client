@@ -324,7 +324,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
       }
 
     } catch (e) {
-      console.log('ERROR - ', e);
+      console.log('error', e);
       Object.assign(state, { errorMessage: 'We had an issue updating this collection.' });
     } finally {
       if (!this._isMounted) { return; }
@@ -984,7 +984,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
         </Col>
         <Col md="6">
           <InputGroup>
-            <CustomInput type="switch" id="digital_collection" name="digital_collection" label="Digital Collection Only?" checked={this.state.collection.digital_collection || false} onChange={e => this.changeCollection('digital_collection', e.target.checked)} />
+            <CustomInput type="switch" id="digital_only" name="digital_only" label="Digital Collection Only?" checked={this.state.collection.digital_only || false} onChange={e => this.changeCollection('digital_only', e.target.checked)} />
           </InputGroup>
         </Col>
         <Col md="6">
@@ -1333,15 +1333,18 @@ class CollectionEditorClass extends React.Component<Props, State> {
 
                   </Col>
 
-                  <Col md={{size: 3, offset: 9}}>
-                    By checking this box you agree to the Ocean Archive's <Button color="link" onClick={e => {e.preventDefault(); this.props.modalToggle('TC_MODAL', true); }}>Terms Of Use</Button>
-                    <FormGroup check>
-                      <Label check>
-                        <Input type="checkbox" checked={this.state.acceptedLicense ? this.state.acceptedLicense : false} onChange={e => { if (this._isMounted) { this.setState({ acceptedLicense: e.target.checked }); } }}/>{' '}
-                        I agree
-                      </Label>
-                    </FormGroup>
-                  </Col>
+                  {this.props.profileDetails && !this.props.profileDetails.accepted_license ?
+                    <Col md={{size: 3, offset: 9}}>
+                      By checking this box you agree to the Ocean Archive's <Button color="link" onClick={e => {e.preventDefault(); this.props.modalToggle('TC_MODAL', true); }}>Terms Of Use</Button>
+                      <FormGroup check>
+                        <Label check>
+                          <Input type="checkbox" checked={this.state.acceptedLicense ? this.state.acceptedLicense : false} onChange={e => { if (this._isMounted) { this.setState({ acceptedLicense: e.target.checked }); } }}/>{' '}
+                          I agree
+                        </Label>
+                      </FormGroup>
+                    </Col>
+                    : <></>
+                  }
                   <Col xs="12">
                     <FormGroup>
                       <Label for="title">Title</Label>
@@ -1535,7 +1538,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
                       onChange={this.selectItemOnChange}
                       onInputChange={v => { if (this._isMounted) { this.setState({ selectInputValue: v }); } }}
                       inputValue={this.state.selectInputValue}
-                      value={this.state.selectInputValue}
+                      value={[this.state.selectInputValue]}
                     />
                   </Col>
                 </Row>

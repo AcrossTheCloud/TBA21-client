@@ -377,7 +377,7 @@ class ItemEditorClass extends React.Component<Props, State> {
       }
 
     } catch (e) {
-      console.log(e);
+      console.log('error',e);
       Object.assign(state, { errorMessage: 'We had an issue updating this item.' });
     } finally {
       if (!this._isMounted) { return; }
@@ -2403,19 +2403,19 @@ class ItemEditorClass extends React.Component<Props, State> {
                         </FormGroup>
                       </Col>
 
-                      <Col xs="12">
-                        <FormGroup>
-                          <Label for="description">Description</Label>
-                          <Input
-                            type="textarea"
-                            className="description"
-                            defaultValue={item.description ? item.description : ''}
-                            onChange={e => this.validateLength('description', e.target.value)}
-                            invalid={this.state.validate.hasOwnProperty('description') && !this.state.validate.description}
-                            maxLength={2048}
-                          />
-                          <FormFeedback>This is a required field</FormFeedback>
-                        </FormGroup>
+                  <Col xs="12">
+                    <FormGroup>
+                      <Label for="description">Description</Label>
+                      <Input
+                        type="textarea"
+                        className="description"
+                        defaultValue={item.description ? item.description : ''}
+                        onChange={e => this.validateLength('description', e.target.value)}
+                        invalid={this.state.validate.hasOwnProperty('description') && !this.state.validate.description}
+                        maxLength={4096}
+                      />
+                      <FormFeedback>This is a required field</FormFeedback>
+                    </FormGroup>
 
                         <FormGroup>
                           <Label for="time_produced">Date Produced</Label>
