@@ -71,7 +71,7 @@ class ItemModal extends React.Component<Props, State> {
         </Row>
 
         <ModalBody>
-          <iframe width="560" height="315" src="https://www.youtube.com/embed/a9rpv9WnEQs" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>
+          <iframe width="560" height="315" title="youtube test" src="https://www.youtube.com/embed/a9rpv9WnEQs" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>
         </ModalBody>
 
       </Modal>
