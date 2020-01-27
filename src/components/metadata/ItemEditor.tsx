@@ -377,7 +377,7 @@ class ItemEditorClass extends React.Component<Props, State> {
       }
 
     } catch (e) {
-      console.log(e);
+      console.log('error',e);
       Object.assign(state, { errorMessage: 'We had an issue updating this item.' });
     } finally {
       if (!this._isMounted) { return; }
