@@ -82,8 +82,10 @@ class HomePage extends React.Component<Props, State> {
       await this.windowHeightCheck();
     }
 
+    console.log('component updated');
+    console.log(this.props.logoLoaded);
     if (this.props.logoLoaded) {
-      liveStreamDispatch(true);
+      await this.props.liveStreamDispatch(true);
     }
 
     if (!isEqual(this.state.announcements, this.props.announcements)) {
@@ -323,4 +325,4 @@ const mapStateToProps = (state: { home: Props }) => ({
   loaded_highlights: state.home.loaded_highlights
 });
 
-export default connect(mapStateToProps, { logoDispatch, loadHomepage, loadMore, openModal, searchOpenToggle })(withCookies(HomePage));
+export default connect(mapStateToProps, { logoDispatch, liveStreamDispatch, loadHomepage, loadMore, openModal, searchOpenToggle })(withCookies(HomePage));
