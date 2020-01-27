@@ -330,6 +330,8 @@ export enum formats {
 }
 
 export interface Item {
+  __typename: 'item';
+
   file: S3File;
   count?: number;
 
