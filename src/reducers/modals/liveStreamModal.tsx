@@ -2,10 +2,12 @@ import { LIVESTREAM_MODAL_TOGGLE } from '../../actions/modals/liveStreamModal';
 
 interface State {
   open: boolean;
+  stream: string;
 }
 
 const initialState = {
-  open: false
+  open: false,
+  stream: ''
 };
 
 export default (state: State | null = initialState, action) => {
@@ -15,7 +17,8 @@ export default (state: State | null = initialState, action) => {
     case LIVESTREAM_MODAL_TOGGLE:
       const newState = {
         ...state,
-        open: action.open
+        open: action.open,
+        stream: action.stream
       };
 
       return newState;

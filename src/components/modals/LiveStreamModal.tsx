@@ -7,11 +7,13 @@ import { Col, Modal, ModalBody, Row } from 'reactstrap';
 
 interface Props {
   open: boolean;
+  stream: string;
   toggle: Function;
 }
 
 interface State {
   open: boolean;
+  stream: string;
 }
 
 class LiveStreamModal extends React.Component<Props, State> {
@@ -22,7 +24,8 @@ class LiveStreamModal extends React.Component<Props, State> {
     this._isMounted = false;
 
     this.state = {
-      open: false
+      open: false,
+      stream: ''
     };
 
   }
@@ -40,7 +43,7 @@ class LiveStreamModal extends React.Component<Props, State> {
       const state = {};
 
       if (this.props.open !== prevProps.open) {
-        Object.assign(state, { open: this.props.open });
+        Object.assign(state, { open: this.props.open, stream: this.props.stream });
       }
 
       if (Object.keys(state).length > 0) {
@@ -51,7 +54,7 @@ class LiveStreamModal extends React.Component<Props, State> {
 
   render() {
     return (
-      <Modal id="liveStreamModal" className="fullwidth" isOpen={this.state.open} backdrop toggle={() => this.props.toggle()}>
+      <Modal id="liveStreamModal" className="videowidth" isOpen={this.state.open} backdrop toggle={() => this.props.toggle()}>
         <Row className="header align-content-center">
           <div className="col-11 title-wrapper d-flex align-content-center">
             <div className="title">
@@ -68,7 +71,7 @@ class LiveStreamModal extends React.Component<Props, State> {
         </Row>
 
         <ModalBody>
-          <iframe width="560" height="315" title="youtube test" src="https://www.youtube.com/embed/a9rpv9WnEQs" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>
+          <iframe width="600" height="340" title="youtube test" src={'https://www.youtube.com/'+this.state.stream} allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>
         </ModalBody>
 
       </Modal>
@@ -76,8 +79,9 @@ class LiveStreamModal extends React.Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: { liveStreamModal: { open: boolean } }) => ({
-  open: state.liveStreamModal.open
+const mapStateToProps = (state: { liveStreamModal: { open: boolean, stream: string } }) => ({
+  open: state.liveStreamModal.open,
+  stream: state.liveStreamModal.stream
 });
 
-export default connect(mapStateToProps, { toggle, })(LiveStreamModal);
+export default connect(mapStateToProps, { toggle })(LiveStreamModal);

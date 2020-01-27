@@ -22,6 +22,18 @@ export const LOAD_COUNT_HOMEPAGE = 'LOAD_COUNT_HOMEPAGE';
 export const LOAD_MORE_LOADING = 'LOAD_MORE_LOADING';
 export const MODAL_STATE_HOMEPAGE = 'MODAL_STATE_HOMEPAGE';
 
+const DATES_LIVESTREAM1 = {
+  'begin': (new Date("2020-01-27T14:30+0800")).getTime(),
+  'end': (new Date("2020-01-27T17:00+0800")).getTime(),
+  'stream': 'embed/NM-cBJJxXe8'
+};
+
+const DATES_LIVESTREAM2 = {
+  'begin': (new Date("2020-01-28T13:00+0800")).getTime(),
+  'end': (new Date("2020-01-28T14:00+0800")).getTime(),
+  'stream': 'embed/NM-cBJJxXe8'
+};
+
 export const logoDispatch = (state: boolean) => dispatch => {
   dispatch({
     type: LOGO_STATE_HOMEPAGE,
@@ -30,10 +42,17 @@ export const logoDispatch = (state: boolean) => dispatch => {
 };
 
 export const liveStreamDispatch = (state: boolean) => async dispatch => {
-  if (Date.now() > 0) {
+  if (Date.now() > DATES_LIVESTREAM1.begin && Date.now() < DATES_LIVESTREAM1.end) {
     dispatch({
       type: LIVESTREAM_MODAL_TOGGLE,
-      open: true
+      open: true,
+      stream: DATES_LIVESTREAM1.stream
+    });
+  } else if (Date.now() > DATES_LIVESTREAM2.begin && Date.now() < DATES_LIVESTREAM2.end) {
+    dispatch({
+      type: LIVESTREAM_MODAL_TOGGLE,
+      open: true,
+      stream: DATES_LIVESTREAM2.stream
     });
   }
 }
