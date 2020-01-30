@@ -28,6 +28,7 @@ interface Props extends HomePageState {
   openModal: Function;
   searchOpenToggle: Function;
   cookies: Cookies;
+  ClickAutoSearch: Function;
 }
 
 interface State {

@@ -12,7 +12,7 @@ import { DetailPreview, FileStaticPreview } from '../components/utils/DetailPrev
 import { Col, Row } from 'reactstrap';
 import AudioPreview from '../components/layout/audio/AudioPreview';
 import { FaCircle, FaPlay } from 'react-icons/all';
-import { CriteriaOption, search, toggle } from './searchConsole';
+import { ClickAutoSearch } from '../components/utils/ClickAutoSearch';
 
 // Defining our Actions for the reducers
 export const LOGO_STATE_HOMEPAGE = 'LOGO_STATE_HOMEPAGE';
@@ -46,19 +46,7 @@ export const loadHomepage = () => async dispatch => {
   if (oaHighlights.oa_highlight && oaHighlights.oa_highlight.length) {
     Object.assign(queryStringParams, { id: oaHighlights.oa_highlight.map(o => o.id) });
   }
-  // search creators and open the search modal
-  const searchCreators =  (creators: string) => {
-    if (creators) {
-      const criteria: CriteriaOption[] = [{
-        label: 'creators',
-        value: creators,
-        originalValue: creators,
-        field: 'creators'
-      }];
-      dispatch(search(criteria));
-      dispatch(toggle(true));
-    }
-  };
+
   const response: {items: HomepageData[], collections: HomepageData[]} = await API.get('tba21', 'pages/homepage', { queryStringParameters: queryStringParams });
   const announcementResponse = await API.get('tba21', 'announcements', { queryStringParameters: { limit: '9'}});
 
@@ -67,12 +55,11 @@ export const loadHomepage = () => async dispatch => {
   const HighlightsItemDetails = (props: { index: number }) => {
     const tags = highlightsWithFiles[props.index].concept_tags;
     const creators = !!highlightsWithFiles[props.index].creators ? highlightsWithFiles[props.index].creators : [];
-
     return (
       <>
         <div className="title-wrapper d-flex">
           {creators && creators.length ?
-            <div className="creators"  onClick={() => searchCreators(creators[0])}>
+            <div className="creators"  onClick={() => ClickAutoSearch(creators[0], 'creators')}>
               {creators[0]}{creators.length > 1 ? <em>, et al.</em> : <></>}
             </div>
             : <></>
