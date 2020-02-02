@@ -144,7 +144,7 @@ export class FileUpload extends React.Component<Props, State> {
           this.props.callback( file.s3key );
         });
       } catch (e) {
-        console.log(e);
+        console.log('error',e);
       }
     });
   }

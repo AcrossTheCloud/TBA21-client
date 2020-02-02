@@ -324,7 +324,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
       }
 
     } catch (e) {
-      console.log('ERROR - ', e);
+      console.log('error', e);
       Object.assign(state, { errorMessage: 'We had an issue updating this collection.' });
     } finally {
       if (!this._isMounted) { return; }
@@ -1538,7 +1538,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
                       onChange={this.selectItemOnChange}
                       onInputChange={v => { if (this._isMounted) { this.setState({ selectInputValue: v }); } }}
                       inputValue={this.state.selectInputValue}
-                      value={this.state.selectInputValue}
+                      value={[this.state.selectInputValue]}
                     />
                   </Col>
                 </Row>

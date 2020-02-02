@@ -184,7 +184,7 @@ export class AnnouncementEditor extends React.Component<Props, State> {
       }
 
     } catch (e) {
-      console.log('ERROR - ', e);
+      console.log('error', e);
       Object.assign(state, { errorMessage: `${this.props.editMode ? 'We had an issue updating this announcement.' : 'We had a problem creating this announcement'}` });
     } finally {
       if (!this._isMounted) { return; }
