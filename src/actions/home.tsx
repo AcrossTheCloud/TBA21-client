@@ -23,8 +23,8 @@ export const LOAD_MORE_LOADING = 'LOAD_MORE_LOADING';
 export const MODAL_STATE_HOMEPAGE = 'MODAL_STATE_HOMEPAGE';
 
 const DATES_LIVESTREAM1 = {
-  'begin': (new Date("2020-01-27T14:30+0800")).getTime(),
-  'end': (new Date("2020-01-27T18:00+0800")).getTime(),
+  'begin': (new Date("2020-02-02T00:30Z")).getTime(),
+  'end': (new Date("2020-02-05T18:00Z")).getTime(),
   'stream': 'embed/nwqP_yoszCE?&autoplay=1'
 };
 
