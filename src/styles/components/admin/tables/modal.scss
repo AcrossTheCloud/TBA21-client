@@ -35,20 +35,6 @@
     }
   }
 
-  &.videowidth {
-    @media (min-width: 630px) {
-      max-width: 630px;
-    }
-
-    display: flex;
-    flex: 1 0 100%;
-
-    .modal-body, .modal-content {
-      overflow-y: scroll;
-      overflow-x: hidden;
-    }
-  }
-
   form {
     input, textarea {
       &.form-control {

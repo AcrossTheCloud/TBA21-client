@@ -54,7 +54,7 @@ class LiveStreamModal extends React.Component<Props, State> {
 
   render() {
     return (
-      <Modal id="liveStreamModal" className="videowidth" isOpen={this.state.open} backdrop toggle={() => this.props.toggle()}>
+      <Modal id="liveStreamModal" className="embed-responsive embed-responsive-16by9" isOpen={this.state.open} backdrop toggle={() => this.props.toggle()}>
         <Row className="header align-content-center">
           <div className="col-11 title-wrapper d-flex align-content-center">
             <div className="title">
@@ -71,7 +71,7 @@ class LiveStreamModal extends React.Component<Props, State> {
         </Row>
 
         <ModalBody>
-          <iframe width="600" height="340" title="youtube test" src={'https://www.youtube.com/'+this.state.stream} allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>
+          <iframe className="col-4 embed-responsive-item" title="youtube test" src={'https://www.youtube.com/'+this.state.stream} allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>
         </ModalBody>
 
       </Modal>
