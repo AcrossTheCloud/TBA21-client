@@ -23,15 +23,15 @@ export const LOAD_MORE_LOADING = 'LOAD_MORE_LOADING';
 export const MODAL_STATE_HOMEPAGE = 'MODAL_STATE_HOMEPAGE';
 
 const DATES_LIVESTREAM1 = {
-  'begin': (new Date("2020-02-02T00:30Z")).getTime(),
-  'end': (new Date("2020-02-05T18:00Z")).getTime(),
-  'stream': 'embed/nwqP_yoszCE?&autoplay=1'
+  'begin': (new Date("2020-02-06T08:00Z")).getTime(),
+  'end': (new Date("2020-02-06T17:45Z")).getTime(),
+  'stream': 'all-atlantic-ocean-research-forum-1/embed'
 };
 
 const DATES_LIVESTREAM2 = {
-  'begin': (new Date("2020-01-28T13:00+0800")).getTime(),
-  'end': (new Date("2020-01-28T14:00+0800")).getTime(),
-  'stream': 'embed/nwqP_yoszCE?&autoplay=1'
+  'begin': (new Date("2020-02-07T08:00Z")).getTime(),
+  'end': (new Date("2020-02-07T15:00Z")).getTime(),
+  'stream': 'all-atlantic-ocean-research-forum-2/embed'
 };
 
 export const logoDispatch = (state: boolean) => dispatch => {

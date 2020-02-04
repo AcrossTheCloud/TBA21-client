@@ -68,9 +68,11 @@ class LiveStreamModal extends React.Component<Props, State> {
           </Row>
 
           <div className="embed-responsive embed-responsive-16by9">
-            <iframe className="embed-responsive-item" title="youtube test"
-                    src={'https://www.youtube.com/' + this.state.stream}
-                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"/>
+            <iframe className="embed-responsive-item" title="All-Atlantic Ocean Research Forum"
+                    id="player"
+                    name="player"
+                    src={'https://webcast.ec.europa.eu/' + this.state.stream}
+                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; webkitAllowFullScreen; mozAllowFullScreen; allowFullScreen"/>
           </div>
 
         </Modal>
