@@ -3,7 +3,9 @@ import { connect } from 'react-redux';
 
 import { toggle } from 'actions/modals/liveStreamModal';
 import { FaTimes } from 'react-icons/fa';
-import { Col, Modal, ModalBody, Row } from 'reactstrap';
+import { Col, Modal, Row } from 'reactstrap';
+
+import 'styles/components/liveStreamModal.scss';
 
 interface Props {
   open: boolean;
@@ -54,25 +56,18 @@ class LiveStreamModal extends React.Component<Props, State> {
 
   render() {
     return (
-      <Modal id="liveStreamModal" className="embed-responsive embed-responsive-16by9" isOpen={this.state.open} backdrop toggle={() => this.props.toggle()}>
-        <Row className="header align-content-center">
-          <div className="col-11 title-wrapper d-flex align-content-center">
-            <div className="title">
-              <span className="ellipsis">
-                Test livestream
-              </span>
-            </div>
-          </div>
-          <Col xs="1" className="pl-0 pr-3">
+      <Modal id="liveStreamModal" isOpen={this.state.open} backdrop toggle={() => this.props.toggle()} scrollable={false} centered>
+        <Row className="header align-content-center" style={{background: 'transparent'}}>
+          <Col xs="12" className="pl-0 pr-3">
             <div className="text-right">
               <FaTimes className="closeButton" onClick={() => this.props.toggle(false)}/>
             </div>
           </Col>
         </Row>
 
-        <ModalBody>
-          <iframe className="col-4 embed-responsive-item" title="youtube test" src={'https://www.youtube.com/'+this.state.stream} allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>
-        </ModalBody>
+        <div className="embed-responsive embed-responsive-16by9">
+          <iframe className="embed-responsive-item" title="youtube test" src={'https://www.youtube.com/'+this.state.stream} allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"/>
+        </div>
 
       </Modal>
     );
