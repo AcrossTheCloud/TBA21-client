@@ -17,7 +17,6 @@ export default (state: State | null = initialState, action) => {
 
   switch (action.type) {
     case LIVESTREAM_MODAL_TOGGLE:
-      console.log('dsfdsf', action.hasOpened);
       const newState = {
         ...state,
         hasOpened: action.hasOpened,
