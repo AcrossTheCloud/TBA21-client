@@ -1501,24 +1501,26 @@ class CollectionEditorClass extends React.Component<Props, State> {
                           : <></>
                       }
                     </FormGroup>
-                    <FormGroup row className="my-0 align-items-center">
-                      <Label for={`${id}_focus_arts`} sm="2">Art</Label>
-                      <Col sm="10">
-                        <CustomInput type="checkbox" id={`${id}_focus_arts`} defaultChecked={(typeof focus_arts !== 'undefined' && focus_arts !== null) && parseInt(focus_arts, 0) > 0} onChange={e => this.changeCollection('focus_arts', e.target.checked ? '1' : '0')}/>
-                      </Col>
-                    </FormGroup>
-                    <FormGroup row className="my-0 align-items-center">
-                      <Label for={`${id}_focus_scitech`} sm="2">Sci-Tech</Label>
-                      <Col sm="10">
-                        <CustomInput type="checkbox" id={`${id}_focus_scitech`} defaultChecked={(typeof focus_scitech !== 'undefined' && focus_scitech !== null) && parseInt(focus_scitech, 0) > 0} onChange={e => this.changeCollection('focus_scitech', e.target.checked ? '1' : '0')}/>
-                      </Col>
-                    </FormGroup>
-                    <FormGroup row className="my-0 align-items-center">
-                      <Label for={`${id}_focus_action`} sm="2">Action</Label>
-                      <Col sm="10">
-                        <CustomInput type="checkbox" id={`${id}_focus_action`} defaultChecked={(typeof focus_action !== 'undefined' && focus_action !== null) && parseInt(focus_action, 0) > 0} onChange={e => this.changeCollection('focus_action', e.target.checked ? '1' : '0')}/>
-                      </Col>
-                    </FormGroup>
+                    <div className="focusSelect">
+                      <FormGroup row className="my-0 align-items-center">
+                        <Label for={`${id}_focus_arts`} sm="2">Art</Label>
+                        <Col sm="10">
+                          <CustomInput type="checkbox" id={`${id}_focus_arts`} defaultChecked={(typeof focus_arts !== 'undefined' && focus_arts !== null) && parseInt(focus_arts, 0) > 0} onChange={e => this.changeCollection('focus_arts', e.target.checked ? '1' : '0')}/>
+                        </Col>
+                      </FormGroup>
+                      <FormGroup row className="my-0 align-items-center">
+                        <Label for={`${id}_focus_scitech`} sm="2">Sci-Tech</Label>
+                        <Col sm="10">
+                          <CustomInput type="checkbox" id={`${id}_focus_scitech`} defaultChecked={(typeof focus_scitech !== 'undefined' && focus_scitech !== null) && parseInt(focus_scitech, 0) > 0} onChange={e => this.changeCollection('focus_scitech', e.target.checked ? '1' : '0')}/>
+                        </Col>
+                      </FormGroup>
+                      <FormGroup row className="my-0 align-items-center">
+                        <Label for={`${id}_focus_action`} sm="2">Action</Label>
+                        <Col sm="10">
+                          <CustomInput type="checkbox" id={`${id}_focus_action`} defaultChecked={(typeof focus_action !== 'undefined' && focus_action !== null) && parseInt(focus_action, 0) > 0} onChange={e => this.changeCollection('focus_action', e.target.checked ? '1' : '0')}/>
+                        </Col>
+                      </FormGroup>
+                    </div>
 
                   </Col>
                 </Row>
