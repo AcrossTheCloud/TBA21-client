@@ -29,6 +29,7 @@ interface Props extends HomePageState {
   openModal: Function;
   searchOpenToggle: Function;
   cookies: Cookies;
+  liveStreamHasOpened: boolean; // from redux
 }
 
 interface State {
@@ -82,7 +83,7 @@ class HomePage extends React.Component<Props, State> {
       await this.windowHeightCheck();
     }
 
-    if (this.props.logoLoaded && this.state.announcements.length > 0) {
+    if (this.props.logoLoaded && this.state.announcements.length > 0 && !this.props.liveStreamHasOpened) {
       setTimeout(() => this.props.liveStreamDispatch(true), 3000);
     }
 
@@ -307,9 +308,11 @@ class HomePage extends React.Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: { home: Props }) => ({
+const mapStateToProps = (state: { home: Props, liveStreamModal: { hasOpened: boolean } }) => ({
   logoLoaded: state.home.logoLoaded,
   loading: state.home.loading,
+
+  liveStreamHasOpened: state.liveStreamModal.hasOpened,
 
   items: state.home.items ? state.home.items : [],
   collections: state.home.collections ? state.home.collections : [],

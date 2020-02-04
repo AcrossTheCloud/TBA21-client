@@ -2,10 +2,11 @@
 export const LIVESTREAM_MODAL_TOGGLE = 'LIVESTREAM_MODAL_TOGGLE';
 
 // Modal
-export const toggle = (open: boolean, stream: string) => dispatch => {
+export const toggle = (open: boolean = false, stream: string) => dispatch => {
   dispatch({
      type: LIVESTREAM_MODAL_TOGGLE,
      open,
+     hasOpened: true,
      stream: stream
    });
 };

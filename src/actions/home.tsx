@@ -42,18 +42,27 @@ export const logoDispatch = (state: boolean) => dispatch => {
 };
 
 export const liveStreamDispatch = (state: boolean) => async dispatch => {
-  if (Date.now() > DATES_LIVESTREAM1.begin && Date.now() < DATES_LIVESTREAM1.end) {
+  if (state) {
+    if (Date.now() > DATES_LIVESTREAM1.begin && Date.now() < DATES_LIVESTREAM1.end) {
+      dispatch({
+        type: LIVESTREAM_MODAL_TOGGLE,
+        open: state,
+        hasOpened: true,
+        stream: DATES_LIVESTREAM1.stream
+      });
+    } else if (Date.now() > DATES_LIVESTREAM2.begin && Date.now() < DATES_LIVESTREAM2.end) {
+      dispatch({
+        type: LIVESTREAM_MODAL_TOGGLE,
+        open: state,
+        hasOpened: true,
+        stream: DATES_LIVESTREAM2.stream
+     });
+    }
+  } else {
     dispatch({
-      type: LIVESTREAM_MODAL_TOGGLE,
-      open: true,
-      stream: DATES_LIVESTREAM1.stream
-    });
-  } else if (Date.now() > DATES_LIVESTREAM2.begin && Date.now() < DATES_LIVESTREAM2.end) {
-    dispatch({
-      type: LIVESTREAM_MODAL_TOGGLE,
-      open: true,
-      stream: DATES_LIVESTREAM2.stream
-    });
+     type: LIVESTREAM_MODAL_TOGGLE,
+     open: state,
+   });
   }
 }
 

@@ -55,22 +55,29 @@ class LiveStreamModal extends React.Component<Props, State> {
   }
 
   render() {
-    return (
-      <Modal id="liveStreamModal" isOpen={this.state.open} backdrop toggle={() => this.props.toggle()} scrollable={false} centered>
-        <Row className="header align-content-center" style={{background: 'transparent'}}>
-          <Col xs="12" className="pl-0 pr-3">
-            <div className="text-right">
-              <FaTimes className="closeButton" onClick={() => this.props.toggle(false)}/>
-            </div>
-          </Col>
-        </Row>
+    if (this.state.open) {
+      return (
+        <Modal id="liveStreamModal" isOpen={this.state.open} backdrop toggle={() => this.props.toggle()}
+               scrollable={false} centered>
+          <Row className="header align-content-center" style={{background: 'transparent'}}>
+            <Col xs="12" className="pl-0 pr-3">
+              <div className="text-right">
+                <FaTimes className="closeButton" onClick={() => this.props.toggle()}/>
+              </div>
+            </Col>
+          </Row>
 
-        <div className="embed-responsive embed-responsive-16by9">
-          <iframe className="embed-responsive-item" title="youtube test" src={'https://www.youtube.com/'+this.state.stream} allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"/>
-        </div>
+          <div className="embed-responsive embed-responsive-16by9">
+            <iframe className="embed-responsive-item" title="youtube test"
+                    src={'https://www.youtube.com/' + this.state.stream}
+                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"/>
+          </div>
 
-      </Modal>
-    );
+        </Modal>
+      );
+    } else {
+      return <></>;
+    }
   }
 }
 
