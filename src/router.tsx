@@ -50,6 +50,7 @@ import PrivacyPolicy from './components/pages/PrivacyPolicy';
 import TermsAndConditions from './components/pages/TermsAndConditions';
 import ItemModal from './components/modals/ItemModal';
 import CollectionModal from './components/modals/CollectionModal';
+import LiveStreamModal from './components/modals/LiveStreamModal';
 import Footer from './components/layout/Footer';
 import About from './components/pages/About';
 
@@ -111,6 +112,7 @@ export const AppRouter = () => {
                   <About />
                   <ItemModal />
                   <CollectionModal />
+                  <LiveStreamModal />
                   <LoadingOverlay />
                 </>
               )}
