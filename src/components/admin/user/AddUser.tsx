@@ -21,8 +21,11 @@ import * as emailHelper from '../../utils/inputs/email';
 import Select from 'react-select';
 import { countries as selectableCountries } from '../../metadata/SelectOptions';
 import { API } from 'aws-amplify';
+import {OptionType} from '../../../types/SelectTypes'
 
 import 'styles/components/admin/tables/modal.scss';
+
+
 
 interface State extends Alerts {
   isOpen: boolean;
@@ -70,6 +73,7 @@ const initialState: State = {
     emailField: true
   },
 };
+
 
 export class AddUser extends React.Component<{}, State> {
   emailField;
@@ -489,7 +493,7 @@ export class AddUser extends React.Component<{}, State> {
                 menuPlacement="auto"
                 placeholder="Country"
                 options={selectableCountries}
-                onChange={e => this.fieldChanged(e.value, 'country')}
+                onChange={e => this.fieldChanged((e as OptionType).value, 'country')}
               />
             </FormGroup>
 
@@ -531,7 +535,7 @@ export class AddUser extends React.Component<{}, State> {
                   {value: 'Public', label: 'Normal User'}
                 ]}
                 defaultValue={{value: 'Public', label: 'Normal User'}}
-                onChange={e => this.fieldChanged(e.value, 'profile_type')}
+                onChange={e => this.fieldChanged((e as OptionType).value, 'profile_type')}
               />
             </FormGroup>
 
