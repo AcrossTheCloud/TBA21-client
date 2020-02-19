@@ -1358,7 +1358,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
                       />
                       <FormFeedback>This is a required field</FormFeedback>
                       <ShortPaths
-                        type="Item"
+                        type="Collection"
                         id={id ? id : undefined}
                         onChange={s => { if (this._isMounted) { this.setState({ hasShortPath: !!s.length }); }}}
                       />
