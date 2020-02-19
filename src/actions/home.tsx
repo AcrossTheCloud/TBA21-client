@@ -7,6 +7,7 @@ import { FileTypes, S3File } from '../types/s3File';
 import { itemType } from '../types/Item';
 import { COLLECTION_MODAL_TOGGLE } from './modals/collectionModal';
 import { ITEM_MODAL_TOGGLE } from './modals/itemModal';
+import { LIVESTREAM_MODAL_TOGGLE} from './modals/liveStreamModal';
 import * as React from 'react';
 import { DetailPreview, FileStaticPreview } from '../components/utils/DetailPreview';
 import { Col, Row } from 'reactstrap';
@@ -22,12 +23,49 @@ export const LOAD_COUNT_HOMEPAGE = 'LOAD_COUNT_HOMEPAGE';
 export const LOAD_MORE_LOADING = 'LOAD_MORE_LOADING';
 export const MODAL_STATE_HOMEPAGE = 'MODAL_STATE_HOMEPAGE';
 
+const DATES_LIVESTREAM1 = {
+  'begin': (new Date("2020-02-06T08:00Z")).getTime(),
+  'end': (new Date("2020-02-06T17:45Z")).getTime(),
+  'stream': 'all-atlantic-ocean-research-forum-1/embed'
+};
+
+const DATES_LIVESTREAM2 = {
+  'begin': (new Date("2020-02-07T08:00Z")).getTime(),
+  'end': (new Date("2020-02-07T15:00Z")).getTime(),
+  'stream': 'all-atlantic-ocean-research-forum-2/embed'
+};
+
 export const logoDispatch = (state: boolean) => dispatch => {
   dispatch({
     type: LOGO_STATE_HOMEPAGE,
     logoLoaded: state
   });
 };
+
+export const liveStreamDispatch = (state: boolean) => async dispatch => {
+  if (state) {
+    if (Date.now() > DATES_LIVESTREAM1.begin && Date.now() < DATES_LIVESTREAM1.end) {
+      dispatch({
+        type: LIVESTREAM_MODAL_TOGGLE,
+        open: state,
+        hasOpened: true,
+        stream: DATES_LIVESTREAM1.stream
+      });
+    } else if (Date.now() > DATES_LIVESTREAM2.begin && Date.now() < DATES_LIVESTREAM2.end) {
+      dispatch({
+        type: LIVESTREAM_MODAL_TOGGLE,
+        open: state,
+        hasOpened: true,
+        stream: DATES_LIVESTREAM2.stream
+     });
+    }
+  } else {
+    dispatch({
+     type: LIVESTREAM_MODAL_TOGGLE,
+     open: state,
+   });
+  }
+}
 
 export const dateFromTimeYearProduced = (time: string | null, year: string | null): string => {
   const timeProduced = time ? new Date(time).getFullYear().toString() : undefined;

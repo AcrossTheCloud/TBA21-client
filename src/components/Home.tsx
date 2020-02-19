@@ -5,7 +5,7 @@ import { Carousel, CarouselItem, Col, Container, Row, Spinner } from 'reactstrap
 import { debounce, isEqual } from 'lodash';
 import { Cookies, withCookies } from 'react-cookie';
 
-import { loadHomepage, loadMore, logoDispatch, openModal } from 'actions/home';
+import { loadHomepage, loadMore, logoDispatch, liveStreamDispatch, openModal } from 'actions/home';
 import { toggle as searchOpenToggle } from 'actions/searchConsole';
 import { Announcement } from '../types/Announcement';
 
@@ -22,6 +22,7 @@ import 'styles/components/home.scss';
 
 interface Props extends HomePageState {
   logoDispatch: Function;
+  liveStreamDispatch: Function;
   loadHomepage: Function;
   loadMore: Function;
   oaHighlights: Function;
@@ -29,6 +30,7 @@ interface Props extends HomePageState {
   searchOpenToggle: Function;
   cookies: Cookies;
   ClickAutoSearch: Function;
+  liveStreamHasOpened: boolean; // from redux
 }
 
 interface State {
@@ -80,6 +82,10 @@ class HomePage extends React.Component<Props, State> {
     if (this.props.loadedCount < 0 && this.props.loadedMore && !this.props.logoLoaded) {
       this.props.logoDispatch(true);
       await this.windowHeightCheck();
+    }
+
+    if (this.props.logoLoaded && this.state.announcements.length > 0 && !this.props.liveStreamHasOpened) {
+      setTimeout(() => this.props.liveStreamDispatch(true), 3000);
     }
 
     if (!isEqual(this.state.announcements, this.props.announcements)) {
@@ -303,9 +309,11 @@ class HomePage extends React.Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: { home: Props }) => ({
+const mapStateToProps = (state: { home: Props, liveStreamModal: { hasOpened: boolean } }) => ({
   logoLoaded: state.home.logoLoaded,
   loading: state.home.loading,
+
+  liveStreamHasOpened: state.liveStreamModal.hasOpened,
 
   items: state.home.items ? state.home.items : [],
   collections: state.home.collections ? state.home.collections : [],
@@ -319,4 +327,4 @@ const mapStateToProps = (state: { home: Props }) => ({
   loaded_highlights: state.home.loaded_highlights
 });
 
-export default connect(mapStateToProps, { logoDispatch, loadHomepage, loadMore, openModal, searchOpenToggle })(withCookies(HomePage));
+export default connect(mapStateToProps, { logoDispatch, liveStreamDispatch, loadHomepage, loadMore, openModal, searchOpenToggle })(withCookies(HomePage));
