@@ -91,7 +91,6 @@ export default class ShortPaths extends React.Component<Props, State> {
    * @returns { [] }
    */
   getShortPath = async (path: string, id?: string): Promise<{ short_paths: [] }> => {
-    console.log('getShortPath');
     try {
       const query = {
         table: this.props.type
@@ -116,7 +115,6 @@ export default class ShortPaths extends React.Component<Props, State> {
    */
   onChange = async (value: any, actionMeta: any) => { // tslint:disable-line: no-any
     if (!this._isMounted) { return; }
-    console.log('onChange inside ShortPaths');
     // Creation option, PUT the shortpath and insert it into loadedShortPaths
     if (actionMeta.action === 'create-option') {
       this.setState({ isLoading: true });
