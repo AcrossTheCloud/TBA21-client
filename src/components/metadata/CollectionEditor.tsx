@@ -1362,12 +1362,6 @@ class CollectionEditorClass extends React.Component<Props, State> {
                         id={id ? id : undefined}
                         onChange={s => { if (this._isMounted) { this.setState({ hasShortPath: !!s.length }); }}}
                       />
-                      {
-                        this.state.editMode ?
-                          <></>
-                          :
-                          <FormFeedback style={{ display: !this.state.hasShortPath ? 'block' : 'none' }}>You need to save or publish your collection first before adding a URL slug (short path).</FormFeedback>
-                      }
                     </FormGroup>
 
                     <FormGroup>
