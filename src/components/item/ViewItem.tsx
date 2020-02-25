@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { Col, Row } from 'reactstrap';
+import { Button, Col, Row } from 'reactstrap';
 import { fetchItem } from 'actions/items/viewItem';
 import { State } from 'reducers/items/viewItem';
 import { Alerts, ErrorMessage } from '../utils/alerts';
@@ -17,6 +17,10 @@ import moment from 'moment';
 import { FileTypes } from '../../types/s3File';
 import AudioPreview from '../layout/audio/AudioPreview';
 import { dateFromTimeYearProduced } from '../../actions/home';
+import { search as dispatchSearch, toggle as searchOpenToggle } from '../../actions/searchConsole';
+import { createCriteriaOption } from '../search/SearchConsole';
+import { toggle as collectionModalToggle } from 'actions/modals/collectionModal';
+import { toggle as itemModalToggle } from 'actions/modals/itemModal';
 
 type MatchParams = {
   id: string;
@@ -24,6 +28,10 @@ type MatchParams = {
 
 interface Props extends RouteComponentProps<MatchParams>, Alerts {
   fetchItem: Function;
+  collectionModalToggle: Function;
+  itemModalToggle: Function;
+  searchOpenToggle: Function;
+  dispatchSearch: Function;
   item: Item;
 }
 
@@ -51,6 +59,16 @@ class ViewItem extends React.Component<Props, State> {
     } else {
       this.setState({ errorMessage: 'No item with that id.' });
     }
+  }
+
+  // @todo should be a util / dispatch
+  onTagClick = (label: string, field: string) => {
+    setTimeout(() => {
+      this.props.collectionModalToggle(false);
+      this.props.itemModalToggle(false);
+      this.props.searchOpenToggle(true);
+      this.props.dispatchSearch([createCriteriaOption(label, field)]);
+    });
   }
 
   render() {
@@ -205,7 +223,18 @@ class ViewItem extends React.Component<Props, State> {
                 <Col xs="12">Concept Tags</Col>
                 <Col xs="12">
                   {
-                    aggregated_concept_tags.map(t => `#${t.tag_name} `)
+                    aggregated_concept_tags.map(t => {
+                      return (
+                          <Button
+                              className="page-link"
+                              style={{padding: 0, background: 'none'}}
+                              key={t.tag_name}
+                              onClick={() => this.onTagClick(t.tag_name, 'concept_tag')}
+                          >
+                            #{t.tag_name}
+                          </Button>
+                      );
+                    })
                   }
                 </Col>
               </Row>
@@ -215,7 +244,18 @@ class ViewItem extends React.Component<Props, State> {
                 <Col xs="12">Keyword Tags</Col>
                 <Col xs="12">
                   {
-                    aggregated_keyword_tags.map(t => `#${t.tag_name} `)
+                    aggregated_keyword_tags.map(t => {
+                      return (
+                          <Button
+                              className="page-link"
+                              style={{padding: 0, background: 'none'}}
+                              key={t.tag_name}
+                              onClick={() => this.onTagClick(t.tag_name, 'keyword_tag')}
+                          >
+                            #{t.tag_name}
+                          </Button>
+                      );
+                    })
                   }
                 </Col>
               </Row>
@@ -241,4 +281,10 @@ const mapStateToProps = (state: { viewItem: State }) => { // tslint:disable-line
 };
 
 // Connect our redux store State to Props, and pass through the fetchItem function.
-export default withRouter(connect(mapStateToProps, { fetchItem })(ViewItem));
+export default withRouter(connect(mapStateToProps, {
+  fetchItem,
+  collectionModalToggle,
+  itemModalToggle,
+  searchOpenToggle,
+  dispatchSearch
+})(ViewItem));
