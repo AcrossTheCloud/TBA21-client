@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { Col, Row } from 'reactstrap';
+import { Button, Col, Row } from 'reactstrap';
 import { fetchCollection } from 'actions/collections/viewCollection';
 import { ViewCollectionState } from 'reducers/collections/viewCollection';
 import { ErrorMessage } from '../utils/alerts';
@@ -13,6 +13,10 @@ import Share from '../utils/Share';
 import moment from 'moment';
 import 'styles/components/pages/viewItem.scss';
 import { Regions } from '../../types/Item';
+import { search as dispatchSearch, toggle as searchOpenToggle } from '../../actions/searchConsole';
+import { createCriteriaOption } from '../search/SearchConsole';
+import { toggle as collectionModalToggle } from 'actions/modals/collectionModal';
+import { toggle as itemModalToggle } from 'actions/modals/itemModal';
 
 type MatchParams = {
   id: string;
@@ -20,6 +24,10 @@ type MatchParams = {
 
 interface Props extends RouteComponentProps<MatchParams>, ViewCollectionState {
   fetchCollection: Function;
+  collectionModalToggle: Function;
+  itemModalToggle: Function;
+  searchOpenToggle: Function;
+  dispatchSearch: Function;
 }
 
 class ViewCollection extends React.Component<Props, {}> {
@@ -46,6 +54,16 @@ class ViewCollection extends React.Component<Props, {}> {
     } else {
       this.setState({ errorMessage: 'No collection with that id.' });
     }
+  }
+
+  // @todo should be a util / dispatch
+  onTagClick = (label: string, field: string) => {
+    setTimeout(() => {
+      this.props.itemModalToggle(false);
+      this.props.collectionModalToggle(false);
+      this.props.searchOpenToggle(true);
+      this.props.dispatchSearch([createCriteriaOption(label, field)]);
+    });
   }
 
   render() {
@@ -157,7 +175,18 @@ class ViewCollection extends React.Component<Props, {}> {
                 <Col xs="12">Concept Tags</Col>
                 <Col xs="12">
                   {
-                    aggregated_concept_tags.map(t => `#${t.tag_name} `)
+                    aggregated_concept_tags.map(t => {
+                      return (
+                          <Button
+                              className="page-link"
+                              style={{padding: 0, background: 'none'}}
+                              key={t.tag_name}
+                              onClick={() => this.onTagClick(t.tag_name, 'concept_tag')}
+                          >
+                            #{t.tag_name}
+                          </Button>
+                      );
+                    })
                   }
                 </Col>
               </Row>
@@ -167,7 +196,18 @@ class ViewCollection extends React.Component<Props, {}> {
                 <Col xs="12">Keyword Tags</Col>
                 <Col xs="12">
                   {
-                    aggregated_keyword_tags.map(t => `#${t.tag_name} `)
+                    aggregated_keyword_tags.map(t => {
+                      return (
+                          <Button
+                              className="page-link"
+                              style={{padding: 0, background: 'none'}}
+                              key={t.tag_name}
+                              onClick={() => this.onTagClick(t.tag_name, 'keyword_tag')}
+                          >
+                            #{t.tag_name}
+                          </Button>
+                      );
+                    })
                   }
                 </Col>
               </Row>
@@ -195,4 +235,10 @@ const mapStateToProps = (state: { viewCollection: ViewCollectionState }) => { //
 };
 
 // Connect our redux store State to Props, and pass through the fetchCollection function.
-export default withRouter(connect(mapStateToProps, { fetchCollection })(ViewCollection));
+export default withRouter(connect(mapStateToProps, {
+  fetchCollection,
+  collectionModalToggle,
+  itemModalToggle,
+  searchOpenToggle,
+  dispatchSearch
+})(ViewCollection));
