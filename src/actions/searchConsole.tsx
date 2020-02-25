@@ -52,16 +52,21 @@ export const changeView = (view: 'grid' | 'list') => dispatch => {
 };
 
 export const search = (criteria: CriteriaOption[], focusArts: boolean = false, focusAction: boolean = false, focusScitech: boolean = false) => async dispatch => {
-  if (criteria && criteria.length) {
-    const
-      state = {
-        type: SEARCH_RESULTS
-      };
+  const state = {
+      type: SEARCH_RESULTS
+    };
 
-    dispatch({ type: LOADINGOVERLAY, on: true }); // Turn on the loading overlay
+  dispatch({ type: LOADINGOVERLAY, on: true }); // Turn on the loading overlay
 
-    try {
-      const response = await API.post('tba21', 'pages/search', {
+  try {
+    let response;
+    let results;
+
+    if (!criteria || criteria.length === 0) {
+      response = {};
+      results = {};
+    } else {
+      response = await API.post('tba21', 'pages/search', {
         body: {
           criteria: criteria.map(e => ({'field': e.field, 'value': e.originalValue})),
           limit: 50,
@@ -71,14 +76,20 @@ export const search = (criteria: CriteriaOption[], focusArts: boolean = false, f
         }
       });
 
-      const results = await loadMore(response.results, 0);
-      Object.assign(state, { results: response.results, loadedResults: results.loadedResults, offset: results.offset });
-
-    } catch (e) {
-    } finally {
-      dispatch(state);
-      dispatch({ type: LOADINGOVERLAY, on: false }); // Turn off the loading overlay
+      results = await loadMore(response.results, 0);
     }
+
+    Object.assign(state, {
+      results: response.results,
+      loadedResults: results.loadedResults,
+      offset: results.offset,
+      selectedCriteria: [...(criteria ? criteria : [])]
+    });
+
+  } catch (e) {
+  } finally {
+    dispatch(state);
+    dispatch({ type: LOADINGOVERLAY, on: false }); // Turn off the loading overlay
   }
 };
 
