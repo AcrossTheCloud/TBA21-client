@@ -7,12 +7,15 @@ import { FileTypes, S3File } from '../types/s3File';
 import { itemType } from '../types/Item';
 import { COLLECTION_MODAL_TOGGLE } from './modals/collectionModal';
 import { ITEM_MODAL_TOGGLE } from './modals/itemModal';
-import { LIVESTREAM_MODAL_TOGGLE} from './modals/liveStreamModal';
+import { LIVESTREAM_MODAL_TOGGLE } from './modals/liveStreamModal';
 import * as React from 'react';
 import { DetailPreview, FileStaticPreview } from '../components/utils/DetailPreview';
 import { Col, Row } from 'reactstrap';
 import AudioPreview from '../components/layout/audio/AudioPreview';
 import { FaCircle, FaPlay } from 'react-icons/all';
+import { getCollectionsInCollection } from '../REST/collections';
+import { removeTopology } from '../components/utils/removeTopology';
+import { Collection } from '../types/Collection';
 
 // Defining our Actions for the reducers
 export const LOGO_STATE_HOMEPAGE = 'LOGO_STATE_HOMEPAGE';
@@ -85,6 +88,19 @@ export const loadHomepage = () => async dispatch => {
   }
 
   const response: {items: HomepageData[], collections: HomepageData[]} = await API.get('tba21', 'pages/homepage', { queryStringParameters: queryStringParams });
+
+  if (response.collections && response.collections.length) {
+    response.collections = await Promise.all(response.collections.map(async(collection: HomepageData) => {
+      const collectionResponse = await getCollectionsInCollection({id: collection.id, limit: 1, offset: 0});
+      const updatedCollection: HomepageData = {
+        ...collection,
+        collections: [...removeTopology(collectionResponse, 'collection')] as Collection[]
+      };
+
+      return updatedCollection;
+    }));
+  }
+
   const announcementResponse = await API.get('tba21', 'announcements', { queryStringParameters: { limit: '9'}});
 
   const highlightsWithFiles = await addFilesToData(oaHighlights.oa_highlight);
