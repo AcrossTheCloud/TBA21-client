@@ -15,6 +15,8 @@ import { browser } from './browser';
 import PdfPreview from './PdfPreview';
 import { dateFromTimeYearProduced } from '../../actions/home';
 
+import collectionsInCollectionsIcon from 'images/svgs/collections-in-collections-icon.png';
+
 export type ItemOrHomePageData = Item | HomepageData;
 
 export const checkTypeIsItem = (toBeDetermined: ItemOrHomePageData): toBeDetermined is Item => {
@@ -132,14 +134,32 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
           :
           collectionType ?
             <div className="middle">
-              <svg className="collection_icon" viewBox="0 0 7 31" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
-                <g stroke="none" strokeWidth="1" fill="#fff">
-                  <rect id="Rectangle" x="3" y="6" width="1" height="19" />
-                  <circle id="Oval" cx="3.5" cy="3.5" r="3.5"/>
-                  <circle id="Oval-Copy-2" cx="3.5" cy="15.5" r="2.5"/>
-                  <circle id="Oval-Copy" cx="3.5" cy="27.5" r="3.5"/>
-                </g>
-              </svg>
+              {data.collections && data.collections.length ?
+                  (
+                      <img
+                          className="collection_in_collection_icon"
+                          src={collectionsInCollectionsIcon}
+                          alt={'Collections in collection'}
+                      />
+                  )
+                  :
+                  (
+                      <svg
+                        className="collection_icon"
+                        viewBox="0 0 7 31"
+                        version="1.1"
+                        xmlns="http://www.w3.org/2000/svg"
+                        xmlnsXlink="http://www.w3.org/1999/xlink"
+                      >
+                        <g stroke="none" strokeWidth="1" fill="#fff">
+                          <rect id="Rectangle" x="3" y="6" width="1" height="19"/>
+                          <circle id="Oval" cx="3.5" cy="3.5" r="3.5"/>
+                          <circle id="Oval-Copy-2" cx="3.5" cy="15.5" r="2.5"/>
+                          <circle id="Oval-Copy" cx="3.5" cy="27.5" r="3.5"/>
+                        </g>
+                      </svg>
+                  )
+              }
             </div>
             : <></>
         }
