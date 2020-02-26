@@ -378,7 +378,7 @@ class ItemEditorClass extends React.Component<Props, State> {
       }
 
     } catch (e) {
-      console.log(e);
+      console.log('error',e);
       Object.assign(state, { errorMessage: 'We had an issue updating this item.' });
     } finally {
       if (!this._isMounted) { return; }
@@ -2610,6 +2610,7 @@ class ItemEditorClass extends React.Component<Props, State> {
                               : <></>
                           }
                         </FormGroup>
+                      <div className="focusSelect">
                         <FormGroup row className="my-0 align-items-center">
                           <Label for={`${item.s3_key}_focus_arts`} sm="2">Art</Label>
                           <Col sm="10">
@@ -2628,6 +2629,7 @@ class ItemEditorClass extends React.Component<Props, State> {
                             <CustomInput type="checkbox" id={`${item.s3_key}_focus_action`} defaultChecked={item.focus_action !== null && parseInt(item.focus_action, 0) > 0} onChange={e => this.changeItem('focus_action', !e.target.checked ? '0' : '1')}/>
                           </Col>
                         </FormGroup>
+                      </div>
 
                       </Col>
                     </Row>

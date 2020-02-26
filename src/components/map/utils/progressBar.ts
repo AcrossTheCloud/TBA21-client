@@ -2,8 +2,6 @@ export function progressBar(progress: number, total: number, elapsedTime?: numbe
   const wrapper = document.getElementById('progressWrapper');
   const bar = document.getElementById('progressBar');
 
-  console.log(progress, total, elapsedTime);
-
   // Update the loading progress bar
   if (bar && wrapper) {
     if (progress === total) {

@@ -14,6 +14,7 @@ import privacyPolicy from 'reducers/pages/privacyPolicy';
 import about from 'reducers/pages/about';
 import itemModal from 'reducers/modals/itemModal';
 import collectionModal from 'reducers/modals/collectionModal';
+import liveStreamModal from 'reducers/modals/liveStreamModal';
 
 const reducers: ReducersMapObject = {
   viewItems,
@@ -32,6 +33,7 @@ const reducers: ReducersMapObject = {
   about,
   itemModal,
   collectionModal,
+  liveStreamModal,
 
   // User
   profile,

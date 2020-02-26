@@ -193,8 +193,7 @@ export class SearchUsers extends React.Component<Props, State> {
                 <DropdownItem onClick={this.searchByOption} value="username">Username</DropdownItem>
               </DropdownMenu>
             </UncontrolledDropdown>
-            <Input type="text" name="search" id="search" placeholder="Search Users" innerRef={this.searchInputRef} />
-
+            <Input type="text" name="search" id="search"  className="h-auto"  placeholder="Search Users" innerRef={this.searchInputRef} />
             <InputGroupAddon addonType="append">
               <Button type="submit" onClick={this.searchUsers}>Search</Button>
             </InputGroupAddon>
