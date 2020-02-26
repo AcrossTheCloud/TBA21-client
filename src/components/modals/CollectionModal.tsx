@@ -103,7 +103,7 @@ class CollectionModal extends React.Component<Props, State> {
 
     if (data) {
       return (
-        <Modal id="homePageModal" scrollable className="fullwidth" isOpen={this.state.open} backdrop toggle={modalToggle}>
+        <Modal id="homePageModal" scrollable className="fullwidth" isOpen={this.state.open} backdrop toggle={() => modalToggle()}>
           <Row className="header align-content-center">
             <div className="col-11 title-wrapper d-flex align-content-center">
               <div className="title">
