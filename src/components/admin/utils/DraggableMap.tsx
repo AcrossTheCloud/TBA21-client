@@ -281,15 +281,11 @@ class Map extends React.Component<Props, State> {
   }
 
   layerEvents = (layer: L.Layer) => {
-    layer.on({
-      'pm:edit': l => {
-        console.log('Layer pm:edit', l);
-        this.callback();
-      },
-      'pm:cut': () => {
-        console.log('pm:cut');
-        this.callback();
-      }
+    layer.on('pm:edit', l => {
+      this.callback();
+    });
+    layer.on('pm:cut', l => {
+      this.callback();
     });
   }
 
@@ -324,7 +320,6 @@ class Map extends React.Component<Props, State> {
 
       // Add the altitude to the coords to any vertex's, this includes Linestrings and Poly.
       workingLayer.on('pm:vertexadded', e => {
-        console.log('pm:vertexadded', e);
 
         const markerLatLng = e.marker._latlng;
         const index = workingLayer._latlngs.indexOf(markerLatLng);
@@ -345,17 +340,14 @@ class Map extends React.Component<Props, State> {
         this.controlPopUp(e.layer, e.marker);
       }
 
-      console.log('pm:create', e);
       this.callback();
     });
 
     map.on('pm:edit', e => {
-      console.log('pm:edit', e);
       this.controlPopUp(e.layer, e.marker);
     });
 
     map.on('pm:remove', u => {
-      console.log('pm:remove');
       this.topoLayer.removeLayer(u.layer);
       this.callback();
     });
@@ -626,7 +618,7 @@ class Map extends React.Component<Props, State> {
               this.topoLayer.addData(geoJSON, fileType);
             }
           } catch (e) {
-            console.log(e);
+            console.log('error', e);
             this.props.toggleOverlay(false);
             this.setState({ errorMessage: `Looks like we've had an issue with your ${fileType === 'kml' ? 'KML' : 'GPX'} file.`});
           }

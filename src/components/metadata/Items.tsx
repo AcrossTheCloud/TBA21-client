@@ -169,7 +169,7 @@ class ItemsClass extends React.Component<Props, State> {
         }
       }
     } catch (e) {
-      console.log('No', e);
+      console.log('error', e);
     } finally {
       Object.assign(items, { [s3Key]: itemState });
 

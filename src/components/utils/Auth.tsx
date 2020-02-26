@@ -55,7 +55,7 @@ export const checkAuth = async (bypassCache: boolean = false): Promise<Authorisa
     }
   } catch (e) {
     if (e !== 'not authenticated') {
-      console.log('checkAuth -- ERROR -- ', e);
+      console.log('auth error', e);
     }
 
     return { isAuthenticated: false, email: '', uuid: '' };
