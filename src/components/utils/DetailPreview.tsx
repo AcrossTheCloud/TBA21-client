@@ -8,7 +8,7 @@ import { HomepageData } from '../../reducers/home';
 
 import 'styles/components/detailPreview.scss';
 import { thumbnailsSRCSET } from './s3File';
-import { collectionTypes } from '../../types/Collection';
+import { Collection, collectionTypes } from '../../types/Collection';
 
 import textImage from 'images/defaults/Unscharfe_Zeitung.jpg';
 import { browser } from './browser';
@@ -16,6 +16,8 @@ import PdfPreview from './PdfPreview';
 import { dateFromTimeYearProduced } from '../../actions/home';
 
 import collectionsInCollectionsIcon from 'images/svgs/collections-in-collections-icon.png';
+import { getCollectionsInCollection, getItemsInCollection } from '../../REST/collections';
+import { removeTopology } from './removeTopology';
 
 export type ItemOrHomePageData = Item | HomepageData;
 
@@ -70,10 +72,32 @@ export const FileStaticPreview = (props: { file: S3File, onLoad?: Function }): J
   }
 };
 
+export const getItemsAndCollectionsForCollection = async (collections) => {
+  return await Promise.all(collections.map(async(collection: Collection) => {
+    if (!collection.id) {
+      return collection;
+    }
+
+    const collectionResponse = await getCollectionsInCollection({id: collection.id, limit: 1000, offset: 0});
+    const itemResponse = await getItemsInCollection({id: collection.id, limit: 1000, offset: 0});
+
+    return {
+      ...collection,
+      collections: [...removeTopology(collectionResponse, 'collection')] as Collection[],
+      items: [...removeTopology(itemResponse, 'item')] as Item[]
+    };
+  }));
+}
+
 export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Function, modalToggle?: Function}): JSX.Element => {
   if ((!!props.data.file && props.data.file.type === FileTypes.Audio) || props.data.item_type === itemType.Audio) { return <></>; }
 
   let data: ItemOrHomePageData = props.data;
+  if (data.collections) {
+    getItemsAndCollectionsForCollection(data.collections).then((result) => data.collections = {
+      ...result as any
+    });
+  }
   let collectionType: collectionTypes | null | undefined = null;
   if (checkTypeIsItem(props.data)) {
     data = data as Item;
@@ -92,14 +116,32 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
           {data.item_subtype || !!collectionType ? collectionType : ''}
         </div>
 
-        {
-          !!data.count && data.count > 0 ?
-            <div className="count">
-              {data.count} item{data.count > 1 ? 's' : ''}
-            </div>
-            :
-            <></>
-        }
+        <div className="count">
+          {
+            data.collections && data.collections.length ?
+                (
+                    <div
+                      className="collections-count"
+                    >
+                      {data.collections.length} collection{data.collections.length > 1 ? 's' : ''}
+                    </div>
+                )
+                :
+                <></>
+          }
+          {
+            !!data.items && data.items.length > 0 ?
+                (
+                    <div
+                        className="item-count"
+                    >
+                      {data.items.length} item{data.items.length > 1 ? 's' : ''}
+                    </div>
+                )
+                :
+                <></>
+          }
+        </div>
 
         <div className="bottom">
           <div className="title-wrapper d-flex">

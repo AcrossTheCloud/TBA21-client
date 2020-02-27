@@ -501,4 +501,5 @@ export interface Item {
   point: string | null;
   geojson: { [name: string]: any } | null; // tslint:disable-line: no-any
   collections?: Collection[];
+  items?: Item[];
 }

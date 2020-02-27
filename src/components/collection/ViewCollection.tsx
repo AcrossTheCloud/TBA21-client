@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Col, Row } from 'reactstrap';
-import { fetchCollection, dispatchLoadMore, loadMore } from 'actions/collections/viewCollection';
+import { dispatchLoadMore, fetchCollection, loadMore } from 'actions/collections/viewCollection';
 import { ViewCollectionState } from 'reducers/collections/viewCollection';
 import { toggle as itemModalToggle } from 'actions/modals/itemModal';
 import { ErrorMessage } from '../utils/alerts';
@@ -20,6 +20,8 @@ import AudioPreview from '../layout/audio/AudioPreview';
 import { dateFromTimeYearProduced } from '../../actions/home';
 import CollectionModal from '../modals/CollectionModal';
 import { debounce, isEqual } from 'lodash';
+import { getCollectionsInCollection, getItemsInCollection } from '../../REST/collections';
+import { removeTopology } from '../utils/removeTopology';
 
 type MatchParams = {
   id: string;
@@ -81,6 +83,15 @@ const DataLayout = (props: { data: Item | Collection, itemModalToggle?: Function
   } else {
     const data = props.data as Collection;
     if (data.file && data.id) {
+      getCollectionsInCollection({id: data.id, limit: 1000, offset: 0}).then(collectionResponse => {
+        const collections = [...removeTopology(collectionResponse, 'collection')] as Collection[];
+        data.collections = collections.map((collectionItem) => collectionItem.id) as string[];
+      });
+      getItemsInCollection({id: data.id, limit: 1000, offset: 0}).then(itemResponses => {
+        const items = [...removeTopology(itemResponses, 'item')] as Item[];
+        data.items = items.map((itemItem) => itemItem.id) as string[];
+      });
+
       response = (
         <DetailPreview
           modalToggle={() => typeof props.collectionModalToggle === 'function' ? props.collectionModalToggle(data) : undefined}
@@ -93,6 +104,8 @@ const DataLayout = (props: { data: Item | Collection, itemModalToggle?: Function
             time_produced: data.time_produced ? data.time_produced : '',
             creators: data.creators ? data.creators : [],
             regions: data.regions ? data.regions : [],
+            items: data.items as any || [],
+            collections: data.collections as any || [],
 
             // Collection specific
             count: data.count ? data.count : 0,

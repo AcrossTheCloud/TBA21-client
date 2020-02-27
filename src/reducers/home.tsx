@@ -1,7 +1,7 @@
 import { LOAD_HOMEPAGE, LOGO_STATE_HOMEPAGE, LOAD_MORE_HOMEPAGE, MODAL_STATE_HOMEPAGE, LOAD_MORE_LOADING, LOAD_COUNT_HOMEPAGE } from 'actions/home';
 import { S3File } from '../types/s3File';
 import { Announcement } from '../types/Announcement';
-import { itemType } from '../types/Item';
+import { Item, itemType } from '../types/Item';
 import { Collection, collectionTypes } from '../types/Collection';
 
 export interface HomepageData {
@@ -21,7 +21,7 @@ export interface HomepageData {
   // Collection specific
   count?: number;
   type?: collectionTypes | null;
-  items?: HomepageData[];
+  items?: Item[];
   collections?: Collection[];
 
   // OA Highlight specific
