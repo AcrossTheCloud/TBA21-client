@@ -104,6 +104,7 @@ const DataLayout = (props: { data: Item | Collection, itemModalToggle?: Function
             time_produced: data.time_produced ? data.time_produced : '',
             creators: data.creators ? data.creators : [],
             regions: data.regions ? data.regions : [],
+            created_at: data.created_at ? data.created_at : null,
             items: data.items as any || [],
             collections: data.collections as any || [],
 
@@ -293,6 +294,7 @@ class ViewCollection extends React.Component<Props, State> {
       creators,
       title,
       description,
+      created_at,
       license,
       aggregated_concept_tags,
       aggregated_keyword_tags,
@@ -325,6 +327,26 @@ class ViewCollection extends React.Component<Props, State> {
     return (
       <div id="item" className="container-fluid">
         <ErrorMessage message={this.props.errorMessage} />
+
+        <Row id={this.state.dataRowID}>
+          {
+            this.state.data ?
+                this.state.data.map((data: Item | Collection, i) => <DataLayout data={data} key={i} itemModalToggle={this.props.itemModalToggle} collectionModalToggle={this.collectionModalToggle}/>)
+                : <></>
+          }
+        </Row>
+
+        {this.state.collectionModalData ?
+            (
+                <CollectionModal
+                    collection={this.state.collectionModalData}
+                    open={this.state.collectionModalToggled}
+                    toggle={this.collectionModalToggle}
+                />
+            )
+            : <></>
+        }
+
         <Row>
           <Col xs="12" md="8" className="left border-right">
             <Row>
@@ -359,7 +381,17 @@ class ViewCollection extends React.Component<Props, State> {
               : <></>
             }
           </Col>
+
           <Col xs="12" md="4" className="right">
+            {!!title ?
+                <CollectionDetails label="Title" value={title} /> : <></>
+            }
+            {!!created_at ?
+                <CollectionDetails label="Date created" value={moment(created_at).format('Do MMMM YYYY')} /> : <></>
+            }
+            {!!creators ?
+                <CollectionDetails label="Creators" value={creators.join(', ')} /> : <></>
+            }
             {!!time_produced ?
               <CollectionDetails label="Date Produced" value={moment(time_produced).format('Do MMMM YYYY')} />
               : year_produced ? <CollectionDetails label="Year Produced" value={year_produced} /> : <></>
@@ -412,25 +444,6 @@ class ViewCollection extends React.Component<Props, State> {
             </Row>
           </Col>
         </Row>
-
-        <Row id={this.state.dataRowID}>
-          {
-            this.state.data ?
-              this.state.data.map((data: Item | Collection, i) => <DataLayout data={data} key={i} itemModalToggle={this.props.itemModalToggle} collectionModalToggle={this.collectionModalToggle}/>)
-              : <></>
-          }
-        </Row>
-
-        {this.state.collectionModalData ?
-          (
-            <CollectionModal
-              collection={this.state.collectionModalData}
-              open={this.state.collectionModalToggled}
-              toggle={this.collectionModalToggle}
-            />
-          )
-          : <></>
-        }
       </div>
     );
   }
