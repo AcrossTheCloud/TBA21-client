@@ -10,9 +10,13 @@ import { ITEM_MODAL_TOGGLE } from './modals/itemModal';
 import { LIVESTREAM_MODAL_TOGGLE} from './modals/liveStreamModal';
 import * as React from 'react';
 import { DetailPreview, FileStaticPreview } from '../components/utils/DetailPreview';
-import { Col, Row } from 'reactstrap';
+import { Button, Col, Row } from 'reactstrap';
 import AudioPreview from '../components/layout/audio/AudioPreview';
 import { FaCircle, FaPlay } from 'react-icons/all';
+import { search as dispatchSearch, toggle as searchOpenToggle } from './searchConsole';
+import { toggle as collectionModalToggle } from 'actions/modals/collectionModal';
+import { toggle as itemModalToggle } from 'actions/modals/itemModal';
+import { createCriteriaOption } from 'components/search/SearchConsole';
 
 // Defining our Actions for the reducers
 export const LOGO_STATE_HOMEPAGE = 'LOGO_STATE_HOMEPAGE';
@@ -72,6 +76,19 @@ export const dateFromTimeYearProduced = (time: string | null, year: string | nul
   return yearProduced ? yearProduced : (timeProduced ? timeProduced : '');
 };
 
+// @todo should be a util / dispatch
+export const onTagClick = (event: MouseEvent, label: string, field: string) => dispatch => {
+  event.preventDefault();
+  event.stopPropagation();
+
+  setTimeout(() => {
+    dispatch(collectionModalToggle(false));
+    dispatch(itemModalToggle(false));
+    dispatch(searchOpenToggle(true));
+    dispatch(dispatchSearch([createCriteriaOption(label, field)]));
+  });
+};
+
 export const loadHomepage = () => async dispatch => {
   const
     oaHighlights: {oa_highlight: HomepageData[]} = await API.get('tba21', 'pages/homepage', { queryStringParameters: {oa_highlight: true, oaHighlightLimit: 2}}),
@@ -117,7 +134,20 @@ export const loadHomepage = () => async dispatch => {
         </div>
         {!!tags && tags.length ?
           <div className="tags d-none d-lg-block">
-            {tags.map(t => `#${t}`).join(' ').toString()}
+            {
+              tags.map(t => {
+                return (
+                    <Button
+                        className="page-link"
+                        style={{padding: 0, background: 'none'}}
+                        key={(t as unknown as string)}
+                        onClick={(e) => dispatch(onTagClick(e as unknown as MouseEvent, t as unknown as string, 'concept_tag'))}
+                    >
+                      #{(t as unknown as string)}
+                    </Button>
+                );
+              })
+            }
           </div>
           : <></>
         }
