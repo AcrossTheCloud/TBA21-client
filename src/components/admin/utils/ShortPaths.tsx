@@ -168,7 +168,7 @@ export default class ShortPaths extends React.Component<Props, State> {
 
     const slugifyValue = slugify(value, false);
     if (!this._isMounted) { return; }
-    this.setState({ inputValue: slugifyValue, invalid: false}, () => {
+    this.setState({ inputValue: slugifyValue}, () => {
         this.onChangeTimeout = setTimeout( () => {
           if (!this._isMounted) { return; }
           this.setState({ inputValue: slugify(slugifyValue, true) });
