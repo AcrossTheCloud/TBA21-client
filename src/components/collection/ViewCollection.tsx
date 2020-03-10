@@ -39,6 +39,7 @@ interface Props extends RouteComponentProps<MatchParams>, ViewCollectionState {
 
 interface State {
   data: (Item | Collection)[];
+  firstItem?: Item;
   offset: number;
   errorMessage?: string;
   collection?: Collection;
@@ -213,7 +214,15 @@ class ViewCollection extends React.Component<Props, State> {
       }
 
       if (!isEqual(this.props.data, this.state.data)) {
-        Object.assign(state, {data: this.props.data});
+        Object.assign(state, {
+          data: this.props.data,
+          firstItem: this.state.data ?
+              this.state.data
+                  .filter((data: Item | Collection) => {
+                    return data.__typename === 'item';
+                  })[0]
+              : undefined
+        });
       }
 
       if (this.props.noMoreData !== prevProps.noMoreData && this.props.noMoreData) {
@@ -340,19 +349,15 @@ class ViewCollection extends React.Component<Props, State> {
 
         <Row>
           {
-            this.state.data ?
-                [this.state.data
-                    .filter((data: Item | Collection, i) => {
-                      return data.__typename === 'item';
-                    })[0]]
-                    .map((data: Item | Collection, i) => (
-                        <DataLayout
-                            data={data}
-                            key={i}
-                            itemModalToggle={this.props.itemModalToggle}
-                            collectionModalToggle={this.collectionModalToggle}
-                        />
-                    ))
+            this.state.firstItem ?
+                (
+                    <DataLayout
+                        data={this.state.firstItem}
+                        key={this.state.firstItem.id}
+                        itemModalToggle={this.props.itemModalToggle}
+                        collectionModalToggle={this.collectionModalToggle}
+                    />
+                )
                 : <></>
           }
         </Row>
@@ -405,7 +410,18 @@ class ViewCollection extends React.Component<Props, State> {
             <Row id={this.state.dataRowID}>
               {
                 this.state.data ?
-                    this.state.data.map((data: Item | Collection, i) => <DataLayout data={data} key={i} itemModalToggle={this.props.itemModalToggle} collectionModalToggle={this.collectionModalToggle}/>)
+                    this.state.data
+                        .filter((data: Item | Collection) => {
+                          return this.state.firstItem && data.id !== this.state.firstItem.id;
+                        })
+                        .map((data: Item | Collection, i) => (
+                        <DataLayout
+                            data={data}
+                            key={i}
+                            itemModalToggle={this.props.itemModalToggle}
+                            collectionModalToggle={this.collectionModalToggle}
+                        />
+                        ))
                     : <></>
               }
             </Row>
@@ -484,6 +500,7 @@ const mapStateToProps = (state: { viewCollection: ViewCollectionState }, props: 
     errorMessage: state.viewCollection.errorMessage,
     collection: props.collection || state.viewCollection.collection,
     data: state.viewCollection.data,
+    firstItem: state.viewCollection.firstItem,
     offset: state.viewCollection.offset,
     noMoreData: state.viewCollection.noMoreData,
     noRedux: !!props.noRedux || false,

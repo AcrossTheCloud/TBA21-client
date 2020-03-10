@@ -14,6 +14,7 @@ export interface ViewCollectionState extends Alerts {
   collection?: Collection;
   offset?: number;
   data?: (Item & Collection)[];
+  firstItem?: Item;
   noRedux?: boolean;
   noMoreData?: boolean;
 }
@@ -21,7 +22,8 @@ export interface ViewCollectionState extends Alerts {
 const initialState: ViewCollectionState = {
   errorMessage: undefined,
   offset: 0,
-  noRedux: false
+  noRedux: false,
+  firstItem: undefined
 };
 
 /**
