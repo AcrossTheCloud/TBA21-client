@@ -53,6 +53,7 @@ import CollectionModal from './components/modals/CollectionModal';
 import LiveStreamModal from './components/modals/LiveStreamModal';
 import Footer from './components/layout/Footer';
 import About from './components/pages/About';
+import ViewProfile from './components/user/profile/ViewProfile';
 
 const LoggedInRoutes = ({ isAuthenticated, ...rest }) => {
   const isLoggedIn = isAuthenticated;
@@ -138,15 +139,15 @@ export const AppRouter = () => {
                   </div>
                 )}
               />
-              {/*<Route*/}
-              {/*  path="/profiles/:profileId"*/}
-              {/*  render={() => (*/}
-              {/*    <div className="container-fluid main blue">*/}
-              {/*      <ViewProfile />*/}
-              {/*      <Footer />*/}
-              {/*    </div>)*/}
-              {/*  }*/}
-              {/*/>*/}
+              <Route
+                path="/profiles/:profileId"
+                render={() => (
+                  <div className="container-fluid main blue">
+                    <ViewProfile />
+                    <Footer />
+                  </div>
+                )}
+              />
               <Route exact path="/map" component={MapView} />
 
               <Route exact path="/login" component={Login} />

@@ -44,7 +44,7 @@ class ViewProfile extends React.Component<Props, State> {
     if (!profile) {
       return;
     }
-    const { contact_email, contact_person, contact_position } = profile;
+    const { contact_email, contact_person, contact_position }: Profile = profile;
 
     return [contact_person, contact_position, contact_email].map(contactField =>
       contactField ? <div> {contactField} </div> : null
@@ -147,7 +147,7 @@ class ViewProfile extends React.Component<Props, State> {
               <p className="m-3">{biography}</p>
             </Col>
           </Col>
-          {!public_profile && (
+          {!!public_profile ? (
             <Col xs="12" md="6">
               <div className="m-3 details caption-text">
                 {city || country
@@ -173,7 +173,7 @@ class ViewProfile extends React.Component<Props, State> {
                 )}
               </div>
             </Col>
-          )}
+          ) : <></> }
         </Row>
       </div>
     );
