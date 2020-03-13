@@ -8,6 +8,8 @@ import { State } from 'reducers/user/viewProfile';
 import { Profile, groupProfileTypes } from '../../../types/Profile';
 import { fetchProfile } from '../../../actions/user/viewProfile';
 
+import ViewCollection from '../../collection/ViewCollection';
+
 import 'styles/components/pages/viewProfile.scss';
 import { Alerts, ErrorMessage } from '../../utils/alerts';
 
@@ -110,9 +112,10 @@ class ViewProfile extends React.Component<Props, State> {
       field_expertise,
       profile_type,
       profile_image,
-      public_profile
+      public_profile,
+      cognito_uuid
     } = profile;
-
+    console.log(cognito_uuid);
     const tags = [];
 
     return (
@@ -173,7 +176,11 @@ class ViewProfile extends React.Component<Props, State> {
                 )}
               </div>
             </Col>
-          ) : <></> }
+          ) : <></>}
+        </Row>
+        <Row>
+            <div className="title my-3 mx-3"> Contributed Items </div>
+            <ViewCollection id={cognito_uuid} />
         </Row>
       </div>
     );

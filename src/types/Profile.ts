@@ -9,9 +9,9 @@ enum profileType {
 
 export const groupProfileTypes = [profileType.Collective, profileType.Institution];
 
-export interface Profile extends GroupProfileAttributes{
+export interface Profile extends GroupProfileAttributes {
   id: string;
-  cognito_uuid: string | null;
+  cognito_uuid: string;
   contributors: string[] | null;
   profile_image?: string | null;
   featured_image?: string | null;

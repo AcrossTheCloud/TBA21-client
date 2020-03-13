@@ -28,6 +28,7 @@ interface Props extends RouteComponentProps<MatchParams>, ViewCollectionState {
   itemModalToggle: Function;
   searchOpenToggle: Function;
   dispatchSearch: Function;
+  id?: String;
 }
 
 class ViewCollection extends React.Component<Props, {}> {
