@@ -5,10 +5,8 @@ import { dispatchLoadMore, fetchCollection, loadMore } from 'actions/collections
 import { ViewCollectionState } from 'reducers/collections/viewCollection';
 import { toggle as itemModalToggle } from 'actions/modals/itemModal';
 import { ErrorMessage } from '../utils/alerts';
-
 import { browser } from '../utils/browser';
 import { RouteComponentProps, withRouter } from 'react-router';
-
 import Share from '../utils/Share';
 import moment from 'moment';
 import 'styles/components/pages/viewItem.scss';
@@ -22,6 +20,8 @@ import CollectionModal from '../modals/CollectionModal';
 import { debounce, isEqual } from 'lodash';
 import { getCollectionsInCollection, getItemsInCollection } from '../../REST/collections';
 import { removeTopology } from '../utils/removeTopology';
+import HistoryComponent from '../history/HistoryComponent';
+import { pushEntity as pushHistoryEntity } from '../../actions/history';
 
 type MatchParams = {
   id: string;
@@ -32,6 +32,7 @@ interface Props extends RouteComponentProps<MatchParams>, ViewCollectionState {
   itemModalToggle?: Function;
   dispatchLoadMore?: Function;
   parentReference?: Function;
+  pushHistoryEntity: Function;
 
   // ID string passed from the Parent that gives you the modal's body.
   modalBodyID?: string;
@@ -232,6 +233,10 @@ class ViewCollection extends React.Component<Props, State> {
       if (Object.keys(state).length && this._isMounted) {
         this.setState(state);
       }
+    }
+
+    if (this.props.collection !== undefined) {
+      this.props.pushHistoryEntity(this.props.collection);
     }
   }
 
@@ -489,13 +494,14 @@ class ViewCollection extends React.Component<Props, State> {
             </Row>
           </Col>
         </Row>
+        <HistoryComponent />
       </div>
     );
   }
 }
 
 // State to props
-const mapStateToProps = (state: { viewCollection: ViewCollectionState }, props: { modalBodyID?: string, collection?: Collection, noRedux?: boolean }) => {
+const mapStateToProps = (state: { viewCollection: ViewCollectionState }, props: { modalBodyID?: string, collection?: Collection, noRedux?: boolean, history: History }) => {
   return {
     errorMessage: state.viewCollection.errorMessage,
     collection: props.collection || state.viewCollection.collection,
@@ -509,4 +515,4 @@ const mapStateToProps = (state: { viewCollection: ViewCollectionState }, props: 
 };
 
 // Connect our redux store State to Props, and pass through the fetchCollection function.
-export default withRouter(connect(mapStateToProps, { fetchCollection, dispatchLoadMore, itemModalToggle })(ViewCollection));
+export default withRouter(connect(mapStateToProps, { fetchCollection, dispatchLoadMore, itemModalToggle, pushHistoryEntity })(ViewCollection));

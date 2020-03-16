@@ -17,6 +17,8 @@ import moment from 'moment';
 import { FileTypes } from '../../types/s3File';
 import AudioPreview from '../layout/audio/AudioPreview';
 import { dateFromTimeYearProduced } from '../../actions/home';
+import { pushEntity as pushHistoryEntity } from '../../actions/history';
+import HistoryComponent from '../history/HistoryComponent';
 
 type MatchParams = {
   id: string;
@@ -24,6 +26,7 @@ type MatchParams = {
 
 interface Props extends RouteComponentProps<MatchParams>, Alerts {
   fetchItem: Function;
+  pushHistoryEntity: Function;
   item: Item;
 }
 
@@ -50,6 +53,12 @@ class ViewItem extends React.Component<Props, State> {
       this.props.fetchItem(matchedItemId);
     } else {
       this.setState({ errorMessage: 'No item with that id.' });
+    }
+  }
+
+  componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>): void {
+    if (this.props.item !== undefined) {
+      this.props.pushHistoryEntity(this.props.item);
     }
   }
 
@@ -227,6 +236,7 @@ class ViewItem extends React.Component<Props, State> {
             </Row>
           </Col>
         </Row>
+        <HistoryComponent />
       </div>
     );
   }
@@ -241,4 +251,4 @@ const mapStateToProps = (state: { viewItem: State }) => { // tslint:disable-line
 };
 
 // Connect our redux store State to Props, and pass through the fetchItem function.
-export default withRouter(connect(mapStateToProps, { fetchItem })(ViewItem));
+export default withRouter(connect(mapStateToProps, { fetchItem, pushHistoryEntity })(ViewItem));
