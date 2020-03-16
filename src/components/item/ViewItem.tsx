@@ -23,7 +23,7 @@ import { toggle as collectionModalToggle } from 'actions/modals/collectionModal'
 import { toggle as itemModalToggle } from 'actions/modals/itemModal';
 
 type MatchParams = {
-  id: string;
+  profileId: string;
 };
 
 interface Props extends RouteComponentProps<MatchParams>, Alerts {
@@ -49,8 +49,8 @@ class ViewItem extends React.Component<Props, State> {
     let matchedItemId: string | null = null;
 
     // Get our itemId passed through from URL props
-    if (match.params.id) {
-      matchedItemId = match.params.id;
+    if (match.params.profileId) {
+      matchedItemId = match.params.profileId;
     }
 
     // If we have an id from the URL pass it through, otherwise use the one from Redux State

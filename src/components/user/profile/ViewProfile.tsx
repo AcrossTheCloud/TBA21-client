@@ -12,6 +12,7 @@ import ViewCollection from '../../collection/ViewCollection';
 
 import 'styles/components/pages/viewProfile.scss';
 import { Alerts, ErrorMessage } from '../../utils/alerts';
+import ViewItem from '../../item/ViewItem';
 
 interface Props extends RouteComponentProps, Alerts {
   fetchProfile: Function;
@@ -112,10 +113,8 @@ class ViewProfile extends React.Component<Props, State> {
       field_expertise,
       profile_type,
       profile_image,
-      public_profile,
-      cognito_uuid
+      public_profile
     } = profile;
-    console.log(cognito_uuid);
     const tags = [];
 
     return (
@@ -180,8 +179,13 @@ class ViewProfile extends React.Component<Props, State> {
         </Row>
         <Row>
             <div className="title my-3 mx-3"> Contributed Items </div>
-            <ViewCollection id={cognito_uuid} />
         </Row>
+        <Row >
+              <ViewCollection />
+            </Row>
+           <Row>
+             <ViewItem />
+           </Row>
       </div>
     );
   }
