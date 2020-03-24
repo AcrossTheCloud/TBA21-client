@@ -401,6 +401,12 @@ class ViewCollection extends React.Component<Props, State> {
               </Col>
             </Row>
 
+            <Row>
+              <Col className={'mt-4'}>
+                <HistoryComponent />
+              </Col>
+            </Row>
+
             {!!id ?
               (
                 <Row>
@@ -494,7 +500,6 @@ class ViewCollection extends React.Component<Props, State> {
             </Row>
           </Col>
         </Row>
-        <HistoryComponent />
       </div>
     );
   }

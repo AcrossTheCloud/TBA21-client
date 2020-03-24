@@ -172,6 +172,12 @@ class ViewItem extends React.Component<Props, State> {
               </Col>
             </Row>
 
+            <Row>
+              <Col className={'mt-4'}>
+                <HistoryComponent />
+              </Col>
+            </Row>
+
             {!!id ?
               <Row>
                 <Col className="text-right">
@@ -236,7 +242,6 @@ class ViewItem extends React.Component<Props, State> {
             </Row>
           </Col>
         </Row>
-        <HistoryComponent />
       </div>
     );
   }
