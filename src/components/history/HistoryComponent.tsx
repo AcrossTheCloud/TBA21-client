@@ -33,8 +33,6 @@ class HistoryComponent extends Component<Props, State> {
     }
 
     componentDidUpdate(): void {
-        this.props.history ? console.log(1, this.props.history.entities) : console.log(1, 'none');
-
         if (
             this.props.history &&
             this.props.history.entities &&
