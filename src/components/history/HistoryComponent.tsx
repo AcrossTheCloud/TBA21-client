@@ -5,7 +5,6 @@ import { fetchHistory } from '../../actions/history';
 import { HistoryState } from '../../reducers/history';
 import { Collection } from '../../types/Collection';
 import { Item } from '../../types/Item';
-import { FileStaticPreview } from '../utils/DetailPreview';
 import 'styles/components/historyComponent.scss';
 import { openModal } from '../../actions/map/map';
 
@@ -55,33 +54,27 @@ class HistoryComponent extends Component<Props, State> {
 
     render() {
         return (
-            <div className={'history'}>
+            <div className={'history'} role={'list'}>
                 <h3>History</h3>
                 {this.state.history ?
                     this.state.history.entities ?
                         this.state.history.entities.map((entity: Item | Collection, i: number) => (
                             <div
-                                role={'list'}
                                 key={entity.id}
                                 className={'historyEntity'}
                                 onClick={() => this.toggleEntity(entity)}
                             >
-                                <div className={'historyEntityBox'}>
-                                    {entity.file ?
-                                        <FileStaticPreview file={entity.file}/> :
-                                        <></>
-                                    }
-                                    <div className={'historyEntityTitle'}>
-                                        {entity.title}
-                                    </div>
+                                <div className={'historyEntityTitle'}>
+                                    {entity.title}
                                 </div>
-                                {
-                                    this.state.history &&
+                                <div className={'historyEntityArrow'}>
+                                    {this.state.history &&
                                     this.state.history.entities &&
                                     i !== (this.state.history.entities.length - 1) ?
-                                        <span className={'historyEntityArrow'}>&rarr;</span> :
+                                        <span>&rarr;</span> :
                                         <></>
-                                }
+                                    }
+                                </div>
                             </div>
                         )) :
                         <></> :
