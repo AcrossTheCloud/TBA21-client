@@ -19,6 +19,9 @@ import Footer from './layout/Footer';
 import HomepageVideo from './layout/HomepageVideo';
 
 import 'styles/components/home.scss';
+import { Item } from '../types/Item';
+import { Collection } from '../types/Collection';
+import { clearHistory } from '../actions/history';
 
 interface Props extends HomePageState {
   logoDispatch: Function;
@@ -30,6 +33,10 @@ interface Props extends HomePageState {
   searchOpenToggle: Function;
   cookies: Cookies;
   liveStreamHasOpened: boolean; // from redux
+  collectionModalIsOpen: boolean;
+  itemModalIsOpen: boolean;
+  historyEntities: (Item & Collection)[];
+  clearHistory: Function;
 }
 
 interface State {
@@ -78,6 +85,12 @@ class HomePage extends React.Component<Props, State> {
   }
 
   async componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>): Promise<void> {
+    if (this.props.historyEntities && this.props.historyEntities.length) {
+      if (!this.props.itemModalIsOpen && !this.props.collectionModalIsOpen) {
+        this.props.clearHistory();
+      }
+    }
+
     if (this.props.loadedCount < 0 && this.props.loadedMore && !this.props.logoLoaded) {
       this.props.logoDispatch(true);
       await this.windowHeightCheck();
@@ -308,11 +321,14 @@ class HomePage extends React.Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: { home: Props, liveStreamModal: { hasOpened: boolean } }) => ({
+const mapStateToProps = (state: { home: Props, liveStreamModal: { hasOpened: boolean }, collectionModal: { open: boolean }, itemModal: { open: boolean }, history: { entities: [] } }) => ({
   logoLoaded: state.home.logoLoaded,
   loading: state.home.loading,
 
   liveStreamHasOpened: state.liveStreamModal.hasOpened,
+  collectionModalIsOpen: state.collectionModal.open,
+  itemModalIsOpen: state.itemModal.open,
+  historyEntities: state.history.entities,
 
   items: state.home.items ? state.home.items : [],
   collections: state.home.collections ? state.home.collections : [],
@@ -326,4 +342,4 @@ const mapStateToProps = (state: { home: Props, liveStreamModal: { hasOpened: boo
   loaded_highlights: state.home.loaded_highlights
 });
 
-export default connect(mapStateToProps, { logoDispatch, liveStreamDispatch, loadHomepage, loadMore, openModal, searchOpenToggle })(withCookies(HomePage));
+export default connect(mapStateToProps, { logoDispatch, liveStreamDispatch, loadHomepage, loadMore, openModal, searchOpenToggle, clearHistory })(withCookies(HomePage));
