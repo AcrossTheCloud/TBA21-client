@@ -40,7 +40,7 @@
     "react-redux": "^6.0.1",
     "react-router": "^4.3.1",
     "react-router-dom": "^4.3.1",
-    "react-scripts": "^3.3.0",
+    "react-scripts": "^3.4.0",
     "react-select": "^3.0.8",
     "react-sigma": "^1.2.34",
     "react-simple-timefield": "^2.0.3",
