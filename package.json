@@ -76,8 +76,6 @@
     "@types/node": "^10.17.17",
     "@types/react": "^16.9.27",
     "@types/react-dom": "^16.9.5",
-    "@types/react-dropzone": "^4.2.2",
-    "@types/react-icons": "^2.2.7",
     "@types/react-leaflet": "^2.5.1",
     "@types/react-pdf": "^4.0.3",
     "@types/react-redux": "^6.0.14",
