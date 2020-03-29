@@ -1626,7 +1626,7 @@ class ItemEditorClass extends React.Component<Props, State> {
               value={duration}
               colon=":"
               showSeconds
-              onChange={e => this.changeItem('duration', moment.duration(e).asSeconds())}
+              onChange={(event, time) => this.changeItem('duration', moment.duration(time).asSeconds())}
               input={<Input type="text" placeholder="HH:MM:SS" />}
             />
           </FormGroup>
@@ -2011,7 +2011,7 @@ class ItemEditorClass extends React.Component<Props, State> {
               value={duration}
               colon=":"
               showSeconds
-              onChange={e => this.changeItem('duration', moment.duration(e).asSeconds())}
+              onChange={(event, time) => this.changeItem('duration', moment.duration(time).asSeconds())}
               input={<Input type="text" placeholder="HH:MM:SS" />}
             />
           </FormGroup>
