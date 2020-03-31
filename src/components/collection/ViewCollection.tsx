@@ -103,7 +103,7 @@ class ViewCollection extends React.Component<Props, {}> {
       return `${ (level / focusTotal) * 100 }`;
     };
 
-    const CollectionDetails = (props: { label: string, value: string }): JSX.Element => (
+    const CollectionDetails = (props: { label: string, value: string | JSX.Element }): JSX.Element => (
       <Row className="border-bottom subline details">
         <Col xs="12" md="6">{props.label}</Col>
         <Col xs="12" md="6">{props.value}</Col>
@@ -166,7 +166,7 @@ class ViewCollection extends React.Component<Props, {}> {
             }
             {!!license ? <CollectionDetails label="License" value={license} /> : ''}
             {!!copyright_holder ? <CollectionDetails label="Copyright Owner" value={copyright_holder} /> : ''}
-            {!!url ? <CollectionDetails label="Link" value={url} /> : ''}
+            {!!url ? <CollectionDetails label="Link" value={<a href={url} target="_blank" rel="noreferrer noopener">Click here to view</a>} /> : ''}
 
             {!!aggregated_concept_tags && aggregated_concept_tags.length ?
               <Row className="border-bottom subline details">
