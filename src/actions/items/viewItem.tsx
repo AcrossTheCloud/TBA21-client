@@ -2,7 +2,7 @@ import { getCDNObject, checkThumbnails } from '../../components/utils/s3File';
 import { Item } from '../../types/Item';
 import { FileTypes, S3File } from '../../types/s3File';
 import { LOADINGOVERLAY } from '../loadingOverlay';
-import { getItem } from '../../REST/items';
+import { getItems } from '../../REST/items';
 import { removeTopology } from '../../components/utils/removeTopology';
 
 // Defining our Actions for the reducers.
@@ -33,7 +33,7 @@ export const checkFile = async (item: Item): Promise<S3File | false> => {
  */
 export const fetchItem = (id: string) => async (dispatch, getState) => {
   dispatch({ type: LOADINGOVERLAY, on: true }); // Turn on the loading overlay
-
+  console.log(id, 'id');
   const prevState = getState();
 
   // Detect if we have the same itemID and return the previous state.
@@ -44,9 +44,9 @@ export const fetchItem = (id: string) => async (dispatch, getState) => {
   } else {
 
     try {
-      const response = await getItem({ id });
-      const items = removeTopology(response) as Item[];
-
+      const response = await getItems({ uuid: id });
+      const items = await removeTopology(response) as Item[];
+      console.log(response, items, 'aaaaa');
       if (!!items && items[0]) {
         const item = items[0];
 

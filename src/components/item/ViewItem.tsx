@@ -33,6 +33,7 @@ interface Props extends RouteComponentProps<MatchParams>, Alerts {
   searchOpenToggle: Function;
   dispatchSearch: Function;
   item: Item;
+  uuid?: String;
 }
 
 class ViewItem extends React.Component<Props, State> {
@@ -45,12 +46,11 @@ class ViewItem extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    const { match } = this.props;
     let matchedItemId: string | null = null;
 
     // Get our itemId passed through from URL props
-    if (match.params.profileId) {
-      matchedItemId = match.params.profileId;
+    if (this.props.uuid) {
+      this.props.fetchItem(this.props.uuid);
     }
 
     // If we have an id from the URL pass it through, otherwise use the one from Redux State

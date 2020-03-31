@@ -2,7 +2,7 @@ import { Item } from '../../types/Item';
 import { checkFile } from '../items/viewItem';
 import { LOADINGOVERLAY } from '../loadingOverlay';
 import { FETCH_COLLECTION_LOAD_MORE } from '../../reducers/collections/viewCollection';
-import { getById, getItemsInCollection } from '../../REST/collections';
+import { getCollectionByUuid } from '../../REST/collections';
 import { removeTopology } from '../../components/utils/removeTopology';
 import { Collection } from '../../types/Collection';
 
@@ -37,19 +37,17 @@ export const fetchCollection = (id: string) => async (dispatch, getState) => {
   } else {
 
     try {
-      const response = await getById(id);
-      const collection = removeTopology(response) as Collection[];
+      const response = await getCollectionByUuid(id);
+      const collection = await removeTopology(response) as Collection[];
 
       if (!!collection && !!collection[0] && Object.keys(collection).length) {
-
-        const itemResponse = await getItemsInCollection({ id, limit: 1000 });
-
+        // const itemResponse = await getItemsInCollection({ id, limit: 1000 });
         dispatch({
-           type: FETCH_COLLECTION,
-           collection: collection[0],
-           offset: 0,
-           ...await loadMore(removeTopology(itemResponse) as Item[])
-        });
+                     type: FETCH_COLLECTION,
+                     collection: collection[0],
+                     offset: 0,
+                     // ...await loadMore(removeTopology(itemResponse) as Item[])
+                 });
       } else {
         dispatch({
          type: FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION,
@@ -58,6 +56,7 @@ export const fetchCollection = (id: string) => async (dispatch, getState) => {
        });
       }
     } catch (e) {
+      console.log(e.message);
       dispatch({
          type: FETCH_COLLECTION_ERROR
        });

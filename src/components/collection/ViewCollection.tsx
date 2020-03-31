@@ -19,7 +19,7 @@ import { toggle as collectionModalToggle } from 'actions/modals/collectionModal'
 import { toggle as itemModalToggle } from 'actions/modals/itemModal';
 
 type MatchParams = {
-  profileId: string;
+  Id: string;
 };
 
 interface Props extends RouteComponentProps<MatchParams>, ViewCollectionState {
@@ -28,6 +28,7 @@ interface Props extends RouteComponentProps<MatchParams>, ViewCollectionState {
   itemModalToggle: Function;
   searchOpenToggle: Function;
   dispatchSearch: Function;
+  uuid?: String;
 }
 
 class ViewCollection extends React.Component<Props, {}> {
@@ -40,17 +41,16 @@ class ViewCollection extends React.Component<Props, {}> {
   }
 
   componentDidMount() {
-    const { match } = this.props;
     let matchId: string | null = null;
     // Get our collectionId passed through from URL props
-    if (match.params.profileId) {
-      matchId = match.params.profileId;
+    if (this.props.uuid) {
+      this.props.fetchCollection(this.props.uuid);
     }
     // If we have an id from the URL pass it through, otherwise use the one from Redux State
     if (matchId) {
       this.props.fetchCollection(matchId);
     } else {
-      this.setState({ errorMessage: 'No collection with that id.' });
+      this.setState({errorMessage: 'No collection with that id.'});
     }
   }
 
