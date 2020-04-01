@@ -9,6 +9,7 @@ import { FaTimes } from 'react-icons/fa';
 import { Col, Modal, ModalBody, Row } from 'reactstrap';
 import ViewCollection from '../collection/ViewCollection';
 import { Collection } from '../../types/Collection';
+import HistoryComponent from '../history/HistoryComponent';
 
 interface Props {
   data?: HomepageData | Collection;
@@ -120,6 +121,11 @@ class CollectionModal extends React.Component<Props, State> {
           </Row>
 
           <ModalBody id={this.state.modalBodyID}>
+            <Row>
+              <Col>
+                <HistoryComponent />
+              </Col>
+            </Row>
             {
               this.props.collection ?
                 <ViewCollection noRedux={true} collection={this.props.collection}/>

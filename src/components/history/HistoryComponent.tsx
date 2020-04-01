@@ -7,6 +7,7 @@ import { Collection } from '../../types/Collection';
 import { Item } from '../../types/Item';
 import 'styles/components/historyComponent.scss';
 import { openModal } from '../../actions/map/map';
+import { FaChevronRight } from 'react-icons/fa';
 
 interface Props {
     fetchHistory: Function;
@@ -55,7 +56,6 @@ class HistoryComponent extends Component<Props, State> {
     render() {
         return (
             <div className={'history'} role={'list'}>
-                <h3>History</h3>
                 {this.state.history ?
                     this.state.history.entities ?
                         this.state.history.entities.map((entity: Item | Collection, i: number) => (
@@ -71,7 +71,7 @@ class HistoryComponent extends Component<Props, State> {
                                     {this.state.history &&
                                     this.state.history.entities &&
                                     i !== (this.state.history.entities.length - 1) ?
-                                        <span>&rarr;</span> :
+                                        <FaChevronRight/> :
                                         <></>
                                     }
                                 </div>

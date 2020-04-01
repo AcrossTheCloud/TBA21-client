@@ -1,34 +1,57 @@
 @import '../base/variables';
 
 .history {
+  margin: 1rem 0;
+
   .historyEntity {
     display: inline-flex;
     flex-direction: row;
-    margin-top: 1rem;
     cursor: pointer;
 
+    &:first-child {
+      .historyEntityTitle {
+        color: #328C94;
+      }
+    }
+
     &:last-child {
+      margin-left: 0.5rem;
       cursor: default;
       pointer-events: none;
+
+      .historyEntityTitle {
+        border: 1px solid white;
+        color: #B2C1C6;
+      }
     }
 
     .historyEntityTitle {
       width: 100%;
-      max-width: 200px;
-      padding: 0 0.5rem;
+      max-width: 190px;
+      height: 1.5rem;
+      padding-right: 0.5rem;
       background: $dark-blue;
-      border: 1px solid white;
-      color: #fff;
+      color: #7EACB2;
       text-align: center;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.5rem;
     }
 
     .historyEntityArrow {
       align-items: center;
-      width: 3rem;
+      width: 1.5rem;
+      height: 1.5rem;
       text-align: center;
+      color: #787C80;
+
+      svg {
+        width: 12px;
+        height: 12px;
+      }
     }
   }
 }

@@ -9,6 +9,7 @@ import { FaCircle, FaTimes } from 'react-icons/fa';
 import { Col, Modal, ModalBody, Row } from 'reactstrap';
 import { Item } from '../../types/Item';
 import ViewItem from '../item/ViewItem';
+import HistoryComponent from '../history/HistoryComponent';
 
 interface Props {
   data?: HomepageData | Item;
@@ -96,6 +97,11 @@ class ItemModal extends React.Component<Props, State> {
           </Row>
 
           <ModalBody>
+            <Row>
+              <Col>
+                <HistoryComponent />
+              </Col>
+            </Row>
             <ViewItem />
           </ModalBody>
 

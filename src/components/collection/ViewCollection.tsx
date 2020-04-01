@@ -20,7 +20,6 @@ import CollectionModal from '../modals/CollectionModal';
 import { debounce, isEqual } from 'lodash';
 import { getCollectionsInCollection, getItemsInCollection } from '../../REST/collections';
 import { removeTopology } from '../utils/removeTopology';
-import HistoryComponent from '../history/HistoryComponent';
 import { pushEntity as pushHistoryEntity } from '../../actions/history';
 
 type MatchParams = {
@@ -398,12 +397,6 @@ class ViewCollection extends React.Component<Props, State> {
                     this.browser === 'ie6-11' ? description.split('\n').map((d, i) => <p key={i}>{d}</p>) : description
                   : <></>
                 }
-              </Col>
-            </Row>
-
-            <Row>
-              <Col className={'mt-4'}>
-                <HistoryComponent />
               </Col>
             </Row>
 
