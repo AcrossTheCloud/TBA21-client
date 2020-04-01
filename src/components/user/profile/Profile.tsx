@@ -35,6 +35,8 @@ import { Profile as ProfileType } from 'types/Profile';
 
 import 'styles/components/user/profile/profile.scss';
 
+import {OptionType} from '../../../types/SelectTypes'
+
 interface Props extends RouteComponentProps, ProfileState {
   deleteAccount: Function;
   dispatchError: Function;
@@ -290,7 +292,7 @@ class Profile extends React.Component<Props, State> {
                   placeholder="Country"
                   options={selectableCountries}
                   value={countryList ? countryList : null}
-                  onChange={e => this.fieldChanged(e.value, 'country')}
+                  onChange={e => this.fieldChanged((e as OptionType).value, 'country')}
                 />
               </FormGroup>
 
