@@ -1,7 +1,7 @@
 @import '../base/variables';
 
 .history {
-  margin: 1rem 0;
+  margin-bottom: 1rem;
 
   .historyEntity {
     display: inline-flex;
@@ -11,6 +11,7 @@
     &:first-child {
       .historyEntityTitle {
         color: #328C94;
+        margin-left: 0;
       }
     }
 
@@ -20,6 +21,8 @@
       pointer-events: none;
 
       .historyEntityTitle {
+        margin: 0;
+        padding: 0 0.5rem;
         border: 1px solid white;
         color: #B2C1C6;
       }
@@ -28,8 +31,8 @@
     .historyEntityTitle {
       width: 100%;
       max-width: 190px;
-      height: 1.5rem;
-      padding-right: 0.5rem;
+      height: 2rem;
+      margin: 0 0.5rem;
       background: $dark-blue;
       color: #7EACB2;
       text-align: center;
@@ -38,7 +41,18 @@
       text-overflow: ellipsis;
       font-size: 12px;
       font-weight: 600;
-      line-height: 1.5rem;
+      line-height: 2rem;
+    }
+
+    .historyEntityIcon {
+      display: inline-block;
+      margin-right: 0.5rem;
+
+      svg, img {
+        width: auto;
+        height: 18px;
+        vertical-align: text-top;
+      }
     }
 
     .historyEntityArrow {

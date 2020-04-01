@@ -57,7 +57,8 @@ class ViewItem extends React.Component<Props, State> {
 
   componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>): void {
     if (this.props.item !== undefined) {
-      this.props.pushHistoryEntity(this.props.item);
+      const collectionItemEntity: Item = {...this.props.item, __typename: 'item'};
+      this.props.pushHistoryEntity(collectionItemEntity);
     }
   }
 

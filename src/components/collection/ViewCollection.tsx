@@ -235,8 +235,20 @@ class ViewCollection extends React.Component<Props, State> {
     }
 
     if (this.props.collection !== undefined) {
-      this.props.pushHistoryEntity(this.props.collection);
+      this.pushItemToHistory();
     }
+  }
+
+  async pushItemToHistory(): Promise<void> {
+    const collectionHistoryEntity: Collection = {...this.props.collection, __typename: 'collection'};
+    const collectionsInCollection: Collection[] = removeTopology(
+        await getCollectionsInCollection({id: collectionHistoryEntity.id, limit: 1000, offset: 0}),
+        'collection'
+    ) as Collection[];
+    collectionHistoryEntity.collections = collectionsInCollection && collectionsInCollection.length ?
+        collectionsInCollection.map((collection) => collection.id) as string[] :
+        undefined;
+    this.props.pushHistoryEntity(collectionHistoryEntity);
   }
 
   loadData = async () => {

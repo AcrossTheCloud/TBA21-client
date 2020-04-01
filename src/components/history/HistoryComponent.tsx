@@ -8,6 +8,7 @@ import { Item } from '../../types/Item';
 import 'styles/components/historyComponent.scss';
 import { openModal } from '../../actions/map/map';
 import { FaChevronRight } from 'react-icons/fa';
+import collectionsInCollectionsIcon from 'images/svgs/collections-in-collections-icon.png';
 
 interface Props {
     fetchHistory: Function;
@@ -65,6 +66,38 @@ class HistoryComponent extends Component<Props, State> {
                                 onClick={() => this.toggleEntity(entity)}
                             >
                                 <div className={'historyEntityTitle'}>
+                                    <div className={'historyEntityIcon'}>
+                                        {entity.__typename === 'collection' ?
+                                            (
+                                                entity.collections && entity.collections.length ?
+                                                    (
+                                                        <img
+                                                            className="collection_in_collection_icon"
+                                                            src={collectionsInCollectionsIcon}
+                                                            alt={'Collections in collection'}
+                                                        />
+                                                    )
+                                                    :
+                                                    (
+                                                        <svg
+                                                            className="collection_icon"
+                                                            viewBox="0 0 7 31"
+                                                            version="1.1"
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                            xmlnsXlink="http://www.w3.org/1999/xlink"
+                                                        >
+                                                            <g stroke="none" strokeWidth="1" fill="#fff">
+                                                                <rect id="Rectangle" x="3" y="6" width="1" height="19"/>
+                                                                <circle id="Oval" cx="3.5" cy="3.5" r="3.5"/>
+                                                                <circle id="Oval-Copy-2" cx="3.5" cy="15.5" r="2.5"/>
+                                                                <circle id="Oval-Copy" cx="3.5" cy="27.5" r="3.5"/>
+                                                            </g>
+                                                        </svg>
+                                                    )
+                                            ) :
+                                            <></>
+                                        }
+                                    </div>
                                     {entity.title}
                                 </div>
                                 <div className={'historyEntityArrow'}>
