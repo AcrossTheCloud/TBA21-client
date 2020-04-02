@@ -39,6 +39,8 @@ class ViewItem extends React.Component<Props, State> {
   }
 
   componentDidMount() {
+    this.pushItemToHistory();
+
     const { match } = this.props;
     let matchedItemId: string | null = null;
 
@@ -56,10 +58,25 @@ class ViewItem extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>): void {
+    this.pushItemToHistory(prevProps.item);
+  }
+
+  pushItemToHistory(prevItem?: Item) {
     if (this.props.item !== undefined) {
-      const collectionItemEntity: Item = {...this.props.item, __typename: 'item'};
-      this.props.pushHistoryEntity(collectionItemEntity);
+      if (prevItem !== undefined) {
+        if (JSON.stringify(this.props.item) !== JSON.stringify(prevItem)) {
+          const historyEntity = this.createHistoryEntity();
+          this.props.pushHistoryEntity(historyEntity);
+        }
+      } else {
+        const historyEntity = this.createHistoryEntity();
+        this.props.pushHistoryEntity(historyEntity);
+      }
     }
+  }
+
+  createHistoryEntity(): Item {
+    return {...this.props.item, __typename: 'item'};
   }
 
   render() {
