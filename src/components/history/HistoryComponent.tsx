@@ -74,6 +74,7 @@ class HistoryComponent extends Component<Props, State> {
                                                         <img
                                                             src={collectionsInCollections}
                                                             className={'collections_in_collection'}
+                                                            alt={'Collections in collection'}
                                                         />
                                                     )
                                                     :
