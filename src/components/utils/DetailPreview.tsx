@@ -15,7 +15,7 @@ import { browser } from './browser';
 import PdfPreview from './PdfPreview';
 import { dateFromTimeYearProduced } from '../../actions/home';
 
-import collectionsInCollectionsIcon from 'images/svgs/collections-in-collections-icon.png';
+import collectionsInCollectionsIcon from 'images/svgs/collections-in-collections-icon.svg';
 import { getCollectionsInCollection, getItemsInCollection } from '../../REST/collections';
 import { removeTopology } from './removeTopology';
 

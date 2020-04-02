@@ -8,7 +8,7 @@ import { Item } from '../../types/Item';
 import 'styles/components/historyComponent.scss';
 import { openModal } from '../../actions/map/map';
 import { FaChevronRight } from 'react-icons/fa';
-import collectionsInCollectionsIcon from 'images/svgs/collections-in-collections-icon.png';
+import collectionsInCollections from '../../images/svgs/collections-in-collections-icon.svg';
 
 interface Props {
     fetchHistory: Function;
@@ -72,9 +72,8 @@ class HistoryComponent extends Component<Props, State> {
                                                 entity.collections && entity.collections.length ?
                                                     (
                                                         <img
-                                                            className="collection_in_collection_icon"
-                                                            src={collectionsInCollectionsIcon}
-                                                            alt={'Collections in collection'}
+                                                            src={collectionsInCollections}
+                                                            className={'collections_in_collection'}
                                                         />
                                                     )
                                                     :

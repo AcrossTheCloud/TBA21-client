@@ -48,10 +48,14 @@
       display: inline-block;
       margin-right: 0.5rem;
 
-      svg, img {
-        width: auto;
+      .collections_in_collection_icon, .collection_icon {
+        width: 18px;
         height: 18px;
         vertical-align: text-top;
+      }
+
+      .collection_icon {
+        transform: rotate(90deg);
       }
     }
 
