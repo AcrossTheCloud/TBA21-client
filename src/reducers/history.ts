@@ -23,6 +23,12 @@ export default (state: HistoryState = initialState, action) => {
             };
 
         case PUSH_ENTITY:
+            if (action.entity === undefined) {
+                return {
+                    ...state
+                };
+            }
+
             const existingEntity = state.entities.find(entity => entity.id === action.entity.id);
             if (existingEntity !== undefined) {
                 return {
@@ -39,6 +45,12 @@ export default (state: HistoryState = initialState, action) => {
             };
 
         case POP_ENTITY:
+            if (action.entity === undefined) {
+                return {
+                    ...state
+                };
+            }
+
             return {
                 ...state,
                 entities: state.entities.filter((entity) => {
