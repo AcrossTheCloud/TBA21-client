@@ -10,6 +10,7 @@ import { Col, Modal, ModalBody, Row } from 'reactstrap';
 import ViewCollection from '../collection/ViewCollection';
 import { Collection } from '../../types/Collection';
 import HistoryComponent from '../history/HistoryComponent';
+import { popEntity as popHistoryEntity } from '../../actions/history';
 
 interface Props {
   data?: HomepageData | Collection;
@@ -18,6 +19,7 @@ interface Props {
   toggle?: Function;
   customToggle?: Function;
   fetchCollection?: Function;
+  popHistoryEntity: Function;
 }
 
 interface State {
@@ -95,6 +97,8 @@ class CollectionModal extends React.Component<Props, State> {
     const data = this.props.collection || this.props.data;
 
     const modalToggle = (state: boolean = false): void => {
+      this.props.popHistoryEntity(data);
+
       if (typeof this.props.customToggle === 'function') {
         this.props.customToggle(state);
       } else if (typeof this.props.toggle === 'function') {
@@ -149,4 +153,4 @@ const mapStateToProps = (state: { collectionModal: { open: boolean, data?: Homep
   collection: props.collection
 });
 
-export default connect(mapStateToProps, { toggle, fetchCollection })(CollectionModal);
+export default connect(mapStateToProps, { toggle, fetchCollection, popHistoryEntity })(CollectionModal);

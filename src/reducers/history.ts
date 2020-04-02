@@ -1,6 +1,6 @@
 import { Item } from '../types/Item';
 import { Collection } from '../types/Collection';
-import { CLEAR_HISTORY, FETCH_HISTORY, PUSH_ENTITY } from '../actions/history';
+import { CLEAR_HISTORY, FETCH_HISTORY, POP_ENTITY, PUSH_ENTITY } from '../actions/history';
 
 export interface HistoryState {
     entities: (Item | Collection)[];
@@ -36,6 +36,14 @@ export default (state: HistoryState = initialState, action) => {
                     ...state.entities,
                     action.entity
                 ]
+            };
+
+        case POP_ENTITY:
+            return {
+                ...state,
+                entities: state.entities.filter((entity) => {
+                    return entity.id !== action.entity.id;
+                })
             };
 
         case CLEAR_HISTORY:

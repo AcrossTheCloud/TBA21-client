@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import { fetchHistory } from '../../actions/history';
+import { clearHistory, fetchHistory } from '../../actions/history';
 import { HistoryState } from '../../reducers/history';
 import { Collection } from '../../types/Collection';
 import { Item } from '../../types/Item';
@@ -9,9 +9,14 @@ import 'styles/components/historyComponent.scss';
 import { openModal } from '../../actions/map/map';
 import { FaChevronRight } from 'react-icons/fa';
 import collectionsInCollections from '../../images/svgs/collections-in-collections-icon.svg';
+import { toggle as toggleCollectionModal } from '../../actions/modals/collectionModal';
+import { toggle as toggleItemModal } from '../../actions/modals/itemModal';
 
 interface Props {
     fetchHistory: Function;
+    clearHistory: Function;
+    toggleCollectionModal: Function;
+    toggleItemModal: Function;
     openModal: Function;
     history?: HistoryState;
 }
@@ -118,7 +123,15 @@ class HistoryComponent extends Component<Props, State> {
     }
 
     private toggleEntity(entity: Item | Collection) {
-        this.props.openModal(entity.id, entity.__typename);
+        this.props.clearHistory();
+        this.props.toggleCollectionModal(false);
+
+        this.props.toggleItemModal(false);
+        if (entity.__typename === 'collection') {
+            this.props.toggleCollectionModal(true, entity);
+        } else if (entity.__typename === 'item') {
+            this.props.toggleItemModal(true, entity);
+        }
     }
 }
 
@@ -126,4 +139,10 @@ const mapStateToProps = (state: State) => ({
     history: state.history
 });
 
-export default connect(mapStateToProps, {fetchHistory, openModal})(HistoryComponent);
+export default connect(mapStateToProps, {
+    fetchHistory,
+    clearHistory,
+    toggleCollectionModal,
+    toggleItemModal,
+    openModal
+})(HistoryComponent);

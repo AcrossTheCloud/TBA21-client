@@ -10,12 +10,14 @@ import { Col, Modal, ModalBody, Row } from 'reactstrap';
 import { Item } from '../../types/Item';
 import ViewItem from '../item/ViewItem';
 import HistoryComponent from '../history/HistoryComponent';
+import { popEntity as popHistoryEntity } from '../../actions/history';
 
 interface Props {
   data?: HomepageData | Item;
   open: boolean;
   toggle: Function;
   fetchItem: Function;
+  popHistoryEntity: Function;
 }
 
 interface State {
@@ -91,7 +93,13 @@ class ItemModal extends React.Component<Props, State> {
             </div>
             <Col xs="1" className="pl-0 pr-3">
               <div className="text-right">
-                <FaTimes className="closeButton" onClick={() => this.props.toggle(false)}/>
+                <FaTimes
+                    className="closeButton"
+                    onClick={() => {
+                      this.props.popHistoryEntity(this.props.data);
+                      this.props.toggle(false);
+                    }}
+                />
               </div>
             </Col>
           </Row>
@@ -118,4 +126,4 @@ const mapStateToProps = (state: { itemModal: { open: boolean, data?: HomepageDat
   open: state.itemModal.open
 });
 
-export default connect(mapStateToProps, { toggle, fetchItem })(ItemModal);
+export default connect(mapStateToProps, { toggle, fetchItem, popHistoryEntity })(ItemModal);
