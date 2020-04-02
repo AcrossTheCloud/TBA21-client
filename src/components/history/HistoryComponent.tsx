@@ -8,7 +8,6 @@ import { Item } from '../../types/Item';
 import 'styles/components/historyComponent.scss';
 import { openModal } from '../../actions/map/map';
 import { FaChevronRight } from 'react-icons/fa';
-import collectionsInCollections from '../../images/svgs/collections-in-collections-icon.svg';
 import { toggle as toggleCollectionModal } from '../../actions/modals/collectionModal';
 import { toggle as toggleItemModal } from '../../actions/modals/itemModal';
 
@@ -75,30 +74,56 @@ class HistoryComponent extends Component<Props, State> {
                                         {entity.__typename === 'collection' ?
                                             (
                                                 entity.collections && entity.collections.length ?
-                                                    (
-                                                        <img
-                                                            src={collectionsInCollections}
-                                                            className={'collections_in_collection_icon'}
-                                                            alt={'Collections in collection'}
-                                                        />
-                                                    )
-                                                    :
-                                                    (
-                                                        <svg
-                                                            className="collection_icon"
-                                                            viewBox="0 0 7 31"
-                                                            version="1.1"
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                            xmlnsXlink="http://www.w3.org/1999/xlink"
-                                                        >
-                                                            <g stroke="none" strokeWidth="1" fill="#fff">
-                                                                <rect id="Rectangle" x="3" y="6" width="1" height="19"/>
-                                                                <circle id="Oval" cx="3.5" cy="3.5" r="3.5"/>
-                                                                <circle id="Oval-Copy-2" cx="3.5" cy="15.5" r="2.5"/>
-                                                                <circle id="Oval-Copy" cx="3.5" cy="27.5" r="3.5"/>
-                                                            </g>
-                                                        </svg>
-                                                    )
+                                                (
+                                                    <svg
+                                                        className="collection_in_collection_icon"
+                                                        viewBox="-18 0 40 31"
+                                                        version="1.1"
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        xmlnsXlink="http://www.w3.org/1999/xlink"
+                                                    >
+                                                    <g stroke="none" strokeWidth="1" fill="#fff">
+                                                      <g id="Circle1">
+                                                        <circle cx="15.5" cy="15.5" r="3.5"/>
+                                                      </g>
+                                                      <g id="Circle2">
+                                                        <circle cx="-8.5" cy="15.5" r="3.5"/>
+                                                      </g>
+                                                      <g id="Circle3">
+                                                        <circle cx="3.5" cy="3.5" r="3.5"/>
+                                                      </g>
+                                                      <g id="Circle4">
+                                                        <circle cx="3.5" cy="15.5" r="3.5"/>
+                                                      </g>
+                                                      <g id="Line1">
+                                                        <rect x="3" y="3.5" width="1" height="12"/>
+                                                      </g>
+                                                      <g id="Line2">
+                                                        <rect x="3" y="3.5" width="1" height="17" transform="rotate(-45 3 3.5)"/>
+                                                      </g>
+                                                      <g id="Line3">
+                                                        <rect x="3" y="3.5" width="1" height="17" transform="rotate(45 3 3.5)"/>
+                                                      </g>
+                                                    </g>
+                                                    </svg>
+                                                  )
+                                                  :
+                                                  (
+                                                      <svg
+                                                        className="collection_icon"
+                                                        viewBox="0 0 7 31"
+                                                        version="1.1"
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        xmlnsXlink="http://www.w3.org/1999/xlink"
+                                                      >
+                                                        <g stroke="none" strokeWidth="1" fill="#fff">
+                                                          <rect id="Rectangle" x="-6" y="15" width="19" height="1"/>
+                                                          <circle id="Oval" cx="15.5" cy="15.5" r="3.5"/>
+                                                          <circle id="Oval-Copy-2" cx="3.5" cy="15.5" r="2.5"/>
+                                                          <circle id="Oval-Copy" cx="-8.5" cy="15.5" r="3.5"/>
+                                                        </g>
+                                                      </svg>
+                                                  )
                                             ) :
                                             <></>
                                         }
