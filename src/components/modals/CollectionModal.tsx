@@ -52,10 +52,14 @@ class CollectionModal extends React.Component<Props, State> {
     if (modalBodyID.length) {
       this.setState({ modalBodyID });
     }
+
+    document.addEventListener('keydown', this.onKeyPressed.bind(this));
   }
 
   componentWillUnmount = () => {
     this._isMounted = false;
+
+    document.removeEventListener('keydown', this.onKeyPressed.bind(this));
   }
 
   async componentDidUpdate(prevProps: Readonly<Props>): Promise<void> {
@@ -81,6 +85,12 @@ class CollectionModal extends React.Component<Props, State> {
       if (Object.keys(state).length > 0) {
         this.setState(state);
       }
+    }
+  }
+
+  onKeyPressed(event: KeyboardEvent) {
+    if (event.key === 'Escape') {
+      this.props.popHistoryEntity(this.props.data);
     }
   }
 
