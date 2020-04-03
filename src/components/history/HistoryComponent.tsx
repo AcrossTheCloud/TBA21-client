@@ -76,8 +76,8 @@ class HistoryComponent extends Component<Props, State> {
                                                 entity.collections && entity.collections.length ?
                                                 (
                                                     <svg
-                                                        className="collection_in_collection_icon"
-                                                        viewBox="-18 0 40 31"
+                                                        className="collections_in_collection_icon"
+                                                        viewBox="-18 0 40 20"
                                                         version="1.1"
                                                         xmlns="http://www.w3.org/2000/svg"
                                                         xmlnsXlink="http://www.w3.org/1999/xlink"
