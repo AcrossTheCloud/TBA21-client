@@ -107,7 +107,9 @@ class CollectionModal extends React.Component<Props, State> {
     const data = this.props.collection || this.props.data;
 
     const modalToggle = (state: boolean = false): void => {
-      this.props.popHistoryEntity(data);
+      const collection = this.props.collection || this.props.data;
+
+      this.props.popHistoryEntity(collection);
 
       if (typeof this.props.customToggle === 'function') {
         this.props.customToggle(state);

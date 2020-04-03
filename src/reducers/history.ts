@@ -51,11 +51,13 @@ export default (state: HistoryState = initialState, action) => {
                 };
             }
 
+            const filteredEntities = state.entities.filter((entity) => {
+                return entity.id !== action.entity.id;
+            });
+
             return {
                 ...state,
-                entities: state.entities.filter((entity) => {
-                    return entity.id !== action.entity.id;
-                })
+                entities: filteredEntities
             };
 
         case CLEAR_HISTORY:
