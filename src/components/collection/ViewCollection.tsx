@@ -172,6 +172,9 @@ class ViewCollection extends React.Component<Props, State> {
 
   async componentDidMount(): Promise<void> {
     this._isMounted = true;
+
+    await this.pushCollectionToHistory();
+
     const { modalBodyID, collection } = this.props;
 
     if (modalBodyID) {
@@ -196,10 +199,12 @@ class ViewCollection extends React.Component<Props, State> {
     this._isMounted = false;
   }
 
-  componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>): void {
+  async componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>): Promise<void> {
     if (!this._isMounted) { return; }
 
     const state = {};
+
+    await this.pushCollectionToHistory(prevProps.collection);
 
     if (!this.props.noRedux) {
       if (typeof prevProps.collection === 'undefined' && !!this.props.collection) {
@@ -232,13 +237,23 @@ class ViewCollection extends React.Component<Props, State> {
         this.setState(state);
       }
     }
+  }
 
+  async pushCollectionToHistory(prevCollection?: Collection): Promise<void> {
     if (this.props.collection !== undefined) {
-      this.pushItemToHistory();
+      if (prevCollection !== undefined) {
+        if (JSON.stringify(this.props.collection) !== JSON.stringify(prevCollection)) {
+          const historyEntity = await this.createHistoryEntity();
+          this.props.pushHistoryEntity(historyEntity);
+        }
+      } else {
+        const historyEntity = await this.createHistoryEntity();
+        this.props.pushHistoryEntity(historyEntity);
+      }
     }
   }
 
-  async pushItemToHistory(): Promise<void> {
+  async createHistoryEntity(): Promise<Collection> {
     const collectionHistoryEntity: Collection = {...this.props.collection, __typename: 'collection'};
     const collectionsInCollection: Collection[] = removeTopology(
         await getCollectionsInCollection({id: collectionHistoryEntity.id, limit: 1000, offset: 0}),
@@ -247,7 +262,7 @@ class ViewCollection extends React.Component<Props, State> {
     collectionHistoryEntity.collections = collectionsInCollection && collectionsInCollection.length ?
         collectionsInCollection.map((collection) => collection.id) as string[] :
         undefined;
-    this.props.pushHistoryEntity(collectionHistoryEntity);
+    return collectionHistoryEntity;
   }
 
   loadData = async () => {
