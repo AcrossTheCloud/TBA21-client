@@ -32,6 +32,8 @@ import { Item, itemAudio, itemImage, itemText, itemVideo } from '../../types/Ite
 
 import textImage from 'images/defaults/Unscharfe_Zeitung.jpg';
 
+import {OptionType} from '../../types/SelectTypes'
+
 import {
   countries,
   itemAudioSubTypes,
@@ -459,7 +461,7 @@ class ItemEditorClass extends React.Component<Props, State> {
       options = itemImageSubTypes;
     }
 
-    return <Select menuPlacement="auto" className="select item_subtype" classNamePrefix="select" options={options} value={[options.find( o => o.value === this.state.changedItem.item_subtype)]} onChange={e => this.validateLength('item_subtype', e.value)} isSearchable/>;
+    return <Select menuPlacement="auto" className="select item_subtype" classNamePrefix="select" options={options} value={[options.find( o => o.value === this.state.changedItem.item_subtype)]} onChange={e => this.validateLength('item_subtype', (e as OptionType).value)} isSearchable/>;
   }
 
   subTypeOnChange = (subType: string) => {
@@ -948,7 +950,7 @@ class ItemEditorClass extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="translated_from">Translated From</Label>
-            <Select menuPlacement="auto" className="select translated_from" classNamePrefix="select" options={languages} value={item.language ? languages.find( c => c.value === item.language ) : []} onChange={e => this.changeItem('translated_from', e.value)} isSearchable/>
+            <Select menuPlacement="auto" className="select translated_from" classNamePrefix="select" options={languages} value={item.language ? languages.find( c => c.value === item.language ) : []} onChange={e => this.changeItem('translated_from', (e as OptionType).value)} isSearchable/>
           </FormGroup>
         </Col>
 
@@ -1152,7 +1154,7 @@ class ItemEditorClass extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="translated_from">Translated From</Label>
-            <Select menuPlacement="auto" className="select translated_from" classNamePrefix="select" options={languages} value={item.language ? languages.find( c => c.value === item.language ) : []} onChange={e => this.changeItem('translated_from', e.value)} isSearchable/>
+            <Select menuPlacement="auto" className="select translated_from" classNamePrefix="select" options={languages} value={item.language ? languages.find( c => c.value === item.language ) : []} onChange={e => this.changeItem('translated_from', (e as OptionType).value)} isSearchable/>
           </FormGroup>
         </Col>
 
@@ -1625,7 +1627,7 @@ class ItemEditorClass extends React.Component<Props, State> {
               value={duration}
               colon=":"
               showSeconds
-              onChange={e => this.changeItem('duration', moment.duration(e).asSeconds())}
+              onChange={(event, time) => this.changeItem('duration', moment.duration(time).asSeconds())}
               input={<Input type="text" placeholder="HH:MM:SS" />}
             />
           </FormGroup>
@@ -2010,7 +2012,7 @@ class ItemEditorClass extends React.Component<Props, State> {
               value={duration}
               colon=":"
               showSeconds
-              onChange={e => this.changeItem('duration', moment.duration(e).asSeconds())}
+              onChange={(event, time) => this.changeItem('duration', moment.duration(time).asSeconds())}
               input={<Input type="text" placeholder="HH:MM:SS" />}
             />
           </FormGroup>
@@ -2455,13 +2457,13 @@ class ItemEditorClass extends React.Component<Props, State> {
 
                         <FormGroup>
                           <Label for="regions">Region(s) (Country/Ocean)</Label>
-                          <Select className="select" classNamePrefix="select" isMulti isSearchable menuPlacement="auto" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries } ]} defaultValue={selectedRegions} onChange={e => this.validateLength('regions', !!e && e.length ? e.map(r => r.value) : [])} />
+                          <Select className="select" classNamePrefix="select" isMulti isSearchable menuPlacement="auto" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries } ]} defaultValue={selectedRegions} onChange={e => this.validateLength('regions', !!e && (e as any).length ? (e as any).map(r => r.value) : [])} />
                           <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('regions') && !this.state.validate.regions ? 'block' : 'none') }}>This is a required field</FormFeedback>
                         </FormGroup>
 
                         <FormGroup>
                           <Label for="language">Language</Label>
-                          <Select menuPlacement="auto" className="select language" classNamePrefix="select" options={languages} value={item.language ? languages.find( c => c.value === item.language ) : []} onChange={e => this.changeItem('language', e.value)} isSearchable/>
+                          <Select menuPlacement="auto" className="select language" classNamePrefix="select" options={languages} value={item.language ? languages.find( c => c.value === item.language ) : []} onChange={e => this.changeItem('language', (e as OptionType).value)} isSearchable/>
                         </FormGroup>
 
                         <FormGroup>
