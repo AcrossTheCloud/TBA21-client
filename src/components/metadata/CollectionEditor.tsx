@@ -49,6 +49,7 @@ import { RouteComponentProps, withRouter } from 'react-router';
 import { ActionMeta } from 'react-select/src/types';
 import { Items } from './Items';
 import { withCollapse } from './withCollapse';
+import { OptionType } from '../../types/SelectTypes';
 
 interface Props extends RouteComponentProps {
   collection?: Collection;
@@ -663,7 +664,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
               id="event_type"
               options={eventTypes}
               value={[eventType]}
-              onChange={e => this.changeCollection('event_type', e.value)}
+              onChange={e => this.changeCollection('event_type', (e as OptionType).value)}
               isSearchable
             />
           </FormGroup>
@@ -1477,16 +1478,10 @@ class CollectionEditorClass extends React.Component<Props, State> {
                       />
                       <FormFeedback>This is a required field</FormFeedback>
                       <ShortPaths
-                        type="Item"
+                        type="Collection"
                         id={id ? id : undefined}
                         onChange={s => { if (this._isMounted) { this.setState({ hasShortPath: !!s.length }); }}}
                       />
-                      {
-                        this.state.editMode ?
-                          <></>
-                          :
-                          <FormFeedback style={{ display: !this.state.hasShortPath ? 'block' : 'none' }}>You need to save or publish your collection first before adding a URL slug (short path).</FormFeedback>
-                      }
                     </FormGroup>
 
                     <FormGroup>
@@ -1524,12 +1519,12 @@ class CollectionEditorClass extends React.Component<Props, State> {
 
                     <FormGroup>
                       <Label for="regions">Region(s) (Country/Ocean)</Label>
-                      <Select className="select" classNamePrefix="select" isMulti isSearchable menuPlacement="auto" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries } ]} defaultValue={selectedRegions} onChange={e => this.validateLength('regions', !!e && e.length ? e.map(r => r.value) : [])} />
+                      <Select className="select" classNamePrefix="select" isMulti isSearchable menuPlacement="auto" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries } ]} defaultValue={selectedRegions} onChange={e => this.validateLength('regions', e && (e as any).length ? (e as any).map(r => r.value) : [])} />
                     </FormGroup>
 
                     <FormGroup>
                       <Label for="type">Collection Category</Label>
-                      <Select className="select" classNamePrefix="select" menuPlacement="auto" id="type" options={collectionTypes} value={[collectionTypes.find( o => o.value === type)]} onChange={e => this.validateLength('type', e.value)} isSearchable/>
+                      <Select className="select" classNamePrefix="select" menuPlacement="auto" id="type" options={collectionTypes} value={[collectionTypes.find( o => o.value === type)]} onChange={e => this.validateLength('type', (e as OptionType).value)} isSearchable/>
                       <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('type') && !this.state.validate.type ? 'block' : 'none') }}>This is a required field</FormFeedback>
                     </FormGroup>
 

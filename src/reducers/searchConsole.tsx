@@ -1,4 +1,11 @@
-import { SEARCH_RESULTS, CHANGE_VIEW, SEARCH_TOGGLE_OPEN, SEARCH_CONCEPT_TAGS, SEARCH_RESULTS_LOADING } from 'actions/searchConsole';
+import {
+  SEARCH_RESULTS,
+  CHANGE_VIEW,
+  SEARCH_TOGGLE_OPEN,
+  SEARCH_CONCEPT_TAGS,
+  SEARCH_RESULTS_LOADING,
+  CriteriaOption
+} from 'actions/searchConsole';
 
 import { APITag } from 'components/metadata/Tags';
 import { Item } from '../types/Item';
@@ -15,6 +22,7 @@ export interface SearchConsoleState {
   searchResultsLoading: boolean;
   offset: number;
   open: boolean;
+  selectedCriteria: CriteriaOption[];
 }
 const initialState: SearchConsoleState = {
   concept_tags: [],
@@ -23,7 +31,8 @@ const initialState: SearchConsoleState = {
   loadedResults: [],
   searchResultsLoading: false,
   offset: 0,
-  open: false
+  open: false,
+  selectedCriteria: []
 };
 
 export default (state: SearchConsoleState | null = initialState, action) => {
@@ -62,6 +71,7 @@ export default (state: SearchConsoleState | null = initialState, action) => {
         offset: action.offset,
         searchResultsLoading: false,
         view: 'list',
+        selectedCriteria: action.selectedCriteria
       };
 
     case SEARCH_RESULTS_LOADING:
