@@ -47,10 +47,11 @@
     .historyEntityIcon {
       display: inline-block;
       margin-right: 0.5rem;
+      vertical-align: middle;
 
-      .collection_in_collection_icon, .collection_icon {
-        width: 18px;
-        height: 18px;
+      .collections_in_collection_icon, .collection_icon {
+        width: 22px;
+        height: auto;
         vertical-align: text-top;
 
         g {
