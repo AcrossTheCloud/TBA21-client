@@ -26,17 +26,6 @@ export const LOAD_COUNT_HOMEPAGE = 'LOAD_COUNT_HOMEPAGE';
 export const LOAD_MORE_LOADING = 'LOAD_MORE_LOADING';
 export const MODAL_STATE_HOMEPAGE = 'MODAL_STATE_HOMEPAGE';
 
-const DATES_LIVESTREAM1 = {
-  'begin': (new Date("2020-02-06T08:00Z")).getTime(),
-  'end': (new Date("2020-02-06T17:45Z")).getTime(),
-  'stream': 'all-atlantic-ocean-research-forum-1/embed'
-};
-
-const DATES_LIVESTREAM2 = {
-  'begin': (new Date("2020-02-07T08:00Z")).getTime(),
-  'end': (new Date("2020-02-07T15:00Z")).getTime(),
-  'stream': 'all-atlantic-ocean-research-forum-2/embed'
-};
 
 export const logoDispatch = (state: boolean) => dispatch => {
   dispatch({
@@ -47,26 +36,33 @@ export const logoDispatch = (state: boolean) => dispatch => {
 
 export const liveStreamDispatch = (state: boolean) => async dispatch => {
   if (state) {
-    if (Date.now() > DATES_LIVESTREAM1.begin && Date.now() < DATES_LIVESTREAM1.end) {
-      dispatch({
-        type: LIVESTREAM_MODAL_TOGGLE,
-        open: state,
-        hasOpened: true,
-        stream: DATES_LIVESTREAM1.stream
+    try {
+      let response = await fetch('https://api.twitch.tv/helix/streams?user_login=acrossthecloud', {
+        mode: 'cors',
+        method: 'GET',
+        headers: {
+          "Accept":"application/vnd.twitchtv.v5+json",
+          "Client-ID":"brdrlyou2po431ot4owmi1zzjn6n0x"
+        }
       });
-    } else if (Date.now() > DATES_LIVESTREAM2.begin && Date.now() < DATES_LIVESTREAM2.end) {
-      dispatch({
-        type: LIVESTREAM_MODAL_TOGGLE,
-        open: state,
-        hasOpened: true,
-        stream: DATES_LIVESTREAM2.stream
-     });
+      let responseJSON = await response.json();
+      console.log(responseJSON);
+      if (responseJSON.data.length > 0) {
+        dispatch({
+          type: LIVESTREAM_MODAL_TOGGLE,
+          open: state,
+          hasOpened: true,
+          channel: 'acrossthecloud'
+        });
+      }
+    } catch (e) {
+      console.log('error: ' + e)
     }
   } else {
     dispatch({
      type: LIVESTREAM_MODAL_TOGGLE,
      open: state,
-   });
+    });
   }
 }
 
