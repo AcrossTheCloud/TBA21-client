@@ -110,7 +110,6 @@ const defaultRequiredFields = (item: Item) => {
     title,
     description,
     item_subtype,
-    regions,
     aggregated_concept_tags,
     concept_tags
   } = item;
@@ -127,7 +126,6 @@ const defaultRequiredFields = (item: Item) => {
     'title': (!!title && title.length > 0),
     'description': (!!description && description.length > 0),
     'item_subtype': (!!item_subtype && item_subtype.length > 0),
-    'regions': (!!regions && regions.length > 0),
     'concept_tags': conceptTags
   };
 };
@@ -2457,7 +2455,6 @@ class ItemEditorClass extends React.Component<Props, State> {
                         <FormGroup>
                           <Label for="regions">Region(s) (Country/Ocean)</Label>
                           <Select className="select" classNamePrefix="select" isMulti isSearchable menuPlacement="auto" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries } ]} defaultValue={selectedRegions} onChange={e => this.validateLength('regions', !!e && (e as any).length ? (e as any).map(r => r.value) : [])} />
-                          <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('regions') && !this.state.validate.regions ? 'block' : 'none') }}>This is a required field</FormFeedback>
                         </FormGroup>
 
                         <FormGroup>
