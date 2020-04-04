@@ -37,7 +37,7 @@ export const logoDispatch = (state: boolean) => dispatch => {
 export const liveStreamDispatch = (state: boolean) => async dispatch => {
   if (state) {
     try {
-      let response = await fetch('https://api.twitch.tv/helix/streams?user_login=acrossthecloud', {
+      let response = await fetch('https://api.twitch.tv/helix/streams?user_login=oceanarchive', {
         mode: 'cors',
         method: 'GET',
         headers: {
