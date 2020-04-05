@@ -50,7 +50,6 @@ export const liveStreamDispatch = (state: boolean) => async dispatch => {
         }
       });
       let responseJSON = await response.json();
-      console.log(responseJSON);
       if (responseJSON.data.length > 0) {
         dispatch({
           type: LIVESTREAM_MODAL_TOGGLE,
@@ -60,7 +59,7 @@ export const liveStreamDispatch = (state: boolean) => async dispatch => {
         });
       }
     } catch (e) {
-      console.log('error: ' + e)
+      console.log('error: ', e);
     }
   } else {
     dispatch({
