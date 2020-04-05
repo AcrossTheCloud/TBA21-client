@@ -17,11 +17,11 @@ interface Props {
     toggleCollectionModal: Function;
     toggleItemModal: Function;
     openModal: Function;
-    history?: HistoryState;
+    history: HistoryState;
 }
 
 interface State {
-    history?: HistoryState;
+    history: HistoryState;
 }
 
 class HistoryComponent extends Component<Props, State> {
@@ -30,7 +30,8 @@ class HistoryComponent extends Component<Props, State> {
 
         this.state = {
             history: {
-                entities: []
+                entities: [],
+                loading: true
             }
         };
 
@@ -38,20 +39,15 @@ class HistoryComponent extends Component<Props, State> {
     }
 
     componentDidUpdate(): void {
-        if (
-            this.props.history &&
-            this.props.history.entities &&
-            this.state.history &&
-            this.state.history.entities &&
-            JSON.stringify(this.props.history.entities) !== JSON.stringify(this.state.history.entities)
-        ) {
+        if (JSON.stringify(this.props.history) !== JSON.stringify(this.state.history)) {
             this.setState(
                 {
                     history: {
-                        ...this.state.history,
+                        ...this.props.history,
                         entities: [
                             ...this.props.history.entities
-                        ]
+                        ],
+                        loading: this.props.history.loading
                     }
                 }
             );
@@ -61,19 +57,18 @@ class HistoryComponent extends Component<Props, State> {
     render() {
         return (
             <div className={'history'} role={'list'}>
-                {this.state.history ?
-                    this.state.history.entities ?
-                        this.state.history.entities.map((entity: Item | Collection, i: number) => (
-                            <div
-                                key={entity.id}
-                                className={'historyEntity'}
-                                onClick={() => this.toggleEntity(entity)}
-                            >
-                                <div className={'historyEntityTitle'}>
-                                    <div className={'historyEntityIcon'}>
-                                        {entity.__typename === 'collection' ?
-                                            (
-                                                entity.collections && entity.collections.length ?
+                {this.state.history.entities ?
+                    this.state.history.entities.map((entity: Item | Collection, i: number) => (
+                        <div
+                            key={entity.id}
+                            className={'historyEntity'}
+                            onClick={() => this.toggleEntity(entity)}
+                        >
+                            <div className={'historyEntityTitle'}>
+                                <div className={'historyEntityIcon'}>
+                                    {entity.__typename === 'collection' ?
+                                        (
+                                            entity.collections && entity.collections.length ?
                                                 (
                                                     <svg
                                                         className="collections_in_collection_icon"
@@ -82,65 +77,82 @@ class HistoryComponent extends Component<Props, State> {
                                                         xmlns="http://www.w3.org/2000/svg"
                                                         xmlnsXlink="http://www.w3.org/1999/xlink"
                                                     >
-                                                    <g stroke="none" strokeWidth="1" fill="#fff">
-                                                      <g id="Circle1">
-                                                        <circle cx="15.5" cy="15.5" r="3.5"/>
-                                                      </g>
-                                                      <g id="Circle2">
-                                                        <circle cx="-8.5" cy="15.5" r="3.5"/>
-                                                      </g>
-                                                      <g id="Circle3">
-                                                        <circle cx="3.5" cy="3.5" r="3.5"/>
-                                                      </g>
-                                                      <g id="Circle4">
-                                                        <circle cx="3.5" cy="15.5" r="3.5"/>
-                                                      </g>
-                                                      <g id="Line1">
-                                                        <rect x="3" y="3.5" width="1" height="12"/>
-                                                      </g>
-                                                      <g id="Line2">
-                                                        <rect x="3" y="3.5" width="1" height="17" transform="rotate(-45 3 3.5)"/>
-                                                      </g>
-                                                      <g id="Line3">
-                                                        <rect x="3" y="3.5" width="1" height="17" transform="rotate(45 3 3.5)"/>
-                                                      </g>
-                                                    </g>
+                                                        <g stroke="none" strokeWidth="1" fill="#fff">
+                                                            <g id="Circle1">
+                                                                <circle cx="15.5" cy="15.5" r="3.5"/>
+                                                            </g>
+                                                            <g id="Circle2">
+                                                                <circle cx="-8.5" cy="15.5" r="3.5"/>
+                                                            </g>
+                                                            <g id="Circle3">
+                                                                <circle cx="3.5" cy="3.5" r="3.5"/>
+                                                            </g>
+                                                            <g id="Circle4">
+                                                                <circle cx="3.5" cy="15.5" r="3.5"/>
+                                                            </g>
+                                                            <g id="Line1">
+                                                                <rect x="3" y="3.5" width="1" height="12"/>
+                                                            </g>
+                                                            <g id="Line2">
+                                                                <rect
+                                                                    x="3"
+                                                                    y="3.5"
+                                                                    width="1"
+                                                                    height="17"
+                                                                    transform="rotate(-45 3 3.5)"
+                                                                />
+                                                            </g>
+                                                            <g id="Line3">
+                                                                <rect
+                                                                    x="3"
+                                                                    y="3.5"
+                                                                    width="1"
+                                                                    height="17"
+                                                                    transform="rotate(45 3 3.5)"
+                                                                />
+                                                            </g>
+                                                        </g>
                                                     </svg>
-                                                  )
-                                                  :
-                                                  (
-                                                      <svg
+                                                )
+                                                :
+                                                (
+                                                    <svg
                                                         className="collection_icon"
                                                         viewBox="-17 5 40 20"
                                                         version="1.1"
                                                         xmlns="http://www.w3.org/2000/svg"
                                                         xmlnsXlink="http://www.w3.org/1999/xlink"
-                                                      >
+                                                    >
                                                         <g stroke="none" strokeWidth="1" fill="#fff">
-                                                          <rect id="Rectangle" x="-6" y="15" width="19" height="1"/>
-                                                          <circle id="Oval" cx="15.5" cy="15.5" r="3.5"/>
-                                                          <circle id="Oval-Copy-2" cx="3.5" cy="15.5" r="2.5"/>
-                                                          <circle id="Oval-Copy" cx="-8.5" cy="15.5" r="3.5"/>
+                                                            <rect
+                                                                id="Rectangle"
+                                                                x="-6"
+                                                                y="15"
+                                                                width="19"
+                                                                height="1"
+                                                            />
+                                                            <circle id="Oval" cx="15.5" cy="15.5" r="3.5"/>
+                                                            <circle id="Oval-Copy-2" cx="3.5" cy="15.5" r="2.5"/>
+                                                            <circle id="Oval-Copy" cx="-8.5" cy="15.5" r="3.5"/>
                                                         </g>
-                                                      </svg>
-                                                  )
-                                            ) :
-                                            <></>
-                                        }
-                                    </div>
-                                    {entity.title}
-                                </div>
-                                <div className={'historyEntityArrow'}>
-                                    {this.state.history &&
-                                    this.state.history.entities &&
-                                    i !== (this.state.history.entities.length - 1) ?
-                                        <FaChevronRight/> :
+                                                    </svg>
+                                                )
+                                        ) :
                                         <></>
                                     }
                                 </div>
+                                {entity.title}
                             </div>
-                        )) :
-                        <></> :
+                            <div className={'historyEntityArrow'}>
+                                {this.state.history &&
+                                this.state.history.entities &&
+                                i !== (this.state.history.entities.length - 1) ?
+                                    <FaChevronRight/> :
+                                    <></>
+                                }
+                            </div>
+                        </div>
+                    )) :
                     <></>
                 }
             </div>

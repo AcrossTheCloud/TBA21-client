@@ -1,13 +1,22 @@
 import { Item } from '../types/Item';
 import { Collection } from '../types/Collection';
-import { CLEAR_HISTORY, FETCH_HISTORY, POP_ENTITY, PUSH_ENTITY } from '../actions/history';
+import {
+    CLEAR_HISTORY,
+    FETCH_HISTORY,
+    POP_ENTITY,
+    PUSH_ENTITY,
+    PUSH_ENTITY_LOADING,
+    PUSH_ENTITY_SUCCESS
+} from '../actions/history';
 
 export interface HistoryState {
     entities: (Item | Collection)[];
+    loading: boolean;
 }
 
 const initialState: HistoryState = {
-    entities: []
+    entities: [],
+    loading: false
 };
 
 export default (state: HistoryState = initialState, action) => {
@@ -42,6 +51,18 @@ export default (state: HistoryState = initialState, action) => {
                     ...state.entities,
                     action.entity
                 ]
+            };
+
+        case PUSH_ENTITY_LOADING:
+            return {
+                ...state,
+                loading: true
+            };
+
+        case PUSH_ENTITY_SUCCESS:
+            return {
+                ...state,
+                loading: false
             };
 
         case POP_ENTITY:
