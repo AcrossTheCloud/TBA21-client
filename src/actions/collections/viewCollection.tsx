@@ -17,6 +17,16 @@ import { FETCH_COLLECTION_NO_MORE_TO_LOAD, FETCH_COLLECTION_LOAD_MORE, FETCH_COL
 export const fetchCollection = (id: string) => async (dispatch, getState) => {
   const prevState = getState();
 
+  if (id === '') {
+    dispatch({
+      type: FETCH_COLLECTION,
+      collection: undefined,
+      items: {}
+    });
+
+    return;
+  }
+
   dispatch({
      type: LOADINGOVERLAY,
      on: true

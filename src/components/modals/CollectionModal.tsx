@@ -18,7 +18,7 @@ interface Props {
   open: boolean;
   toggle?: Function;
   customToggle?: Function;
-  fetchCollection?: Function;
+  fetchCollection: Function;
   popHistoryEntity: Function;
 }
 
@@ -66,7 +66,7 @@ class CollectionModal extends React.Component<Props, State> {
     if (this._isMounted) {
       const state = {};
 
-      if (this.props.data && !isEqual(this.props.data, prevProps.data) && typeof this.props.fetchCollection === 'function') {
+      if (this.props.data && !isEqual(this.props.data, prevProps.data)) {
         this.props.fetchCollection(this.props.data.id);
 
         const data = this.props.collection || this.props.data;
@@ -116,6 +116,8 @@ class CollectionModal extends React.Component<Props, State> {
       } else if (typeof this.props.toggle === 'function') {
          this.props.toggle(state);
       }
+
+      this.props.fetchCollection('');
     };
 
     if (data) {
