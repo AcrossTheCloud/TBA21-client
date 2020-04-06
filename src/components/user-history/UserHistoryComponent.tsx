@@ -60,6 +60,10 @@ class UserHistoryComponent extends PureComponent<Props, State> {
     }
 
     render() {
+        if (this.props.userHistory.loading) {
+            return (<></>);
+        }
+
         return (
             <div className={'userHistory'} role={'list'}>
                 {this.state.userHistory.entities ?
