@@ -35,12 +35,12 @@ interface Props extends RouteComponentProps<MatchParams>, Alerts {
   dispatchSearch: Function;
   pushUserHistoryEntity: Function;
   item: Item;
+  userHistory?: UserHistoryState;
 }
 
 interface State {
   errorMessage: string | undefined;
   item: HomepageData | Item | undefined;
-  userHistoryLoading: boolean;
 }
 
 class ViewItem extends React.Component<Props, State> {
@@ -53,8 +53,7 @@ class ViewItem extends React.Component<Props, State> {
 
     this.state = {
       errorMessage: undefined,
-      item: undefined,
-      userHistoryLoading: true
+      item: undefined
     };
   }
 
@@ -79,9 +78,6 @@ class ViewItem extends React.Component<Props, State> {
 
   componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>): void {
     this.pushItemToHistory(prevProps.item);
-
-    // @ts-ignore
-    console.log(111, this.state.userHistoryLoading);
   }
 
   pushItemToHistory(prevItem?: Item) {
@@ -167,8 +163,8 @@ class ViewItem extends React.Component<Props, State> {
 
     const isAudio = (!!file && item_type === itemType.Audio) || (!!file && file.type === FileTypes.Audio);
 
-    if (this.state.userHistoryLoading) {
-      // return (<></>);
+    if (this.props.userHistory && this.props.userHistory.loading) {
+      return (<></>);
     }
 
     return (

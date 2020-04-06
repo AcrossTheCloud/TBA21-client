@@ -42,6 +42,7 @@ interface Props extends RouteComponentProps<MatchParams>, ViewCollectionState {
 
   // ID string passed from the Parent that gives you the modal's body.
   modalBodyID?: string;
+  userHistory?: UserHistoryState;
 }
 
 interface State {
@@ -55,7 +56,6 @@ interface State {
   dataRowID?: string;
   noMoreData: boolean;
   loading: boolean;
-  userHistoryLoading: boolean;
 }
 
 const DataLayout = (props: { data: Item | Collection, itemModalToggle?: Function, collectionModalToggle?: Function }): JSX.Element => {
@@ -156,8 +156,7 @@ class ViewCollection extends React.Component<Props, State> {
       offset: 0,
       loading: false,
       noMoreData: false,
-      collectionModalToggled: false,
-      userHistoryLoading: true
+      collectionModalToggled: false
     };
 
     const { match } = this.props;
@@ -387,8 +386,8 @@ class ViewCollection extends React.Component<Props, State> {
       </Row>
     );
 
-    if (this.state.userHistoryLoading) {
-      // return (<></>);
+    if (this.props.userHistory && this.props.userHistory.loading) {
+      return (<></>);
     }
 
     return (
@@ -575,7 +574,7 @@ const mapStateToProps = (state: { viewCollection: ViewCollectionState, userHisto
     noMoreData: state.viewCollection.noMoreData,
     noRedux: !!props.noRedux || false,
     modalBodyID: props.modalBodyID,
-    userHistoryLoading: state.userHistory.loading
+    userHistory: state.userHistory
   };
 };
 
