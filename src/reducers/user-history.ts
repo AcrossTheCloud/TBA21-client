@@ -1,31 +1,33 @@
 import { Item } from '../types/Item';
 import { Collection } from '../types/Collection';
 import {
-    CLEAR_HISTORY,
-    FETCH_HISTORY,
+    CLEAR,
+    FETCH,
     POP_ENTITY,
     PUSH_ENTITY,
     PUSH_ENTITY_LOADING,
     PUSH_ENTITY_SUCCESS
-} from '../actions/history';
+} from '../actions/user-history';
 
-export interface HistoryState {
-    entities: (Item | Collection)[];
+export type UserHistoryEntity = (Item | Collection);
+
+export interface UserHistoryState {
+    entities: UserHistoryEntity[];
     loading: boolean;
 }
 
-const initialState: HistoryState = {
+const initialState: UserHistoryState = {
     entities: [],
     loading: false
 };
 
-export default (state: HistoryState = initialState, action) => {
+export default (state: UserHistoryState = initialState, action) => {
     if (state === undefined) {
         state = initialState;
     }
 
     switch (action.type) {
-        case FETCH_HISTORY:
+        case FETCH:
             return {
                 ...state,
                 entities: state.entities
@@ -81,7 +83,7 @@ export default (state: HistoryState = initialState, action) => {
                 entities: filteredEntities
             };
 
-        case CLEAR_HISTORY:
+        case CLEAR:
             return {
                 ...state,
                 entities: []

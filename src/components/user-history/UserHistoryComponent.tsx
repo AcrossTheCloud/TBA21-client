@@ -1,53 +1,53 @@
 import * as React from 'react';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import { clearHistory, fetchHistory } from '../../actions/history';
-import { HistoryState } from '../../reducers/history';
+import { clear, fetch } from '../../actions/user-history';
+import { UserHistoryState } from '../../reducers/user-history';
 import { Collection } from '../../types/Collection';
 import { Item } from '../../types/Item';
-import 'styles/components/historyComponent.scss';
+import 'styles/components/userHistoryComponent.scss';
 import { openModal } from '../../actions/map/map';
 import { FaChevronRight } from 'react-icons/fa';
 import { toggle as toggleCollectionModal } from '../../actions/modals/collectionModal';
 import { toggle as toggleItemModal } from '../../actions/modals/itemModal';
 
 interface Props {
-    fetchHistory: Function;
-    clearHistory: Function;
+    fetch: Function;
+    clear: Function;
     toggleCollectionModal: Function;
     toggleItemModal: Function;
     openModal: Function;
-    history: HistoryState;
+    userHistory: UserHistoryState;
 }
 
 interface State {
-    history: HistoryState;
+    userHistory: UserHistoryState;
 }
 
-class HistoryComponent extends Component<Props, State> {
+class UserHistoryComponent extends Component<Props, State> {
     constructor(props: Props) {
         super(props);
 
         this.state = {
-            history: {
+            userHistory: {
                 entities: [],
                 loading: true
             }
         };
 
-        this.props.fetchHistory();
+        this.props.fetch();
     }
 
     componentDidUpdate(): void {
-        if (JSON.stringify(this.props.history) !== JSON.stringify(this.state.history)) {
+        if (JSON.stringify(this.props.userHistory) !== JSON.stringify(this.state.userHistory)) {
             this.setState(
                 {
-                    history: {
-                        ...this.props.history,
+                    userHistory: {
+                        ...this.props.userHistory,
                         entities: [
-                            ...this.props.history.entities
+                            ...this.props.userHistory.entities
                         ],
-                        loading: this.props.history.loading
+                        loading: this.props.userHistory.loading
                     }
                 }
             );
@@ -56,16 +56,16 @@ class HistoryComponent extends Component<Props, State> {
 
     render() {
         return (
-            <div className={'history'} role={'list'}>
-                {this.state.history.entities ?
-                    this.state.history.entities.map((entity: Item | Collection, i: number) => (
+            <div className={'userHistory'} role={'list'}>
+                {this.state.userHistory.entities ?
+                    this.state.userHistory.entities.map((entity: Item | Collection, i: number) => (
                         <div
                             key={entity.id}
-                            className={'historyEntity'}
+                            className={'userHistoryEntity'}
                             onClick={() => this.toggleEntity(entity)}
                         >
-                            <div className={'historyEntityTitle'}>
-                                <div className={'historyEntityIcon'}>
+                            <div className={'userHistoryEntityTitle'}>
+                                <div className={'userHistoryEntityIcon'}>
                                     {entity.__typename === 'collection' ?
                                         (
                                             entity.collections && entity.collections.length ?
@@ -143,10 +143,10 @@ class HistoryComponent extends Component<Props, State> {
                                 </div>
                                 {entity.title}
                             </div>
-                            <div className={'historyEntityArrow'}>
-                                {this.state.history &&
-                                this.state.history.entities &&
-                                i !== (this.state.history.entities.length - 1) ?
+                            <div className={'userHistoryEntityArrow'}>
+                                {this.state.userHistory &&
+                                this.state.userHistory.entities &&
+                                i !== (this.state.userHistory.entities.length - 1) ?
                                     <FaChevronRight/> :
                                     <></>
                                 }
@@ -160,7 +160,7 @@ class HistoryComponent extends Component<Props, State> {
     }
 
     private toggleEntity(entity: Item | Collection) {
-        this.props.clearHistory();
+        this.props.clear();
         this.props.toggleCollectionModal(false);
 
         this.props.toggleItemModal(false);
@@ -173,13 +173,13 @@ class HistoryComponent extends Component<Props, State> {
 }
 
 const mapStateToProps = (state: State) => ({
-    history: state.history
+    userHistory: state.userHistory
 });
 
 export default connect(mapStateToProps, {
-    fetchHistory,
-    clearHistory,
+    fetch,
+    clear,
     toggleCollectionModal,
     toggleItemModal,
     openModal
-})(HistoryComponent);
+})(UserHistoryComponent);

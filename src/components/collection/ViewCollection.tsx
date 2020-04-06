@@ -22,8 +22,9 @@ import { getCollectionsInCollection, getItemsInCollection } from '../../REST/col
 import { removeTopology } from '../utils/removeTopology';
 import { createCriteriaOption } from '../search/SearchConsole';
 import { toggle as collectionModalToggle } from '../../actions/modals/collectionModal';
-import { pushEntity as pushHistoryEntity } from '../../actions/history';
+import { pushEntity as pushUserHistoryEntity } from '../../actions/user-history';
 import { search as dispatchSearch, toggle as searchOpenToggle } from '../../actions/searchConsole';
+import { UserHistoryState } from '../../reducers/user-history';
 
 type MatchParams = {
   id: string;
@@ -37,7 +38,7 @@ interface Props extends RouteComponentProps<MatchParams>, ViewCollectionState {
   collectionModalToggle: Function;
   searchOpenToggle: Function;
   dispatchSearch: Function;
-  pushHistoryEntity: Function;
+  pushUserHistoryEntity: Function;
 
   // ID string passed from the Parent that gives you the modal's body.
   modalBodyID?: string;
@@ -54,6 +55,7 @@ interface State {
   dataRowID?: string;
   noMoreData: boolean;
   loading: boolean;
+  userHistoryLoading: boolean;
 }
 
 const DataLayout = (props: { data: Item | Collection, itemModalToggle?: Function, collectionModalToggle?: Function }): JSX.Element => {
@@ -113,7 +115,9 @@ const DataLayout = (props: { data: Item | Collection, itemModalToggle?: Function
                   creators: data.creators ? data.creators : [],
                   regions: data.regions ? data.regions : [],
                   created_at: data.created_at ? data.created_at : null,
+                  // tslint:disable-next-line:no-any
                   items: data.items as any || [],
+                  // tslint:disable-next-line:no-any
                   collections: data.collections as any || [],
                   // Collection specific
                   count: data.count ? data.count : 0,
@@ -152,7 +156,8 @@ class ViewCollection extends React.Component<Props, State> {
       offset: 0,
       loading: false,
       noMoreData: false,
-      collectionModalToggled: false
+      collectionModalToggled: false,
+      userHistoryLoading: true
     };
 
     const { match } = this.props;
@@ -243,12 +248,12 @@ class ViewCollection extends React.Component<Props, State> {
     if (this.props.collection !== undefined) {
       if (prevCollection !== undefined) {
         if (JSON.stringify(this.props.collection) !== JSON.stringify(prevCollection)) {
-          const historyEntity = await this.createHistoryEntity();
-          this.props.pushHistoryEntity(historyEntity);
+          const userHistoryEntity = await this.createHistoryEntity();
+          this.props.pushUserHistoryEntity(userHistoryEntity);
         }
       } else {
-        const historyEntity = await this.createHistoryEntity();
-        this.props.pushHistoryEntity(historyEntity);
+        const userHistoryEntity = await this.createHistoryEntity();
+        this.props.pushUserHistoryEntity(userHistoryEntity);
       }
     }
   }
@@ -381,6 +386,10 @@ class ViewCollection extends React.Component<Props, State> {
         <Col xs="12" md="6">{props.value}</Col>
       </Row>
     );
+
+    if (this.state.userHistoryLoading) {
+      // return (<></>);
+    }
 
     return (
       <div id="item" className="container-fluid">
@@ -556,7 +565,7 @@ class ViewCollection extends React.Component<Props, State> {
 }
 
 // State to props
-const mapStateToProps = (state: { viewCollection: ViewCollectionState }, props: { modalBodyID?: string, collection?: Collection, noRedux?: boolean, history: History }) => {
+const mapStateToProps = (state: { viewCollection: ViewCollectionState, userHistory: UserHistoryState }, props: { modalBodyID?: string, collection?: Collection, noRedux?: boolean}) => {
   return {
     errorMessage: state.viewCollection.errorMessage,
     collection: props.collection || state.viewCollection.collection,
@@ -566,6 +575,7 @@ const mapStateToProps = (state: { viewCollection: ViewCollectionState }, props: 
     noMoreData: state.viewCollection.noMoreData,
     noRedux: !!props.noRedux || false,
     modalBodyID: props.modalBodyID,
+    userHistoryLoading: state.userHistory.loading
   };
 };
 
@@ -575,7 +585,7 @@ export default withRouter(connect(mapStateToProps, {
   dispatchLoadMore,
   collectionModalToggle,
   itemModalToggle,
-  pushHistoryEntity,
+  pushUserHistoryEntity,
   searchOpenToggle,
   dispatchSearch
 })(ViewCollection));

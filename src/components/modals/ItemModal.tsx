@@ -9,18 +9,19 @@ import { FaCircle, FaTimes } from 'react-icons/fa';
 import { Col, Modal, ModalBody, Row } from 'reactstrap';
 import { Item } from '../../types/Item';
 import ViewItem from '../item/ViewItem';
-import HistoryComponent from '../history/HistoryComponent';
-import { popEntity as popHistoryEntity } from '../../actions/history';
+import UserHistoryComponent from '../user-history/UserHistoryComponent';
+import { popEntity as popUserHistoryEntity } from '../../actions/user-history';
 
 interface Props {
   data?: HomepageData | Item;
   open: boolean;
   toggle: Function;
   fetchItem: Function;
-  popHistoryEntity: Function;
+  popUserHistoryEntity: Function;
 }
 
 interface State {
+  data: HomepageData | Item | undefined;
   open: boolean;
 }
 
@@ -32,9 +33,9 @@ class ItemModal extends React.Component<Props, State> {
     this._isMounted = false;
 
     this.state = {
+      data: undefined,
       open: false
     };
-
   }
 
   async componentDidMount(): Promise<void> {
@@ -69,7 +70,7 @@ class ItemModal extends React.Component<Props, State> {
 
   onKeyPressed(event: KeyboardEvent) {
     if (event.key === 'Escape') {
-      this.props.popHistoryEntity(this.props.data);
+      this.props.popUserHistoryEntity(this.props.data);
     }
   }
 
@@ -85,14 +86,16 @@ class ItemModal extends React.Component<Props, State> {
           <Row className="header align-content-center">
             <div className="col-11 title-wrapper d-flex align-content-center">
               {creators && creators.length ?
-                <>
-                  <div className="creators d-none d-md-block">
-                    <span className="ellipsis">{creators.join(', ')}</span>
-                  </div>
-                  <div className="d-none d-md-block flex-grow-0 flex-shrink-0">
-                    <FaCircle className="dot"/>
-                  </div>
-                </>
+                  (
+                      <>
+                        <div className="creators d-none d-md-block">
+                          <span className="ellipsis">{creators.join(', ')}</span>
+                        </div>
+                        <div className="d-none d-md-block flex-grow-0 flex-shrink-0">
+                          <FaCircle className="dot"/>
+                        </div>
+                      </>
+                )
                 : <></>
               }
               <div className="title">
@@ -106,7 +109,7 @@ class ItemModal extends React.Component<Props, State> {
                 <FaTimes
                     className="closeButton"
                     onClick={() => {
-                      this.props.popHistoryEntity(this.props.data);
+                      this.props.popUserHistoryEntity(this.props.data);
                       this.props.toggle(false);
                     }}
                 />
@@ -117,7 +120,7 @@ class ItemModal extends React.Component<Props, State> {
           <ModalBody>
             <Row>
               <Col>
-                <HistoryComponent />
+                <UserHistoryComponent />
               </Col>
             </Row>
             <ViewItem />
@@ -136,4 +139,4 @@ const mapStateToProps = (state: { itemModal: { open: boolean, data?: HomepageDat
   open: state.itemModal.open
 });
 
-export default connect(mapStateToProps, { toggle, fetchItem, popHistoryEntity })(ItemModal);
+export default connect(mapStateToProps, { toggle, fetchItem, popUserHistoryEntity })(ItemModal);

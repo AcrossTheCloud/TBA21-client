@@ -3,18 +3,18 @@ import { Collection } from '../types/Collection';
 import { removeTopology } from '../components/utils/removeTopology';
 import { getCollectionsInCollection } from '../REST/collections';
 
-export const FETCH_HISTORY = 'FETCH_HISTORY';
+export const FETCH = 'FETCH';
 export const PUSH_ENTITY = 'PUSH_ENTITY';
 export const PUSH_ENTITY_LOADING = 'PUSH_ENTITY_LOADING';
 export const PUSH_ENTITY_SUCCESS = 'PUSH_ENTITY_SUCCESS';
 export const POP_ENTITY = 'POP_ENTITY';
-export const CLEAR_HISTORY = 'CLEAR_HISTORY';
+export const CLEAR = 'CLEAR';
 
-export const fetchHistory = () => async (dispatch, getState) => {
+export const fetch = () => async (dispatch, getState) => {
     dispatch({
-         type: FETCH_HISTORY,
-         history: getState().history
-     });
+        type: FETCH,
+        userHistory: getState().history
+    });
 };
 
 export const pushEntity = (entity?: Item | Collection) => async (dispatch) => {
@@ -31,22 +31,22 @@ export const pushEntity = (entity?: Item | Collection) => async (dispatch) => {
     }
 
     dispatch({
-         type: PUSH_ENTITY,
-         entity
-     });
+        type: PUSH_ENTITY,
+        entity
+    });
 
     dispatch({type: PUSH_ENTITY_SUCCESS});
 };
 
 export const popEntity = (entity?: Item | Collection) => dispatch => {
     dispatch({
-         type: POP_ENTITY,
-         entity
-     });
+        type: POP_ENTITY,
+        entity
+    });
 };
 
-export const clearHistory = () => dispatch => {
+export const clear = () => dispatch => {
     dispatch({
-         type: CLEAR_HISTORY
-     });
+        type: CLEAR
+    });
 };

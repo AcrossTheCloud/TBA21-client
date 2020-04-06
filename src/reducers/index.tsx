@@ -5,7 +5,7 @@ import viewCollection from '../reducers/collections/viewCollection';
 import loadingOverlay from './loadingOverlay';
 import map from '../reducers/map/map';
 import home from '../reducers/home';
-import history from '../reducers/history';
+import userHistory from './user-history';
 import profile from '../reducers/user/profile';
 import manageUsers from '../reducers/admin/user/manageUsers';
 import searchConsole from '../reducers/searchConsole';
@@ -22,7 +22,7 @@ const reducers: ReducersMapObject = {
   viewItem,
   viewCollection,
   viewProfile,
-  history,
+  userHistory,
 
   loadingOverlay,
 

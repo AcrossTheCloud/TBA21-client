@@ -5,7 +5,7 @@ import { Carousel, CarouselItem, Col, Container, Row, Spinner } from 'reactstrap
 import { debounce, isEqual } from 'lodash';
 import { Cookies, withCookies } from 'react-cookie';
 
-import { loadHomepage, loadMore, logoDispatch, liveStreamDispatch, openModal } from 'actions/home';
+import { liveStreamDispatch, loadHomepage, loadMore, logoDispatch, openModal } from 'actions/home';
 import { toggle as searchOpenToggle } from 'actions/searchConsole';
 import { Announcement } from '../types/Announcement';
 
@@ -19,9 +19,8 @@ import Footer from './layout/Footer';
 import HomepageVideo from './layout/HomepageVideo';
 
 import 'styles/components/home.scss';
-import { Item } from '../types/Item';
-import { Collection } from '../types/Collection';
-import { clearHistory } from '../actions/history';
+import { clear as clearHistory } from '../actions/user-history';
+import { UserHistoryEntity, UserHistoryState } from '../reducers/user-history';
 
 interface Props extends HomePageState {
   logoDispatch: Function;
@@ -35,13 +34,13 @@ interface Props extends HomePageState {
   liveStreamHasOpened: boolean; // from redux
   collectionModalIsOpen: boolean;
   itemModalIsOpen: boolean;
-  historyEntities: (Item & Collection)[];
   clearHistory: Function;
 }
 
 interface State {
   announcements: Announcement[];
   announcementsActiveIndex: number;
+  userHistoryEntities: UserHistoryEntity[];
 }
 
 class HomePage extends React.Component<Props, State> {
@@ -57,7 +56,8 @@ class HomePage extends React.Component<Props, State> {
 
     this.state = {
       announcements: [],
-      announcementsActiveIndex: 0
+      announcementsActiveIndex: 0,
+      userHistoryEntities: []
     };
 
     this.scrollDebounce = debounce( async () => await this.handleScroll(), 100);
@@ -85,7 +85,7 @@ class HomePage extends React.Component<Props, State> {
   }
 
   async componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>): Promise<void> {
-    if (this.props.historyEntities && this.props.historyEntities.length) {
+    if (this.state.userHistoryEntities && this.state.userHistoryEntities.length) {
       if (!this.props.itemModalIsOpen && !this.props.collectionModalIsOpen) {
         this.props.clearHistory();
       }
@@ -321,14 +321,14 @@ class HomePage extends React.Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: { home: Props, liveStreamModal: { hasOpened: boolean }, collectionModal: { open: boolean }, itemModal: { open: boolean }, history: { entities: [] } }) => ({
+const mapStateToProps = (state: { home: Props, liveStreamModal: { hasOpened: boolean }, collectionModal: { open: boolean }, itemModal: { open: boolean }, userHistory: UserHistoryState }) => ({
   logoLoaded: state.home.logoLoaded,
   loading: state.home.loading,
 
   liveStreamHasOpened: state.liveStreamModal.hasOpened,
   collectionModalIsOpen: state.collectionModal.open,
   itemModalIsOpen: state.itemModal.open,
-  historyEntities: state.history.entities,
+  userHistoryEntities: state.userHistory.entities,
 
   items: state.home.items ? state.home.items : [],
   collections: state.home.collections ? state.home.collections : [],
