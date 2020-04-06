@@ -2,7 +2,7 @@ import { getCDNObject, checkThumbnails } from '../../components/utils/s3File';
 import { Item } from '../../types/Item';
 import { FileTypes, S3File } from '../../types/s3File';
 import { LOADINGOVERLAY } from '../loadingOverlay';
-import { getItems } from '../../REST/items';
+import { getItem, getItems } from '../../REST/items';
 import { removeTopology } from '../../components/utils/removeTopology';
 
 // Defining our Actions for the reducers.
@@ -33,8 +33,8 @@ export const checkFile = async (item: Item): Promise<S3File | false> => {
  */
 export const fetchItem = (id: string) => async (dispatch, getState) => {
   dispatch({ type: LOADINGOVERLAY, on: true }); // Turn on the loading overlay
-  console.log(id, 'id');
   const prevState = getState();
+  const uuidRegex = /^[0-9a-f]{8}-?[0-9a-f]{4}-?[1-5][0-9a-f]{3}-?[89ab][0-9a-f]{3}-?[0-9a-f]{12}$/i;
 
   // Detect if we have the same itemID and return the previous state.
   // We do this here to stop another API call and you can easily get the prevState in the Action.
@@ -44,9 +44,9 @@ export const fetchItem = (id: string) => async (dispatch, getState) => {
   } else {
 
     try {
-      const response = await getItems({ uuid: id });
+      // match the incoming id to a uuid or item id to determine what api method we call
+      const response = id.match(uuidRegex) ?  await getItems({ uuid: id }) : await getItem({ id: id });
       const items = await removeTopology(response) as Item[];
-      console.log(response, items, 'aaaaa');
       if (!!items && items[0]) {
         const item = items[0];
 

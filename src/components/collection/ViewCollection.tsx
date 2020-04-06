@@ -223,7 +223,7 @@ class ViewCollection extends React.Component<Props, {}> {
 }
 
 // State to props
-const mapStateToProps = (state: { viewCollection: ViewCollectionState }) => { // tslint:disable-line: no-any
+const mapStateToProps = (state: { viewCollection: ViewCollectionState }) => {
   return {
     errorMessage: state.viewCollection.errorMessage,
     collection: state.viewCollection.collection,
@@ -233,7 +233,7 @@ const mapStateToProps = (state: { viewCollection: ViewCollectionState }) => { //
 };
 
 // Connect our redux store State to Props, and pass through the fetchCollection function.
-export default withRouter(connect(mapStateToProps, {
+export default withRouter(connect( mapStateToProps, {
   fetchCollection,
   collectionModalToggle,
   itemModalToggle,

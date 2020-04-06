@@ -51,13 +51,8 @@ class ViewItem extends React.Component<Props, State> {
     // Get our itemId passed through from URL props
     if (this.props.uuid) {
       this.props.fetchItem(this.props.uuid);
-    }
-
-    // If we have an id from the URL pass it through, otherwise use the one from Redux State
-    if (matchedItemId) {
-      this.props.fetchItem(matchedItemId);
     } else {
-      this.setState({ errorMessage: 'No item with that id.' });
+      this.props.fetchItem(matchedItemId);
     }
   }
 

@@ -2,7 +2,7 @@ import { Item } from '../../types/Item';
 import { checkFile } from '../items/viewItem';
 import { LOADINGOVERLAY } from '../loadingOverlay';
 import { FETCH_COLLECTION_LOAD_MORE } from '../../reducers/collections/viewCollection';
-import { getCollectionByUuid } from '../../REST/collections';
+import { getCollectionByUuid, getItemsInCollection } from '../../REST/collections';
 import { removeTopology } from '../../components/utils/removeTopology';
 import { Collection } from '../../types/Collection';
 
@@ -15,9 +15,9 @@ export const FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION = 'FETCH_COLLECTION_ERROR
  *
  * API call to fetch collection information based on the collectionID and dispatch it through to Redux
  *
- * @param id {string}
+ * @param uuid {string}
  */
-export const fetchCollection = (id: string) => async (dispatch, getState) => {
+export const fetchCollection = (uuid: string) => async (dispatch, getState) => {
   const prevState = getState();
 
   dispatch({
@@ -27,7 +27,7 @@ export const fetchCollection = (id: string) => async (dispatch, getState) => {
 
   // Detect if we have the same collectionID and return the previous state.
   // We do this here to stop another API call and you can easily get the prevState in the Action.
-  if (prevState.viewCollection.collection && id === prevState.viewCollection.collection.id) {
+  if (prevState.viewCollection.collection && uuid === prevState.viewCollection.collection.uuid) {
     dispatch({
        type: LOADINGOVERLAY,
        on: false
@@ -37,17 +37,21 @@ export const fetchCollection = (id: string) => async (dispatch, getState) => {
   } else {
 
     try {
-      const response = await getCollectionByUuid(id);
+      const response = await getCollectionByUuid(uuid);
       const collection = await removeTopology(response) as Collection[];
 
       if (!!collection && !!collection[0] && Object.keys(collection).length) {
-        // const itemResponse = await getItemsInCollection({ id, limit: 1000 });
-        dispatch({
-                     type: FETCH_COLLECTION,
-                     collection: collection[0],
-                     offset: 0,
-                     // ...await loadMore(removeTopology(itemResponse) as Item[])
-                 });
+        let i;
+        for (i = 0; i < collection.length; i++) {
+            const id = collection[i].id;
+            const itemResponse = await getItemsInCollection({ id, limit: 1000 });
+            dispatch({
+                       type: FETCH_COLLECTION,
+                       collection: collection[i],
+                       offset: 0,
+                       ...await loadMore(removeTopology(itemResponse) as Item[])
+                   });
+        }
       } else {
         dispatch({
          type: FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION,
