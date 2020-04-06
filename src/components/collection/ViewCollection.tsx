@@ -46,8 +46,8 @@ interface Props extends RouteComponentProps<MatchParams>, ViewCollectionState {
 }
 
 interface State {
-  data: (Item | Collection)[];
-  firstItem?: Item;
+  data: (Item | Collection)[] | undefined;
+  firstItem: Item | undefined;
   offset: number;
   errorMessage?: string;
   collection?: Collection;
@@ -152,7 +152,8 @@ class ViewCollection extends React.Component<Props, State> {
 
     this._isMounted = false;
     const state = {
-      data: [],
+      data: undefined,
+      firstItem: undefined,
       offset: 0,
       loading: false,
       noMoreData: false,
@@ -213,22 +214,31 @@ class ViewCollection extends React.Component<Props, State> {
     if (!this.props.noRedux) {
       if (typeof prevProps.collection === 'undefined' && !!this.props.collection) {
         // We've just loaded our collection via fetchCollection
-        this.setState({ collection: this.props.collection, dataRowID: `dataRow_${this.props.collection.id}_${Date.now()}` }, async () => await this.loadData());
+        this.setState(
+            {
+              collection: this.props.collection,
+              dataRowID: `dataRow_${this.props.collection.id}_${Date.now()}`
+            },
+            async () => await this.loadData()
+        );
         return;
       }
 
       if (!!this.props.collection && !isEqual(this.props.collection, this.state.collection)) {
-        Object.assign(state, {collection: this.props.collection, dataRowID: `dataRow_${this.props.collection.id}_${Date.now()}`});
+        this.setState({
+          collection: this.props.collection,
+          dataRowID: `dataRow_${this.props.collection.id}_${Date.now()}`
+        });
       }
 
       if (!isEqual(this.props.data, this.state.data)) {
-        Object.assign(state, {
-          data: this.props.data,
-          firstItem: this.state.data ?
-              this.state.data
+        this.setState({
+          data: this.props.data || [],
+          firstItem: this.props.data ?
+              this.props.data
                   .filter((data: Item | Collection) => {
                     return data.__typename === 'item';
-                  })[0]
+                  })[0] as Item
               : undefined
         });
       }
@@ -272,7 +282,7 @@ class ViewCollection extends React.Component<Props, State> {
           await loadMore(this.state.collection.id, this.state.offset, (datum) => {
             if (!this._isMounted) { return; }
             if (datum) {
-              this.setState({data: [...this.state.data, datum], offset: this.state.offset + 10});
+              this.setState({data: [...this.state.data as [], datum], offset: this.state.offset + 10});
             } else {
               this.setState({ noMoreData: true });
             }
