@@ -106,18 +106,18 @@ class CollectionModal extends React.Component<Props, State> {
   render() {
     const data = this.props.collection || this.props.data;
 
-    const modalToggle = (state: boolean = false): void => {
-      const collection = this.props.collection || this.props.data;
-
-      this.props.popHistoryEntity(collection);
-
+    const modalToggle = (open: boolean = false): void => {
       if (typeof this.props.customToggle === 'function') {
-        this.props.customToggle(state);
+        this.props.customToggle(open);
       } else if (typeof this.props.toggle === 'function') {
-         this.props.toggle(state);
+         this.props.toggle(open);
       }
 
-      this.props.fetchCollection('');
+      if (!open) {
+        const collection = this.props.collection || this.props.data;
+        this.props.popHistoryEntity(collection);
+        this.props.fetchCollection('');
+      }
     };
 
     if (data) {
