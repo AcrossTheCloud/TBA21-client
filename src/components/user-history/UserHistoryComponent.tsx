@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { PureComponent } from 'react';
 import { connect } from 'react-redux';
-import { clear, fetch } from '../../actions/user-history';
+import { clear, fetch, pushEntity } from '../../actions/user-history';
 import { UserHistoryEntity, UserHistoryState } from '../../reducers/user-history';
 import { Collection } from '../../types/Collection';
 import { Item } from '../../types/Item';
@@ -18,6 +18,7 @@ interface Props {
     toggleItemModal: Function;
     openModal: Function;
     userHistory: UserHistoryState;
+    pushEntity: Function;
 }
 
 interface State {
@@ -25,6 +26,10 @@ interface State {
 }
 
 class UserHistoryComponent extends PureComponent<Props, State> {
+    private static getClassNames(isCurrent: boolean): string {
+        return `userHistoryEntity${isCurrent ? ' isCurrent' : ''}`;
+    }
+
     constructor(props: Props) {
         super(props);
 
@@ -61,7 +66,7 @@ class UserHistoryComponent extends PureComponent<Props, State> {
                     this.state.userHistory.entities.map((entity: UserHistoryEntity, i: number) => (
                         <div
                             key={entity.id}
-                            className={this.getClassNames(entity.isCurrent)}
+                            className={UserHistoryComponent.getClassNames(entity.isCurrent)}
                             onClick={() => this.toggleEntity(entity)}
                         >
                             <div className={'userHistoryEntityTitle'}>
@@ -159,19 +164,15 @@ class UserHistoryComponent extends PureComponent<Props, State> {
         );
     }
 
-    private getClassNames(isCurrent: boolean): string {
-        return `userHistoryEntity${isCurrent ? ' isCurrent' : ''}`;
-    }
-
     private toggleEntity(entity: Item | Collection) {
-        this.props.clear();
-        this.props.toggleCollectionModal(false);
+        this.props.pushEntity(entity);
 
-        this.props.toggleItemModal(false);
         if (entity.__typename === 'collection') {
             this.props.toggleCollectionModal(true, entity);
+            this.props.toggleItemModal(false);
         } else if (entity.__typename === 'item') {
             this.props.toggleItemModal(true, entity);
+            this.props.toggleCollectionModal(false);
         }
     }
 }
@@ -185,5 +186,6 @@ export default connect(mapStateToProps, {
     clear,
     toggleCollectionModal,
     toggleItemModal,
-    openModal
+    openModal,
+    pushEntity
 })(UserHistoryComponent);
