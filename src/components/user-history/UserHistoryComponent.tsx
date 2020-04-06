@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Component } from 'react';
+import { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { clear, fetch } from '../../actions/user-history';
 import { UserHistoryState } from '../../reducers/user-history';
@@ -24,7 +24,7 @@ interface State {
     userHistory: UserHistoryState;
 }
 
-class UserHistoryComponent extends Component<Props, State> {
+class UserHistoryComponent extends PureComponent<Props, State> {
     constructor(props: Props) {
         super(props);
 
