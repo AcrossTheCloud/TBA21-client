@@ -8,23 +8,31 @@
     flex-direction: row;
     cursor: pointer;
 
-    &.isCurrent {
-      margin-left: 0.5rem;
-      cursor: default;
-      pointer-events: none;
-
-      .userHistoryEntityTitle {
-        margin: 0;
-        padding: 0 0.5rem;
-        border: 1px solid white;
-        color: #B2C1C6;
-      }
-    }
-
     &:first-child {
       .userHistoryEntityTitle {
         color: #328C94;
         margin-left: 0;
+      }
+    }
+
+    &.isCurrent {
+      margin: 0 0.5rem;
+      cursor: default;
+      pointer-events: none;
+
+      &:first-child {
+        margin-left: 1rem;
+
+        .userHistoryEntityTitle {
+          margin: 0;
+        }
+      }
+
+      .userHistoryEntityTitle {
+        margin: 0 0.5rem 0 0;
+        padding: 0 0.5rem;
+        border: 1px solid white;
+        color: #B2C1C6;
       }
     }
 
@@ -42,6 +50,7 @@
       font-size: 12px;
       font-weight: 600;
       line-height: 2rem;
+      border: 1px solid $dark-blue;
     }
 
     .userHistoryEntityIcon {
@@ -62,6 +71,7 @@
 
     .userHistoryEntityArrow {
       align-items: center;
+      align-self: center;
       width: 1.5rem;
       height: 1.5rem;
       text-align: center;

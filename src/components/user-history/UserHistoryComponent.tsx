@@ -70,11 +70,11 @@ class UserHistoryComponent extends PureComponent<Props, State> {
                             onClick={() => this.toggleEntity(entity)}
                         >
                             <div className={'userHistoryEntityTitle'}>
-                                <div className={'userHistoryEntityIcon'}>
-                                    {entity.__typename === 'collection' ?
-                                        (
-                                            entity.collections && entity.collections.length ?
-                                                (
+                                {entity.__typename === 'collection' ?
+                                    (
+                                        entity.collections && entity.collections.length ?
+                                            (
+                                                <div className={'userHistoryEntityIcon'}>
                                                     <svg
                                                         className="collections_in_collection_icon"
                                                         viewBox="-18 0 40 20"
@@ -118,9 +118,11 @@ class UserHistoryComponent extends PureComponent<Props, State> {
                                                             </g>
                                                         </g>
                                                     </svg>
-                                                )
-                                                :
-                                                (
+                                                </div>
+                                            )
+                                            :
+                                            (
+                                                <div className={'userHistoryEntityIcon'}>
                                                     <svg
                                                         className="collection_icon"
                                                         viewBox="-17 5 40 20"
@@ -141,11 +143,11 @@ class UserHistoryComponent extends PureComponent<Props, State> {
                                                             <circle id="Oval-Copy" cx="-8.5" cy="15.5" r="3.5"/>
                                                         </g>
                                                     </svg>
-                                                )
-                                        ) :
-                                        <></>
-                                    }
-                                </div>
+                                                </div>
+                                            )
+                                    ) :
+                                    <></>
+                                }
                                 {entity.title}
                             </div>
                             <div className={'userHistoryEntityArrow'}>
