@@ -8,14 +8,7 @@
     flex-direction: row;
     cursor: pointer;
 
-    &:first-child {
-      .userHistoryEntityTitle {
-        color: #328C94;
-        margin-left: 0;
-      }
-    }
-
-    &:last-child {
+    &.isCurrent {
       margin-left: 0.5rem;
       cursor: default;
       pointer-events: none;
@@ -25,6 +18,13 @@
         padding: 0 0.5rem;
         border: 1px solid white;
         color: #B2C1C6;
+      }
+    }
+
+    &:first-child {
+      .userHistoryEntityTitle {
+        color: #328C94;
+        margin-left: 0;
       }
     }
 

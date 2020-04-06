@@ -9,7 +9,7 @@ import {
     PUSH_ENTITY_SUCCESS
 } from '../actions/user-history';
 
-export type UserHistoryEntity = (Item | Collection);
+export type UserHistoryEntity = (Item | Collection) & { isCurrent: boolean };
 
 export interface UserHistoryState {
     entities: UserHistoryEntity[];
@@ -40,18 +40,22 @@ export default (state: UserHistoryState = initialState, action) => {
                 };
             }
 
+            // Entity exists, let's make it the currently viewed one
             const existingEntity = state.entities.find(entity => entity.id === action.entity.id);
             if (existingEntity !== undefined) {
                 return {
-                    ...state
+                    ...state,
+                    entities: [
+                        ...state.entities.map(entity => ({...entity, isCurrent: action.entity.id === entity.id}))
+                    ]
                 };
             }
 
             return {
                 ...state,
                 entities: [
-                    ...state.entities,
-                    action.entity
+                    ...state.entities.map(entity => ({...entity, isCurrent: false})),
+                    {...action.entity, isCurrent: true}
                 ]
             };
 

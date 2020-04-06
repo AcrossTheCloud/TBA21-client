@@ -2,7 +2,7 @@ import * as React from 'react';
 import { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { clear, fetch } from '../../actions/user-history';
-import { UserHistoryState } from '../../reducers/user-history';
+import { UserHistoryEntity, UserHistoryState } from '../../reducers/user-history';
 import { Collection } from '../../types/Collection';
 import { Item } from '../../types/Item';
 import 'styles/components/userHistoryComponent.scss';
@@ -58,10 +58,10 @@ class UserHistoryComponent extends PureComponent<Props, State> {
         return (
             <div className={'userHistory'} role={'list'}>
                 {this.state.userHistory.entities ?
-                    this.state.userHistory.entities.map((entity: Item | Collection, i: number) => (
+                    this.state.userHistory.entities.map((entity: UserHistoryEntity, i: number) => (
                         <div
                             key={entity.id}
-                            className={'userHistoryEntity'}
+                            className={this.getClassNames(entity.isCurrent)}
                             onClick={() => this.toggleEntity(entity)}
                         >
                             <div className={'userHistoryEntityTitle'}>
@@ -157,6 +157,10 @@ class UserHistoryComponent extends PureComponent<Props, State> {
                 }
             </div>
         );
+    }
+
+    private getClassNames(isCurrent: boolean): string {
+        return `userHistoryEntity${isCurrent ? ' isCurrent' : ''}`;
     }
 
     private toggleEntity(entity: Item | Collection) {
