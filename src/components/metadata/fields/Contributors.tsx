@@ -118,9 +118,9 @@ export default class Contributors extends React.Component<Props, State> {
         clearTimeout(this.loadTimeout);
 
         const
-          queryStringParameters = ( inputValue ? { fullname: inputValue, notPublicUsers: true } : {} ),
+          queryStringParameters = ( inputValue ? { fullname: inputValue, public: true } : {} ),
           // Get all profiles, but no public users, we don't want to show your normal John Doe.
-          results = await API.get('tba21', 'admin/profiles', { queryStringParameters: queryStringParameters }),
+          results = await API.get('tba21', 'contributor/profiles', { queryStringParameters: queryStringParameters }),
 
           profiles = results.profiles.map((t: Profile) => ({value: t.cognito_uuid, label: t.full_name})),
           filteredProfiles = profiles.filter(profile => !find(this.state.profiles, { value: profile.value }));

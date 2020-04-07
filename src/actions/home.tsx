@@ -7,9 +7,13 @@ import { FileTypes, S3File } from '../types/s3File';
 import { itemType } from '../types/Item';
 import { COLLECTION_MODAL_TOGGLE } from './modals/collectionModal';
 import { ITEM_MODAL_TOGGLE } from './modals/itemModal';
-import { LIVESTREAM_MODAL_TOGGLE} from './modals/liveStreamModal';
+import { LIVESTREAM_MODAL_TOGGLE } from './modals/liveStreamModal';
 import * as React from 'react';
-import { DetailPreview, FileStaticPreview } from '../components/utils/DetailPreview';
+import {
+  DetailPreview,
+  FileStaticPreview,
+  getItemsAndCollectionsForCollection
+} from '../components/utils/DetailPreview';
 import { Button, Col, Row } from 'reactstrap';
 import AudioPreview from '../components/layout/audio/AudioPreview';
 import { FaCircle, FaPlay } from 'react-icons/all';
@@ -46,7 +50,6 @@ export const liveStreamDispatch = (state: boolean) => async dispatch => {
         }
       });
       let responseJSON = await response.json();
-      console.log(responseJSON);
       if (responseJSON.data.length > 0) {
         dispatch({
           type: LIVESTREAM_MODAL_TOGGLE,
@@ -56,7 +59,7 @@ export const liveStreamDispatch = (state: boolean) => async dispatch => {
         });
       }
     } catch (e) {
-      console.log('error: ' + e)
+      console.log('error: ', e);
     }
   } else {
     dispatch({
@@ -97,7 +100,9 @@ export const loadHomepage = () => async dispatch => {
     Object.assign(queryStringParams, { id: oaHighlights.oa_highlight.map(o => o.id) });
   }
 
-  const response: {items: HomepageData[], collections: HomepageData[]} = await API.get('tba21', 'pages/homepage', { queryStringParameters: queryStringParams });
+  let response: {items: HomepageData[], collections: HomepageData[]} = await API.get('tba21', 'pages/homepage', { queryStringParameters: queryStringParams });
+  response.collections = [...await getItemsAndCollectionsForCollection(response.collections as any)] as any;
+
   const announcementResponse = await API.get('tba21', 'announcements', { queryStringParameters: { limit: '9'}});
 
   const highlightsWithFiles = await addFilesToData(oaHighlights.oa_highlight);
