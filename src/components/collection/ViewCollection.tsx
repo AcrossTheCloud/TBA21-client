@@ -24,6 +24,7 @@ import { toggle as itemModalToggle } from 'actions/modals/itemModal';
 import { pushEntity as pushUserHistoryEntity } from '../../actions/user-history';
 import { search as dispatchSearch, toggle as searchOpenToggle } from '../../actions/searchConsole';
 import { UserHistoryState } from '../../reducers/user-history';
+import HtmlDescription from '../utils/HtmlDescription';
 
 type MatchParams = {
   id: string;
@@ -443,7 +444,7 @@ class ViewCollection extends React.Component<Props, State> {
               <Col className="description">
                 {
                   description ?
-                    this.browser === 'ie6-11' ? description.split('\n').map((d, i) => <p key={i}>{d}</p>) : description
+                    <HtmlDescription description={description} />
                   : <></>
                 }
               </Col>
