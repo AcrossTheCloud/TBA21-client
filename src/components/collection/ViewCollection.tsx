@@ -209,6 +209,10 @@ class ViewCollection extends React.Component<Props, State> {
 
     await this.pushCollectionToHistory(prevProps.collection);
 
+    if (this.props.noMoreData !== prevProps.noMoreData && this.props.noMoreData) {
+      this.setState( { noMoreData: true });
+    }
+
     if (!this.props.noRedux) {
       if (typeof prevProps.collection === 'undefined' && !!this.props.collection) {
         // We've just loaded our collection via fetchCollection
@@ -249,10 +253,6 @@ class ViewCollection extends React.Component<Props, State> {
                   })[0] as Item
               : undefined
         });
-      }
-
-      if (this.props.noMoreData !== prevProps.noMoreData && this.props.noMoreData) {
-        this.setState( { noMoreData: true });
       }
     }
   }
