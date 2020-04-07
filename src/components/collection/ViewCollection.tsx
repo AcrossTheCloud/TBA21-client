@@ -16,7 +16,6 @@ import { DetailPreview } from '../utils/DetailPreview';
 import { FileTypes } from '../../types/s3File';
 import AudioPreview from '../layout/audio/AudioPreview';
 import { dateFromTimeYearProduced } from '../../actions/home';
-import CollectionModal from '../modals/CollectionModal';
 import { debounce, isEqual } from 'lodash';
 import { getCollectionsInCollection, getItemsInCollection } from '../../REST/collections';
 import { removeTopology } from '../utils/removeTopology';
@@ -214,10 +213,12 @@ class ViewCollection extends React.Component<Props, State> {
     }
 
     if (!this.props.noRedux) {
-      if (typeof prevProps.collection === 'undefined' && !!this.props.collection) {
+      if ((typeof prevProps.collection === 'undefined' && !!this.props.collection) || (!!this.props.collection && !!this.state.collection && this.props.collection.id !== this.state.collection.id)) {
         // We've just loaded our collection via fetchCollection
         this.setState(
             {
+              noMoreData: false,
+              loading: false,
               collection: this.props.collection,
               dataRowID: `dataRow_${this.props.collection.id}_${Date.now()}`
             },
@@ -295,8 +296,8 @@ class ViewCollection extends React.Component<Props, State> {
           this.setState({ errorMessage: 'Something went wrong loading the data for this collection, sorry!' });
         }
       } else {
-        if (this.props.collection && typeof this.props.dispatchLoadMore === 'function') {
-          await this.props.dispatchLoadMore(this.props.collection.id, this.props.offset);
+        if (typeof this.props.dispatchLoadMore === 'function') {
+          await this.props.dispatchLoadMore(this.state.collection.id, this.props.offset);
         }
       }
 
@@ -312,7 +313,9 @@ class ViewCollection extends React.Component<Props, State> {
 
   collectionModalToggle = (collectionModalData: Collection) => {
     if (!this._isMounted) { return; }
-    this.setState({ collectionModalData, collectionModalToggled: !this.state.collectionModalToggled });
+    if (typeof this.props.fetchCollection !== 'undefined') {
+      this.props.collectionModalToggle(true, collectionModalData)
+    }
   }
 
   /**
@@ -414,7 +417,7 @@ class ViewCollection extends React.Component<Props, State> {
                 (
                     <DataLayout
                         data={this.state.firstItem}
-                        key={this.state.firstItem.id}
+                        key={`firstItem_${this.state.firstItem.id}`}
                         itemModalToggle={this.props.itemModalToggle}
                         collectionModalToggle={this.collectionModalToggle}
                     />
@@ -422,17 +425,6 @@ class ViewCollection extends React.Component<Props, State> {
                 : <></>
           }
         </Row>
-
-        {this.state.collectionModalData ?
-            (
-                <CollectionModal
-                    collection={this.state.collectionModalData}
-                    open={this.state.collectionModalToggled}
-                    toggle={this.collectionModalToggle}
-                />
-            )
-            : <></>
-        }
 
         <Row>
           <Col xs="12" md="8" className="left border-right">
@@ -479,7 +471,7 @@ class ViewCollection extends React.Component<Props, State> {
                         .map((item: Item, i) => (
                             <DataLayout
                                 data={item}
-                                key={item.id}
+                                key={`item_${item.id}`}
                                 itemModalToggle={this.props.itemModalToggle}
                                 collectionModalToggle={this.collectionModalToggle}
                             />
@@ -493,7 +485,7 @@ class ViewCollection extends React.Component<Props, State> {
                         .map((collection: Collection, i) => (
                             <DataLayout
                                 data={collection}
-                                key={collection.id}
+                                key={`collection_${collection.id}`}
                                 itemModalToggle={this.props.itemModalToggle}
                                 collectionModalToggle={this.collectionModalToggle}
                             />
