@@ -45,12 +45,23 @@ export const fetchCollection = (id: string) => async (dispatch, getState) => {
 
     try {
       const response = await getById(id);
-      const collection = removeTopology(response) as Collection[];
+      const collections = removeTopology(response) as Collection[];
 
-      if (!!collection && !!collection[0] && Object.keys(collection).length) {
+      if (!!collections && collections.length && !!collections[0] && collections[0].id) {
+        const itemsInCollection = removeTopology(await getItemsInCollection({id: collections[0].id, limit: 10, offset: 0}), 'item');
+        const collectionsInCollection = removeTopology(await getCollectionsInCollection({id: collections[0].id, limit: 10, offset: 0}), 'collection');
+
+        const collection: Collection = {
+          ...collections[0],
+          // tslint:disable-next-line:no-any
+          items: itemsInCollection as any,
+          // tslint:disable-next-line:no-any
+          collections: collectionsInCollection as any
+        };
+
         dispatch({
            type: FETCH_COLLECTION,
-           collection: collection[0]
+           collection
         });
 
       } else {
@@ -77,7 +88,7 @@ const getItemsAndCollectionsInCollection = async (id: string, offset: number = 0
   const itemResponse = await getItemsInCollection({id, limit: 1, offset});
   const collectionResponse = await getCollectionsInCollection({id, limit: 1, offset});
   return [...removeTopology(itemResponse, 'item'), ...removeTopology(collectionResponse, 'collection')];
-}
+};
 
 export const loadMore = async (id: string, offset: number = 0, callback: Function) => {
   try {
