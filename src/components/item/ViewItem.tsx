@@ -22,6 +22,7 @@ import { toggle as collectionModalToggle } from 'actions/modals/collectionModal'
 import { toggle as itemModalToggle } from 'actions/modals/itemModal';
 import { UserHistoryState } from '../../reducers/user-history';
 import { HomepageData } from '../../reducers/home';
+import HtmlDescription from '../utils/HtmlDescription';
 
 type MatchParams = {
   id: string;
@@ -223,7 +224,7 @@ class ViewItem extends React.Component<Props, State> {
               <Col className="description">
                 {
                   description ?
-                    this.browser === 'ie6-11' ? description.split('\n').map((d, i) => <p key={i}>{d}</p>) : description
+                    <HtmlDescription description={description} />
                   : <></>
                 }
               </Col>
