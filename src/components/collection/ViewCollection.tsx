@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import { Button, Col, Row } from 'reactstrap';
 import { dispatchLoadMore, fetchCollection, loadMore } from 'actions/collections/viewCollection';
 import { ViewCollectionState } from 'reducers/collections/viewCollection';
-import { toggle as itemModalToggle } from 'actions/modals/itemModal';
 import { ErrorMessage } from '../utils/alerts';
 import { browser } from '../utils/browser';
 import { RouteComponentProps, withRouter } from 'react-router';
@@ -21,6 +20,7 @@ import { getCollectionsInCollection, getItemsInCollection } from '../../REST/col
 import { removeTopology } from '../utils/removeTopology';
 import { createCriteriaOption } from '../search/SearchConsole';
 import { toggle as collectionModalToggle } from '../../actions/modals/collectionModal';
+import { toggle as itemModalToggle } from 'actions/modals/itemModal';
 import { pushEntity as pushUserHistoryEntity } from '../../actions/user-history';
 import { search as dispatchSearch, toggle as searchOpenToggle } from '../../actions/searchConsole';
 import { UserHistoryState } from '../../reducers/user-history';
@@ -550,7 +550,7 @@ class ViewCollection extends React.Component<Props, State> {
               )
             : ''}
             {!!aggregated_keyword_tags && aggregated_keyword_tags.length ?
-              (
+              ( 
                 <Row className="subline details">
                   <Col xs="12">Keyword Tags</Col>
                   <Col xs="12">

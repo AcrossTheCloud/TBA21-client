@@ -45,13 +45,13 @@ export function withCollapse <P extends object>(WrappedComponent: React.Componen
               {this.state.open ? <FaMinus /> : <FaPlus />}
             </Col>
             <Col className="title" onClick={this.toggleCollapse} xs="4" sm="5" >
-              {this.state.data.title ? this.state.data.title : 'Untitled'}
+              {this.state.data && this.state.data.title ? this.state.data.title : 'Untitled'}
             </Col>
             <Col className="creators" onClick={this.toggleCollapse} xs="4">
-              {this.state.data.creators ? this.state.data.creators.join(', ') : <></>}
+              {this.state.data && this.state.data.creators ? this.state.data.creators.join(', ') : <></>}
             </Col>
             <Col className="status" onClick={this.toggleCollapse}  xs="1">
-              {this.state.data.status ? <FaCheck color="green" size={25} /> : <FaTimes color="red" size={25} />}
+              {this.state.data && this.state.data.status ? <FaCheck color="green" size={25} /> : <FaTimes color="red" size={25} />}
             </Col>
             <Col className="removeButton" xs="1">
               {this.props.children ? this.props.children : <></>}
