@@ -51,7 +51,6 @@ export const fetchCollection = (id: string) => async (dispatch, getState) => {
   } else {
 
     try {
-      console.log('ID', id);
       const response = await getById(id);
       const collections = removeTopology(response) as Collection[];
 
