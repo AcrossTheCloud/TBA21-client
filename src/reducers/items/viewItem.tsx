@@ -2,12 +2,12 @@ import { FETCH_ITEM, FETCH_ITEM_ERROR, FETCH_ITEM_ERROR_NO_SUCH_ITEM } from '../
 import { Item } from '../../types/Item';
 import { Alerts } from '../../components/utils/alerts';
 
-export interface State extends Alerts {
+export interface ViewItemState extends Alerts {
   itemId?: string | boolean;
   item?: Item;
 }
 
-const initialState: State = {
+const initialState: ViewItemState = {
   errorMessage: undefined
 };
 
@@ -19,7 +19,7 @@ const initialState: State = {
  *
  * @returns {object} the state with modified values
  */
-export default (state: State = initialState, action) => {
+export default (state: ViewItemState = initialState, action) => {
   if (state === undefined) { state = initialState; }
 
   switch (action.type) {

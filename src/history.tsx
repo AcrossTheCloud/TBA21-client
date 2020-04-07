@@ -1,4 +1,4 @@
-// history.js
+// user-history.js
 import { createBrowserHistory } from '../node_modules/history';
 import ReactGA from 'react-ga';
 

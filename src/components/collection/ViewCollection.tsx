@@ -4,10 +4,8 @@ import { Button, Col, Row } from 'reactstrap';
 import { dispatchLoadMore, fetchCollection, loadMore } from 'actions/collections/viewCollection';
 import { ViewCollectionState } from 'reducers/collections/viewCollection';
 import { ErrorMessage } from '../utils/alerts';
-
 import { browser } from '../utils/browser';
 import { RouteComponentProps, withRouter } from 'react-router';
-
 import Share from '../utils/Share';
 import moment from 'moment';
 import 'styles/components/pages/viewItem.scss';
@@ -17,34 +15,38 @@ import { DetailPreview } from '../utils/DetailPreview';
 import { FileTypes } from '../../types/s3File';
 import AudioPreview from '../layout/audio/AudioPreview';
 import { dateFromTimeYearProduced } from '../../actions/home';
-import CollectionModal from '../modals/CollectionModal';
 import { debounce, isEqual } from 'lodash';
 import { getCollectionsInCollection, getItemsInCollection } from '../../REST/collections';
 import { removeTopology } from '../utils/removeTopology';
-import { search as dispatchSearch, toggle as searchOpenToggle } from '../../actions/searchConsole';
 import { createCriteriaOption } from '../search/SearchConsole';
-import { toggle as collectionModalToggle } from 'actions/modals/collectionModal';
+import { toggle as collectionModalToggle } from '../../actions/modals/collectionModal';
 import { toggle as itemModalToggle } from 'actions/modals/itemModal';
+import { pushEntity as pushUserHistoryEntity } from '../../actions/user-history';
+import { search as dispatchSearch, toggle as searchOpenToggle } from '../../actions/searchConsole';
+import { UserHistoryState } from '../../reducers/user-history';
 
 type MatchParams = {
   id: string;
 };
 
 interface Props extends RouteComponentProps<MatchParams>, ViewCollectionState {
-  fetchCollection: Function;
+  fetchCollection?: Function;
+  dispatchLoadMore?: Function;
+  parentReference?: Function;
   itemModalToggle: Function;
-  dispatchLoadMore: Function;
   collectionModalToggle: Function;
   searchOpenToggle: Function;
   dispatchSearch: Function;
+  pushUserHistoryEntity: Function;
 
   // ID string passed from the Parent that gives you the modal's body.
   modalBodyID?: string;
+  userHistory?: UserHistoryState;
 }
 
 interface State {
-  data: (Item | Collection)[];
-  firstItem?: Item;
+  data: (Item | Collection)[] | undefined;
+  firstItem: Item | undefined;
   offset: number;
   errorMessage?: string;
   collection?: Collection;
@@ -55,13 +57,6 @@ interface State {
   loading: boolean;
 }
 
-const CollectionDetails = (props: { label: string, value: string | JSX.Element }): JSX.Element => (
-  <Row className="border-bottom subline details">
-    <Col xs="12" md="6">{props.label}</Col>
-    <Col xs="12" md="6">{props.value}</Col>
-  </Row>
-);
-
 const DataLayout = (props: { data: Item | Collection, itemModalToggle?: Function, collectionModalToggle?: Function }): JSX.Element => {
   let response: JSX.Element = <></>;
 
@@ -69,7 +64,7 @@ const DataLayout = (props: { data: Item | Collection, itemModalToggle?: Function
     if (props.data.__typename === 'item') {
       const data = props.data as Item;
 
-      if (data.item_type === itemType.Audio || data.file.type === FileTypes.Audio) {
+      if (data.item_type === itemType.Audio || (data.file && data.file.type === FileTypes.Audio)) {
         const date = dateFromTimeYearProduced(data.time_produced, data.year_produced);
         response = (
             <AudioPreview
@@ -119,7 +114,9 @@ const DataLayout = (props: { data: Item | Collection, itemModalToggle?: Function
                   creators: data.creators ? data.creators : [],
                   regions: data.regions ? data.regions : [],
                   created_at: data.created_at ? data.created_at : null,
+                  // tslint:disable-next-line:no-any
                   items: data.items as any || [],
+                  // tslint:disable-next-line:no-any
                   collections: data.collections as any || [],
                   // Collection specific
                   count: data.count ? data.count : 0,
@@ -154,7 +151,8 @@ class ViewCollection extends React.Component<Props, State> {
 
     this._isMounted = false;
     const state = {
-      data: [],
+      data: undefined,
+      firstItem: undefined,
       offset: 0,
       loading: false,
       noMoreData: false,
@@ -178,6 +176,9 @@ class ViewCollection extends React.Component<Props, State> {
 
   async componentDidMount(): Promise<void> {
     this._isMounted = true;
+
+    await this.pushCollectionToHistory();
+
     const { modalBodyID, collection } = this.props;
 
     if (modalBodyID) {
@@ -202,42 +203,77 @@ class ViewCollection extends React.Component<Props, State> {
     this._isMounted = false;
   }
 
-  componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>): void {
+  async componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>): Promise<void> {
     if (!this._isMounted) { return; }
 
-    const state = {};
+    await this.pushCollectionToHistory(prevProps.collection);
+
+    if (this.props.noMoreData !== prevProps.noMoreData && this.props.noMoreData) {
+      this.setState( { noMoreData: true });
+    }
 
     if (!this.props.noRedux) {
-      if (typeof prevProps.collection === 'undefined' && !!this.props.collection) {
+      if ((typeof prevProps.collection === 'undefined' && !!this.props.collection) || (!!this.props.collection && !!this.state.collection && this.props.collection.id !== this.state.collection.id)) {
         // We've just loaded our collection via fetchCollection
-        this.setState({ collection: this.props.collection, dataRowID: `dataRow_${this.props.collection.id}_${Date.now()}` }, async () => await this.loadData());
+        this.setState(
+            {
+              noMoreData: false,
+              loading: false,
+              collection: this.props.collection,
+              dataRowID: `dataRow_${this.props.collection.id}_${Date.now()}`
+            },
+            async () => await this.loadData()
+        );
         return;
       }
 
-      if (!!this.props.collection && !isEqual(this.props.collection, this.state.collection)) {
-        Object.assign(state, {collection: this.props.collection, dataRowID: `dataRow_${this.props.collection.id}_${Date.now()}`});
-      }
-
       if (!isEqual(this.props.data, this.state.data)) {
-        Object.assign(state, {
-          data: this.props.data,
-          firstItem: this.state.data ?
-              this.state.data
+        const items = this.props.data ? this.props.data
+            .filter((data: Item | Collection) => {
+              return data.__typename === 'item';
+              // tslint:disable-next-line:no-any
+            }) as any : [];
+
+        const collections = this.props.data ? this.props.data
+            .filter((data: Item | Collection) => {
+              return data.__typename === 'collection';
+              // tslint:disable-next-line:no-any
+            }) as any : [];
+
+        this.setState({
+          data: this.props.data || [],
+          collection: {
+            ...this.state.collection,
+            items: [...items],
+            collections: [...collections]
+          } as Collection,
+          firstItem: this.props.data ?
+              this.props.data
                   .filter((data: Item | Collection) => {
                     return data.__typename === 'item';
-                  })[0]
+                  })[0] as Item
               : undefined
         });
       }
+    }
+  }
 
-      if (this.props.noMoreData !== prevProps.noMoreData && this.props.noMoreData) {
-        Object.assign(state, { noMoreData: true });
-      }
-
-      if (Object.keys(state).length && this._isMounted) {
-        this.setState(state);
+  async pushCollectionToHistory(prevCollection?: Collection): Promise<void> {
+    if (this.props.collection !== undefined) {
+      if (prevCollection !== undefined) {
+        if (JSON.stringify(this.props.collection) !== JSON.stringify(prevCollection)) {
+          const userHistoryEntity = await this.createHistoryEntity();
+          this.props.pushUserHistoryEntity(userHistoryEntity);
+        }
+      } else {
+        const userHistoryEntity = await this.createHistoryEntity();
+        this.props.pushUserHistoryEntity(userHistoryEntity);
       }
     }
+  }
+
+  async createHistoryEntity(): Promise<Collection> {
+    return {...this.props.collection, __typename: 'collection'};
   }
 
   loadData = async () => {
@@ -251,7 +287,7 @@ class ViewCollection extends React.Component<Props, State> {
           await loadMore(this.state.collection.id, this.state.offset, (datum) => {
             if (!this._isMounted) { return; }
             if (datum) {
-              this.setState({data: [...this.state.data, datum], offset: this.state.offset + 10});
+              this.setState({data: [...this.state.data as [], datum], offset: this.state.offset + 10});
             } else {
               this.setState({ noMoreData: true });
             }
@@ -260,8 +296,8 @@ class ViewCollection extends React.Component<Props, State> {
           this.setState({ errorMessage: 'Something went wrong loading the data for this collection, sorry!' });
         }
       } else {
-        if (this.props.collection && typeof this.props.dispatchLoadMore === 'function') {
-          await this.props.dispatchLoadMore(this.props.collection.id, this.props.offset);
+        if (typeof this.props.dispatchLoadMore === 'function') {
+          await this.props.dispatchLoadMore(this.state.collection.id, this.props.offset);
         }
       }
 
@@ -277,7 +313,9 @@ class ViewCollection extends React.Component<Props, State> {
 
   collectionModalToggle = (collectionModalData: Collection) => {
     if (!this._isMounted) { return; }
-    this.setState({ collectionModalData, collectionModalToggled: !this.state.collectionModalToggled });
+    if (typeof this.props.fetchCollection !== 'undefined') {
+      this.props.collectionModalToggle(true, collectionModalData)
+    }
   }
 
   /**
@@ -358,6 +396,17 @@ class ViewCollection extends React.Component<Props, State> {
       return `${ (level / focusTotal) * 100 }`;
     };
 
+    const CollectionDetails = (props: { label: string, value: string | JSX.Element }): JSX.Element => (
+      <Row className="border-bottom subline details">
+        <Col xs="12" md="6">{props.label}</Col>
+        <Col xs="12" md="6">{props.value}</Col>
+      </Row>
+    );
+
+    if (this.props.userHistory && this.props.userHistory.loading) {
+      return (<></>);
+    }
+
     return (
       <div id="item" className="container-fluid">
         <ErrorMessage message={this.props.errorMessage} />
@@ -368,7 +417,7 @@ class ViewCollection extends React.Component<Props, State> {
                 (
                     <DataLayout
                         data={this.state.firstItem}
-                        key={this.state.firstItem.id}
+                        key={`firstItem_${this.state.firstItem.id}`}
                         itemModalToggle={this.props.itemModalToggle}
                         collectionModalToggle={this.collectionModalToggle}
                     />
@@ -376,17 +425,6 @@ class ViewCollection extends React.Component<Props, State> {
                 : <></>
           }
         </Row>
-
-        {this.state.collectionModalData ?
-            (
-                <CollectionModal
-                    collection={this.state.collectionModalData}
-                    open={this.state.collectionModalToggled}
-                    toggle={this.collectionModalToggle}
-                />
-            )
-            : <></>
-        }
 
         <Row>
           <Col xs="12" md="8" className="left border-right">
@@ -424,19 +462,34 @@ class ViewCollection extends React.Component<Props, State> {
 
             <Row id={this.state.dataRowID}>
               {
-                this.state.data ?
-                    this.state.data
-                        .filter((data: Item | Collection) => {
-                          return this.state.firstItem && data.id !== this.state.firstItem.id;
+                this.state.collection.items && this.state.collection.items.length ?
+                    // tslint:disable-next-line:no-any
+                    (this.state.collection.items as any[])
+                        .filter((item: Item) => {
+                          return this.state.firstItem && item.id !== this.state.firstItem.id;
                         })
-                        .map((data: Item | Collection, i) => (
-                        <DataLayout
-                            data={data}
-                            key={i}
-                            itemModalToggle={this.props.itemModalToggle}
-                            collectionModalToggle={this.collectionModalToggle}
-                        />
-                        ))
+                        .map((item: Item, i) => (
+                            <DataLayout
+                                data={item}
+                                key={`item_${item.id}`}
+                                itemModalToggle={this.props.itemModalToggle}
+                                collectionModalToggle={this.collectionModalToggle}
+                            />
+                          ))
+                    : <></>
+              }
+              {
+                this.state.collection.collections && this.state.collection.collections.length ?
+                    // tslint:disable-next-line:no-any
+                    (this.state.collection.collections as any[])
+                        .map((collection: Collection, i) => (
+                            <DataLayout
+                                data={collection}
+                                key={`collection_${collection.id}`}
+                                itemModalToggle={this.props.itemModalToggle}
+                                collectionModalToggle={this.collectionModalToggle}
+                            />
+                          ))
                     : <></>
               }
             </Row>
@@ -532,7 +585,7 @@ class ViewCollection extends React.Component<Props, State> {
 }
 
 // State to props
-const mapStateToProps = (state: { viewCollection: ViewCollectionState }, props: { modalBodyID?: string, collection?: Collection, noRedux?: boolean }) => {
+const mapStateToProps = (state: { viewCollection: ViewCollectionState, userHistory: UserHistoryState }, props: { modalBodyID?: string, collection?: Collection, noRedux?: boolean}) => {
   return {
     errorMessage: state.viewCollection.errorMessage,
     collection: props.collection || state.viewCollection.collection,
@@ -542,6 +595,7 @@ const mapStateToProps = (state: { viewCollection: ViewCollectionState }, props: 
     noMoreData: state.viewCollection.noMoreData,
     noRedux: !!props.noRedux || false,
     modalBodyID: props.modalBodyID,
+    userHistory: state.userHistory
   };
 };
 
@@ -551,6 +605,7 @@ export default withRouter(connect(mapStateToProps, {
   dispatchLoadMore,
   collectionModalToggle,
   itemModalToggle,
+  pushUserHistoryEntity,
   searchOpenToggle,
   dispatchSearch
 })(ViewCollection));

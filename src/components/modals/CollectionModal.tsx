@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { isEqual } from 'lodash';
-
 import { fetchCollection } from 'actions/collections/viewCollection';
 import { toggle } from 'actions/modals/collectionModal';
 import { HomepageData } from 'reducers/home';
@@ -9,6 +8,8 @@ import { FaTimes } from 'react-icons/fa';
 import { Col, Modal, ModalBody, Row } from 'reactstrap';
 import ViewCollection from '../collection/ViewCollection';
 import { Collection } from '../../types/Collection';
+import UserHistoryComponent from '../user-history/UserHistoryComponent';
+import { popEntity as popUserHistoryEntity } from '../../actions/user-history';
 
 interface Props {
   data?: HomepageData | Collection;
@@ -16,7 +17,8 @@ interface Props {
   open: boolean;
   toggle?: Function;
   customToggle?: Function;
-  fetchCollection?: Function;
+  fetchCollection: Function;
+  popUserHistoryEntity: Function;
 }
 
 interface State {
@@ -49,17 +51,21 @@ class CollectionModal extends React.Component<Props, State> {
     if (modalBodyID.length) {
       this.setState({ modalBodyID });
     }
+
+    document.addEventListener('keydown', this.onKeyPressed.bind(this));
   }
 
   componentWillUnmount = () => {
     this._isMounted = false;
+
+    document.removeEventListener('keydown', this.onKeyPressed.bind(this));
   }
 
   async componentDidUpdate(prevProps: Readonly<Props>): Promise<void> {
     if (this._isMounted) {
       const state = {};
 
-      if (this.props.data && !isEqual(this.props.data, prevProps.data) && typeof this.props.fetchCollection === 'function') {
+      if (this.props.data && !isEqual(this.props.data, prevProps.data)) {
         this.props.fetchCollection(this.props.data.id);
 
         const data = this.props.collection || this.props.data;
@@ -81,6 +87,12 @@ class CollectionModal extends React.Component<Props, State> {
     }
   }
 
+  onKeyPressed(event: KeyboardEvent) {
+    if (event.key === 'Escape') {
+      this.props.popUserHistoryEntity(this.props.data);
+    }
+  }
+
   generateModalBodyID = (): string => {
     const data = this.props.collection || this.props.data;
     if (data) {
@@ -93,11 +105,17 @@ class CollectionModal extends React.Component<Props, State> {
   render() {
     const data = this.props.collection || this.props.data;
 
-    const modalToggle = (state: boolean = false): void => {
+    const modalToggle = (open: boolean = false): void => {
       if (typeof this.props.customToggle === 'function') {
-        this.props.customToggle(state);
+        this.props.customToggle(open);
       } else if (typeof this.props.toggle === 'function') {
-         this.props.toggle(state);
+         this.props.toggle(open);
+      }
+
+      if (!open) {
+        const collection = this.props.collection || this.props.data;
+        this.props.popUserHistoryEntity(collection);
+        this.props.fetchCollection('');
       }
     };
 
@@ -120,6 +138,11 @@ class CollectionModal extends React.Component<Props, State> {
           </Row>
 
           <ModalBody id={this.state.modalBodyID}>
+            <Row>
+              <Col>
+                <UserHistoryComponent />
+              </Col>
+            </Row>
             {
               this.props.collection ?
                 <ViewCollection noRedux={true} collection={this.props.collection}/>
@@ -136,11 +159,11 @@ class CollectionModal extends React.Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: { collectionModal: { open: boolean, data?: HomepageData | Collection } }, props: {collection?: Collection, open?: boolean, toggle?: Function}) => ({
+const mapStateToProps = (state: { collectionModal: { open: boolean, data?: HomepageData | Collection } }, props: { collection?: Collection, open?: boolean, toggle?: Function}) => ({
   data: state.collectionModal.data,
   open: props.open || state.collectionModal.open,
   customToggle: props.toggle,
   collection: props.collection
 });
 
-export default connect(mapStateToProps, { toggle, fetchCollection })(CollectionModal);
+export default connect(mapStateToProps, { toggle, fetchCollection, popUserHistoryEntity })(CollectionModal);

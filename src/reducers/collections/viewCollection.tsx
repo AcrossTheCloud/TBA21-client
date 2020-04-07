@@ -43,11 +43,14 @@ export default (state: ViewCollectionState = initialState, action) => {
         ...state,
         collection: action.collection,
         errorMessage: undefined,
-        data: undefined,
-        noRedux: false
+        data: [],
+        items: {},
+        noRedux: false,
+        noMoreData: false,
+        offset: 0,
       };
     case FETCH_COLLECTION_LOAD_MORE:
-      const data = state.data ? [...state.data, action.datum] : [action.datum];
+      const data = state.data ? [...state.data, ...action.datum] : [...action.datum];
 
       return {
         ...state,

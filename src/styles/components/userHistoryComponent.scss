@@ -1,0 +1,82 @@
+@import '../base/variables';
+
+.userHistory {
+  margin-bottom: 1rem;
+
+  .userHistoryEntity {
+    display: inline-flex;
+    flex-direction: row;
+    cursor: pointer;
+
+    &:first-child {
+      .userHistoryEntityTitle {
+        color: #328C94;
+        margin-left: 0;
+      }
+    }
+
+    &.isCurrent {
+      margin: 0 0.5rem;
+      cursor: default;
+      pointer-events: none;
+
+      &:first-child {
+        margin-left: 1rem;
+      }
+
+      .userHistoryEntityTitle {
+        margin: 0 0.5rem 0 0;
+        padding: 0 0.5rem;
+        border: 1px solid white;
+        color: #B2C1C6;
+      }
+    }
+
+    .userHistoryEntityTitle {
+      width: 100%;
+      max-width: 190px;
+      height: 2rem;
+      margin: 0 0.5rem;
+      background: $dark-blue;
+      color: #7EACB2;
+      text-align: center;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 2rem;
+      border: 1px solid $dark-blue;
+    }
+
+    .userHistoryEntityIcon {
+      display: inline-block;
+      margin-right: 0.5rem;
+      vertical-align: middle;
+
+      .collections_in_collection_icon, .collection_icon {
+        width: 22px;
+        height: auto;
+        vertical-align: text-top;
+
+        g {
+          fill: currentColor;
+        }
+      }
+    }
+
+    .userHistoryEntityArrow {
+      align-items: center;
+      align-self: center;
+      width: 1.5rem;
+      height: 1.5rem;
+      text-align: center;
+      color: #787C80;
+
+      svg {
+        width: 12px;
+        height: 12px;
+      }
+    }
+  }
+}
