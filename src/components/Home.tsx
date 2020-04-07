@@ -20,7 +20,7 @@ import HomepageVideo from './layout/HomepageVideo';
 
 import 'styles/components/home.scss';
 import { clear as clearHistory } from '../actions/user-history';
-import { UserHistoryEntity, UserHistoryState } from '../reducers/user-history';
+import { UserHistoryState } from '../reducers/user-history';
 
 interface Props extends HomePageState {
   logoDispatch: Function;
@@ -35,12 +35,13 @@ interface Props extends HomePageState {
   collectionModalIsOpen: boolean;
   itemModalIsOpen: boolean;
   clearHistory: Function;
+  userHistory: UserHistoryState;
 }
 
 interface State {
   announcements: Announcement[];
   announcementsActiveIndex: number;
-  userHistoryEntities: UserHistoryEntity[];
+  userHistory?: UserHistoryState;
 }
 
 class HomePage extends React.Component<Props, State> {
@@ -56,8 +57,7 @@ class HomePage extends React.Component<Props, State> {
 
     this.state = {
       announcements: [],
-      announcementsActiveIndex: 0,
-      userHistoryEntities: []
+      announcementsActiveIndex: 0
     };
 
     this.scrollDebounce = debounce( async () => await this.handleScroll(), 100);
@@ -85,7 +85,7 @@ class HomePage extends React.Component<Props, State> {
   }
 
   async componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>): Promise<void> {
-    if (this.state.userHistoryEntities && this.state.userHistoryEntities.length) {
+    if (this.props.userHistory && this.props.userHistory.entities && this.props.userHistory.entities.length) {
       if (!this.props.itemModalIsOpen && !this.props.collectionModalIsOpen) {
         this.props.clearHistory();
       }
@@ -328,7 +328,7 @@ const mapStateToProps = (state: { home: Props, liveStreamModal: { hasOpened: boo
   liveStreamHasOpened: state.liveStreamModal.hasOpened,
   collectionModalIsOpen: state.collectionModal.open,
   itemModalIsOpen: state.itemModal.open,
-  userHistoryEntities: state.userHistory.entities,
+  userHistory: state.userHistory,
 
   items: state.home.items ? state.home.items : [],
   collections: state.home.collections ? state.home.collections : [],
