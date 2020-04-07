@@ -47,7 +47,7 @@ export default (state: ViewCollectionState = initialState, action) => {
         noRedux: false
       };
     case FETCH_COLLECTION_LOAD_MORE:
-      const data = state.data ? [...state.data, action.datum] : [action.datum];
+      const data = state.data ? [...state.data, ...action.datum] : [...action.datum];
 
       return {
         ...state,

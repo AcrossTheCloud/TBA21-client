@@ -65,7 +65,7 @@ const DataLayout = (props: { data: Item | Collection, itemModalToggle?: Function
     if (props.data.__typename === 'item') {
       const data = props.data as Item;
 
-      if (data.item_type === itemType.Audio || data.file.type === FileTypes.Audio) {
+      if (data.item_type === itemType.Audio || (data.file && data.file.type === FileTypes.Audio)) {
         const date = dateFromTimeYearProduced(data.time_produced, data.year_produced);
         response = (
             <AudioPreview
@@ -207,8 +207,6 @@ class ViewCollection extends React.Component<Props, State> {
   async componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>): Promise<void> {
     if (!this._isMounted) { return; }
 
-    const state = {};
-
     await this.pushCollectionToHistory(prevProps.collection);
 
     if (!this.props.noRedux) {
@@ -224,16 +222,26 @@ class ViewCollection extends React.Component<Props, State> {
         return;
       }
 
-      if (!!this.props.collection && !isEqual(this.props.collection, this.state.collection)) {
-        this.setState({
-          collection: this.props.collection,
-          dataRowID: `dataRow_${this.props.collection.id}_${Date.now()}`
-        });
-      }
-
       if (!isEqual(this.props.data, this.state.data)) {
+        const items = this.props.data ? this.props.data
+            .filter((data: Item | Collection) => {
+              return data.__typename === 'item';
+              // tslint:disable-next-line:no-any
+            }) as any : [];
+
+        const collections = this.props.data ? this.props.data
+            .filter((data: Item | Collection) => {
+              return data.__typename === 'collection';
+              // tslint:disable-next-line:no-any
+            }) as any : [];
+
         this.setState({
           data: this.props.data || [],
+          collection: {
+            ...this.state.collection,
+            items: [...items],
+            collections: [...collections]
+          } as Collection,
           firstItem: this.props.data ?
               this.props.data
                   .filter((data: Item | Collection) => {
@@ -244,11 +252,7 @@ class ViewCollection extends React.Component<Props, State> {
       }
 
       if (this.props.noMoreData !== prevProps.noMoreData && this.props.noMoreData) {
-        Object.assign(state, { noMoreData: true });
-      }
-
-      if (Object.keys(state).length && this._isMounted) {
-        this.setState(state);
+        this.setState( { noMoreData: true });
       }
     }
   }
@@ -466,19 +470,34 @@ class ViewCollection extends React.Component<Props, State> {
 
             <Row id={this.state.dataRowID}>
               {
-                this.state.data ?
-                    this.state.data
-                        .filter((data: Item | Collection) => {
-                          return this.state.firstItem && data.id !== this.state.firstItem.id;
+                this.state.collection.items && this.state.collection.items.length ?
+                    // tslint:disable-next-line:no-any
+                    (this.state.collection.items as any[])
+                        .filter((item: Item) => {
+                          return this.state.firstItem && item.id !== this.state.firstItem.id;
                         })
-                        .map((data: Item | Collection, i) => (
-                        <DataLayout
-                            data={data}
-                            key={i}
-                            itemModalToggle={this.props.itemModalToggle}
-                            collectionModalToggle={this.collectionModalToggle}
-                        />
-                        ))
+                        .map((item: Item, i) => (
+                            <DataLayout
+                                data={item}
+                                key={item.id}
+                                itemModalToggle={this.props.itemModalToggle}
+                                collectionModalToggle={this.collectionModalToggle}
+                            />
+                          ))
+                    : <></>
+              }
+              {
+                this.state.collection.collections && this.state.collection.collections.length ?
+                    // tslint:disable-next-line:no-any
+                    (this.state.collection.collections as any[])
+                        .map((collection: Collection, i) => (
+                            <DataLayout
+                                data={collection}
+                                key={collection.id}
+                                itemModalToggle={this.props.itemModalToggle}
+                                collectionModalToggle={this.collectionModalToggle}
+                            />
+                          ))
                     : <></>
               }
             </Row>
