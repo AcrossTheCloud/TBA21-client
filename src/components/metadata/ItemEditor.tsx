@@ -69,6 +69,11 @@ import 'styles/components/metadata/itemEditor.scss';
 import 'styles/components/metadata/editors.scss';
 import { withCollapse } from './withCollapse';
 
+import { EditorState, convertToRaw, ContentState } from 'draft-js';
+import { Editor } from 'react-draft-wysiwyg';
+import draftToHtml from 'draftjs-to-html';
+import htmlToDraft from 'html-to-draftjs';
+
 export interface Props {
   item: Item;
   index?: number;
@@ -95,6 +100,9 @@ interface State extends Alerts {
 
   isLoading: boolean;
   hideForm: boolean;
+
+  descriptionContentState: ContentState;
+  descriptionEditorState: EditorState;
 
   activeTab: string;
 
@@ -146,11 +154,21 @@ class ItemEditorClass extends React.Component<Props, State> {
       isLoading: true,
       hideForm: false,
       activeTab: '1',
+      descriptionContentState: ContentState.createFromBlockArray(htmlToDraft("").contentBlocks), // fixme @Dan-Wood - probably this works as a starting state
+      // descriptionEditorState: EditorState.createWithContent(""), fixme @Dan-Wood
       validate: defaultRequiredFields(props.item),
 
       mapModalOpen: false
     };
   }
+
+  onEditorStateChange: Function = async (descriptionEditorState) => {
+    this.setState({
+      descriptionEditorState,
+    });
+    // fixme @Dan-Wood also need to set description based on draftToHtml(convertToRaw(descriptionEsditorState.getCurrentContent()))
+  };
+
 
   async componentDidMount(): Promise<void> {
     this._isMounted = true;
@@ -192,6 +210,10 @@ class ItemEditorClass extends React.Component<Props, State> {
         if (response) {
           Object.assign(data, { topojson: response });
         }
+
+        const descriptionContent = htmlToDraft(description); //  fixme @Dan-Wood
+        Object.assign(state, { descriptionContentState: descriptionContent});
+        Object.assign(state, { descriptionEditorState: EditorState.createWithContent(descriptionContentState)})
 
         Object.assign(state, data);
 
@@ -2407,13 +2429,11 @@ class ItemEditorClass extends React.Component<Props, State> {
                   <Col xs="12">
                     <FormGroup>
                       <Label for="description">Description</Label>
-                      <Input
-                        type="textarea"
-                        className="description"
-                        defaultValue={item.description ? item.description : ''}
-                        onChange={e => this.validateLength('description', e.target.value)}
-                        invalid={this.state.validate.hasOwnProperty('description') && !this.state.validate.description}
-                        maxLength={4096}
+                      <Editor
+                        editorState={this.state.descriptionEditorState}
+                        wrapperClassName="demo-wrapper"
+                        editorClassName="demo-editor"
+                        onEditorStateChange={this.onEditorStateChange} // fixme @Dan-Wood
                       />
                       <FormFeedback>This is a required field</FormFeedback>
                     </FormGroup>
