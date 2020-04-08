@@ -23,6 +23,7 @@ import { toggle as itemModalToggle } from 'actions/modals/itemModal';
 import { UserHistoryState } from '../../reducers/user-history';
 import { HomepageData } from '../../reducers/home';
 import HtmlDescription from '../utils/HtmlDescription';
+import _ from 'lodash';
 
 type MatchParams = {
   id: string;
@@ -84,7 +85,7 @@ class ViewItem extends React.Component<Props, State> {
   pushItemToHistory(prevItem?: Item) {
     if (this.props.item !== undefined) {
       if (prevItem !== undefined) {
-        if (JSON.stringify(this.props.item) !== JSON.stringify(prevItem)) {
+        if (_.isEqual(this.props.item,prevItem)) {
           const userHistoryEntity = this.createHistoryEntity();
           this.props.pushUserHistoryEntity(userHistoryEntity);
         }
