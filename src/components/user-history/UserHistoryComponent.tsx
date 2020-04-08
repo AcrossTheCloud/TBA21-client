@@ -45,7 +45,7 @@ class UserHistoryComponent extends PureComponent<Props, State> {
     }
 
     componentDidUpdate(): void {
-        if (_.isEqual(this.props.userHistory, this.state.userHistory)) {
+        if (!_.isEqual(this.props.userHistory, this.state.userHistory)) {
             this.setState(
                 {
                     userHistory: {

@@ -263,7 +263,7 @@ class ViewCollection extends React.Component<Props, State> {
   async pushCollectionToHistory(prevCollection?: Collection): Promise<void> {
     if (this.props.collection !== undefined) {
       if (prevCollection !== undefined) {
-        if (_.isEqual(this.props.collection,prevCollection)) {
+        if (!_.isEqual(this.props.collection,prevCollection)) {
           const userHistoryEntity = await this.createHistoryEntity();
           this.props.pushUserHistoryEntity(userHistoryEntity);
         }
