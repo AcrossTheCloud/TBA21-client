@@ -536,12 +536,12 @@ class ViewCollection extends React.Component<Props, State> {
                       aggregated_concept_tags.map(t => {
                         return (
                             <Button
-                                className="page-link"
+                                className="page-link tag"
                                 style={{padding: 0, background: 'none'}}
                                 key={t.tag_name}
                                 onClick={() => this.onTagClick(t.tag_name, 'concept_tag')}
                             >
-                              #{t.tag_name}
+                              {t.tag_name}
                             </Button>
                         );
                       })
@@ -551,7 +551,7 @@ class ViewCollection extends React.Component<Props, State> {
               )
             : ''}
             {!!aggregated_keyword_tags && aggregated_keyword_tags.length ?
-              ( 
+              (
                 <Row className="subline details">
                   <Col xs="12">Keyword Tags</Col>
                   <Col xs="12">
@@ -559,7 +559,7 @@ class ViewCollection extends React.Component<Props, State> {
                       aggregated_keyword_tags.map(t => {
                         return (
                             <Button
-                                className="page-link"
+                                className="page-link tag"
                                 style={{padding: 0, background: 'none'}}
                                 key={t.tag_name}
                                 onClick={() => this.onTagClick(t.tag_name, 'keyword_tag')}

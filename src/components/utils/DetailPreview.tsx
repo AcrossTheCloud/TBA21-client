@@ -25,6 +25,15 @@ export const checkTypeIsItem = (toBeDetermined: ItemOrHomePageData): toBeDetermi
   return !!(toBeDetermined as Item).item_type && !!(toBeDetermined as Item).created_at;
 };
 
+const getOnLoadHandler = (onloadFunc) => {
+  if (typeof onloadFunc === 'function')
+    return ((event: any) => {
+      onloadFunc();
+    });
+  else
+    return undefined;
+}
+
 export const FileStaticPreview = (props: { file: S3File, onLoad?: Function }): JSX.Element => {
   if (props.file.type === FileTypes.Audio) { return <></>; }
   switch (props.file.type) {
@@ -35,7 +44,7 @@ export const FileStaticPreview = (props: { file: S3File, onLoad?: Function }): J
             srcSet={thumbnailsSRCSET(props.file)}
             src={props.file.url}
             alt={''}
-            onLoad={typeof props.onLoad === 'function' ? props.onLoad() : () => { return; }}
+            onLoad={getOnLoadHandler(props.onLoad)}
           />
         </picture>
       );
@@ -43,7 +52,7 @@ export const FileStaticPreview = (props: { file: S3File, onLoad?: Function }): J
       return (
         <picture className="videoPreview">
           <img
-            onLoad={typeof props.onLoad === 'function' ? props.onLoad() : () => { return; }}
+            onLoad={getOnLoadHandler(props.onLoad)}
             src={props.file.poster}
             alt={''}
           />
@@ -53,7 +62,7 @@ export const FileStaticPreview = (props: { file: S3File, onLoad?: Function }): J
     case FileTypes.Pdf:
       return (
         <div className="pdf">
-          <PdfPreview onLoad={typeof props.onLoad === 'function' ? props.onLoad() : () => { return; }} url={props.file.url}/>
+          <PdfPreview onLoad={getOnLoadHandler(props.onLoad) || (() => {})} url={props.file.url}/>
         </div>
       );
 
@@ -61,7 +70,7 @@ export const FileStaticPreview = (props: { file: S3File, onLoad?: Function }): J
       return (
         <picture className="image">
           <img
-            onLoad={typeof props.onLoad === 'function' ? props.onLoad() : () => { return; }}
+            onLoad={getOnLoadHandler(props.onLoad)}
             alt={''}
             src={textImage}
             className="image-fluid"
