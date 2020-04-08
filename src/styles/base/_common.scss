@@ -11,6 +11,15 @@
   }
 }
 
+button.page-link.tag {
+  padding: 3px 5px 5px !important;
+  border: 1px solid #fff;
+  margin-right: 10px;
+  cursor: pointer;
+  color: #fff;
+  background: none;
+}
+
 a, .btn-link {
   color: $dark-green;
   transition: color 0.5s;

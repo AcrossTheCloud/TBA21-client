@@ -76,7 +76,7 @@ export const dateFromTimeYearProduced = (time: string | null, year: string | nul
 };
 
 // @todo should be a util / dispatch
-export const onTagClick = (event: MouseEvent, label: string, field: string) => dispatch => {
+export const onTagClick = (event: React.MouseEvent<HTMLButtonElement>, label: string, field: string) => dispatch => {
   event.preventDefault();
   event.stopPropagation();
 
@@ -136,18 +136,16 @@ export const loadHomepage = () => async dispatch => {
         {!!tags && tags.length ?
           <div className="tags d-none d-lg-block">
             {
-              tags.map(t => {
-                return (
-                    <Button
-                        className="page-link"
-                        style={{padding: 0, background: 'none'}}
-                        key={(t as unknown as string)}
-                        onClick={(e) => dispatch(onTagClick(e as unknown as MouseEvent, t as unknown as string, 'concept_tag'))}
-                    >
-                      #{(t as unknown as string)}
-                    </Button>
-                );
-              })
+              tags.map(t => (
+                <Button
+                  className="page-link tag"
+                  style={{padding: 0, background: 'none'}}
+                  key={`${t.id}_${t.tag_name}`}
+                  onClick={(e: React.MouseEvent<HTMLButtonElement>) => dispatch(onTagClick(e, t.tag_name, 'concept_tag'))}
+                >
+                  {t.tag_name}
+                </Button>
+              ))
             }
           </div>
           : <></>
