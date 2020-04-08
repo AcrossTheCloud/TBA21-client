@@ -10,6 +10,7 @@ import { openModal } from '../../actions/map/map';
 import { FaChevronRight } from 'react-icons/fa';
 import { toggle as toggleCollectionModal } from '../../actions/modals/collectionModal';
 import { toggle as toggleItemModal } from '../../actions/modals/itemModal';
+import _ from 'lodash';
 
 interface Props {
     fetch: Function;
@@ -44,7 +45,7 @@ class UserHistoryComponent extends PureComponent<Props, State> {
     }
 
     componentDidUpdate(): void {
-        if (JSON.stringify(this.props.userHistory) !== JSON.stringify(this.state.userHistory)) {
+        if (_.isEqual(this.props.userHistory, this.state.userHistory)) {
             this.setState(
                 {
                     userHistory: {
