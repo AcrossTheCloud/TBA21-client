@@ -37,6 +37,7 @@ const ItemsDisplay = (props: { isNewItem: boolean, isAdmin: boolean, isContribut
   if (props.item && Object.keys(props.item).length && !props.item.isLoading && props.item.loaded && props.item.details) {
     return (
       <ItemEditorWithCollapse
+        data={props.item.details}
         item={props.item.details}
         isContributorPath={props.isContributorPath}
         isOpen={props.isNewItem}
@@ -205,7 +206,7 @@ class ItemsClass extends React.Component<Props, State> {
 
           const response = await adminGetItem(this.isContributorPath, { s3Key });
           timeoutSeconds = timeoutSeconds * 2;
-          
+
           const tryApiAgain = async() => {
             if (!counter) {
               clearTimeout(apiTimeout);
@@ -214,7 +215,7 @@ class ItemsClass extends React.Component<Props, State> {
               return resolve(await doAPICall(s3Key));
             }
           };
-            
+
           if (response) {
             const responseItems = removeTopology(response) as Item[];
 
@@ -227,7 +228,7 @@ class ItemsClass extends React.Component<Props, State> {
             }
           } else {
             tryApiAgain();
-          } 
+          }
         },                             timeoutSeconds);
       });
     };

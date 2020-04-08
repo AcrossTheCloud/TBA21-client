@@ -6,7 +6,7 @@ import $ from 'jquery';
 import { debounce, find, uniqBy } from 'lodash';
 import { API } from 'aws-amplify';
 import { FaTimes } from 'react-icons/fa';
-import { Col, Container, FormGroup, Input, Label, Row, Spinner } from 'reactstrap';
+import { Button, Col, Container, FormGroup, Input, Label, Row, Spinner } from 'reactstrap';
 import { SearchConsoleState } from '../../reducers/searchConsole';
 
 import {
@@ -456,21 +456,17 @@ class SearchConsole extends React.Component<Props, State> {
             </Col>
           </Row>
 
-          <Row>
-            <div className="tags">
+          <Row style={{ height: isOpen ? 'auto' : 0 }}>
               {
-                !!this.props.concept_tags ?
-                  <div className={`list ${browser()}`}>
+                isOpen && !!this.props.concept_tags &&
+                  <Col>
+                  <div className="tagList">
                     {this.props.concept_tags
                       .filter(a => !find(this.props.selectedCriteria, {'originalValue': a.tag_name}))
-                      .map((t: APITag, i) =>
-                         <span key={i} onClick={() => this.onTagClick(t)}>#{t.tag_name}</span>
-                      )
-                    }
+                      .map((t: APITag, i) => <div className="tagWrapper"><Button className="page-link tag" key={i} onClick={() => this.onTagClick(t)}>{t.tag_name}</Button></div>)}
                   </div>
-                  : <></>
+                  </Col>
               }
-            </div>
           </Row>
 
           <Row className="focus pt-1" style={{ height: isOpen ? 'auto' : 0 }}>
