@@ -94,7 +94,7 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
   let data: ItemOrHomePageData = props.data;
   if (data.collections) {
     getItemsAndCollectionsForCollection(data.collections).then((result) => data.collections = {
-      ...result as any
+      ...result as Collection[]
     });
   }
   let collectionType: collectionTypes | null | undefined = null;
@@ -178,12 +178,12 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
               {data.collections && data.collections.length ?
                   (
                     <svg
-                    className="collections_in_collection_icon"
-                    viewBox="-18 0 40 20"
-                    version="1.1"
-                    xmlns="http://www.w3.org/2000/svg"
-                    xmlnsXlink="http://www.w3.org/1999/xlink"
-                  >
+                      className="collections_in_collection_icon"
+                      viewBox="-18 0 40 20"
+                      version="1.1"
+                      xmlns="http://www.w3.org/2000/svg"
+                      xmlnsXlink="http://www.w3.org/1999/xlink"
+                    >
                     <g stroke="none" strokeWidth="1" fill="#fff">
                       <g id="Circle1">
                         <circle cx="15.5" cy="15.5" r="3.5"/>
