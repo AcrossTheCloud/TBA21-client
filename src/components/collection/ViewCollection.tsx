@@ -25,6 +25,7 @@ import { pushEntity as pushUserHistoryEntity } from '../../actions/user-history'
 import { search as dispatchSearch, toggle as searchOpenToggle } from '../../actions/searchConsole';
 import { UserHistoryState } from '../../reducers/user-history';
 import HtmlDescription from '../utils/HtmlDescription';
+import _ from 'lodash';
 
 type MatchParams = {
   id: string;
@@ -262,7 +263,7 @@ class ViewCollection extends React.Component<Props, State> {
   async pushCollectionToHistory(prevCollection?: Collection): Promise<void> {
     if (this.props.collection !== undefined) {
       if (prevCollection !== undefined) {
-        if (JSON.stringify(this.props.collection) !== JSON.stringify(prevCollection)) {
+        if (_.isEqual(this.props.collection,prevCollection)) {
           const userHistoryEntity = await this.createHistoryEntity();
           this.props.pushUserHistoryEntity(userHistoryEntity);
         }
