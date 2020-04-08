@@ -241,12 +241,6 @@
       overflow: hidden;
     }
 
-    .tags {
-      height: 0;
-      overflow: hidden;
-      position: relative;
-    }
-
     &.open {
       max-height: 100vh;
       overflow-y: scroll;
@@ -361,29 +355,19 @@
         }
       }
 
-      .tags {
-        height: 40px;
-        width: 100%;
-        .list {
-          position: absolute;
-          top: 10px;
+      .tagList {
+        @media screen and (max-width: 768px) {
+          width: auto;
+          height: 45px;
+          overflow-x: scroll;
           white-space: nowrap;
-          /* Starting position */
-          transform:translateX(100vw);
-          /* Apply animation to this element */
-          animation: marquee 80s linear infinite;
-
-          &.safari {
-            @media screen and (max-width: 768px) {
-              animation: marquee 30s linear infinite;
-            }
-          }
-
-          span {
-            padding: 3px 5px 5px;
-            border: 1px solid;
-            margin-right: 10px;
-            cursor: pointer;
+          -webkit-overflow-scrolling: touch;
+        }
+        .tagWrapper {
+          display: inline-block;
+          padding-top: 10px;
+          &:first-child {
+            margin-left: 1px;
           }
         }
       }
