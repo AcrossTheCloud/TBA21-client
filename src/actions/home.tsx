@@ -139,7 +139,7 @@ export const loadHomepage = () => async dispatch => {
               tags.map((t) => (
                 <Button
                   className="page-link tag d-inline-block"
-                  style={{padding: 0, margin: 0, background: 'none'}}
+                  style={{padding: 0, marginBottom: 5, background: 'none'}}
                   key={`highlight_tag_${props.index}_${t}`}
                   onClick={(e: React.MouseEvent<HTMLButtonElement>) => dispatch(onTagClick(e, t as unknown as string, 'concept_tag'))}
                 >
