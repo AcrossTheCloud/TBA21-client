@@ -463,7 +463,7 @@ class SearchConsole extends React.Component<Props, State> {
                   <div className="tagList">
                     {this.props.concept_tags
                       .filter(a => !find(this.props.selectedCriteria, {'originalValue': a.tag_name}))
-                      .map((t: APITag, i) => <div className="tagWrapper"><Button className="page-link tag" key={i} onClick={() => this.onTagClick(t)}>{t.tag_name}</Button></div>)}
+                      .map((t: APITag, i) => <div className="tagWrapper"><Button className="page-link tag" key={i} onClick={() => this.onTagClick(t)}>#{t.tag_name}</Button></div>)}
                   </div>
                   </Col>
               }

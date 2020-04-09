@@ -542,7 +542,7 @@ class ViewCollection extends React.Component<Props, State> {
                                 key={t.tag_name}
                                 onClick={() => this.onTagClick(t.tag_name, 'concept_tag')}
                             >
-                              {t.tag_name}
+                              #{t.tag_name}
                             </Button>
                         );
                       })
@@ -560,7 +560,7 @@ class ViewCollection extends React.Component<Props, State> {
                       aggregated_keyword_tags.map(t => {
                         return (
                             <Button
-                                className="page-link tag"
+                                className="tag"
                                 style={{padding: 0, background: 'none'}}
                                 key={t.tag_name}
                                 onClick={() => this.onTagClick(t.tag_name, 'keyword_tag')}

@@ -143,7 +143,7 @@ export const loadHomepage = () => async dispatch => {
                   key={`highlight_tag_${props.index}_${t}`}
                   onClick={(e: React.MouseEvent<HTMLButtonElement>) => dispatch(onTagClick(e, t as unknown as string, 'concept_tag'))}
                 >
-                  {t}
+                  #{t}
                 </Button>
               ))
             }
