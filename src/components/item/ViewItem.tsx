@@ -85,7 +85,7 @@ class ViewItem extends React.Component<Props, State> {
   pushItemToHistory(prevItem?: Item) {
     if (this.props.item !== undefined) {
       if (prevItem !== undefined) {
-        if (!_.isEqual(this.props.item,prevItem)) {
+        if (!_.isEqual(this.props.item, prevItem)) {
           const userHistoryEntity = this.createHistoryEntity();
           this.props.pushUserHistoryEntity(userHistoryEntity);
         }
