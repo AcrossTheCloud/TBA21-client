@@ -533,12 +533,13 @@ class ViewCollection extends React.Component<Props, State> {
                 <Row className="border-bottom subline details">
                   <Col xs="12">Concept Tags</Col>
                   <Col xs="12">
+                    <div className="tagWrapper">
                     {
                       aggregated_concept_tags.map(t => {
                         return (
                             <Button
-                                className="page-link tag"
-                                style={{padding: 0, background: 'none'}}
+                                className="page-link tag d-inline-block"
+                                style={{padding: 0, margin: 0, background: 'none'}}
                                 key={t.tag_name}
                                 onClick={() => this.onTagClick(t.tag_name, 'concept_tag')}
                             >
@@ -547,6 +548,7 @@ class ViewCollection extends React.Component<Props, State> {
                         );
                       })
                     }
+                    </div>
                   </Col>
                 </Row>
               )
@@ -556,12 +558,13 @@ class ViewCollection extends React.Component<Props, State> {
                 <Row className="subline details">
                   <Col xs="12">Keyword Tags</Col>
                   <Col xs="12">
+                    <div className="tagWrapper">
                     {
                       aggregated_keyword_tags.map(t => {
                         return (
                             <Button
-                                className="tag"
-                                style={{padding: 0, background: 'none'}}
+                                className="ml-1 tag d-inline-block"
+                                style={{padding: 0, margin: 0, background: 'none'}}
                                 key={t.tag_name}
                                 onClick={() => this.onTagClick(t.tag_name, 'keyword_tag')}
                             >
@@ -570,6 +573,7 @@ class ViewCollection extends React.Component<Props, State> {
                         );
                       })
                     }
+                    </div>
                   </Col>
                 </Row>
               )
