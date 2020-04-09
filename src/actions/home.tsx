@@ -130,20 +130,20 @@ export const loadHomepage = () => async dispatch => {
             {highlightsWithFiles[props.index].title}
           </div>
         </div>
-        <div className="type" onClick={() => dispatch(openModal(highlightsWithFiles[props.index]))}>
+        <div className="type mb-2" onClick={() => dispatch(openModal(highlightsWithFiles[props.index]))}>
           {highlightsWithFiles[props.index].item_subtype}, {dateFromTimeYearProduced(highlightsWithFiles[props.index].time_produced, highlightsWithFiles[props.index].year_produced)}
         </div>
         {!!tags && tags.length ?
-          <div className="tags d-none d-lg-block">
+          <div className="tagWrapper tags d-none d-lg-block">
             {
               tags.map((t) => (
                 <Button
-                  className="page-link tag"
-                  style={{padding: 0, background: 'none'}}
+                  className="page-link tag d-inline-block"
+                  style={{padding: 0, marginBottom: 5, background: 'none'}}
                   key={`highlight_tag_${props.index}_${t}`}
                   onClick={(e: React.MouseEvent<HTMLButtonElement>) => dispatch(onTagClick(e, t as unknown as string, 'concept_tag'))}
                 >
-                  {t}
+                  #{t}
                 </Button>
               ))
             }

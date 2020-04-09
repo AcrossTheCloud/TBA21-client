@@ -273,22 +273,24 @@ class ViewItem extends React.Component<Props, State> {
             {!!aggregated_concept_tags && aggregated_concept_tags.length ?
                 (
                     <Row className="border-bottom subline details">
-                      <Col xs="12">Concept Tags</Col>
+                      <Col xs="12" className="mb-2">Concept Tags</Col>
                       <Col xs="12">
+                        <div className="tagWrapper">
                         {
                           aggregated_concept_tags.map(t => {
                             return (
                                 <Button
-                                    className="page-link tag"
-                                    style={{padding: 0, background: 'none'}}
+                                    className="page-link tag d-inline-block"
+                                    style={{padding: 0, marginBottom: 5, background: 'none'}}
                                     key={t.tag_name}
                                     onClick={() => this.onTagClick(t.tag_name, 'concept_tag')}
                                 >
-                                  {t.tag_name}
+                                  #{t.tag_name}
                                 </Button>
                             );
                           })
                         }
+                        </div>
                       </Col>
                     </Row>
                 )
@@ -298,12 +300,13 @@ class ViewItem extends React.Component<Props, State> {
                     <Row className="subline details">
                       <Col xs="12">Keyword Tags</Col>
                       <Col xs="12">
+                        <div className="tagWrapper">
                         {
                           aggregated_keyword_tags.map(t => {
                             return (
                                 <Button
-                                    className="page-link tag"
-                                    style={{padding: 0, background: 'none'}}
+                                    className="ml-1 tag d-inline-block"
+                                    style={{padding: 0, margin: 0, background: 'none'}}
                                     key={t.tag_name}
                                     onClick={() => this.onTagClick(t.tag_name, 'keyword_tag')}
                                 >
@@ -312,6 +315,7 @@ class ViewItem extends React.Component<Props, State> {
                             );
                           })
                         }
+                        </div>
                       </Col>
                     </Row>
                 )

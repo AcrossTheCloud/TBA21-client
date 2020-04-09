@@ -364,7 +364,7 @@
           -webkit-overflow-scrolling: touch;
         }
         .tagWrapper {
-          display: inline-block;
+          display: inline-block !important;
           padding-top: 10px;
           &:first-child {
             margin-left: 1px;
