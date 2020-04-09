@@ -273,7 +273,7 @@ class ViewItem extends React.Component<Props, State> {
             {!!aggregated_concept_tags && aggregated_concept_tags.length ?
                 (
                     <Row className="border-bottom subline details">
-                      <Col xs="12">Concept Tags</Col>
+                      <Col xs="12" className="mb-2">Concept Tags</Col>
                       <Col xs="12">
                         <div className="tagWrapper">
                         {
