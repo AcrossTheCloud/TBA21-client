@@ -268,7 +268,7 @@ class ViewItem extends React.Component<Props, State> {
             {!!license ? <ItemDetails label="License" value={license} /> : ''}
             {!!copyright_holder ? <ItemDetails label="Copyright Owner" value={copyright_holder} /> : ''}
             {!!medium ? <ItemDetails label="Medium" value={medium} /> : ''}
-            {!!url ? <ItemDetails label="Link" value={<a href={url} target="_blank" rel="noreferrer noopener">Click here to view</a>} /> : ''}
+            {!!url ? <ItemDetails label="Relation" value={<a href={url} target="_blank" rel="noreferrer noopener">Click here to view</a>} /> : ''}
 
             {!!aggregated_concept_tags && aggregated_concept_tags.length ?
                 (

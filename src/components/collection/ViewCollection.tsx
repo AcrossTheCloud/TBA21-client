@@ -526,7 +526,7 @@ class ViewCollection extends React.Component<Props, State> {
             }
             {!!license ? <CollectionDetails label="License" value={license} /> : ''}
             {!!copyright_holder ? <CollectionDetails label="Copyright Owner" value={copyright_holder} /> : ''}
-            {!!url ? <CollectionDetails label="Link" value={<a href={url} target="_blank" rel="noreferrer noopener">Click here to view</a>} /> : ''}
+            {!!url ? <CollectionDetails label="Relation" value={<a href={url} target="_blank" rel="noreferrer noopener">Click here to view</a>} /> : ''}
 
             {!!aggregated_concept_tags && aggregated_concept_tags.length ?
               (
