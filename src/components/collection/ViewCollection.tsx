@@ -115,7 +115,6 @@ const DataLayout = (props: { data: Item | Collection, itemModalToggle?: Function
                   time_produced: data.time_produced ? data.time_produced : '',
                   creators: data.creators ? data.creators : [],
                   regions: data.regions ? data.regions : [],
-                  created_at: data.created_at ? data.created_at : null,
                   // tslint:disable-next-line:no-any
                   items: data.items as any || [],
                   // tslint:disable-next-line:no-any
@@ -368,7 +367,6 @@ class ViewCollection extends React.Component<Props, State> {
       creators,
       title,
       description,
-      created_at,
       license,
       aggregated_concept_tags,
       aggregated_keyword_tags,
