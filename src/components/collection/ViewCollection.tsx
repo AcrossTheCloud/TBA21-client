@@ -501,9 +501,6 @@ class ViewCollection extends React.Component<Props, State> {
             {!!title ?
                 <CollectionDetails label="Title" value={title} /> : <></>
             }
-            {!!created_at ?
-                <CollectionDetails label="Date created" value={moment(created_at).format('Do MMMM YYYY')} /> : <></>
-            }
             {!!creators ?
                 <CollectionDetails label="Creators" value={creators.join(', ')} /> : <></>
             }
