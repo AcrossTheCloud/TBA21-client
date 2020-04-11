@@ -9,7 +9,6 @@ import { FaCircle, FaTimes } from 'react-icons/fa';
 import { Col, Modal, ModalBody, Row } from 'reactstrap';
 import { Item } from '../../types/Item';
 import ViewItem from '../item/ViewItem';
-import UserHistoryComponent from '../user-history/UserHistoryComponent';
 import { popEntity as popUserHistoryEntity } from '../../actions/user-history';
 
 interface Props {
@@ -118,11 +117,6 @@ class ItemModal extends React.Component<Props, State> {
           </Row>
 
           <ModalBody>
-            <Row>
-              <Col>
-                <UserHistoryComponent />
-              </Col>
-            </Row>
             <ViewItem />
           </ModalBody>
 

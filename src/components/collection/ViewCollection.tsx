@@ -115,7 +115,6 @@ const DataLayout = (props: { data: Item | Collection, itemModalToggle?: Function
                   time_produced: data.time_produced ? data.time_produced : '',
                   creators: data.creators ? data.creators : [],
                   regions: data.regions ? data.regions : [],
-                  created_at: data.created_at ? data.created_at : null,
                   // tslint:disable-next-line:no-any
                   items: data.items as any || [],
                   // tslint:disable-next-line:no-any
@@ -368,7 +367,6 @@ class ViewCollection extends React.Component<Props, State> {
       creators,
       title,
       description,
-      created_at,
       license,
       aggregated_concept_tags,
       aggregated_keyword_tags,
@@ -501,9 +499,6 @@ class ViewCollection extends React.Component<Props, State> {
             {!!title ?
                 <CollectionDetails label="Title" value={title} /> : <></>
             }
-            {!!created_at ?
-                <CollectionDetails label="Date created" value={moment(created_at).format('Do MMMM YYYY')} /> : <></>
-            }
             {!!creators ?
                 <CollectionDetails label="Creators" value={creators.join(', ')} /> : <></>
             }
@@ -526,7 +521,7 @@ class ViewCollection extends React.Component<Props, State> {
             }
             {!!license ? <CollectionDetails label="License" value={license} /> : ''}
             {!!copyright_holder ? <CollectionDetails label="Copyright Owner" value={copyright_holder} /> : ''}
-            {!!url ? <CollectionDetails label="Link" value={<a href={url} target="_blank" rel="noreferrer noopener">Click here to view</a>} /> : ''}
+            {!!url ? <CollectionDetails label="Relation" value={<a href={url} target="_blank" rel="noreferrer noopener">Click here to view</a>} /> : ''}
 
             {!!aggregated_concept_tags && aggregated_concept_tags.length ?
               (

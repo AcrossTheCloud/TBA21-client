@@ -157,7 +157,7 @@ export const loadHomepage = () => async dispatch => {
   const HighLightsLayout = (props: { index: number }) => {
     if (props.index === 0 && !!highlightsWithFiles[0]) {
       return (
-        <Col xs="12" lg={highlightsWithFiles.length > 1 ? 8 : 12} className="item" onClick={() => { if (highlightsWithFiles[0].item_type !== itemType.Audio || (highlightsWithFiles[0].file && highlightsWithFiles[0].file.type) !== FileTypes.Audio) { dispatch(openModal(highlightsWithFiles[0])); }}}>
+        <Col xs="12" lg={highlightsWithFiles.length > 1 ? 7 : 12} className="item" onClick={() => { if (highlightsWithFiles[0].item_type !== itemType.Audio || (highlightsWithFiles[0].file && highlightsWithFiles[0].file.type) !== FileTypes.Audio) { dispatch(openModal(highlightsWithFiles[0])); }}}>
           <div className="detailPreview">
             {
               highlightsWithFiles[0].file ?
@@ -181,7 +181,7 @@ export const loadHomepage = () => async dispatch => {
       );
     } else if (props.index === 1 && !!highlightsWithFiles[1]) {
       return (
-        <Col xs="12" lg="4" className="item" onClick={() => { if (highlightsWithFiles[1].item_type !== itemType.Audio || (highlightsWithFiles[1].file && highlightsWithFiles[1].file.type) !== FileTypes.Audio) { dispatch(openModal(highlightsWithFiles[1])); }}}>
+        <Col xs="12" lg="5" className="item" onClick={() => { if (highlightsWithFiles[1].item_type !== itemType.Audio || (highlightsWithFiles[1].file && highlightsWithFiles[1].file.type) !== FileTypes.Audio) { dispatch(openModal(highlightsWithFiles[1])); }}}>
           <Row className="d-none d-lg-block">
             <Col xs="12">
               <div className="detailPreview">
