@@ -67,7 +67,7 @@ class UserHistoryComponent extends PureComponent<Props, State> {
 
         return (
             <div className={'userHistory'} role={'list'}>
-                {this.state.userHistory.entities && this.state.userHistory.entities.length > 1 ?
+                {this.state.userHistory.entities ?
                     this.state.userHistory.entities.map((entity: UserHistoryEntity, i: number) => (
                         <div
                             key={entity.id}
