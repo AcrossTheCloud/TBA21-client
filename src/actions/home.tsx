@@ -235,19 +235,11 @@ export const loadHomepage = () => async dispatch => {
   };
 
   const
-    items = response.items,
+    items = response.items.filter(item => item.item_type !== itemType.Audio),
     collections = response.collections,
     announcements = announcementResponse.announcements,
-    loadedHighlights = highlightsWithFiles.map( (oa: HomepageData, i: number) => <HighLightsLayout index={i} key={i} />);
-
-  // Put all audio files into another list.
-  const audio: HomepageData[] = [];
-  for (let i = 0; i < items.length; i++) {
-    if (items[i].item_type === itemType.Audio) {
-      audio.push(items[i]);
-      items.splice(i, 1);
-    }
-  }
+    loadedHighlights = highlightsWithFiles.map( (oa: HomepageData, i: number) => <HighLightsLayout index={i} key={i} />),
+    audio: HomepageData[] = response.items.filter(item => item.item_type === itemType.Audio);
 
   dispatch({
     type: LOAD_HOMEPAGE,
