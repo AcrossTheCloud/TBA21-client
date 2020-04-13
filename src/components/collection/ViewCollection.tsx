@@ -461,6 +461,20 @@ class ViewCollection extends React.Component<Props, State> {
             }
 
             <Row id={this.state.dataRowID}>
+            {
+                this.state.collection.collections && this.state.collection.collections.length ?
+                    // tslint:disable-next-line:no-any
+                    (this.state.collection.collections as any[])
+                        .map((collection: Collection, i) => (
+                            <DataLayout
+                                data={collection}
+                                key={`collection_${collection.id}`}
+                                itemModalToggle={this.props.itemModalToggle}
+                                collectionModalToggle={this.collectionModalToggle}
+                            />
+                          ))
+                    : <></>
+              }
               {
                 this.state.collection.items && this.state.collection.items.length ?
                     // tslint:disable-next-line:no-any
@@ -472,20 +486,6 @@ class ViewCollection extends React.Component<Props, State> {
                             <DataLayout
                                 data={item}
                                 key={`item_${item.id}`}
-                                itemModalToggle={this.props.itemModalToggle}
-                                collectionModalToggle={this.collectionModalToggle}
-                            />
-                          ))
-                    : <></>
-              }
-              {
-                this.state.collection.collections && this.state.collection.collections.length ?
-                    // tslint:disable-next-line:no-any
-                    (this.state.collection.collections as any[])
-                        .map((collection: Collection, i) => (
-                            <DataLayout
-                                data={collection}
-                                key={`collection_${collection.id}`}
                                 itemModalToggle={this.props.itemModalToggle}
                                 collectionModalToggle={this.collectionModalToggle}
                             />
