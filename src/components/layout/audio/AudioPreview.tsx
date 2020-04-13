@@ -113,16 +113,13 @@ class AudioPreview extends React.Component<Props, State> {
               <FaPlay/>
             </div>
             <Col xs="6" md="4" className="info">
-              <div className="type_date">
-                {item_subtype ? item_subtype + ',' : ''} {date}
-              </div>
+              <div className="title">{title}</div>
               {creators && creators.length ?
                 <div className="creator">
                   {creators[0]}{creators.length > 1 ? <em>, et al.</em> : <></>}
                 </div>
                 : <></>
               }
-              <div className="title">{title}</div>
             </Col>
           </Row>
           <div id={`wavepreview_${id.replace(/[^\w\s]/gi, '')}`}/>
