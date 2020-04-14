@@ -24,6 +24,16 @@
     width: 100%;
   }
 
+  .blink_me {
+    animation: blinker 2s linear infinite;
+  }
+
+  @keyframes blinker {
+    70% {
+      opacity: 0;
+    }
+  }
+
   .content {
     width: 100%;
     font-size: 18px;
@@ -43,7 +53,7 @@
       max-width: 850px;
 
       h1 {
-        font-size: 60px
+        font-size: 28px
       }
     }
     @media screen and (min-width: 1600px) {
