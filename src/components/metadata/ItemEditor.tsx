@@ -32,7 +32,7 @@ import { Item, itemAudio, itemImage, itemText, itemVideo } from '../../types/Ite
 
 import textImage from 'images/defaults/Unscharfe_Zeitung.jpg';
 
-import {OptionType} from '../../types/SelectTypes'
+import { OptionType } from '../../types/SelectTypes';
 
 import {
   countries,
