@@ -77,7 +77,7 @@ export default class HomepageVideo extends Component<Props, State> {
           <Row>
             <Col xs="12">
               <h1>Get ready for the dive</h1>
-              <p>Loading<span className="blink_me">...</span></p>
+              <p><span className="blink_me">Loading...</span></p>
             </Col>
           </Row>
           <Row className="bottom align-items-end">
