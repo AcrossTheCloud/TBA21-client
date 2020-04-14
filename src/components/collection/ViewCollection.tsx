@@ -132,7 +132,7 @@ const DataLayout = (props: { data: Item | Collection, itemModalToggle?: Function
 
   return (
     <Col
-        md={!!props.data && !!props.data.file && props.data.file.type === 'Audio' ? '8' : '4'}
+        md={!!props.data && !!props.data.file && props.data.file.type === 'Audio' ? '12' : '4'}
         className="pt-4"
     >
       {response}
