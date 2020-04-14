@@ -76,22 +76,12 @@ export default class HomepageVideo extends Component<Props, State> {
         <Container fluid className="content" style={{ display: 'none' }}>
           <Row>
             <Col xs="12">
-              <h1>Take a swim in the digital ocean.</h1>
-              <p>
-                This is a test dive<br />
-                into a new online platform in the making,<br />
-                created to support a thriving sea.
-              </p>
+              <h1>Get ready for the dive</h1>
+              <p>Loading<span className="blink_me">...</span></p>
             </Col>
           </Row>
           <Row className="bottom align-items-end">
             <Col xs="12" md="6" className="left">
-              <p>
-                Create,<br />
-                contribute,<br />
-                share,<br />
-                participate.
-              </p>
             </Col>
             <Col xs="12" md="6" className="right pt-3 pt-md-0">
               <div className="logo d-flex align-items-baseline">
@@ -101,7 +91,7 @@ export default class HomepageVideo extends Component<Props, State> {
           </Row>
         </Container>
         <video
-          poster="https://video-streaming.ocean-archive.org/loading_video_first_frame.jpg"
+          poster="https://video-streaming.ocean-archive.org/loading_video2_first_frame.jpg"
           onLoadedData={() => this.onVideoPlay()}
           muted
           autoPlay
@@ -109,7 +99,7 @@ export default class HomepageVideo extends Component<Props, State> {
           loop
           playsInline
         >
-          <source src="https://video-streaming.ocean-archive.org/loading_video.mp4" type="video/mp4"/>
+          <source src="https://video-streaming.ocean-archive.org/loading_video2.mp4" type="video/mp4"/>
         </video>
       </div>
     );
