@@ -493,7 +493,7 @@ class ViewCollection extends React.Component<Props, State> {
               :
               ''
             }
-            {!!license ? <CollectionDetails label="License" value={license} /> : ''}
+            {!!license ? <CollectionDetails label="License" value={license==='Ocean Archive' ? 'Ocean Archive Restrictive License' : license} /> : ''}
             {!!copyright_holder ? <CollectionDetails label="Copyright Owner" value={copyright_holder} /> : ''}
             {!!url ? <CollectionDetails label="Relation" value={<a href={url} target="_blank" rel="noreferrer noopener">Click here to view</a>} /> : ''}
 
