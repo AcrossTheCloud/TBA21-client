@@ -29,7 +29,7 @@ import { API } from 'aws-amplify';
 import Select from 'react-select';
 import { isArray, isEqual } from 'lodash';
 import { Item, itemAudio, itemImage, itemText, itemVideo } from '../../types/Item';
-import { License } from '../../types/License';
+//import { License } from '../../types/License';
 
 import textImage from 'images/defaults/Unscharfe_Zeitung.jpg';
 
@@ -2542,8 +2542,8 @@ class ItemEditorClass extends React.Component<Props, State> {
                               menuPlacement="auto"
                               className="license_type"
                               options={licenseType}
-                              value={item.license ? {value: item.license, label: item.license} : { value: License.LOCKED, label: License.LOCKED }}
-                              onChange={e => this.changeItem('license', e.value )}
+                              value={item.license ? {value: item.license, label: item.license} : []}
+                              onChange={e => this.changeItem('license', (e as OptionType).value)}
                               isSearchable
                           />
                         </FormGroup>
