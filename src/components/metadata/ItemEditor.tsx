@@ -29,6 +29,7 @@ import { API } from 'aws-amplify';
 import Select from 'react-select';
 import { isArray, isEqual } from 'lodash';
 import { Item, itemAudio, itemImage, itemText, itemVideo } from '../../types/Item';
+import { License } from '../../types/License';
 
 import textImage from 'images/defaults/Unscharfe_Zeitung.jpg';
 
@@ -44,6 +45,7 @@ import {
   oceans,
   regions as selectableRegions
 } from './SelectOptions';
+import { licenseType } from './SelectOptions';
 
 import Tags from './Tags';
 import { checkThumbnails, sdkGetObject, thumbnailsSRCSET } from '../utils/s3File';
@@ -341,7 +343,7 @@ class ItemEditorClass extends React.Component<Props, State> {
           Object.assign(itemsProperties, { [field[0]]: field[1] });
         });
 
-      // If no license assign OA
+      // If no license assign CC BY-NC
       if (!itemsProperties.hasOwnProperty('license')) {
         Object.assign(itemsProperties, { 'license': 'CC BY-NC' });
       }
@@ -399,7 +401,7 @@ class ItemEditorClass extends React.Component<Props, State> {
     if (!this._isMounted) { return; }
 
     const { changedItem, changedFields } = this.state;
-
+    console.log(this.state, key, value, 'y broke');
     const deleteKey = () => {
       if (changedFields[key]) {
         delete changedFields[key];
@@ -2292,6 +2294,7 @@ class ItemEditorClass extends React.Component<Props, State> {
       );
     }
 
+    // @ts-ignore
     return (
       <>
         <Form className="container-fluid itemEditor" >
@@ -2532,6 +2535,18 @@ class ItemEditorClass extends React.Component<Props, State> {
                         {item.item_subtype === itemAudio.Radio ? <this.AudioRadio /> : <></>}
                         {item.item_subtype === itemAudio.Performance_Poetry ? <this.AudioPerformancePoetry /> : <></>}
                         {(!!item.file && item.file.type === FileTypes.Audio) && item.item_subtype === itemAudio.Other ? <this.AudioOther /> : <></>}
+
+                        <FormGroup>
+                          <Label for="license_type">License</Label>
+                          <Select
+                              menuPlacement="auto"
+                              className="license_type"
+                              options={licenseType}
+                              value={item.license ? {value: item.license, label: item.license} : { value: License.LOCKED, label: License.LOCKED }}
+                              onChange={e => console.log(e, 'aaa')}
+                              isSearchable
+                          />
+                        </FormGroup>
 
                         <FormGroup>
                           <Label for="copyright_holder">Copyright Owner</Label>
