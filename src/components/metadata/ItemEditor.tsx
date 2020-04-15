@@ -2543,7 +2543,7 @@ class ItemEditorClass extends React.Component<Props, State> {
                               className="license_type"
                               options={licenseType}
                               value={item.license ? {value: item.license, label: item.license} : { value: License.LOCKED, label: License.LOCKED }}
-                              onChange={e => console.log(e, 'aaa')}
+                              onChange={e => this.changeItem('license', e.value )}
                               isSearchable
                           />
                         </FormGroup>
