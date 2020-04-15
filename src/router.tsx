@@ -48,6 +48,8 @@ import LoadingOverlay from './components/LoadingOverlay';
 import PrivacyPolicyPopUp from './components/PrivacyPolicyPopUp';
 import PrivacyPolicy from './components/pages/PrivacyPolicy';
 import TermsAndConditions from './components/pages/TermsAndConditions';
+import RestrictiveLicence from './components/pages/RestrictiveLicence';
+
 import ItemModal from './components/modals/ItemModal';
 import CollectionModal from './components/modals/CollectionModal';
 import LiveStreamModal from './components/modals/LiveStreamModal';
@@ -109,6 +111,7 @@ export const AppRouter = () => {
                   <PrivacyPolicyPopUp />
                   <PrivacyPolicy />
                   <TermsAndConditions />
+                  <RestrictiveLicence />
                   <About />
                   <ItemModal />
                   <CollectionModal />

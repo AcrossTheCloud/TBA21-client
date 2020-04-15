@@ -5,6 +5,7 @@ import { dispatchLoadMore, fetchCollection, loadMore } from 'actions/collections
 import { ViewCollectionState } from 'reducers/collections/viewCollection';
 import { ErrorMessage } from '../utils/alerts';
 import { browser } from '../utils/browser';
+import LicenceLink from '../utils/LicenceLink'
 import { RouteComponentProps, withRouter } from 'react-router';
 import Share from '../utils/Share';
 import moment from 'moment';
@@ -493,7 +494,7 @@ class ViewCollection extends React.Component<Props, State> {
               :
               ''
             }
-            {!!license ? <CollectionDetails label="License" value={license==='Ocean Archive' ? 'Ocean Archive Restrictive License' : license} /> : ''}
+            {!!license ? <LicenceLink licence={license} /> : ''}
             {!!copyright_holder ? <CollectionDetails label="Copyright Owner" value={copyright_holder} /> : ''}
             {!!url ? <CollectionDetails label="Relation" value={<a href={url} target="_blank" rel="noreferrer noopener">Click here to view</a>} /> : ''}
 
