@@ -401,7 +401,6 @@ class ItemEditorClass extends React.Component<Props, State> {
     if (!this._isMounted) { return; }
 
     const { changedItem, changedFields } = this.state;
-    console.log(this.state, key, value, 'y broke');
     const deleteKey = () => {
       if (changedFields[key]) {
         delete changedFields[key];
