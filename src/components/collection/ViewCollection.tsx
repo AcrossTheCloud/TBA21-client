@@ -5,6 +5,7 @@ import { dispatchLoadMore, fetchCollection, loadMore } from 'actions/collections
 import { ViewCollectionState } from 'reducers/collections/viewCollection';
 import { ErrorMessage } from '../utils/alerts';
 import { browser } from '../utils/browser';
+import LicenceLink from '../utils/LicenceLink'
 import { RouteComponentProps, withRouter } from 'react-router';
 import Share from '../utils/Share';
 import moment from 'moment';
@@ -48,7 +49,6 @@ interface Props extends RouteComponentProps<MatchParams>, ViewCollectionState {
 
 interface State {
   data: (Item | Collection)[] | undefined;
-  firstItem: Item | undefined;
   offset: number;
   errorMessage?: string;
   collection?: Collection;
@@ -133,7 +133,7 @@ const DataLayout = (props: { data: Item | Collection, itemModalToggle?: Function
 
   return (
     <Col
-        md={!!props.data && !!props.data.file && props.data.file.type === 'Audio' ? '8' : '4'}
+        md={!!props.data && !!props.data.file && props.data.file.type === 'Audio' ? '12' : '4'}
         className="pt-4"
     >
       {response}
@@ -153,7 +153,6 @@ class ViewCollection extends React.Component<Props, State> {
     this._isMounted = false;
     const state = {
       data: undefined,
-      firstItem: undefined,
       offset: 0,
       loading: false,
       noMoreData: false,
@@ -247,13 +246,7 @@ class ViewCollection extends React.Component<Props, State> {
             ...this.state.collection,
             items: [...items],
             collections: [...collections]
-          } as Collection,
-          firstItem: this.props.data ?
-              this.props.data
-                  .filter((data: Item | Collection) => {
-                    return data.__typename === 'item';
-                  })[0] as Item
-              : undefined
+          } as Collection
         });
       }
     }
@@ -412,21 +405,6 @@ class ViewCollection extends React.Component<Props, State> {
         <ErrorMessage message={this.props.errorMessage} />
 
         <Row>
-          {
-            this.state.firstItem ?
-                (
-                    <DataLayout
-                        data={this.state.firstItem}
-                        key={`firstItem_${this.state.firstItem.id}`}
-                        itemModalToggle={this.props.itemModalToggle}
-                        collectionModalToggle={this.collectionModalToggle}
-                    />
-                )
-                : <></>
-          }
-        </Row>
-
-        <Row>
           <Col xs="12" md="8" className="left border-right">
             <Row>
               <Col xs={{ size: 12, order: 2 }} md={{ size: 8, order: 1 }} className="creators">
@@ -479,9 +457,6 @@ class ViewCollection extends React.Component<Props, State> {
                 this.state.collection.items && this.state.collection.items.length ?
                     // tslint:disable-next-line:no-any
                     (this.state.collection.items as any[])
-                        .filter((item: Item) => {
-                          return this.state.firstItem && item.id !== this.state.firstItem.id;
-                        })
                         .map((item: Item, i) => (
                             <DataLayout
                                 data={item}
@@ -519,7 +494,7 @@ class ViewCollection extends React.Component<Props, State> {
               :
               ''
             }
-            {!!license ? <CollectionDetails label="License" value={license} /> : ''}
+            {!!license ? <LicenceLink licence={license} /> : ''}
             {!!copyright_holder ? <CollectionDetails label="Copyright Owner" value={copyright_holder} /> : ''}
             {!!url ? <CollectionDetails label="Relation" value={<a href={url} target="_blank" rel="noreferrer noopener">Click here to view</a>} /> : ''}
 
@@ -591,7 +566,6 @@ const mapStateToProps = (state: { viewCollection: ViewCollectionState, userHisto
     errorMessage: state.viewCollection.errorMessage,
     collection: props.collection || state.viewCollection.collection,
     data: state.viewCollection.data,
-    firstItem: state.viewCollection.firstItem,
     offset: state.viewCollection.offset,
     noMoreData: state.viewCollection.noMoreData,
     noRedux: !!props.noRedux || false,

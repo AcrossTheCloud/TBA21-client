@@ -24,11 +24,21 @@
     width: 100%;
   }
 
+  .blink_me {
+    animation: blinker 2s linear infinite;
+  }
+
+  @keyframes blinker {
+    70% {
+      opacity: 0;
+    }
+  }
+
   .content {
     width: 100%;
-    font-size: 18px;
+    font-size: 20px;
     position: absolute;
-    top: 50%;
+    top: 70%;
     left: 50%;
     transform: translate(-50%, -50%);
     @media screen and (min-width: 768px) {
@@ -43,7 +53,8 @@
       max-width: 850px;
 
       h1 {
-        font-size: 60px
+        font-size: 35px;
+        font-style: bold;
       }
     }
     @media screen and (min-width: 1600px) {
@@ -62,7 +73,7 @@
         font-size: 25px;
       }
       img {
-        height: 30px;
+        height: 35px;
         @media screen and (min-width: 768px){
           height: 25px;
         }

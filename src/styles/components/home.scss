@@ -28,6 +28,12 @@
 #home, #homePageModal {
   color: $soft-gray;
 
+  .modal-content {
+    .header {
+      min-height: 60px;
+    }
+  }
+
   .dot {
     line-height: 0;
     font-size: 5px;
