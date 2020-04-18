@@ -29,8 +29,6 @@ import { API } from 'aws-amplify';
 import Select from 'react-select';
 import { isArray, isEqual } from 'lodash';
 import { Item, itemAudio, itemImage, itemText, itemVideo } from '../../types/Item';
-//import { License } from '../../types/License';
-
 import textImage from 'images/defaults/Unscharfe_Zeitung.jpg';
 
 import { OptionType } from '../../types/SelectTypes';
@@ -380,7 +378,7 @@ class ItemEditorClass extends React.Component<Props, State> {
       }
 
     } catch (e) {
-      console.log('error',e);
+      console.log('error', e);
       Object.assign(state, { errorMessage: 'We had an issue updating this item.' });
     } finally {
       if (!this._isMounted) { return; }
