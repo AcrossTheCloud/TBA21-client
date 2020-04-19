@@ -50,6 +50,7 @@ import { ActionMeta } from 'react-select/src/types';
 import { Items } from './Items';
 import { withCollapse } from './withCollapse';
 import { OptionType } from '../../types/SelectTypes';
+import { licenseType } from './SelectOptions';
 
 interface Props extends RouteComponentProps {
   collection?: Collection;
@@ -351,7 +352,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
           Object.assign(collectionProperties, { [field[0]]: field[1] });
         });
 
-      // If no license assign OA
+      // If no license assign CC BY-NC
       if (!collectionProperties.hasOwnProperty('license')) {
         Object.assign(collectionProperties, { 'license': 'CC BY-NC' });
       }
@@ -1387,6 +1388,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
     } = this.state.collection;
 
     const
+      collection = this.state.collection,
       conceptTags = aggregated_concept_tags ? aggregated_concept_tags.map( t => ({ id: t.id, value: t.id, label: t.tag_name }) ) : [],
       keywordTags = aggregated_keyword_tags ? aggregated_keyword_tags.map( t => ({ id: t.id, value: t.id, label: t.tag_name }) ) : [],
       selectedRegions = !!regions ? selectableRegions.filter(s => !!regions ? regions.find(a => a === s.value) : false) : [];
@@ -1538,6 +1540,18 @@ class CollectionEditorClass extends React.Component<Props, State> {
                     {type === Types.Convening ? <this.Convening /> : <></>}
                     {type === Types.Performance ? <this.Performance /> : <></>}
                     {type === Types.Installation ? <this.Installation /> : <></>}
+
+                    <FormGroup>
+                      <Label for="license_type">License</Label>
+                      <Select
+                          menuPlacement="auto"
+                          className="license_type"
+                          options={licenseType}
+                          value={collection.license ? {value: collection.license, label: collection.license} : []}
+                          onChange={e => this.changeCollection('license', (e as OptionType).value)}
+                          isSearchable
+                      />
+                    </FormGroup>
 
                     <FormGroup>
                       <Label for="copyright_holder">Copyright Holder</Label>
