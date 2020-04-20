@@ -16,6 +16,7 @@ import { API } from 'aws-amplify';
 import Select from 'react-select';
 import AsyncSelect from 'react-select/async';
 import { isEqual, isArray } from 'lodash';
+import RichTextEditor from 'react-rte';
 
 import Tags from './Tags';
 import {
@@ -31,7 +32,6 @@ import YearSelect from './fields/YearSelect';
 import { validateURL } from '../utils/inputs/url';
 
 import CustomSelect from './fields/CustomSelect';
-import ShortPaths from '../admin/utils/ShortPaths';
 import Contributors from './fields/Contributors';
 import { AuthContext } from '../../providers/AuthProvider';
 
@@ -81,6 +81,8 @@ interface State extends Alerts {
   };
 
   userUUID: string;
+
+  rtDescription: string;
 
   hasShortPath: boolean;
   editMode: boolean;
@@ -157,6 +159,8 @@ class CollectionEditorClass extends React.Component<Props, State> {
       isDifferent: false,
       validate: defaultRequiredFields(collection),
       activeTab: '1',
+
+      rtDescription: props.collection ?  RichTextEditor.createValueFromString(props.collection.description, 'html') : RichTextEditor.createEmptyValue(),
 
       selectItemQuery: '',
       loadedItems: [],
@@ -247,7 +251,8 @@ class CollectionEditorClass extends React.Component<Props, State> {
     }
   }
 
-  componentWillUnmount() {
+  async componentWillUnmount() {
+    await this.putCollection();
     this._isMounted = false;
   }
 
@@ -1367,7 +1372,6 @@ class CollectionEditorClass extends React.Component<Props, State> {
     const {
       id,
       title,
-      description,
       subtitle,
       url,
       copyright_holder,
@@ -1479,11 +1483,6 @@ class CollectionEditorClass extends React.Component<Props, State> {
                         invalid={this.state.validate.hasOwnProperty('title') && !this.state.validate.title}
                       />
                       <FormFeedback>This is a required field</FormFeedback>
-                      <ShortPaths
-                        type="Collection"
-                        id={id ? id : undefined}
-                        onChange={s => { if (this._isMounted) { this.setState({ hasShortPath: !!s.length }); }}}
-                      />
                     </FormGroup>
 
                     <FormGroup>
@@ -1498,13 +1497,12 @@ class CollectionEditorClass extends React.Component<Props, State> {
                     </FormGroup>
                     <FormGroup>
                       <Label for="description">Description</Label>
-                      <Input
-                        type="textarea"
-                        id="description"
-                        defaultValue={description ? description : ''}
-                        onChange={e => this.validateLength('description', e.target.value)}
-                        invalid={this.state.validate.hasOwnProperty('description') && !this.state.validate.description}
-                        maxLength={4096}
+                      <RichTextEditor
+                        value={this.state.rtDescription}
+                        onChange={(value) => {
+                          this.setState({rtDescription : value});
+                          this.changeCollection('description', value.toString('html'));
+                        }}
                       />
                       <FormFeedback>This is a required field</FormFeedback>
                     </FormGroup>
