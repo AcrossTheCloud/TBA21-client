@@ -12,8 +12,8 @@ footer {
   background: $soft-gray;
   color: $dark-gray !important;
   margin-bottom: 45px; // offset search
-  padding-top: 50px;
-  padding-bottom: 50px;
+  padding-top: 10px;
+  padding-bottom: 15px;
   @media screen and (min-width: 992px) {
     position: fixed;
     padding-top: 0;
