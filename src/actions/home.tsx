@@ -1,6 +1,5 @@
 import { API } from 'aws-amplify';
 import { HomepageData } from '../reducers/home';
-import { random } from 'lodash';
 import { getCDNObject } from '../components/utils/s3File';
 import config from 'config';
 import { FileTypes, S3File } from '../types/s3File';
@@ -307,8 +306,8 @@ export const addFilesToData = async (data: HomepageData[]): Promise<HomepageData
 export const loadMore = () => async (dispatch, getState) => {
   dispatch({ type: LOAD_MORE_LOADING, loading: true });
   const
-    itemRand = random(2, 3),
-    collectionRand = random(2, 3),
+    itemRand = 3,
+    collectionRand = 3,
     state = getState(),
     {
       items,
@@ -344,7 +343,7 @@ export const loadMore = () => async (dispatch, getState) => {
           return 12;
 
         case 'Video':
-          return 8;
+          return 4;
 
         default:
           return 4;
