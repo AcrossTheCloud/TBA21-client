@@ -16,7 +16,7 @@
   position: fixed;
   bottom: 0;
   width: 100%;
-  z-index: 13;
+  z-index: 99999;
 
   transition: min-height 1.2s cubic-bezier(0.22, 0.61, 0.36, 1), opacity .3s linear .5s;
 
