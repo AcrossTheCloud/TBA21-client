@@ -160,7 +160,8 @@ class ItemEditorClass extends React.Component<Props, State> {
     await this.getItemByS3Key();
   }
 
-  componentWillUnmount() {
+  async componentWillUnmount() {
+    await this.updateItem();
     this._isMounted = false;
   }
 

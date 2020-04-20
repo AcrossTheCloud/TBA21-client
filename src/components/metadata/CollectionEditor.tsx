@@ -252,7 +252,8 @@ class CollectionEditorClass extends React.Component<Props, State> {
     }
   }
 
-  componentWillUnmount() {
+  async componentWillUnmount() {
+    await this.putCollection();
     this._isMounted = false;
   }
 
