@@ -32,7 +32,6 @@ import YearSelect from './fields/YearSelect';
 import { validateURL } from '../utils/inputs/url';
 
 import CustomSelect from './fields/CustomSelect';
-import ShortPaths from '../admin/utils/ShortPaths';
 import Contributors from './fields/Contributors';
 import { AuthContext } from '../../providers/AuthProvider';
 
@@ -252,7 +251,8 @@ class CollectionEditorClass extends React.Component<Props, State> {
     }
   }
 
-  componentWillUnmount() {
+  async componentWillUnmount() {
+    await this.putCollection();
     this._isMounted = false;
   }
 
@@ -1483,11 +1483,6 @@ class CollectionEditorClass extends React.Component<Props, State> {
                         invalid={this.state.validate.hasOwnProperty('title') && !this.state.validate.title}
                       />
                       <FormFeedback>This is a required field</FormFeedback>
-                      <ShortPaths
-                        type="Collection"
-                        id={id ? id : undefined}
-                        onChange={s => { if (this._isMounted) { this.setState({ hasShortPath: !!s.length }); }}}
-                      />
                     </FormGroup>
 
                     <FormGroup>
