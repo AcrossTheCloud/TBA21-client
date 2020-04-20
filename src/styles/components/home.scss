@@ -10,7 +10,7 @@
   }
   #home {
     position: relative;
-    z-index: 100000;
+    z-index: 15;
   }
   &.logoLoaded {
     #home {
@@ -176,7 +176,7 @@
 
     height: calc(100vh - (0.5rem * 2));
     @media (min-width: 576px) {
-      height: calc(100vh - (1.75rem * 2));
+      height: calc(100vh - (3rem * 2));
     }
 
     .header {
