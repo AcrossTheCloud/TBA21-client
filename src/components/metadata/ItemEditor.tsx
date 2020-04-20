@@ -51,7 +51,6 @@ import { Alerts, ErrorMessage, SuccessMessage, WarningMessage } from '../utils/a
 
 import CustomSelect from './fields/CustomSelect';
 import { validateURL } from '../utils/inputs/url';
-import ShortPaths from '../admin/utils/ShortPaths';
 import YearSelect from './fields/YearSelect';
 
 import { adminGetItem } from '../../REST/items';
@@ -2399,11 +2398,6 @@ class ItemEditorClass extends React.Component<Props, State> {
                             invalid={this.state.validate.hasOwnProperty('title') && !this.state.validate.title}
                           />
                           <FormFeedback>This is a required field</FormFeedback>
-
-                          <ShortPaths
-                            type="Item"
-                            id={item.id ? item.id : undefined}
-                          />
 
                         </FormGroup>
                       </Col>
