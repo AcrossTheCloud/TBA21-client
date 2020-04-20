@@ -378,9 +378,9 @@ class SearchConsole extends React.Component<Props, State> {
       hoveredClass = hover ? 'hover' : '';
 
     return (
-      <div id="searchConsole" className={isOpenClass}>
-
-        <AudioPlayer className="audioPlayerSticky" />
+      <div className={isOpenClass}>
+        <div id="audioPlayerDiv"><AudioPlayer className="audioPlayerSticky" /></div>
+        <div id="searchConsole">
 
         <Container fluid className={`${hoveredClass} ${isOpenClass} console`} onTouchStart={this.touchDeviceOpen} >
           <Row className="options">
@@ -562,6 +562,7 @@ class SearchConsole extends React.Component<Props, State> {
             : <></>
           }
         </Container>
+      </div>
       </div>
     );
   }
