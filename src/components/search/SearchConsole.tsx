@@ -378,7 +378,7 @@ class SearchConsole extends React.Component<Props, State> {
       hoveredClass = hover ? 'hover' : '';
 
     return (
-      <div className={isOpenClass}>
+      <div>
         <div id="audioPlayerDiv"><AudioPlayer className="audioPlayerSticky" /></div>
         <div id="searchConsole">
 
