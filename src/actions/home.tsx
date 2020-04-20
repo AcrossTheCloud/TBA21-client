@@ -323,8 +323,12 @@ export const loadMore = () => async (dispatch, getState) => {
   ];
 
   // Push the audio to the end
-  if (audio && audio.length) {
+  if (audio && audio.length) {   
     data.push(...audio.splice(0, 1));
+    data = [
+      ...items.length > (audio.length - 1) ? items.splice(0, (audio.length - 1)) : items.splice(0, items.length),
+      ...collections.length > (audio.length > 1 ? 1 : 0) ? collections.splice(0, (audio.length > 1 ? 1 : 0)) : collections.splice(0, collections.length)
+    ];
   }
 
   data = await addFilesToData(data);
