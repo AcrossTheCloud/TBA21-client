@@ -58,6 +58,7 @@ import { adminGetItem } from '../../REST/items';
 import { removeTopology } from '../utils/removeTopology';
 import DraggableMap from '../admin/utils/DraggableMap';
 import { GeoJsonObject } from 'geojson';
+import RichTextEditor from 'react-rte';
 
 import * as moment from 'moment';
 import 'moment-duration-format';
@@ -97,6 +98,7 @@ interface State extends Alerts {
   hideForm: boolean;
 
   activeTab: string;
+  rtDescription: string;
 
   validate: {
     [key: string]: boolean
@@ -145,6 +147,7 @@ class ItemEditorClass extends React.Component<Props, State> {
       isDifferent: false,
       isLoading: true,
       hideForm: false,
+      rtDescription: RichTextEditor.createValueFromString(props.item.description, 'html'),
       activeTab: '1',
       validate: defaultRequiredFields(props.item),
 
@@ -2407,13 +2410,12 @@ class ItemEditorClass extends React.Component<Props, State> {
                   <Col xs="12">
                     <FormGroup>
                       <Label for="description">Description</Label>
-                      <Input
-                        type="textarea"
-                        className="description"
-                        defaultValue={item.description ? item.description : ''}
-                        onChange={e => this.validateLength('description', e.target.value)}
-                        invalid={this.state.validate.hasOwnProperty('description') && !this.state.validate.description}
-                        maxLength={4096}
+                      <RichTextEditor
+                        value={this.state.rtDescription}
+                        onChange={(value) => {
+                          this.setState({rtDescription : value});
+                          this.changeItem('description', value.toString('html'));
+                        }}
                       />
                       <FormFeedback>This is a required field</FormFeedback>
                     </FormGroup>
