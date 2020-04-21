@@ -16,7 +16,7 @@ import { API } from 'aws-amplify';
 import Select from 'react-select';
 import AsyncSelect from 'react-select/async';
 import { isEqual, isArray } from 'lodash';
-import RichTextEditor from 'react-rte';
+import RichTextEditor, { EditorValue, createValueFromString, createEmptyValue } from 'react-rte';
 
 import Tags from './Tags';
 import {
@@ -83,7 +83,7 @@ interface State extends Alerts {
 
   userUUID: string;
 
-  rtDescription: string;
+  rtDescription: EditorValue;
 
   hasShortPath: boolean;
   editMode: boolean;
@@ -161,7 +161,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
       validate: defaultRequiredFields(collection),
       activeTab: '1',
 
-      rtDescription: props.collection ?  RichTextEditor.createValueFromString(props.collection.description, 'html') : RichTextEditor.createEmptyValue(),
+      rtDescription: props.collection ? createValueFromString(props.collection.description, 'html') : createEmptyValue(),
 
       selectItemQuery: '',
       loadedItems: [],
@@ -1505,6 +1505,16 @@ class CollectionEditorClass extends React.Component<Props, State> {
                           this.changeCollection('description', value.toString('html'));
                         }}
                       />
+                      <div className="input-group input-group-lg">
+                      <textarea
+                        className="form-control input-lg raw-HTML-editor"
+                        value={this.state.rtDescription.toString('html')}
+                        onChange={(e) => {
+                          this.setState({rtDescription : this.state.rtDescription.setContentFromString(e.target.value, 'html')});
+                          this.changeCollection('description', e.target.value);
+                        }}
+                      />
+                      </div>
                       <FormFeedback>This is a required field</FormFeedback>
                     </FormGroup>
 

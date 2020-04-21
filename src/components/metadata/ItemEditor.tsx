@@ -58,7 +58,7 @@ import { adminGetItem } from '../../REST/items';
 import { removeTopology } from '../utils/removeTopology';
 import DraggableMap from '../admin/utils/DraggableMap';
 import { GeoJsonObject } from 'geojson';
-import RichTextEditor from 'react-rte';
+import RichTextEditor, { EditorValue, createValueFromString, createEmptyValue } from 'react-rte';
 
 import * as moment from 'moment';
 import 'moment-duration-format';
@@ -98,7 +98,7 @@ interface State extends Alerts {
   hideForm: boolean;
 
   activeTab: string;
-  rtDescription: string;
+  rtDescription: EditorValue;
 
   validate: {
     [key: string]: boolean
@@ -147,7 +147,7 @@ class ItemEditorClass extends React.Component<Props, State> {
       isDifferent: false,
       isLoading: true,
       hideForm: false,
-      rtDescription: RichTextEditor.createValueFromString(props.item.description, 'html'),
+      rtDescription: props.item.description ? createValueFromString(props.item.description, 'html') : createEmptyValue(),
       activeTab: '1',
       validate: defaultRequiredFields(props.item),
 
@@ -2413,6 +2413,16 @@ class ItemEditorClass extends React.Component<Props, State> {
                           this.changeItem('description', value.toString('html'));
                         }}
                       />
+                      <div className="input-group input-group-lg">
+                      <textarea
+                        className="form-control input-lg raw-HTML-editor"
+                        value={this.state.rtDescription.toString('html')}
+                        onChange={(e) => {
+                          this.setState({rtDescription : this.state.rtDescription.setContentFromString(e.target.value, 'html')});
+                          this.changeItem('description', e.target.value);
+                        }}
+                      />
+                      </div>
                       <FormFeedback>This is a required field</FormFeedback>
                     </FormGroup>
 
