@@ -380,7 +380,7 @@ class SearchConsole extends React.Component<Props, State> {
     return (
       <div>
         <div id="audioPlayerDiv"><AudioPlayer className="audioPlayerSticky" /></div>
-        <div id="searchConsole">
+        <div id="searchConsole" className={isOpenClass}>
 
         <Container fluid className={`${hoveredClass} ${isOpenClass} console`} onTouchStart={this.touchDeviceOpen} >
           <Row className="options">
