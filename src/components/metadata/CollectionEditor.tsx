@@ -50,6 +50,7 @@ import { ActionMeta } from 'react-select/src/types';
 import { Items } from './Items';
 import { withCollapse } from './withCollapse';
 import { OptionType } from '../../types/SelectTypes';
+import { License } from '../../types/License';
 import { licenseType } from './SelectOptions';
 
 interface Props extends RouteComponentProps {
@@ -1545,8 +1546,17 @@ class CollectionEditorClass extends React.Component<Props, State> {
                           menuPlacement="auto"
                           className="license_type"
                           options={licenseType}
-                          value={collection.license ? {value: collection.license, label: collection.license} : []}
-                          onChange={e => this.changeCollection('license', (e as OptionType).value)}
+                          value={collection.license ? {value: collection.license, label: collection.license} : {value: 'Ocean Archive', label: 'Ocean Archive Restrictive License'}}
+                          onChange={e => {
+                            this.changeCollection('license', (e as OptionType).value);
+                            if (this._isMounted) {
+                              const { originalCollection, collection } = this.state;
+                              this.setState({
+                                originalCollection: {...originalCollection, license: (e as OptionType).value as License},
+                                collection: {...collection, license: (e as OptionType).value as License}
+                              });
+                            }
+                          }}
                           isSearchable
                       />
                     </FormGroup>
