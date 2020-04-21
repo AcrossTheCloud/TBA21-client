@@ -358,11 +358,6 @@ class CollectionEditorClass extends React.Component<Props, State> {
           Object.assign(collectionProperties, { [field[0]]: field[1] });
         });
 
-      // If no license assign CC BY-NC
-      if (!collectionProperties.hasOwnProperty('license')) {
-        Object.assign(collectionProperties, { 'license': 'CC BY-NC' });
-      }
-
       const result = await API.put('tba21', `admin/collections/${editMode ? 'update' : 'create'}`, {
         body: {
           ...collectionProperties

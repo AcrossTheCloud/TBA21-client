@@ -345,11 +345,6 @@ class ItemEditorClass extends React.Component<Props, State> {
           Object.assign(itemsProperties, { [field[0]]: field[1] });
         });
 
-      // If no license assign CC BY-NC
-      if (!itemsProperties.hasOwnProperty('license')) {
-        Object.assign(itemsProperties, { 'license': 'Ocean Archive' });
-      }
-
       // Assign s3_key
       Object.assign(itemsProperties, { 's3_key': this.state.originalItem.s3_key });
 
