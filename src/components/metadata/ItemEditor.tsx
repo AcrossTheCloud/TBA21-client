@@ -32,6 +32,7 @@ import { Item, itemAudio, itemImage, itemText, itemVideo } from '../../types/Ite
 import textImage from 'images/defaults/Unscharfe_Zeitung.jpg';
 
 import { OptionType } from '../../types/SelectTypes';
+import { License } from '../../types/License';
 
 import {
   countries,
@@ -346,7 +347,7 @@ class ItemEditorClass extends React.Component<Props, State> {
 
       // If no license assign CC BY-NC
       if (!itemsProperties.hasOwnProperty('license')) {
-        Object.assign(itemsProperties, { 'license': 'CC BY-NC' });
+        Object.assign(itemsProperties, { 'license': 'Ocean Archive' });
       }
 
       // Assign s3_key
@@ -2536,8 +2537,17 @@ class ItemEditorClass extends React.Component<Props, State> {
                               menuPlacement="auto"
                               className="license_type"
                               options={licenseType}
-                              value={item.license ? {value: item.license, label: item.license} : []}
-                              onChange={e => this.changeItem('license', (e as OptionType).value)}
+                              value={item.license ? {value: item.license, label: item.license} : {value: 'Ocean Archive', label: 'Ocean Archive Restrictive License'}}
+                              onChange={e => {
+                                this.changeItem('license', (e as OptionType).value);
+                                if (this._isMounted) {
+                                  const { originalItem, changedItem } = this.state;
+                                  this.setState({
+                                    originalItem: {...originalItem, license: ((e as OptionType).value ? (e as OptionType).value : 'Ocean Archive') as License},
+                                    changedItem: {...changedItem, license: ((e as OptionType).value ? (e as OptionType).value : 'Ocean Archive') as License}
+                                  });
+                                }
+                              }}
                               isSearchable
                           />
                         </FormGroup>
