@@ -103,7 +103,7 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
   if ((!!props.data.file && props.data.file.type === FileTypes.Audio) || props.data.item_type === itemType.Audio) { return <></>; }
 
   let data: ItemOrHomePageData = props.data;
-  if (data.collections) {
+  if (Array.isArray(data.collections)) {
     getItemsAndCollectionsForCollection(data.collections).then((result) => data.collections = {
       // tslint:disable-next-line:no-any
       ...result as any
