@@ -2547,7 +2547,7 @@ class ItemEditorClass extends React.Component<Props, State> {
                               menuPlacement="auto"
                               className="license_type"
                               options={licenseType}
-                              value={item.license ? {value: item.license, label: item.license} : {value: 'Ocean Archive', label: 'Ocean Archive Restrictive License'}}
+                              value={item.license ? {value: item.license, label: item.license} : {value: 'Ocean Archive', label: 'Ocean Archive (most restrictive)'}}
                               onChange={e => {
                                 this.changeItem('license', (e as OptionType).value);
                                 if (this._isMounted) {
