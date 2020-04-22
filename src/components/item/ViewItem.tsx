@@ -307,7 +307,7 @@ class ViewItem extends React.Component<Props, State> {
                             return (
                                 <Button
                                     className="ml-1 tag d-inline-block"
-                                    style={{padding: 0, margin: 0, background: 'none'}}
+                                    style={{paddingRight: 15, paddingLeft: 0, margin: 0, background: 'none'}}
                                     key={t.tag_name}
                                     onClick={() => this.onTagClick(t.tag_name, 'keyword_tag')}
                                 >
