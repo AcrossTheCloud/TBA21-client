@@ -160,6 +160,7 @@ class Footer extends React.Component<Props, State> {
           <Col xs="12" lg="10">
             <Row>
               <Col xs="12" lg="10" className="pt-2 py-md-0 px-lg-0">
+              <Button color="link" onClick={() => this.props.modalToggle('FW_MODAL', true)}>freq_wave</Button>
                 <Button color="link" onClick={() => this.props.aboutModalToggle(true)}>About</Button>
                 <Button color="link" onClick={() => this.props.modalToggle('TC_MODAL', true)}>Terms Of Use</Button>
                 <Button color="link" onClick={() => this.props.modalToggle('PP_MODAL', true)}>Privacy Policy</Button>

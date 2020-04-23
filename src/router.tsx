@@ -48,6 +48,7 @@ import LoadingOverlay from './components/LoadingOverlay';
 import PrivacyPolicyPopUp from './components/PrivacyPolicyPopUp';
 import PrivacyPolicy from './components/pages/PrivacyPolicy';
 import TermsAndConditions from './components/pages/TermsAndConditions';
+import FreqWave from './components/pages/FreqWave';
 import RestrictiveLicence from './components/pages/RestrictiveLicence';
 
 import ItemModal from './components/modals/ItemModal';
@@ -111,6 +112,7 @@ export const AppRouter = () => {
                   <PrivacyPolicyPopUp />
                   <PrivacyPolicy />
                   <TermsAndConditions />
+                  <FreqWave />
                   <RestrictiveLicence />
                   <About />
                   <ItemModal />

@@ -1,16 +1,19 @@
 export const PP_MODAL = 'PP_MODAL';
 export const TC_MODAL = 'TC_MODAL';
 export const RL_MODAL = 'RL_MODAL';
+export const FW_MODAL = 'FW_MODAL';
 
 export interface PrivacyPolicyState {
   open?: boolean;
   tc_open?: boolean;
   rl_open?: boolean;
+  fw_open?: boolean;
 }
 const initialState: PrivacyPolicyState = {
   open: false,
   tc_open: false,
-  rl_open: false
+  rl_open: false,
+  fw_open: false
 };
 
 export default (state: PrivacyPolicyState | null = initialState, action) => {
@@ -30,6 +33,10 @@ export default (state: PrivacyPolicyState | null = initialState, action) => {
       return {
         rl_open: action.rl_open
       };
+    case FW_MODAL:
+      return {
+        fw_open: action.fw_open
+      }
 
     default:
       return state;
