@@ -89,17 +89,22 @@ export const onTagClick = (event: React.MouseEvent<HTMLButtonElement>, label: st
 
 export const loadHomepage = () => async dispatch => {
   const
-    oaHighlights: {oa_highlight: HomepageData[]} = await API.get('tba21', 'pages/homepage', { queryStringParameters: {oa_highlight: true, oaHighlightLimit: 3}}),
-    queryStringParams = {
+    oaHighlights: {oa_highlight_items: HomepageData[], oa_highlight_collections: HomepageData[]} = await API.get('tba21', 'pages/homepage', { queryStringParameters: {oa_highlight: true, oaHighlightLimit: 3}});
+  
+  oaHighlights.oa_highlight_collections = [ ... await getItemsAndCollectionsForCollection(oaHighlights.oa_highlight_collections as any)] as any;
+
+  let highlightsWithFiles = await addFilesToData(oaHighlights.oa_highlight_items);
+  highlightsWithFiles = [ ... await addFilesToData(oaHighlights.oa_highlight_collections)];
+  
+  const  queryStringParams = {
       oa_highlight: false
     };
-
+  
   let response: {items: HomepageData[], collections: HomepageData[]} = await API.get('tba21', 'pages/homepage', { queryStringParameters: queryStringParams });
   response.collections = [...await getItemsAndCollectionsForCollection(response.collections as any)] as any;
 
   const announcementResponse = await API.get('tba21', 'announcements', { queryStringParameters: { limit: '9'}});
 
-  const highlightsWithFiles = await addFilesToData(oaHighlights.oa_highlight);
 
   const HighlightsItemDetails = (props: { index: number }) => {
     const tags = highlightsWithFiles[props.index].concept_tags;
