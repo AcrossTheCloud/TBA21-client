@@ -138,7 +138,7 @@ export const loadHomepage = () => async dispatch => {
           </div>
         </div>
         <div className="type mb-2" onClick={() => dispatch(openModal(data))}>
-          {data.item_subtype}, {dateFromTimeYearProduced(data.time_produced, data.year_produced)}
+          {data.item_subtype ? data.item_subtype : data.type}{data.time_produced || data.year_produced ? ', ' : '' }{dateFromTimeYearProduced(data.time_produced, data.year_produced)}
         </div>
         {!!tags && tags.length ?
           <div className="tagWrapper tags d-none d-lg-block">
