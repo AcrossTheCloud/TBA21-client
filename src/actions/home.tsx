@@ -94,11 +94,6 @@ export const loadHomepage = () => async dispatch => {
       oa_highlight: false
     };
 
-  // Push the ID's into the queryString for the next API call, so it excludes them
-  if (oaHighlights.oa_highlight && oaHighlights.oa_highlight.length) {
-    Object.assign(queryStringParams, { id: oaHighlights.oa_highlight.map(o => o.id) });
-  }
-
   let response: {items: HomepageData[], collections: HomepageData[]} = await API.get('tba21', 'pages/homepage', { queryStringParameters: queryStringParams });
   response.collections = [...await getItemsAndCollectionsForCollection(response.collections as any)] as any;
 
