@@ -98,6 +98,24 @@
     picture {
       height: auto !important;
     }
+
+    .middle {
+      line-height: 0;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      font-size: 50px;
+      transform: translate(-50%, -50%);
+
+      .collection_icon {
+        width: 70px;
+        height: 70px;
+      }
+
+      .collections_in_collection_icon {
+        width: 70px;
+      }
+    }
   }
 
   #header {
