@@ -13,7 +13,7 @@ import {
   FileStaticPreview,
   getItemsAndCollectionsForCollection
 } from '../components/utils/DetailPreview';
-import { Button, Col, Row } from 'reactstrap';
+import { Button, Col } from 'reactstrap';
 import AudioPreview from '../components/layout/audio/AudioPreview';
 import { FaCircle, FaPlay } from 'react-icons/all';
 import { search as dispatchSearch, toggle as searchOpenToggle } from './searchConsole';
@@ -89,7 +89,7 @@ export const onTagClick = (event: React.MouseEvent<HTMLButtonElement>, label: st
 
 export const loadHomepage = () => async dispatch => {
   const
-    oaHighlights: {oa_highlight: HomepageData[]} = await API.get('tba21', 'pages/homepage', { queryStringParameters: {oa_highlight: true, oaHighlightLimit: 2}}),
+    oaHighlights: {oa_highlight: HomepageData[]} = await API.get('tba21', 'pages/homepage', { queryStringParameters: {oa_highlight: true, oaHighlightLimit: 3}}),
     queryStringParams = {
       oa_highlight: false
     };
@@ -154,83 +154,41 @@ export const loadHomepage = () => async dispatch => {
   };
 
   const HighLightsLayout = (props: { index: number }) => {
-    if (props.index === 0 && !!highlightsWithFiles[0]) {
-      return (
-        <Col xs="12" lg={highlightsWithFiles.length > 1 ? 7 : 12} className="item" onClick={() => { if (highlightsWithFiles[0].item_type !== itemType.Audio || (highlightsWithFiles[0].file && highlightsWithFiles[0].file.type) !== FileTypes.Audio) { dispatch(openModal(highlightsWithFiles[0])); }}}>
-          <div className="detailPreview">
-            {
-              highlightsWithFiles[0].file ?
-                highlightsWithFiles[0].item_type === itemType.Audio || highlightsWithFiles[0].file.type === FileTypes.Audio ?
-                  <HomePageAudioPreview data={highlightsWithFiles[0]} openModal={() => dispatch(openModal(highlightsWithFiles[0]))} />
-                  :
-                  <>
-                    <FileStaticPreview file={highlightsWithFiles[0].file} />
-                    <HighlightsItemDetails index={0}/>
-                  </>
-                : <></>
-            }
-            {highlightsWithFiles[0].file.type === FileTypes.Video ?
-              <div className="middle">
-                <FaPlay/>
-              </div>
-              : <></>}
-          </div>
-
-        </Col>
-      );
-    } else if (props.index === 1 && !!highlightsWithFiles[1]) {
-      return (
-        <Col xs="12" lg="5" className="item" onClick={() => { if (highlightsWithFiles[1].item_type !== itemType.Audio || (highlightsWithFiles[1].file && highlightsWithFiles[1].file.type) !== FileTypes.Audio) { dispatch(openModal(highlightsWithFiles[1])); }}}>
-          <Row className="d-none d-lg-block">
-            <Col xs="12">
-              <div className="detailPreview">
-                {
-                  highlightsWithFiles[1].file ?
-                    highlightsWithFiles[1].item_type === itemType.Audio || highlightsWithFiles[1].file.type === FileTypes.Audio ?
-                      <HomePageAudioPreview data={highlightsWithFiles[1]} openModal={() => dispatch(openModal(highlightsWithFiles[1]))} />
-                      :
-                      <FileStaticPreview file={highlightsWithFiles[1].file} />
-                    : <></>
-                }
-                {highlightsWithFiles[1].file.type === FileTypes.Video ?
-                  <div className="middle">
-                    <FaPlay/>
-                  </div>
-                  : <></>}
-
-              </div>
-              <HighlightsItemDetails index={1}/>
-            </Col>
-          </Row>
-          <Row className="d-lg-none py-4 py-lg-0">
-            <Col xs="12">
-              <div className="detailPreview">
-                {
-                  highlightsWithFiles[1].file ?
-                    highlightsWithFiles[1].item_type === itemType.Audio || highlightsWithFiles[1].file.type === FileTypes.Audio ?
-                      <HomePageAudioPreview data={highlightsWithFiles[1]} openModal={() => dispatch(openModal(highlightsWithFiles[1]))} />
-                      :
-                      <>
-                        <FileStaticPreview file={highlightsWithFiles[1].file} />
-                        <HighlightsItemDetails index={1}/>
-                      </>
-
-                    : <></>
-                }
-                {highlightsWithFiles[1].file.type === FileTypes.Video ?
-                  <div className="middle">
-                    <FaPlay/>
-                  </div>
-                  : <></>
-                }
-              </div>
-            </Col>
-          </Row>
-        </Col>
-      );
-    } else {
-      return <></>;
+    let colSizes: number[] = [];
+    switch (highlightsWithFiles.length) {
+      case 1:
+        colSizes = [12, 0, 0];
+        break;
+      case 2:
+        colSizes = [7, 5, 0];
+        break;
+      default:
+        colSizes = [4, 4, 4];
+        break;        
     }
+    return (
+      <Col xs="12" lg={colSizes[props.index]} className="item" onClick={() => { if (highlightsWithFiles[props.index].item_type !== itemType.Audio || (highlightsWithFiles[props.index].file && highlightsWithFiles[props.index].file.type) !== FileTypes.Audio) { dispatch(openModal(highlightsWithFiles[props.index])); }}}>
+        <div className="detailPreview">
+          {
+            highlightsWithFiles[props.index].file ?
+              highlightsWithFiles[props.index].item_type === itemType.Audio || highlightsWithFiles[props.index].file.type === FileTypes.Audio ?
+                <HomePageAudioPreview data={highlightsWithFiles[props.index]} openModal={() => dispatch(openModal(highlightsWithFiles[props.index]))} />
+                :
+                <>
+                  <FileStaticPreview file={highlightsWithFiles[props.index].file} />
+                </>
+              : <></>
+          }
+          {highlightsWithFiles[props.index].file.type === FileTypes.Video ?
+            <div className="middle">
+              <FaPlay/>
+            </div>
+            : <></>}
+        </div>
+        <HighlightsItemDetails index={props.index}/>
+      </Col>
+    );
+
   };
 
   const
