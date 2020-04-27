@@ -22,7 +22,7 @@ export default class YearSelect extends React.Component<Props, State> {
     const { value, addOngoing } = this.props;
 
     const thisYear = (new Date()).getFullYear();
-    this.listOfYears = range(thisYear + 1, 1800).map(y => ({ label: y.toString(), value: y.toString() }));
+    this.listOfYears = range(thisYear + 5, 1800).map(y => ({ label: y.toString(), value: y.toString() }));
     if (addOngoing) {
       this.listOfYears.unshift({label: 'ongoing', value: 'ongoing'});
       this.listOfYears.unshift({label: '', value: ''});
