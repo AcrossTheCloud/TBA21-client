@@ -91,10 +91,11 @@ const FilePreview = (props: { data: any }) => { // tslint:disable-line: no-any
       file,
       creators,
       year_produced,
+      end_year_produced,
       time_produced
     } = props.data;
 
-    const date = dateFromTimeYearProduced(time_produced, year_produced);
+    const date = dateFromTimeYearProduced(time_produced, year_produced, end_year_produced);
     return <AudioPreview data={{title, id, url: file.url, date, creators, item_subtype, isCollection: !!count}} />;
   } else {
     return <FileStaticPreview file={props.data.file} />;

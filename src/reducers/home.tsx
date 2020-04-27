@@ -12,6 +12,7 @@ export interface HomepageData {
   item_subtype?: string;
   item_type?: itemType;
   year_produced: string;
+  end_year_produced?: string;
   time_produced: string;
   duration?: string;
   file_dimensions?: number[];
