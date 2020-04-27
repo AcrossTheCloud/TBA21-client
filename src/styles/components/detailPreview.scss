@@ -74,36 +74,25 @@
     background: rgba(0, 0, 0, 0.4);
     top: 0;
     left: 0;
+    padding: 20px;
 
-    .bottom {
-      font-family: "Recta W01 Regular", sans-serif;
-      font-size: 20px;
-
-      position: absolute;
-      bottom: 10px;
-      left: 0;
-      padding: 0 20px;
-      width: 100%;
+    .type {
+      position: relative;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
     }
 
     .count {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-    }
-
-    .type {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-    }
-    .duration, .date {
+      position: relative;
       font-size: 15px;
-
-      position: absolute;
-      top: 20px;
-      right: 20px;
     }
+
+    .duration, .date {
+      position: relative;
+      font-size: 15px;
+    }
+
     .middle {
       line-height: 0;
       position: absolute;
@@ -115,8 +104,21 @@
       .collection_icon {
         width: 70px;
         height: 70px;
-        transform: rotate(90deg);
       }
+
+      .collections_in_collection_icon {
+        width: 70px;
+      }
+    }
+
+    .bottom {
+      font-family: "Recta W01 Regular", sans-serif;
+      font-size: 20px;
+      position: absolute;
+      bottom: 10px;
+      left: 0;
+      padding: 0 20px;
+      width: 100%;
     }
   }
 

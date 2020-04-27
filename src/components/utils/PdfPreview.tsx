@@ -33,7 +33,7 @@ export default class PdfPreview extends React.Component<Props, State> {
   render() {
     return (
       <Document
-        onLoadSuccess={typeof this.props.onLoad === 'function' ? this.props.onLoad() : () => { return; }}
+        onLoadSuccess={typeof this.props.onLoad === 'function' ? () => this.props.onLoad() : () => { return; }}
         file={{url: this.state.url}}
       >
         <Page

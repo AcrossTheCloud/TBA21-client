@@ -1,22 +1,30 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { Col, Row } from 'reactstrap';
+import { Button, Col, Row } from 'reactstrap';
 import { fetchItem } from 'actions/items/viewItem';
-import { State } from 'reducers/items/viewItem';
+import { ViewItemState } from 'reducers/items/viewItem';
 import { Alerts, ErrorMessage } from '../utils/alerts';
-
 import { Item, itemType, Regions } from '../../types/Item';
 import { FilePreview } from '../utils/filePreview';
 import { Languages } from '../../types/Languages';
 import { browser } from '../utils/browser';
 import { RouteComponentProps, withRouter } from 'react-router';
-
 import 'styles/components/pages/viewItem.scss';
 import Share from '../utils/Share';
+import LicenceLink from '../utils/LicenceLink';
 import moment from 'moment';
 import { FileTypes } from '../../types/s3File';
 import AudioPreview from '../layout/audio/AudioPreview';
 import { dateFromTimeYearProduced } from '../../actions/home';
+import { pushEntity as pushUserHistoryEntity } from '../../actions/user-history';
+import { search as dispatchSearch, toggle as searchOpenToggle } from '../../actions/searchConsole';
+import { createCriteriaOption } from '../search/SearchConsole';
+import { toggle as collectionModalToggle } from 'actions/modals/collectionModal';
+import { toggle as itemModalToggle } from 'actions/modals/itemModal';
+import { UserHistoryState } from '../../reducers/user-history';
+import { HomepageData } from '../../reducers/home';
+import HtmlDescription from '../utils/HtmlDescription';
+import _ from 'lodash';
 
 type MatchParams = {
   id: string;
@@ -24,7 +32,18 @@ type MatchParams = {
 
 interface Props extends RouteComponentProps<MatchParams>, Alerts {
   fetchItem: Function;
+  collectionModalToggle: Function;
+  itemModalToggle: Function;
+  searchOpenToggle: Function;
+  dispatchSearch: Function;
+  pushUserHistoryEntity: Function;
   item: Item;
+  userHistory?: UserHistoryState;
+}
+
+interface State {
+  errorMessage: string | undefined;
+  item: HomepageData | Item | undefined;
 }
 
 class ViewItem extends React.Component<Props, State> {
@@ -34,9 +53,16 @@ class ViewItem extends React.Component<Props, State> {
     super(props);
 
     this.browser = browser();
+
+    this.state = {
+      errorMessage: undefined,
+      item: undefined
+    };
   }
 
   componentDidMount() {
+    this.pushItemToHistory();
+
     const { match } = this.props;
     let matchedItemId: string | null = null;
 
@@ -51,6 +77,38 @@ class ViewItem extends React.Component<Props, State> {
     } else {
       this.setState({ errorMessage: 'No item with that id.' });
     }
+  }
+
+  componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>): void {
+    this.pushItemToHistory(prevProps.item);
+  }
+
+  pushItemToHistory(prevItem?: Item) {
+    if (this.props.item !== undefined) {
+      if (prevItem !== undefined) {
+        if (!_.isEqual(this.props.item, prevItem)) {
+          const userHistoryEntity = this.createHistoryEntity();
+          this.props.pushUserHistoryEntity(userHistoryEntity);
+        }
+      } else {
+        const userHistoryEntity = this.createHistoryEntity();
+        this.props.pushUserHistoryEntity(userHistoryEntity);
+      }
+    }
+  }
+
+  createHistoryEntity(): Item {
+    return {...this.props.item, __typename: 'item'};
+  }
+
+  // @todo should be a util / dispatch
+  onTagClick = (label: string, field: string) => {
+    setTimeout(() => {
+      this.props.collectionModalToggle(false);
+      this.props.itemModalToggle(false);
+      this.props.searchOpenToggle(true);
+      this.props.dispatchSearch([createCriteriaOption(label, field)]);
+    });
   }
 
   render() {
@@ -107,27 +165,36 @@ class ViewItem extends React.Component<Props, State> {
     );
 
     const isAudio = (!!file && item_type === itemType.Audio) || (!!file && file.type === FileTypes.Audio);
+
+    if (this.props.userHistory && this.props.userHistory.loading) {
+      return (<></>);
+    }
+
     return (
       <div id="item" className="container-fluid">
         <ErrorMessage message={this.props.errorMessage} />
         {file && file.url ?
-          <Row className="file">
-            {
-              isAudio ?
-                <div className="w-100">
-                  <AudioPreview
-                    data={{
-                      id: `${id}_slider`,
-                      title: title ? title : '',
-                      url: file.url,
-                      isCollection: false,
-                      date: dateFromTimeYearProduced(time_produced, year_produced)
-                    }}
-                  />
-                </div>
-                : <FilePreview file={file}/>
-            }
-          </Row>
+          (
+            <Row className="file">
+              {
+                isAudio ?
+                    (
+                      <div className="w-100">
+                        <AudioPreview
+                          data={{
+                            id: `${id}_slider`,
+                            title: title ? title : '',
+                            url: file.url,
+                            isCollection: false,
+                            date: dateFromTimeYearProduced(time_produced, year_produced)
+                          }}
+                        />
+                      </div>
+                    )
+                  : <FilePreview file={file}/>
+              }
+            </Row>
+          )
           : <></>
         }
         <Row>
@@ -148,27 +215,31 @@ class ViewItem extends React.Component<Props, State> {
 
             <Row>
               { file && file.type === FileTypes.DownloadText && file.url ?
-                <Col xs="12" className="download pb-2">
-                  <a href={file.url} target="_blank" rel="noopener noreferrer">Click here to download this file.</a>
-                </Col>
+                  (
+                      <Col xs="12" className="download pb-2">
+                        <a href={file.url} target="_blank" rel="noopener noreferrer">Click here to download this file.</a>
+                      </Col>
+                  )
                 :
                 ''
               }
               <Col className="description">
                 {
                   description ?
-                    this.browser === 'ie6-11' ? description.split('\n').map((d, i) => <p key={i}>{d}</p>) : description
+                    <HtmlDescription description={description} />
                   : <></>
                 }
               </Col>
             </Row>
 
             {!!id ?
-              <Row>
-                <Col className="text-right">
-                  <Share suffix={`view/${id}`}/>
-                </Col>
-              </Row>
+                (
+                    <Row>
+                      <Col className="text-right">
+                        <Share suffix={`view/${id}`}/>
+                      </Col>
+                    </Row>
+                )
               : <></>
             }
 
@@ -195,30 +266,60 @@ class ViewItem extends React.Component<Props, State> {
             {collaborators && collaborators.length ? <ItemDetails label={collaborators.length > 1 ? 'Collaborators' : 'Collaborator'} value={collaborators.join(', ')} /> : <></>}
 
             {!!language ? <ItemDetails label="Language" value={Languages[language]} /> : ''}
-            {!!license ? <ItemDetails label="License" value={license} /> : ''}
+            {!!license ? <LicenceLink licence={license} /> : ''}
             {!!copyright_holder ? <ItemDetails label="Copyright Owner" value={copyright_holder} /> : ''}
             {!!medium ? <ItemDetails label="Medium" value={medium} /> : ''}
-            {!!url ? <ItemDetails label="Link" value={<a href={url} target="_blank" rel="noreferrer noopener">Click here to view</a>} /> : ''}
+            {!!url ? <ItemDetails label="Relation" value={<a href={url} target="_blank" rel="noreferrer noopener">Click here to view</a>} /> : ''}
 
             {!!aggregated_concept_tags && aggregated_concept_tags.length ?
-              <Row className="border-bottom subline details">
-                <Col xs="12">Concept Tags</Col>
-                <Col xs="12">
-                  {
-                    aggregated_concept_tags.map(t => `#${t.tag_name} `)
-                  }
-                </Col>
-              </Row>
+                (
+                    <Row className="border-bottom subline details">
+                      <Col xs="12" className="mb-2">Concept Tags</Col>
+                      <Col xs="12">
+                        <div className="tagWrapper">
+                        {
+                          aggregated_concept_tags.map(t => {
+                            return (
+                                <Button
+                                    className="page-link tag d-inline-block"
+                                    style={{padding: 0, marginBottom: 5, background: 'none'}}
+                                    key={t.tag_name}
+                                    onClick={() => this.onTagClick(t.tag_name, 'concept_tag')}
+                                >
+                                  #{t.tag_name}
+                                </Button>
+                            );
+                          })
+                        }
+                        </div>
+                      </Col>
+                    </Row>
+                )
             : ''}
             {!!aggregated_keyword_tags && aggregated_keyword_tags.length ?
-              <Row className="subline details">
-                <Col xs="12">Keyword Tags</Col>
-                <Col xs="12">
-                  {
-                    aggregated_keyword_tags.map(t => `#${t.tag_name} `)
-                  }
-                </Col>
-              </Row>
+                (
+                    <Row className="subline details">
+                      <Col xs="12">Keyword Tags</Col>
+                      <Col xs="12">
+                        <div className="tagWrapper">
+                        {
+                          aggregated_keyword_tags.map(t => {
+                            return (
+                                <Button
+                                    className="ml-1 tag d-inline-block"
+                                    style={{padding: 0, paddingRight: 15, paddingLeft: 0, margin: 0, background: 'none'}}
+                                    key={t.tag_name}
+                                    onClick={() => this.onTagClick(t.tag_name, 'keyword_tag')}
+                                >
+                                  #{t.tag_name}
+                                </Button>
+                            );
+                          })
+                        }
+                        </div>
+                      </Col>
+                    </Row>
+                )
             : ''}
             <Row>
               <Col className="px-0">
@@ -233,12 +334,18 @@ class ViewItem extends React.Component<Props, State> {
 }
 
 // State to props
-const mapStateToProps = (state: { viewItem: State }) => { // tslint:disable-line: no-any
-  return {
-    errorMessage: state.viewItem.errorMessage,
-    item: state.viewItem.item
-  };
-};
+const mapStateToProps = (state: { viewItem: ViewItemState, userHistory: UserHistoryState }) => ({
+  errorMessage: state.viewItem.errorMessage,
+  item: state.viewItem.item,
+  userHistoryLoading: state.userHistory.loading
+});
 
 // Connect our redux store State to Props, and pass through the fetchItem function.
-export default withRouter(connect(mapStateToProps, { fetchItem })(ViewItem));
+export default withRouter(connect(mapStateToProps, {
+  fetchItem,
+  collectionModalToggle,
+  itemModalToggle,
+  searchOpenToggle,
+  dispatchSearch,
+  pushUserHistoryEntity
+})(ViewItem));

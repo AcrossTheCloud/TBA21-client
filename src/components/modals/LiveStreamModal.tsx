@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
+import Embed from 'react-embed';
 
 import { toggle } from 'actions/modals/liveStreamModal';
 import { FaTimes } from 'react-icons/fa';
@@ -60,21 +61,14 @@ class LiveStreamModal extends React.Component<Props, State> {
         <Modal id="liveStreamModal" isOpen={this.state.open} backdrop toggle={() => this.props.toggle()}
                scrollable={false} centered>
           <Row className="header align-content-center" style={{background: 'transparent'}}>
-            <Col xs="12" className="pl-0 pr-3">
+            <Col xs="8" className="pl-0 pr-3">
               <div className="text-right">
                 <FaTimes className="closeButton" onClick={() => this.props.toggle()}/>
               </div>
             </Col>
           </Row>
 
-          <div className="embed-responsive embed-responsive-16by9">
-            <iframe className="embed-responsive-item" title="All-Atlantic Ocean Research Forum"
-                    id="player"
-                    name="player"
-                    src={'https://webcast.ec.europa.eu/' + this.state.stream}
-                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; webkitAllowFullScreen; mozAllowFullScreen; allowFullScreen"/>
-          </div>
-
+          <Embed url='https://twitch.tv/oceanarchive' />
         </Modal>
       );
     } else {

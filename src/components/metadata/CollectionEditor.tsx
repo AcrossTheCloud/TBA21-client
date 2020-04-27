@@ -16,6 +16,7 @@ import { API } from 'aws-amplify';
 import Select from 'react-select';
 import AsyncSelect from 'react-select/async';
 import { isEqual, isArray } from 'lodash';
+import RichTextEditor, { EditorValue, createValueFromString, createEmptyValue } from 'react-rte';
 
 import Tags from './Tags';
 import {
@@ -29,9 +30,8 @@ import { Item } from '../../types/Item';
 import { Alerts, ErrorMessage, SuccessMessage, WarningMessage } from '../utils/alerts';
 import YearSelect from './fields/YearSelect';
 import { validateURL } from '../utils/inputs/url';
-import { Items } from './Items';
+
 import CustomSelect from './fields/CustomSelect';
-import ShortPaths from '../admin/utils/ShortPaths';
 import Contributors from './fields/Contributors';
 import { AuthContext } from '../../providers/AuthProvider';
 
@@ -40,12 +40,18 @@ import { getProfileDetails } from '../../actions/user/profile';
 import { Profile } from '../../types/Profile';
 
 import 'styles/components/metadata/editors.scss';
-import { adminGet, getItemsInCollection } from '../../REST/collections';
+import { adminGet, getCollectionsInCollection, getItemsInCollection } from '../../REST/collections';
 import { removeTopology } from '../utils/removeTopology';
-import { adminGetItems } from '../../REST/items';
+import { adminGetItems, contributorGetByPerson } from '../../REST/items';
 import DraggableMap from '../admin/utils/DraggableMap';
 import { GeoJsonObject } from 'geojson';
 import { RouteComponentProps, withRouter } from 'react-router';
+import { ActionMeta } from 'react-select/src/types';
+import { Items } from './Items';
+import { withCollapse } from './withCollapse';
+import { OptionType } from '../../types/SelectTypes';
+import { License } from '../../types/License';
+import { licenseType } from './SelectOptions';
 
 interface Props extends RouteComponentProps {
   collection?: Collection;
@@ -66,6 +72,7 @@ interface State extends Alerts {
   originalCollection: Collection;
   collection: Collection;
   changedFields: {
+    __typename: 'collection',
     [key: string]: string
   };
   acceptedLicense?: boolean;
@@ -76,14 +83,22 @@ interface State extends Alerts {
 
   userUUID: string;
 
+  rtDescription: EditorValue;
+
   hasShortPath: boolean;
   editMode: boolean;
   activeTab: string;
-  selectInputValue: string;
-  // If we're editing the collection, we'll do an API call to get the items and push them to <Items />
   isDifferent: boolean;
+
+  // uUsed for adding items to the collection
+  selectItemQuery: string;
   loadedItems: Item[];
   loadingItems: boolean;
+
+  // Used for selecting collections to add to the collection
+  selectCollectionQuery: string;
+  loadedCollections: Collection[];
+  loadingCollections: boolean;
 
   mapModalOpen: boolean;
 }
@@ -119,24 +134,25 @@ class CollectionEditorClass extends React.Component<Props, State> {
   static contextType = AuthContext;
 
   _isMounted;
-  selectQueryItemsTimeout;
+  isContributorPath: boolean = true;
+  isAdmin: boolean = false;
+  queryMetaDataObjectsTimeout;
 
   constructor(props: Props) {
     super(props);
 
     this._isMounted = false;
 
-    const collection = props.collection || {};
+    const collection: Collection = props.collection || { __typename: 'collection' };
 
     this.state = {
       originalCollection: collection,
       collection: {...collection},
-      changedFields: {},
+      changedFields: {
+        __typename: 'collection'
+      },
 
       userUUID: '',
-
-      loadedItems: [],
-      loadingItems: !!props.collection,
 
       editMode: this.props.editMode ? this.props.editMode : false,
       hasShortPath: false,
@@ -144,7 +160,16 @@ class CollectionEditorClass extends React.Component<Props, State> {
       isDifferent: false,
       validate: defaultRequiredFields(collection),
       activeTab: '1',
-      selectInputValue: '',
+
+      rtDescription: props.collection ? createValueFromString(props.collection.description, 'html') : createEmptyValue(),
+
+      selectItemQuery: '',
+      loadedItems: [],
+      loadingItems: !!props.collection,
+
+      loadedCollections: [],
+      loadingCollections: !!props.collection,
+      selectCollectionQuery: '',
 
       mapModalOpen: false
     };
@@ -159,12 +184,14 @@ class CollectionEditorClass extends React.Component<Props, State> {
       this.setState({ userUUID: context.uuid });
     }
 
+    this.isAdmin = context.authorisation.hasOwnProperty('admin');
+    this.isContributorPath = (this.props.location.pathname.match(/contributor/i));
+
     if (this.props.collection) {
       const state = {};
 
       // Get the collection and push the topoJSON into state.
-      const isContributorPath = (this.props.location.pathname.match(/contributor/i));
-      const topojson = await adminGet(isContributorPath, { id: this.props.collection.id });
+      const topojson = await adminGet(this.isAdmin, { id: this.props.collection.id });
       Object.assign(state, { topojson });
 
       // Get all the items in our collection.
@@ -176,14 +203,16 @@ class CollectionEditorClass extends React.Component<Props, State> {
 
         if (results && items && items.length) {
           Object.assign(state,
-            {
-              itemTopoJSON: results,
-              collection: {...this.state.collection, items: mappedItems},
-              originalCollection: {...this.state.collection, items: mappedItems},
-              loadedItems: items,
-              loadingItems: false
-            }
+                        {
+                          itemTopoJSON: results,
+                          collection: {...this.state.collection, items: mappedItems},
+                          originalCollection: {...this.state.collection, items: mappedItems},
+                          loadedItems: items,
+                          loadingItems: false
+                        }
           );
+        } else {
+          Object.assign(state, { loadedItems: [], loadingItems: false });
         }
 
         if (this._isMounted) {
@@ -192,10 +221,39 @@ class CollectionEditorClass extends React.Component<Props, State> {
       };
       // don't wait for these.
       getAllItemsInCollection(this.props.collection.id);
+
+      // Get all the collections in our collection.
+      const getAllCollectionsInCollection = async (id) => {
+
+        const results = await getCollectionsInCollection({ id, limit: 1000 });
+        const collections = removeTopology(results) as Collection[];
+
+        if (collections && collections.length) {
+          const mappedCollections = collections.map( i => i.id ).filter(a => !!a);
+
+          Object.assign(state,
+            {
+              collection: {...this.state.collection, collections: mappedCollections},
+              originalCollection: {...this.state.collection, collections: mappedCollections},
+              loadedCollections: collections,
+              loadingCollections: false
+            }
+          );
+        } else {
+          Object.assign(state, { loadingCollections: false, loadedCollections: [] });
+        }
+
+        if (this._isMounted) {
+          this.setState(state);
+        }
+      };
+      // don't wait for these.
+      getAllCollectionsInCollection(this.props.collection.id);
     }
   }
 
-  componentWillUnmount() {
+  async componentWillUnmount() {
+    await this.putCollection();
     this._isMounted = false;
   }
 
@@ -234,7 +292,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
             f.toLowerCase() === 'type' ?
               'Collection Category' :
               f.replace(/_/g, ' ')
-            }<br/></div> ) )}
+          }<br/></div> ) )}
         </>
       );
 
@@ -260,8 +318,8 @@ class CollectionEditorClass extends React.Component<Props, State> {
       const collectionProperties = {};
 
       let
-        fields = this.state.collection,
-        editMode = this.state.editMode;
+        fields: Collection = this.state.collection,
+        editMode: boolean = this.state.editMode;
 
       // if we're in edit more add the id to props
       if (editMode) {
@@ -272,6 +330,11 @@ class CollectionEditorClass extends React.Component<Props, State> {
       // Put the items into the props
       if (this.state.collection.items) {
         Object.assign(collectionProperties, { items: this.state.collection.items });
+      }
+
+      // Put the collections in collection into the props
+      if (this.state.collection.collections) {
+        Object.assign(collectionProperties, { collections: this.state.collection.collections.map(c => parseInt(c, 0)) });
       }
 
       Object.assign(fields, {
@@ -286,18 +349,14 @@ class CollectionEditorClass extends React.Component<Props, State> {
           return !(
             value === null ||
             key === 'aggregated_concept_tags' ||
-            key === 'aggregated_keyword_tags'
+            key === 'aggregated_keyword_tags' ||
+            key === '__typename'
             // || key === 'id' // use this to exclude things, you shouldn't need to (eg don't put them in changedFields...
           );
         })
         .forEach( field => {
           Object.assign(collectionProperties, { [field[0]]: field[1] });
         });
-
-      // If no license assign OA
-      if (!collectionProperties.hasOwnProperty('license')) {
-        Object.assign(collectionProperties, { 'license': 'CC BY-NC' });
-      }
 
       const result = await API.put('tba21', `admin/collections/${editMode ? 'update' : 'create'}`, {
         body: {
@@ -307,7 +366,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
 
       if (!result.success && result.message && result.message.length > 1) {
         // If we've failed set collection back to the original
-        Object.assign(state, { errorMessage: result.message, collection: {...this.state.originalCollection}, changedFields: {}, status: false, isDifferent: false });
+        Object.assign(state, { errorMessage: result.message, collection: {...this.state.originalCollection}, changedFields: {__typename: 'collection'}, status: false, isDifferent: false });
       } else if (result.success) {
         const
           modeMessage = editMode ? 'Updated collection!' : 'Created collection!',
@@ -318,7 +377,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
         if (!editMode) {
           editMode = true;
         }
-        Object.assign(state, { editMode: editMode, successMessage: modeMessage, changedFields: {}, originalCollection: originalCollection, collection: collection, isDifferent: false });
+        Object.assign(state, { editMode: editMode, successMessage: modeMessage, changedFields: {__typename: 'collection'}, originalCollection: originalCollection, collection: collection, isDifferent: false });
       } else {
         Object.assign(state, { warningMessage: result });
       }
@@ -357,6 +416,32 @@ class CollectionEditorClass extends React.Component<Props, State> {
       }
       if (!this._isMounted) { return; }
       this.setState({ collection: {...this.state.collection, items: itemsList}, loadedItems: loadedItems, isDifferent: true });
+    }
+  }
+  collectionsCallback = (id: string, removeItem?: boolean): void => {
+    const
+      idIndex = !!this.state.collection.collections ? this.state.collection.collections.indexOf(id) : -1,
+      collectionsList = this.state.collection.collections || [];
+
+    if (collectionsList.indexOf(id) === -1) {
+      const collections: string[] = [...collectionsList, id];
+      if (!this._isMounted) { return; }
+      this.setState({ collection: {...this.state.collection, collections: collections}, isDifferent: true });
+    } else if (!!removeItem && collectionsList.length) {
+
+      // Remove the item if it exists and removeItem is true
+      collectionsList.splice(idIndex, 1);
+
+      // Remove the loaded item if it exists
+      const loadedCollections = this.state.loadedCollections;
+      const indexOfCollection = this.state.loadedCollections.findIndex(a => a.id === id);
+      if (indexOfCollection > -1) {
+        loadedCollections.splice(indexOfCollection, 1);
+      }
+
+      if (!this._isMounted) { return; }
+
+      this.setState({ collection: {...this.state.collection, collections: collectionsList}, loadedCollections, isDifferent: true });
     }
   }
 
@@ -581,7 +666,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
               id="event_type"
               options={eventTypes}
               value={[eventType]}
-              onChange={e => this.changeCollection('event_type', e.value)}
+              onChange={e => this.changeCollection('event_type', (e as OptionType).value)}
               isSearchable
             />
           </FormGroup>
@@ -1101,7 +1186,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
       <Row>
         <Col md="6">
           <FormGroup>
-           <Label for="venues">Venue</Label>
+            <Label for="venues">Venue</Label>
             <Input
               type="text"
               className="venues"
@@ -1187,29 +1272,39 @@ class CollectionEditorClass extends React.Component<Props, State> {
 
   /**
    *
-   * Load items that match the given string
+   * Load items or collections that match the given string
    *
    * Timeout for the user keyboard presses, clear the timeout if they've pressed another key within 500ms and start again,
    * This avoids multiple calls before the user has finished typing.
    *
    * @param inputValue { string }
+   * @param type { 'item' | 'collection' }
    */
-  selectQueryItems = async (inputValue: string) => {
-    if (inputValue && inputValue.length <= 1) { clearTimeout(this.selectQueryItemsTimeout); return; }
+  queryMetaDataObjects = async (inputValue: string, type: 'item' | 'collection' = 'item') => {
+    if (inputValue && inputValue.length <= 1) { clearTimeout(this.queryMetaDataObjectsTimeout); return; }
 
-    if (this.selectQueryItemsTimeout) { clearTimeout(this.selectQueryItemsTimeout); }
+    if (this.queryMetaDataObjectsTimeout) { clearTimeout(this.queryMetaDataObjectsTimeout); }
 
     return new Promise( resolve => {
-      this.selectQueryItemsTimeout = setTimeout(async () => {
-        clearTimeout(this.selectQueryItemsTimeout);
+      this.queryMetaDataObjectsTimeout = setTimeout(async () => {
+        clearTimeout(this.queryMetaDataObjectsTimeout);
 
         const
-          queryStringParameters = ( inputValue ? { inputQuery: inputValue, limit: 100 } : {} ),
-          response = await adminGetItems(queryStringParameters),
-          items = removeTopology(response) as Item[];
+          queryStringParameters = (
+            inputValue ? { inputQuery: inputValue, limit: 100 } : {}
+          ),
+          isAdmin: boolean = !this.isContributorPath && !this.isAdmin,
+          response = type === 'item' ? (isAdmin ? await contributorGetByPerson(queryStringParameters) : await adminGetItems(queryStringParameters)) : await adminGet(isAdmin, queryStringParameters),
+          data = removeTopology(response);
 
-        if (items && items.length) {
-          resolve(items.map( item => ({label: item.title || 'No title', value: item.s3_key, item: item}) ));
+        if (data && data.length) {
+          if (type === 'collection') {
+            const metaDataObject = data as Collection[];
+            resolve(metaDataObject.map(collection => ({label: collection.title || 'No title', id: collection.id, data: collection})));
+          } else {
+            const metaDataObject = data as Item[];
+            resolve(metaDataObject.map(item => ({label: item.title || 'No title', id: item.s3_key, data: item})));
+          }
         } else {
           resolve([]);
         }
@@ -1217,30 +1312,49 @@ class CollectionEditorClass extends React.Component<Props, State> {
     });
   }
 
-  selectItemOnChange = (itemList: any, actionMeta) => { // tslint:disable-line: no-any
+  addMetaObjects = (input: any, actionMeta, type: 'item' | 'collection' = 'item') => { // tslint:disable-line: no-any
     if (actionMeta.action === 'select-option') {
-
+      const existingData: string[] | null | undefined = (type === 'item') ? this.state.collection.items : this.state.collection.collections;
       // Item is already attached to the collection.
-      if (!!this.state.collection.items && this.state.collection.items.indexOf(itemList.item.s3_key) > -1 && this._isMounted) {
-        this.setState({ warningMessage: 'Item is already attached to Collection.', selectInputValue: '' });
-        return;
+      if (!!existingData && this._isMounted) {
+        if (type === 'item' && existingData.indexOf(input.data.s3_key) > -1) {
+          this.setState({ warningMessage: 'Item is already attached to Collection.', selectItemQuery: '' });
+          return;
+        } else if (type === 'collection' && existingData.indexOf(input.data.id) > -1) {
+          this.setState({warningMessage: 'Collection is already attached to Collection.', selectItemQuery: ''});
+          return;
+        }
       }
 
       const
-        item: Item = itemList.item,
-        collectionItemList: string[] = !!this.state.collection.items ? this.state.collection.items : [];
+        data: Item | Collection = input.data,
+        list: string[] = !!existingData ? existingData : [];
 
-      collectionItemList.push(item.s3_key);
+      if (type === 'item' && data.s3_key) {
+        const item: Item = data as Item;
+        list.push(item.s3_key);
+      } else if (type === 'collection' && data.id) {
+        list.push(data.id);
+      }
+
+      const state = { isDifferent: true };
+
+      if (type === 'item') {
+        Object.assign(state, {
+          selectItemQuery: '',
+          loadedItems: [...this.state.loadedItems, data],
+          collection: {...this.state.collection, items: list}
+        });
+      } else {
+        Object.assign(state, {
+          selectCollectionQuery: '',
+          loadedCollections: [...this.state.loadedCollections, data],
+          collection: {...this.state.collection, collections: list}
+        });
+      }
 
       if (!this._isMounted) { return; }
-      this.setState(
-        {
-          loadedItems: [...this.state.loadedItems, item],
-          collection: {...this.state.collection, items: collectionItemList},
-          isDifferent: true,
-          selectInputValue: ''
-        }
-      );
+      this.setState(state);
     }
   }
 
@@ -1254,7 +1368,6 @@ class CollectionEditorClass extends React.Component<Props, State> {
     const {
       id,
       title,
-      description,
       subtitle,
       url,
       copyright_holder,
@@ -1275,6 +1388,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
     } = this.state.collection;
 
     const
+      collection = this.state.collection,
       conceptTags = aggregated_concept_tags ? aggregated_concept_tags.map( t => ({ id: t.id, value: t.id, label: t.tag_name }) ) : [],
       keywordTags = aggregated_keyword_tags ? aggregated_keyword_tags.map( t => ({ id: t.id, value: t.id, label: t.tag_name }) ) : [],
       selectedRegions = !!regions ? selectableRegions.filter(s => !!regions ? regions.find(a => a === s.value) : false) : [];
@@ -1308,6 +1422,14 @@ class CollectionEditorClass extends React.Component<Props, State> {
                   Items
                 </NavLink>
               </NavItem>
+              <NavItem>
+                <NavLink
+                  className={this.state.activeTab === '3' ? 'active' : ''}
+                  onClick={() => { if (this._isMounted) { this.setState({ activeTab: '3' }); }}}
+                >
+                  Collections
+                </NavLink>
+              </NavItem>
             </Nav>
             <TabContent activeTab={this.state.activeTab}>
               <TabPane tabId="1">
@@ -1323,7 +1445,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
                       <DropdownMenu>
                         {this.state.originalCollection.status === true ?
                           <DropdownItem onClick={() => { this.changeCollection('status', false, () => this.putCollection() ); }}>Unpublish</DropdownItem>
-                        :
+                          :
                           <DropdownItem onClick={() => { this.changeCollection('status', false, () => this.putCollection() ); }}>Save Draft</DropdownItem>
                         }
                       </DropdownMenu>
@@ -1357,17 +1479,6 @@ class CollectionEditorClass extends React.Component<Props, State> {
                         invalid={this.state.validate.hasOwnProperty('title') && !this.state.validate.title}
                       />
                       <FormFeedback>This is a required field</FormFeedback>
-                      <ShortPaths
-                        type="Item"
-                        id={id ? id : undefined}
-                        onChange={s => { if (this._isMounted) { this.setState({ hasShortPath: !!s.length }); }}}
-                      />
-                      {
-                        this.state.editMode ?
-                          <></>
-                          :
-                          <FormFeedback style={{ display: !this.state.hasShortPath ? 'block' : 'none' }}>You need to save or publish your collection first before adding a URL slug (short path).</FormFeedback>
-                      }
                     </FormGroup>
 
                     <FormGroup>
@@ -1382,14 +1493,23 @@ class CollectionEditorClass extends React.Component<Props, State> {
                     </FormGroup>
                     <FormGroup>
                       <Label for="description">Description</Label>
-                      <Input
-                        type="textarea"
-                        id="description"
-                        defaultValue={description ? description : ''}
-                        onChange={e => this.validateLength('description', e.target.value)}
-                        invalid={this.state.validate.hasOwnProperty('description') && !this.state.validate.description}
-                        maxLength={4096}
+                      <RichTextEditor
+                        value={this.state.rtDescription}
+                        onChange={(value) => {
+                          this.setState({rtDescription : value});
+                          this.changeCollection('description', value.toString('html'));
+                        }}
                       />
+                      <div className="input-group input-group-lg">
+                      <textarea
+                        className="form-control input-lg raw-HTML-editor"
+                        value={this.state.rtDescription.toString('html')}
+                        onChange={(e) => {
+                          this.setState({rtDescription : this.state.rtDescription.setContentFromString(e.target.value, 'html')});
+                          this.changeCollection('description', e.target.value);
+                        }}
+                      />
+                      </div>
                       <FormFeedback>This is a required field</FormFeedback>
                     </FormGroup>
 
@@ -1405,12 +1525,12 @@ class CollectionEditorClass extends React.Component<Props, State> {
 
                     <FormGroup>
                       <Label for="regions">Region(s) (Country/Ocean)</Label>
-                      <Select className="select" classNamePrefix="select" isMulti isSearchable menuPlacement="auto" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries } ]} defaultValue={selectedRegions} onChange={e => this.validateLength('regions', !!e && e.length ? e.map(r => r.value) : [])} />
+                      <Select className="select" classNamePrefix="select" isMulti isSearchable menuPlacement="auto" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries } ]} defaultValue={selectedRegions} onChange={e => this.validateLength('regions', e && (e as any).length ? (e as any).map(r => r.value) : [])} />
                     </FormGroup>
 
                     <FormGroup>
                       <Label for="type">Collection Category</Label>
-                      <Select className="select" classNamePrefix="select" menuPlacement="auto" id="type" options={collectionTypes} value={[collectionTypes.find( o => o.value === type)]} onChange={e => this.validateLength('type', e.value)} isSearchable/>
+                      <Select className="select" classNamePrefix="select" menuPlacement="auto" id="type" options={collectionTypes} value={[collectionTypes.find( o => o.value === type)]} onChange={e => this.validateLength('type', (e as OptionType).value)} isSearchable/>
                       <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('type') && !this.state.validate.type ? 'block' : 'none') }}>This is a required field</FormFeedback>
                     </FormGroup>
 
@@ -1424,6 +1544,27 @@ class CollectionEditorClass extends React.Component<Props, State> {
                     {type === Types.Convening ? <this.Convening /> : <></>}
                     {type === Types.Performance ? <this.Performance /> : <></>}
                     {type === Types.Installation ? <this.Installation /> : <></>}
+
+                    <FormGroup>
+                      <Label for="license_type">License</Label>
+                      <Select
+                          menuPlacement="auto"
+                          className="license_type"
+                          options={licenseType}
+                          value={collection.license ? {value: collection.license, label: collection.license} : {value: 'Ocean Archive', label: 'Ocean Archive (most restrictive)'}}
+                          onChange={e => {
+                            this.changeCollection('license', (e as OptionType).value);
+                            if (this._isMounted) {
+                              const { originalCollection, collection } = this.state;
+                              this.setState({
+                                originalCollection: {...originalCollection, license: (e as OptionType).value as License},
+                                collection: {...collection, license: (e as OptionType).value as License}
+                              });
+                            }
+                          }}
+                          isSearchable
+                      />
+                    </FormGroup>
 
                     <FormGroup>
                       <Label for="copyright_holder">Copyright Holder</Label>
@@ -1461,9 +1602,9 @@ class CollectionEditorClass extends React.Component<Props, State> {
                           if (this._isMounted) {
                             const { originalCollection, collection } = this.state;
                             this.setState({
-                              originalCollection: {...originalCollection, aggregated_concept_tags: tagList},
-                              collection: {...collection, aggregated_concept_tags: tagList}
-                            });
+                                            originalCollection: {...originalCollection, aggregated_concept_tags: tagList},
+                                            collection: {...collection, aggregated_concept_tags: tagList}
+                                          });
                           }
                         }}
 
@@ -1483,9 +1624,9 @@ class CollectionEditorClass extends React.Component<Props, State> {
                           if (this._isMounted) {
                             const { originalCollection, collection } = this.state;
                             this.setState({
-                              originalCollection: {...originalCollection, aggregated_keyword_tags: tagList},
-                              collection: {...collection, aggregated_keyword_tags: tagList}
-                            });
+                                            originalCollection: {...originalCollection, aggregated_keyword_tags: tagList},
+                                            collection: {...collection, aggregated_keyword_tags: tagList}
+                                          });
                           }
                         }}
                       />
@@ -1535,12 +1676,12 @@ class CollectionEditorClass extends React.Component<Props, State> {
                       className="select"
                       classNamePrefix="select"
                       isClearable
-                      loadOptions={this.selectQueryItems}
+                      loadOptions={v => this.queryMetaDataObjects(v)}
                       placeholder="Start typing the item title then select..."
-                      onChange={this.selectItemOnChange}
-                      onInputChange={v => { if (this._isMounted) { this.setState({ selectInputValue: v }); } }}
-                      inputValue={this.state.selectInputValue}
-                      value={[this.state.selectInputValue]}
+                      onChange={this.addMetaObjects}
+                      onInputChange={v => { if (this._isMounted) { this.setState({ selectItemQuery: v }); } }}
+                      inputValue={this.state.selectItemQuery}
+                      value={[this.state.selectItemQuery]}
                     />
                   </Col>
                 </Row>
@@ -1549,7 +1690,54 @@ class CollectionEditorClass extends React.Component<Props, State> {
                   this.state.loadingItems ?
                     <Row><Col>Loading</Col></Row>
                     :
-                    <Items isAdmin={this.props.isAdmin} callback={this.itemsCallback} items={this.state.loadedItems} allowRemoveItem/>
+                    this.state.loadedItems && this.state.loadedItems.length ?
+                      <Items isAdmin={this.props.isAdmin} callback={this.itemsCallback} items={this.state.loadedItems} allowRemoveItem/>
+                      : <>No items in this collection</>
+                }
+
+              </TabPane>
+              <TabPane tabId="3">
+                <Row>
+                  <h5>Add existing collections</h5>
+                  <Col xs="12">
+                    <AsyncSelect
+                      cacheOptions
+                      className="select"
+                      classNamePrefix="select"
+                      isClearable
+                      loadOptions={v => this.queryMetaDataObjects(v, 'collection')}
+                      placeholder="Start typing the collection title then select..."
+                      onChange={(v, m: ActionMeta) => this.addMetaObjects(v, m, 'collection')}
+                      onInputChange={v => { if (this._isMounted) { this.setState({ selectCollectionQuery: v }); } }}
+                      inputValue={this.state.selectCollectionQuery}
+                      value={[this.state.selectCollectionQuery]}
+                    />
+                  </Col>
+                </Row>
+
+                {
+                  this.state.loadingCollections ?
+                    <Row><Col>Loading</Col></Row>
+                    :
+                    this.state.loadedCollections && this.state.loadedCollections.length ?
+                      this.state.loadedCollections.map( c => {
+                        if (c && c.id) {
+                          return (
+                            <div key={c.id}>
+                              <CollectionEditorWithCollapse
+                                data={c}
+                                isOpen={false}
+                                isAdmin={!this.isContributorPath}
+                              >
+                                <Button color="danger" onClick={() => { if (c.id) { this.collectionsCallback(c.id, true); }}}>Remove</Button>
+                              </CollectionEditorWithCollapse>
+                            </div>
+                          );
+                        } else {
+                          return <></>;
+                        }
+                      })
+                      : <>No collections in this collection</>
                 }
 
               </TabPane>
@@ -1588,3 +1776,5 @@ const mapStateToProps = (state: { profile: { details: Profile} }) => ({
 });
 
 export const CollectionEditor = withRouter(connect(mapStateToProps, { modalToggle, getProfileDetails })(CollectionEditorClass));
+
+export const CollectionEditorWithCollapse = withRouter(connect(mapStateToProps, { modalToggle, getProfileDetails })(withCollapse(CollectionEditorClass)) as React.ComponentType<any>); // tslint:disable-line no-any

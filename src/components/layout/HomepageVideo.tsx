@@ -4,6 +4,7 @@ import $ from 'jquery';
 import logo from 'images/logo/oa_web_white.svg';
 import 'styles/components/homeVideo.scss';
 import { Col, Container, Row } from 'reactstrap';
+import { sample } from 'lodash';
 
 interface Props {
   onChange?: Function;
@@ -70,28 +71,28 @@ export default class HomepageVideo extends Component<Props, State> {
 
   render() {
     if (this.state.finallyLoaded) { return <></>; } // remove the content so the video isn't in the DOM
-
+    const urls = [
+      {
+        "video": "https://video-streaming.ocean-archive.org/loading_video2.mp4",
+        "thumbnail": "https://video-streaming.ocean-archive.org/loading_video2_first_frame.jpg"
+      },
+      {
+        "video": "https://video-streaming.ocean-archive.org/loading_video3.mp4",
+        "thumnail": "https://video-streaming.ocean-archive.org/loading_video3_first_frame.jpg"
+      }
+    ];
+    const elem = sample(urls);
     return (
       <div id="video">
         <Container fluid className="content" style={{ display: 'none' }}>
           <Row>
             <Col xs="12">
-              <h1>Take a swim in the digital ocean.</h1>
-              <p>
-                This is a test dive<br />
-                into a new online platform in the making,<br />
-                created to support a thriving sea.
-              </p>
+              <h1>Get ready for the dive</h1>
+              <p><span className="blink_me">Loading...</span></p>
             </Col>
           </Row>
           <Row className="bottom align-items-end">
             <Col xs="12" md="6" className="left">
-              <p>
-                Create,<br />
-                contribute,<br />
-                share,<br />
-                participate.
-              </p>
             </Col>
             <Col xs="12" md="6" className="right pt-3 pt-md-0">
               <div className="logo d-flex align-items-baseline">
@@ -101,7 +102,7 @@ export default class HomepageVideo extends Component<Props, State> {
           </Row>
         </Container>
         <video
-          poster="https://video-streaming.ocean-archive.org/loading_video_first_frame.jpg"
+          poster={(elem as any).thumbnail}
           onLoadedData={() => this.onVideoPlay()}
           muted
           autoPlay
@@ -109,7 +110,7 @@ export default class HomepageVideo extends Component<Props, State> {
           loop
           playsInline
         >
-          <source src="https://video-streaming.ocean-archive.org/loading_video.mp4" type="video/mp4"/>
+          <source src={(elem as any).video} type="video/mp4"/>
         </video>
       </div>
     );

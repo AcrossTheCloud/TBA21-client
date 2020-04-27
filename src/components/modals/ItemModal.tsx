@@ -9,15 +9,18 @@ import { FaCircle, FaTimes } from 'react-icons/fa';
 import { Col, Modal, ModalBody, Row } from 'reactstrap';
 import { Item } from '../../types/Item';
 import ViewItem from '../item/ViewItem';
+import { popEntity as popUserHistoryEntity } from '../../actions/user-history';
 
 interface Props {
   data?: HomepageData | Item;
   open: boolean;
   toggle: Function;
   fetchItem: Function;
+  popUserHistoryEntity: Function;
 }
 
 interface State {
+  data: HomepageData | Item | undefined;
   open: boolean;
 }
 
@@ -29,17 +32,21 @@ class ItemModal extends React.Component<Props, State> {
     this._isMounted = false;
 
     this.state = {
+      data: undefined,
       open: false
     };
-
   }
 
   async componentDidMount(): Promise<void> {
     this._isMounted = true;
+
+    document.addEventListener('keydown', this.onKeyPressed.bind(this));
   }
 
   componentWillUnmount = () => {
     this._isMounted = false;
+
+    document.removeEventListener('keydown', this.onKeyPressed.bind(this));
   }
 
   async componentDidUpdate(prevProps: Readonly<Props>): Promise<void> {
@@ -60,6 +67,12 @@ class ItemModal extends React.Component<Props, State> {
     }
   }
 
+  onKeyPressed(event: KeyboardEvent) {
+    if (event.key === 'Escape') {
+      this.props.popUserHistoryEntity(this.props.data);
+    }
+  }
+
   render() {
     if (this.props.data) {
       const {
@@ -72,14 +85,16 @@ class ItemModal extends React.Component<Props, State> {
           <Row className="header align-content-center">
             <div className="col-11 title-wrapper d-flex align-content-center">
               {creators && creators.length ?
-                <>
-                  <div className="creators d-none d-md-block">
-                    <span className="ellipsis">{creators.join(', ')}</span>
-                  </div>
-                  <div className="d-none d-md-block flex-grow-0 flex-shrink-0">
-                    <FaCircle className="dot"/>
-                  </div>
-                </>
+                  (
+                      <>
+                        <div className="creators d-none d-md-block">
+                          <span className="ellipsis">{creators.join(', ')}</span>
+                        </div>
+                        <div className="d-none d-md-block flex-grow-0 flex-shrink-0">
+                          <FaCircle className="dot"/>
+                        </div>
+                      </>
+                )
                 : <></>
               }
               <div className="title">
@@ -90,7 +105,13 @@ class ItemModal extends React.Component<Props, State> {
             </div>
             <Col xs="1" className="pl-0 pr-3">
               <div className="text-right">
-                <FaTimes className="closeButton" onClick={() => this.props.toggle(false)}/>
+                <FaTimes
+                    className="closeButton"
+                    onClick={() => {
+                      this.props.popUserHistoryEntity(this.props.data);
+                      this.props.toggle(false);
+                    }}
+                />
               </div>
             </Col>
           </Row>
@@ -112,4 +133,4 @@ const mapStateToProps = (state: { itemModal: { open: boolean, data?: HomepageDat
   open: state.itemModal.open
 });
 
-export default connect(mapStateToProps, { toggle, fetchItem })(ItemModal);
+export default connect(mapStateToProps, { toggle, fetchItem, popUserHistoryEntity })(ItemModal);

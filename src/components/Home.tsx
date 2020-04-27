@@ -5,7 +5,7 @@ import { Carousel, CarouselItem, Col, Container, Row, Spinner } from 'reactstrap
 import { debounce, isEqual } from 'lodash';
 import { Cookies, withCookies } from 'react-cookie';
 
-import { loadHomepage, loadMore, logoDispatch, liveStreamDispatch, openModal } from 'actions/home';
+import { liveStreamDispatch, loadHomepage, loadMore, logoDispatch, openModal } from 'actions/home';
 import { toggle as searchOpenToggle } from 'actions/searchConsole';
 import { Announcement } from '../types/Announcement';
 
@@ -19,6 +19,8 @@ import Footer from './layout/Footer';
 import HomepageVideo from './layout/HomepageVideo';
 
 import 'styles/components/home.scss';
+import { clear as clearHistory } from '../actions/user-history';
+import { UserHistoryState } from '../reducers/user-history';
 
 interface Props extends HomePageState {
   logoDispatch: Function;
@@ -31,11 +33,16 @@ interface Props extends HomePageState {
   cookies: Cookies;
   ClickAutoSearch: Function;
   liveStreamHasOpened: boolean; // from redux
+  collectionModalIsOpen: boolean;
+  itemModalIsOpen: boolean;
+  clearHistory: Function;
+  userHistory: UserHistoryState;
 }
 
 interface State {
   announcements: Announcement[];
   announcementsActiveIndex: number;
+  userHistory?: UserHistoryState;
 }
 
 class HomePage extends React.Component<Props, State> {
@@ -79,6 +86,12 @@ class HomePage extends React.Component<Props, State> {
   }
 
   async componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>): Promise<void> {
+    if (this.props.userHistory && this.props.userHistory.entities && this.props.userHistory.entities.length) {
+      if (!this.props.itemModalIsOpen && !this.props.collectionModalIsOpen) {
+        this.props.clearHistory();
+      }
+    }
+
     if (this.props.loadedCount < 0 && this.props.loadedMore && !this.props.logoLoaded) {
       this.props.logoDispatch(true);
       await this.windowHeightCheck();
@@ -309,11 +322,14 @@ class HomePage extends React.Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: { home: Props, liveStreamModal: { hasOpened: boolean } }) => ({
+const mapStateToProps = (state: { home: Props, liveStreamModal: { hasOpened: boolean }, collectionModal: { open: boolean }, itemModal: { open: boolean }, userHistory: UserHistoryState }) => ({
   logoLoaded: state.home.logoLoaded,
   loading: state.home.loading,
 
   liveStreamHasOpened: state.liveStreamModal.hasOpened,
+  collectionModalIsOpen: state.collectionModal.open,
+  itemModalIsOpen: state.itemModal.open,
+  userHistory: state.userHistory,
 
   items: state.home.items ? state.home.items : [],
   collections: state.home.collections ? state.home.collections : [],
@@ -327,4 +343,4 @@ const mapStateToProps = (state: { home: Props, liveStreamModal: { hasOpened: boo
   loaded_highlights: state.home.loaded_highlights
 });
 
-export default connect(mapStateToProps, { logoDispatch, liveStreamDispatch, loadHomepage, loadMore, openModal, searchOpenToggle })(withCookies(HomePage));
+export default connect(mapStateToProps, { logoDispatch, liveStreamDispatch, loadHomepage, loadMore, openModal, searchOpenToggle, clearHistory })(withCookies(HomePage));

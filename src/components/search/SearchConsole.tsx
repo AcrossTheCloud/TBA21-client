@@ -1,26 +1,22 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import AsyncSelect from 'react-select/async';
-import { withCookies, Cookies } from 'react-cookie';
+import { Cookies, withCookies } from 'react-cookie';
 import $ from 'jquery';
-import { debounce } from 'lodash';
+import { debounce, find, uniqBy } from 'lodash';
 import { API } from 'aws-amplify';
 import { FaTimes } from 'react-icons/fa';
-import { uniqBy } from 'lodash';
-import { Col, Row, Container, Modal, ModalBody, Spinner, Input, Label, FormGroup } from 'reactstrap';
+import { Button, Col, Container, FormGroup, Input, Label, Row, Spinner } from 'reactstrap';
 import { SearchConsoleState } from '../../reducers/searchConsole';
 
 import {
-  search as dispatchSearch,
-  loadMoreResults,
   changeView,
   CriteriaOption,
-  toggle,
-  getConceptTags
+  getConceptTags,
+  loadMoreResults,
+  search as dispatchSearch,
+  toggle
 } from '../../actions/searchConsole';
-
-import { find } from 'lodash';
-import ViewItem from '../item/ViewItem';
 import AudioPlayer from '../layout/audio/AudioPlayer';
 import AudioPreview from '../layout/audio/AudioPreview';
 import { fetchItem } from '../../actions/items/viewItem';
@@ -32,12 +28,12 @@ import { FileStaticPreview } from '../utils/DetailPreview';
 import { Item } from '../../types/Item';
 import { Collection } from '../../types/Collection';
 import { Profile } from '../../types/Profile';
-import ViewCollection from '../collection/ViewCollection';
-import ViewProfile from '../user/profile/ViewProfile';
 import { fetchProfile } from '../../actions/user/viewProfile';
 import { browser } from '../utils/browser';
 import { dateFromTimeYearProduced } from '../../actions/home';
 import { APITag } from '../metadata/Tags';
+import { toggle as collectionModalToggle } from 'actions/modals/collectionModal';
+import { toggle as itemModalToggle } from 'actions/modals/itemModal';
 
 import 'styles/components/search/searchConsole.scss';
 import 'styles/components/admin/tables/modal.scss';
@@ -52,6 +48,8 @@ interface Props extends SearchConsoleState {
   toggle: Function;
   getConceptTags: Function;
   cookies: Cookies;
+  collectionModalToggle: Function;
+  itemModalToggle: Function;
 }
 
 interface State {
@@ -69,7 +67,8 @@ interface State {
   searchMobileCookie: boolean;
 }
 
-const createCriteriaOption = (label: string, field: string): CriteriaOption => {
+// @todo should be a util
+export const createCriteriaOption = (label: string, field: string): CriteriaOption => {
   let displayField = field.split('_').join(' ');
   if (field === 'full_name') {
     displayField = 'Profile';
@@ -172,7 +171,7 @@ class SearchConsole extends React.Component<Props, State> {
     }
 
     // If we have results open it up
-    if (this.props.loadedResults.length && this.props.open) {
+    if (this.props.loadedResults && this.props.loadedResults.length && this.props.open) {
       this.animateResults(true);
       this.windowHeightCheck();
     }
@@ -186,7 +185,7 @@ class SearchConsole extends React.Component<Props, State> {
       const height = $results.height();
       const windowHeight = $(window).height();
 
-      if (this.props.loadedResults.length < this.props.results.length) {
+      if (this.props.loadedResults && this.props.loadedResults.length < this.props.results.length) {
         if (windowHeight && height && height < windowHeight) {
           await this.props.loadMoreResults();
           // Run again just in case
@@ -209,7 +208,7 @@ class SearchConsole extends React.Component<Props, State> {
         });
       }
     } else {
-      if (this.props.loadedResults.length) {
+      if (this.props.loadedResults && this.props.loadedResults.length) {
         $results.stop(true).height(500);
       }
       $results.stop(true).animate({'height': 0}, 1000).removeClass('animated');
@@ -223,7 +222,7 @@ class SearchConsole extends React.Component<Props, State> {
 
     if (!scrollTopOffset || !height) { return; }
 
-    if (this.props.loadedResults.length < this.props.results.length) {
+    if (this.props.loadedResults && this.props.loadedResults.length < this.props.results.length) {
       let calcOffset = Math.abs(scrollTopOffset.top + scrollTopOffset.top);
       if (this.props.offset <= 10) {
         calcOffset = calcOffset + 500;
@@ -298,8 +297,8 @@ class SearchConsole extends React.Component<Props, State> {
    */
   searchDispatch = () => {
     this.animateResults(false);
-    if (this.props.open && this.state.selectedCriteria && this.state.selectedCriteria.length) {
-      this.props.dispatchSearch(this.state.selectedCriteria, this.state.focus_arts, this.state.focus_action, this.state.focus_scitech);
+    if (this.props.open && this.props.selectedCriteria && this.props.selectedCriteria.length) {
+      this.props.dispatchSearch(this.props.selectedCriteria, this.state.focus_arts, this.state.focus_action, this.state.focus_scitech);
     }
   }
 
@@ -307,11 +306,13 @@ class SearchConsole extends React.Component<Props, State> {
     if (!this._isMounted) { return; }
 
     if (actionMeta.action === 'clear') {
-      this.setState({ selectedCriteria: [], searchMenuOpen: false });
+      this.setState({searchMenuOpen: false});
+      this.props.dispatchSearch([]);
     }
 
     if (actionMeta.action === 'remove-value' || actionMeta.action === 'select-option' || actionMeta.action === 'create-option') {
-      this.setState({ selectedCriteria: tagsList, searchMenuOpen: false });
+      this.setState({searchMenuOpen: false});
+      this.props.dispatchSearch(tagsList ? tagsList : []);
     }
   }
 
@@ -319,12 +320,13 @@ class SearchConsole extends React.Component<Props, State> {
     clearTimeout(this.tagClickedTimeout);
 
     const tagList = [
-      ...this.state.selectedCriteria,
+      ...this.props.selectedCriteria,
       createCriteriaOption(tag.tag_name, 'concept_tag')
     ];
 
     if (this._isMounted) {
-      this.setState({selectedCriteria: tagList, searchMenuOpen: false});
+      this.setState({searchMenuOpen: false});
+      this.props.dispatchSearch(tagList);
     }
 
     this.tagClickedTimeout = setTimeout(this.searchDispatch, 2000);
@@ -348,16 +350,19 @@ class SearchConsole extends React.Component<Props, State> {
     }));
   }
 
-  openResult = (type: Item | Collection | Profile) => {
+  openResult = (entity: Item | Collection | Profile) => {
     let metaType: 'Item' | 'Collection' | 'Profile'  = 'Item';
-    if (type.hasOwnProperty('full_name')) { // profile
-      this.props.fetchProfile(type.id);
+    if (entity.hasOwnProperty('full_name')) { // profile
+      this.props.fetchProfile(entity.id);
       metaType = 'Profile';
-    } else if (type.hasOwnProperty('collection')) {
-      this.props.fetchCollection(type.id);
+    } else if (entity.hasOwnProperty('collection')) {
+      this.props.fetchCollection(entity.id);
+      this.props.collectionModalToggle(true, entity);
       metaType = 'Collection';
     } else {
-      this.props.fetchItem(type.id);
+      this.props.fetchItem(entity.id);
+      this.props.itemModalToggle(true, entity);
+      metaType = 'Item';
     }
 
     this.setState({ modalOpen: true, modalType: metaType });
@@ -373,9 +378,9 @@ class SearchConsole extends React.Component<Props, State> {
       hoveredClass = hover ? 'hover' : '';
 
     return (
-      <div id="searchConsole" className={isOpenClass}>
-
-        <AudioPlayer className="audioPlayerSticky" />
+      <div>
+        <div id="audioPlayerDiv"><AudioPlayer className="audioPlayerSticky" /></div>
+        <div id="searchConsole" className={isOpenClass}>
 
         <Container fluid className={`${hoveredClass} ${isOpenClass} console`} onTouchStart={this.touchDeviceOpen} >
           <Row className="options">
@@ -401,7 +406,7 @@ class SearchConsole extends React.Component<Props, State> {
                     isMulti
                     loadOptions={this.searchSuggestions}
                     options={this.state.criteria}
-                    value={this.state.selectedCriteria}
+                    value={this.props.selectedCriteria}
 
                     components={{DropdownIndicator: null}}
 
@@ -451,21 +456,17 @@ class SearchConsole extends React.Component<Props, State> {
             </Col>
           </Row>
 
-          <Row>
-            <div className="tags">
+          <Row style={{ height: isOpen ? 'auto' : 0 }}>
               {
-                !!this.props.concept_tags ?
-                  <div className={`list ${browser()}`}>
+                isOpen && !!this.props.concept_tags &&
+                  <Col>
+                  <div className="tagList">
                     {this.props.concept_tags
-                      .filter(a => !find(this.state.selectedCriteria, {'originalValue': a.tag_name}))
-                      .map((t: APITag, i) =>
-                         <span key={i} onClick={() => this.onTagClick(t)}>#{t.tag_name}</span>
-                      )
-                    }
+                      .filter(a => !find(this.props.selectedCriteria, {'originalValue': a.tag_name}))
+                      .map((t: APITag, i) => <div className="tagWrapper"><Button className="page-link tag" key={i} onClick={() => this.onTagClick(t)}>#{t.tag_name}</Button></div>)}
                   </div>
-                  : <></>
+                  </Col>
               }
-            </div>
           </Row>
 
           <Row className="focus pt-1" style={{ height: isOpen ? 'auto' : 0 }}>
@@ -561,31 +562,7 @@ class SearchConsole extends React.Component<Props, State> {
             : <></>
           }
         </Container>
-
-        <Modal isOpen={this.state.modalOpen} centered size="lg" scrollable className="search fullwidth blue" backdrop toggle={this.toggleModal}>
-          <div className="d-flex flex-column flex-fill mh-100">
-            <Row className="header align-content-center">
-              <Col xs="12">
-                <div className="text-right">
-                  <FaTimes className="closeButton" onClick={this.toggleModal}/>
-                </div>
-              </Col>
-            </Row>
-
-            <ModalBody>
-              {
-                this.state.modalType && this.state.modalType === 'Item' ? <ViewItem /> : <></>
-              }
-              {
-                this.state.modalType && this.state.modalType === 'Collection' ? <ViewCollection /> : <></>
-              }
-              {
-                this.state.modalType && this.state.modalType === 'Profile' ? <ViewProfile /> : <></>
-              }
-            </ModalBody>
-
-          </div>
-        </Modal>
+      </div>
       </div>
     );
   }
@@ -593,6 +570,7 @@ class SearchConsole extends React.Component<Props, State> {
 
 const mapStateToProps = (state: { searchConsole: SearchConsoleState }) => ({
   concept_tags: state.searchConsole.concept_tags,
+  selectedCriteria: state.searchConsole.selectedCriteria,
 
   view: state.searchConsole.view,
   results: state.searchConsole.results,
@@ -604,4 +582,15 @@ const mapStateToProps = (state: { searchConsole: SearchConsoleState }) => ({
 
 });
 
-export default connect(mapStateToProps, { dispatchSearch, loadMoreResults, changeView, fetchItem, fetchCollection, fetchProfile, toggle, getConceptTags })(withCookies(SearchConsole));
+export default connect(mapStateToProps, {
+  dispatchSearch,
+  loadMoreResults,
+  changeView,
+  fetchItem,
+  fetchCollection,
+  fetchProfile,
+  toggle,
+  getConceptTags,
+  collectionModalToggle,
+  itemModalToggle
+})(withCookies(SearchConsole));

@@ -1,55 +1,357 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { Col, Row } from 'reactstrap';
-import { fetchCollection } from 'actions/collections/viewCollection';
+import { Button, Col, Row } from 'reactstrap';
+import { dispatchLoadMore, fetchCollection, loadMore } from 'actions/collections/viewCollection';
 import { ViewCollectionState } from 'reducers/collections/viewCollection';
 import { ErrorMessage } from '../utils/alerts';
-
 import { browser } from '../utils/browser';
+import LicenceLink from '../utils/LicenceLink'
 import { RouteComponentProps, withRouter } from 'react-router';
-
-import CollectionSlider from './CollectionSlider';
 import Share from '../utils/Share';
 import moment from 'moment';
 import 'styles/components/pages/viewItem.scss';
-import { Regions } from '../../types/Item';
+import { Item, itemType, Regions } from '../../types/Item';
+import { Collection } from '../../types/Collection';
+import { DetailPreview } from '../utils/DetailPreview';
+import { FileTypes } from '../../types/s3File';
+import AudioPreview from '../layout/audio/AudioPreview';
+import { dateFromTimeYearProduced } from '../../actions/home';
+import { debounce, isEqual } from 'lodash';
+import { getCollectionsInCollection, getItemsInCollection } from '../../REST/collections';
+import { removeTopology } from '../utils/removeTopology';
+import { createCriteriaOption } from '../search/SearchConsole';
+import { toggle as collectionModalToggle } from '../../actions/modals/collectionModal';
+import { toggle as itemModalToggle } from 'actions/modals/itemModal';
+import { pushEntity as pushUserHistoryEntity } from '../../actions/user-history';
+import { search as dispatchSearch, toggle as searchOpenToggle } from '../../actions/searchConsole';
+import { UserHistoryState } from '../../reducers/user-history';
+import HtmlDescription from '../utils/HtmlDescription';
+import _ from 'lodash';
 
 type MatchParams = {
   id: string;
 };
 
 interface Props extends RouteComponentProps<MatchParams>, ViewCollectionState {
-  fetchCollection: Function;
+  fetchCollection?: Function;
+  dispatchLoadMore?: Function;
+  parentReference?: Function;
+  itemModalToggle: Function;
+  collectionModalToggle: Function;
+  searchOpenToggle: Function;
+  dispatchSearch: Function;
+  pushUserHistoryEntity: Function;
+
+  // ID string passed from the Parent that gives you the modal's body.
+  modalBodyID?: string;
+  userHistory?: UserHistoryState;
 }
 
-class ViewCollection extends React.Component<Props, {}> {
-  browser: string;
+interface State {
+  data: (Item | Collection)[] | undefined;
+  offset: number;
+  errorMessage?: string;
+  collection?: Collection;
+  collectionModalToggled: boolean;
+  collectionModalData?: Collection;
+  dataRowID?: string;
+  noMoreData: boolean;
+  loading: boolean;
+}
 
-  constructor(props: any) { // tslint:disable-line: no-any
-    super(props);
+const DataLayout = (props: { data: Item | Collection, itemModalToggle?: Function, collectionModalToggle?: Function }): JSX.Element => {
+  let response: JSX.Element = <></>;
 
-    this.browser = browser();
+  if (props.data) {
+    if (props.data.__typename === 'item') {
+      const data = props.data as Item;
+
+      if (data.item_type === itemType.Audio || (data.file && data.file.type === FileTypes.Audio)) {
+        const date = dateFromTimeYearProduced(data.time_produced, data.year_produced);
+        response = (
+            <AudioPreview
+                data={{
+                  id: data.id,
+                  url: data.file.url,
+                  title: data.title ? data.title : '',
+                  creators: data.creators ? data.creators : undefined,
+                  item_subtype: data.item_subtype ? data.item_subtype : undefined,
+                  date: date,
+                  isCollection: data.__typename !== 'item'
+                }}
+                noClick={data.__typename !== 'item'}
+            />
+        );
+      } else {
+        response = (
+            <DetailPreview
+              data={data}
+              modalToggle={typeof props.itemModalToggle === 'function' ? props.itemModalToggle : undefined}
+            />
+        );
+      }
+    } else if (props.data.__typename === 'collection') {
+      const data = props.data as Collection;
+
+      if (data.file && data.id) {
+        getCollectionsInCollection({id: data.id, limit: 1000, offset: 0}).then(collectionResponse => {
+          const collections = [...removeTopology(collectionResponse, 'collection')] as Collection[];
+          data.collections = collections.map((collectionItem) => collectionItem.id) as string[];
+        });
+        getItemsInCollection({id: data.id, limit: 1000, offset: 0}).then(itemResponses => {
+          const items = [...removeTopology(itemResponses, 'item')] as Item[];
+          data.items = items.map((itemItem) => itemItem.id) as string[];
+        });
+
+        response = (
+            <DetailPreview
+                modalToggle={() => typeof props.collectionModalToggle === 'function' ? props.collectionModalToggle(data) : undefined}
+                data={{
+                  file: data.file,
+                  id: data.id,
+                  title: data.title ? data.title : '',
+                  s3_key: '',
+                  year_produced: data.year_produced ? data.year_produced : '',
+                  time_produced: data.time_produced ? data.time_produced : '',
+                  creators: data.creators ? data.creators : [],
+                  regions: data.regions ? data.regions : [],
+                  // tslint:disable-next-line:no-any
+                  items: data.items as any || [],
+                  // tslint:disable-next-line:no-any
+                  collections: data.collections as any || [],
+                  // Collection specific
+                  count: data.count ? data.count : 0,
+                  type: data.type ? data.type : undefined,
+                  concept_tags: [],
+                  keyword_tags: []
+                }}
+            />
+        );
+      }
+    }
   }
 
-  componentDidMount() {
+  return (
+    <Col
+        md={!!props.data && !!props.data.file && props.data.file.type === 'Audio' ? '12' : '4'}
+        className="pt-4"
+    >
+      {response}
+    </Col>
+  );
+};
+
+class ViewCollection extends React.Component<Props, State> {
+  browser: string;
+  _isMounted: boolean;
+  scrollDebounce;
+  modalBodyDiv;
+
+  constructor(props: Props) {
+    super(props);
+
+    this._isMounted = false;
+    const state = {
+      data: undefined,
+      offset: 0,
+      loading: false,
+      noMoreData: false,
+      collectionModalToggled: false
+    };
+
     const { match } = this.props;
-    let matchId: string | null = null;
-
-    // Get our collectionId passed through from URL props
-    if (match.params.id) {
-      matchId = match.params.id;
+    if (!this.props.noRedux && match && match.params.id) {
+      if (!this.props.collection && typeof this.props.fetchCollection !== 'undefined') {
+        Object.assign(state, { loading: true });
+        this.props.fetchCollection(match.params.id);
+      }
     }
 
-    // If we have an id from the URL pass it through, otherwise use the one from Redux State
-    if (matchId) {
-      this.props.fetchCollection(matchId);
+    this.state = state;
+
+    this.browser = browser();
+
+    this.scrollDebounce = debounce( async () => await this.handleScroll(), 300);
+  }
+
+  async componentDidMount(): Promise<void> {
+    this._isMounted = true;
+
+    await this.pushCollectionToHistory();
+
+    const { modalBodyID, collection } = this.props;
+
+    if (modalBodyID) {
+      this.modalBodyDiv = document.getElementById(modalBodyID);
+      this.modalBodyDiv.addEventListener('scroll',  this.scrollDebounce, true);
+      await this.loadData();
     } else {
-      this.setState({ errorMessage: 'No collection with that id.' });
+      if (collection && this._isMounted) {
+        this.setState({ collection, dataRowID: `dataRow_${collection.id}_${Date.now()}`} , async () => await this.loadData());
+      }
+      window.addEventListener('scroll',  this.scrollDebounce, true);
     }
+  }
+
+  componentWillUnmount(): void {
+    if (this.modalBodyDiv) {
+      this.modalBodyDiv.removeEventListener('scroll', this.scrollDebounce, false);
+    } else {
+      window.removeEventListener('scroll',  this.scrollDebounce, true);
+    }
+
+    this._isMounted = false;
+  }
+
+  async componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>): Promise<void> {
+    if (!this._isMounted) { return; }
+
+    await this.pushCollectionToHistory(prevProps.collection);
+
+    if (this.props.noMoreData !== prevProps.noMoreData && this.props.noMoreData) {
+      this.setState( { noMoreData: true });
+    }
+
+    if (!this.props.noRedux) {
+      if ((typeof prevProps.collection === 'undefined' && !!this.props.collection) || (!!this.props.collection && !!this.state.collection && this.props.collection.id !== this.state.collection.id)) {
+        // We've just loaded our collection via fetchCollection
+        this.setState(
+            {
+              noMoreData: false,
+              loading: false,
+              collection: this.props.collection,
+              dataRowID: `dataRow_${this.props.collection.id}_${Date.now()}`
+            },
+            async () => await this.loadData()
+        );
+        return;
+      }
+
+      if (!isEqual(this.props.data, this.state.data)) {
+        const items = this.props.data ? this.props.data
+            .filter((data: Item | Collection) => {
+              return data.__typename === 'item';
+              // tslint:disable-next-line:no-any
+            }) as any : [];
+
+        const collections = this.props.data ? this.props.data
+            .filter((data: Item | Collection) => {
+              return data.__typename === 'collection';
+              // tslint:disable-next-line:no-any
+            }) as any : [];
+
+        this.setState({
+          data: this.props.data || [],
+          collection: {
+            ...this.state.collection,
+            items: [...items],
+            collections: [...collections]
+          } as Collection
+        });
+      }
+    }
+  }
+
+  async pushCollectionToHistory(prevCollection?: Collection): Promise<void> {
+    if (this.props.collection !== undefined) {
+      if (prevCollection !== undefined) {
+        if (!_.isEqual(this.props.collection,prevCollection)) {
+          const userHistoryEntity = await this.createHistoryEntity();
+          this.props.pushUserHistoryEntity(userHistoryEntity);
+        }
+      } else {
+        const userHistoryEntity = await this.createHistoryEntity();
+        this.props.pushUserHistoryEntity(userHistoryEntity);
+      }
+    }
+  }
+
+  async createHistoryEntity(): Promise<Collection> {
+    return {...this.props.collection, __typename: 'collection'};
+  }
+
+  loadData = async () => {
+    if (!this._isMounted || this.state.noMoreData) { return; }
+
+    this.setState({ loading: true });
+    // If we have an id from the URL pass it through, otherwise use the one from Redux State
+    if (this.state.collection && this.state.collection.id) {
+      if (this.props.noRedux) {
+        try {
+          await loadMore(this.state.collection.id, this.state.offset, (datum) => {
+            if (!this._isMounted) { return; }
+            if (datum) {
+              this.setState({data: [...this.state.data as [], datum], offset: this.state.offset + 10});
+            } else {
+              this.setState({ noMoreData: true });
+            }
+          });
+        } catch (e) {
+          this.setState({ errorMessage: 'Something went wrong loading the data for this collection, sorry!' });
+        }
+      } else {
+        if (typeof this.props.dispatchLoadMore === 'function') {
+          await this.props.dispatchLoadMore(this.state.collection.id, this.props.offset);
+        }
+      }
+
+      if (this._isMounted) {
+        this.setState({loading: false}, () => {
+          if (this.scrollCheck()) {
+            this.loadData();
+          }
+        });
+      }
+    }
+  }
+
+  collectionModalToggle = (collectionModalData: Collection) => {
+    if (!this._isMounted) { return; }
+    if (typeof this.props.fetchCollection !== 'undefined') {
+      this.props.collectionModalToggle(true, collectionModalData)
+    }
+  }
+
+  /**
+   * returns true for the bottom of the page or false for anywhere above the bottom
+   */
+  scrollCheck = (): boolean => {
+    if (this.modalBodyDiv) {
+      return ( this.modalBodyDiv.scrollTop >= ((this.modalBodyDiv.scrollHeight - this.modalBodyDiv.offsetHeight) / 1.7) );
+    } else {
+      if (this.state.dataRowID) {
+        const dataRowElement = document.getElementById(this.state.dataRowID);
+        if (dataRowElement) {
+          return (document.documentElement.scrollTop >= (document.body.offsetHeight - dataRowElement.offsetHeight) / 1.7);
+        } else {
+          return false;
+        }
+      } else {
+        return false;
+      }
+    }
+  }
+
+  handleScroll = async () => {
+    if (this.state.noMoreData) { return; }
+
+    if (!this.state.loading && this.scrollCheck()) {
+      await this.loadData();
+    }
+  }
+
+  // @todo should be a util / dispatch
+  onTagClick = (label: string, field: string) => {
+    setTimeout(() => {
+      this.props.itemModalToggle(false);
+      this.props.collectionModalToggle(false);
+      this.props.searchOpenToggle(true);
+      this.props.dispatchSearch([createCriteriaOption(label, field)]);
+    });
   }
 
   render() {
-    if (typeof this.props.collection === 'undefined') {
+    if (typeof this.state.collection === 'undefined') {
       return <ErrorMessage message={this.props.errorMessage} />;
     }
 
@@ -72,7 +374,7 @@ class ViewCollection extends React.Component<Props, {}> {
       url,
       regions,
       copyright_holder
-    } = this.props.collection;
+    } = this.state.collection;
 
     let focusTotal = 0;
     if (!!focus_action && !!focus_arts && !!focus_scitech) {
@@ -87,17 +389,21 @@ class ViewCollection extends React.Component<Props, {}> {
       return `${ (level / focusTotal) * 100 }`;
     };
 
-    const CollectionDetails = (props: { label: string, value: string }): JSX.Element => (
+    const CollectionDetails = (props: { label: string, value: string | JSX.Element }): JSX.Element => (
       <Row className="border-bottom subline details">
         <Col xs="12" md="6">{props.label}</Col>
         <Col xs="12" md="6">{props.value}</Col>
       </Row>
     );
 
+    if (this.props.userHistory && this.props.userHistory.loading) {
+      return (<></>);
+    }
+
     return (
       <div id="item" className="container-fluid">
         <ErrorMessage message={this.props.errorMessage} />
-        <CollectionSlider />
+
         <Row>
           <Col xs="12" md="8" className="left border-right">
             <Row>
@@ -105,32 +411,72 @@ class ViewCollection extends React.Component<Props, {}> {
                 {creators ? creators.join(', ') : <></>}
               </Col>
             </Row>
+
             <Row>
               <Col>
                 <h1>{title}</h1>
               </Col>
             </Row>
-
             <Row>
               <Col className="description">
                 {
                   description ?
-                    this.browser === 'ie6-11' ? description.split('\n').map((d, i) => <p key={i}>{d}</p>) : description
+                    <HtmlDescription description={description} />
                   : <></>
                 }
               </Col>
             </Row>
 
             {!!id ?
-              <Row>
-                <Col className="text-right">
-                  <Share suffix={`collection/${id}`}/>
-                </Col>
-              </Row>
+              (
+                <Row>
+                  <Col className="text-right">
+                    <Share suffix={`collection/${id}`}/>
+                  </Col>
+                </Row>
+              )
               : <></>
             }
+
+            <Row id={this.state.dataRowID}>
+            {
+                this.state.collection.collections && this.state.collection.collections.length ?
+                    // tslint:disable-next-line:no-any
+                    (this.state.collection.collections as any[])
+                        .map((collection: Collection, i) => (
+                            <DataLayout
+                                data={collection}
+                                key={`collection_${collection.id}`}
+                                itemModalToggle={this.props.itemModalToggle}
+                                collectionModalToggle={this.collectionModalToggle}
+                            />
+                          ))
+                    : <></>
+              }
+              {
+                this.state.collection.items && this.state.collection.items.length ?
+                    // tslint:disable-next-line:no-any
+                    (this.state.collection.items as any[])
+                        .map((item: Item, i) => (
+                            <DataLayout
+                                data={item}
+                                key={`item_${item.id}`}
+                                itemModalToggle={this.props.itemModalToggle}
+                                collectionModalToggle={this.collectionModalToggle}
+                            />
+                          ))
+                    : <></>
+              }
+            </Row>
           </Col>
+
           <Col xs="12" md="4" className="right">
+            {!!title ?
+                <CollectionDetails label="Title" value={title} /> : <></>
+            }
+            {!!creators ?
+                <CollectionDetails label="Creators" value={creators.join(', ')} /> : <></>
+            }
             {!!time_produced ?
               <CollectionDetails label="Date Produced" value={moment(time_produced).format('Do MMMM YYYY')} />
               : year_produced ? <CollectionDetails label="Year Produced" value={year_produced} /> : <></>
@@ -148,29 +494,59 @@ class ViewCollection extends React.Component<Props, {}> {
               :
               ''
             }
-            {!!license ? <CollectionDetails label="License" value={license} /> : ''}
+            {!!license ? <LicenceLink licence={license} /> : ''}
             {!!copyright_holder ? <CollectionDetails label="Copyright Owner" value={copyright_holder} /> : ''}
-            {!!url ? <CollectionDetails label="Link" value={url} /> : ''}
+            {!!url ? <CollectionDetails label="Relation" value={<a href={url} target="_blank" rel="noreferrer noopener">Click here to view</a>} /> : ''}
 
             {!!aggregated_concept_tags && aggregated_concept_tags.length ?
-              <Row className="border-bottom subline details">
-                <Col xs="12">Concept Tags</Col>
-                <Col xs="12">
-                  {
-                    aggregated_concept_tags.map(t => `#${t.tag_name} `)
-                  }
-                </Col>
-              </Row>
+              (
+                <Row className="border-bottom subline details">
+                  <Col xs="12" className="mb-2">Concept Tags</Col>
+                  <Col xs="12">
+                    <div className="tagWrapper">
+                    {
+                      aggregated_concept_tags.map(t => {
+                        return (
+                            <Button
+                                className="page-link tag d-inline-block"
+                                style={{padding: 0, marginBottom: 5, background: 'none'}}
+                                key={t.tag_name}
+                                onClick={() => this.onTagClick(t.tag_name, 'concept_tag')}
+                            >
+                              #{t.tag_name}
+                            </Button>
+                        );
+                      })
+                    }
+                    </div>
+                  </Col>
+                </Row>
+              )
             : ''}
             {!!aggregated_keyword_tags && aggregated_keyword_tags.length ?
-              <Row className="subline details">
-                <Col xs="12">Keyword Tags</Col>
-                <Col xs="12">
-                  {
-                    aggregated_keyword_tags.map(t => `#${t.tag_name} `)
-                  }
-                </Col>
-              </Row>
+              (
+                <Row className="subline details">
+                  <Col xs="12" >Keyword Tags</Col>
+                  <Col xs="12">
+                    <div className="tagWrapper">
+                    {
+                      aggregated_keyword_tags.map(t => {
+                        return (
+                            <Button
+                                className="ml-1 tag d-inline-block"
+                                style={{padding: 0, paddingRight: 15, paddingLeft: 0, margin: 0, background: 'none'}}
+                                key={t.tag_name}
+                                onClick={() => this.onTagClick(t.tag_name, 'keyword_tag')}
+                            >
+                              #{t.tag_name}
+                            </Button>
+                        );
+                      })
+                    }
+                    </div>
+                  </Col>
+                </Row>
+              )
               : ''}
             <Row>
               <Col className="px-0">
@@ -185,14 +561,26 @@ class ViewCollection extends React.Component<Props, {}> {
 }
 
 // State to props
-const mapStateToProps = (state: { viewCollection: ViewCollectionState }) => { // tslint:disable-line: no-any
+const mapStateToProps = (state: { viewCollection: ViewCollectionState, userHistory: UserHistoryState }, props: { modalBodyID?: string, collection?: Collection, noRedux?: boolean}) => {
   return {
     errorMessage: state.viewCollection.errorMessage,
-    collection: state.viewCollection.collection,
-    items: state.viewCollection.items,
-    offset: state.viewCollection.offset
+    collection: props.collection || state.viewCollection.collection,
+    data: state.viewCollection.data,
+    offset: state.viewCollection.offset,
+    noMoreData: state.viewCollection.noMoreData,
+    noRedux: !!props.noRedux || false,
+    modalBodyID: props.modalBodyID,
+    userHistory: state.userHistory
   };
 };
 
 // Connect our redux store State to Props, and pass through the fetchCollection function.
-export default withRouter(connect(mapStateToProps, { fetchCollection })(ViewCollection));
+export default withRouter(connect(mapStateToProps, {
+  fetchCollection,
+  dispatchLoadMore,
+  collectionModalToggle,
+  itemModalToggle,
+  pushUserHistoryEntity,
+  searchOpenToggle,
+  dispatchSearch
+})(ViewCollection));
