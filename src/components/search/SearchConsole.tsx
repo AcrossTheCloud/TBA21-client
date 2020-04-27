@@ -270,8 +270,8 @@ class SearchConsole extends React.Component<Props, State> {
         if (!this._isMounted) { return; }
 
         let suggestions = await API.get('tba21', 'pages/search', { queryStringParameters: { query: input }});
-        const keywordTags = await API.get('tba21', 'tags', { queryStringParameters: { query: input, limit: 50, type: 'keyword'} });
-        const conceptTags = await API.get('tba21', 'tags', { queryStringParameters: { query: input, limit: 1000, type: 'concept'} });
+        const keywordTags = await API.get('tba21', 'tags', { queryStringParameters: { query: input, type: 'keyword'} });
+        const conceptTags = await API.get('tba21', 'tags', { queryStringParameters: { query: input, type: 'concept'} });
 
         suggestions = suggestions.results.map( t => createCriteriaOption(t.value, t.field) );
         suggestions = uniqBy(suggestions, (e: CriteriaOption) => e.field);
