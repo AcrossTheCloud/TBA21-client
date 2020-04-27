@@ -13,13 +13,15 @@ import {
   FileStaticPreview,
   getItemsAndCollectionsForCollection
 } from '../components/utils/DetailPreview';
-import { Button, Col, Row } from 'reactstrap';
+import { Button, Col } from 'reactstrap';
 import AudioPreview from '../components/layout/audio/AudioPreview';
 import { FaCircle, FaPlay } from 'react-icons/all';
 import { search as dispatchSearch, toggle as searchOpenToggle } from './searchConsole';
 import { toggle as collectionModalToggle } from 'actions/modals/collectionModal';
 import { toggle as itemModalToggle } from 'actions/modals/itemModal';
 import { createCriteriaOption } from 'components/search/SearchConsole';
+import {ReactComponent as CollectionsInCollectionIcon} from 'images/svgs/collections_in_collection.svg';
+import {ReactComponent as CollectionIcon} from 'images/svgs/collection.svg';
 
 // Defining our Actions for the reducers
 export const LOGO_STATE_HOMEPAGE = 'LOGO_STATE_HOMEPAGE';
@@ -89,30 +91,36 @@ export const onTagClick = (event: React.MouseEvent<HTMLButtonElement>, label: st
 
 export const loadHomepage = () => async dispatch => {
   const
-    oaHighlights: {oa_highlight: HomepageData[]} = await API.get('tba21', 'pages/homepage', { queryStringParameters: {oa_highlight: true, oaHighlightLimit: 2}}),
-    queryStringParams = {
+    oaHighlights: {oa_highlight_items: HomepageData[], oa_highlight_collections: HomepageData[]} = await API.get('tba21', 'pages/homepage', { queryStringParameters: {oa_highlight: true}});
+  console.log(oaHighlights);
+
+  console.log(oaHighlights.oa_highlight_collections);
+  oaHighlights.oa_highlight_collections = [ ...await getItemsAndCollectionsForCollection(oaHighlights.oa_highlight_collections as any)] as any;
+  console.log(oaHighlights.oa_highlight_collections);
+  let highlightsWithFiles = await addFilesToData(oaHighlights.oa_highlight_items);
+  highlightsWithFiles = highlightsWithFiles.concat(await addFilesToData(oaHighlights.oa_highlight_collections));
+  highlightsWithFiles.slice(0,3); // max 3 highlights
+
+  const  queryStringParams = {
       oa_highlight: false
     };
 
-  // Push the ID's into the queryString for the next API call, so it excludes them
-  if (oaHighlights.oa_highlight && oaHighlights.oa_highlight.length) {
-    Object.assign(queryStringParams, { id: oaHighlights.oa_highlight.map(o => o.id) });
-  }
-
+  console.log(highlightsWithFiles);
+  
   let response: {items: HomepageData[], collections: HomepageData[]} = await API.get('tba21', 'pages/homepage', { queryStringParameters: queryStringParams });
   response.collections = [...await getItemsAndCollectionsForCollection(response.collections as any)] as any;
 
   const announcementResponse = await API.get('tba21', 'announcements', { queryStringParameters: { limit: '9'}});
 
-  const highlightsWithFiles = await addFilesToData(oaHighlights.oa_highlight);
 
   const HighlightsItemDetails = (props: { index: number }) => {
-    const tags = highlightsWithFiles[props.index].concept_tags;
-    const creators = !!highlightsWithFiles[props.index].creators ? highlightsWithFiles[props.index].creators : [];
+    let data = highlightsWithFiles[props.index];
+    const tags = data.concept_tags;
+    const creators = !!data.creators ? data.creators : [];
 
     return (
       <>
-        <div className="title-wrapper d-flex" onClick={() => dispatch(openModal(highlightsWithFiles[props.index]))}>
+        <div className="title-wrapper d-flex" onClick={() => dispatch(openModal(data))}>
           {creators && creators.length ?
             <div className="creators">
               {creators[0]}{creators.length > 1 ? <em>, et al.</em> : <></>}
@@ -125,12 +133,12 @@ export const loadHomepage = () => async dispatch => {
             </div>
             : <></>
           }
-          <div className="title" onClick={() => dispatch(openModal(highlightsWithFiles[props.index]))}>
-            {highlightsWithFiles[props.index].title}
+          <div className="title" onClick={() => dispatch(openModal(data))}>
+            {data.title}
           </div>
         </div>
-        <div className="type mb-2" onClick={() => dispatch(openModal(highlightsWithFiles[props.index]))}>
-          {highlightsWithFiles[props.index].item_subtype}, {dateFromTimeYearProduced(highlightsWithFiles[props.index].time_produced, highlightsWithFiles[props.index].year_produced)}
+        <div className="type mb-2" onClick={() => dispatch(openModal(data))}>
+          {data.item_subtype ? data.item_subtype : data.type}{data.time_produced || data.year_produced ? ', ' : '' }{dateFromTimeYearProduced(data.time_produced, data.year_produced)}
         </div>
         {!!tags && tags.length ?
           <div className="tagWrapper tags d-none d-lg-block">
@@ -154,83 +162,81 @@ export const loadHomepage = () => async dispatch => {
   };
 
   const HighLightsLayout = (props: { index: number }) => {
-    if (props.index === 0 && !!highlightsWithFiles[0]) {
-      return (
-        <Col xs="12" lg={highlightsWithFiles.length > 1 ? 7 : 12} className="item" onClick={() => { if (highlightsWithFiles[0].item_type !== itemType.Audio || (highlightsWithFiles[0].file && highlightsWithFiles[0].file.type) !== FileTypes.Audio) { dispatch(openModal(highlightsWithFiles[0])); }}}>
-          <div className="detailPreview">
-            {
-              highlightsWithFiles[0].file ?
-                highlightsWithFiles[0].item_type === itemType.Audio || highlightsWithFiles[0].file.type === FileTypes.Audio ?
-                  <HomePageAudioPreview data={highlightsWithFiles[0]} openModal={() => dispatch(openModal(highlightsWithFiles[0]))} />
-                  :
-                  <>
-                    <FileStaticPreview file={highlightsWithFiles[0].file} />
-                    <HighlightsItemDetails index={0}/>
-                  </>
-                : <></>
-            }
-            {highlightsWithFiles[0].file.type === FileTypes.Video ?
-              <div className="middle">
-                <FaPlay/>
-              </div>
-              : <></>}
-          </div>
-
-        </Col>
-      );
-    } else if (props.index === 1 && !!highlightsWithFiles[1]) {
-      return (
-        <Col xs="12" lg="5" className="item" onClick={() => { if (highlightsWithFiles[1].item_type !== itemType.Audio || (highlightsWithFiles[1].file && highlightsWithFiles[1].file.type) !== FileTypes.Audio) { dispatch(openModal(highlightsWithFiles[1])); }}}>
-          <Row className="d-none d-lg-block">
-            <Col xs="12">
-              <div className="detailPreview">
-                {
-                  highlightsWithFiles[1].file ?
-                    highlightsWithFiles[1].item_type === itemType.Audio || highlightsWithFiles[1].file.type === FileTypes.Audio ?
-                      <HomePageAudioPreview data={highlightsWithFiles[1]} openModal={() => dispatch(openModal(highlightsWithFiles[1]))} />
-                      :
-                      <FileStaticPreview file={highlightsWithFiles[1].file} />
-                    : <></>
-                }
-                {highlightsWithFiles[1].file.type === FileTypes.Video ?
-                  <div className="middle">
-                    <FaPlay/>
-                  </div>
-                  : <></>}
-
-              </div>
-              <HighlightsItemDetails index={1}/>
-            </Col>
-          </Row>
-          <Row className="d-lg-none py-4 py-lg-0">
-            <Col xs="12">
-              <div className="detailPreview">
-                {
-                  highlightsWithFiles[1].file ?
-                    highlightsWithFiles[1].item_type === itemType.Audio || highlightsWithFiles[1].file.type === FileTypes.Audio ?
-                      <HomePageAudioPreview data={highlightsWithFiles[1]} openModal={() => dispatch(openModal(highlightsWithFiles[1]))} />
-                      :
-                      <>
-                        <FileStaticPreview file={highlightsWithFiles[1].file} />
-                        <HighlightsItemDetails index={1}/>
-                      </>
-
-                    : <></>
-                }
-                {highlightsWithFiles[1].file.type === FileTypes.Video ?
-                  <div className="middle">
-                    <FaPlay/>
-                  </div>
-                  : <></>
-                }
-              </div>
-            </Col>
-          </Row>
-        </Col>
-      );
-    } else {
-      return <></>;
+    let colSizes: number[] = [];
+    switch (highlightsWithFiles.length) {
+      case 1:
+        colSizes = [12, 0, 0];
+        break;
+      case 2:
+        colSizes = [7, 5, 0];
+        break;
+      default:
+        colSizes = [4, 4, 4];
+        break;        
     }
+    const data = highlightsWithFiles[props.index];
+    return (
+      <Col xs="12" lg={colSizes[props.index]} className="item" onClick={() => { if (data.item_type !== itemType.Audio || (data.file && data.file.type) !== FileTypes.Audio) { dispatch(openModal(data)); }}}>
+        <div className="detailPreview">
+          {data.file ?
+              data.item_type === itemType.Audio || data.file.type === FileTypes.Audio ?
+                <HomePageAudioPreview data={data} openModal={() => dispatch(openModal(data))} />
+                :
+                <>
+                  <FileStaticPreview file={data.file} />
+                </>
+              : <></>
+          }
+          {data.file.type === FileTypes.Video ?
+            <div className="middle">
+              <FaPlay/>
+            </div>
+            : <></>
+          }
+          {
+            data.collections && data.collections.length ?
+                (
+                    <div
+                      className="collections-count"
+                    >
+                      {data.collections.length} collection{data.collections.length > 1 ? 's' : ''}
+                    </div>
+                )
+                :
+                <></>
+          }
+          {
+            !!data.items && data.items.length > 0 ?
+                (
+                    <div
+                        className="item-count"
+                    >
+                      {data.items.length} item{data.items.length > 1 ? 's' : ''}
+                    </div>
+                )
+                :
+                <></>
+          }
+          {data.collections ? 
+            <div className="middle">
+              {data.collections && data.collections.length ?
+                  (
+                    <CollectionsInCollectionIcon />
+                  )
+                  :
+                  (
+                    <CollectionIcon />
+                  )
+              }
+            </div>
+            :
+            <></>
+          }
+        </div>
+        <HighlightsItemDetails index={props.index}/>
+      </Col>
+    );
+
   };
 
   const
