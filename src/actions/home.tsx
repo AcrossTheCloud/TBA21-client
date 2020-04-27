@@ -124,12 +124,9 @@ export const loadHomepage = () => async dispatch => {
           {creators && creators.length ?
             <div className="creators">
               {creators[0]}{creators.length > 1 ? <em>, et al.</em> : <></>}
-            </div>
-            : <></>
-          }
-          {creators && creators.length ?
-            <div className="d-block dotwrap">
-              <FaCircle className="dot"/>
+              <div className="d-inline-block dotwrap">
+                <FaCircle className="dot"/>
+              </div>
             </div>
             : <></>
           }

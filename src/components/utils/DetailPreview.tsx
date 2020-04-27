@@ -162,12 +162,9 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
             {data.creators && data.creators.length ?
               <div className="creators">
                 {data.creators[0]}{data.creators.length > 1 ? <em>, et al.</em> : <></>}
-              </div>
-              : <></>
-            }
-            {data.creators && data.creators.length ?
-              <div className="d-block dotwrap">
-                <FaCircle className="dot"/>
+                <div className="d-inline-block dotwrap">
+                  <FaCircle className="dot"/>
+                </div>
               </div>
               : <></>
             }
