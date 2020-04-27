@@ -120,7 +120,7 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
     collectionType = data.type;
   }
 
-  const date = dateFromTimeYearProduced(data.time_produced, data.year_produced);
+  const date = dateFromTimeYearProduced(data.time_produced, data.year_produced, data.end_year_produced);
 
   return (
     <div className={`detailPreview ${browser()}`} onClick={() => { if (typeof props.modalToggle === 'function') { props.modalToggle(true, props.data); } }}>

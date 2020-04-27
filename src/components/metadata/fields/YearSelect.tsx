@@ -6,6 +6,7 @@ import { range } from 'lodash';
 interface Props {
   callback?: Function;
   value: string | null;
+  addOngoing: boolean;
 }
 interface State {
   value: SelectObject;
@@ -18,10 +19,13 @@ export default class YearSelect extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { value } = this.props;
+    const { value, addOngoing } = this.props;
 
     const thisYear = (new Date()).getFullYear();
     this.listOfYears = range(thisYear + 1, 1800).map(y => ({ label: y.toString(), value: y.toString() }));
+    if (addOngoing) {
+      this.listOfYears.unshift({label: 'ongoing', value: 'ongoing'});
+    }
 
     this.state = {
       value: value ? { label: value, value: value } : {label: '', value: ''},

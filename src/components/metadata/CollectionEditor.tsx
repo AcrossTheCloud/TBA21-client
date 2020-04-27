@@ -768,7 +768,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="year_produced">Year</Label>
-            <YearSelect value={collection.year_produced ? collection.year_produced : ''} callback={e => this.validateLength('year_produced', e)}/>
+            <YearSelect addOngoing={false} value={collection.year_produced ? collection.year_produced : ''} callback={e => this.validateLength('year_produced', e)}/>
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('year_produced') && !this.state.validate.year_produced ? 'block' : 'none') }}>This is a required field</FormFeedback>
           </FormGroup>
         </Col>
