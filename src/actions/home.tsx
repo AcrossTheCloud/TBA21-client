@@ -70,9 +70,13 @@ export const liveStreamDispatch = (state: boolean) => async dispatch => {
   }
 }
 
-export const dateFromTimeYearProduced = (time: string | null, year: string | null): string => {
+export const dateFromTimeYearProduced = (time: string | null, year: string | null, end_year: string | null = null): string => {
   const timeProduced = time ? new Date(time).getFullYear().toString() : undefined;
-  const yearProduced = year ? year : undefined;
+  const yearProduced = year ? (
+    end_year ? 
+      year + '–' + end_year :
+      year
+    ) : undefined;
   return yearProduced ? yearProduced : (timeProduced ? timeProduced : '');
 };
 
@@ -135,7 +139,7 @@ export const loadHomepage = () => async dispatch => {
           </div>
         </div>
         <div className="type mb-2" onClick={() => dispatch(openModal(data))}>
-          {data.item_subtype ? data.item_subtype : data.type}{data.time_produced || data.year_produced ? ', ' : '' }{dateFromTimeYearProduced(data.time_produced, data.year_produced)}
+          {data.item_subtype ? data.item_subtype : data.type}{data.time_produced || data.year_produced ? ', ' : '' }{dateFromTimeYearProduced(data.time_produced, data.year_produced, data.end_year_produced)}
         </div>
         {!!tags && tags.length ?
           <div className="tagWrapper tags d-none d-lg-block">
@@ -419,10 +423,11 @@ export const HomePageAudioPreview = (props: { data: HomepageData, openModal?: Fu
     file,
     creators,
     year_produced,
+    end_year_produced,
     time_produced
   } = props.data;
 
-  const date = dateFromTimeYearProduced(time_produced, year_produced);
+  const date = dateFromTimeYearProduced(time_produced, year_produced, end_year_produced);
 
   return (
     <>

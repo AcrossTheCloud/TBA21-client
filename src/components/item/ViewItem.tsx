@@ -134,6 +134,7 @@ class ViewItem extends React.Component<Props, State> {
       focus_scitech,
       time_produced,
       year_produced,
+      end_year_produced,
       venues,
       exhibited_at,
       copyright_holder,
@@ -186,7 +187,7 @@ class ViewItem extends React.Component<Props, State> {
                             title: title ? title : '',
                             url: file.url,
                             isCollection: false,
-                            date: dateFromTimeYearProduced(time_produced, year_produced)
+                            date: dateFromTimeYearProduced(time_produced, year_produced, end_year_produced)
                           }}
                         />
                       </div>
