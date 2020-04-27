@@ -121,7 +121,6 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
   }
 
   const date = dateFromTimeYearProduced(data.time_produced, data.year_produced);
-
   return (
     <div className={`detailPreview ${browser()}`} onClick={() => { if (typeof props.modalToggle === 'function') { props.modalToggle(true, props.data); } }}>
       {data.file ? <FileStaticPreview file={data.file} onLoad={typeof props.onLoad === 'function' ? props.onLoad : undefined}/> : <></>}
@@ -158,9 +157,9 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
         </div>
 
         <div className="bottom">
-          <div className="title-wrapper d-flex">
+          <div className="title-wrapper">
             {data.creators && data.creators.length ?
-              <div className="creators">
+              <div className="creators d-inline">
                 {data.creators[0]}{data.creators.length > 1 ? <em>, et al.</em> : <></>}
                 <div className="d-inline-block dotwrap">
                   <FaCircle className="dot"/>
@@ -168,8 +167,10 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
               </div>
               : <></>
             }
-            <div className="title">
-              {data.title}
+            <div className="title d-inline">
+              {data.title ? data.title.length > 45 ? data.title.substr(0, 44) + '...' : data.title
+                  :  <></>
+              }
             </div>
           </div>
         </div>
