@@ -124,21 +124,18 @@ export const loadHomepage = () => async dispatch => {
 
     return (
       <>
-        <div className="title-wrapper d-flex" onClick={() => dispatch(openModal(data))}>
+        <div className="title-wrapper" onClick={() => dispatch(openModal(data))}>
           {creators && creators.length ?
-            <div className="creators">
+            <div className="creators d-inline">
               {creators[0]}{creators.length > 1 ? <em>, et al.</em> : <></>}
+              <div className="d-inline-block dotwrap">
+                <FaCircle className="dot"/>
+              </div>
             </div>
             : <></>
           }
-          {creators && creators.length ?
-            <div className="d-none d-md-block dotwrap">
-              <FaCircle className="dot"/>
-            </div>
-            : <></>
-          }
-          <div className="title" onClick={() => dispatch(openModal(data))}>
-            {data.title}
+          <div className="title d-inline" onClick={() => dispatch(openModal(data))}>
+            {data.title.length > 45 ? data.title.substr(0, 44) + '...' : data.title}
           </div>
         </div>
         <div className="type mb-2" onClick={() => dispatch(openModal(data))}>
