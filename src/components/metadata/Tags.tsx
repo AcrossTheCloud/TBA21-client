@@ -67,8 +67,7 @@ export default class Tags extends React.Component<Props, State> {
       const
         response = await API.get('tba21', 'tags', {
           queryStringParameters: {
-            type: 'concept',
-            limit: 2000
+            type: 'concept'
           }
         }),
         tags = response.tags.map(t => ({id: parseInt(t.id, 0), value: parseInt(t.id, 0), label: t.tag_name})),
@@ -167,7 +166,7 @@ export default class Tags extends React.Component<Props, State> {
         clearTimeout(this.loadTagsTimeout);
 
         const
-          queryStringParameters = ( inputValue ? { query: inputValue, type: this.props.type, limit: 1000} : {} ),
+          queryStringParameters = ( inputValue ? { query: inputValue, type: this.props.type } : {} ),
           queriedTags = await API.get('tba21', 'tags', { queryStringParameters: queryStringParameters }),
 
           tags = queriedTags.tags.map(t => ({id: parseInt(t.id, 0), value: parseInt(t.id, 0), label: t.tag_name})),

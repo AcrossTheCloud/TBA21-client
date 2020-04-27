@@ -35,7 +35,7 @@ export const getConceptTags = () => async (dispatch, getState) => {
   const { searchConsole } = getState();
   if (searchConsole.concept_tags && !searchConsole.concept_tags.length) {
     try {
-      API.get('tba21', 'tags', { queryStringParameters: { limit: 1000, type: 'concept'} }).then(res => {
+      API.get('tba21', 'tags', { queryStringParameters: { type: 'concept'} }).then(res => {
         dispatch({ type: SEARCH_CONCEPT_TAGS, concept_tags: res.tags });
       });
     } catch (e) {
