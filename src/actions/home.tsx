@@ -96,11 +96,8 @@ export const onTagClick = (event: React.MouseEvent<HTMLButtonElement>, label: st
 export const loadHomepage = () => async dispatch => {
   const
     oaHighlights: {oa_highlight_items: HomepageData[], oa_highlight_collections: HomepageData[]} = await API.get('tba21', 'pages/homepage', { queryStringParameters: {oa_highlight: true}});
-  console.log(oaHighlights);
 
-  console.log(oaHighlights.oa_highlight_collections);
   oaHighlights.oa_highlight_collections = [ ...await getItemsAndCollectionsForCollection(oaHighlights.oa_highlight_collections as any)] as any;
-  console.log(oaHighlights.oa_highlight_collections);
   let highlightsWithFiles = await addFilesToData(oaHighlights.oa_highlight_collections);
   highlightsWithFiles = highlightsWithFiles.concat(await addFilesToData(oaHighlights.oa_highlight_items));
   highlightsWithFiles.slice(0,3); // max 3 highlights
@@ -108,8 +105,6 @@ export const loadHomepage = () => async dispatch => {
   const  queryStringParams = {
       oa_highlight: false
     };
-
-  console.log(highlightsWithFiles);
   
   let response: {items: HomepageData[], collections: HomepageData[]} = await API.get('tba21', 'pages/homepage', { queryStringParameters: queryStringParams });
   response.collections = [...await getItemsAndCollectionsForCollection(response.collections as any)] as any;
@@ -313,8 +308,8 @@ export const addFilesToData = async (data: HomepageData[]): Promise<HomepageData
 export const loadMore = () => async (dispatch, getState) => {
   dispatch({ type: LOAD_MORE_LOADING, loading: true });
   const
-    itemRand = 3,
-    collectionRand = 3,
+    itemRand = 6,
+    collectionRand = 6,
     state = getState(),
     {
       items,
