@@ -25,6 +25,7 @@ import { UserHistoryState } from '../../reducers/user-history';
 import { HomepageData } from '../../reducers/home';
 import HtmlDescription from '../utils/HtmlDescription';
 import _ from 'lodash';
+import { ClickAutoSearch } from '../utils/ClickAutoSearch';
 
 type MatchParams = {
   id: string;
@@ -148,6 +149,7 @@ class ViewItem extends React.Component<Props, State> {
     if (!!focus_action && !!focus_arts && !!focus_scitech) {
       focusTotal = parseInt(focus_action, 0) + parseInt(focus_arts, 0) + parseInt(focus_scitech, 0);
     }
+    let creatorsArray: JSX.Element[] = [];
 
     const focusPercentage = (level: number | string | undefined | null): string => {
       if (typeof level === 'undefined' || level === null) { return '0'; }
@@ -201,7 +203,13 @@ class ViewItem extends React.Component<Props, State> {
           <Col xs="12" md="8" className="left border-right">
             <Row>
               <Col xs={{ size: 12, order: 2 }} md={{ size: 8, order: 1 }} className="creators">
-                {creators ? creators.join(', ') : <></>}
+                {
+                  creators ? creators.map((i) => {
+                    creatorsArray.push(<div onClick={ClickAutoSearch(i, 'creators')}>{i}</div>);
+                  }
+                  )  : <></>
+                }
+                {creatorsArray}
               </Col>
               <Col xs={{ size: 12, order: 1 }} md={{ size: 4, order: 2 }} className="subline text-right">
                 {item_subtype}

@@ -1,6 +1,7 @@
 import { API } from 'aws-amplify';
 
 export const ClickAutoSearch = (searchValue: string, searchField: string) => async () => {
+    console.log(searchField, searchValue, 'aaaa');
     if (searchValue && searchField) {
         console.log(searchValue, searchField, 'search');
         try {
@@ -19,5 +20,4 @@ export const ClickAutoSearch = (searchValue: string, searchField: string) => asy
                 // error handling go here
         }
     }
-
-}
+};
