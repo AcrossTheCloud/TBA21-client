@@ -261,8 +261,7 @@ export const addFilesToData = async (data: HomepageData[]): Promise<HomepageData
     // Loop through each object in the array and get it's File from CloudFront
     for (let i = 0; i < data.length; i++) {
       const
-        isCollection: boolean = !!data[i].count,
-        s3Key = isCollection ? data[i].s3_key[0] : data[i].s3_key, // if collection get the first s3_key
+        s3Key = data[i].s3_key,
         result = await getCDNObject(s3Key);
 
       if (result) {
