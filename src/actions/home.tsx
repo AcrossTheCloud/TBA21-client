@@ -170,7 +170,10 @@ export const loadHomepage = () => async dispatch => {
     const data = highlightsWithFiles[props.index];
     return (
       <Col xs="12" lg={colSizes[props.index]} className="item" onClick={() => { if (data.item_type !== itemType.Audio || (data.file && data.file.type) !== FileTypes.Audio) { dispatch(openModal(data)); }}}>
-        <DetailPreview data={data} isOaHighlight={true} />
+        {(data.item_type !== itemType.Audio || (data.file && data.file.type) !== FileTypes.Audio) ? 
+          <DetailPreview data={data} isOaHighlight={true} /> :
+          <HomePageAudioPreview data={data} isOaHighlight={true} />
+        }
         <HighlightsItemDetails index={props.index}/>
       </Col>
     );
@@ -246,7 +249,7 @@ export const addFilesToData = async (data: HomepageData[]): Promise<HomepageData
 
 export const loadMore = () => async (dispatch, getState) => {
   dispatch({ type: LOAD_MORE_LOADING, loading: true });
-  const
+  let
     itemRand = 3,
     collectionRand = 3,
     state = getState(),
@@ -256,6 +259,27 @@ export const loadMore = () => async (dispatch, getState) => {
       loadedItems,
       loadedCount
     } = state.home;
+
+  let numAudio: number = items.slice(0, itemRand).reduce((summary, item) => {
+    if (item.item_type === 'Audio') {
+      return summary + 1;
+    } else {
+      return summary
+    }
+  }, 0);
+
+  if (numAudio) {
+    itemRand += numAudio;
+    items.sort((a,b) => {
+      if (a.item_type==='Audio' && b.item_type!=='Audio') {
+        return -1;
+      } else if (a.item_type!=='Audio' && b.item_type==='Audio') {
+        return 1;
+      } else {
+        return 0;
+      }
+    });
+  }
 
   let data: HomepageData[] = [
     ...items.length > itemRand ? items.splice(0, itemRand) : items.splice(0, items.length),
@@ -273,7 +297,7 @@ export const loadMore = () => async (dispatch, getState) => {
     if (!file) { return <></>; }
 
     return (
-      <Col lg={4} className="pt-4">
+      <Col lg={item_type === itemType.Audio || file.type === FileTypes.Audio ? 12 : 4} className="pt-4">
         {item_type === itemType.Audio || file.type === FileTypes.Audio ?
           <HomePageAudioPreview data={props.data} openModal={() => dispatch(openModal(props.data))} />
           :
@@ -323,8 +347,8 @@ export const openModal = (data: HomepageData) => dispatch => {
   }
 };
 
-export const HomePageAudioPreview = (props: { data: HomepageData, openModal?: Function }) => {
-  const {
+export const HomePageAudioPreview = (props: { data: HomepageData, openModal?: Function, isOaHighlight?: boolean }) => {
+  let {
     id,
     count,
     item_subtype,
@@ -336,6 +360,11 @@ export const HomePageAudioPreview = (props: { data: HomepageData, openModal?: Fu
     end_year_produced,
     time_produced
   } = props.data;
+
+  if (props.isOaHighlight) { // don't display creator and title as these are displayed anyway
+    title = '';
+    creators = [];
+  }
 
   const date = dateFromTimeYearProduced(time_produced, year_produced, end_year_produced);
 
