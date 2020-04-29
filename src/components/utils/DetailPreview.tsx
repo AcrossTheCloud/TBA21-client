@@ -102,7 +102,7 @@ export const getItemsAndCollectionsForCollection = async (collections) => {
   }));
 }
 
-export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Function, modalToggle?: Function}): JSX.Element => {
+export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Function, modalToggle?: Function, isOaHighlight?: boolean}): JSX.Element => {
   if ((!!props.data.file && props.data.file.type === FileTypes.Audio) || props.data.item_type === itemType.Audio) { return <></>; }
 
   let data: ItemOrHomePageData = props.data;
@@ -156,7 +156,7 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
                 <></>
           }
         </div>
-
+        {!props.isOaHighlight ?
         <div className="bottom">
           <div className="title-wrapper">
             {data.creators && data.creators.length ?
@@ -174,7 +174,8 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
               }
             </div>
           </div>
-        </div>
+        </div> : <></>
+        }
         {data.duration ?
           <div className="duration">
             {moment.duration((typeof data.duration === 'string' ? parseInt(data.duration, 0) : data.duration), 'seconds').format('hh:mm:ss')}
