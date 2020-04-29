@@ -10,18 +10,15 @@ import { LIVESTREAM_MODAL_TOGGLE } from './modals/liveStreamModal';
 import * as React from 'react';
 import {
   DetailPreview,
-  FileStaticPreview,
   getItemsAndCollectionsForCollection
 } from '../components/utils/DetailPreview';
 import { Button, Col } from 'reactstrap';
 import AudioPreview from '../components/layout/audio/AudioPreview';
-import { FaCircle, FaPlay } from 'react-icons/all';
+import { FaCircle } from 'react-icons/all';
 import { search as dispatchSearch, toggle as searchOpenToggle } from './searchConsole';
 import { toggle as collectionModalToggle } from 'actions/modals/collectionModal';
 import { toggle as itemModalToggle } from 'actions/modals/itemModal';
 import { createCriteriaOption } from 'components/search/SearchConsole';
-import {ReactComponent as CollectionsInCollectionIcon} from 'images/svgs/collections_in_collection.svg';
-import {ReactComponent as CollectionIcon} from 'images/svgs/collection.svg';
 
 // Defining our Actions for the reducers
 export const LOGO_STATE_HOMEPAGE = 'LOGO_STATE_HOMEPAGE';
@@ -173,62 +170,7 @@ export const loadHomepage = () => async dispatch => {
     const data = highlightsWithFiles[props.index];
     return (
       <Col xs="12" lg={colSizes[props.index]} className="item" onClick={() => { if (data.item_type !== itemType.Audio || (data.file && data.file.type) !== FileTypes.Audio) { dispatch(openModal(data)); }}}>
-        <div className="detailPreview">
-          {data.file ?
-              data.item_type === itemType.Audio || data.file.type === FileTypes.Audio ?
-                <HomePageAudioPreview data={data} openModal={() => dispatch(openModal(data))} />
-                :
-                <>
-                  <FileStaticPreview file={data.file} />
-                </>
-              : <></>
-          }
-          {data.file.type === FileTypes.Video ?
-            <div className="middle">
-              <FaPlay/>
-            </div>
-            : <></>
-          }
-          {
-            data.collections && data.collections.length ?
-                (
-                    <div
-                      className="collections-count"
-                    >
-                      {data.collections.length} collection{data.collections.length > 1 ? 's' : ''}
-                    </div>
-                )
-                :
-                <></>
-          }
-          {
-            !!data.items && data.items.length > 0 ?
-                (
-                    <div
-                        className="item-count"
-                    >
-                      {data.items.length} item{data.items.length > 1 ? 's' : ''}
-                    </div>
-                )
-                :
-                <></>
-          }
-          {data.collections ? 
-            <div className="middle">
-              {data.collections && data.collections.length ?
-                  (
-                    <CollectionsInCollectionIcon />
-                  )
-                  :
-                  (
-                    <CollectionIcon />
-                  )
-              }
-            </div>
-            :
-            <></>
-          }
-        </div>
+        <DetailPreview data={data} isOaHighlight={true} />
         <HighlightsItemDetails index={props.index}/>
       </Col>
     );
