@@ -36,7 +36,6 @@ export interface HomePageState {
 
   items: HomepageData[];
   collections: HomepageData[];
-  audio: HomepageData[];
   announcements: Announcement[];
   oa_highlight: HomepageData[];
 
@@ -54,7 +53,6 @@ const initialState: HomePageState = {
 
   items: [],
   collections: [],
-  audio: [],
   announcements: [],
   oa_highlight: [],
 
@@ -80,7 +78,6 @@ export default (state: HomePageState | null = initialState, action) => {
         ...state,
         items: action.items,
         collections: action.collections,
-        audio: action.audio,
         announcements: action.announcements,
         loaded_highlights: action.loaded_highlights
       };
@@ -97,7 +94,6 @@ export default (state: HomePageState | null = initialState, action) => {
         loadedCount: action.loadedCount,
         loadedItems: action.loadedItems,
         loadedMore: action.loadedMore,
-        audio: action.audio,
         items: action.items,
         collections: action.collections
       };

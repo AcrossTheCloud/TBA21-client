@@ -109,7 +109,7 @@ class HomePage extends React.Component<Props, State> {
     // if the page is higher than the items and we have no scroll bar we need to get more items.
     clearTimeout(this.windowHeightTimeout);
     this.windowHeightTimeout = setTimeout( async () => {
-      if (this.props.loadedMore && (this.props.items.length || this.props.collections.length || this.props.audio.length) && window.innerHeight + document.documentElement.scrollTop === document.documentElement.offsetHeight) {
+      if (this.props.loadedMore && (this.props.items.length || this.props.collections.length) && window.innerHeight + document.documentElement.scrollTop === document.documentElement.offsetHeight) {
         await this.props.loadMore();
         // Run again just in case
         this.windowHeightCheck();
@@ -121,7 +121,7 @@ class HomePage extends React.Component<Props, State> {
 
   handleScroll = async () => {
     if (this.props.loading) { return; }
-    if (this.props.loadedMore && (!this.props.items.length && !this.props.collections.length && !this.props.audio.length)) {
+    if (this.props.loadedMore && (!this.props.items.length && !this.props.collections.length)) {
       window.removeEventListener('scroll', this.scrollDebounce, false);
       return;
     }
@@ -263,8 +263,7 @@ class HomePage extends React.Component<Props, State> {
       logoLoaded,
       loadedItems,
       items,
-      collections,
-      audio
+      collections
     } = this.props;
 
     return (
@@ -310,7 +309,7 @@ class HomePage extends React.Component<Props, State> {
             }
           </Row>
 
-          { !items.length && !collections.length && !audio.length ?
+          { !items.length && !collections.length ?
               <></>
             : <div style={{paddingTop: '100px'}} />
           }
@@ -332,7 +331,6 @@ const mapStateToProps = (state: { home: Props, liveStreamModal: { hasOpened: boo
 
   items: state.home.items ? state.home.items : [],
   collections: state.home.collections ? state.home.collections : [],
-  audio: state.home.audio ? state.home.audio : [],
   announcements: state.home.announcements ? state.home.announcements : [],
 
   oa_highlight: state.home.oa_highlight ? state.home.oa_highlight : [],
