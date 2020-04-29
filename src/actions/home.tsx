@@ -236,16 +236,14 @@ export const loadHomepage = () => async dispatch => {
   };
 
   const
-    items = response.items.filter(item => item.item_type !== itemType.Audio),
+    items = response.items,
     collections = response.collections,
     announcements = announcementResponse.announcements,
-    loadedHighlights = highlightsWithFiles.map( (oa: HomepageData, i: number) => <HighLightsLayout index={i} key={i} />),
-    audio: HomepageData[] = response.items.filter(item => item.item_type === itemType.Audio);
+    loadedHighlights = highlightsWithFiles.map( (oa: HomepageData, i: number) => <HighLightsLayout index={i} key={i} />);
 
   dispatch({
     type: LOAD_HOMEPAGE,
     items,
-    audio,
     collections,
     announcements,
     loaded_highlights: loadedHighlights
@@ -307,13 +305,12 @@ export const addFilesToData = async (data: HomepageData[]): Promise<HomepageData
 export const loadMore = () => async (dispatch, getState) => {
   dispatch({ type: LOAD_MORE_LOADING, loading: true });
   const
-    itemRand = 6,
-    collectionRand = 6,
+    itemRand = 3,
+    collectionRand = 3,
     state = getState(),
     {
       items,
       collections,
-      audio,
       loadedItems,
       loadedCount
     } = state.home;
@@ -322,15 +319,6 @@ export const loadMore = () => async (dispatch, getState) => {
     ...items.length > itemRand ? items.splice(0, itemRand) : items.splice(0, items.length),
     ...collections.length > collectionRand ? collections.splice(0, collectionRand) : collections.splice(0, collections.length)
   ];
-
-  // Push the audio to the end
-  if (audio && audio.length) {   
-    data.push(...audio.splice(0, 1));
-    data = [
-      ...items.length > (audio.length - 1) ? items.splice(0, (audio.length - 1)) : items.splice(0, items.length),
-      ...collections.length > (audio.length > 1 ? 1 : 0) ? collections.splice(0, (audio.length > 1 ? 1 : 0)) : collections.splice(0, collections.length)
-    ];
-  }
 
   data = await addFilesToData(data);
 
@@ -342,21 +330,8 @@ export const loadMore = () => async (dispatch, getState) => {
 
     if (!file) { return <></>; }
 
-    const colSize = (fileType: string): number => {
-      switch (fileType) {
-        case 'Audio':
-          return 12;
-
-        case 'Video':
-          return 4;
-
-        default:
-          return 4;
-      }
-    };
-
     return (
-      <Col lg={colSize(!!file ? file.type : '')} className="pt-4">
+      <Col lg={4} className="pt-4">
         {item_type === itemType.Audio || file.type === FileTypes.Audio ?
           <HomePageAudioPreview data={props.data} openModal={() => dispatch(openModal(props.data))} />
           :
@@ -377,7 +352,6 @@ export const loadMore = () => async (dispatch, getState) => {
    type: LOAD_MORE_HOMEPAGE,
    items: items,
    collections: collections,
-   audio: audio,
    loadedMore: true,
    loadedCount: allItems.length,
    loadedItems: allItems
