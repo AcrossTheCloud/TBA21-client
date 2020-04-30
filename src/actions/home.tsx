@@ -97,7 +97,7 @@ export const loadHomepage = () => async dispatch => {
   oaHighlights.oa_highlight_collections = [ ...await getItemsAndCollectionsForCollection(oaHighlights.oa_highlight_collections as any)] as any;
   let highlightsWithFiles = await addFilesToData(oaHighlights.oa_highlight_collections);
   highlightsWithFiles = highlightsWithFiles.concat(await addFilesToData(oaHighlights.oa_highlight_items));
-  highlightsWithFiles.slice(0,3); // max 3 highlights
+  highlightsWithFiles = highlightsWithFiles.slice(0,3); // max 3 highlights
 
   const  queryStringParams = {
       oa_highlight: false
