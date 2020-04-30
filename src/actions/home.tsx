@@ -116,7 +116,7 @@ export const loadHomepage = () => async dispatch => {
 
     return (
       <>
-        <div className="title-wrapper" onClick={() => dispatch(openModal(data))}>
+        <div className="title-wrapper" style={{paddingTop: 10}} onClick={() => dispatch(openModal(data))}>
           {creators && creators.length ?
             <div className="creators d-inline">
               {creators[0]}{creators.length > 1 ? <em>, et al.</em> : <></>}
@@ -131,7 +131,7 @@ export const loadHomepage = () => async dispatch => {
           </div>
         </div>
         {!!tags && tags.length ?
-          <div className="tagWrapper tags d-none d-lg-block">
+          <div className="tagWrapper tags d-none d-lg-block" style={{paddingTop: 10}}>
             {
               tags.map((t) => (
                 <Button
