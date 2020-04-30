@@ -130,11 +130,6 @@ export const loadHomepage = () => async dispatch => {
             {data.title.length > 45 ? data.title.substr(0, 44) + '...' : data.title}
           </div>
         </div>
-        { data.item_type ? 
-          <div className="type mb-2" onClick={() => dispatch(openModal(data))}>
-            {data.item_subtype ? data.item_subtype : data.type}{data.time_produced || data.year_produced ? ', ' : '' }{dateFromTimeYearProduced(data.time_produced, data.year_produced, data.end_year_produced)}
-          </div> : <></>
-        }
         {!!tags && tags.length ?
           <div className="tagWrapper tags d-none d-lg-block">
             {
