@@ -17,6 +17,7 @@ import 'styles/components/ViewItems.scss';
 interface Props extends Alerts {
   fetchItems: Function;
   fetchMoreItems: Function;
+  id: string;
   items: {
     [id: number]: Item
   };

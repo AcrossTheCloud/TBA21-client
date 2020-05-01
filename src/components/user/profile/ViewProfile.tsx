@@ -8,11 +8,11 @@ import { State } from 'reducers/user/viewProfile';
 import { Profile, groupProfileTypes } from '../../../types/Profile';
 import { fetchProfile } from '../../../actions/user/viewProfile';
 
-import ViewCollection from '../../collection/ViewCollection';
+// import ViewCollection from '../../collection/ViewCollection';
 
 import 'styles/components/pages/viewProfile.scss';
 import { Alerts, ErrorMessage } from '../../utils/alerts';
-import ViewItem from '../../item/ViewItem';
+import ViewItems from '../../item/ViewItems';
 
 interface Props extends RouteComponentProps, Alerts {
   fetchProfile: Function;
@@ -181,12 +181,12 @@ class ViewProfile extends React.Component<Props, State> {
         <Row>
             <div className="title my-3 mx-3"> Contributed Items </div>
         </Row>
-        <Row >
-              <ViewCollection uuid={cognito_uuid} />
-            </Row>
-           <Row>
-             <ViewItem uuid={cognito_uuid} />
-           </Row>
+        {/*<Row>*/}
+        {/*  <ViewCollection uuid={cognito_uuid} />*/}
+        {/*</Row>*/}
+         <Row>
+           <ViewItems id={cognito_uuid} />
+         </Row>
       </div>
     );
   }
