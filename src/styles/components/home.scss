@@ -95,8 +95,11 @@
     .pdf {
       height: 85vh !important;
     }
-    picture {
-      height: auto !important;
+    picture:nth-child(-n+2) {
+      height: auto;
+    }
+    picture:nth-child(-n+3) {
+      height: 350px;
     }
 
     .middle {
