@@ -87,30 +87,30 @@ class TermsAndConditions extends React.Component<Props, {}> {
               </p>
               <p>
                   In addition, by transmitting or submitting any content through or to the offered services or otherwise, you agree that your content is hereby licensed under one of the following options to users of the Ocean Archive and may be used under the terms of that license and in case of a Creative Commons Attribution License under the terms of any later version thereof:
-                  <ol type="a">
-                      <li>
-                          Creative Commons Attribution 4.0 License CC BY: This license lets others distribute, remix, tweak, and build upon your work, even commercially, as long as they credit you for the original creation. This is the most accommodating of licenses offered. Recommended for maximum dissemination and use of licensed materials. The full licensing terms for CC BY 4.0 can be reviewed under <a href="https://creativecommons.org/licenses/by/4.0/legalcode" target="_blank" rel="noopener noreferrer">https://creativecommons.org/licenses/by/4.0/legalcode</a>.
-                      </li>
-                      <li>
-                          Creative Commons Attribution 4.0 License CC BY-SA: This license lets others remix, tweak, and build upon your work even for commercial purposes, as long as they credit you and license their new creations under the identical terms. This license is often compared to “copyleft” free and open source software licenses. All new works based on yours will carry the same license, so any derivatives will also allow commercial use. This is the license used by Wikipedia, and is recommended for materials that would benefit from incorporating content from Wikipedia and similarly licensed projects. The full licensing terms for CC BY-SA 4.0 can be reviewed under <a href="https://creativecommons.org/licenses/by-sa/4.0/legalcode" target="_blank" rel="noopener noreferrer">https://creativecommons.org/licenses/by-sa/4.0/legalcode</a>.
-                      </li>
-                      <li>
-                          Creative Commons Attribution 4.0 License CC BY-ND: This license lets others reuse the work for any purpose, including commercially; however, it cannot be shared with others in adapted form, and credit must be provided to you. The full licensing terms for CC BY-ND 4.0 can be reviewed under <a href="https://creativecommons.org/licenses/by-nd/4.0/legalcode" target="_blank" rel="noopener noreferrer" >https://creativecommons.org/licenses/by-nd/4.0/legalcode</a>.
-                      </li>
-                      <li>
-                          Creative Commons Attribution 4.0 License CC BY-NC: This license lets others remix, tweak, and build upon your work non-commercially, and although their new content must also acknowledge you and be non-commercial, they don’t have to license their derivative content on the same terms. The full licensing terms for CC BY-NC 4.0 can be reviewed under <a href="https://creativecommons.org/licenses/by-nc/4.0/legalcode" target="_blank" rel="noopener noreferrer">https://creativecommons.org/licenses/by-nc/4.0/legalcode</a>.
-                      </li>
-                      <li>
-                          Creative Commons Attribution 4.0 License CC BY-NC-SA: This license lets others remix, tweak, and build upon your work non-commercially, as long as they credit you and license their new creations under the identical terms. The full licensing terms for CC BY-NC-SA 4.0 can be reviewed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode" target="_blank" rel="noopener noreferrer">https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode</a>.
-                      </li>
-                      <li>
-                          Creative Commons Attribution 4.0 License CC BY-NC-ND: This license is the most restrictive of the Creative Common Attribution Licenses, only allowing others to download your works and share them with others as long as they credit you, but they can’t change them in any way or use them commercially. The full licensing terms for CC BY-NC-ND 4.0 can be reviewed under <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode" target="_blank" rel="noopener noreferrer">https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode</a>.
-                      </li>
-                      <li>
-                          Ocean Archive Restrictive License: This license is the most restrictive license option the Ocean Archive offers. It only allows users to view the respective works on the Ocean Archive. Any other use is not permitted.
-                      </li>
-                  </ol>
               </p>
+                <ol type="a">
+                    <li>
+                        Creative Commons Attribution 4.0 License CC BY: This license lets others distribute, remix, tweak, and build upon your work, even commercially, as long as they credit you for the original creation. This is the most accommodating of licenses offered. Recommended for maximum dissemination and use of licensed materials. The full licensing terms for CC BY 4.0 can be reviewed under <a href="https://creativecommons.org/licenses/by/4.0/legalcode" target="_blank" rel="noopener noreferrer">https://creativecommons.org/licenses/by/4.0/legalcode</a>.
+                    </li>
+                    <li>
+                        Creative Commons Attribution 4.0 License CC BY-SA: This license lets others remix, tweak, and build upon your work even for commercial purposes, as long as they credit you and license their new creations under the identical terms. This license is often compared to “copyleft” free and open source software licenses. All new works based on yours will carry the same license, so any derivatives will also allow commercial use. This is the license used by Wikipedia, and is recommended for materials that would benefit from incorporating content from Wikipedia and similarly licensed projects. The full licensing terms for CC BY-SA 4.0 can be reviewed under <a href="https://creativecommons.org/licenses/by-sa/4.0/legalcode" target="_blank" rel="noopener noreferrer">https://creativecommons.org/licenses/by-sa/4.0/legalcode</a>.
+                    </li>
+                    <li>
+                        Creative Commons Attribution 4.0 License CC BY-ND: This license lets others reuse the work for any purpose, including commercially; however, it cannot be shared with others in adapted form, and credit must be provided to you. The full licensing terms for CC BY-ND 4.0 can be reviewed under <a href="https://creativecommons.org/licenses/by-nd/4.0/legalcode" target="_blank" rel="noopener noreferrer" >https://creativecommons.org/licenses/by-nd/4.0/legalcode</a>.
+                    </li>
+                    <li>
+                        Creative Commons Attribution 4.0 License CC BY-NC: This license lets others remix, tweak, and build upon your work non-commercially, and although their new content must also acknowledge you and be non-commercial, they don’t have to license their derivative content on the same terms. The full licensing terms for CC BY-NC 4.0 can be reviewed under <a href="https://creativecommons.org/licenses/by-nc/4.0/legalcode" target="_blank" rel="noopener noreferrer">https://creativecommons.org/licenses/by-nc/4.0/legalcode</a>.
+                    </li>
+                    <li>
+                        Creative Commons Attribution 4.0 License CC BY-NC-SA: This license lets others remix, tweak, and build upon your work non-commercially, as long as they credit you and license their new creations under the identical terms. The full licensing terms for CC BY-NC-SA 4.0 can be reviewed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode" target="_blank" rel="noopener noreferrer">https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode</a>.
+                    </li>
+                    <li>
+                        Creative Commons Attribution 4.0 License CC BY-NC-ND: This license is the most restrictive of the Creative Common Attribution Licenses, only allowing others to download your works and share them with others as long as they credit you, but they can’t change them in any way or use them commercially. The full licensing terms for CC BY-NC-ND 4.0 can be reviewed under <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode" target="_blank" rel="noopener noreferrer">https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode</a>.
+                    </li>
+                    <li>
+                        Ocean Archive Restrictive License: This license is the most restrictive license option the Ocean Archive offers. It only allows users to view the respective works on the Ocean Archive. Any other use is not permitted.
+                    </li>
+                </ol>
               <p>
                   You can choose between the licensing options when submitting content to the Ocean Archive.
               </p>
