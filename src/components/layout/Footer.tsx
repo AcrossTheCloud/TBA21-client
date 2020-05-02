@@ -205,7 +205,7 @@ class Footer extends React.Component<Props, State> {
                       }}
                       disabled={this.state.hide}
                     />
-                    <FormFeedback style={this.state.emailInvalid || !this.state.email.length ? { display: 'block' } : { display: 'none' }}>
+                    <FormFeedback style={this.state.emailInvalid ? { display: 'block' } : { display: 'none' }}>
                       Email address is invalid.
                     </FormFeedback>
                   </div>
