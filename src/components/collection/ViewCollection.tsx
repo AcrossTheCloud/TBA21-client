@@ -509,7 +509,7 @@ class ViewCollection extends React.Component<Props, State> {
                         return (
                             <Button
                                 className="page-link tag d-inline-block"
-                                style={{padding: 0, marginBottom: 5, background: 'none'}}
+                                style={{padding: 0, marginBottom: 10, background: 'none'}}
                                 key={t.tag_name}
                                 onClick={() => this.onTagClick(t.tag_name, 'concept_tag')}
                             >
