@@ -102,11 +102,11 @@ export const getItemsAndCollectionsForCollection = async (collections) => {
   }));
 }
 
-export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Function, modalToggle?: Function}): JSX.Element => {
+export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Function, modalToggle?: Function, isOaHighlight?: boolean}): JSX.Element => {
   if ((!!props.data.file && props.data.file.type === FileTypes.Audio) || props.data.item_type === itemType.Audio) { return <></>; }
 
   let data: ItemOrHomePageData = props.data;
-  if (data.collections) {
+  if (Array.isArray(data.collections)) {
     getItemsAndCollectionsForCollection(data.collections).then((result) => data.collections = {
       // tslint:disable-next-line:no-any
       ...result as any
@@ -120,7 +120,7 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
     collectionType = data.type;
   }
 
-  const date = dateFromTimeYearProduced(data.time_produced, data.year_produced);
+  const date = dateFromTimeYearProduced(data.time_produced, data.year_produced, data.end_year_produced);
 
   return (
     <div className={`detailPreview ${browser()}`} onClick={() => { if (typeof props.modalToggle === 'function') { props.modalToggle(true, props.data); } }}>
@@ -156,26 +156,26 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
                 <></>
           }
         </div>
-
+        {!props.isOaHighlight ?
         <div className="bottom">
-          <div className="title-wrapper d-flex">
+          <div className="title-wrapper">
             {data.creators && data.creators.length ?
-              <div className="creators">
+              <div className="creators d-inline">
                 {data.creators[0]}{data.creators.length > 1 ? <em>, et al.</em> : <></>}
+                <div className="d-inline-block dotwrap">
+                  <FaCircle className="dot"/>
+                </div>
               </div>
               : <></>
             }
-            {data.creators && data.creators.length ?
-              <div className="d-none d-md-block dotwrap">
-                <FaCircle className="dot"/>
-              </div>
-              : <></>
-            }
-            <div className="title">
-              {data.title}
+            <div className="title d-inline">
+              {data.title ? data.title.length > 45 ? data.title.substr(0, 44) + '...' : data.title
+                  :  <></>
+              }
             </div>
           </div>
-        </div>
+        </div> : <></>
+        }
         {data.duration ?
           <div className="duration">
             {moment.duration((typeof data.duration === 'string' ? parseInt(data.duration, 0) : data.duration), 'seconds').format('hh:mm:ss')}

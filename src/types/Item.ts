@@ -390,6 +390,7 @@ export interface Item {
   first_edition: number | null;
   first_edition_year: number | null;
   year_produced: string | null;
+  end_year_produced: string | null;
 
   produced_by: string[] | null;
   participants: string[] | null;
