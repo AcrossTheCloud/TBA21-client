@@ -19,6 +19,23 @@
   transition: max-height 5s;
   overflow: unset;
 
+  .btn {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    background-color: #142636;
+    box-shadow: none;
+    color: $subline-gray;
+    &.active {
+      color: $soft-gray;
+    }
+    &:hover {
+      color: $soft-gray;
+    }
+    &:focus {
+      outline: none;
+    }
+  }
+
   .navbar {
     .navbar-toggler {
       border: none;
