@@ -244,7 +244,7 @@ class HeaderClass extends React.Component<Props, State> { // tslint:disable-line
       jsonp(`https://tba21.us18.list-manage.com/subscribe/post-json?u=8fe0e1048c67fb6cd5aa55bbf&id=f533c9b80d&${postData.join('&')}`, {param: 'c'}, (err, data) => {
         if (data.msg.includes('already subscribed')) {
           Object.assign(state, {warningMessage: 'Looks like you\'re already subscribed!'});
-          Object.assign(state, { hide: true });
+          Object.assign(state, { hideMailChimp: true });
         } else if (err) {
           Object.assign(state, {errorMessage: 'We had some trouble signing you up.'});
         } else if (data.result !== 'success') {
@@ -253,7 +253,7 @@ class HeaderClass extends React.Component<Props, State> { // tslint:disable-line
           Object.assign(state, {successMessage: data.msg});
         }
 
-        Object.assign(state, { hide: true });
+        Object.assign(state, { hideMailChimp: true });
 
         this.props.toggleOverlay(false);
         if (this._isMounted) {
@@ -289,7 +289,7 @@ class HeaderClass extends React.Component<Props, State> { // tslint:disable-line
                       <Button size="sm" className="nav-link btn" onClick={() => this.props.modalToggle('PP_MODAL', true)}>Privacy Policy</Button>
                     </NavItem>
                     <NavItem>
-                      <Button size="sm" className="nav-link btn" onClick={() => this.mailChimpModalToggle}>Join Our Mailing List</Button>
+                      <Button size="sm" className="nav-link btn" onClick={() => { this.mailChimpModalToggle() }}>Join Our Mailing List</Button>
                     </NavItem>
 
                     {isAuthenticated && isAdmin ?
