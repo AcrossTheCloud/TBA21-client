@@ -15,6 +15,9 @@ import { browser } from './browser';
 import PdfPreview from './PdfPreview';
 import { dateFromTimeYearProduced } from '../../actions/home';
 
+import {ReactComponent as CollectionsInCollectionIcon} from '../../images/svgs/collections_in_collection.svg';
+import {ReactComponent as CollectionIcon} from '../../images/svgs/collection.svg';
+
 import { getCollectionsInCollection, getItemsInCollection } from '../../REST/collections';
 import { removeTopology } from './removeTopology';
 
@@ -99,11 +102,11 @@ export const getItemsAndCollectionsForCollection = async (collections) => {
   }));
 }
 
-export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Function, modalToggle?: Function}): JSX.Element => {
+export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Function, modalToggle?: Function, isOaHighlight?: boolean}): JSX.Element => {
   if ((!!props.data.file && props.data.file.type === FileTypes.Audio) || props.data.item_type === itemType.Audio) { return <></>; }
 
   let data: ItemOrHomePageData = props.data;
-  if (data.collections) {
+  if (Array.isArray(data.collections)) {
     getItemsAndCollectionsForCollection(data.collections).then((result) => data.collections = {
       // tslint:disable-next-line:no-any
       ...result as any
@@ -117,7 +120,7 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
     collectionType = data.type;
   }
 
-  const date = dateFromTimeYearProduced(data.time_produced, data.year_produced);
+  const date = dateFromTimeYearProduced(data.time_produced, data.year_produced, data.end_year_produced);
 
   return (
     <div className={`detailPreview ${browser()}`} onClick={() => { if (typeof props.modalToggle === 'function') { props.modalToggle(true, props.data); } }}>
@@ -153,26 +156,26 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
                 <></>
           }
         </div>
-
+        {!props.isOaHighlight ?
         <div className="bottom">
-          <div className="title-wrapper d-flex">
+          <div className="title-wrapper">
             {data.creators && data.creators.length ?
-              <div className="creators">
+              <div className="creators d-inline">
                 {data.creators[0]}{data.creators.length > 1 ? <em>, et al.</em> : <></>}
+                <div className="d-inline-block dotwrap">
+                  <FaCircle className="dot"/>
+                </div>
               </div>
               : <></>
             }
-            {data.creators && data.creators.length ?
-              <div className="d-none d-md-block dotwrap">
-                <FaCircle className="dot"/>
-              </div>
-              : <></>
-            }
-            <div className="title">
-              {data.title}
+            <div className="title d-inline">
+              {data.title ? data.title.length > 45 ? data.title.substr(0, 44) + '...' : data.title
+                  :  <></>
+              }
             </div>
           </div>
-        </div>
+        </div> : <></>
+        }
         {data.duration ?
           <div className="duration">
             {moment.duration((typeof data.duration === 'string' ? parseInt(data.duration, 0) : data.duration), 'seconds').format('hh:mm:ss')}
@@ -189,54 +192,11 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
             <div className="middle">
               {data.collections && data.collections.length ?
                   (
-                    <svg
-                      className="collections_in_collection_icon"
-                      viewBox="-18 0 40 20"
-                      version="1.1"
-                      xmlns="http://www.w3.org/2000/svg"
-                      xmlnsXlink="http://www.w3.org/1999/xlink"
-                    >
-                    <g stroke="none" strokeWidth="1" fill="#fff">
-                      <g id="Circle1">
-                        <circle cx="15.5" cy="15.5" r="3.5"/>
-                      </g>
-                      <g id="Circle2">
-                        <circle cx="-8.5" cy="15.5" r="3.5"/>
-                      </g>
-                      <g id="Circle3">
-                        <circle cx="3.5" cy="3.5" r="3.5"/>
-                      </g>
-                      <g id="Circle4">
-                        <circle cx="3.5" cy="15.5" r="3.5"/>
-                      </g>
-                      <g id="Line1">
-                        <rect x="3" y="3.5" width="1" height="12"/>
-                      </g>
-                      <g id="Line2">
-                        <rect x="3" y="3.5" width="1" height="17" transform="rotate(-45 3 3.5)"/>
-                      </g>
-                      <g id="Line3">
-                        <rect x="3" y="3.5" width="1" height="17" transform="rotate(45 3 3.5)"/>
-                      </g>
-                    </g>
-                  </svg>
+                    <CollectionsInCollectionIcon />
                   )
                   :
                   (
-                      <svg
-                        className="collection_icon"
-                        viewBox="-17 5 40 20"
-                        version="1.1"
-                        xmlns="http://www.w3.org/2000/svg"
-                        xmlnsXlink="http://www.w3.org/1999/xlink"
-                      >
-                        <g stroke="none" strokeWidth="1" fill="#fff">
-                          <rect id="Rectangle" x="-6" y="15" width="19" height="1"/>
-                          <circle id="Oval" cx="15.5" cy="15.5" r="3.5"/>
-                          <circle id="Oval-Copy-2" cx="3.5" cy="15.5" r="2.5"/>
-                          <circle id="Oval-Copy" cx="-8.5" cy="15.5" r="3.5"/>
-                        </g>
-                      </svg>
+                    <CollectionIcon />
                   )
               }
             </div>

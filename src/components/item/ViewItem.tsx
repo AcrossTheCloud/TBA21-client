@@ -134,6 +134,7 @@ class ViewItem extends React.Component<Props, State> {
       focus_scitech,
       time_produced,
       year_produced,
+      end_year_produced,
       venues,
       exhibited_at,
       copyright_holder,
@@ -186,7 +187,7 @@ class ViewItem extends React.Component<Props, State> {
                             title: title ? title : '',
                             url: file.url,
                             isCollection: false,
-                            date: dateFromTimeYearProduced(time_produced, year_produced)
+                            date: dateFromTimeYearProduced(time_produced, year_produced, end_year_produced)
                           }}
                         />
                       </div>
@@ -282,7 +283,7 @@ class ViewItem extends React.Component<Props, State> {
                             return (
                                 <Button
                                     className="page-link tag d-inline-block"
-                                    style={{padding: 0, marginBottom: 5, background: 'none'}}
+                                    style={{padding: 0, marginBottom: 10, background: 'none'}}
                                     key={t.tag_name}
                                     onClick={() => this.onTagClick(t.tag_name, 'concept_tag')}
                                 >

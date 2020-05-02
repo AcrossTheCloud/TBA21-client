@@ -91,10 +91,11 @@ const FilePreview = (props: { data: any }) => { // tslint:disable-line: no-any
       file,
       creators,
       year_produced,
+      end_year_produced,
       time_produced
     } = props.data;
 
-    const date = dateFromTimeYearProduced(time_produced, year_produced);
+    const date = dateFromTimeYearProduced(time_produced, year_produced, end_year_produced);
     return <AudioPreview data={{title, id, url: file.url, date, creators, item_subtype, isCollection: !!count}} />;
   } else {
     return <FileStaticPreview file={props.data.file} />;
@@ -270,8 +271,8 @@ class SearchConsole extends React.Component<Props, State> {
         if (!this._isMounted) { return; }
 
         let suggestions = await API.get('tba21', 'pages/search', { queryStringParameters: { query: input }});
-        const keywordTags = await API.get('tba21', 'tags', { queryStringParameters: { query: input, limit: 50, type: 'keyword'} });
-        const conceptTags = await API.get('tba21', 'tags', { queryStringParameters: { query: input, limit: 1000, type: 'concept'} });
+        const keywordTags = await API.get('tba21', 'tags', { queryStringParameters: { query: input, type: 'keyword'} });
+        const conceptTags = await API.get('tba21', 'tags', { queryStringParameters: { query: input, type: 'concept'} });
 
         suggestions = suggestions.results.map( t => createCriteriaOption(t.value, t.field) );
         suggestions = uniqBy(suggestions, (e: CriteriaOption) => e.field);

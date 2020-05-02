@@ -2441,7 +2441,13 @@ class ItemEditorClass extends React.Component<Props, State> {
                           <Label for="year_produced">Year Produced</Label>
                           <YearSelect
                             value={item.year_produced}
+                            addOngoing={false}
                             callback={e => this.validateLength('year_produced', e)}
+                          />–
+                          <YearSelect
+                            value={item.end_year_produced}
+                            addOngoing={true}
+                            callback={e => this.changeItem('end_year_produced', e)}
                           />
 
                           <FormFeedback style={!!item.year_produced ? {display: 'none'} : {display: 'block'}}>
