@@ -28,6 +28,27 @@
       }
     }
     .nav-item {
+      .nav-link {
+        @media screen and (min-width: 768px) {
+          padding-left: 1rem;
+        }
+      }
+      .btn {
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+        background-color: #142636;
+        box-shadow: none;
+        color: $subline-gray;
+        &.active {
+          color: $soft-gray;
+        }
+        &:hover {
+          color: $soft-gray;
+        }
+        &:focus {
+          outline: none;
+        }
+      }
       a.nav-link {
         color: $subline-gray;
         font-size: 14px;

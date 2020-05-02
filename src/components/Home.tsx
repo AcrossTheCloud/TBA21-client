@@ -15,7 +15,6 @@ import Logo from './layout/Logo';
 import moment from 'moment';
 
 import { browser } from './utils/browser';
-import Footer from './layout/Footer';
 import HomepageVideo from './layout/HomepageVideo';
 
 import 'styles/components/home.scss';
@@ -314,7 +313,6 @@ class HomePage extends React.Component<Props, State> {
             : <div style={{paddingTop: '100px'}} />
           }
         </Container>
-        <Footer />
       </div>
     );
   }
