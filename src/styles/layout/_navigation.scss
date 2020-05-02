@@ -32,6 +32,7 @@
         @media screen and (min-width: 768px) {
           padding-left: 1rem;
         }
+        font-size: 15px;
       }
       .btn {
         padding-top: 0.5rem;
@@ -51,7 +52,6 @@
       }
       a.nav-link {
         color: $subline-gray;
-        font-size: 14px;
         &.active {
           color: $soft-gray;
         }
