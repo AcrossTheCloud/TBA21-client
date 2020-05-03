@@ -6,7 +6,7 @@ import { has } from 'lodash';
 
 import history from './history';
 import store from './store';
-import { Header } from 'components/layout/Header';
+import Header from 'components/layout/Header';
 
 import {
   Home,
@@ -53,7 +53,6 @@ import RestrictiveLicence from './components/pages/RestrictiveLicence';
 import ItemModal from './components/modals/ItemModal';
 import CollectionModal from './components/modals/CollectionModal';
 import LiveStreamModal from './components/modals/LiveStreamModal';
-import Footer from './components/layout/Footer';
 import About from './components/pages/About';
 
 const LoggedInRoutes = ({ isAuthenticated, ...rest }) => {
@@ -128,7 +127,6 @@ export const AppRouter = () => {
                 render={() => (
                   <div className="main pb blue">
                     <ViewItem />
-                    <Footer />
                   </div>
                 )}
               />
@@ -137,7 +135,6 @@ export const AppRouter = () => {
                 render={() => (
                   <div className="main pb blue">
                     <ViewCollection />
-                    <Footer />
                   </div>
                 )}
               />
