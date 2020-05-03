@@ -145,6 +145,15 @@ class ViewItem extends React.Component<Props, State> {
       collaborators
     } = this.props.item;
 
+    if (item_type===itemType.IFrame && url && title) {
+      return (
+        <div id="item" className="container-fluid">
+          <ErrorMessage message={this.props.errorMessage} />
+          <iframe title={title} src={url} className="freq_wave-iframe"></iframe>
+        </div>
+      );
+    }
+
     let focusTotal = 0;
     if (!!focus_action && !!focus_arts && !!focus_scitech) {
       focusTotal = parseInt(focus_action, 0) + parseInt(focus_arts, 0) + parseInt(focus_scitech, 0);
