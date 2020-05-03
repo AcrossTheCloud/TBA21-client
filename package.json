@@ -52,7 +52,7 @@
     "redux-thunk": "^2.3.0",
     "simple-line-icons": "^2.4.1",
     "topojson-client": "^3.1.0",
-    "uuid": "^7.0.2",
+    "uuid": "^8.0.0",
     "wavesurfer.js": "^3.3.3"
   },
   "scripts": {
