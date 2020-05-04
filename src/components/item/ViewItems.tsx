@@ -17,7 +17,7 @@ import 'styles/components/ViewItems.scss';
 interface Props extends Alerts {
   fetchItems: Function;
   fetchMoreItems: Function;
-  id: string;
+  uuid: string;
   items: {
     [id: number]: Item
   };
@@ -89,7 +89,9 @@ class ViewItems extends React.Component<Props, {}> { // tslint:disable-line: no-
 
   componentDidMount(): void {
     this._isMounted = true;
-    if (!Object.keys(this.props.items).length) {
+    if (this.props.uuid) {
+      this.props.fetchItems(this.props.uuid);
+    } else if (!Object.keys(this.props.items).length) {
       this.props.fetchItems();
     }
   }
@@ -130,6 +132,7 @@ class ViewItems extends React.Component<Props, {}> { // tslint:disable-line: no-
 
 const mapStateToProps = (state: { viewItems: State }) => ({ // tslint:disable-line: no-any
   items: state.viewItems.items,
+  id: state.viewItems
 });
 
 export default connect(mapStateToProps, { fetchItems, fetchMoreItems })(ViewItems);
