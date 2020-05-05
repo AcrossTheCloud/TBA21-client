@@ -13,6 +13,7 @@ import {
 
   // START ADMIN
   ViewItem,
+  EmbedItem,
   AdminManageUsers,
 
   // START Tables
@@ -103,8 +104,9 @@ export const AppRouter = () => {
 
             <Route
               path="/"
-              render={() => (
-                <>
+              render={({location}) => (
+                !location.pathname.startsWith('/embed/') ? 
+                (<>
                   <Header />
                   <SearchConsole />
                   <PrivacyPolicyPopUp />
@@ -116,7 +118,8 @@ export const AppRouter = () => {
                   <CollectionModal />
                   <LiveStreamModal />
                   <LoadingOverlay />
-                </>
+                </>) :
+                (<></>)
               )}
             />
 
@@ -127,6 +130,14 @@ export const AppRouter = () => {
                 render={() => (
                   <div className="main pb blue">
                     <ViewItem />
+                  </div>
+                )}
+              />
+              <Route
+                path="/embed/:id"
+                render={() => (
+                  <div className="main pb blue">
+                    <EmbedItem />
                   </div>
                 )}
               />
