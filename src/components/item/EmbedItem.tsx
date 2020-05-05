@@ -79,7 +79,7 @@ class EmbedItem extends React.Component<Props, State> {
     const isAudio = (!!file && item_type === itemType.Audio) || (!!file && file.type === FileTypes.Audio);
 
     return (
-      <div id="item" className="container-fluid h-100 w-80">
+      <div id="embed_item" className="container-fluid h-100 w-80">
         <ErrorMessage message={this.props.errorMessage} />
         <Row>
           <Col md="12">
