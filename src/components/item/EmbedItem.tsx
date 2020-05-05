@@ -85,7 +85,7 @@ class EmbedItem extends React.Component<Props, State> {
           <Col md="12">
             {creators ? creators.join(', ') : <></>} – {title}
             <img src={logo} id="logo" alt="Ocean Archive logo"></img>
-            <a id="open_link" href={document.referrer.split('/')[0]+"//"+document.referrer.split('/')[2]+'/view/'+id} target="_blank" rel="noreferrer noopener"><FaShareSquare size={14}/></a>
+            <a id="open_link" href={'https://ocean-archive.org/view/'+id} target="_blank" rel="noreferrer noopener"><FaShareSquare size={14}/></a>
           </Col>
         </Row>
             
