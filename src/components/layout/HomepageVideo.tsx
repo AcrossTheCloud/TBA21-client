@@ -4,7 +4,7 @@ import $ from 'jquery';
 import logo from 'images/logo/oa_web_white.svg';
 import 'styles/components/homeVideo.scss';
 import { Col, Container, Row } from 'reactstrap';
-import { sample } from 'lodash';
+//import { sample } from 'lodash';
 
 interface Props {
   onChange?: Function;
@@ -79,9 +79,12 @@ export default class HomepageVideo extends Component<Props, State> {
       {
         "video": "https://video-streaming.ocean-archive.org/loading_video3.mp4",
         "thumbnail": "https://video-streaming.ocean-archive.org/loading_video3_first_frame.jpg"
+      },
+      {
+        "thumbnail": "https://video-streaming.ocean-archive.org/loading_image_4.jpg"
       }
     ];
-    const elem = sample(urls);
+    const elem = urls[2];
     return (
       <div id="video">
         <Container fluid className="content" style={{ display: 'none' }}>
@@ -101,17 +104,25 @@ export default class HomepageVideo extends Component<Props, State> {
             </Col>
           </Row>
         </Container>
-        <video
-          poster={(elem as any).thumbnail}
-          onLoadedData={() => this.onVideoPlay()}
-          muted
-          autoPlay
-          controls={false}
-          loop
-          playsInline
-        >
-          <source src={(elem as any).video} type="video/mp4"/>
-        </video>
+        {(elem as any).video? 
+          (<video
+            poster={(elem as any).thumbnail}
+            onLoadedData={() => this.onVideoPlay()}
+            muted
+            autoPlay
+            controls={false}
+            loop
+            playsInline
+          >
+            <source src={(elem as any).video} type="video/mp4"/>
+          </video>) : 
+          (<img 
+            className="img-only"
+            src={(elem as any).thumbnail} 
+            alt="page loading placeholder" 
+            onLoad={() => this.onVideoPlay()}
+          />)
+        }
       </div>
     );
   }
