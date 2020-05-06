@@ -78,7 +78,7 @@ export default class HomepageVideo extends Component<Props, State> {
       },
       {
         "video": "https://video-streaming.ocean-archive.org/loading_video3.mp4",
-        "thumnail": "https://video-streaming.ocean-archive.org/loading_video3_first_frame.jpg"
+        "thumbnail": "https://video-streaming.ocean-archive.org/loading_video3_first_frame.jpg"
       }
     ];
     const elem = sample(urls);
