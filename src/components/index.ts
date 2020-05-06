@@ -23,6 +23,7 @@ export { CollectionEditor } from './metadata/CollectionEditor';
 // START ITEMS
 export { default as ViewItems } from './item/ViewItems';
 export { default as ViewItem } from './item/ViewItem';
+export { default as EmbedItem } from './item/EmbedItem';
 // END ITEMS
 
 export * from './NetworkGraph';
