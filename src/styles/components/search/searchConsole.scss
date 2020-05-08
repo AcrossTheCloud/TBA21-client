@@ -6,6 +6,7 @@
   opacity: .5;
 }
 
+
 #audioPlayerDiv {
   background: $dark-blue;
   color: #fff;
@@ -28,17 +29,18 @@
 
 }
 
+
 #searchConsole {
   background: $dark-blue;
   color: #fff;
-
-  min-height: 25px;
+  display: block;
+  height:100%;
   max-width: 100vw;
-
-  position: fixed;
-  bottom: 0;
+  position: relative;
+  top:-1px;
   width: 100%;
   z-index: 13;
+
 
   transition: min-height 1.2s cubic-bezier(0.22, 0.61, 0.36, 1), opacity .3s linear .5s;
 
@@ -256,6 +258,12 @@
     // Focus checkboxes
     .focus {
       font-size: 90%;
+      margin-bottom: 25px;
+      @media screen and (max-width: 768px){
+          padding: 0 0 25px 0;
+          font-size: 85%;
+
+      }
     }
 
     .results {
@@ -342,7 +350,7 @@
         position: relative;
         overflow: hidden;
         height: 0;
-        padding-top: 20px;
+        /*padding-top: 20px;*/
         .result {
           cursor: pointer;
           position: relative;
