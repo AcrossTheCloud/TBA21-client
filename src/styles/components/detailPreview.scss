@@ -1,5 +1,9 @@
 @import '../base/variables';
 
+.detailPreviewNotClickable {
+  cursor: default !important;
+}
+
 .detailPreview {
   position: relative;
   cursor: pointer;
