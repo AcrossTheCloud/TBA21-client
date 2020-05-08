@@ -4,7 +4,7 @@ import $ from 'jquery';
 import logo from 'images/logo/oa_web_white.svg';
 import 'styles/components/homeVideo.scss';
 import { Col, Container, Row } from 'reactstrap';
-//import { sample } from 'lodash';
+import { sample } from 'lodash';
 
 interface Props {
   onChange?: Function;
@@ -69,6 +69,8 @@ export default class HomepageVideo extends Component<Props, State> {
     $('#video .content').fadeIn();
   }
 
+  isPortrait = () => (window.innerHeight > window.innerWidth);
+
   render() {
     if (this.state.finallyLoaded) { return <></>; } // remove the content so the video isn't in the DOM
     const urls = [
@@ -81,10 +83,11 @@ export default class HomepageVideo extends Component<Props, State> {
         "thumbnail": "https://video-streaming.ocean-archive.org/loading_video3_first_frame.jpg"
       },
       {
-        "thumbnail": "https://video-streaming.ocean-archive.org/loading_image_4.jpg"
+        "thumbnail": "https://video-streaming.ocean-archive.org/loading_image_4.jpg",
+        "portrait": "https://video-streaming.ocean-archive.org/loading_image_4_portrait.jpg"
       }
     ];
-    const elem = urls[2];
+    const elem = sample(urls);
     return (
       <div id="video">
         <Container fluid className="content" style={{ display: 'none' }}>
@@ -118,7 +121,7 @@ export default class HomepageVideo extends Component<Props, State> {
           </video>) : 
           (<img 
             className="img-only"
-            src={(elem as any).thumbnail} 
+            src={this.isPortrait() && (elem as any).portrait ? (elem as any).portrait : (elem as any).thumbnail} 
             alt="page loading placeholder" 
             onLoad={() => this.onVideoPlay()}
           />)
