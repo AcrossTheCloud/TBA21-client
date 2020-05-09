@@ -8,7 +8,7 @@ import { Item, itemType } from '../../types/Item';
 import { FilePreview } from '../utils/filePreview';
 import { browser } from '../utils/browser';
 import { RouteComponentProps, withRouter } from 'react-router';
-import 'styles/components/pages/embedItem.scss';
+import 'styles/components/pages/embedItem.scss'; 
 import logo from 'images/logo/oa_web_white.svg';
 import { FileTypes } from '../../types/s3File';
 import AudioPreview from '../layout/audio/AudioPreview';
@@ -83,7 +83,8 @@ class EmbedItem extends React.Component<Props, State> {
         <ErrorMessage message={this.props.errorMessage} />
         <Row>
           <Col md="12">
-            {creators ? creators.join(', ') : <></>} – {title}
+            <span id="embed_title">{creators ? creators.join(', ') : <></>} – {title}
+            </span>
             <img src={logo} id="embed_logo" alt="Ocean Archive logo"></img>
             <a id="open_link" href={'https://ocean-archive.org/view/'+id} target="_blank" rel="noreferrer noopener"><FaShareSquare size={14}/></a>
           </Col>
@@ -109,6 +110,7 @@ class EmbedItem extends React.Component<Props, State> {
                     )
                   : <FilePreview file={file}/>
               }
+
             </Row>
           )
           : <></>
