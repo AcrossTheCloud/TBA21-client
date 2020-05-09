@@ -11,9 +11,25 @@ interface Props {
   loaded: boolean;
 }
 
+const urls = [
+  {
+    "video": "https://video-streaming.ocean-archive.org/loading_video2.mp4",
+    "thumbnail": "https://video-streaming.ocean-archive.org/loading_video2_first_frame.jpg"
+  },
+  {
+    "video": "https://video-streaming.ocean-archive.org/loading_video3.mp4",
+    "thumbnail": "https://video-streaming.ocean-archive.org/loading_video3_first_frame.jpg"
+  },
+  {
+    "thumbnail": "https://video-streaming.ocean-archive.org/loading_image_4.jpg",
+    "portrait": "https://video-streaming.ocean-archive.org/loading_image_4_portrait.jpg"
+  }
+];
+
 interface State {
   // We keep the final loaded prop in state, this is so we can set the class on the #logo div
   finallyLoaded: boolean;
+  elem: any;
 }
 
 export default class HomepageVideo extends Component<Props, State> {
@@ -24,7 +40,8 @@ export default class HomepageVideo extends Component<Props, State> {
     this._isMounted = false;
 
     this.state = {
-      finallyLoaded: false
+      finallyLoaded: false,
+      elem: sample(urls)
     };
   }
 
@@ -73,21 +90,6 @@ export default class HomepageVideo extends Component<Props, State> {
 
   render() {
     if (this.state.finallyLoaded) { return <></>; } // remove the content so the video isn't in the DOM
-    const urls = [
-      {
-        "video": "https://video-streaming.ocean-archive.org/loading_video2.mp4",
-        "thumbnail": "https://video-streaming.ocean-archive.org/loading_video2_first_frame.jpg"
-      },
-      {
-        "video": "https://video-streaming.ocean-archive.org/loading_video3.mp4",
-        "thumbnail": "https://video-streaming.ocean-archive.org/loading_video3_first_frame.jpg"
-      },
-      {
-        "thumbnail": "https://video-streaming.ocean-archive.org/loading_image_4.jpg",
-        "portrait": "https://video-streaming.ocean-archive.org/loading_image_4_portrait.jpg"
-      }
-    ];
-    const elem = sample(urls);
     return (
       <div id="video">
         <Container fluid className="content" style={{ display: 'none' }}>
@@ -107,9 +109,9 @@ export default class HomepageVideo extends Component<Props, State> {
             </Col>
           </Row>
         </Container>
-        {(elem as any).video? 
+        {(this.state.elem as any).video? 
           (<video
-            poster={(elem as any).thumbnail}
+            poster={(this.state.elem as any).thumbnail}
             onLoadedData={() => this.onVideoPlay()}
             muted
             autoPlay
@@ -117,11 +119,11 @@ export default class HomepageVideo extends Component<Props, State> {
             loop
             playsInline
           >
-            <source src={(elem as any).video} type="video/mp4"/>
+            <source src={(this.state.elem as any).video} type="video/mp4"/>
           </video>) : 
           (<img 
             className="img-only"
-            src={this.isPortrait() && (elem as any).portrait ? (elem as any).portrait : (elem as any).thumbnail} 
+            src={this.isPortrait() && (this.state.elem as any).portrait ? (this.state.elem as any).portrait : (this.state.elem as any).thumbnail} 
             alt="page loading placeholder" 
             onLoad={() => this.onVideoPlay()}
           />)

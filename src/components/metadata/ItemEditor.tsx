@@ -766,7 +766,7 @@ class ItemEditorClass extends React.Component<Props, State> {
 
         <Col md="6">
           <FormGroup>
-            <Label for="journal">Magazine/Journal</Label>
+            <Label for="journal">Publisher</Label>
             <Input
               type="text"
               className="journal"
