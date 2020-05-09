@@ -484,6 +484,8 @@ class CollectionEditorClass extends React.Component<Props, State> {
       expedition_leader,
       expedition_route,
       city_of_publication,
+      curator,
+      related_material,
       media_type,
     } = this.state.collection;
 
@@ -516,7 +518,10 @@ class CollectionEditorClass extends React.Component<Props, State> {
         },
         'Exhibition' : {
           'institution': (institution || false),
-          'start_date': (start_date || false)
+          'start_date': (start_date || false),
+          'end_date': (end_date || false),
+          'curator': (curator || false),
+          'related_material': (related_material || false)
         },
         'Collection' : {
           'institution': (institution || false),
