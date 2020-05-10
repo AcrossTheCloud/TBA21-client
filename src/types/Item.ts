@@ -2,6 +2,7 @@ import { License } from './License';
 import { S3File } from './s3File';
 import { Languages } from './Languages';
 import { APITag } from '../components/metadata/Tags';
+import { Collection } from './Collection';
 
 export enum Regions {
   ATLANTIC = 'Atlantic Ocean',
@@ -389,6 +390,7 @@ export interface Item {
   first_edition: number | null;
   first_edition_year: number | null;
   year_produced: string | null;
+  end_year_produced: string | null;
 
   produced_by: string[] | null;
   participants: string[] | null;
@@ -499,4 +501,6 @@ export interface Item {
   linestring: string | null;
   point: string | null;
   geojson: { [name: string]: any } | null; // tslint:disable-line: no-any
+  collections?: Collection[];
+  items?: Item[];
 }

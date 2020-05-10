@@ -4,15 +4,32 @@ import $ from 'jquery';
 import logo from 'images/logo/oa_web_white.svg';
 import 'styles/components/homeVideo.scss';
 import { Col, Container, Row } from 'reactstrap';
+import { sample } from 'lodash';
 
 interface Props {
   onChange?: Function;
   loaded: boolean;
 }
 
+const urls = [
+  {
+    "video": "https://video-streaming.ocean-archive.org/loading_video2.mp4",
+    "thumbnail": "https://video-streaming.ocean-archive.org/loading_video2_first_frame.jpg"
+  },
+  {
+    "video": "https://video-streaming.ocean-archive.org/loading_video3.mp4",
+    "thumbnail": "https://video-streaming.ocean-archive.org/loading_video3_first_frame.jpg"
+  },
+  {
+    "thumbnail": "https://video-streaming.ocean-archive.org/loading_image_4.jpg",
+    "portrait": "https://video-streaming.ocean-archive.org/loading_image_4_portrait.jpg"
+  }
+];
+
 interface State {
   // We keep the final loaded prop in state, this is so we can set the class on the #logo div
   finallyLoaded: boolean;
+  elem: any;
 }
 
 export default class HomepageVideo extends Component<Props, State> {
@@ -23,7 +40,8 @@ export default class HomepageVideo extends Component<Props, State> {
     this._isMounted = false;
 
     this.state = {
-      finallyLoaded: false
+      finallyLoaded: false,
+      elem: sample(urls)
     };
   }
 
@@ -68,30 +86,21 @@ export default class HomepageVideo extends Component<Props, State> {
     $('#video .content').fadeIn();
   }
 
+  isPortrait = () => (window.innerHeight > window.innerWidth);
+
   render() {
     if (this.state.finallyLoaded) { return <></>; } // remove the content so the video isn't in the DOM
-
     return (
       <div id="video">
         <Container fluid className="content" style={{ display: 'none' }}>
           <Row>
             <Col xs="12">
-              <h1>Take a swim in the digital ocean.</h1>
-              <p>
-                This is a test dive<br />
-                into a new online platform in the making,<br />
-                created to support a thriving sea.
-              </p>
+              <h1>Get ready for the dive</h1>
+              <p><span className="blink_me">Loading...</span></p>
             </Col>
           </Row>
           <Row className="bottom align-items-end">
             <Col xs="12" md="6" className="left">
-              <p>
-                Create,<br />
-                contribute,<br />
-                share,<br />
-                participate.
-              </p>
             </Col>
             <Col xs="12" md="6" className="right pt-3 pt-md-0">
               <div className="logo d-flex align-items-baseline">
@@ -100,17 +109,25 @@ export default class HomepageVideo extends Component<Props, State> {
             </Col>
           </Row>
         </Container>
-        <video
-          poster="https://video-streaming.ocean-archive.org/loading_video_first_frame.jpg"
-          onLoadedData={() => this.onVideoPlay()}
-          muted
-          autoPlay
-          controls={false}
-          loop
-          playsInline
-        >
-          <source src="https://video-streaming.ocean-archive.org/loading_video.mp4" type="video/mp4"/>
-        </video>
+        {(this.state.elem as any).video? 
+          (<video
+            poster={(this.state.elem as any).thumbnail}
+            onLoadedData={() => this.onVideoPlay()}
+            muted
+            autoPlay
+            controls={false}
+            loop
+            playsInline
+          >
+            <source src={(this.state.elem as any).video} type="video/mp4"/>
+          </video>) : 
+          (<img 
+            className="img-only"
+            src={this.isPortrait() && (this.state.elem as any).portrait ? (this.state.elem as any).portrait : (this.state.elem as any).thumbnail} 
+            alt="page loading placeholder" 
+            onLoad={() => this.onVideoPlay()}
+          />)
+        }
       </div>
     );
   }

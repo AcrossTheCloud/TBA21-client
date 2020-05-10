@@ -10,6 +10,7 @@ export enum collectionTypes {
   Event_Series = 'Event Series',
   Edited_Volume = 'Edited Volume',
   Expedition = 'Expedition',
+  Exhibition = 'Exhibition',
   Collection = 'Collection',
   Convening = 'Convening',
   Performance = 'Performance',
@@ -31,6 +32,10 @@ export interface Collection {
   year_produced?: string | null;
 
   status?: boolean | null;
+  
+  oa_highlight?: boolean | null;
+  oa_original?: boolean | null;
+  tba21_material?: boolean | null;
 
   concept_tags?: number[] | null;
   keyword_tags?: number[] | null;

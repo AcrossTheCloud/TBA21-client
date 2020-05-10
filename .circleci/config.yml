@@ -15,6 +15,9 @@ jobs:
       - restore_cache:
           key: dependency-cache-{{ checksum "package-lock.json" }}
       - run:
+          name: fix for broken p4-css
+          command: rm -rf node_modules/p4-css
+      - run:
           name: Install npm
           command: npm install
       - run:
@@ -23,8 +26,6 @@ jobs:
       - run:
           name: Build
           command: npm run build
-          environment:
-            NODE_OPTIONS: --max_old_space_size=4000
       - run:
           name: Test
           command: npm run test

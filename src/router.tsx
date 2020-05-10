@@ -6,13 +6,14 @@ import { has } from 'lodash';
 
 import history from './history';
 import store from './store';
-import { Header } from 'components/layout/Header';
+import Header from 'components/layout/Header';
 
 import {
   Home,
 
   // START ADMIN
   ViewItem,
+  EmbedItem,
   AdminManageUsers,
 
   // START Tables
@@ -48,9 +49,11 @@ import LoadingOverlay from './components/LoadingOverlay';
 import PrivacyPolicyPopUp from './components/PrivacyPolicyPopUp';
 import PrivacyPolicy from './components/pages/PrivacyPolicy';
 import TermsAndConditions from './components/pages/TermsAndConditions';
+import RestrictiveLicence from './components/pages/RestrictiveLicence';
+
 import ItemModal from './components/modals/ItemModal';
 import CollectionModal from './components/modals/CollectionModal';
-import Footer from './components/layout/Footer';
+import LiveStreamModal from './components/modals/LiveStreamModal';
 import About from './components/pages/About';
 
 const LoggedInRoutes = ({ isAuthenticated, ...rest }) => {
@@ -101,18 +104,22 @@ export const AppRouter = () => {
 
             <Route
               path="/"
-              render={() => (
-                <>
+              render={({location}) => (
+                !location.pathname.startsWith('/embed/') ? 
+                (<>
                   <Header />
                   <SearchConsole />
                   <PrivacyPolicyPopUp />
                   <PrivacyPolicy />
                   <TermsAndConditions />
+                  <RestrictiveLicence />
                   <About />
                   <ItemModal />
                   <CollectionModal />
+                  <LiveStreamModal />
                   <LoadingOverlay />
-                </>
+                </>) :
+                (<></>)
               )}
             />
 
@@ -123,7 +130,14 @@ export const AppRouter = () => {
                 render={() => (
                   <div className="main pb blue">
                     <ViewItem />
-                    <Footer />
+                  </div>
+                )}
+              />
+              <Route
+                path="/embed/:id"
+                render={() => (
+                  <div className="main pb blue">
+                    <EmbedItem />
                   </div>
                 )}
               />
@@ -132,7 +146,6 @@ export const AppRouter = () => {
                 render={() => (
                   <div className="main pb blue">
                     <ViewCollection />
-                    <Footer />
                   </div>
                 )}
               />

@@ -386,13 +386,13 @@ export const languages = [
 ];
 
 export const licenseType = [
-  {value: License.CC_BY, label: 'CC BY'},
+  {value: License.CC_BY, label: 'CC BY (least restrictive)'},
   {value: License.CC_BY_SA, label: 'CC BY-SA'},
   {value: License.CC_BY_ND, label: 'CC BY-ND'},
   {value: License.CC_BY_NC, label: 'CC BY-NC'},
   {value: License.CC_BY_NC_SA, label: 'CC BY-NC-SA'},
-  {value: License.CC_BY_NC_ND, label: 'CC BY-NC-ND'},
-  {value: License.LOCKED, label: 'Ocean Archive'}
+  {value: License.CC_BY_NC_ND, label: 'CC BY-NC-ND (most restrictive CC)'},
+  {value: License.OA, label: 'Ocean Archive (most restrictive)'}
 ];
 
 export const itemTextSubTypes = [
@@ -457,7 +457,7 @@ export const collectionTypes = [
   {value : Types.Event_Series, label: 'Event Series'},
   {value : Types.Edited_Volume, label: 'Edited Volume'},
   {value : Types.Expedition, label: 'Expedition'},
-  {value : Types.Expedition, label: 'Exhibition'},
+  {value : Types.Exhibition, label: 'Exhibition'},
   {value : Types.Collection, label: 'Collection'},
   {value : Types.Convening, label: 'Convening'},
   {value : Types.Performance, label: 'Performance'},

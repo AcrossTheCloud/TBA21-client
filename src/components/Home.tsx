@@ -5,7 +5,7 @@ import { Carousel, CarouselItem, Col, Container, Row, Spinner } from 'reactstrap
 import { debounce, isEqual } from 'lodash';
 import { Cookies, withCookies } from 'react-cookie';
 
-import { loadHomepage, loadMore, logoDispatch, openModal } from 'actions/home';
+import { liveStreamDispatch, loadHomepage, loadMore, logoDispatch, openModal } from 'actions/home';
 import { toggle as searchOpenToggle } from 'actions/searchConsole';
 import { Announcement } from '../types/Announcement';
 
@@ -15,24 +15,32 @@ import Logo from './layout/Logo';
 import moment from 'moment';
 
 import { browser } from './utils/browser';
-import Footer from './layout/Footer';
 import HomepageVideo from './layout/HomepageVideo';
 
 import 'styles/components/home.scss';
+import { clear as clearHistory } from '../actions/user-history';
+import { UserHistoryState } from '../reducers/user-history';
 
 interface Props extends HomePageState {
   logoDispatch: Function;
+  liveStreamDispatch: Function;
   loadHomepage: Function;
   loadMore: Function;
   oaHighlights: Function;
   openModal: Function;
   searchOpenToggle: Function;
   cookies: Cookies;
+  liveStreamHasOpened: boolean; // from redux
+  collectionModalIsOpen: boolean;
+  itemModalIsOpen: boolean;
+  clearHistory: Function;
+  userHistory: UserHistoryState;
 }
 
 interface State {
   announcements: Announcement[];
   announcementsActiveIndex: number;
+  userHistory?: UserHistoryState;
 }
 
 class HomePage extends React.Component<Props, State> {
@@ -76,9 +84,19 @@ class HomePage extends React.Component<Props, State> {
   }
 
   async componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>): Promise<void> {
+    if (this.props.userHistory && this.props.userHistory.entities && this.props.userHistory.entities.length) {
+      if (!this.props.itemModalIsOpen && !this.props.collectionModalIsOpen) {
+        this.props.clearHistory();
+      }
+    }
+
     if (this.props.loadedCount < 0 && this.props.loadedMore && !this.props.logoLoaded) {
       this.props.logoDispatch(true);
       await this.windowHeightCheck();
+    }
+
+    if (this.props.logoLoaded && this.state.announcements.length > 0 && !this.props.liveStreamHasOpened) {
+      setTimeout(() => this.props.liveStreamDispatch(true), 3000);
     }
 
     if (!isEqual(this.state.announcements, this.props.announcements)) {
@@ -90,7 +108,7 @@ class HomePage extends React.Component<Props, State> {
     // if the page is higher than the items and we have no scroll bar we need to get more items.
     clearTimeout(this.windowHeightTimeout);
     this.windowHeightTimeout = setTimeout( async () => {
-      if (this.props.loadedMore && (this.props.items.length || this.props.collections.length || this.props.audio.length) && window.innerHeight + document.documentElement.scrollTop === document.documentElement.offsetHeight) {
+      if (this.props.loadedMore && (this.props.items.length || this.props.collections.length) && window.innerHeight + document.documentElement.scrollTop === document.documentElement.offsetHeight) {
         await this.props.loadMore();
         // Run again just in case
         this.windowHeightCheck();
@@ -102,7 +120,7 @@ class HomePage extends React.Component<Props, State> {
 
   handleScroll = async () => {
     if (this.props.loading) { return; }
-    if (this.props.loadedMore && (!this.props.items.length && !this.props.collections.length && !this.props.audio.length)) {
+    if (this.props.loadedMore && (!this.props.items.length && !this.props.collections.length)) {
       window.removeEventListener('scroll', this.scrollDebounce, false);
       return;
     }
@@ -244,8 +262,7 @@ class HomePage extends React.Component<Props, State> {
       logoLoaded,
       loadedItems,
       items,
-      collections,
-      audio
+      collections
     } = this.props;
 
     return (
@@ -291,24 +308,27 @@ class HomePage extends React.Component<Props, State> {
             }
           </Row>
 
-          { !items.length && !collections.length && !audio.length ?
+          { !items.length && !collections.length ?
               <></>
             : <div style={{paddingTop: '100px'}} />
           }
         </Container>
-        <Footer />
       </div>
     );
   }
 }
 
-const mapStateToProps = (state: { home: Props }) => ({
+const mapStateToProps = (state: { home: Props, liveStreamModal: { hasOpened: boolean }, collectionModal: { open: boolean }, itemModal: { open: boolean }, userHistory: UserHistoryState }) => ({
   logoLoaded: state.home.logoLoaded,
   loading: state.home.loading,
 
+  liveStreamHasOpened: state.liveStreamModal.hasOpened,
+  collectionModalIsOpen: state.collectionModal.open,
+  itemModalIsOpen: state.itemModal.open,
+  userHistory: state.userHistory,
+
   items: state.home.items ? state.home.items : [],
   collections: state.home.collections ? state.home.collections : [],
-  audio: state.home.audio ? state.home.audio : [],
   announcements: state.home.announcements ? state.home.announcements : [],
 
   oa_highlight: state.home.oa_highlight ? state.home.oa_highlight : [],
@@ -318,4 +338,4 @@ const mapStateToProps = (state: { home: Props }) => ({
   loaded_highlights: state.home.loaded_highlights
 });
 
-export default connect(mapStateToProps, { logoDispatch, loadHomepage, loadMore, openModal, searchOpenToggle })(withCookies(HomePage));
+export default connect(mapStateToProps, { logoDispatch, liveStreamDispatch, loadHomepage, loadMore, openModal, searchOpenToggle, clearHistory })(withCookies(HomePage));

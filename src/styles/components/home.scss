@@ -28,6 +28,12 @@
 #home, #homePageModal {
   color: $soft-gray;
 
+  .modal-content {
+    .header {
+      min-height: 60px;
+    }
+  }
+
   .dot {
     line-height: 0;
     font-size: 5px;
@@ -89,8 +95,29 @@
     .pdf {
       height: 85vh !important;
     }
-    picture {
-      height: auto !important;
+    picture:nth-child(-n+2) {
+      height: auto;
+    }
+    picture:nth-child(-n+3) {
+      height: 350px;
+    }
+
+    .middle {
+      line-height: 0;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      font-size: 50px;
+      transform: translate(-50%, -50%);
+
+      .collection_icon {
+        width: 70px;
+        height: 70px;
+      }
+
+      .collections_in_collection_icon {
+        width: 70px;
+      }
     }
   }
 

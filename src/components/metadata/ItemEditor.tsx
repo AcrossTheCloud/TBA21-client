@@ -29,8 +29,10 @@ import { API } from 'aws-amplify';
 import Select from 'react-select';
 import { isArray, isEqual } from 'lodash';
 import { Item, itemAudio, itemImage, itemText, itemVideo } from '../../types/Item';
-
 import textImage from 'images/defaults/Unscharfe_Zeitung.jpg';
+
+import { OptionType } from '../../types/SelectTypes';
+import { License } from '../../types/License';
 
 import {
   countries,
@@ -42,6 +44,7 @@ import {
   oceans,
   regions as selectableRegions
 } from './SelectOptions';
+import { licenseType } from './SelectOptions';
 
 import Tags from './Tags';
 import { checkThumbnails, sdkGetObject, thumbnailsSRCSET } from '../utils/s3File';
@@ -49,13 +52,13 @@ import { Alerts, ErrorMessage, SuccessMessage, WarningMessage } from '../utils/a
 
 import CustomSelect from './fields/CustomSelect';
 import { validateURL } from '../utils/inputs/url';
-import ShortPaths from '../admin/utils/ShortPaths';
 import YearSelect from './fields/YearSelect';
 
 import { adminGetItem } from '../../REST/items';
 import { removeTopology } from '../utils/removeTopology';
 import DraggableMap from '../admin/utils/DraggableMap';
 import { GeoJsonObject } from 'geojson';
+import RichTextEditor, { EditorValue, createValueFromString, createEmptyValue } from 'react-rte';
 
 import * as moment from 'moment';
 import 'moment-duration-format';
@@ -95,6 +98,7 @@ interface State extends Alerts {
   hideForm: boolean;
 
   activeTab: string;
+  rtDescription: EditorValue;
 
   validate: {
     [key: string]: boolean
@@ -108,7 +112,6 @@ const defaultRequiredFields = (item: Item) => {
     title,
     description,
     item_subtype,
-    regions,
     aggregated_concept_tags,
     concept_tags
   } = item;
@@ -125,7 +128,6 @@ const defaultRequiredFields = (item: Item) => {
     'title': (!!title && title.length > 0),
     'description': (!!description && description.length > 0),
     'item_subtype': (!!item_subtype && item_subtype.length > 0),
-    'regions': (!!regions && regions.length > 0),
     'concept_tags': conceptTags
   };
 };
@@ -145,6 +147,7 @@ class ItemEditorClass extends React.Component<Props, State> {
       isDifferent: false,
       isLoading: true,
       hideForm: false,
+      rtDescription: props.item.description ? createValueFromString(props.item.description, 'html') : createEmptyValue(),
       activeTab: '1',
       validate: defaultRequiredFields(props.item),
 
@@ -157,7 +160,8 @@ class ItemEditorClass extends React.Component<Props, State> {
     await this.getItemByS3Key();
   }
 
-  componentWillUnmount() {
+  async componentWillUnmount() {
+    await this.updateItem();
     this._isMounted = false;
   }
 
@@ -341,11 +345,6 @@ class ItemEditorClass extends React.Component<Props, State> {
           Object.assign(itemsProperties, { [field[0]]: field[1] });
         });
 
-      // If no license assign OA
-      if (!itemsProperties.hasOwnProperty('license')) {
-        Object.assign(itemsProperties, { 'license': 'CC BY-NC' });
-      }
-
       // Assign s3_key
       Object.assign(itemsProperties, { 's3_key': this.state.originalItem.s3_key });
 
@@ -378,7 +377,7 @@ class ItemEditorClass extends React.Component<Props, State> {
       }
 
     } catch (e) {
-      console.log(e);
+      console.log('error', e);
       Object.assign(state, { errorMessage: 'We had an issue updating this item.' });
     } finally {
       if (!this._isMounted) { return; }
@@ -399,7 +398,6 @@ class ItemEditorClass extends React.Component<Props, State> {
     if (!this._isMounted) { return; }
 
     const { changedItem, changedFields } = this.state;
-
     const deleteKey = () => {
       if (changedFields[key]) {
         delete changedFields[key];
@@ -459,7 +457,7 @@ class ItemEditorClass extends React.Component<Props, State> {
       options = itemImageSubTypes;
     }
 
-    return <Select menuPlacement="auto" className="select item_subtype" classNamePrefix="select" options={options} value={[options.find( o => o.value === this.state.changedItem.item_subtype)]} onChange={e => this.validateLength('item_subtype', e.value)} isSearchable/>;
+    return <Select menuPlacement="auto" className="select item_subtype" classNamePrefix="select" options={options} value={[options.find( o => o.value === this.state.changedItem.item_subtype)]} onChange={e => this.validateLength('item_subtype', (e as OptionType).value)} isSearchable/>;
   }
 
   subTypeOnChange = (subType: string) => {
@@ -768,7 +766,7 @@ class ItemEditorClass extends React.Component<Props, State> {
 
         <Col md="6">
           <FormGroup>
-            <Label for="journal">Magazine/Journal</Label>
+            <Label for="journal">Publisher</Label>
             <Input
               type="text"
               className="journal"
@@ -948,7 +946,7 @@ class ItemEditorClass extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="translated_from">Translated From</Label>
-            <Select menuPlacement="auto" className="select translated_from" classNamePrefix="select" options={languages} value={item.language ? languages.find( c => c.value === item.language ) : []} onChange={e => this.changeItem('translated_from', e.value)} isSearchable/>
+            <Select menuPlacement="auto" className="select translated_from" classNamePrefix="select" options={languages} value={item.language ? languages.find( c => c.value === item.language ) : []} onChange={e => this.changeItem('translated_from', (e as OptionType).value)} isSearchable/>
           </FormGroup>
         </Col>
 
@@ -1152,7 +1150,7 @@ class ItemEditorClass extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="translated_from">Translated From</Label>
-            <Select menuPlacement="auto" className="select translated_from" classNamePrefix="select" options={languages} value={item.language ? languages.find( c => c.value === item.language ) : []} onChange={e => this.changeItem('translated_from', e.value)} isSearchable/>
+            <Select menuPlacement="auto" className="select translated_from" classNamePrefix="select" options={languages} value={item.language ? languages.find( c => c.value === item.language ) : []} onChange={e => this.changeItem('translated_from', (e as OptionType).value)} isSearchable/>
           </FormGroup>
         </Col>
 
@@ -1625,7 +1623,7 @@ class ItemEditorClass extends React.Component<Props, State> {
               value={duration}
               colon=":"
               showSeconds
-              onChange={e => this.changeItem('duration', moment.duration(e).asSeconds())}
+              onChange={(event, time) => this.changeItem('duration', moment.duration(time).asSeconds())}
               input={<Input type="text" placeholder="HH:MM:SS" />}
             />
           </FormGroup>
@@ -2010,7 +2008,7 @@ class ItemEditorClass extends React.Component<Props, State> {
               value={duration}
               colon=":"
               showSeconds
-              onChange={e => this.changeItem('duration', moment.duration(e).asSeconds())}
+              onChange={(event, time) => this.changeItem('duration', moment.duration(time).asSeconds())}
               input={<Input type="text" placeholder="HH:MM:SS" />}
             />
           </FormGroup>
@@ -2292,6 +2290,7 @@ class ItemEditorClass extends React.Component<Props, State> {
       );
     }
 
+    // @ts-ignore
     return (
       <>
         <Form className="container-fluid itemEditor" >
@@ -2396,25 +2395,29 @@ class ItemEditorClass extends React.Component<Props, State> {
                           />
                           <FormFeedback>This is a required field</FormFeedback>
 
-                          <ShortPaths
-                            type="Item"
-                            id={item.id ? item.id : undefined}
-                          />
-
                         </FormGroup>
                       </Col>
 
                   <Col xs="12">
                     <FormGroup>
                       <Label for="description">Description</Label>
-                      <Input
-                        type="textarea"
-                        className="description"
-                        defaultValue={item.description ? item.description : ''}
-                        onChange={e => this.validateLength('description', e.target.value)}
-                        invalid={this.state.validate.hasOwnProperty('description') && !this.state.validate.description}
-                        maxLength={4096}
+                      <RichTextEditor
+                        value={this.state.rtDescription}
+                        onChange={(value) => {
+                          this.setState({rtDescription : value});
+                          this.changeItem('description', value.toString('html'));
+                        }}
                       />
+                      <div className="input-group input-group-lg">
+                      <textarea
+                        className="form-control input-lg raw-HTML-editor"
+                        value={this.state.rtDescription.toString('html')}
+                        onChange={(e) => {
+                          this.setState({rtDescription : this.state.rtDescription.setContentFromString(e.target.value, 'html')});
+                          this.changeItem('description', e.target.value);
+                        }}
+                      />
+                      </div>
                       <FormFeedback>This is a required field</FormFeedback>
                     </FormGroup>
 
@@ -2438,7 +2441,13 @@ class ItemEditorClass extends React.Component<Props, State> {
                           <Label for="year_produced">Year Produced</Label>
                           <YearSelect
                             value={item.year_produced}
+                            addOngoing={false}
                             callback={e => this.validateLength('year_produced', e)}
+                          />–
+                          <YearSelect
+                            value={item.end_year_produced}
+                            addOngoing={true}
+                            callback={e => this.changeItem('end_year_produced', e)}
                           />
 
                           <FormFeedback style={!!item.year_produced ? {display: 'none'} : {display: 'block'}}>
@@ -2455,13 +2464,12 @@ class ItemEditorClass extends React.Component<Props, State> {
 
                         <FormGroup>
                           <Label for="regions">Region(s) (Country/Ocean)</Label>
-                          <Select className="select" classNamePrefix="select" isMulti isSearchable menuPlacement="auto" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries } ]} defaultValue={selectedRegions} onChange={e => this.validateLength('regions', !!e && e.length ? e.map(r => r.value) : [])} />
-                          <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('regions') && !this.state.validate.regions ? 'block' : 'none') }}>This is a required field</FormFeedback>
+                          <Select className="select" classNamePrefix="select" isMulti isSearchable menuPlacement="auto" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries } ]} defaultValue={selectedRegions} onChange={e => this.validateLength('regions', !!e && (e as any).length ? (e as any).map(r => r.value) : [])} />
                         </FormGroup>
 
                         <FormGroup>
                           <Label for="language">Language</Label>
-                          <Select menuPlacement="auto" className="select language" classNamePrefix="select" options={languages} value={item.language ? languages.find( c => c.value === item.language ) : []} onChange={e => this.changeItem('language', e.value)} isSearchable/>
+                          <Select menuPlacement="auto" className="select language" classNamePrefix="select" options={languages} value={item.language ? languages.find( c => c.value === item.language ) : []} onChange={e => this.changeItem('language', (e as OptionType).value)} isSearchable/>
                         </FormGroup>
 
                         <FormGroup>
@@ -2533,6 +2541,27 @@ class ItemEditorClass extends React.Component<Props, State> {
                         {item.item_subtype === itemAudio.Radio ? <this.AudioRadio /> : <></>}
                         {item.item_subtype === itemAudio.Performance_Poetry ? <this.AudioPerformancePoetry /> : <></>}
                         {(!!item.file && item.file.type === FileTypes.Audio) && item.item_subtype === itemAudio.Other ? <this.AudioOther /> : <></>}
+
+                        <FormGroup>
+                          <Label for="license_type">License</Label>
+                          <Select
+                              menuPlacement="auto"
+                              className="license_type"
+                              options={licenseType}
+                              value={item.license ? {value: item.license, label: item.license} : {value: 'Ocean Archive', label: 'Ocean Archive (most restrictive)'}}
+                              onChange={e => {
+                                this.changeItem('license', (e as OptionType).value);
+                                if (this._isMounted) {
+                                  const { originalItem, changedItem } = this.state;
+                                  this.setState({
+                                    originalItem: {...originalItem, license: ((e as OptionType).value ? (e as OptionType).value : 'Ocean Archive') as License},
+                                    changedItem: {...changedItem, license: ((e as OptionType).value ? (e as OptionType).value : 'Ocean Archive') as License}
+                                  });
+                                }
+                              }}
+                              isSearchable
+                          />
+                        </FormGroup>
 
                         <FormGroup>
                           <Label for="copyright_holder">Copyright Owner</Label>
@@ -2610,6 +2639,7 @@ class ItemEditorClass extends React.Component<Props, State> {
                               : <></>
                           }
                         </FormGroup>
+                      <div className="focusSelect">
                         <FormGroup row className="my-0 align-items-center">
                           <Label for={`${item.s3_key}_focus_arts`} sm="2">Art</Label>
                           <Col sm="10">
@@ -2628,6 +2658,7 @@ class ItemEditorClass extends React.Component<Props, State> {
                             <CustomInput type="checkbox" id={`${item.s3_key}_focus_action`} defaultChecked={item.focus_action !== null && parseInt(item.focus_action, 0) > 0} onChange={e => this.changeItem('focus_action', !e.target.checked ? '0' : '1')}/>
                           </Col>
                         </FormGroup>
+                      </div>
 
                       </Col>
                     </Row>

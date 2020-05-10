@@ -53,7 +53,7 @@ class ManageUsers extends React.Component<Props, State> {
     this.editUsersRef = React.createRef();
     this.resetUserPasswordRef = React.createRef();
     this.addUserRef = React.createRef();
-
+    const style = { overflowWrap: 'break-word', wordWrap: 'break-word'  } ;
     this.columns = [
       {
         dataField: 'username',
@@ -73,7 +73,10 @@ class ManageUsers extends React.Component<Props, State> {
       },
       {
         dataField: 'email',
-        text: 'User Email'
+        text: 'User Email',
+        style: () => {
+          return style;
+        },
       },
       {
         dataField: 'options',

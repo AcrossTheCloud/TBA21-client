@@ -65,6 +65,9 @@ export default class ShortPaths extends React.Component<Props, State> {
         if (!this._isMounted) { return; }
         this.setState({ isLoading: false });
       }
+    } else {
+      if (!this._isMounted) { return; }
+      this.setState({ isLoading: false, invalid: false });
     }
   }
 
@@ -112,9 +115,8 @@ export default class ShortPaths extends React.Component<Props, State> {
    */
   onChange = async (value: any, actionMeta: any) => { // tslint:disable-line: no-any
     if (!this._isMounted) { return; }
-
     // Creation option, PUT the shortpath and insert it into loadedShortPaths
-    if (actionMeta.action === 'create-option') {
+    if (actionMeta.action === 'create-option' && this.props.id) {
       this.setState({ isLoading: true });
 
       const state = {
@@ -152,7 +154,7 @@ export default class ShortPaths extends React.Component<Props, State> {
         if (!this._isMounted) { return; }
         this.setState(state);
       }
-    }
+    } else { this.setState({invalid: true}); }
   }
 
   /**
@@ -166,12 +168,12 @@ export default class ShortPaths extends React.Component<Props, State> {
 
     const slugifyValue = slugify(value, false);
     if (!this._isMounted) { return; }
-    this.setState({ inputValue: slugifyValue, invalid: false }, () => {
-      this.onChangeTimeout = setTimeout( () => {
-        if (!this._isMounted) { return; }
-        this.setState({ inputValue: slugify(slugifyValue, true) });
-      }, 400);
-    });
+    this.setState({ inputValue: slugifyValue}, () => {
+        this.onChangeTimeout = setTimeout( () => {
+          if (!this._isMounted) { return; }
+          this.setState({ inputValue: slugify(slugifyValue, true) });
+        }, 400);
+      });
   }
 
   render() {
@@ -214,10 +216,12 @@ export default class ShortPaths extends React.Component<Props, State> {
           </Col>
         </Row>
         <Row>
-          <Col>
-            <FormFeedback style={this.state.invalid ? { display: 'block' } : { display: 'none' }}>
-              {this.state.invalidFeedback}
-            </FormFeedback>
+          <Col> {
+                this.state.invalid ?
+                    <FormFeedback style={{display: 'block'}}>
+                      You need to save or publish your collection first before adding a URL slug (short path)
+                    </FormFeedback> : <></>
+                }
           </Col>
         </Row>
       </FormGroup>

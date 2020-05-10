@@ -12,9 +12,20 @@
   }
 }
 
+.raw-HTML-editor {
+  height: 150px !important;
+  font-size: 10pt !important;
+}
+
 .collectionEditor {
   .collapse {
     width: 100%
   }
 
+}
+
+.focusSelect {
+  @media screen and (max-width: 768px) {
+    margin-bottom: 47px;
+  }
 }

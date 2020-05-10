@@ -72,7 +72,7 @@ class LoginClass extends React.Component<RouteComponentProps, State> {
         this.setState( { errorMessage: 'We\'ve had a bit of a technical issue.', isLoading: false });
       } else {
         this.setState( { errorMessage: 'We\'ve had a bit of a technical issue.', isLoading: false });
-        console.log(e);
+        console.log('error',e);
       }
       if (e.message === 'UserLoginEmailPasswordException') {
         this.setState( { errorMessage: 'We\'ve had a bit of a technical issue.' });

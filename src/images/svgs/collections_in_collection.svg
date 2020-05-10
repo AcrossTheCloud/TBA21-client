@@ -1,0 +1,43 @@
+<svg
+    className="collections_in_collection_icon"
+    viewBox="-18 0 40 20"
+    version="1.1"
+    xmlns="http://www.w3.org/2000/svg"
+    xmlnsXlink="http://www.w3.org/1999/xlink"
+>
+    <g stroke="none" strokeWidth="1" fill="#fff">
+        <g id="Circle1">
+            <circle cx="15.5" cy="15.5" r="3.5"/>
+        </g>
+        <g id="Circle2">
+            <circle cx="-8.5" cy="15.5" r="3.5"/>
+        </g>
+        <g id="Circle3">
+            <circle cx="3.5" cy="3.5" r="3.5"/>
+        </g>
+        <g id="Circle4">
+            <circle cx="3.5" cy="15.5" r="3.5"/>
+        </g>
+        <g id="Line1">
+            <rect x="3" y="3.5" width="1" height="12"/>
+        </g>
+        <g id="Line2">
+            <rect
+                x="3"
+                y="3.5"
+                width="1"
+                height="17"
+                transform="rotate(-45 3 3.5)"
+            />
+        </g>
+        <g id="Line3">
+            <rect
+                x="3"
+                y="3.5"
+                width="1"
+                height="17"
+                transform="rotate(45 3 3.5)"
+            />
+        </g>
+    </g>
+</svg>

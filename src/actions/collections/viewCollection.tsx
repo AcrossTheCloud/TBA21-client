@@ -6,12 +6,14 @@ import { removeTopology } from '../../components/utils/removeTopology';
 import { Collection } from '../../types/Collection';
 import { S3File } from '../../types/s3File';
 import { getItem } from '../../REST/items';
-import { FETCH_COLLECTION_LOAD_MORE } from '../../reducers/collections/viewCollection';
-
-// Defining our Actions for the reducers.
-export const FETCH_COLLECTION = 'FETCH_COLLECTION';
-export const FETCH_COLLECTION_ERROR = 'FETCH_COLLECTION_ERROR';
-export const FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION = 'FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION';
+import {
+  FETCH_COLLECTION_NO_MORE_TO_LOAD,
+  FETCH_COLLECTION_LOAD_MORE,
+  FETCH_COLLECTION_UPDATE_OFFSET,
+  FETCH_COLLECTION_ERROR,
+  FETCH_COLLECTION,
+  FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION
+} from '../../reducers/collections/viewCollection';
 
 /**
  *
@@ -21,6 +23,16 @@ export const FETCH_COLLECTION_ERROR_NO_SUCH_COLLECTION = 'FETCH_COLLECTION_ERROR
  */
 export const fetchCollection = (id: string) => async (dispatch, getState) => {
   const prevState = getState();
+
+  if (id === '') {
+    dispatch({
+      type: FETCH_COLLECTION,
+      collection: undefined,
+      items: {}
+    });
+
+    return;
+  }
 
   dispatch({
      type: LOADINGOVERLAY,
@@ -40,16 +52,15 @@ export const fetchCollection = (id: string) => async (dispatch, getState) => {
 
     try {
       const response = await getById(id);
-      const collection = removeTopology(response) as Collection[];
+      const collections = removeTopology(response) as Collection[];
 
-      if (!!collection && !!collection[0] && Object.keys(collection).length) {
+      if (!!collections && collections.length && !!collections[0] && collections[0].id) {
+
         dispatch({
            type: FETCH_COLLECTION,
-           collection: collection[0]
+           collection: collections[0],
+           noMoreData: undefined
         });
-
-        // Load initial 10 items/collections.
-        dispatch(await dispatchLoadMore(id, 0));
 
       } else {
         dispatch({
@@ -71,15 +82,15 @@ export const fetchCollection = (id: string) => async (dispatch, getState) => {
   }
 };
 
-const getItemsAndCollectionsInCollection = async (id: string, offset: number = 0): Promise<(Item | Collection)[]> => {
-  const itemResponse = await getItemsInCollection({id, limit: 10, offset});
-  const collectionResponse = await getCollectionsInCollection({id, limit: 10, offset});
+const getItemsAndCollectionsInCollection = async (id: string, offset: number = 0, limit: number = 1): Promise<(Item | Collection)[]> => {
+  const itemResponse = await getItemsInCollection({id, limit, offset});
+  const collectionResponse = await getCollectionsInCollection({id, limit, offset});
   return [...removeTopology(itemResponse, 'item'), ...removeTopology(collectionResponse, 'collection')];
-}
+};
 
 export const loadMore = async (id: string, offset: number = 0, callback: Function) => {
   try {
-    const data = await getItemsAndCollectionsInCollection(id, offset);
+    const data = await getItemsAndCollectionsInCollection(id, offset, 10);
     if (data && data.length) {
       for (let i = 0; i < data.length; i++) {
         if (data[i]) {
@@ -98,11 +109,13 @@ export const loadMore = async (id: string, offset: number = 0, callback: Functio
 
           if (file) {
             Object.assign(data[i], {file});
-
-            callback(data[i]);
           }
         }
       }
+
+      callback(data);
+    } else {
+      callback(false);
     }
   } catch (e) {
     throw Error('We\'ve had a bit of an issue.');
@@ -111,10 +124,16 @@ export const loadMore = async (id: string, offset: number = 0, callback: Functio
 
 export const dispatchLoadMore = (id: string, offset: number = 0) => async dispatch => {
   try {
+    dispatch({type: FETCH_COLLECTION_UPDATE_OFFSET, offset: offset + 10});
     await loadMore(id, offset, (data) => {
-      dispatch({ type: FETCH_COLLECTION_LOAD_MORE, datum: data });
+      if (data) {
+        dispatch({type: FETCH_COLLECTION_LOAD_MORE, datum: data});
+      } else {
+        console.info('dispatchLoadMore', 'FETCH_COLLECTION_NO_MORE_TO_LOAD');
+        dispatch({type: FETCH_COLLECTION_NO_MORE_TO_LOAD});
+      }
     });
   } catch (e) {
-    dispatch({ type: FETCH_COLLECTION_ERROR, errorMessage: e });
+    dispatch({ type: FETCH_COLLECTION_ERROR, errorMessage: `${e}` });
   }
 };

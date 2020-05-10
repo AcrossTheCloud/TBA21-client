@@ -16,6 +16,7 @@ import { API } from 'aws-amplify';
 import Select from 'react-select';
 import AsyncSelect from 'react-select/async';
 import { isEqual, isArray } from 'lodash';
+import RichTextEditor, { EditorValue, createValueFromString, createEmptyValue } from 'react-rte';
 
 import Tags from './Tags';
 import {
@@ -31,7 +32,6 @@ import YearSelect from './fields/YearSelect';
 import { validateURL } from '../utils/inputs/url';
 
 import CustomSelect from './fields/CustomSelect';
-import ShortPaths from '../admin/utils/ShortPaths';
 import Contributors from './fields/Contributors';
 import { AuthContext } from '../../providers/AuthProvider';
 
@@ -49,6 +49,9 @@ import { RouteComponentProps, withRouter } from 'react-router';
 import { ActionMeta } from 'react-select/src/types';
 import { Items } from './Items';
 import { withCollapse } from './withCollapse';
+import { OptionType } from '../../types/SelectTypes';
+import { License } from '../../types/License';
+import { licenseType } from './SelectOptions';
 
 interface Props extends RouteComponentProps {
   collection?: Collection;
@@ -79,6 +82,8 @@ interface State extends Alerts {
   };
 
   userUUID: string;
+
+  rtDescription: EditorValue;
 
   hasShortPath: boolean;
   editMode: boolean;
@@ -155,6 +160,8 @@ class CollectionEditorClass extends React.Component<Props, State> {
       isDifferent: false,
       validate: defaultRequiredFields(collection),
       activeTab: '1',
+
+      rtDescription: props.collection ? createValueFromString(props.collection.description, 'html') : createEmptyValue(),
 
       selectItemQuery: '',
       loadedItems: [],
@@ -245,7 +252,8 @@ class CollectionEditorClass extends React.Component<Props, State> {
     }
   }
 
-  componentWillUnmount() {
+  async componentWillUnmount() {
+    await this.putCollection();
     this._isMounted = false;
   }
 
@@ -350,11 +358,6 @@ class CollectionEditorClass extends React.Component<Props, State> {
           Object.assign(collectionProperties, { [field[0]]: field[1] });
         });
 
-      // If no license assign OA
-      if (!collectionProperties.hasOwnProperty('license')) {
-        Object.assign(collectionProperties, { 'license': 'CC BY-NC' });
-      }
-
       const result = await API.put('tba21', `admin/collections/${editMode ? 'update' : 'create'}`, {
         body: {
           ...collectionProperties
@@ -380,7 +383,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
       }
 
     } catch (e) {
-      console.log('ERROR - ', e);
+      console.log('error', e);
       Object.assign(state, { errorMessage: 'We had an issue updating this collection.' });
     } finally {
       if (!this._isMounted) { return; }
@@ -481,6 +484,8 @@ class CollectionEditorClass extends React.Component<Props, State> {
       expedition_leader,
       expedition_route,
       city_of_publication,
+      curator,
+      related_material,
       media_type,
     } = this.state.collection;
 
@@ -513,7 +518,10 @@ class CollectionEditorClass extends React.Component<Props, State> {
         },
         'Exhibition' : {
           'institution': (institution || false),
-          'start_date': (start_date || false)
+          'start_date': (start_date || false),
+          'end_date': (end_date || false),
+          'curator': (curator || false),
+          'related_material': (related_material || false)
         },
         'Collection' : {
           'institution': (institution || false),
@@ -663,7 +671,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
               id="event_type"
               options={eventTypes}
               value={[eventType]}
-              onChange={e => this.changeCollection('event_type', e.value)}
+              onChange={e => this.changeCollection('event_type', (e as OptionType).value)}
               isSearchable
             />
           </FormGroup>
@@ -765,7 +773,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="year_produced">Year</Label>
-            <YearSelect value={collection.year_produced ? collection.year_produced : ''} callback={e => this.validateLength('year_produced', e)}/>
+            <YearSelect addOngoing={false} value={collection.year_produced ? collection.year_produced : ''} callback={e => this.validateLength('year_produced', e)}/>
             <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('year_produced') && !this.state.validate.year_produced ? 'block' : 'none') }}>This is a required field</FormFeedback>
           </FormGroup>
         </Col>
@@ -1290,13 +1298,14 @@ class CollectionEditorClass extends React.Component<Props, State> {
           queryStringParameters = (
             inputValue ? { inputQuery: inputValue, limit: 100 } : {}
           ),
-          response = type === 'item' ? (this.isContributorPath && !this.isAdmin ? await contributorGetByPerson(queryStringParameters) : await adminGetItems(queryStringParameters)) : await adminGet(!this.isAdmin, queryStringParameters),
+          isAdmin: boolean = !this.isContributorPath && !this.isAdmin,
+          response = type === 'item' ? (isAdmin ? await contributorGetByPerson(queryStringParameters) : await adminGetItems(queryStringParameters)) : await adminGet(isAdmin, queryStringParameters),
           data = removeTopology(response);
 
         if (data && data.length) {
           if (type === 'collection') {
             const metaDataObject = data as Collection[];
-            resolve(metaDataObject.map(item => ({label: item.title || 'No title', id: item.id, data: item})));
+            resolve(metaDataObject.map(collection => ({label: collection.title || 'No title', id: collection.id, data: collection})));
           } else {
             const metaDataObject = data as Item[];
             resolve(metaDataObject.map(item => ({label: item.title || 'No title', id: item.s3_key, data: item})));
@@ -1364,7 +1373,6 @@ class CollectionEditorClass extends React.Component<Props, State> {
     const {
       id,
       title,
-      description,
       subtitle,
       url,
       copyright_holder,
@@ -1385,6 +1393,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
     } = this.state.collection;
 
     const
+      collection = this.state.collection,
       conceptTags = aggregated_concept_tags ? aggregated_concept_tags.map( t => ({ id: t.id, value: t.id, label: t.tag_name }) ) : [],
       keywordTags = aggregated_keyword_tags ? aggregated_keyword_tags.map( t => ({ id: t.id, value: t.id, label: t.tag_name }) ) : [],
       selectedRegions = !!regions ? selectableRegions.filter(s => !!regions ? regions.find(a => a === s.value) : false) : [];
@@ -1475,17 +1484,6 @@ class CollectionEditorClass extends React.Component<Props, State> {
                         invalid={this.state.validate.hasOwnProperty('title') && !this.state.validate.title}
                       />
                       <FormFeedback>This is a required field</FormFeedback>
-                      <ShortPaths
-                        type="Item"
-                        id={id ? id : undefined}
-                        onChange={s => { if (this._isMounted) { this.setState({ hasShortPath: !!s.length }); }}}
-                      />
-                      {
-                        this.state.editMode ?
-                          <></>
-                          :
-                          <FormFeedback style={{ display: !this.state.hasShortPath ? 'block' : 'none' }}>You need to save or publish your collection first before adding a URL slug (short path).</FormFeedback>
-                      }
                     </FormGroup>
 
                     <FormGroup>
@@ -1498,16 +1496,36 @@ class CollectionEditorClass extends React.Component<Props, State> {
                         onChange={e => this.changeCollection('subtitle', e.target.value)}
                       />
                     </FormGroup>
+                    <div>
+                      <InputGroup>
+                        <CustomInput type="switch" id={`${this.state.collection.id}_oa_highlight`} name="OA_highlight" label="OA Highlight" checked={!!this.state.collection.oa_highlight || false} onChange={e => this.changeCollection('oa_highlight', e.target.checked)} />
+                      </InputGroup>
+                      <InputGroup>
+                        <CustomInput type="switch" id={`${this.state.collection.id}_oa_original`} name="OA_original" label="OA Original" checked={!!this.state.collection.oa_original || false} onChange={e => this.changeCollection('oa_original', e.target.checked)} />
+                      </InputGroup>
+                      <InputGroup>
+                        <CustomInput type="switch" id={`${this.state.collection.id}_tba21_material`} name="TBA21_material" label="TBA21 Material" checked={!!this.state.collection.tba21_material || false} onChange={e => this.changeCollection('tba21_material', e.target.checked)} />
+                      </InputGroup>
+                    </div>
                     <FormGroup>
                       <Label for="description">Description</Label>
-                      <Input
-                        type="textarea"
-                        id="description"
-                        defaultValue={description ? description : ''}
-                        onChange={e => this.validateLength('description', e.target.value)}
-                        invalid={this.state.validate.hasOwnProperty('description') && !this.state.validate.description}
-                        maxLength={4096}
+                      <RichTextEditor
+                        value={this.state.rtDescription}
+                        onChange={(value) => {
+                          this.setState({rtDescription : value});
+                          this.changeCollection('description', value.toString('html'));
+                        }}
                       />
+                      <div className="input-group input-group-lg">
+                      <textarea
+                        className="form-control input-lg raw-HTML-editor"
+                        value={this.state.rtDescription.toString('html')}
+                        onChange={(e) => {
+                          this.setState({rtDescription : this.state.rtDescription.setContentFromString(e.target.value, 'html')});
+                          this.changeCollection('description', e.target.value);
+                        }}
+                      />
+                      </div>
                       <FormFeedback>This is a required field</FormFeedback>
                     </FormGroup>
 
@@ -1523,12 +1541,12 @@ class CollectionEditorClass extends React.Component<Props, State> {
 
                     <FormGroup>
                       <Label for="regions">Region(s) (Country/Ocean)</Label>
-                      <Select className="select" classNamePrefix="select" isMulti isSearchable menuPlacement="auto" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries } ]} defaultValue={selectedRegions} onChange={e => this.validateLength('regions', !!e && e.length ? e.map(r => r.value) : [])} />
+                      <Select className="select" classNamePrefix="select" isMulti isSearchable menuPlacement="auto" options={[ { label: 'Oceans', options: oceans }, { label: 'Countries', options: countries } ]} defaultValue={selectedRegions} onChange={e => this.validateLength('regions', e && (e as any).length ? (e as any).map(r => r.value) : [])} />
                     </FormGroup>
 
                     <FormGroup>
                       <Label for="type">Collection Category</Label>
-                      <Select className="select" classNamePrefix="select" menuPlacement="auto" id="type" options={collectionTypes} value={[collectionTypes.find( o => o.value === type)]} onChange={e => this.validateLength('type', e.value)} isSearchable/>
+                      <Select className="select" classNamePrefix="select" menuPlacement="auto" id="type" options={collectionTypes} value={[collectionTypes.find( o => o.value === type)]} onChange={e => this.validateLength('type', (e as OptionType).value)} isSearchable/>
                       <FormFeedback style={{ display: (this.state.validate.hasOwnProperty('type') && !this.state.validate.type ? 'block' : 'none') }}>This is a required field</FormFeedback>
                     </FormGroup>
 
@@ -1538,10 +1556,32 @@ class CollectionEditorClass extends React.Component<Props, State> {
                     {type === Types.Event_Series ? <this.EventSeries /> : <></>}
                     {type === Types.Edited_Volume ? <this.EditedVolume /> : <></>}
                     {type === Types.Expedition ? <this.Expedition /> : <></>}
+                    {type === Types.Exhibition ? <this.Exhibition /> : <></>}
                     {type === Types.Collection ? <this.Collection /> : <></>}
                     {type === Types.Convening ? <this.Convening /> : <></>}
                     {type === Types.Performance ? <this.Performance /> : <></>}
                     {type === Types.Installation ? <this.Installation /> : <></>}
+
+                    <FormGroup>
+                      <Label for="license_type">License</Label>
+                      <Select
+                          menuPlacement="auto"
+                          className="license_type"
+                          options={licenseType}
+                          value={collection.license ? {value: collection.license, label: collection.license} : {value: 'Ocean Archive', label: 'Ocean Archive (most restrictive)'}}
+                          onChange={e => {
+                            this.changeCollection('license', (e as OptionType).value);
+                            if (this._isMounted) {
+                              const { originalCollection, collection } = this.state;
+                              this.setState({
+                                originalCollection: {...originalCollection, license: (e as OptionType).value as License},
+                                collection: {...collection, license: (e as OptionType).value as License}
+                              });
+                            }
+                          }}
+                          isSearchable
+                      />
+                    </FormGroup>
 
                     <FormGroup>
                       <Label for="copyright_holder">Copyright Holder</Label>
@@ -1619,24 +1659,26 @@ class CollectionEditorClass extends React.Component<Props, State> {
                           : <></>
                       }
                     </FormGroup>
-                    <FormGroup row className="my-0 align-items-center">
-                      <Label for={`${id}_focus_arts`} sm="2">Art</Label>
-                      <Col sm="10">
-                        <CustomInput type="checkbox" id={`${id}_focus_arts`} defaultChecked={(typeof focus_arts !== 'undefined' && focus_arts !== null) && parseInt(focus_arts, 0) > 0} onChange={e => this.changeCollection('focus_arts', e.target.checked ? '1' : '0')}/>
-                      </Col>
-                    </FormGroup>
-                    <FormGroup row className="my-0 align-items-center">
-                      <Label for={`${id}_focus_scitech`} sm="2">Sci-Tech</Label>
-                      <Col sm="10">
-                        <CustomInput type="checkbox" id={`${id}_focus_scitech`} defaultChecked={(typeof focus_scitech !== 'undefined' && focus_scitech !== null) && parseInt(focus_scitech, 0) > 0} onChange={e => this.changeCollection('focus_scitech', e.target.checked ? '1' : '0')}/>
-                      </Col>
-                    </FormGroup>
-                    <FormGroup row className="my-0 align-items-center">
-                      <Label for={`${id}_focus_action`} sm="2">Action</Label>
-                      <Col sm="10">
-                        <CustomInput type="checkbox" id={`${id}_focus_action`} defaultChecked={(typeof focus_action !== 'undefined' && focus_action !== null) && parseInt(focus_action, 0) > 0} onChange={e => this.changeCollection('focus_action', e.target.checked ? '1' : '0')}/>
-                      </Col>
-                    </FormGroup>
+                    <div className="focusSelect">
+                      <FormGroup row className="my-0 align-items-center">
+                        <Label for={`${id}_focus_arts`} sm="2">Art</Label>
+                        <Col sm="10">
+                          <CustomInput type="checkbox" id={`${id}_focus_arts`} defaultChecked={(typeof focus_arts !== 'undefined' && focus_arts !== null) && parseInt(focus_arts, 0) > 0} onChange={e => this.changeCollection('focus_arts', e.target.checked ? '1' : '0')}/>
+                        </Col>
+                      </FormGroup>
+                      <FormGroup row className="my-0 align-items-center">
+                        <Label for={`${id}_focus_scitech`} sm="2">Sci-Tech</Label>
+                        <Col sm="10">
+                          <CustomInput type="checkbox" id={`${id}_focus_scitech`} defaultChecked={(typeof focus_scitech !== 'undefined' && focus_scitech !== null) && parseInt(focus_scitech, 0) > 0} onChange={e => this.changeCollection('focus_scitech', e.target.checked ? '1' : '0')}/>
+                        </Col>
+                      </FormGroup>
+                      <FormGroup row className="my-0 align-items-center">
+                        <Label for={`${id}_focus_action`} sm="2">Action</Label>
+                        <Col sm="10">
+                          <CustomInput type="checkbox" id={`${id}_focus_action`} defaultChecked={(typeof focus_action !== 'undefined' && focus_action !== null) && parseInt(focus_action, 0) > 0} onChange={e => this.changeCollection('focus_action', e.target.checked ? '1' : '0')}/>
+                        </Col>
+                      </FormGroup>
+                    </div>
 
                   </Col>
                 </Row>
@@ -1656,7 +1698,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
                       onChange={this.addMetaObjects}
                       onInputChange={v => { if (this._isMounted) { this.setState({ selectItemQuery: v }); } }}
                       inputValue={this.state.selectItemQuery}
-                      value={this.state.selectItemQuery}
+                      value={[this.state.selectItemQuery]}
                     />
                   </Col>
                 </Row>
@@ -1681,11 +1723,11 @@ class CollectionEditorClass extends React.Component<Props, State> {
                       classNamePrefix="select"
                       isClearable
                       loadOptions={v => this.queryMetaDataObjects(v, 'collection')}
-                      placeholder="Start typing the item title then select..."
+                      placeholder="Start typing the collection title then select..."
                       onChange={(v, m: ActionMeta) => this.addMetaObjects(v, m, 'collection')}
                       onInputChange={v => { if (this._isMounted) { this.setState({ selectCollectionQuery: v }); } }}
                       inputValue={this.state.selectCollectionQuery}
-                      value={this.state.selectCollectionQuery}
+                      value={[this.state.selectCollectionQuery]}
                     />
                   </Col>
                 </Row>

@@ -1,8 +1,8 @@
 import { LOAD_HOMEPAGE, LOGO_STATE_HOMEPAGE, LOAD_MORE_HOMEPAGE, MODAL_STATE_HOMEPAGE, LOAD_MORE_LOADING, LOAD_COUNT_HOMEPAGE } from 'actions/home';
 import { S3File } from '../types/s3File';
 import { Announcement } from '../types/Announcement';
-import { itemType } from '../types/Item';
-import { collectionTypes } from '../types/Collection';
+import { Item, itemType } from '../types/Item';
+import { Collection, collectionTypes } from '../types/Collection';
 
 export interface HomepageData {
   file: S3File;
@@ -12,6 +12,7 @@ export interface HomepageData {
   item_subtype?: string;
   item_type?: itemType;
   year_produced: string;
+  end_year_produced?: string;
   time_produced: string;
   duration?: string;
   file_dimensions?: number[];
@@ -21,7 +22,8 @@ export interface HomepageData {
   // Collection specific
   count?: number;
   type?: collectionTypes | null;
-  items?: HomepageData[];
+  items?: Item[];
+  collections?: Collection[];
 
   // OA Highlight specific
   concept_tags: {id: number, tag_name: string}[];
@@ -34,7 +36,6 @@ export interface HomePageState {
 
   items: HomepageData[];
   collections: HomepageData[];
-  audio: HomepageData[];
   announcements: Announcement[];
   oa_highlight: HomepageData[];
 
@@ -52,7 +53,6 @@ const initialState: HomePageState = {
 
   items: [],
   collections: [],
-  audio: [],
   announcements: [],
   oa_highlight: [],
 
@@ -78,7 +78,6 @@ export default (state: HomePageState | null = initialState, action) => {
         ...state,
         items: action.items,
         collections: action.collections,
-        audio: action.audio,
         announcements: action.announcements,
         loaded_highlights: action.loaded_highlights
       };
@@ -95,7 +94,6 @@ export default (state: HomePageState | null = initialState, action) => {
         loadedCount: action.loadedCount,
         loadedItems: action.loadedItems,
         loadedMore: action.loadedMore,
-        audio: action.audio,
         items: action.items,
         collections: action.collections
       };
