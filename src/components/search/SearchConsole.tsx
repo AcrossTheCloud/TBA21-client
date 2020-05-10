@@ -450,11 +450,6 @@ class SearchConsole extends React.Component<Props, State> {
                 </div>
               </div>
             </div>
-
-            {/*{ Is hidden when open (max-width: 0) }*/}
-            <Col sm="4" className={`d-none d-sm-block focus px-0 ${isOpenClass}`}>
-              <div />
-            </Col>
           </Row>
 
           <Row style={{ height: isOpen ? 'auto' : 0 }}>

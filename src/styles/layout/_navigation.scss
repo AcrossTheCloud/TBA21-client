@@ -8,12 +8,17 @@
     border-bottom: 0;
     overflow: hidden;
   }
+  #searchConsole {
+    max-height: 0;
+    border-bottom: 0;
+    overflow: hidden;
+  }
 }
 
 
 #navigation {
   background: #142636;
-  border-bottom: 1px solid #eee;
+  //border-bottom: 1px solid #eee;
 
   max-height: unset;
   transition: max-height 5s;
