@@ -3,7 +3,7 @@ import { API } from 'aws-amplify';
 import * as React from 'react';
 import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
-import { Button, Container, Modal, ModalBody, ModalFooter, ModalHeader, Spinner } from 'reactstrap';
+import { Button, Container, Modal, ModalBody, ModalFooter, Spinner } from 'reactstrap';
 import { RouteComponentProps, withRouter } from 'react-router';
 
 import { Announcement } from 'types/Announcement';
@@ -16,6 +16,8 @@ import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.m
 import 'styles/components/admin/tables/modal.scss';
 import { AnnouncementEditor } from '../../../metadata/AnnouncementEditor';
 import { FaCheck, FaTimes } from 'react-icons/fa';
+import { AdminSearch } from '../../utils/AdminSearch';
+import Delete from '../../utils/Delete';
 
 interface State extends Alerts {
   announcements: Announcement[];
@@ -30,12 +32,14 @@ interface State extends Alerts {
   totalSize: number;
 
   deleteErrorMessage: string | JSX.Element | undefined;
+  order?: string;
 }
 
 class Announcements extends React.Component<RouteComponentProps, State> {
   _isMounted;
   tableColumns;
   isContributorPath;
+  isAdmin;
 
   constructor(props: RouteComponentProps) {
     super(props);
@@ -54,6 +58,7 @@ class Announcements extends React.Component<RouteComponentProps, State> {
       totalSize: 0,
       deleteErrorMessage: undefined
     };
+    const style = { overflowWrap: 'break-word', wordWrap: 'break-word'  } ;
 
     this.tableColumns = [
       {
@@ -65,7 +70,7 @@ class Announcements extends React.Component<RouteComponentProps, State> {
         text: 'Published',
         align: 'center',
         headerStyle: () => {
-          return { width: '10%' };
+          return style;
         },
         formatter: (status) => {
           return(
@@ -74,40 +79,69 @@ class Announcements extends React.Component<RouteComponentProps, State> {
         }
       },
       {
-        dataField: 'title',
-        text: 'Title'
-      },
-      {
         dataField: 'created_at',
         text: 'Created Date',
+        sort: true,
+        onSort: (field, order) => {
+          this.dateFormatter(field, order);
+          this.setState({order: order});
+        },
+        headerStyle: () => {
+          return { overflowWrap: 'break-word'};
+      },
       },
       {
+        dataField: 'title',
+        text: 'Title',
+        headerStyle: () => {
+          return style;
+        },
+        style: () => {
+          return style;
+        },
+      },
+
+      {
         dataField: 'options',
-        text: 'options',
+        text: 'Options',
         isDummyField: true,
         formatter: (e, row, rowIndex) => {
-          return (
-            <>
-              <Button color="warning" size="sm" className="mr-3"  onClick={() => this.onEditButtonClick(rowIndex)}>Edit</Button>
-              <Button color="danger" size="sm" onClick={() => this.onDeleteButtonClick(rowIndex)}>Delete</Button>
-            </>
-          );
-        }
+          const identifier = this.state.announcements[rowIndex].id;
+          if (identifier) {
+            return (
+                <>
+                  <Button color="warning" size="sm" className="mr-3"  onClick={() => this.onEditButtonClick(rowIndex)}>Edit</Button>
+                  <Delete
+                      path={'announcements'}
+                      isContributorPath={this.isContributorPath}
+                      index={rowIndex}
+                      identifier={identifier}
+                      callback={() => this.getAnnouncement()}
+                  />
+                </>
+            );
+          } else { return <></>; }
+        },
+        headerStyle: () => {
+          return style;
+        },
       }
     ];
   }
 
   async componentDidMount() {
     this._isMounted = true;
+    this.isAdmin = !!this.props.location.pathname.match(/admin/i);
     this.getAnnouncement();
   }
 
-  getAnnouncementQuery = async (offset: number): Promise<{ announcements: Announcement[], totalSize: number } | void> => {
+  getAnnouncementQuery = async (offset: number, order?: string): Promise<{ announcements: Announcement[], totalSize: number } | void> => {
     try {
       const
         queryStringParameters = {
           offset: offset,
-          limit: this.state.sizePerPage
+          limit: this.state.sizePerPage,
+          order: order ? order : 'none'
         },
         response = await API.get('tba21', `${this.isContributorPath ? 'contributor' : 'admin'}/announcements`, { queryStringParameters: queryStringParameters });
 
@@ -122,11 +156,11 @@ class Announcements extends React.Component<RouteComponentProps, State> {
     }
   }
 
-  getAnnouncement = async (): Promise<void> => {
+  getAnnouncement = async (order?: string): Promise<void> => {
     try {
       const
         currentIndex = (this.state.page - 1) * this.state.sizePerPage,
-        response = await this.getAnnouncementQuery(currentIndex);
+        response = await this.getAnnouncementQuery(currentIndex, order);
 
       if (response) {
         const { announcements, totalSize } = response;
@@ -155,15 +189,6 @@ class Announcements extends React.Component<RouteComponentProps, State> {
       }
     );
   }
-  onDeleteButtonClick = (collectionIndex: number) => {
-    if (!this._isMounted) { return; }
-    this.setState(
-      {
-        deleteModalOpen: true,
-        editingIndex: collectionIndex,
-      }
-    );
-  }
 
   componentModalToggle = () => {
     if (!this._isMounted) { return; }
@@ -173,53 +198,6 @@ class Announcements extends React.Component<RouteComponentProps, State> {
      })
     );
   }
-  deleteModalToggle = () => {
-    if (!this._isMounted) { return; }
-    this.setState( prevState => ({
-       ...prevState,
-       deleteModalOpen: !prevState.deleteModalOpen,
-       deleteErrorMessage: undefined,
-       successMessage: undefined
-     })
-    );
-  }
-  deleteAnnouncement = async () => {
-    const state = {
-      deleteErrorMessage: undefined,
-      successMessage: undefined
-    };
-    try {
-      const announcementIndex: number | undefined = this.state.editingIndex;
-      if (typeof announcementIndex !== 'undefined' && announcementIndex > -1) {
-
-        await API.del('tba21', `${this.isContributorPath ? 'contributor' : 'admin'}/announcements`, {
-          queryStringParameters: {
-            id: this.state.announcements[announcementIndex].id
-          }
-        });
-        this.getAnnouncement();
-        Object.assign(state, {
-          deleteModalOpen: false,
-          successMessage: 'Announcement deleted'
-        });
-      } else {
-        Object.assign(state, {
-          deleteErrorMessage: 'This announcement may have already been deleted.',
-          deleteModalOpen: false
-        });
-        this.getAnnouncement();
-      }
-
-    } catch (e) {
-      Object.assign(state, {
-        deleteErrorMessage: 'We had some trouble deleting this announcement. Please try again later.'
-      });
-    } finally {
-      if (this._isMounted) {
-        this.setState(state);
-      }
-    }
-  }
 
   handleTableChange = async (type, { page, sizePerPage }): Promise<void> => {
     if (type === 'pagination') {
@@ -228,7 +206,10 @@ class Announcements extends React.Component<RouteComponentProps, State> {
       this.setState({ tableIsLoading: true });
 
       try {
-        const response = await this.getAnnouncementQuery(currentIndex);
+        let response;
+        if (this.state.order === 'desc' || this.state.order === 'asc') {
+          response = await this.getAnnouncementQuery(currentIndex, this.state.order);
+        } else {  response = await this.getAnnouncementQuery(currentIndex); }
         if (response) {
           if (!this._isMounted) { return; }
 
@@ -248,6 +229,13 @@ class Announcements extends React.Component<RouteComponentProps, State> {
     }
   }
 
+  dateFormatter = async (field, order) => {
+    this.setState({
+                    tableIsLoading: true
+                  });
+    await this.getAnnouncement(order);
+  }
+
   render() {
     const
       { page, sizePerPage, totalSize } = this.state,
@@ -259,6 +247,13 @@ class Announcements extends React.Component<RouteComponentProps, State> {
       <Container>
         <ErrorMessage message={this.state.errorMessage}/>
         <SuccessMessage message={this.state.successMessage}/>
+        <AdminSearch
+          limit={this.state.sizePerPage}
+          isContributorPath={this.isContributorPath}
+          path={'announcements'}
+          isAdmin={this.isAdmin}
+        />
+
         <BootstrapTable
           remote
           bootstrap4
@@ -291,16 +286,6 @@ class Announcements extends React.Component<RouteComponentProps, State> {
           </ModalBody>
           <ModalFooter>
             <Button className="mr-auto" color="secondary" onClick={this.componentModalToggle}>Close</Button>
-          </ModalFooter>
-        </Modal>
-
-        <Modal isOpen={this.state.deleteModalOpen} className="tableModal">
-          <ErrorMessage message={this.state.deleteErrorMessage}/>
-          <ModalHeader>Delete Announcement?</ModalHeader>
-          <ModalBody>Are you 100% sure you want to delete this announcement?</ModalBody>
-          <ModalFooter>
-            <Button color="danger" className="mr-auto" onClick={this.deleteAnnouncement}>I'm Sure</Button>{' '}
-            <Button color="secondary" onClick={this.deleteModalToggle}>Cancel</Button>
           </ModalFooter>
         </Modal>
       </Container>
