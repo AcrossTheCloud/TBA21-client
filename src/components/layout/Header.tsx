@@ -283,10 +283,10 @@ class HeaderClass extends React.Component<Props, State> { // tslint:disable-line
                       <Button size="sm" className="nav-link btn" onClick={() => this.props.aboutModalToggle(true)}>About</Button>
                     </NavItem>
                     <NavItem>
-                      <Button size="sm" className="nav-link btn" onClick={() => this.props.modalToggle('TC_MODAL', true)}>Terms of Use</Button>
+                      <Button size="sm" className="nav-link btn" onClick={() => this.props.modalToggle('TC_MODAL', true)}>Terms</Button>
                     </NavItem>
                     <NavItem>
-                      <Button size="sm" className="nav-link btn" onClick={() => this.props.modalToggle('PP_MODAL', true)}>Privacy Policy</Button>
+                      <Button size="sm" className="nav-link btn" onClick={() => this.props.modalToggle('PP_MODAL', true)}>Privacy</Button>
                     </NavItem>
                     <NavItem>
                       <Button size="sm" className="nav-link btn" onClick={() => { this.mailChimpModalToggle() }}>Subscribe</Button>
