@@ -44,7 +44,8 @@ export const liveStreamDispatch = (state: boolean) => async dispatch => {
         method: 'GET',
         headers: {
           "Accept":"application/vnd.twitchtv.v5+json",
-          "Client-ID":"brdrlyou2po431ot4owmi1zzjn6n0x"
+          "Client-ID":"w2yn7cjtbiqasqb00yfmmcimneu51k",
+          "Authorization":"Bearer 5sf0800ormqxpvvqiyyq4p03lakqdm"
         }
       });
       let responseJSON = await response.json();
