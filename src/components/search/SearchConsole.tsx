@@ -62,6 +62,7 @@ interface State {
   focus_action: boolean;
   focus_scitech: boolean;
   modalOpen: boolean;
+  noFix: boolean;
   loading: boolean;
   modalType?: 'Item' | 'Collection' | 'Profile';
   searchMobileCookie: boolean;
@@ -135,6 +136,8 @@ class SearchConsole extends React.Component<Props, State> {
       modalOpen: false,
       loading: false,
 
+      noFix: true,
+
       searchMobileCookie: !!cookies.get(`searchMobileCookie`) && (cookies.get(`searchMobileCookie`) === 'true')
     };
 
@@ -146,8 +149,21 @@ class SearchConsole extends React.Component<Props, State> {
     this._isMounted = true;
     this.props.getConceptTags();
     const searchConsoleBody = document.getElementById('searchConsole');
+    
     if (searchConsoleBody) {
+      window.onscroll = () => {
+        let scrollTop = Math.max(document.body.scrollTop, document.documentElement.scrollTop);
+        // if (scrollTop <= searchConsoleBody.getBoundingClientRect().top) {
+        if (scrollTop <= 53) {
+          this.setState({noFix: true})
+        // } else if (scrollTop > searchConsoleBody.getBoundingClientRect().top) {
+        } else if (scrollTop > 53) {
+          this.setState({noFix: false})
+        }
+      }
+
       searchConsoleBody.addEventListener('scroll',  this.scrollDebounce, true);
+
     }
   }
 
@@ -160,6 +176,7 @@ class SearchConsole extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>, ): void {
+
     if (this.props.open !== prevProps.open) {
       if (this.props.open) {
         $('body').addClass('searchOpen');
@@ -381,7 +398,7 @@ class SearchConsole extends React.Component<Props, State> {
     return (
       <div>
         <div id="audioPlayerDiv"><AudioPlayer className="audioPlayerSticky" /></div>
-        <div id="searchConsole" className={isOpenClass}>
+        <div id="searchConsole" className={`${isOpenClass} ${this.state.noFix ? 'noFix' : 'fixed'} ` }>
 
         <Container fluid className={`${hoveredClass} ${isOpenClass} console`} onTouchStart={this.touchDeviceOpen} >
           <Row className="options">
