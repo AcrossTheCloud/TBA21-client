@@ -10,6 +10,7 @@ export enum collectionTypes {
   Event_Series = 'Event Series',
   Edited_Volume = 'Edited Volume',
   Expedition = 'Expedition',
+  Exhibition = 'Exhibition',
   Collection = 'Collection',
   Convening = 'Convening',
   Performance = 'Performance',

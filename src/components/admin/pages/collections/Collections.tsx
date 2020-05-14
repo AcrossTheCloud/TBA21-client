@@ -1,10 +1,11 @@
 import * as React from 'react';
 import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
-import { Button, Container, Modal, ModalBody, ModalFooter, ModalHeader, Spinner } from 'reactstrap';
+import { Button, Container, Modal, ModalBody, ModalFooter, Spinner } from 'reactstrap';
 
 import { Collection } from 'types/Collection';
 import { CollectionEditor } from 'components/metadata/CollectionEditor';
+import { AdminSearch } from '../../utils/AdminSearch';
 
 import { Alerts, ErrorMessage, SuccessMessage } from 'components/utils/alerts';
 import { RouteComponentProps, withRouter } from 'react-router';
@@ -14,8 +15,9 @@ import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.m
 
 import 'styles/components/admin/tables/modal.scss';
 import { FaCheck, FaTimes } from 'react-icons/fa';
-import { adminDel, adminGet } from '../../../../REST/collections';
+import { adminGet } from '../../../../REST/collections';
 import { removeTopology } from '../../../utils/removeTopology';
+import Delete from '../../utils/Delete';
 
 interface State extends Alerts {
   collections: Collection[];
@@ -30,12 +32,14 @@ interface State extends Alerts {
   totalSize: number;
 
   deleteErrorMessage: string | JSX.Element | undefined;
+  order?: string;
 }
 
 class Collections extends React.Component<RouteComponentProps, State> {
   _isMounted;
   tableColumns;
   isAdmin;
+  isContributorPath;
 
   constructor(props: RouteComponentProps) {
     super(props);
@@ -52,6 +56,7 @@ class Collections extends React.Component<RouteComponentProps, State> {
       totalSize: 0,
       deleteErrorMessage: undefined
     };
+    const style = { overflowWrap: 'break-word', wordWrap: 'break-word'  } ;
 
     this.tableColumns = [
       {
@@ -63,7 +68,7 @@ class Collections extends React.Component<RouteComponentProps, State> {
         align: 'center',
         text: 'Published',
         headerStyle: () => {
-          return { width: '10%' };
+          return style;
         },
         formatter: (status) => {
           return(
@@ -72,21 +77,57 @@ class Collections extends React.Component<RouteComponentProps, State> {
         }
       },
       {
+        dataField: 'created_at',
+        text: 'Created Date',
+        sort: true,
+        onSort: (field, order) => {
+          this.dateFormatter(field, order);
+          this.setState({order: order});
+        },
+        formatter: (cell: string) => {
+          return cell.toString().slice(0, 10);
+          },
+        headerStyle: () => {
+          return style;
+        },
+        style: () => {
+          return style;
+        },
+      },
+      {
         dataField: 'title',
-        text: 'Title'
+        text: 'Title',
+        headerStyle: () => {
+          return style;
+        },
+        style: () => {
+          return style;
+        },
       },
       {
         dataField: 'options',
-        text: 'options',
+        text: 'Options',
         isDummyField: true,
         formatter: (e, row, rowIndex) => {
-          return (
-            <>
-              <Button color="warning" size="sm" className="mr-3"  onClick={() => this.onEditButtonClick(rowIndex)}>Edit</Button>
-              <Button color="danger" size="sm" onClick={() => this.onDeleteButtonClick(rowIndex)}>Delete</Button>
-            </>
-          );
-        }
+          const identifier = this.state.collections[rowIndex].id;
+          if (identifier) {
+            return (
+              <>
+                <Button color="warning" size="sm" className="mr-3"  onClick={() => this.onEditButtonClick(rowIndex)}>Edit</Button>
+                <Delete
+                    path={'collections'}
+                    isContributorPath={this.isContributorPath}
+                    index={rowIndex}
+                    identifier={identifier}
+                    callback={() => this.getCollections()}
+                />
+              </>
+            );
+          } else { return <></>; }
+        },
+        headerStyle: () => {
+          return style;
+        },
       }
     ];
   }
@@ -94,19 +135,20 @@ class Collections extends React.Component<RouteComponentProps, State> {
   async componentDidMount() {
     this._isMounted = true;
     this.isAdmin = !!this.props.location.pathname.match(/admin/i);
+    this.isContributorPath = (this.props.location.pathname.match(/contributor/i));
     this.getCollections();
   }
 
-  getCollectionsQuery = async (offset: number): Promise<{ collections: Collection[], totalSize: number } | void> => {
+  getCollectionsQuery = async (offset: number, order?: string): Promise<{ collections: Collection[], totalSize: number } | void> => {
     try {
       const
         queryStringParameters = {
           offset: offset,
-          limit: this.state.sizePerPage
-        };
+          limit: this.state.sizePerPage,
+          order: order ? order : 'none'
+      };
 
-      const isContributorPath = (this.props.location.pathname.match(/contributor/i));
-      const result = await adminGet(isContributorPath, queryStringParameters);
+      const result = await adminGet(this.isContributorPath, queryStringParameters);
       const collections: Collection[] = removeTopology(result) as Collection[];
 
       return {
@@ -120,11 +162,11 @@ class Collections extends React.Component<RouteComponentProps, State> {
     }
   }
 
-  getCollections = async (): Promise<void> => {
+  getCollections = async (order?: string): Promise<void> => {
     try {
       const
         currentIndex = (this.state.page - 1) * this.state.sizePerPage,
-        response = await this.getCollectionsQuery(currentIndex);
+        response = await this.getCollectionsQuery(currentIndex, order);
 
       if (response) {
         const { collections, totalSize } = response;
@@ -153,15 +195,6 @@ class Collections extends React.Component<RouteComponentProps, State> {
       }
     );
   }
-  onDeleteButtonClick = (collectionIndex: number) => {
-    if (!this._isMounted) { return; }
-    this.setState(
-      {
-        deleteModalOpen: true,
-        editingCollectionIndex: collectionIndex,
-      }
-    );
-  }
 
   componentModalToggle = () => {
     if (!this._isMounted) { return; }
@@ -171,47 +204,6 @@ class Collections extends React.Component<RouteComponentProps, State> {
      })
     );
   }
-  deleteModalToggle = () => {
-    if (!this._isMounted) { return; }
-    this.setState( prevState => ({
-       ...prevState,
-       deleteModalOpen: !prevState.deleteModalOpen,
-       deleteErrorMessage: undefined,
-       successMessage: undefined
-     })
-    );
-  }
-  deleteCollection = async () => {
-    const state = {
-      deleteErrorMessage: undefined,
-      successMessage: undefined
-    };
-    try {
-      const collectionIndex: number | undefined = this.state.editingCollectionIndex;
-      if (typeof collectionIndex !== 'undefined' && collectionIndex > -1) {
-        await adminDel(this.state.collections[collectionIndex].id as string);
-        this.getCollections();
-        Object.assign(state, {
-          deleteModalOpen: false,
-          successMessage: 'Collection deleted'
-        });
-      } else {
-        Object.assign(state, {
-          deleteErrorMessage: 'This collection may have already been deleted.',
-          deleteModalOpen: false
-        });
-        this.getCollections();
-      }
-
-    } catch (e) {
-      Object.assign(state, {
-        deleteErrorMessage: 'We had some trouble deleting this collection. Please try again later.'
-      });
-    } finally {
-      if (!this._isMounted) { return; }
-      this.setState(state);
-    }
-  }
 
   handleTableChange = async (type, { page, sizePerPage }): Promise<void> => {
     if (type === 'pagination') {
@@ -220,7 +212,10 @@ class Collections extends React.Component<RouteComponentProps, State> {
       this.setState({ tableIsLoading: true });
 
       try {
-        const response = await this.getCollectionsQuery(currentIndex);
+        let response;
+        if (this.state.order === 'desc' || this.state.order === 'asc') {
+          response = await this.getCollectionsQuery(currentIndex, this.state.order);
+        } else {  response = await this.getCollectionsQuery(currentIndex); }
         if (response) {
           if (!this._isMounted) { return; }
 
@@ -240,6 +235,13 @@ class Collections extends React.Component<RouteComponentProps, State> {
     }
   }
 
+  dateFormatter = async (field, order) => {
+    this.setState({
+                    tableIsLoading: true
+                  });
+    await this.getCollections(order);
+  }
+
   render() {
     const
       { page, sizePerPage, totalSize } = this.state,
@@ -251,6 +253,12 @@ class Collections extends React.Component<RouteComponentProps, State> {
       <Container>
         <ErrorMessage message={this.state.errorMessage}/>
         <SuccessMessage message={this.state.successMessage}/>
+        <AdminSearch
+          limit={this.state.sizePerPage}
+          isContributorPath={this.isContributorPath}
+          path={'collections'}
+          isAdmin={this.isAdmin}
+        />
         <BootstrapTable
           remote
           bootstrap4
@@ -286,19 +294,6 @@ class Collections extends React.Component<RouteComponentProps, State> {
           </ModalBody>
           <ModalFooter>
             <Button className="mr-auto" color="secondary" onClick={this.componentModalToggle}>Close</Button>
-          </ModalFooter>
-        </Modal>
-        {/* Delete Collection Modal */}
-        <Modal isOpen={this.state.deleteModalOpen}>
-          <ErrorMessage message={this.state.deleteErrorMessage}/>
-          <ModalHeader>Delete Collection?</ModalHeader>
-          <ModalBody>Are you 100% sure you want to delete this collection?
-
-          </ModalBody>
-
-          <ModalFooter>
-            <Button color="danger" className="mr-auto" onClick={this.deleteCollection}>I'm Sure</Button>{' '}
-            <Button color="secondary" onClick={this.deleteModalToggle}>Cancel</Button>
           </ModalFooter>
         </Modal>
       </Container>

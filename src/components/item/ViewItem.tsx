@@ -128,7 +128,7 @@ class ViewItem extends React.Component<Props, State> {
       license,
       aggregated_concept_tags,
       aggregated_keyword_tags,
-
+      journal,
       focus_action,
       focus_arts,
       focus_scitech,
@@ -246,6 +246,7 @@ class ViewItem extends React.Component<Props, State> {
 
           </Col>
           <Col xs="12" md="4" className="right">
+            {!!journal ? <ItemDetails label="Publisher" value={journal} /> : <></>}
             {!!time_produced ?
               <ItemDetails label="Date Produced" value={moment(time_produced).format('Do MMMM YYYY')} />
               : year_produced ? <ItemDetails label="Year Produced" value={year_produced} /> : <></>

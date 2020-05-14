@@ -90,7 +90,6 @@ export default class HomepageVideo extends Component<Props, State> {
 
   render() {
     if (this.state.finallyLoaded) { return <></>; } // remove the content so the video isn't in the DOM
-
     return (
       <div id="video">
         <Container fluid className="content" style={{ display: 'none' }}>
