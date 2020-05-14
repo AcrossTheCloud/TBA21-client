@@ -153,11 +153,11 @@ class SearchConsole extends React.Component<Props, State> {
     if (searchConsoleBody) {
       window.onscroll = () => {
         let scrollTop = Math.max(document.body.scrollTop, document.documentElement.scrollTop);
-        // if (scrollTop <= searchConsoleBody.getBoundingClientRect().top) {
-        if (scrollTop <= 53) {
+        if (scrollTop <= searchConsoleBody.getBoundingClientRect().top) {
+        //if (scrollTop <= 53) {
           this.setState({noFix: true})
-        // } else if (scrollTop > searchConsoleBody.getBoundingClientRect().top) {
-        } else if (scrollTop > 53) {
+        } else if (scrollTop > searchConsoleBody.getBoundingClientRect().top) {
+        //} else if (scrollTop > 53) {
           this.setState({noFix: false})
         }
       }
