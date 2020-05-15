@@ -254,6 +254,9 @@ class ViewCollection extends React.Component<Props, State> {
               this.props.data
                   .filter((data: Item | Collection) => {
                     return data.__typename === 'item';
+                  })
+                  .filter((data: Item) => {
+                    return (data.item_type === 'Image' || data.item_type === 'Video')
                   })[0] as Item
               : undefined
         });
