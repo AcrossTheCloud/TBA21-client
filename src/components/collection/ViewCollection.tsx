@@ -13,6 +13,7 @@ import 'styles/components/pages/viewItem.scss';
 import { Item, itemType, Regions } from '../../types/Item';
 import { Collection } from '../../types/Collection';
 import { DetailPreview } from '../utils/DetailPreview';
+import { FilePreview} from '../utils/FilePreview';
 import { FileTypes } from '../../types/s3File';
 import AudioPreview from '../layout/audio/AudioPreview';
 import { dateFromTimeYearProduced } from '../../actions/home';
@@ -253,6 +254,9 @@ class ViewCollection extends React.Component<Props, State> {
               this.props.data
                   .filter((data: Item | Collection) => {
                     return data.__typename === 'item';
+                  })
+                  .filter((data: Item) => {
+                    return (data.item_type === 'Image' || data.item_type === 'Video')
                   })[0] as Item
               : undefined
         });
@@ -416,12 +420,7 @@ class ViewCollection extends React.Component<Props, State> {
           {
             this.state.firstItem ?
                 (
-                    <DataLayout
-                        data={this.state.firstItem}
-                        key={`firstItem_${this.state.firstItem.id}`}
-                        itemModalToggle={this.props.itemModalToggle}
-                        collectionModalToggle={this.collectionModalToggle}
-                    />
+                    <FilePreview file={this.state.firstItem.file} isHeader={true} />
                 )
                 : <></>
           }
