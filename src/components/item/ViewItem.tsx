@@ -5,7 +5,7 @@ import { fetchItem } from 'actions/items/viewItem';
 import { ViewItemState } from 'reducers/items/viewItem';
 import { Alerts, ErrorMessage } from '../utils/alerts';
 import { Item, itemType, Regions } from '../../types/Item';
-import { FilePreview } from '../utils/filePreview';
+import { FilePreview } from '../utils/FilePreview';
 import { Languages } from '../../types/Languages';
 import { browser } from '../utils/browser';
 import { RouteComponentProps, withRouter } from 'react-router';

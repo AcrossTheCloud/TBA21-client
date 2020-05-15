@@ -13,7 +13,7 @@ import 'styles/components/pages/viewItem.scss';
 import { Item, itemType, Regions } from '../../types/Item';
 import { Collection } from '../../types/Collection';
 import { DetailPreview } from '../utils/DetailPreview';
-import { FilePreview} from '../utils/filePreview';
+import { FilePreview} from '../utils/FilePreview';
 import { FileTypes } from '../../types/s3File';
 import AudioPreview from '../layout/audio/AudioPreview';
 import { dateFromTimeYearProduced } from '../../actions/home';
@@ -420,7 +420,7 @@ class ViewCollection extends React.Component<Props, State> {
           {
             this.state.firstItem ?
                 (
-                    <FilePreview id={this.state.firstItem.id} file={this.state.firstItem.file} />
+                    <FilePreview file={this.state.firstItem.file} />
                 )
                 : <></>
           }
