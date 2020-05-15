@@ -102,7 +102,7 @@ export const getItemsAndCollectionsForCollection = async (collections) => {
   }));
 }
 
-export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Function, modalToggle?: Function, isOaHighlight?: boolean, isBanner?: boolean}): JSX.Element => {
+export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Function, modalToggle?: Function, isOaHighlight?: boolean}): JSX.Element => {
   if ((!!props.data.file && props.data.file.type === FileTypes.Audio) || props.data.item_type === itemType.Audio) { return <></>; }
 
   let data: ItemOrHomePageData = props.data;
@@ -123,9 +123,8 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
   const date = dateFromTimeYearProduced(data.time_produced, data.year_produced, data.end_year_produced);
 
   return (
-    <div className={`detailPreview ${browser()} ${props.isBanner && data.item_type !== 'Video' ? 'detailPreviewNotClickable' : ''}`} onClick={() => { if ((typeof props.modalToggle === 'function') && (!(props.isBanner && data.item_type !== 'Video'))) { props.modalToggle(true, props.data); } }}>
+    <div className={`detailPreview ${browser()}`} onClick={() => { if (typeof props.modalToggle === 'function') { props.modalToggle(true, props.data); } }}>
       {data.file ? <FileStaticPreview file={data.file} onLoad={typeof props.onLoad === 'function' ? props.onLoad : undefined}/> : <></>}
-      {!props.isBanner ? (
       <div className="overlay">
         <div className="type">
           {data.item_subtype || !!collectionType ? collectionType : ''}
@@ -203,8 +202,7 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
             </div>
             : <></>
         }
-      </div>): (<></>)
-    }
+      </div>
     </div>
   );
 };

@@ -89,7 +89,6 @@ const DataLayout = (props: { data: Item | Collection, itemModalToggle?: Function
             <DetailPreview
               data={data}
               modalToggle={typeof props.itemModalToggle === 'function' ? props.itemModalToggle : undefined}
-              isBanner={true}
             />
         );
       }
