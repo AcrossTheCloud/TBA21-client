@@ -17,7 +17,7 @@ import { FileTypes } from '../../types/s3File';
 import AudioPreview from '../layout/audio/AudioPreview';
 import { dateFromTimeYearProduced } from '../../actions/home';
 import { debounce, isEqual } from 'lodash';
-import { getCollectionsInCollection, getItemsInCollection } from '../../REST/collections';
+import { getCollectionsInCollection, getItemsInCollection, getCollectionsList } from '../../REST/collections';
 import { removeTopology } from '../utils/removeTopology';
 import { createCriteriaOption } from '../search/SearchConsole';
 import { toggle as collectionModalToggle } from '../../actions/modals/collectionModal';
@@ -480,9 +480,6 @@ class ViewCollection extends React.Component<Props, State> {
                 this.state.collection.items && this.state.collection.items.length ?
                     // tslint:disable-next-line:no-any
                     (this.state.collection.items as any[])
-                        .filter((item: Item) => {
-                          return this.state.firstItem && item.id !== this.state.firstItem.id;
-                        })
                         .map((item: Item, i) => (
                             <DataLayout
                                 data={item}
@@ -579,12 +576,75 @@ class ViewCollection extends React.Component<Props, State> {
                 <div style={{ height: '15px', background: `linear-gradient(to right, #0076FF ${focusPercentage(focus_arts)}%, #9013FE ${focusPercentage(focus_scitech)}%, #50E3C2 ${focusPercentage(focus_action)}%)` }} />
               </Col>
             </Row>
+            <Row>
+              <div id="collectionList" className={id}>
+                  <CollectionList></CollectionList>
+                </div>     
+            </Row>
           </Col>
         </Row>
       </div>
     );
   }
 }
+
+class CollectionList extends React.Component<{},any> {
+  constructor(props){
+    super(props);
+    this.state = {
+      listData: [],
+      currentId: null,
+    };
+  }
+  
+  componentDidMount() {
+    this.fetchList();
+  }
+
+  async fetchList() {
+    const listResponse = await getCollectionsList({limit: 15, offset: 0});
+    const listData = [...removeTopology(listResponse)] as any;
+    const collectionListBody = document.getElementById('collectionList') ;
+    if( collectionListBody ){
+      const currentId = collectionListBody.className;
+      for (let i=0; i<listData.length; i++){
+        let id = listData[i].collection_id;
+        if (id == currentId) {
+          this.setState({
+            listData: listData,
+            currentId: currentId,
+          })
+        } 
+      }
+      return;      
+    }
+  }
+
+  render() {
+    const listData = this.state.listData;
+    const currentId = this.state.currentId;
+    return (
+      <div className="col-12 list">
+        {listData.map(list=> 
+          list.collection_id == currentId? <div className="current">{list.title}</div> : 
+          <div className="related">
+            <a className="collection_link" href={`/collection/${list.collection_id}`} target="_self" rel={list.collection_id} id={list.collection_id}>
+            <svg className="collection_icon" viewBox="-17 5 40 20">
+              <g stroke="none" stroke-width="1">
+                <rect id="Rectangle" x="-6" y="15" width="19" height="1"></rect>
+                <circle id="Oval" cx="15.5" cy="15.5" r="3.5"></circle>
+                <circle id="Oval-Copy-2" cx="3.5" cy="15.5" r="2.5"></circle>
+                <circle id="Oval-Copy" cx="-8.5" cy="15.5" r="3.5"></circle>
+              </g>
+            </svg>
+            {list.title}</a>
+          </div> 
+      )}
+      </div>
+    )
+  }   
+}
+
 
 // State to props
 const mapStateToProps = (state: { viewCollection: ViewCollectionState, userHistory: UserHistoryState }, props: { modalBodyID?: string, collection?: Collection, noRedux?: boolean}) => {
