@@ -21,6 +21,11 @@ export const getCollectionsList = async (queryStringParameters: Object = {}) => 
   return response.data;
 };
 
+export const getCollectionCollectionsId = async (queryStringParameters: Object = {}) => {
+  const response = await API.get('tba21', 'collections/getCollectionCollectionsId', { queryStringParameters });
+  return response.data;
+};
+
 /*
  * ADMIN FUNCTIONS
  */

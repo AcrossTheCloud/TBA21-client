@@ -17,7 +17,7 @@ import { FileTypes } from '../../types/s3File';
 import AudioPreview from '../layout/audio/AudioPreview';
 import { dateFromTimeYearProduced } from '../../actions/home';
 import { debounce, isEqual } from 'lodash';
-import { getCollectionsInCollection, getItemsInCollection, getCollectionsList } from '../../REST/collections';
+import { getCollectionsInCollection, getItemsInCollection, getCollectionsList, getCollectionCollectionsId } from '../../REST/collections';
 import { removeTopology } from '../utils/removeTopology';
 import { createCriteriaOption } from '../search/SearchConsole';
 import { toggle as collectionModalToggle } from '../../actions/modals/collectionModal';
@@ -597,26 +597,44 @@ class CollectionList extends React.Component<{},any> {
     };
   }
   
-  componentDidMount() {
+  async componentDidMount() {
     this.fetchList();
+
+    const idResponse = await getCollectionCollectionsId({limit: 100, offset: 0});
+    const collectionCollectionsId = [...removeTopology(idResponse)] as any;
+
+    const listElement = document.getElementById('list');
+    if(listElement && collectionCollectionsId ) {
+      const svgElements = listElement.getElementsByTagName('svg');
+      collectionCollectionsId.map(collectionCollections => {
+          for (let i = 0; i< svgElements.length; i++) {
+            if (svgElements[i].id === collectionCollections.collection_id) {
+              svgElements[i].setAttribute("class","collection_icon show");
+            }
+          }
+
+       });
+    }
   }
 
   async fetchList() {
-    const listResponse = await getCollectionsList({limit: 15, offset: 0});
+    const listResponse = await getCollectionsList({limit: 100, offset: 0});
     const listData = [...removeTopology(listResponse)] as any;
     const collectionListBody = document.getElementById('collectionList') ;
-    if( collectionListBody ){
+    if( collectionListBody && listData ){
+      this.setState({
+        listData: listData
+      });
       const currentId = collectionListBody.className;
       for (let i=0; i<listData.length; i++){
-        let id = listData[i].collection_id;
+        let id = listData[i].id;
         if (id == currentId) {
           this.setState({
-            listData: listData,
             currentId: currentId,
           })
         } 
       }
-      return;      
+      return;
     }
   }
 
@@ -624,12 +642,12 @@ class CollectionList extends React.Component<{},any> {
     const listData = this.state.listData;
     const currentId = this.state.currentId;
     return (
-      <div className="col-12 list">
+      <div className="col-12 list" id="list">
         {listData.map(list=> 
-          list.collection_id == currentId? <div className="current">{list.title}</div> : 
+          list.id == currentId ? <div className="current" id={list.id}>{list.title}</div> : 
           <div className="related">
-            <a className="collection_link" href={`/collection/${list.collection_id}`} target="_self" rel={list.collection_id} id={list.collection_id}>
-            <svg className="collection_icon" viewBox="-17 5 40 20">
+            <a className="collection_link" href={`/collection/${list.id}`} target="_self" rel={list.id} id={list.id}>
+            <svg className="collection_icon hidden" id={list.id} viewBox="-17 5 40 20">
               <g stroke="none" stroke-width="1">
                 <rect id="Rectangle" x="-6" y="15" width="19" height="1"></rect>
                 <circle id="Oval" cx="15.5" cy="15.5" r="3.5"></circle>
