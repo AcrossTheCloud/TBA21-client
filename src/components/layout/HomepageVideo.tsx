@@ -28,7 +28,8 @@ const urls = [
   {
     "video": "https://video-streaming.ocean-archive.org/OiT_video.mp4",
     "thumbnail": "https://video-streaming.ocean-archive.org/OiT_thumbnail.jpg",
-    "logo": "Logo_OiT"
+    "logo": "Logo_OiT",
+    "loop": "false"
   }
 ];
 
@@ -95,6 +96,7 @@ export default class HomepageVideo extends Component<Props, State> {
   isPortrait = () => (window.innerHeight > window.innerWidth);
 
   render() {
+
     if (this.state.finallyLoaded) { return <></>; } // remove the content so the video isn't in the DOM
     return (
       <div id="video">
@@ -125,7 +127,7 @@ export default class HomepageVideo extends Component<Props, State> {
             muted
             autoPlay
             controls={false}
-            loop
+            loop={(this.state.elem as any).loop && (this.state.elem as any).loop === 'false' ? false : true}
             playsInline
           >
             <source src={(this.state.elem as any).video} type="video/mp4"/>
