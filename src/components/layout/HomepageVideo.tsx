@@ -2,9 +2,10 @@ import React, { Component } from 'react';
 import $ from 'jquery';
 
 import logo from 'images/logo/oa_web_white.svg';
+import oitlogo from 'images/logo/Logo_OiT.svg';
 import 'styles/components/homeVideo.scss';
 import { Col, Container, Row } from 'reactstrap';
-import { sample } from 'lodash';
+//import { sample } from 'lodash';
 
 interface Props {
   onChange?: Function;
@@ -23,6 +24,11 @@ const urls = [
   {
     "thumbnail": "https://video-streaming.ocean-archive.org/loading_image_4.jpg",
     "portrait": "https://video-streaming.ocean-archive.org/loading_image_4_portrait.jpg"
+  },
+  {
+    "video": "https://video-streaming.ocean-archive.org/OiT_video.mp4",
+    "thumbnail": "https://video-streaming.ocean-archive.org/OiT_thumbnail.jpg",
+    "logo": "Logo_OiT"
   }
 ];
 
@@ -41,7 +47,7 @@ export default class HomepageVideo extends Component<Props, State> {
 
     this.state = {
       finallyLoaded: false,
-      elem: sample(urls)
+      elem: urls[3]
     };
   }
 
@@ -104,7 +110,10 @@ export default class HomepageVideo extends Component<Props, State> {
             </Col>
             <Col xs="12" md="6" className="right pt-3 pt-md-0">
               <div className="logo d-flex align-items-baseline">
-                <img src={logo} alt="Ocean Archive" />
+                { (this.state.elem as any).logo && (this.state.elem as any).logo === "Logo_OiT" ?
+                  (<img src={oitlogo} style={{width: "2565pt", height: "780pt", paddingBottom: "700px"}} alt="Oceans in Transformation" />) :
+                  (<img src={logo} alt="Ocean Archive" />)
+                }
               </div>
             </Col>
           </Row>
