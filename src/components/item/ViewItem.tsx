@@ -5,7 +5,7 @@ import { fetchItem } from 'actions/items/viewItem';
 import { ViewItemState } from 'reducers/items/viewItem';
 import { Alerts, ErrorMessage } from '../utils/alerts';
 import { Item, itemType, Regions } from '../../types/Item';
-import { FilePreview } from '../utils/filePreview';
+import { FilePreview } from '../utils/FilePreview';
 import { Languages } from '../../types/Languages';
 import { browser } from '../utils/browser';
 import { RouteComponentProps, withRouter } from 'react-router';
@@ -128,7 +128,7 @@ class ViewItem extends React.Component<Props, State> {
       license,
       aggregated_concept_tags,
       aggregated_keyword_tags,
-
+      journal,
       focus_action,
       focus_arts,
       focus_scitech,
@@ -255,6 +255,7 @@ class ViewItem extends React.Component<Props, State> {
 
           </Col>
           <Col xs="12" md="4" className="right">
+            {!!journal ? <ItemDetails label="Publisher" value={journal} /> : <></>}
             {!!time_produced ?
               <ItemDetails label="Date Produced" value={moment(time_produced).format('Do MMMM YYYY')} />
               : year_produced ? <ItemDetails label="Year Produced" value={year_produced} /> : <></>

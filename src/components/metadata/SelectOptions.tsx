@@ -457,7 +457,7 @@ export const collectionTypes = [
   {value : Types.Event_Series, label: 'Event Series'},
   {value : Types.Edited_Volume, label: 'Edited Volume'},
   {value : Types.Expedition, label: 'Expedition'},
-  {value : Types.Expedition, label: 'Exhibition'},
+  {value : Types.Exhibition, label: 'Exhibition'},
   {value : Types.Collection, label: 'Collection'},
   {value : Types.Convening, label: 'Convening'},
   {value : Types.Performance, label: 'Performance'},

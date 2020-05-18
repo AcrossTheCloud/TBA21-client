@@ -283,13 +283,13 @@ class HeaderClass extends React.Component<Props, State> { // tslint:disable-line
                       <Button size="sm" className="nav-link btn" onClick={() => this.props.aboutModalToggle(true)}>About</Button>
                     </NavItem>
                     <NavItem>
-                      <Button size="sm" className="nav-link btn" onClick={() => this.props.modalToggle('TC_MODAL', true)}>Terms of Use</Button>
+                      <Button size="sm" className="nav-link btn" onClick={() => this.props.modalToggle('TC_MODAL', true)}>Terms</Button>
                     </NavItem>
                     <NavItem>
-                      <Button size="sm" className="nav-link btn" onClick={() => this.props.modalToggle('PP_MODAL', true)}>Privacy Policy</Button>
+                      <Button size="sm" className="nav-link btn" onClick={() => this.props.modalToggle('PP_MODAL', true)}>Privacy</Button>
                     </NavItem>
                     <NavItem>
-                      <Button size="sm" className="nav-link btn" onClick={() => { this.mailChimpModalToggle() }}>Join Our Mailing List</Button>
+                      <Button size="sm" className="nav-link btn" onClick={() => { this.mailChimpModalToggle() }}>Subscribe</Button>
                     </NavItem>
 
                     {isAuthenticated && isAdmin ?
@@ -335,7 +335,7 @@ class HeaderClass extends React.Component<Props, State> { // tslint:disable-line
               </Navbar>
               <Modal id="mailChimpModal" className="blue" isOpen={this.state.mailChimpModal} backdrop scrollable centered size="lg" toggle={this.mailChimpModalToggle} >
                 <Row className="header align-content-center">
-                  <Col xs="11" className="pl-0">Join Our Mailing List</Col>
+                  <Col xs="11" className="pl-0">Subscribe to Our Mailing List</Col>
                   <Col xs={1} className="px-0">
                     <div className="text-right closeIcon">
                       <FaTimes className="closeButton" onClick={this.mailChimpModalToggle}/>

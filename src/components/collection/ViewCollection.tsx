@@ -13,6 +13,7 @@ import 'styles/components/pages/viewItem.scss';
 import { Item, itemType, Regions } from '../../types/Item';
 import { Collection } from '../../types/Collection';
 import { DetailPreview } from '../utils/DetailPreview';
+import { FilePreview} from '../utils/FilePreview';
 import { FileTypes } from '../../types/s3File';
 import AudioPreview from '../layout/audio/AudioPreview';
 import { dateFromTimeYearProduced } from '../../actions/home';
@@ -49,6 +50,7 @@ interface Props extends RouteComponentProps<MatchParams>, ViewCollectionState {
 
 interface State {
   data: (Item | Collection)[] | undefined;
+  firstItem: Item | undefined;
   offset: number;
   errorMessage?: string;
   collection?: Collection;
@@ -153,6 +155,7 @@ class ViewCollection extends React.Component<Props, State> {
     this._isMounted = false;
     const state = {
       data: undefined,
+      firstItem: undefined,
       offset: 0,
       loading: false,
       noMoreData: false,
@@ -246,7 +249,16 @@ class ViewCollection extends React.Component<Props, State> {
             ...this.state.collection,
             items: [...items],
             collections: [...collections]
-          } as Collection
+          } as Collection,
+          firstItem: this.props.data ?
+              this.props.data
+                  .filter((data: Item | Collection) => {
+                    return data.__typename === 'item';
+                  })
+                  .filter((data: Item) => {
+                    return (data.item_type === 'Image' || data.item_type === 'Video')
+                  })[0] as Item
+              : undefined
         });
       }
     }
@@ -405,6 +417,16 @@ class ViewCollection extends React.Component<Props, State> {
         <ErrorMessage message={this.props.errorMessage} />
 
         <Row>
+          {
+            this.state.firstItem ?
+                (
+                    <FilePreview file={this.state.firstItem.file} isHeader={true} />
+                )
+                : <></>
+          }
+        </Row>
+
+        <Row>
           <Col xs="12" md="8" className="left border-right">
             <Row>
               <Col xs={{ size: 12, order: 2 }} md={{ size: 8, order: 1 }} className="creators">
@@ -457,6 +479,9 @@ class ViewCollection extends React.Component<Props, State> {
                 this.state.collection.items && this.state.collection.items.length ?
                     // tslint:disable-next-line:no-any
                     (this.state.collection.items as any[])
+                        .filter((item: Item) => {
+                          return this.state.firstItem && item.id !== this.state.firstItem.id;
+                        })
                         .map((item: Item, i) => (
                             <DataLayout
                                 data={item}
@@ -566,6 +591,7 @@ const mapStateToProps = (state: { viewCollection: ViewCollectionState, userHisto
     errorMessage: state.viewCollection.errorMessage,
     collection: props.collection || state.viewCollection.collection,
     data: state.viewCollection.data,
+    firstItem: state.viewCollection.firstItem,
     offset: state.viewCollection.offset,
     noMoreData: state.viewCollection.noMoreData,
     noRedux: !!props.noRedux || false,
