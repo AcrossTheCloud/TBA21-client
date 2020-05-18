@@ -29,7 +29,8 @@ const urls = [
     "video": "https://video-streaming.ocean-archive.org/OiT_video.mp4",
     "thumbnail": "https://video-streaming.ocean-archive.org/OiT_thumbnail.jpg",
     "logo": "Logo_OiT",
-    "loop": "false"
+    "loop": "false",
+    "time": 10000
   }
 ];
 
@@ -83,7 +84,7 @@ export default class HomepageVideo extends Component<Props, State> {
           if (this._isMounted) {
             this.setState({ finallyLoaded: true });
           }
-        }, 2000);
+        }, this.state.elem.time ? this.state.elem.time : 2000);
 
       }, 2800);
     }
