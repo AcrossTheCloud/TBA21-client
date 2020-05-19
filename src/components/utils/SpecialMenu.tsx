@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import 'styles/components/specialMenu.scss';
 
+import {ReactComponent as CollectionIcon} from '../../images/svgs/collection.svg';
+
 interface Props {
-  id: number;
+  id?: string;
 }
 
 export default class SpecialMenu extends Component<Props,{}> {
@@ -19,18 +21,32 @@ export default class SpecialMenu extends Component<Props,{}> {
     '899': {title: 'Overfishing'},
     '901': {title: 'Transport / Shipment'},
     '931': {title: 'Bathymetry / Extractivism'},
-    '900': {title: 'Continental Shelf'},
+    '900': {title: 'Continental Shelves'},
     '898': {title: 'Coastal Urbanization'},
     '897': {title: 'Coastal Transformation'},
     '896': {title: 'The Knowledge of Land and Water: Indigenous Climate Justice'}
   }
 
+  mappings_ids_inOrder = [
+    '893',
+    '894',
+    '902',
+    '895',
+    '904',
+    '899',
+    '901',
+    '931',
+    '900',
+    '898',
+    '897',
+    '896'
+  ]
+
   toDisplay = (): boolean => {
-    const id = window.location.pathname.split('/')[-1];
-    if (window.location.pathname.match(/collection/) && id==='51') {
+    if (window.location.pathname.match(/collection/) && this.props.id==='51') {
       return true;
     } else {
-      return id in this.mappings;
+      return (this.props.id ? (this.props.id in this.mappings) : false);
     }
   }
 
@@ -39,18 +55,19 @@ export default class SpecialMenu extends Component<Props,{}> {
     return (
       <div className="col-12 list" id="specialMenu">
         {window.location.pathname.match(/collection/) ? 
-          (<div className="current" id="51">Sensing the Oceans: Anthropogenic Drivers</div>)
+          (<div className="current" id="51">
+             <CollectionIcon /> Sensing the Oceans: Anthropogenic Drivers</div>)
           :
 
           (
             <div className="related">
             <a className="collection_link" href={`/collection/51`} target="_self" rel="51" id="51">
-            Sensing the Oceans: Anthropogenic Drivers</a>
+            <CollectionIcon /> Sensing the Oceans: Anthropogenic Drivers</a>
           </div> 
           )
         }
         <hr />
-        {Object.keys(this.mappings).map((id)=> 
+        {this.mappings_ids_inOrder.map((id)=> 
           id === window.location.pathname.split('/')[-1] ? <div className="current" id={id}>{this.mappings[id].title}</div> : 
           <div className="related">
             <a className="collection_link" href={`/view/${id}`} target="_self" rel={id} id={id}>

@@ -1,3 +1,5 @@
+@import '../base/variables';
+
 #specialMenu {
     padding: 15px;
     width: 100%;
@@ -8,12 +10,26 @@
     width: 100%;
   }
 
+  hr {
+    background-color: $subline-gray;
+    margin-top: 9px;
+    margin-bottom: 9px;
+  }
+
+  .collections_in_collection_icon, .collection_icon {
+    width: 22px;
+    height: auto;
+    vertical-align: -5%;
+
+    g {
+      fill: currentColor;
+    }
+  }
+
   .current{
     order:-1;
-    color: #7E7E7E;
+    color: $subline-gray;
     font-size: 14px;
-    font-weight: bold;
-    opacity: 0.3;
   }  
   .related{
     order:1;
