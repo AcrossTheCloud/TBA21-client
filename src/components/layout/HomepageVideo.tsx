@@ -49,7 +49,7 @@ export default class HomepageVideo extends Component<Props, State> {
 
     this.state = {
       finallyLoaded: false,
-      elem: sample(urls.slice(2,3))
+      elem: sample(urls.slice(2,4))
     };
   }
 
