@@ -5,7 +5,7 @@ import logo from 'images/logo/oa_web_white.svg';
 import oitlogo from 'images/logo/Logo_OiT.svg';
 import 'styles/components/homeVideo.scss';
 import { Col, Container, Row } from 'reactstrap';
-//import { sample } from 'lodash';
+import { sample } from 'lodash';
 
 interface Props {
   onChange?: Function;
@@ -49,7 +49,7 @@ export default class HomepageVideo extends Component<Props, State> {
 
     this.state = {
       finallyLoaded: false,
-      elem: urls[3]
+      elem: sample(urls.slice(2,3))
     };
   }
 
