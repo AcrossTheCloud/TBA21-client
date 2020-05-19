@@ -19,7 +19,6 @@ export const FilePreview = (props: { file: S3File , isHeader?: boolean}): JSX.El
             srcSet={thumbnailsSRCSET(props.file)}
             src={props.file.url}
             alt=""
-            style={props.isHeader? {height: "34vh", width: "auto"} : {}}
           />
           {/*<div className="background" style={{ background: `url(${!!background ? encodeURI(background) : props.file.url})`, backgroundSize: 'contain' }} />*/}
         </Col>
