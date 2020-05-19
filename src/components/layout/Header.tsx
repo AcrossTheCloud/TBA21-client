@@ -7,7 +7,7 @@ import {
   Form, FormFeedback, Input, Label, CustomInput,
   Row, Col,
   Navbar,
-  NavbarBrand,
+  NavbarBrand, 
   NavbarToggler,
   Nav,
   NavItem,
@@ -27,7 +27,7 @@ import { validateEmail } from '../utils/inputs/email';
 import { toggleOverlay } from '../../actions/loadingOverlay';
 import { has } from 'lodash'; 
 import jsonp from 'jsonp';
-import home from '../../images/svgs/home.svg';
+import home from '../../images/svgs/home.svg'; 
 
 import { AuthConsumer } from '../../providers/AuthProvider';
 
@@ -275,10 +275,10 @@ class HeaderClass extends React.Component<Props, State> { // tslint:disable-line
           return (
             <div id="navigation">
                <Navbar dark expand="md" >
-                <NavbarBrand href="/" className="mr-auto home"><img src={home} className="homeSvg" alt="home" /></NavbarBrand>
+                <NavbarBrand href="/" className="mr-auto home"><img src={home} className="homeSvg" alt="home" /></NavbarBrand> 
                 <NavbarToggler onClick={this.toggle}/>
                 <Collapse isOpen={this.state.isOpen} navbar>
-                  <Nav className="ml-auto float-right " navbar>
+                  <Nav className="ml-auto float-right " navbar> 
                     <NavItem>
                       <Button size="sm" className="nav-link btn" onClick={() => this.props.aboutModalToggle(true)}>About</Button>
                     </NavItem>
