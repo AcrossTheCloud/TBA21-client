@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import $ from 'jquery';
 
 import logo from 'images/logo/oa_web_white.svg';
-import oitlogo from 'images/logo/Logo_OiT.svg';
 import 'styles/components/homeVideo.scss';
 import { Col, Container, Row } from 'reactstrap';
 import { sample } from 'lodash';
@@ -114,7 +113,7 @@ export default class HomepageVideo extends Component<Props, State> {
             <Col xs="12" md="6" className="right pt-3 pt-md-0">
               <div className="logo d-flex align-items-baseline">
                 { (this.state.elem as any).logo && (this.state.elem as any).logo === "Logo_OiT" ?
-                  (<img src={oitlogo} style={{width: "2565pt", height: "780pt", paddingBottom: "700px"}} alt="Oceans in Transformation" />) :
+                  (<img src="/logos/Logo_OiT.png" style={{height: "100px", width: "auto"}} alt="Oceans in Transformation" />) :
                   (<img src={logo} alt="Ocean Archive" />)
                 }
               </div>
