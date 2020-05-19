@@ -8,9 +8,6 @@ interface Props {
 }
 
 export default class SpecialMenu extends Component<Props,{}> {
-  constructor(props){
-    super(props);
-  }
 
   mappings = {
     '893': {title: 'Multiple Oceans'},
