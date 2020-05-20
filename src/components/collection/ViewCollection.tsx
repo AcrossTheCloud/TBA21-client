@@ -4,6 +4,7 @@ import { Button, Col, Row } from 'reactstrap';
 import { dispatchLoadMore, fetchCollection, loadMore } from 'actions/collections/viewCollection';
 import { ViewCollectionState } from 'reducers/collections/viewCollection';
 import { ErrorMessage } from '../utils/alerts';
+import SpecialMenu from '../utils/SpecialMenu';
 import { browser } from '../utils/browser';
 import LicenceLink from '../utils/LicenceLink'
 import { RouteComponentProps, withRouter } from 'react-router';
@@ -13,6 +14,7 @@ import 'styles/components/pages/viewItem.scss';
 import { Item, itemType, Regions } from '../../types/Item';
 import { Collection } from '../../types/Collection';
 import { DetailPreview } from '../utils/DetailPreview';
+import { FilePreview} from '../utils/FilePreview';
 import { FileTypes } from '../../types/s3File';
 import AudioPreview from '../layout/audio/AudioPreview';
 import { dateFromTimeYearProduced } from '../../actions/home';
@@ -253,6 +255,9 @@ class ViewCollection extends React.Component<Props, State> {
               this.props.data
                   .filter((data: Item | Collection) => {
                     return data.__typename === 'item';
+                  })
+                  .filter((data: Item) => {
+                    return (data.item_type === 'Image' || data.item_type === 'Video')
                   })[0] as Item
               : undefined
         });
@@ -416,12 +421,7 @@ class ViewCollection extends React.Component<Props, State> {
           {
             this.state.firstItem ?
                 (
-                    <DataLayout
-                        data={this.state.firstItem}
-                        key={`firstItem_${this.state.firstItem.id}`}
-                        itemModalToggle={this.props.itemModalToggle}
-                        collectionModalToggle={this.collectionModalToggle}
-                    />
+                    <FilePreview file={this.state.firstItem.file} isHeader={true} />
                 )
                 : <></>
           }
@@ -578,6 +578,9 @@ class ViewCollection extends React.Component<Props, State> {
               <Col className="px-0">
                 <div style={{ height: '15px', background: `linear-gradient(to right, #0076FF ${focusPercentage(focus_arts)}%, #9013FE ${focusPercentage(focus_scitech)}%, #50E3C2 ${focusPercentage(focus_action)}%)` }} />
               </Col>
+            </Row>
+            <Row>
+              <SpecialMenu id={id}/>
             </Row>
           </Col>
         </Row>

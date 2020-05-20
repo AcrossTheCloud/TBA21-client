@@ -1,0 +1,43 @@
+@import '../base/variables';
+
+#specialMenu {
+    padding: 15px;
+    width: 100%;
+    height: 100%;
+  .list{
+    display:flex;
+    flex-direction:column;
+    width: 100%;
+  }
+
+  hr {
+    background-color: $subline-gray;
+    margin-top: 9px;
+    margin-bottom: 9px;
+  }
+
+  .collections_in_collection_icon, .collection_icon {
+    width: 22px;
+    height: auto;
+    vertical-align: -5%;
+
+    g {
+      fill: currentColor;
+    }
+  }
+
+  .current{
+    order:-1;
+    color: $subline-gray;
+    font-size: 14px;
+  }  
+  .related{
+    order:1;
+    font-size: 14px;
+    display: block;
+
+    a:hover .collection_icon {
+      fill: #9746de;    
+    } 
+  }
+} 

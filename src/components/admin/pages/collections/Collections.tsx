@@ -145,7 +145,7 @@ class Collections extends React.Component<RouteComponentProps, State> {
         queryStringParameters = {
           offset: offset,
           limit: this.state.sizePerPage,
-          order: order ? order : 'none'
+          order: order ? order : 'desc'
       };
 
       const result = await adminGet(this.isContributorPath, queryStringParameters);

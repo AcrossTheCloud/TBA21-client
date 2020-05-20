@@ -45,7 +45,7 @@
     font-size: 20px;
     position: absolute;
     z-index: inherit;
-    top: 87%;
+    top: 82%;
     left: 50%;
     transform: translate(-50%, -50%);
     @media screen and (min-width: 768px) {
@@ -70,7 +70,7 @@
     }
 
     h1 {
-      margin-bottom: 15px;
+      margin-bottom: 0px;
     }
 
     .logo {
@@ -88,7 +88,7 @@
     }
 
     .bottom {
-      padding-top: 20px;
+      padding-top: 0px;
       .left {
         p {
           margin-bottom: 0;

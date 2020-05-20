@@ -23,6 +23,13 @@ const urls = [
   {
     "thumbnail": "https://video-streaming.ocean-archive.org/loading_image_4.jpg",
     "portrait": "https://video-streaming.ocean-archive.org/loading_image_4_portrait.jpg"
+  },
+  {
+    "video": "https://video-streaming.ocean-archive.org/OiT_video.mp4",
+    "thumbnail": "https://video-streaming.ocean-archive.org/OiT_thumbnail.jpg",
+    "logo": "Logo_OiT",
+    "loop": "false",
+    "time": 10000
   }
 ];
 
@@ -41,7 +48,7 @@ export default class HomepageVideo extends Component<Props, State> {
 
     this.state = {
       finallyLoaded: false,
-      elem: sample(urls)
+      elem: sample(urls.slice(2,4))
     };
   }
 
@@ -76,7 +83,7 @@ export default class HomepageVideo extends Component<Props, State> {
           if (this._isMounted) {
             this.setState({ finallyLoaded: true });
           }
-        }, 2000);
+        }, this.state.elem.time ? this.state.elem.time : 2000);
 
       }, 2800);
     }
@@ -89,6 +96,7 @@ export default class HomepageVideo extends Component<Props, State> {
   isPortrait = () => (window.innerHeight > window.innerWidth);
 
   render() {
+
     if (this.state.finallyLoaded) { return <></>; } // remove the content so the video isn't in the DOM
     return (
       <div id="video">
@@ -104,7 +112,10 @@ export default class HomepageVideo extends Component<Props, State> {
             </Col>
             <Col xs="12" md="6" className="right pt-3 pt-md-0">
               <div className="logo d-flex align-items-baseline">
-                <img src={logo} alt="Ocean Archive" />
+                { (this.state.elem as any).logo && (this.state.elem as any).logo === "Logo_OiT" ?
+                  (<img src="/logos/Logo_OiT.png" style={{height: "100px", width: "auto"}} alt="Oceans in Transformation" />) :
+                  (<img src={logo} alt="Ocean Archive" />)
+                }
               </div>
             </Col>
           </Row>
@@ -116,7 +127,7 @@ export default class HomepageVideo extends Component<Props, State> {
             muted
             autoPlay
             controls={false}
-            loop
+            loop={(this.state.elem as any).loop && (this.state.elem as any).loop === 'false' ? false : true}
             playsInline
           >
             <source src={(this.state.elem as any).video} type="video/mp4"/>
