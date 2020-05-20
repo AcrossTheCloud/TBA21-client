@@ -39,8 +39,10 @@ export default class SpecialMenu extends Component<Props,{}> {
     '896'
   ]
 
+  collections_to_display_in = ['51','49','67','68'];
+
   toDisplay = (): boolean => {
-    if (window.location.pathname.match(/collection/) && this.props.id==='51') {
+    if (window.location.pathname.match(/collection/) && this.collections_to_display_in.includes(this.props.id as string)) {
       return true;
     } else {
       return (this.props.id ? (this.props.id in this.mappings) : false);
@@ -51,7 +53,7 @@ export default class SpecialMenu extends Component<Props,{}> {
     if (this.toDisplay()) {
     return (
       <div className="col-12 list" id="specialMenu">
-        {window.location.pathname.match(/collection/) ? 
+        {window.location.pathname.match(/collection\/51/) ? 
           (<div className="current" id="51">
              <CollectionIcon /> Sensing the Oceans: Anthropogenic Drivers</div>)
           :
