@@ -66,7 +66,6 @@ interface State {
   loading: boolean;
   modalType?: 'Item' | 'Collection' | 'Profile';
   searchMobileCookie: boolean;
-  noFix: boolean;
 }
 
 // @todo should be a util
@@ -136,8 +135,6 @@ class SearchConsole extends React.Component<Props, State> {
 
       modalOpen: false,
       loading: false,
-      noFix: true,
-
       noFix: true,
 
       searchMobileCookie: !!cookies.get(`searchMobileCookie`) && (cookies.get(`searchMobileCookie`) === 'true')

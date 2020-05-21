@@ -27,7 +27,6 @@ import { validateEmail } from '../utils/inputs/email';
 import { toggleOverlay } from '../../actions/loadingOverlay';
 import { has } from 'lodash'; 
 import jsonp from 'jsonp';
-import home from '../../images/svgs/home.svg'; 
 
 import { AuthConsumer } from '../../providers/AuthProvider';
 import home from '../../images/logo/OA_symbol.svg';
