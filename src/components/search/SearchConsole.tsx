@@ -62,6 +62,7 @@ interface State {
   focus_action: boolean;
   focus_scitech: boolean;
   modalOpen: boolean;
+  noFix: boolean;
   loading: boolean;
   modalType?: 'Item' | 'Collection' | 'Profile';
   searchMobileCookie: boolean;
@@ -134,6 +135,7 @@ class SearchConsole extends React.Component<Props, State> {
 
       modalOpen: false,
       loading: false,
+      noFix: true,
 
       searchMobileCookie: !!cookies.get(`searchMobileCookie`) && (cookies.get(`searchMobileCookie`) === 'true')
     };
@@ -146,8 +148,32 @@ class SearchConsole extends React.Component<Props, State> {
     this._isMounted = true;
     this.props.getConceptTags();
     const searchConsoleBody = document.getElementById('searchConsole');
+    
     if (searchConsoleBody) {
+      window.onscroll = () => {
+        let scrollTop = Math.max(document.body.scrollTop, document.documentElement.scrollTop);
+        if (scrollTop <= searchConsoleBody.getBoundingClientRect().top) {
+        //if (scrollTop <= 53) {
+          this.setState({noFix: true})
+        } else if (scrollTop > searchConsoleBody.getBoundingClientRect().top) {
+        //} else if (scrollTop > 53) {
+          this.setState({noFix: false})
+        }
+      }
+
       searchConsoleBody.addEventListener('scroll',  this.scrollDebounce, true);
+      window.onscroll = () => {
+        let scrollTop = Math.max(document.body.scrollTop, document.documentElement.scrollTop);
+        // if (scrollTop <= searchConsoleBody.getBoundingClientRect().top) {
+        if (scrollTop <= 45) {
+          this.setState({noFix: true})
+          console.log(scrollTop);
+        // } else if (scrollTop > searchConsoleBody.getBoundingClientRect().top) {
+        } else if (scrollTop > 54) {
+          this.setState({noFix: false})
+          console.log(scrollTop);
+        }
+       }
     }
   }
 
@@ -160,6 +186,7 @@ class SearchConsole extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>, ): void {
+
     if (this.props.open !== prevProps.open) {
       if (this.props.open) {
         $('body').addClass('searchOpen');
@@ -381,8 +408,8 @@ class SearchConsole extends React.Component<Props, State> {
     return (
       <div>
         <div id="audioPlayerDiv"><AudioPlayer className="audioPlayerSticky" /></div>
-        <div id="searchConsole" className={isOpenClass}>
-
+        <div className="searchWrap">
+        <div id="searchConsole" className={`${isOpenClass} ${this.state.noFix ? 'noFix' : 'fixed'} ` }>
         <Container fluid className={`${hoveredClass} ${isOpenClass} console`} onTouchStart={this.touchDeviceOpen} >
           <Row className="options">
             <div className={`view ${isOpen ? isOpenClass : `opacity5`} ${isOpen && window.innerWidth < 540 ? 'd-none' : ''}`}>
@@ -558,6 +585,7 @@ class SearchConsole extends React.Component<Props, State> {
             : <></>
           }
         </Container>
+      </div>
       </div>
       </div>
     );
