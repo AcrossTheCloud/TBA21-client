@@ -7,7 +7,7 @@ import {
   Form, FormFeedback, Input, Label, CustomInput,
   Row, Col,
   Navbar,
-  NavbarBrand, 
+  NavbarBrand,
   NavbarToggler,
   Nav,
   NavItem,
@@ -30,7 +30,7 @@ import jsonp from 'jsonp';
 import home from '../../images/svgs/home.svg'; 
 
 import { AuthConsumer } from '../../providers/AuthProvider';
-
+import home from '../../images/logo/OA_symbol.svg';
 import 'styles/layout/_navigation.scss';
 import history from '../../history';
 
@@ -274,11 +274,12 @@ class HeaderClass extends React.Component<Props, State> { // tslint:disable-line
           const isAdmin = (authorisation && Object.keys(authorisation).length &&  authorisation.hasOwnProperty('admin'));
           return (
             <div id="navigation">
-               <Navbar dark expand="md" >
-                <NavbarBrand href="/" className="mr-auto home"><img src={home} className="homeSvg" alt="home" /></NavbarBrand> 
+              <Navbar dark expand="md">
+                <NavbarBrand href="/" className="mr-auto home"><img src={home} className="homeSvg" alt="home" /></NavbarBrand>
                 <NavbarToggler onClick={this.toggle}/>
                 <Collapse isOpen={this.state.isOpen} navbar>
-                  <Nav className="ml-auto float-right " navbar> 
+                  <Nav className="ml-auto float-right" navbar>
+                    
                     <NavItem>
                       <Button size="sm" className="nav-link btn" onClick={() => this.props.aboutModalToggle(true)}>About</Button>
                     </NavItem>

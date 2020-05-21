@@ -29,14 +29,20 @@
 
 }
 
+.searchWrap{
+  min-height: 45px;
+  height: 100%;
+  background: $dark-blue;
+}
+
 .fixed {
   position: fixed;
   top: 0;
+  left: 0;
 }
 
 .noFix{
   position: relative;
-  height:100%;
 }
 
 #searchConsole {
@@ -48,8 +54,6 @@
   z-index: 999;
   display: block;
   overflow: hidden;
-
-
   transition: min-height 1.2s cubic-bezier(0.22, 0.61, 0.36, 1), opacity .3s linear .5s;
 
   .console {
@@ -455,7 +459,8 @@
   }
 
   &.open {
-    max-height: 100%;
+    /*min-height: 100%;*/
+    /*max-height: 100%;*/
     transition: min-height 1.2s cubic-bezier(0.22, 0.61, 0.36, 1), opacity .3s linear .5s;
   }
 

@@ -66,6 +66,7 @@ interface State {
   loading: boolean;
   modalType?: 'Item' | 'Collection' | 'Profile';
   searchMobileCookie: boolean;
+  noFix: boolean;
 }
 
 // @todo should be a util
@@ -135,6 +136,7 @@ class SearchConsole extends React.Component<Props, State> {
 
       modalOpen: false,
       loading: false,
+      noFix: true,
 
       noFix: true,
 
@@ -163,7 +165,18 @@ class SearchConsole extends React.Component<Props, State> {
       }
 
       searchConsoleBody.addEventListener('scroll',  this.scrollDebounce, true);
-
+      window.onscroll = () => {
+        let scrollTop = Math.max(document.body.scrollTop, document.documentElement.scrollTop);
+        // if (scrollTop <= searchConsoleBody.getBoundingClientRect().top) {
+        if (scrollTop <= 45) {
+          this.setState({noFix: true})
+          console.log(scrollTop);
+        // } else if (scrollTop > searchConsoleBody.getBoundingClientRect().top) {
+        } else if (scrollTop > 54) {
+          this.setState({noFix: false})
+          console.log(scrollTop);
+        }
+       }
     }
   }
 
@@ -398,8 +411,8 @@ class SearchConsole extends React.Component<Props, State> {
     return (
       <div>
         <div id="audioPlayerDiv"><AudioPlayer className="audioPlayerSticky" /></div>
+        <div className="searchWrap">
         <div id="searchConsole" className={`${isOpenClass} ${this.state.noFix ? 'noFix' : 'fixed'} ` }>
-
         <Container fluid className={`${hoveredClass} ${isOpenClass} console`} onTouchStart={this.touchDeviceOpen} >
           <Row className="options">
             <div className={`view ${isOpen ? isOpenClass : `opacity5`} ${isOpen && window.innerWidth < 540 ? 'd-none' : ''}`}>
@@ -575,6 +588,7 @@ class SearchConsole extends React.Component<Props, State> {
             : <></>
           }
         </Container>
+      </div>
       </div>
       </div>
     );
