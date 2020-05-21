@@ -39,7 +39,7 @@ export const logoDispatch = (state: boolean) => dispatch => {
 export const liveStreamDispatch = (state: boolean) => async dispatch => {
   if (state) {
     try {
-      let response = await fetch(window.location.hostname.match(/staging/) ? 'https://api.twitch.tv/helix/streams?user_login=acrossthecloud' : 'https://api.twitch.tv/helix/streams?user_login=oceanspaceorg', {
+      let response = await fetch(window.location.hostname.match(/staging/) ? 'https://api.twitch.tv/helix/streams?user_login=acrossthecloud' : 'https://api.twitch.tv/helix/streams?user_login=oceanarchive', {
         mode: 'cors',
         method: 'GET',
         headers: {
@@ -54,7 +54,7 @@ export const liveStreamDispatch = (state: boolean) => async dispatch => {
           type: LIVESTREAM_MODAL_TOGGLE,
           open: state,
           hasOpened: true,
-          channel: window.location.hostname.match(/staging/) ? 'acrossthecloud' : 'oceanspaceorg'
+          channel: window.location.hostname.match(/staging/) ? 'acrossthecloud' : 'oceanarchive'
         });
       }
     } catch (e) {

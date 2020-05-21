@@ -68,7 +68,7 @@ class LiveStreamModal extends React.Component<Props, State> {
             </Col>
           </Row>
 
-          <Embed url={window.location.hostname.match(/staging/) ? 'https://twitch.tv/acrossthecloud' : 'https://twitch.tv/oceanspaceorg'} />
+          <Embed url={window.location.hostname.match(/staging/) ? 'https://twitch.tv/acrossthecloud' : 'https://twitch.tv/oceanarchive'} />
         </Modal>
       );
     } else {
