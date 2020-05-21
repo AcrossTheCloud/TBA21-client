@@ -62,7 +62,7 @@ interface State {
   loading: boolean;
 }
 
-const DataLayout = (props: { data: Item | Collection, itemModalToggle?: Function, collectionModalToggle?: Function }): JSX.Element => {
+const DataLayout = (props: { data: Item | Collection, itemModalToggle?: Function, collectionModalToggle?: Function, firstItem?: boolean }): JSX.Element => {
   let response: JSX.Element = <></>;
 
   if (props.data) {
@@ -136,7 +136,7 @@ const DataLayout = (props: { data: Item | Collection, itemModalToggle?: Function
 
   return (
     <Col
-        md={!!props.data && !!props.data.file && props.data.file.type === 'Audio' ? '12' : '4'}
+        md={!!props.data && !!props.data.file && (props.data.file.type === 'Audio' || props.firstItem) ? '12' : '4'}
         className="pt-4"
     >
       {response}
@@ -257,7 +257,7 @@ class ViewCollection extends React.Component<Props, State> {
                     return data.__typename === 'item';
                   })
                   .filter((data: Item) => {
-                    return (data.item_type === 'Image' || data.item_type === 'Video')
+                    return (data.item_type === 'Image' || data.item_type === 'Video' || data.item_type === 'IFrame')
                   })[0] as Item
               : undefined
         });
@@ -419,10 +419,22 @@ class ViewCollection extends React.Component<Props, State> {
 
         <Row>
           {
-            this.state.firstItem ?
+            this.state.firstItem ? 
+              (this.state.firstItem.item_type === 'IFrame' ? 
                 (
-                    <FilePreview file={this.state.firstItem.file} isHeader={true} />
+
+                  <DataLayout
+                  data={this.state.firstItem}
+                  key={`item_${this.state.firstItem.id}`}
+                  itemModalToggle={this.props.itemModalToggle}
+                  collectionModalToggle={this.collectionModalToggle}
+                  firstItem={true}
+                  />
+                ) : 
+                (
+                  <FilePreview file={this.state.firstItem.file} isHeader={true} />
                 )
+              )
                 : <></>
           }
         </Row>

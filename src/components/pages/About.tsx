@@ -2,10 +2,17 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { AboutState } from 'reducers/pages/about';
 import { modalToggle } from 'actions/pages/about';
+import { ReactComponent as DecadeLogo } from '../../images/logo/decade_logo.svg';
 import { Col, Modal, ModalBody, ModalHeader } from 'reactstrap';
 
 interface Props extends AboutState  {
   modalToggle: Function;
+}
+
+const Logo = () => {
+  return (
+    <DecadeLogo height='200px' width='auto' />
+  );
 }
 
 class About extends React.Component<Props, {}> {
@@ -14,6 +21,7 @@ class About extends React.Component<Props, {}> {
       <Modal isOpen={this.props.open} toggle={() => this.props.modalToggle()} className="fullwidth blue">
         <ModalHeader toggle={() => this.props.modalToggle()}>ABOUT</ModalHeader>
         <ModalBody>
+          <Logo />
           <Col md="8">
             <h3>Ocean Archive is a new digital organism for a living ocean.</h3>
             <p>Ocean Archive is a digital platform in the making; an archive and framework for collaborative research. It brings together a multitude of Ocean voices and stories and connects those striving to nurture and protect it.</p>

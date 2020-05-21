@@ -22,14 +22,13 @@ const urls = [
   },
   {
     "thumbnail": "https://video-streaming.ocean-archive.org/loading_image_4.jpg",
-    "portrait": "https://video-streaming.ocean-archive.org/loading_image_4_portrait.jpg"
+    "portrait": "https://video-streaming.ocean-archive.org/loading_image_4_portrait.jpg",
+    "nologo": true
   },
   {
-    "video": "https://video-streaming.ocean-archive.org/OiT_video.mp4",
-    "thumbnail": "https://video-streaming.ocean-archive.org/OiT_thumbnail.jpg",
-    "logo": "Logo_OiT",
-    "loop": "false",
-    "time": 10000
+    "thumbnail": "https://video-streaming.ocean-archive.org/loading_image_5.jpg",
+    "portrait": "https://video-streaming.ocean-archive.org/loading_image_5_portrait.jpg",
+    "nologo": true
   }
 ];
 
@@ -103,8 +102,7 @@ export default class HomepageVideo extends Component<Props, State> {
         <Container fluid className="content" style={{ display: 'none' }}>
           <Row>
             <Col xs="12">
-              <h1>Get ready for the dive</h1>
-              <p><span className="blink_me">Loading...</span></p>
+              <h4>Get ready for the dive <span className="blink_me">...</span></h4>
             </Col>
           </Row>
           <Row className="bottom align-items-end">
@@ -112,8 +110,7 @@ export default class HomepageVideo extends Component<Props, State> {
             </Col>
             <Col xs="12" md="6" className="right pt-3 pt-md-0">
               <div className="logo d-flex align-items-baseline">
-                { (this.state.elem as any).logo && (this.state.elem as any).logo === "Logo_OiT" ?
-                  (<img src="/logos/Logo_OiT.png" style={{height: "100px", width: "auto"}} alt="Oceans in Transformation" />) :
+                { (this.state.elem as any).nologo ? <></> :
                   (<img src={logo} alt="Ocean Archive" />)
                 }
               </div>
