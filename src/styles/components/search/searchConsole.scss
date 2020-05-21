@@ -30,9 +30,12 @@
 }
 
 .searchWrap{
-  min-height: 45px;
   height: 100%;
   background: $dark-blue;
+  z-index: -1;
+}
+.wrapHeight{
+  min-height: 45px;
 }
 
 .fixed {
