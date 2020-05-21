@@ -5,7 +5,7 @@ import { fetchItem } from 'actions/items/viewItem';
 import { ViewItemState } from 'reducers/items/viewItem';
 import { Alerts, ErrorMessage } from '../utils/alerts';
 import { Item, itemType } from '../../types/Item';
-import { FilePreview } from '../utils/filePreview';
+import { FilePreview } from '../utils/FilePreview';
 import { browser } from '../utils/browser';
 import { RouteComponentProps, withRouter } from 'react-router';
 import 'styles/components/pages/embedItem.scss'; 

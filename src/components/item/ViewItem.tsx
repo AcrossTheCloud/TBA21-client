@@ -5,7 +5,8 @@ import { fetchItem } from 'actions/items/viewItem';
 import { ViewItemState } from 'reducers/items/viewItem';
 import { Alerts, ErrorMessage } from '../utils/alerts';
 import { Item, itemType, Regions } from '../../types/Item';
-import { FilePreview } from '../utils/filePreview';
+import { FilePreview } from '../utils/FilePreview';
+import SpecialMenu from '../utils/SpecialMenu';
 import { Languages } from '../../types/Languages';
 import { browser } from '../utils/browser';
 import { RouteComponentProps, withRouter } from 'react-router';
@@ -144,6 +145,15 @@ class ViewItem extends React.Component<Props, State> {
       directors,
       collaborators
     } = this.props.item;
+
+    if (item_type===itemType.IFrame && url && title) {
+      return (
+        <div id="item" className="container-fluid">
+          <ErrorMessage message={this.props.errorMessage} />
+          <iframe title={title} src={url} className="freq_wave-iframe"></iframe>
+        </div>
+      );
+    }
 
     let focusTotal = 0;
     if (!!focus_action && !!focus_arts && !!focus_scitech) {
@@ -327,6 +337,9 @@ class ViewItem extends React.Component<Props, State> {
               <Col className="px-0">
                 <div style={{ height: '15px', background: `linear-gradient(to right, #0076FF ${focusPercentage(focus_arts)}%, #9013FE ${focusPercentage(focus_scitech)}%, #50E3C2 ${focusPercentage(focus_action)}%)` }} />
               </Col>
+            </Row>
+            <Row>
+              <SpecialMenu id={id} />
             </Row>
           </Col>
         </Row>

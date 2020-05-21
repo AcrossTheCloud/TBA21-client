@@ -4,6 +4,7 @@ import { Button, Col, Row } from 'reactstrap';
 import { dispatchLoadMore, fetchCollection, loadMore } from 'actions/collections/viewCollection';
 import { ViewCollectionState } from 'reducers/collections/viewCollection';
 import { ErrorMessage } from '../utils/alerts';
+import SpecialMenu from '../utils/SpecialMenu';
 import { browser } from '../utils/browser';
 import LicenceLink from '../utils/LicenceLink'
 import { RouteComponentProps, withRouter } from 'react-router';
@@ -13,6 +14,7 @@ import 'styles/components/pages/viewItem.scss';
 import { Item, itemType, Regions } from '../../types/Item';
 import { Collection } from '../../types/Collection';
 import { DetailPreview } from '../utils/DetailPreview';
+import { FilePreview} from '../utils/FilePreview';
 import { FileTypes } from '../../types/s3File';
 import AudioPreview from '../layout/audio/AudioPreview';
 import { dateFromTimeYearProduced } from '../../actions/home';
@@ -60,7 +62,7 @@ interface State {
   loading: boolean;
 }
 
-const DataLayout = (props: { data: Item | Collection, itemModalToggle?: Function, collectionModalToggle?: Function }): JSX.Element => {
+const DataLayout = (props: { data: Item | Collection, itemModalToggle?: Function, collectionModalToggle?: Function, firstItem?: boolean }): JSX.Element => {
   let response: JSX.Element = <></>;
 
   if (props.data) {
@@ -134,7 +136,7 @@ const DataLayout = (props: { data: Item | Collection, itemModalToggle?: Function
 
   return (
     <Col
-        md={!!props.data && !!props.data.file && props.data.file.type === 'Audio' ? '12' : '4'}
+        md={!!props.data && !!props.data.file && (props.data.file.type === 'Audio' || props.firstItem) ? '12' : '4'}
         className="pt-4"
     >
       {response}
@@ -253,6 +255,9 @@ class ViewCollection extends React.Component<Props, State> {
               this.props.data
                   .filter((data: Item | Collection) => {
                     return data.__typename === 'item';
+                  })
+                  .filter((data: Item) => {
+                    return (data.item_type === 'Image' || data.item_type === 'Video' || data.item_type === 'IFrame')
                   })[0] as Item
               : undefined
         });
@@ -414,15 +419,22 @@ class ViewCollection extends React.Component<Props, State> {
 
         <Row>
           {
-            this.state.firstItem ?
+            this.state.firstItem ? 
+              (this.state.firstItem.item_type === 'IFrame' ? 
                 (
-                    <DataLayout
-                        data={this.state.firstItem}
-                        key={`firstItem_${this.state.firstItem.id}`}
-                        itemModalToggle={this.props.itemModalToggle}
-                        collectionModalToggle={this.collectionModalToggle}
-                    />
+
+                  <DataLayout
+                  data={this.state.firstItem}
+                  key={`item_${this.state.firstItem.id}`}
+                  itemModalToggle={this.props.itemModalToggle}
+                  collectionModalToggle={this.collectionModalToggle}
+                  firstItem={true}
+                  />
+                ) : 
+                (
+                  <FilePreview file={this.state.firstItem.file} isHeader={true} />
                 )
+              )
                 : <></>
           }
         </Row>
@@ -578,6 +590,9 @@ class ViewCollection extends React.Component<Props, State> {
               <Col className="px-0">
                 <div style={{ height: '15px', background: `linear-gradient(to right, #0076FF ${focusPercentage(focus_arts)}%, #9013FE ${focusPercentage(focus_scitech)}%, #50E3C2 ${focusPercentage(focus_action)}%)` }} />
               </Col>
+            </Row>
+            <Row>
+              <SpecialMenu id={id}/>
             </Row>
           </Col>
         </Row>
