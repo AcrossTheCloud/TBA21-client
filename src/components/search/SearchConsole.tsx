@@ -62,10 +62,10 @@ interface State {
   focus_action: boolean;
   focus_scitech: boolean;
   modalOpen: boolean;
+  noFix: boolean;
   loading: boolean;
   modalType?: 'Item' | 'Collection' | 'Profile';
   searchMobileCookie: boolean;
-  noFix: boolean;
 }
 
 // @todo should be a util
@@ -148,7 +148,19 @@ class SearchConsole extends React.Component<Props, State> {
     this._isMounted = true;
     this.props.getConceptTags();
     const searchConsoleBody = document.getElementById('searchConsole');
+    
     if (searchConsoleBody) {
+      window.onscroll = () => {
+        let scrollTop = Math.max(document.body.scrollTop, document.documentElement.scrollTop);
+        if (scrollTop <= searchConsoleBody.getBoundingClientRect().top) {
+        //if (scrollTop <= 53) {
+          this.setState({noFix: true})
+        } else if (scrollTop > searchConsoleBody.getBoundingClientRect().top) {
+        //} else if (scrollTop > 53) {
+          this.setState({noFix: false})
+        }
+      }
+
       searchConsoleBody.addEventListener('scroll',  this.scrollDebounce, true);
       window.onscroll = () => {
         let scrollTop = Math.max(document.body.scrollTop, document.documentElement.scrollTop);
@@ -174,6 +186,7 @@ class SearchConsole extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>, ): void {
+
     if (this.props.open !== prevProps.open) {
       if (this.props.open) {
         $('body').addClass('searchOpen');
