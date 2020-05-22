@@ -14,11 +14,12 @@ export const FilePreview = (props: { file: S3File , isHeader?: boolean}): JSX.El
       //   background = props.file.thumbnails['1140'] || props.file.thumbnails['960'] || props.file.thumbnails['720'] || props.file.thumbnails['540'];
       // }
       return (
-        <Col className={props.isHeader? 'px-0 image' : 'px-0 image text-center'}>
+        <Col className={props.isHeader? 'px-0 image' : 'px-0 image text-center'} style={props.isHeader?{maxHeight:"35vh"}:{}}>
           <img
             srcSet={thumbnailsSRCSET(props.file)}
             src={props.file.url}
             alt=""
+            style={props.isHeader? {width:"auto !important", height:"100%", paddingLeft: "2%"}:{}}
           />
           {/*<div className="background" style={{ background: `url(${!!background ? encodeURI(background) : props.file.url})`, backgroundSize: 'contain' }} />*/}
         </Col>

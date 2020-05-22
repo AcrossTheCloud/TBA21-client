@@ -102,7 +102,7 @@ export const getItemsAndCollectionsForCollection = async (collections) => {
   }));
 }
 
-export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Function, modalToggle?: Function, isOaHighlight?: boolean}): JSX.Element => {
+export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Function, modalToggle?: Function, isOaHighlight?: boolean, firstItem?: boolean}): JSX.Element => {
   if ((!!props.data.file && props.data.file.type === FileTypes.Audio) || props.data.item_type === itemType.Audio) { return <></>; }
 
   let data: ItemOrHomePageData = props.data;
@@ -122,8 +122,11 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
 
   const date = dateFromTimeYearProduced(data.time_produced, data.year_produced, data.end_year_produced);
 
+  console.log(data);
+  console.log(props.firstItem);
+
   return (
-    <div className={`detailPreview ${browser()}`} onClick={() => { if (typeof props.modalToggle === 'function') { props.modalToggle(true, props.data); } }}>
+    <div className={props.firstItem ? `detailHeaderPreview ${browser()}` : `detailPreview ${browser()}`} onClick={() => { if (typeof props.modalToggle === 'function') { props.modalToggle(true, props.data); } }}>
       {data.file ? <FileStaticPreview file={data.file} onLoad={typeof props.onLoad === 'function' ? props.onLoad : undefined}/> : <></>}
       <div className="overlay">
         <div className="type">
