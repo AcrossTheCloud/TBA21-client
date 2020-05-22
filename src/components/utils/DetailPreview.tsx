@@ -184,7 +184,7 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
             {moment.duration((typeof data.duration === 'string' ? parseInt(data.duration, 0) : data.duration), 'seconds').format('hh:mm:ss')}
           </div>
           :
-          date ? <div className="date">{date}</div> : <></>
+          date && !props.firstItem ? <div className="date">{date}</div> : <></>
         }
         {!collectionType && data.file && data.file.type === FileTypes.Video ?
           <div className="middle">
