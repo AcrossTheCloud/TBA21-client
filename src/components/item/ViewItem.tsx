@@ -150,7 +150,7 @@ class ViewItem extends React.Component<Props, State> {
       return (
         <div id="item" className="container-fluid">
           <ErrorMessage message={this.props.errorMessage} />
-          <iframe title={title} src={url} className="freq_wave-iframe"></iframe>
+          <iframe title={title} src={url} className={url.match(/freq/) ? "freq_wave-iframe" : "special_item-iframe"}></iframe>
         </div>
       );
     }
