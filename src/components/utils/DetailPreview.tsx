@@ -179,7 +179,7 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
           </div>
         </div> : <></>
         }
-        {data.duration ?
+        {data.duration && !props.firstItem ?
           <div className="duration">
             {moment.duration((typeof data.duration === 'string' ? parseInt(data.duration, 0) : data.duration), 'seconds').format('hh:mm:ss')}
           </div>
