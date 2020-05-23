@@ -39,7 +39,7 @@ export default class SpecialMenu extends Component<Props,{}> {
     '896'
   ]
 
-  collections_to_display_in = ['51','49','67','68', '69', '53'];
+  collections_to_display_in = ['51','49','67','68', '69', '53', '73'];
 
   toDisplay = (): boolean => {
     if (this.collections_to_display_in.includes(this.props.id as string)) {
