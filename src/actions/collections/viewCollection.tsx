@@ -90,7 +90,7 @@ const getItemsAndCollectionsInCollection = async (id: string, offset: number = 0
 
 export const loadMore = async (id: string, offset: number = 0, callback: Function) => {
   try {
-    const data = await getItemsAndCollectionsInCollection(id, offset, 10);
+    const data = await getItemsAndCollectionsInCollection(id, offset, 100);
     if (data && data.length) {
       for (let i = 0; i < data.length; i++) {
         if (data[i]) {
@@ -124,7 +124,7 @@ export const loadMore = async (id: string, offset: number = 0, callback: Functio
 
 export const dispatchLoadMore = (id: string, offset: number = 0) => async dispatch => {
   try {
-    dispatch({type: FETCH_COLLECTION_UPDATE_OFFSET, offset: offset + 10});
+    dispatch({type: FETCH_COLLECTION_UPDATE_OFFSET, offset: offset + 100});
     await loadMore(id, offset, (data) => {
       if (data) {
         dispatch({type: FETCH_COLLECTION_LOAD_MORE, datum: data});

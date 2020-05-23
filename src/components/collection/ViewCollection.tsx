@@ -295,7 +295,7 @@ class ViewCollection extends React.Component<Props, State> {
           await loadMore(this.state.collection.id, this.state.offset, (datum) => {
             if (!this._isMounted) { return; }
             if (datum) {
-              this.setState({data: [...this.state.data as [], datum], offset: this.state.offset + 10});
+              this.setState({data: [...this.state.data as [], datum], offset: this.state.offset + 100});
             } else {
               this.setState({ noMoreData: true });
             }
