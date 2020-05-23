@@ -295,7 +295,7 @@ class ViewCollection extends React.Component<Props, State> {
           await loadMore(this.state.collection.id, this.state.offset, (datum) => {
             if (!this._isMounted) { return; }
             if (datum) {
-              this.setState({data: [...this.state.data as [], datum], offset: this.state.offset + 10});
+              this.setState({data: [...this.state.data as [], datum], offset: this.state.offset + 100});
             } else {
               this.setState({ noMoreData: true });
             }
@@ -611,7 +611,7 @@ const mapStateToProps = (state: { viewCollection: ViewCollectionState, userHisto
     firstItem: state.viewCollection.firstItem,
     offset: state.viewCollection.offset,
     noMoreData: state.viewCollection.noMoreData,
-    noRedux: !!props.noRedux || false,
+    noRedux: (props.hasOwnProperty('noRedux') && props.noRedux) || false,
     modalBodyID: props.modalBodyID,
     userHistory: state.userHistory
   };
