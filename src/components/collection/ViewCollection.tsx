@@ -611,7 +611,7 @@ const mapStateToProps = (state: { viewCollection: ViewCollectionState, userHisto
     firstItem: state.viewCollection.firstItem,
     offset: state.viewCollection.offset,
     noMoreData: state.viewCollection.noMoreData,
-    noRedux: !!props.noRedux || false,
+    noRedux: (props.hasOwnProperty('noRedux') && props.noRedux) || false,
     modalBodyID: props.modalBodyID,
     userHistory: state.userHistory
   };
