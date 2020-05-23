@@ -122,9 +122,6 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
 
   const date = dateFromTimeYearProduced(data.time_produced, data.year_produced, data.end_year_produced);
 
-  console.log(data);
-  console.log(props.firstItem);
-
   return (
     <div className={props.firstItem ? `detailHeaderPreview ${browser()}` : `detailPreview ${browser()}`} onClick={() => { if (typeof props.modalToggle === 'function') { props.modalToggle(true, props.data); } }}>
       {data.file ? <FileStaticPreview file={data.file} onLoad={typeof props.onLoad === 'function' ? props.onLoad : undefined}/> : <></>}
