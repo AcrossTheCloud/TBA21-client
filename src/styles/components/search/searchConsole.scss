@@ -64,6 +64,10 @@
   display: block;
   overflow: hidden;
   transition: min-height 1.2s cubic-bezier(0.22, 0.61, 0.36, 1), opacity .3s linear .5s;
+  
+  .search__control--is-disabled .search__placeholder{
+    height:28px;
+  }
 
   .console {
     .legend {
@@ -156,6 +160,7 @@
             .search__placeholder {
               color: #fff;
               padding-left: 5px;
+
             }
             .search__input {
               color: #fff;
