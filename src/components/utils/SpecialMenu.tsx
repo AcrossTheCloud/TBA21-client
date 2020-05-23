@@ -42,7 +42,7 @@ export default class SpecialMenu extends Component<Props,{}> {
   collections_to_display_in = ['51','49','67','68', '69', '53'];
 
   toDisplay = (): boolean => {
-    if (window.location.pathname.match(/collection/) && this.collections_to_display_in.includes(this.props.id as string)) {
+    if (this.collections_to_display_in.includes(this.props.id as string)) {
       return true;
     } else if (this.props.id==='963') {
       return true
@@ -56,7 +56,7 @@ export default class SpecialMenu extends Component<Props,{}> {
     return (
       <div className="col-12 list" id="specialMenu">
         {window.location.pathname.match(/collection\/51/) ? 
-          (<div className="current" id="51">
+          (<div className="current" id={`specialmenu${this.props.id}`}>
              <CollectionIcon /> Sensing the Oceans: Anthropogenic Drivers</div>)
           :
 
@@ -69,7 +69,7 @@ export default class SpecialMenu extends Component<Props,{}> {
         }
         <hr />
         {this.mappings_ids_inOrder.map((id)=> 
-          id === window.location.pathname.split('/')[-1] ? <div className="current" id={id}>{this.mappings[id].title}</div> : 
+          id === window.location.pathname.split('/')[-1] ? <div className="current" id={`specialmenu${id}`}>{this.mappings[id].title}</div> : 
           <div className="related">
             <a className="collection_link" href={`/view/${id}`} target="_self" rel={id} id={id}>
             {this.mappings[id].title}</a>
