@@ -30,10 +30,19 @@
 }
 
 .searchWrap{
-  min-height: 45px;
   height: 100%;
   background: $dark-blue;
+  z-index: -1;
+  .searchPadding {
+    width: 100%;
+    background: linear-gradient(to right, #0076FF 0%, #9013FE 20%, #50E3C2 50%);
+    height: 2px;
+  } 
 }
+.wrapHeight{
+  min-height: 35px;
+}
+
 
 .fixed {
   position: fixed;
@@ -55,6 +64,10 @@
   display: block;
   overflow: hidden;
   transition: min-height 1.2s cubic-bezier(0.22, 0.61, 0.36, 1), opacity .3s linear .5s;
+  
+  .search__control--is-disabled .search__placeholder{
+    height:28px;
+  }
 
   .console {
     .legend {
@@ -106,7 +119,7 @@
           height: 100%;
           width:100%;
           .inputwrapper {
-            height: 45px;
+            height: 35px;
             flex: 1 0 100%;
           }
         }
@@ -146,6 +159,8 @@
 
             .search__placeholder {
               color: #fff;
+              padding-left: 2.5px;
+
             }
             .search__input {
               color: #fff;
@@ -271,6 +286,7 @@
     // Focus checkboxes
     .focus {
       font-size: 90%;
+      padding-top: 0px !important;
       @media screen and (max-width: 768px){
           font-size: 85%;
 
@@ -463,7 +479,6 @@
     /*max-height: 100%;*/
     transition: min-height 1.2s cubic-bezier(0.22, 0.61, 0.36, 1), opacity .3s linear .5s;
   }
-
 }
 
 

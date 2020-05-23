@@ -165,13 +165,11 @@ class SearchConsole extends React.Component<Props, State> {
       window.onscroll = () => {
         let scrollTop = Math.max(document.body.scrollTop, document.documentElement.scrollTop);
         // if (scrollTop <= searchConsoleBody.getBoundingClientRect().top) {
-        if (scrollTop <= 45) {
+        if (scrollTop <= 37) {
           this.setState({noFix: true})
-          console.log(scrollTop);
         // } else if (scrollTop > searchConsoleBody.getBoundingClientRect().top) {
         } else if (scrollTop > 54) {
           this.setState({noFix: false})
-          console.log(scrollTop);
         }
        }
     }
@@ -408,184 +406,186 @@ class SearchConsole extends React.Component<Props, State> {
     return (
       <div>
         <div id="audioPlayerDiv"><AudioPlayer className="audioPlayerSticky" /></div>
-        <div className="searchWrap">
-        <div id="searchConsole" className={`${isOpenClass} ${this.state.noFix ? 'noFix' : 'fixed'} ` }>
-        <Container fluid className={`${hoveredClass} ${isOpenClass} console`} onTouchStart={this.touchDeviceOpen} >
-          <Row className="options">
-            <div className={`view ${isOpen ? isOpenClass : `opacity5`} ${isOpen && window.innerWidth < 540 ? 'd-none' : ''}`}>
-              <div className="line" />
-            </div>
-
-            <div
-              className={`mid px-0 col ${hoveredClass}`}
-              onClick={this.focusSearchInput}
-            >
-              <div className="align-items-center d-flex">
-                <div className={`inputwrapper ${browser()}`}>
-                  <AsyncSelect
-                    className="searchInput"
-                    classNamePrefix="search"
-                    placeholder="Search ..."
-                    noOptionsMessage={() => 'Search Suggestions'}
-                    menuIsOpen={this.state.searchMenuOpen}
-                    isDisabled={!isOpen}
-                    ref={this.searchInputRef}
-
-                    isMulti
-                    loadOptions={this.searchSuggestions}
-                    options={this.state.criteria}
-                    value={this.props.selectedCriteria}
-
-                    components={{DropdownIndicator: null}}
-
-                    onChange={this.onSearchChange}
-                    onKeyDown={this.onSearchKeyDown}
-
-                    onMenuOpen={() => { if (this._isMounted) { this.setState({ searchMenuOpen: true }); } }}
-                    onMenuClose={() => { if (this._isMounted) { this.setState({ searchMenuOpen: false }); } }}
-
-                    onInputChange={(s: string) => { if (this._isMounted) { this.setState({ searchInputValue: s }); } }}
-                    onBlur={() => { if (this._isMounted) { this.setState({ searchMenuOpen: false }); } }}
-
-                    formatOptionLabel={(t, o) => {
-                      if (o.context === 'menu') {
-                        let field = t.field.split('_').join(' ');
-                        if (t.field === 'full_name') {
-                          field = 'Profile';
-                        }
-                        return (<div className="option"><span className="value">{t.originalValue}</span> <span className="field float-right">{field}</span></div>);
-                      } else {
-                        return <div className="tag-option">{t.label}</div>;
-                      }
-                    }}
-                  />
-                </div>
-
-                <div
-                  className={`icon margin ${isOpen ? `${isOpenClass}` : `opacity5`}`}
-                  onClick={isOpen ? () => { return; } : this.toggleOpen}
-                >
-                  <Row>
-                    <Col className="px-0" onClick={isOpen ? this.searchDispatch : this.toggleOpen}>
-                      <span className="simple-icon-magnifier"/>
-                    </Col>
-                    {/*{ Is only shown when opened fully. }*/}
-                    <Col className={`px-0 closeButton ${isOpenClass}`} onClick={this.toggleOpen}>
-                      <FaTimes />
-                    </Col>
-                  </Row>
-                </div>
+        <div className={`searchWrap ${this.state.noFix ? '' : 'wrapHeight'} `}>
+          <div id="searchConsole" className={`${isOpenClass} ${this.state.noFix ? 'noFix' : 'fixed'} ` }>
+          <Container fluid className={`${hoveredClass} ${isOpenClass} console`} onTouchStart={this.touchDeviceOpen} >
+            <Row className="options">
+              <div className={`view ${isOpen ? isOpenClass : `opacity5`} ${isOpen && window.innerWidth < 540 ? 'd-none' : ''}`}>
+                <div className="line" />
               </div>
-            </div>
-          </Row>
 
-          <Row style={{ height: isOpen ? 'auto' : 0 }}>
-              {
-                isOpen && !!this.props.concept_tags &&
-                  <Col>
-                  <div className="tagList">
-                    {this.props.concept_tags
-                      .filter(a => !find(this.props.selectedCriteria, {'originalValue': a.tag_name}))
-                      .map((t: APITag, i) => <div className="tagWrapper"><Button className="page-link tag" key={i} onClick={() => this.onTagClick(t)}>#{t.tag_name}</Button></div>)}
+              <div
+                className={`mid px-0 col ${hoveredClass}`}
+                onClick={this.focusSearchInput}
+              >
+                <div className="align-items-center d-flex">
+                  <div className={`inputwrapper ${browser()}`}>
+                    <AsyncSelect
+                      className="searchInput"
+                      classNamePrefix="search"
+                      placeholder="Search..."
+                      noOptionsMessage={() => 'Search Suggestions'}
+                      menuIsOpen={this.state.searchMenuOpen}
+                      isDisabled={!isOpen}
+                      ref={this.searchInputRef}
+
+                      isMulti
+                      loadOptions={this.searchSuggestions}
+                      options={this.state.criteria}
+                      value={this.props.selectedCriteria}
+
+                      components={{DropdownIndicator: null}}
+
+                      onChange={this.onSearchChange}
+                      onKeyDown={this.onSearchKeyDown}
+
+                      onMenuOpen={() => { if (this._isMounted) { this.setState({ searchMenuOpen: true }); } }}
+                      onMenuClose={() => { if (this._isMounted) { this.setState({ searchMenuOpen: false }); } }}
+
+                      onInputChange={(s: string) => { if (this._isMounted) { this.setState({ searchInputValue: s }); } }}
+                      onBlur={() => { if (this._isMounted) { this.setState({ searchMenuOpen: false }); } }}
+
+                      formatOptionLabel={(t, o) => {
+                        if (o.context === 'menu') {
+                          let field = t.field.split('_').join(' ');
+                          if (t.field === 'full_name') {
+                            field = 'Profile';
+                          }
+                          return (<div className="option"><span className="value">{t.originalValue}</span> <span className="field float-right">{field}</span></div>);
+                        } else {
+                          return <div className="tag-option">{t.label}</div>;
+                        }
+                      }}
+                    />
                   </div>
-                  </Col>
-              }
-          </Row>
 
-          <Row className="focus pt-1" style={{ height: isOpen ? 'auto' : 0 }}>
-            <Col xs="12" sm="auto">Focus: </Col>
-            <Col xs sm="auto" className="pr-0">
-              <FormGroup check inline>
-                <Label check>
-                  Arts <Input type="checkbox" name="arts" onChange={e => { if (this._isMounted) { this.setState({ focus_arts: e.target.checked }); } }} />
-                </Label>
-              </FormGroup>
-            </Col>
-            <Col xs sm="auto" className="px-0">
-              <FormGroup check inline>
-                <Label check>
-                  Sci Tech <Input type="checkbox" name="scitech" onChange={e => { if (this._isMounted) { this.setState({ focus_scitech: e.target.checked }); } }} />
-                </Label>
-              </FormGroup>
-            </Col>
-            <Col xs sm="auto" className="pl-0">
-              <FormGroup check inline>
-                <Label check>
-                  Action <Input type="checkbox" name="action" onChange={e => { if (this._isMounted) { this.setState({ focus_action: e.target.checked }); } }} />
-                </Label>
-              </FormGroup>
-            </Col>
-          </Row>
-
-          <div className="results">
-            {
-              (loadedResults && loadedResults.length) ? loadedResults.map((t, i) => {
-                if (t.hasOwnProperty('full_name')) {
-                  const profile = t as Profile;
-                  return (
-                    <Row className="result" key={i} onClick={() => this.openResult(t)}>
-                      {profile.profile_image ?
-                        <Col xs="4">
-                          <img src={profile.profile_image} alt=""/>
-                        </Col>
-                        : ''}
-                      <Col xs={profile.profile_image ? '8' : '12'}>
-                        {profile.full_name}
+                  <div
+                    className={`icon margin ${isOpen ? `${isOpenClass}` : `opacity5`}`}
+                    onClick={isOpen ? () => { return; } : this.toggleOpen}
+                  >
+                    <Row>
+                      <Col className="px-0" onClick={isOpen ? this.searchDispatch : this.toggleOpen}>
+                        <span className="simple-icon-magnifier"/>
+                      </Col>
+                      {/*{ Is only shown when opened fully. }*/}
+                      <Col className={`px-0 closeButton ${isOpenClass}`} onClick={this.toggleOpen}>
+                        <FaTimes />
                       </Col>
                     </Row>
-                  );
-                } else {
-                  const itemOrCollection = t as Item | Collection;
-                  if (!!itemOrCollection.file && itemOrCollection.file.type === FileTypes.Audio) {
+                  </div>
+                </div>
+              </div>
+            </Row>
+
+            <Row style={{ height: isOpen ? 'auto' : 0 }}>
+                {
+                  isOpen && !!this.props.concept_tags &&
+                    <Col>
+                    <div className="tagList">
+                      {this.props.concept_tags
+                        .filter(a => !find(this.props.selectedCriteria, {'originalValue': a.tag_name}))
+                        .map((t: APITag, i) => <div className="tagWrapper"><Button className="page-link tag" key={i} onClick={() => this.onTagClick(t)}>#{t.tag_name}</Button></div>)}
+                    </div>
+                    </Col>
+                }
+            </Row>
+
+            <Row className="focus pt-1" style={{ height: isOpen ? 'auto' : 0 }}>
+              <Col xs="12" sm="auto">Focus: </Col>
+              <Col xs sm="auto" className="pr-0">
+                <FormGroup check inline>
+                  <Label check>
+                    Arts <Input type="checkbox" name="arts" onChange={e => { if (this._isMounted) { this.setState({ focus_arts: e.target.checked }); } }} />
+                  </Label>
+                </FormGroup>
+              </Col>
+              <Col xs sm="auto" className="px-0">
+                <FormGroup check inline>
+                  <Label check>
+                    Sci Tech <Input type="checkbox" name="scitech" onChange={e => { if (this._isMounted) { this.setState({ focus_scitech: e.target.checked }); } }} />
+                  </Label>
+                </FormGroup>
+              </Col>
+              <Col xs sm="auto" className="pl-0">
+                <FormGroup check inline>
+                  <Label check>
+                    Action <Input type="checkbox" name="action" onChange={e => { if (this._isMounted) { this.setState({ focus_action: e.target.checked }); } }} />
+                  </Label>
+                </FormGroup>
+              </Col>
+            </Row>
+
+            <div className="results">
+              {
+                (loadedResults && loadedResults.length) ? loadedResults.map((t, i) => {
+                  if (t.hasOwnProperty('full_name')) {
+                    const profile = t as Profile;
                     return (
-                      <Row className="result" key={i}>
-                        <Col xs="12">
-                          <FilePreview data={itemOrCollection}/>
+                      <Row className="result" key={i} onClick={() => this.openResult(t)}>
+                        {profile.profile_image ?
+                          <Col xs="4">
+                            <img src={profile.profile_image} alt=""/>
+                          </Col>
+                          : ''}
+                        <Col xs={profile.profile_image ? '8' : '12'}>
+                          {profile.full_name}
                         </Col>
                       </Row>
                     );
                   } else {
-                    return (
-                      <Row className="result" key={i} onClick={() => this.openResult(itemOrCollection)}>
-                        {!!itemOrCollection.file ?
-                          <Col xs="6" sm="4" md="2">
-                            <FilePreview data={t}/>
-                          </Col> : <div className="py-5"/>
-                        }
-                        <Col xs="6" sm="8" md="10">
-                          <Row>
-                            <Col xs="12">
-                              {itemOrCollection.title}
-                            </Col>
-
-                            {itemOrCollection.creators && itemOrCollection.creators.length ?
+                    const itemOrCollection = t as Item | Collection;
+                    if (!!itemOrCollection.file && itemOrCollection.file.type === FileTypes.Audio) {
+                      return (
+                        <Row className="result" key={i}>
+                          <Col xs="12">
+                            <FilePreview data={itemOrCollection}/>
+                          </Col>
+                        </Row>
+                      );
+                    } else {
+                      return (
+                        <Row className="result" key={i} onClick={() => this.openResult(itemOrCollection)}>
+                          {!!itemOrCollection.file ?
+                            <Col xs="6" sm="4" md="2">
+                              <FilePreview data={t}/>
+                            </Col> : <div className="py-5"/>
+                          }
+                          <Col xs="6" sm="8" md="10">
+                            <Row>
                               <Col xs="12">
-                                <div className="creators d-none d-md-block">
-                                  {itemOrCollection.creators[0]}{itemOrCollection.creators.length > 1 ? <em>, et al.</em> : <></>}
-                                </div>
+                                {itemOrCollection.title}
                               </Col>
-                            : <></>
-                            }
-                          </Row>
-                        </Col>
-                      </Row>
-                    );
-                  }
-                }
-              }) : <>No Results.</>
-            }
-          </div>
 
-          { this.props.searchResultsLoading ?
-            <Row>
-              <Col className="text-center pb-5">
-                <Spinner type="grow" style={{ color: '#50E3C2', fontSize: '20px'}}/>
-              </Col>
-            </Row>
-            : <></>
-          }
-        </Container>
-      </div>
+                              {itemOrCollection.creators && itemOrCollection.creators.length ?
+                                <Col xs="12">
+                                  <div className="creators d-none d-md-block">
+                                    {itemOrCollection.creators[0]}{itemOrCollection.creators.length > 1 ? <em>, et al.</em> : <></>}
+                                  </div>
+                                </Col>
+                              : <></>
+                              }
+                            </Row>
+                          </Col>
+                        </Row>
+                      );
+                    }
+                  }
+                }) : <>No Results.</>
+              }
+            </div>
+
+            { this.props.searchResultsLoading ?
+              <Row>
+                <Col className="text-center pb-5">
+                  <Spinner type="grow" style={{ color: '#50E3C2', fontSize: '20px'}}/>
+                </Col>
+              </Row>
+              : <></>
+            }
+          </Container>
+          <div className="searchPadding"></div>
+        </div>
+        
       </div>
       </div>
     );
