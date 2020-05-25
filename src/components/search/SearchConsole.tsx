@@ -338,7 +338,11 @@ class SearchConsole extends React.Component<Props, State> {
 
     if (actionMeta.action === 'remove-value' || actionMeta.action === 'select-option' || actionMeta.action === 'create-option') {
       this.setState({searchMenuOpen: false});
-      this.props.dispatchSearch(tagsList ? tagsList : []);
+      if (tagsList) {
+        this.props.dispatchSearch( tagsList, this.state.focus_arts, this.state.focus_action, this.state.focus_scitech);
+      } else {
+        this.props.dispatchSearch([]);
+      }
     }
   }
 
@@ -352,7 +356,7 @@ class SearchConsole extends React.Component<Props, State> {
 
     if (this._isMounted) {
       this.setState({searchMenuOpen: false});
-      this.props.dispatchSearch(tagList);
+      this.props.dispatchSearch(tagList, this.state.focus_arts, this.state.focus_action, this.state.focus_scitech);
     }
 
     this.tagClickedTimeout = setTimeout(this.searchDispatch, 2000);
