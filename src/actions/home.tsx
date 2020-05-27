@@ -332,18 +332,14 @@ const waitForLoad = (loadedCount: number) => dispatch => {
 export const openModal = (data: HomepageData) => dispatch => {
   if (data.hasOwnProperty('count') || data.hasOwnProperty('items') || data.hasOwnProperty('type')) {
     // We have a collection.
-    console.log('toggle');
     ReactGA.modalview('/collection/'+data.id);
-    console.log(data.id);
     dispatch({
      type: COLLECTION_MODAL_TOGGLE,
      open: true,
      data
    });
   } else {
-    console.log('toggle');
     ReactGA.modalview('/view/'+data.id);
-    console.log(data.id);
     dispatch({
        type: ITEM_MODAL_TOGGLE,
        open: true,

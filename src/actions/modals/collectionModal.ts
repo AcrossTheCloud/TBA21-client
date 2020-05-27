@@ -10,7 +10,6 @@ export const toggle = (open: boolean, data?: HomepageData | Collection) => dispa
   console.log('toggle');
   if (open && data && data.id) {
     ReactGA.modalview('/collection/'+data.id);
-    console.log(data.id);
   }
   dispatch({
      type: COLLECTION_MODAL_TOGGLE,
