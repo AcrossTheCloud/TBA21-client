@@ -225,7 +225,7 @@ class ViewItem extends React.Component<Props, State> {
             </Row>
 
             <Row>
-              { file && file.type === FileTypes.DownloadText && file.url ?
+              { file && (file.type === FileTypes.DownloadText || file.type===FileTypes.Pdf) && file.url ?
                   (
                       <Col xs="12" className="download pb-2">
                         <a href={file.url} target="_blank" rel="noopener noreferrer">Click here to download this file.</a>
