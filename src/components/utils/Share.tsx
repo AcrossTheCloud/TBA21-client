@@ -2,6 +2,7 @@ import * as React from 'react';
 import Clipboard from 'react-clipboard.js';
 
 import 'styles/utils/share.scss';
+import { FaExternalLinkAlt } from 'react-icons/fa';
 
 interface State {
   clicked: boolean;
@@ -62,7 +63,7 @@ export default class Share extends React.Component<Props, State> {
             {
               this.state.error ?
                 this.state.error :
-                this.state.clicked ? 'Copied!' : 'Share'
+                this.state.clicked ? 'Link Copied!' : <FaExternalLinkAlt />
             }
           </Clipboard>
         </div>
