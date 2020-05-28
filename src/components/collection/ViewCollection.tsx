@@ -449,7 +449,7 @@ class ViewCollection extends React.Component<Props, State> {
             </Row>
 
             <Row>
-              <div style={{display: "flex", alignItems: "center"}}>
+              <div className="flex items-center">
               <h1>{title}</h1>
               {!!id &&
                   <h3 style={{marginLeft: "0.5rem"}}>

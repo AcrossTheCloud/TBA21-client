@@ -219,9 +219,14 @@ class ViewItem extends React.Component<Props, State> {
               </Col>
             </Row>
             <Row>
-              <Col>
-                <h1>{title}</h1>
-              </Col>
+              <div style={{display: "flex", alignItems: "center"}}>
+              <h1>{title}</h1>
+              {!!id &&
+                  <h3 style={{marginLeft: "0.5rem"}}>
+                    <Share suffix={`collection/${id}`} />
+                  </h3>
+                }
+              </div>
             </Row>
 
             <Row>
@@ -242,17 +247,6 @@ class ViewItem extends React.Component<Props, State> {
                 }
               </Col>
             </Row>
-
-            {!!id ?
-                (
-                    <Row>
-                      <Col className="text-right">
-                        <Share suffix={`view/${id}`}/>
-                      </Col>
-                    </Row>
-                )
-              : <></>
-            }
 
           </Col>
           <Col xs="12" md="4" className="right">
