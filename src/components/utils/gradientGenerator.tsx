@@ -5,8 +5,12 @@ const focusColorMap = {
 }
 
 const sanitizeFocus = (focus: any): number => {
-  if (typeof focus === 'string') {
+  if (typeof focus == 'string') {
     return parseInt(focus, 0);
+  }
+
+  if (typeof focus == 'number') {
+    return Math.max(1, focus)
   }
   return 0
 }
@@ -16,6 +20,7 @@ const generateFocusGradient = (
   focus_scitech: any,
   focus_action: any
 ): string => {
+  console.log(focus_arts, focus_scitech, focus_action)
 
   const gradientMap: [number, string][] = [
     [sanitizeFocus(focus_arts), focusColorMap.arts],
@@ -34,7 +39,7 @@ const generateFocusGradient = (
   }
 
   let gradientColorString: string = filteredGradientColors
-    .map((color, idx) => `${color} ${idx / filteredGradientColors.length}%`)
+    .map((color, idx) => `${color} ${idx / filteredGradientColors.length * 100}%`)
     .join(", ")
 
 
