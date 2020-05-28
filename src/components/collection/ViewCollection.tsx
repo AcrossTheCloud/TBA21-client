@@ -29,6 +29,7 @@ import { search as dispatchSearch, toggle as searchOpenToggle } from '../../acti
 import { UserHistoryState } from '../../reducers/user-history';
 import HtmlDescription from '../utils/HtmlDescription';
 import _ from 'lodash';
+import generateFocusGradient from '../utils/gradientGenerator';
 
 type MatchParams = {
   id: string;
@@ -390,19 +391,6 @@ class ViewCollection extends React.Component<Props, State> {
       copyright_holder
     } = this.state.collection;
 
-    let focusTotal = 0;
-    if (!!focus_action && !!focus_arts && !!focus_scitech) {
-      focusTotal = parseInt(focus_action, 0) + parseInt(focus_arts, 0) + parseInt(focus_scitech, 0);
-    }
-
-    const focusPercentage = (level: number | string | undefined | null): string => {
-      if (typeof level === 'undefined' || level === null) { return '0'; }
-      if (typeof level === 'string') {
-        level = parseInt(level, 0);
-      }
-      return `${ (level / focusTotal) * 100 }`;
-    };
-
     const CollectionDetails = (props: { label: string, value: string | JSX.Element }): JSX.Element => (
       <Row className="border-bottom subline details">
         <Col xs="12" md="6">{props.label}</Col>
@@ -583,7 +571,7 @@ class ViewCollection extends React.Component<Props, State> {
               : ''}
             <Row>
               <Col className="px-0">
-                <div style={{ height: '15px', background: `linear-gradient(to right, #0076FF ${focusPercentage(focus_arts)}%, #9013FE ${focusPercentage(focus_scitech)}%, #50E3C2 ${focusPercentage(focus_action)}%)` }} />
+                <div style={{ height: '15px', background: generateFocusGradient(focus_arts, focus_scitech, focus_action) }} />
               </Col>
             </Row>
             <Row>
