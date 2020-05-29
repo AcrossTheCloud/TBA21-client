@@ -66,6 +66,7 @@ interface State {
   loading: boolean;
   modalType?: 'Item' | 'Collection' | 'Profile';
   searchMobileCookie: boolean;
+  focusTags?: {};
 }
 
 // @todo should be a util
@@ -136,6 +137,7 @@ class SearchConsole extends React.Component<Props, State> {
       modalOpen: false,
       loading: false,
       noFix: true,
+      focusTags: {},
 
       searchMobileCookie: !!cookies.get(`searchMobileCookie`) && (cookies.get(`searchMobileCookie`) === 'true')
     };
@@ -150,17 +152,6 @@ class SearchConsole extends React.Component<Props, State> {
     const searchConsoleBody = document.getElementById('searchConsole');
     
     if (searchConsoleBody) {
-      window.onscroll = () => {
-        let scrollTop = Math.max(document.body.scrollTop, document.documentElement.scrollTop);
-        if (scrollTop <= searchConsoleBody.getBoundingClientRect().top) {
-        //if (scrollTop <= 53) {
-          this.setState({noFix: true})
-        } else if (scrollTop > searchConsoleBody.getBoundingClientRect().top) {
-        //} else if (scrollTop > 53) {
-          this.setState({noFix: false})
-        }
-      }
-
       searchConsoleBody.addEventListener('scroll',  this.scrollDebounce, true);
       window.onscroll = () => {
         let scrollTop = Math.max(document.body.scrollTop, document.documentElement.scrollTop);
@@ -171,7 +162,7 @@ class SearchConsole extends React.Component<Props, State> {
         } else if (scrollTop > 54) {
           this.setState({noFix: false})
         }
-       }
+      }
     }
   }
 
@@ -330,7 +321,6 @@ class SearchConsole extends React.Component<Props, State> {
 
   onSearchChange = (tagsList: any, actionMeta: any) => { // tslint:disable-line: no-any
     if (!this._isMounted) { return; }
-
     if (actionMeta.action === 'clear') {
       this.setState({searchMenuOpen: false});
       this.props.dispatchSearch([]);
@@ -338,7 +328,11 @@ class SearchConsole extends React.Component<Props, State> {
 
     if (actionMeta.action === 'remove-value' || actionMeta.action === 'select-option' || actionMeta.action === 'create-option') {
       this.setState({searchMenuOpen: false});
-      this.props.dispatchSearch(tagsList ? tagsList : []);
+      if (tagsList) {
+        this.props.dispatchSearch( tagsList, this.state.focus_arts, this.state.focus_action, this.state.focus_scitech);
+      } else {
+        this.props.dispatchSearch([]);
+      }
     }
   }
 
@@ -352,7 +346,7 @@ class SearchConsole extends React.Component<Props, State> {
 
     if (this._isMounted) {
       this.setState({searchMenuOpen: false});
-      this.props.dispatchSearch(tagList);
+      this.props.dispatchSearch(tagList, this.state.focus_arts, this.state.focus_action, this.state.focus_scitech);
     }
 
     this.tagClickedTimeout = setTimeout(this.searchDispatch, 2000);
@@ -393,6 +387,55 @@ class SearchConsole extends React.Component<Props, State> {
 
     this.setState({ modalOpen: true, modalType: metaType });
   }
+
+  handleCheckBoxChange = (e) => {
+
+    const artsTag = {field: "title",label: "Arts",originalValue: " "};
+    const scitechTag = {field: "title",label: "Sci Tech",originalValue: " "};
+    const actionTag = {field: "title",label: "Action",originalValue: " "};
+    if(this.props.selectedCriteria.length > 0 && this.props.selectedCriteria[0].label != "Arts" &&  this.props.selectedCriteria[0].label != "Sci Tech" && this.props.selectedCriteria[0].label != "Action") {
+      if (e.target.checked && e.target.value == "focus_arts") {
+        this.props.dispatchSearch( [...this.props.selectedCriteria], e.target.checked, this.state.focus_scitech, this.state.focus_action);
+      } else if (e.target.checked && e.target.value == "focus_scitech"){
+        this.props.dispatchSearch( [...this.props.selectedCriteria], this.state.focus_arts, this.state.focus_scitech, e.target.checked);
+      } else if (e.target.checked && e.target.value == "focus_action"){
+        this.props.dispatchSearch( [...this.props.selectedCriteria], this.state.focus_arts, e.target.checked, this.state.focus_action);
+      }      
+    } else if(this.props.selectedCriteria.length === 0 || this.props.selectedCriteria[0].label == "Arts" || this.props.selectedCriteria[0].label == "Sci Tech" || this.props.selectedCriteria[0].label == "Action" ) {
+      if (e.target.checked && e.target.value == "focus_arts") {
+        if(!this.state.focus_scitech && !this.state.focus_action){
+          this.props.dispatchSearch( [artsTag], e.target.checked, this.state.focus_scitech, this.state.focus_action);
+        } else if (this.state.focus_scitech && !this.state.focus_action) {
+          this.props.dispatchSearch( [artsTag, scitechTag], e.target.checked, this.state.focus_scitech, this.state.focus_action);
+        } else if (!this.state.focus_scitech && this.state.focus_action) {
+          this.props.dispatchSearch( [artsTag, actionTag], e.target.checked, this.state.focus_scitech, this.state.focus_action);
+        } else if (this.state.focus_scitech && this.state.focus_action) {
+          this.props.dispatchSearch( [artsTag, scitechTag, actionTag], e.target.checked, this.state.focus_scitech, this.state.focus_action);
+        }
+      } else if (e.target.checked && e.target.value == "focus_scitech") {
+        if(!this.state.focus_arts && !this.state.focus_action){
+          this.props.dispatchSearch( [scitechTag], this.state.focus_arts, this.state.focus_action, e.target.checked);
+        } else if (this.state.focus_arts && !this.state.focus_action) {
+          this.props.dispatchSearch( [artsTag, scitechTag], this.state.focus_arts, this.state.focus_action, e.target.checked);
+        } else if (!this.state.focus_arts && this.state.focus_action) {
+          this.props.dispatchSearch( [scitechTag, actionTag], this.state.focus_arts, this.state.focus_action, e.target.checked);
+        } else if (this.state.focus_arts && this.state.focus_action) {
+          this.props.dispatchSearch( [artsTag, scitechTag, actionTag], this.state.focus_arts, this.state.focus_action, e.target.checked);
+        }
+      } else if (e.target.checked && e.target.value == "focus_action") {
+        if(!this.state.focus_arts && !this.state.focus_scitech){
+          this.props.dispatchSearch( [actionTag], this.state.focus_arts, e.target.checked, this.state.focus_scitech);
+        } else if (this.state.focus_arts && !this.state.focus_scitech) {
+          this.props.dispatchSearch( [artsTag, actionTag], this.state.focus_arts, e.target.checked, this.state.focus_scitech);
+        } else if (!this.state.focus_arts && this.state.focus_scitech) {
+          this.props.dispatchSearch( [scitechTag, actionTag], this.state.focus_arts, e.target.checked, this.state.focus_scitech);
+        } else if (this.state.focus_arts && this.state.focus_scitech) {
+          this.props.dispatchSearch( [artsTag, scitechTag, actionTag], this.state.focus_arts, e.target.checked, this.state.focus_scitech);
+        }
+      }
+    } 
+  }
+    
 
   render() {
     const
@@ -495,21 +538,21 @@ class SearchConsole extends React.Component<Props, State> {
               <Col xs sm="auto" className="pr-0">
                 <FormGroup check inline>
                   <Label check>
-                    Arts <Input type="checkbox" name="arts" onChange={e => { if (this._isMounted) { this.setState({ focus_arts: e.target.checked }); } }} />
+                    Arts <Input type="checkbox" value="focus_arts" onChange={(e) => { if (this._isMounted) { this.setState({ focus_arts: e.target.checked }); this.handleCheckBoxChange(e);} }} />
                   </Label>
                 </FormGroup>
               </Col>
               <Col xs sm="auto" className="px-0">
                 <FormGroup check inline>
                   <Label check>
-                    Sci Tech <Input type="checkbox" name="scitech" onChange={e => { if (this._isMounted) { this.setState({ focus_scitech: e.target.checked }); } }} />
+                    Sci Tech <Input type="checkbox" value="focus_scitech" onChange={e => { if (this._isMounted) { this.setState({ focus_scitech: e.target.checked }); this.handleCheckBoxChange(e);} }} />
                   </Label>
                 </FormGroup>
               </Col>
               <Col xs sm="auto" className="pl-0">
                 <FormGroup check inline>
                   <Label check>
-                    Action <Input type="checkbox" name="action" onChange={e => { if (this._isMounted) { this.setState({ focus_action: e.target.checked }); } }} />
+                    Action <Input type="checkbox" value="focus_action" onChange={e => { if (this._isMounted) { this.setState({ focus_action: e.target.checked }); this.handleCheckBoxChange(e);} }} />
                   </Label>
                 </FormGroup>
               </Col>
