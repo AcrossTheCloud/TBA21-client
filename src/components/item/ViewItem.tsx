@@ -224,7 +224,7 @@ class ViewItem extends React.Component<Props, State> {
                   <h1>{title}</h1>
                   {!!id &&
                     <h3 style={{ marginLeft: "1rem" }}>
-                      <Share suffix={`collection/${id}`} />
+                      <Share suffix={`view/${id}`} />
                     </h3>
                   }
                 </div>
