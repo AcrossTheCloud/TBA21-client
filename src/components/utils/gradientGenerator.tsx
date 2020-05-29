@@ -11,29 +11,26 @@ const sanitizeFocus = (focus: any): number => {
   return 0
 }
 
+const generateGradient = (colorHex: string[]): string =>
+  `linear-gradient(to right, ${colorHex.join(", ")})`
+
 const generateFocusGradient = (
   focus_arts: any,
   focus_scitech: any,
   focus_action: any
 ): string => {
 
-  let focuses: number[] = [
+  const focuses: number[] = [
     sanitizeFocus(focus_arts),
     sanitizeFocus(focus_scitech),
     sanitizeFocus(focus_action)
   ]
 
-  let generateGradient = (colorHex: string[]): string =>
-    colorHex.join(", ")
-
-  let totalFocus: number = focuses.reduce((acc, val) => acc + val, 0)
-
-  let gradientColorString: string = ""
+  const totalFocus: number = focuses.reduce((acc, val) => acc + val, 0)
 
   switch (totalFocus) {
     case 0:
-      gradientColorString = generateGradient(colors.reverse())
-      break
+      return generateGradient(colors.reverse())
     case 1:
       const activeIndex = focuses.findIndex(val => val === 1)
       const activeColor = colors[activeIndex]
@@ -41,8 +38,7 @@ const generateFocusGradient = (
       newColors.splice(activeIndex, 0, activeColor)
       newColors.splice(activeIndex, 0, activeColor)
       newColors.splice(activeIndex, 0, activeColor)
-      gradientColorString = generateGradient(newColors)
-      break
+      return generateGradient(newColors)
     default:
       const focusColorMap: [number, string][] = [
         [focuses[0], colors[0]],
@@ -52,12 +48,8 @@ const generateFocusGradient = (
       let filteredColors: string[] = focusColorMap
         .filter(val => val[0] === 1)
         .map(val => val[1])
-
-      gradientColorString  = generateGradient(filteredColors)
-
+      return generateGradient(filteredColors)
   }
-
-  return `linear-gradient(to right, ${gradientColorString})`
 }
 
 export default generateFocusGradient
