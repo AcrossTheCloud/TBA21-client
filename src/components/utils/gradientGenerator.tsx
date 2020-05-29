@@ -1,8 +1,4 @@
-const focusColorMap = {
-  arts: "#0076FF",
-  sciTech: "#9013FE",
-  action: "#50E3C2"
-}
+const colors = ["#0076FF", "#9013FE", "#50E3C2"]
 
 const sanitizeFocus = (focus: any): number => {
   if (typeof focus == 'string') {
@@ -20,31 +16,47 @@ const generateFocusGradient = (
   focus_scitech: any,
   focus_action: any
 ): string => {
-  console.log(focus_arts, focus_scitech, focus_action)
 
-  const gradientMap: [number, string][] = [
-    [sanitizeFocus(focus_arts), focusColorMap.arts],
-    [sanitizeFocus(focus_scitech), focusColorMap.sciTech],
-    [sanitizeFocus(focus_action), focusColorMap.action]
+  let focuses: number[] = [
+    sanitizeFocus(focus_arts),
+    sanitizeFocus(focus_scitech),
+    sanitizeFocus(focus_action)
   ]
 
-  const filteredGradientColors: string[] = gradientMap
-    .filter(gradMap => gradMap[0] == 1)
-    .map(gradMap => gradMap[1])
+  let generateGradient = (colorHex: string[]): string =>
+    colorHex.join(", ")
 
+  let totalFocus: number = focuses.reduce((acc, val) => acc + val, 0)
 
+  let gradientColorString: string = ""
 
-  if (filteredGradientColors.length === 1) {
-    return filteredGradientColors[0]
+  switch (totalFocus) {
+    case 0:
+      gradientColorString = generateGradient(colors.reverse())
+      break
+    case 1:
+      const activeIndex = focuses.findIndex(val => val === 1)
+      const activeColor = colors[activeIndex]
+      let newColors = colors.slice()
+      newColors.splice(activeIndex, 0, activeColor)
+      newColors.splice(activeIndex, 0, activeColor)
+      newColors.splice(activeIndex, 0, activeColor)
+      gradientColorString = generateGradient(newColors)
+      break
+    default:
+      const focusColorMap: [number, string][] = [
+        [focuses[0], colors[0]],
+        [focuses[1], colors[1]],
+        [focuses[2], colors[2]]
+      ]
+      let filteredColors: string[] = focusColorMap
+        .filter(val => val[0] === 1)
+        .map(val => val[1])
+
+      gradientColorString  = generateGradient(filteredColors)
+
   }
 
-  let gradientColorString: string = filteredGradientColors
-    .map((color, idx) => `${color} ${idx / filteredGradientColors.length * 100}%`)
-    .join(", ")
-
-
-
-  console.log(`linear-gradient(to right, ${gradientColorString})`)
   return `linear-gradient(to right, ${gradientColorString})`
 }
 
