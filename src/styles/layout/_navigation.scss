@@ -16,16 +16,10 @@
 }
 
 .home svg{
-  position:absolute;
-  left: 15px;
-  top: 15px;
-  height: 25px;
-  width: 25px;
-
   g {
     fill: #7E7E7E;
   }
-  
+
 }
 .home:hover svg g{
     fill: #EEEEEE;
@@ -49,6 +43,10 @@
     }
     .nav-item {
       .nav-link {
+        @media screen and (max-width: 767px) {
+          width: 100%;
+          text-align: right;
+        }
         @media screen and (min-width: 768px) {
           padding-left: 1rem;
         }

@@ -420,8 +420,8 @@ class ViewCollection extends React.Component<Props, State> {
 
         <Row>
           {
-            this.state.firstItem ? 
-              (this.state.firstItem.item_type === 'IFrame' ? 
+            this.state.firstItem ?
+              (this.state.firstItem.item_type === 'IFrame' ?
                 (
 
                   <DataLayout
@@ -431,7 +431,7 @@ class ViewCollection extends React.Component<Props, State> {
                   collectionModalToggle={this.collectionModalToggle}
                   firstItem={true}
                   />
-                ) : 
+                ) :
                 (
                   <FilePreview file={this.state.firstItem.file} isHeader={true} />
                 )
@@ -447,10 +447,16 @@ class ViewCollection extends React.Component<Props, State> {
                 {creators ? creators.join(', ') : <></>}
               </Col>
             </Row>
-
             <Row>
               <Col>
-                <h1>{title}</h1>
+                <div className="flex items-center justify-between">
+                  <h1>{title}</h1>
+                  {!!id &&
+                    <h3 style={{ marginLeft: "1rem" }}>
+                      <Share suffix={`collection/${id}`} />
+                    </h3>
+                  }
+                </div>
               </Col>
             </Row>
             <Row>
@@ -462,17 +468,6 @@ class ViewCollection extends React.Component<Props, State> {
                 }
               </Col>
             </Row>
-
-            {!!id ?
-              (
-                <Row>
-                  <Col className="text-right">
-                    <Share suffix={`collection/${id}`}/>
-                  </Col>
-                </Row>
-              )
-              : <></>
-            }
 
             <Row id={this.state.dataRowID}>
             {
