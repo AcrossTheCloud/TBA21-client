@@ -1,14 +1,11 @@
 @import "../base/variables";
 
 .share {
-  padding: 20px 0 20px 0;
-  @media screen and (min-width: 768px) {
-    padding: 40px 0 40px 0;
-  }
   button {
+    text-align: right;
     cursor: pointer;
+    color: $mid-gray;
     background: none;
-    color: $subline-gray;
     border: none;
     &:focus {
       outline: none;
