@@ -447,16 +447,17 @@ class ViewCollection extends React.Component<Props, State> {
                 {creators ? creators.join(', ') : <></>}
               </Col>
             </Row>
-
             <Row>
-              <div className="flex items-center">
-              <h1>{title}</h1>
-              {!!id &&
-                  <h3 style={{marginLeft: "0.5rem"}}>
-                    <Share suffix={`collection/${id}`} />
-                  </h3>
-                }
-              </div>
+              <Col>
+                <div className="flex items-center justify-between">
+                  <h1>{title}</h1>
+                  {!!id &&
+                    <h3 style={{ marginLeft: "1rem" }}>
+                      <Share suffix={`collection/${id}`} />
+                    </h3>
+                  }
+                </div>
+              </Col>
             </Row>
             <Row>
               <Col className="description">

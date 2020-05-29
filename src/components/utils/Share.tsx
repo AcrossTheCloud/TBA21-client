@@ -63,7 +63,7 @@ export default class Share extends React.Component<Props, State> {
             {
               this.state.error ?
                 this.state.error :
-                this.state.clicked ? 'Link Copied!' : <FaExternalLinkAlt />
+                this.state.clicked ? 'Copied!' : <FaExternalLinkAlt />
             }
           </Clipboard>
         </div>
