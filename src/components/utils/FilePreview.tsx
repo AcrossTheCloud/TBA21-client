@@ -43,14 +43,14 @@ export const FilePreview = (props: { file: S3File , isHeader?: boolean}): JSX.El
       );
     case FileTypes.Pdf:
       return (
-        <a href={props.file.url} target="_blank" style={{width: '100%', height: '100%', display: "block"}}>
-          <div className="relative w-100 pdf flex items-start justify-center">
-          <PdfPreview url={props.file.url} onLoad={() => {}} />
-          <div className="overlay"></div>
-          <div className="absolute absolute-center">
-            <DownloadIcon />
+        <a href={props.file.url} target="_blank" rel="noopener noreferrer" className="hrefBlock">
+          <div className="relative pdf">
+            <PdfPreview url={props.file.url} onLoad={() => { }} />
+            <div className="overlay" />
+            <div className="absolute absolute-center">
+              <DownloadIcon />
+            </div>
           </div>
-        </div>
         </a>
       );
 
