@@ -14,7 +14,7 @@ export const FilePreview = (props: { file: S3File , isHeader?: boolean}): JSX.El
       //   background = props.file.thumbnails['1140'] || props.file.thumbnails['960'] || props.file.thumbnails['720'] || props.file.thumbnails['540'];
       // }
       return (
-        <Col className={props.isHeader? 'px-0 image' : 'px-0 image text-center'} style={props.isHeader?{maxHeight:"35vh"}:{}}>
+        <Col className={props.isHeader? 'px-0 image' : 'px-0 image text-center'} style={props.isHeader?{maxHeight:"35vh", left: "-5px"}:{}}>
           <img
             srcSet={thumbnailsSRCSET(props.file)}
             src={props.file.url}
