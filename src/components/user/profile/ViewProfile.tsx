@@ -37,6 +37,23 @@ class ViewProfile extends React.Component<Props, State> {
     }
   }
 
+  locationString(): string {
+    const {city, country} = this.props.profile;
+    let locationString = "Location: "
+
+    if (city?.length && country?.length === 0) {
+      locationString += city
+    } else if (city?.length === 0 && country?.length) {
+      locationString += country
+    } else if (city?.length && country?.length) {
+      locationString += `${city}, ${country}`
+    } else {
+      locationString += "-"
+    }
+
+    return locationString
+  }
+
   render() {
     if (typeof this.props.profile === 'undefined') {
       return 'Loading...';
@@ -45,14 +62,13 @@ class ViewProfile extends React.Component<Props, State> {
       full_name,
       position,
       affiliation,
-      city,
-      country,
       biography,
       website,
       field_expertise,
       profile_type,
       // public_profile
     } = this.props.profile;
+
     return (
       <div id="profile" >
         <ErrorMessage message={this.props.errorMessage} />
@@ -82,7 +98,7 @@ class ViewProfile extends React.Component<Props, State> {
           <Col xs="12" md="6" className="right">
             <Row className="detailsRow">
               <Col xs="12" className="details border">
-                Location: {city}, {country}
+                {this.locationString()}
               </Col>
               <Col xs="12" className="details border">
                 Website: {website}
