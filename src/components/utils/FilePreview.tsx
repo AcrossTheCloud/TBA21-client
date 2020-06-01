@@ -5,6 +5,8 @@ import * as React from 'react';
 import { thumbnailsSRCSET } from './s3File';
 
 import textImage from 'images/defaults/Unscharfe_Zeitung.jpg';
+import PdfPreview from './PdfPreview';
+import { ReactComponent as DownloadIcon } from 'images/svgs/download.svg';
 
 export const FilePreview = (props: { file: S3File , isHeader?: boolean}): JSX.Element => {
   switch (props.file.type) {
@@ -41,9 +43,15 @@ export const FilePreview = (props: { file: S3File , isHeader?: boolean}): JSX.El
       );
     case FileTypes.Pdf:
       return (
-        <div className="w-100 pdf">
-          <iframe title={props.file.url} className="w-100 h-100" src={props.file.url} frameBorder={0} />
+        <a href={props.file.url} target="_blank" style={{width: '100%', height: '100%', display: "block"}}>
+          <div className="relative w-100 pdf flex items-start justify-center">
+          <PdfPreview url={props.file.url} onLoad={() => {}} />
+          <div className="overlay"></div>
+          <div className="absolute absolute-center">
+            <DownloadIcon />
+          </div>
         </div>
+        </a>
       );
 
     case FileTypes.Text:

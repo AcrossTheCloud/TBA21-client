@@ -177,8 +177,8 @@ export const loadHomepage = () => async dispatch => {
         }}
       >
         {(data.item_type !== itemType.Audio || (data.file && data.file.type) !== FileTypes.Audio)
-          ? <DetailPreview data={data} isOaHighlight={true} /> :
-          <HomePageAudioPreview data={data} isOaHighlight={true} />
+          ? <DetailPreview data={data} isOaHighlight={true} />
+          : <HomePageAudioPreview data={data} isOaHighlight={true} />
         }
         <HighlightsItemDetails index={props.index} />
       </Col>
