@@ -22,6 +22,7 @@ const urls = [
   },
   {
     "thumbnail": "https://video-streaming.ocean-archive.org/loading_image_4.jpg",
+    "video": "https://video-streaming.ocean-archive.org/loading_video4.mp4",
     "portrait": "https://video-streaming.ocean-archive.org/loading_image_4_portrait.jpg",
     "nologo": true
   },
@@ -117,7 +118,7 @@ export default class HomepageVideo extends Component<Props, State> {
             </Col>
           </Row>
         </Container>
-        {(this.state.elem as any).video? 
+        {!this.isPortrait() && (this.state.elem as any).video? 
           (<video
             poster={(this.state.elem as any).thumbnail}
             onLoadedData={() => this.onVideoPlay()}
