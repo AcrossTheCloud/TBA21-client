@@ -7,6 +7,7 @@ import {
   Form, FormFeedback, Input, Label, CustomInput,
   Row, Col,
   Navbar,
+  NavbarBrand,
   NavbarToggler,
   Nav,
   NavItem,
@@ -28,7 +29,6 @@ import { has } from 'lodash';
 import jsonp from 'jsonp';
 
 import { AuthConsumer } from '../../providers/AuthProvider';
-
 import 'styles/layout/_navigation.scss';
 import history from '../../history';
 
@@ -273,24 +273,33 @@ class HeaderClass extends React.Component<Props, State> { // tslint:disable-line
           return (
             <div id="navigation">
               <Navbar dark expand="md">
+                <NavbarBrand href="/" className="mr-auto home">
+                  <svg width="25px" height="23px" viewBox="0 0 295 233" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
+                    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                      <g id="OA_symbol" fill="#7E7E7E" fill-rule="nonzero">
+                        <path d="M187.7,180.2 L241.4,180.2 L241.4,232.6 L187.7,232.6 L101.6,186.7 L66.6,232.6 L0,232.6 L86.1,120 L187.7,180.2 Z M241.3,180.2 L241.3,127.7 L295,127.7 L295,180.2 L241.3,180.2 Z" id="Combined-Shape"></path>
+                        <path d="M283,10.1 L230.1,10.1 C230.8,18.4 229.8,37.6 219,44.7 C210.8,50.1 193.8,47.7 160.6,29.5 C156.1,27 151.6,24.7 147.2,22.6 C103.8,0.6 67.3,-7.5 41.8,9.5 C8.6,31.6 9.5,80.7 10.8,98.2 L63.7,98.2 C63,89.9 63.7,70.8 74.6,63.8 C82.8,58.4 100.8,60.8 133.9,79 C138.4,81.5 142.9,83.8 147.3,85.9 C190.7,107.9 227.1,114.2 252.6,97.2 C285.8,75.1 284.3,27.6 283,10.1" id="Fill-5"></path>
+                      </g>
+                    </g>
+                  </svg>
+                </NavbarBrand>
                 <NavbarToggler onClick={this.toggle}/>
                 <Collapse isOpen={this.state.isOpen} navbar>
-                  <Nav className="ml-auto" navbar>
-                    <NavItem>
-                      <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/">Home</NavLink>
-                    </NavItem>
+                  <Nav className="ml-auto float-right" navbar>
+                    
                     <NavItem>
                       <Button size="sm" className="nav-link btn" onClick={() => this.props.aboutModalToggle(true)}>About</Button>
                     </NavItem>
-                    <NavItem>
-                      <Button size="sm" className="nav-link btn" onClick={() => this.props.modalToggle('TC_MODAL', true)}>Terms of Use</Button>
+                     <NavItem>
+                      <Button size="sm" className="nav-link btn" onClick={() => { this.mailChimpModalToggle() }}>Subscribe</Button>
                     </NavItem>
                     <NavItem>
-                      <Button size="sm" className="nav-link btn" onClick={() => this.props.modalToggle('PP_MODAL', true)}>Privacy Policy</Button>
+                      <Button size="sm" className="nav-link btn" onClick={() => this.props.modalToggle('TC_MODAL', true)}>Terms</Button>
                     </NavItem>
                     <NavItem>
-                      <Button size="sm" className="nav-link btn" onClick={() => { this.mailChimpModalToggle() }}>Join Our Mailing List</Button>
+                      <Button size="sm" className="nav-link btn" onClick={() => this.props.modalToggle('PP_MODAL', true)}>Privacy</Button>
                     </NavItem>
+                   
 
                     {isAuthenticated && isAdmin ?
                       <this.AdminRoutes />
@@ -335,7 +344,7 @@ class HeaderClass extends React.Component<Props, State> { // tslint:disable-line
               </Navbar>
               <Modal id="mailChimpModal" className="blue" isOpen={this.state.mailChimpModal} backdrop scrollable centered size="lg" toggle={this.mailChimpModalToggle} >
                 <Row className="header align-content-center">
-                  <Col xs="11" className="pl-0">Join Our Mailing List</Col>
+                  <Col xs="11" className="pl-0">Subscribe to Our Mailing List</Col>
                   <Col xs={1} className="px-0">
                     <div className="text-right closeIcon">
                       <FaTimes className="closeButton" onClick={this.mailChimpModalToggle}/>

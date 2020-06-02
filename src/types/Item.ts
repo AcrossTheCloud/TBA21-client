@@ -267,7 +267,8 @@ export enum itemType {
   Audio = 'Audio',
   Image = 'Image',
   PDF = 'PDF',
-  DownloadText = 'DownloadText'
+  DownloadText = 'DownloadText',
+  IFrame = 'IFrame'
 }
 
 export enum itemText {

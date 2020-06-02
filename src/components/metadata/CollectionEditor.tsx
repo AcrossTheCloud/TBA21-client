@@ -456,6 +456,8 @@ class CollectionEditorClass extends React.Component<Props, State> {
   changeCollection = (key: string, value: any, callback?: Function) => { // tslint:disable-line: no-any
     const { collection, changedFields } = this.state;
 
+    console.log(key, value);
+
     Object.assign(changedFields, { [key]: value });
     Object.assign(collection, { [key]: value });
 
@@ -484,6 +486,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
       expedition_leader,
       expedition_route,
       city_of_publication,
+      curator,
       media_type,
     } = this.state.collection;
 
@@ -516,7 +519,9 @@ class CollectionEditorClass extends React.Component<Props, State> {
         },
         'Exhibition' : {
           'institution': (institution || false),
-          'start_date': (start_date || false)
+          'start_date': (start_date || false),
+          'end_date': (end_date || false),
+          'curator': (curator || false)
         },
         'Collection' : {
           'institution': (institution || false),
@@ -992,12 +997,11 @@ class CollectionEditorClass extends React.Component<Props, State> {
       <Row>
         <Col md="6">
           <FormGroup>
-            <Label for="institution">Institution</Label>
+          <Label for="institution">Institution</Label>
             <Input
               type="text"
               className="institution"
               defaultValue={collection.institution ? collection.institution : ''}
-              required
               invalid={this.state.validate.hasOwnProperty('institution') && !this.state.validate.institution}
               onChange={e => this.validateLength('institution', e.target.value)}
             />
@@ -1024,8 +1028,10 @@ class CollectionEditorClass extends React.Component<Props, State> {
               type="date"
               className="end_date"
               defaultValue={collection.end_date ? new Date(collection.end_date).toISOString().substr(0, 10) : ''}
-              onChange={e => this.changeCollection('end_date', e.target.value)}
+              invalid={this.state.validate.hasOwnProperty('end_date') && !this.state.validate.end_date}
+              onChange={e => this.validateLength('end_date', e.target.value)}
             />
+            <FormFeedback>This is a required field</FormFeedback>
           </FormGroup>
         </Col>
         <Col md="6">
@@ -1035,14 +1041,11 @@ class CollectionEditorClass extends React.Component<Props, State> {
               type="text"
               className="curator"
               defaultValue={collection.curator ? collection.curator : ''}
-              onChange={e => this.changeCollection('curator', e.target.value)}
+              required
+              invalid={this.state.validate.hasOwnProperty('curator') && !this.state.validate.curator}
+              onChange={e => this.validateLength('curator', e.target.value)}
             />
-          </FormGroup>
-        </Col>
-        <Col md="6">
-          <FormGroup>
-            <Label for="related_material">Related Material</Label>
-            <CustomSelect values={collection.related_material} callback={values => this.changeCollection('related_material', values)} />
+            <FormFeedback>This is a required field</FormFeedback>
           </FormGroup>
         </Col>
       </Row>
@@ -1551,6 +1554,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
                     {type === Types.Event_Series ? <this.EventSeries /> : <></>}
                     {type === Types.Edited_Volume ? <this.EditedVolume /> : <></>}
                     {type === Types.Expedition ? <this.Expedition /> : <></>}
+                    {type === Types.Exhibition ? <this.Exhibition /> : <></>}
                     {type === Types.Collection ? <this.Collection /> : <></>}
                     {type === Types.Convening ? <this.Convening /> : <></>}
                     {type === Types.Performance ? <this.Performance /> : <></>}

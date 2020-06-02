@@ -2,6 +2,7 @@
 
 // Styles to help the logo animation.
 #body {
+  width: 100%;
   &.fixed {
     max-height: 100vh;
     height: 100vh;
@@ -52,7 +53,6 @@
       flex: 0;
     }
     span.ellipsis {
-      text-transform: capitalize;
       white-space: nowrap;
       text-overflow: ellipsis;
       max-width: 100%;

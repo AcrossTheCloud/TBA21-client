@@ -6,6 +6,7 @@
   opacity: .5;
 }
 
+
 #audioPlayerDiv {
   background: $dark-blue;
   color: #fff;
@@ -28,19 +29,45 @@
 
 }
 
+.searchWrap{
+  height: 100%;
+  background: $dark-blue;
+  z-index: -1;
+  .searchPadding {
+    width: 100%;
+    background: linear-gradient(to right, #0076FF 0%, #9013FE 20%, #50E3C2 50%);
+    height: 2px;
+  } 
+}
+.wrapHeight{
+  min-height: 35px;
+}
+
+
+.fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+.noFix{
+  position: relative;
+}
+
 #searchConsole {
+  padding-top: -1px;
   background: $dark-blue;
   color: #fff;
-
-  min-height: 25px;
   max-width: 100vw;
-
-  position: fixed;
-  bottom: 0;
   width: 100%;
-  z-index: 13;
-
+  z-index: 999;
+  display: block;
+  overflow: hidden;
   transition: min-height 1.2s cubic-bezier(0.22, 0.61, 0.36, 1), opacity .3s linear .5s;
+  
+  .search__control--is-disabled .search__placeholder{
+    height:28px;
+  }
 
   .console {
     .legend {
@@ -90,8 +117,9 @@
         .d-flex {
           margin: 0;
           height: 100%;
+          width:100%;
           .inputwrapper {
-            height: 45px;
+            height: 35px;
             flex: 1 0 100%;
           }
         }
@@ -131,6 +159,8 @@
 
             .search__placeholder {
               color: #fff;
+              padding-left: 2.5px;
+
             }
             .search__input {
               color: #fff;
@@ -256,6 +286,11 @@
     // Focus checkboxes
     .focus {
       font-size: 90%;
+      padding-top: 0px !important;
+      @media screen and (max-width: 768px){
+          font-size: 85%;
+
+      }
     }
 
     .results {
@@ -342,7 +377,7 @@
         position: relative;
         overflow: hidden;
         height: 0;
-        padding-top: 20px;
+        /*padding-top: 20px;*/
         .result {
           cursor: pointer;
           position: relative;
@@ -355,7 +390,6 @@
             overflow: hidden;
             max-width: 95%;
             span.ellipsis {
-              text-transform: capitalize;
               white-space: nowrap;
               text-overflow: ellipsis;
               max-width: 100%;
@@ -440,11 +474,10 @@
   }
 
   &.open {
-    min-height: 100%;
-    max-height: 100%;
+    /*min-height: 100%;*/
+    /*max-height: 100%;*/
     transition: min-height 1.2s cubic-bezier(0.22, 0.61, 0.36, 1), opacity .3s linear .5s;
   }
-
 }
 
 

@@ -4,6 +4,7 @@ import { Button, Col, Row } from 'reactstrap';
 import { dispatchLoadMore, fetchCollection, loadMore } from 'actions/collections/viewCollection';
 import { ViewCollectionState } from 'reducers/collections/viewCollection';
 import { ErrorMessage } from '../utils/alerts';
+import SpecialMenu from '../utils/SpecialMenu';
 import { browser } from '../utils/browser';
 import LicenceLink from '../utils/LicenceLink'
 import { RouteComponentProps, withRouter } from 'react-router';
@@ -13,6 +14,7 @@ import 'styles/components/pages/viewItem.scss';
 import { Item, itemType, Regions } from '../../types/Item';
 import { Collection } from '../../types/Collection';
 import { DetailPreview } from '../utils/DetailPreview';
+import { FilePreview} from '../utils/FilePreview';
 import { FileTypes } from '../../types/s3File';
 import AudioPreview from '../layout/audio/AudioPreview';
 import { dateFromTimeYearProduced } from '../../actions/home';
@@ -49,6 +51,7 @@ interface Props extends RouteComponentProps<MatchParams>, ViewCollectionState {
 
 interface State {
   data: (Item | Collection)[] | undefined;
+  firstItem: Item | undefined;
   offset: number;
   errorMessage?: string;
   collection?: Collection;
@@ -59,7 +62,7 @@ interface State {
   loading: boolean;
 }
 
-const DataLayout = (props: { data: Item | Collection, itemModalToggle?: Function, collectionModalToggle?: Function }): JSX.Element => {
+const DataLayout = (props: { data: Item | Collection, itemModalToggle?: Function, collectionModalToggle?: Function, firstItem?: boolean }): JSX.Element => {
   let response: JSX.Element = <></>;
 
   if (props.data) {
@@ -87,6 +90,7 @@ const DataLayout = (props: { data: Item | Collection, itemModalToggle?: Function
             <DetailPreview
               data={data}
               modalToggle={typeof props.itemModalToggle === 'function' ? props.itemModalToggle : undefined}
+              firstItem={props.firstItem}
             />
         );
       }
@@ -133,7 +137,7 @@ const DataLayout = (props: { data: Item | Collection, itemModalToggle?: Function
 
   return (
     <Col
-        md={!!props.data && !!props.data.file && props.data.file.type === 'Audio' ? '12' : '4'}
+        md={!!props.data && !!props.data.file && (props.data.file.type === 'Audio' || props.firstItem) ? '12' : '4'}
         className="pt-4"
     >
       {response}
@@ -153,6 +157,7 @@ class ViewCollection extends React.Component<Props, State> {
     this._isMounted = false;
     const state = {
       data: undefined,
+      firstItem: undefined,
       offset: 0,
       loading: false,
       noMoreData: false,
@@ -246,7 +251,16 @@ class ViewCollection extends React.Component<Props, State> {
             ...this.state.collection,
             items: [...items],
             collections: [...collections]
-          } as Collection
+          } as Collection,
+          firstItem: this.props.data ?
+              this.props.data
+                  .filter((data: Item | Collection) => {
+                    return data.__typename === 'item';
+                  })
+                  .filter((data: Item) => {
+                    return (data.item_type === 'Image' || data.item_type === 'Video' || data.item_type === 'IFrame')
+                  })[0] as Item
+              : undefined
         });
       }
     }
@@ -281,7 +295,7 @@ class ViewCollection extends React.Component<Props, State> {
           await loadMore(this.state.collection.id, this.state.offset, (datum) => {
             if (!this._isMounted) { return; }
             if (datum) {
-              this.setState({data: [...this.state.data as [], datum], offset: this.state.offset + 10});
+              this.setState({data: [...this.state.data as [], datum], offset: this.state.offset + 100});
             } else {
               this.setState({ noMoreData: true });
             }
@@ -405,16 +419,44 @@ class ViewCollection extends React.Component<Props, State> {
         <ErrorMessage message={this.props.errorMessage} />
 
         <Row>
+          {
+            this.state.firstItem ?
+              (this.state.firstItem.item_type === 'IFrame' ?
+                (
+
+                  <DataLayout
+                  data={this.state.firstItem}
+                  key={`item_${this.state.firstItem.id}`}
+                  itemModalToggle={this.props.itemModalToggle}
+                  collectionModalToggle={this.collectionModalToggle}
+                  firstItem={true}
+                  />
+                ) :
+                (
+                  <FilePreview file={this.state.firstItem.file} isHeader={true} />
+                )
+              )
+                : <></>
+          }
+        </Row>
+
+        <Row>
           <Col xs="12" md="8" className="left border-right">
             <Row>
               <Col xs={{ size: 12, order: 2 }} md={{ size: 8, order: 1 }} className="creators">
                 {creators ? creators.join(', ') : <></>}
               </Col>
             </Row>
-
             <Row>
               <Col>
-                <h1>{title}</h1>
+                <div className="flex items-center justify-between">
+                  <h1>{title}</h1>
+                  {!!id &&
+                    <h3 style={{ marginLeft: "1rem" }}>
+                      <Share suffix={`collection/${id}`} />
+                    </h3>
+                  }
+                </div>
               </Col>
             </Row>
             <Row>
@@ -426,17 +468,6 @@ class ViewCollection extends React.Component<Props, State> {
                 }
               </Col>
             </Row>
-
-            {!!id ?
-              (
-                <Row>
-                  <Col className="text-right">
-                    <Share suffix={`collection/${id}`}/>
-                  </Col>
-                </Row>
-              )
-              : <></>
-            }
 
             <Row id={this.state.dataRowID}>
             {
@@ -457,6 +488,9 @@ class ViewCollection extends React.Component<Props, State> {
                 this.state.collection.items && this.state.collection.items.length ?
                     // tslint:disable-next-line:no-any
                     (this.state.collection.items as any[])
+                        .filter((item: Item) => {
+                          return this.state.firstItem && item.id !== this.state.firstItem.id;
+                        })
                         .map((item: Item, i) => (
                             <DataLayout
                                 data={item}
@@ -553,6 +587,9 @@ class ViewCollection extends React.Component<Props, State> {
                 <div style={{ height: '15px', background: `linear-gradient(to right, #0076FF ${focusPercentage(focus_arts)}%, #9013FE ${focusPercentage(focus_scitech)}%, #50E3C2 ${focusPercentage(focus_action)}%)` }} />
               </Col>
             </Row>
+            <Row>
+              <SpecialMenu id={id}/>
+            </Row>
           </Col>
         </Row>
       </div>
@@ -566,9 +603,10 @@ const mapStateToProps = (state: { viewCollection: ViewCollectionState, userHisto
     errorMessage: state.viewCollection.errorMessage,
     collection: props.collection || state.viewCollection.collection,
     data: state.viewCollection.data,
+    firstItem: state.viewCollection.firstItem,
     offset: state.viewCollection.offset,
     noMoreData: state.viewCollection.noMoreData,
-    noRedux: !!props.noRedux || false,
+    noRedux: (props.hasOwnProperty('noRedux') && props.noRedux) || false,
     modalBodyID: props.modalBodyID,
     userHistory: state.userHistory
   };

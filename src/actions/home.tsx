@@ -8,6 +8,7 @@ import { COLLECTION_MODAL_TOGGLE } from './modals/collectionModal';
 import { ITEM_MODAL_TOGGLE } from './modals/itemModal';
 import { LIVESTREAM_MODAL_TOGGLE } from './modals/liveStreamModal';
 import * as React from 'react';
+import ReactGA from 'react-ga';
 import {
   DetailPreview,
   getItemsAndCollectionsForCollection
@@ -39,12 +40,13 @@ export const logoDispatch = (state: boolean) => dispatch => {
 export const liveStreamDispatch = (state: boolean) => async dispatch => {
   if (state) {
     try {
-      let response = await fetch('https://api.twitch.tv/helix/streams?user_login=oceanarchive', {
+      let response = await fetch(window.location.hostname.match(/staging/) ? 'https://api.twitch.tv/helix/streams?user_login=acrossthecloud' : 'https://api.twitch.tv/helix/streams?user_login=oceanarchive', {
         mode: 'cors',
         method: 'GET',
         headers: {
           "Accept":"application/vnd.twitchtv.v5+json",
-          "Client-ID":"brdrlyou2po431ot4owmi1zzjn6n0x"
+          "Client-ID":"w2yn7cjtbiqasqb00yfmmcimneu51k",
+          "Authorization":"Bearer 5sf0800ormqxpvvqiyyq4p03lakqdm"
         }
       });
       let responseJSON = await response.json();
@@ -53,7 +55,7 @@ export const liveStreamDispatch = (state: boolean) => async dispatch => {
           type: LIVESTREAM_MODAL_TOGGLE,
           open: state,
           hasOpened: true,
-          channel: 'acrossthecloud'
+          channel: window.location.hostname.match(/staging/) ? 'acrossthecloud' : 'oceanarchive'
         });
       }
     } catch (e) {
@@ -330,12 +332,14 @@ const waitForLoad = (loadedCount: number) => dispatch => {
 export const openModal = (data: HomepageData) => dispatch => {
   if (data.hasOwnProperty('count') || data.hasOwnProperty('items') || data.hasOwnProperty('type')) {
     // We have a collection.
+    ReactGA.modalview('/collection/'+data.id);
     dispatch({
      type: COLLECTION_MODAL_TOGGLE,
      open: true,
      data
    });
   } else {
+    ReactGA.modalview('/view/'+data.id);
     dispatch({
        type: ITEM_MODAL_TOGGLE,
        open: true,

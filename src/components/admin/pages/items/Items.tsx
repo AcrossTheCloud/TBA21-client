@@ -1,16 +1,16 @@
-import { API } from 'aws-amplify';
 import { RouteComponentProps, withRouter } from 'react-router';
 
 import * as React from 'react';
 import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
-import { Button, Container, Modal, ModalBody, ModalFooter, ModalHeader, Spinner } from 'reactstrap';
+import { Button, Container, Modal, ModalBody, ModalFooter, Spinner } from 'reactstrap';
 
 import { FaCheck, FaTimes } from 'react-icons/fa';
 import { Item } from 'types/Item';
 import ItemEditor from 'components/metadata/ItemEditor';
 import { Alerts, ErrorMessage, SuccessMessage } from 'components/utils/alerts';
 import { AuthContext } from '../../../../providers/AuthProvider';
+import { AdminSearch } from '../../utils/AdminSearch';
 
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css';
@@ -18,6 +18,7 @@ import 'react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.m
 import 'styles/components/admin/tables/modal.scss';
 import { adminGetItems, contributorGetByPerson } from '../../../../REST/items';
 import { removeTopology } from '../../../utils/removeTopology';
+import Delete from '../../utils/Delete';
 
 interface State extends Alerts {
   items: Item[];
@@ -32,11 +33,13 @@ interface State extends Alerts {
   totalSize: number;
 
   deleteErrorMessage: string | JSX.Element | undefined;
+  order?: string;
 }
 
 class Items extends React.Component<RouteComponentProps, State> {
   _isMounted;
   isContributorPath;
+  isAdmin;
   tableColumns;
 
   constructor(props: RouteComponentProps) {
@@ -54,6 +57,7 @@ class Items extends React.Component<RouteComponentProps, State> {
       totalSize: 0,
       deleteErrorMessage: undefined
     };
+    const style = { overflowWrap: 'break-word', wordWrap: 'break-word'  } ;
 
     this.tableColumns = [
       {
@@ -65,15 +69,36 @@ class Items extends React.Component<RouteComponentProps, State> {
         text: 'Published',
         align: 'center',
         headerStyle: () => {
-          return { width: '10%' };
+          return style;
         },
         formatter: (status) => {
           return status === true ? <FaCheck color="green" size={25}/> : <FaTimes color="red" size={25}/> ;
         }
       },
       {
+        dataField: 'created_at',
+        text: 'Created Date',
+        sort: true,
+        onSort: (field, order) => {
+          this.dateFormatter(field, order);
+          this.setState({order: order});
+        },
+        formatter: (cell: string) => {
+          return ( cell.toString().slice(0, 10) );
+        },
+        headerStyle: () => {
+          return style;
+        },
+      },
+      {
         dataField: 'title',
-        text: 'Title'
+        text: 'Title',
+        headerStyle: () => {
+          return style;
+        },
+        style: () => {
+          return style;
+        },
       },
       {
         dataField: 'creators',
@@ -82,22 +107,39 @@ class Items extends React.Component<RouteComponentProps, State> {
             cell.join(', ')
             :
             '';
+        }, headerStyle: () => {
+          return style;
+        },
+        style: () => {
+          return style;
         },
         hidden: !!this.isContributorPath,
         text: 'Creator(s)'
       },
       {
         dataField: 'options',
-        text: 'options',
+        text: 'Options',
         isDummyField: true,
         formatter: (e, row, rowIndex) => {
-          return (
-            <>
-              <Button color="warning" size="sm" className="mr-3" onClick={() => this.onEditButtonClick(rowIndex)}>Edit</Button>
-              <Button color="danger" size="sm" onClick={() => this.onDeleteButtonClick(rowIndex)}>Delete</Button>
-            </>
-          );
-        }
+          const identifier = this.state.items[rowIndex].s3_key;
+          if (identifier) {
+            return (
+              <>
+                <Button color="warning" size="sm" className="mr-3" onClick={() => this.onEditButtonClick(rowIndex)}>Edit</Button>
+                <Delete
+                    path={'items'}
+                    isContributorPath={this.isContributorPath}
+                    index={rowIndex}
+                    identifier={identifier}
+                    callback={() => this.getItems()}
+                />
+              </>
+              );
+          } else { return <></>; }
+        },
+        headerStyle: () => {
+          return style;
+        },
       }
     ];
   }
@@ -105,6 +147,7 @@ class Items extends React.Component<RouteComponentProps, State> {
   async componentDidMount() {
     this._isMounted = true;
     this.isContributorPath = (this.props.location.pathname.match(/contributor/i));
+    this.isAdmin = !!this.props.location.pathname.match(/admin/i);
     this.getItems();
   }
 
@@ -112,12 +155,13 @@ class Items extends React.Component<RouteComponentProps, State> {
     this._isMounted = false;
   }
 
-  getItemsQuery = async (offset: number): Promise<{ items: Item[], totalSize: number } | void> => {
+  getItemsQuery = async (offset: number, order?: string): Promise<{ items: Item[], totalSize: number } | void> => {
     try {
       const
         queryStringParameters = {
           offset: offset,
-          limit: this.state.sizePerPage
+          limit: this.state.sizePerPage,
+          order: order ? order : 'none'
         },
         response = this.isContributorPath ? await contributorGetByPerson(queryStringParameters) : await adminGetItems(queryStringParameters),
         items = removeTopology(response) as Item[];
@@ -133,11 +177,11 @@ class Items extends React.Component<RouteComponentProps, State> {
     }
   }
 
-  getItems = async (): Promise<void> => {
+  getItems = async (order?: string): Promise<void> => {
     try {
       const
         currentIndex = (this.state.page - 1) * this.state.sizePerPage,
-        response = await this.getItemsQuery(currentIndex);
+        response = await this.getItemsQuery(currentIndex, order);
 
       if (response) {
         const { items, totalSize } = response;
@@ -166,15 +210,6 @@ class Items extends React.Component<RouteComponentProps, State> {
       }
     );
   }
-  onDeleteButtonClick = (itemIndex: number) => {
-    if (!this._isMounted) { return; }
-    this.setState(
-      {
-        deleteModalOpen: true,
-        itemIndex: itemIndex,
-      }
-    );
-  }
 
   componentModalToggle = () => {
     if (!this._isMounted) { return; }
@@ -185,52 +220,6 @@ class Items extends React.Component<RouteComponentProps, State> {
     );
   }
 
-  deleteModalToggle = () => {
-    if (!this._isMounted) { return; }
-    this.setState( prevState => ({
-       ...prevState,
-      deleteModalOpen: !prevState.deleteModalOpen,
-      deleteErrorMessage: undefined,
-      successMessage: undefined
-     })
-    );
-  }
-
-  deleteItem = async () => {
-    const state = {
-      deleteErrorMessage: undefined,
-      successMessage: undefined
-    };
-    try {
-      const itemIndex: number | undefined = this.state.itemIndex;
-      if (typeof itemIndex !== 'undefined' && itemIndex > -1) {
-        await API.del('tba21', (this.isContributorPath ? 'contributor/items' :  'admin/items'), {
-          queryStringParameters: {
-            s3Key: this.state.items[itemIndex].s3_key
-          }
-        });
-        await this.getItems();
-        Object.assign(state, {
-          deleteModalOpen: false,
-          successMessage: 'Item deleted'
-        });
-      } else {
-        Object.assign(state, {
-          deleteErrorMessage: 'This item may have already been deleted.',
-          deleteModalOpen: false
-        });
-        await this.getItems();
-      }
-
-    } catch (e) {
-        Object.assign(state, {
-          deleteErrorMessage: 'We had some trouble deleting this item. Please try again later.'
-        });
-    } finally {
-      this.setState(state);
-    }
-  }
-
   handleTableChange = async (type, { page, sizePerPage }): Promise<void> => {
     if (type === 'pagination') {
       const currentIndex = (page - 1) * sizePerPage;
@@ -238,7 +227,10 @@ class Items extends React.Component<RouteComponentProps, State> {
       this.setState({ tableIsLoading: true });
 
       try {
-        const response = await this.getItemsQuery(currentIndex);
+        let response;
+        if (this.state.order === 'desc' || this.state.order === 'asc') {
+          response = await this.getItemsQuery(currentIndex, this.state.order);
+        } else {  response = await this.getItemsQuery(currentIndex); }
         if (response) {
           if (!this._isMounted) { return; }
 
@@ -257,6 +249,13 @@ class Items extends React.Component<RouteComponentProps, State> {
       }
     }
   }
+  
+  dateFormatter = async (field, order) => {
+    this.setState({
+                    tableIsLoading: true
+                  });
+    await this.getItems(order);
+  }
 
   render() {
     const
@@ -271,6 +270,12 @@ class Items extends React.Component<RouteComponentProps, State> {
       <Container>
         <ErrorMessage message={this.state.errorMessage}/>
         <SuccessMessage message={this.state.successMessage}/>
+        <AdminSearch
+            limit={this.state.sizePerPage}
+            isContributorPath={this.isContributorPath}
+            path={'items'}
+            isAdmin={this.isAdmin}
+        />
         <BootstrapTable
           remote
           bootstrap4
@@ -311,16 +316,6 @@ class Items extends React.Component<RouteComponentProps, State> {
           </ModalFooter>
         </Modal>
 
-        {/* Delete Item Modal */}
-        <Modal isOpen={this.state.deleteModalOpen}>
-          <ErrorMessage message={this.state.deleteErrorMessage}/>
-          <ModalHeader>Delete Item?</ModalHeader>
-          <ModalBody>Are you 100% sure you want to delete this item?</ModalBody>
-            <ModalFooter>
-              <Button color="danger" className="mr-auto" onClick={this.deleteItem}>I'm Sure</Button>{' '}
-              <Button color="secondary" onClick={this.deleteModalToggle}>Cancel</Button>
-            </ModalFooter>
-        </Modal>
       </Container>
     );
   }

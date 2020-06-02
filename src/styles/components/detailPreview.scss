@@ -53,7 +53,6 @@
       flex: 0;
     }
     span.ellipsis {
-      text-transform: capitalize;
       white-space: nowrap;
       text-overflow: ellipsis;
       max-width: 100%;
@@ -72,6 +71,166 @@
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.4);
+    top: 0;
+    left: 0;
+    padding: 20px;
+
+    .type {
+      position: relative;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .count {
+      position: relative;
+      font-size: 15px;
+    }
+
+    .duration, .date {
+      position: relative;
+      font-size: 15px;
+    }
+
+    .middle {
+      line-height: 0;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      font-size: 50px;
+      transform: translate(-50%, -50%);
+
+      .collection_icon {
+        width: 70px;
+        height: 70px;
+      }
+
+      .collections_in_collection_icon {
+        width: 70px;
+      }
+    }
+
+    .bottom {
+      font-family: "Recta W01 Regular", sans-serif;
+      font-size: 20px;
+      position: absolute;
+      bottom: 10px;
+      left: 0;
+      padding: 0 20px;
+      width: 100%;
+    }
+  }
+
+  .file {
+    position: relative;
+    text-align: center;
+  }
+
+  .pdf {
+    position: relative;
+    height: 350px;
+    margin: 0 auto;
+    overflow: hidden;
+
+    // PDF file constraints
+    .react-pdf__Page__canvas {
+      width: 100% !important;
+      height: auto !important;
+    }
+
+    @media (min-height: 1200px) {
+      height: 30vh;
+    }
+    // ipad pro
+    @media screen and (max-device-width: 1668px) and (device-height: 2388px) and (orientation:portrait) {
+      height: 500px;
+    }
+    @media screen and (max-device-width: 2388px) and (device-height: 1668px) and (orientation:landscape) {}
+    // ipad
+    @media screen and (device-width: 768px) and (device-height: 1024px) and (orientation:portrait) {
+      height: 300px;
+    }
+    @media screen and (device-width: 1024px) and (device-height: 768px) and (orientation:landscape) {}
+
+    @media (max-height: 768px) and (orientation:landscape) {
+      height: 70vh;
+    }
+  }
+
+}
+
+.detailHeaderPreview {
+  position: relative;
+  cursor: pointer;
+  color: $soft-gray;
+  height: auto !important;
+
+  .dot {
+    line-height: 0;
+    font-size: 5px;
+    margin: 0 10px;
+  }
+
+  picture {
+    height: auto !important;
+    display: block;
+    @media (min-height: 1200px) {
+      height: 30vh;
+    }
+    // ipad pro
+    @media screen and (max-device-width: 1668px) and (device-height: 2388px) and (orientation:portrait) {
+      height: 500px;
+    }
+    @media screen and (max-device-width: 2388px) and (device-height: 1668px) and (orientation:landscape) {}
+    // ipad
+    @media screen and (device-width: 768px) and (device-height: 1024px) and (orientation:portrait) {
+      height: 300px;
+    }
+    @media screen and (device-width: 1024px) and (device-height: 768px) and (orientation:landscape) {}
+
+    @media (max-height: 768px) and (orientation:landscape) {
+      height: 70vh;
+    }
+
+    img {
+      object-fit: cover;
+      height: auto;
+      width: 100%;
+    }
+  }
+
+  .title-wrapper {
+    //overflow: hidden;
+    font-size: 20px;
+    .title { // , .creators
+      flex: 0 1;
+      max-width: 90%;
+    }
+    .creators {
+      flex: 0 1 auto;
+    }
+    .dotwrap {
+      flex: 0;
+    }
+    span.ellipsis {
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      max-width: 100%;
+      overflow: hidden;
+      display: inline-block;
+    }
+  }
+
+  .tags {
+    color: $soft-blue;
+    font-size: 12px;
+  }
+
+  .overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.2);
     top: 0;
     left: 0;
     padding: 20px;

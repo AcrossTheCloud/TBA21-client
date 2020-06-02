@@ -24,6 +24,12 @@
     width: 100%;
   }
 
+  .img-only {
+    object-fit: cover;
+    height: 100%;
+    width: 100%;
+  }
+
   .blink_me {
     animation: blinker 2s linear infinite;
   }
@@ -38,7 +44,8 @@
     width: 100%;
     font-size: 20px;
     position: absolute;
-    top: 70%;
+    z-index: inherit;
+    top: 75%;
     left: 50%;
     transform: translate(-50%, -50%);
     @media screen and (min-width: 768px) {
@@ -63,7 +70,7 @@
     }
 
     h1 {
-      margin-bottom: 15px;
+      margin-bottom: 0px;
     }
 
     .logo {
@@ -81,7 +88,7 @@
     }
 
     .bottom {
-      padding-top: 20px;
+      padding-top: 0px;
       .left {
         p {
           margin-bottom: 0;

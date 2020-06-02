@@ -34,7 +34,7 @@
     "react-embed": "^3.3.2",
     "react-ga": "^2.7.0",
     "react-icons": "^3.10.0",
-    "react-pdf": "^4.1.0",
+    "react-pdf": "^5.0.0-beta.3",
     "react-player": "^2.0.1",
     "react-redux": "^7.2.0",
     "react-router": "^5.1.2",

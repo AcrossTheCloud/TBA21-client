@@ -8,12 +8,26 @@
     border-bottom: 0;
     overflow: hidden;
   }
+  #searchConsole {
+    max-height: 0;
+    border-bottom: 0;
+    overflow: hidden;
+  }
 }
 
+.home svg{
+  g {
+    fill: #7E7E7E;
+  }
+
+}
+.home:hover svg g{
+    fill: #EEEEEE;
+}
 
 #navigation {
   background: #142636;
-  border-bottom: 1px solid #eee;
+  //border-bottom: 1px solid #eee;
 
   max-height: unset;
   transition: max-height 5s;
@@ -29,8 +43,15 @@
     }
     .nav-item {
       .nav-link {
+        @media screen and (max-width: 767px) {
+          width: 100%;
+          text-align: right;
+        }
         @media screen and (min-width: 768px) {
           padding-left: 1rem;
+        }
+        @media screen and (max-width: 992px) {
+          padding-left: 0.6rem;
         }
         font-size: 15px;
       }
