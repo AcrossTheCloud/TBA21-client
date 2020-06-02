@@ -39,7 +39,7 @@ class ViewProfile extends React.Component<Props, State> {
   }
 
   locationString(): string {
-    const {city, country} = this.props.profile;
+    const { city, country } = this.props.profile;
     if (city && city.length && !country) {
       return city
     } else if (!city && country && country.length) {
@@ -47,7 +47,7 @@ class ViewProfile extends React.Component<Props, State> {
     } else if (city?.length && country?.length) {
       return `${city}, ${country}`
     } else {
-      return "-"
+      return "—"
     }
   }
 
@@ -72,7 +72,7 @@ class ViewProfile extends React.Component<Props, State> {
         <Row>
           <Col xs="12" md="6" className="left">
             <Row className="profile-section">
-              <Col xs="12" md="auto" style={{paddingRight: 0}}>
+              <Col xs="12" md="auto" style={{ paddingRight: 0 }}>
                 {
                   !!this.props.profile.profile_image ?
                     <img className="profile-image" src={this.props.profile.profile_image} alt="" />
@@ -80,7 +80,7 @@ class ViewProfile extends React.Component<Props, State> {
                 }
               </Col>
               <Col xs="12" md="auto" className="profile-description">
-                  <h1>{full_name}</h1>
+                <h1>{full_name}</h1>
                 <div>
                   <p>{field_expertise}</p>
                   <p className="profile-type">{profile_type}</p>
@@ -88,7 +88,7 @@ class ViewProfile extends React.Component<Props, State> {
               </Col>
             </Row>
 
-            <Col xs="12" style={{marginTop: '2rem'}}>
+            <Col xs="12" style={{ marginTop: '2rem' }}>
               <h5>
                 {biography}
               </h5>
@@ -98,27 +98,27 @@ class ViewProfile extends React.Component<Props, State> {
           <Col xs="12" md="6" className="right">
             <div className="detailsRow">
               <div>
-              <Col xs="12" className="details">
-                <span className="details-label">Location</span>
-                <span>{this.locationString()}</span>
-              </Col>
-              <Col xs="12" className="details">
+                <Col xs="12" className="details">
+                  <span className="details-label">Location</span>
+                  <span>{this.locationString()}</span>
+                </Col>
+                <Col xs="12" className="details">
 
-                <span className="details-label">
-                Website
+                  <span className="details-label">
+                    Website
                 </span>
-                {website && <a href={website}>{website}</a>}
-              </Col>
-              <Col xs="12" className="details">
-                <span className="details-label">Position</span>
-                {position}
-              </Col>
-              <Col xs="12" className="details">
-                <span className="details-label">
-                Affiliation
+                  {website ? <a href={website}>{website}</a> : '—'}
+                </Col>
+                <Col xs="12" className="details">
+                  <span className="details-label">Position</span>
+                  {position && position.length ? position : '—'}
+                </Col>
+                <Col xs="12" className="details">
+                  <span className="details-label">
+                    Affiliation
                 </span>
-                <span>{affiliation}</span>
-              </Col>
+                  <span>{affiliation && affiliation.length ? affiliation : "—"}</span>
+                </Col>
               </div>
               <div className="gradient-line"></div>
             </div>
