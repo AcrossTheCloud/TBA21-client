@@ -1,0 +1,94 @@
+@import '../../base/variables.scss';
+
+#viewProfile {
+  color: white;
+
+  .row {
+    width: 100%;
+    margin: 0;
+  }
+
+  .sticky {
+    position: sticky;
+    top: 20px;
+  }
+
+  .select {
+    color: $dark-gray
+  }
+
+  h1 {
+    font-size: 40px;
+  }
+
+  .left {
+    padding: 0;
+    padding-bottom: 4rem;
+
+    .profile-section {
+      margin: 0;
+      padding-top: 2rem;
+
+      .profile-image {
+        width: 150px;
+        height: 150px;
+        background: $item-details-border;
+      }
+
+    }
+
+    .profile-description {
+      display: flex;
+      justify-content: space-between;
+      flex-direction: column;
+
+      p {
+        font-size: 14px;
+        margin-bottom: 0;
+      }
+
+      .profile-type {
+        color: $subline-gray;
+      }
+    }
+  }
+
+  .right {
+    padding: 0;
+    @media screen and (min-width: 768px) {
+      max-width: 40%;
+    }
+    border: .5px solid $item-details-border;
+    border-bottom: 0;
+    margin-left: auto;
+    font-size: 14px;
+    .detailsRow {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+      .details {
+        color: $subline-gray;
+        border-bottom: .5px solid $item-details-border;
+        padding: 15px;
+        display: flex;
+        justify-content: space-between;
+
+        .details-label {
+          padding-right: 1rem;
+        }
+      }
+
+      .gradient-line {
+        background: linear-gradient(to right, #0076FF 0%, #9013FE 20%, #50E3C2 50%);
+        height: 8px;
+      }
+    }
+
+  }
+
+  .author-items {
+    min-height: 600px;
+    background: white;
+  }
+}

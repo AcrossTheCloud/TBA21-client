@@ -10,6 +10,7 @@ import { Alerts, ErrorMessage } from '../../utils/alerts';
 import { Profile } from '../../../types/Profile';
 import { fetchProfile } from '../../../actions/user/viewProfile';
 import { Col, Row } from 'reactstrap';
+import "../../../styles/components/pages/viewProfile.scss"
 
 interface Props extends RouteComponentProps, Alerts {
   fetchProfile: Function;
@@ -39,19 +40,15 @@ class ViewProfile extends React.Component<Props, State> {
 
   locationString(): string {
     const {city, country} = this.props.profile;
-    let locationString = "Location: "
-
-    if (city?.length && country?.length === 0) {
-      locationString += city
-    } else if (city?.length === 0 && country?.length) {
-      locationString += country
+    if (city && city.length && !country) {
+      return city
+    } else if (!city && country && country.length) {
+      return country
     } else if (city?.length && country?.length) {
-      locationString += `${city}, ${country}`
+      return `${city}, ${country}`
     } else {
-      locationString += "-"
+      return "-"
     }
-
-    return locationString
   }
 
   render() {
@@ -70,47 +67,65 @@ class ViewProfile extends React.Component<Props, State> {
     } = this.props.profile;
 
     return (
-      <div id="profile" >
+      <div id="viewProfile" >
         <ErrorMessage message={this.props.errorMessage} />
-         <Row>
+        <Row>
           <Col xs="12" md="6" className="left">
-              <Col xs="12">
+            <Row className="profile-section">
+              <Col xs="12" md="auto" style={{paddingRight: 0}}>
                 {
                   !!this.props.profile.profile_image ?
-                    <img src={this.props.profile.profile_image}  alt="" />
-                    : <></>
+                    <img src={this.props.profile.profile_image} alt="" />
+                    : <div className="profile-image"></div>
                 }
               </Col>
-              <Col xs="12" >
-                <h1>{full_name}</h1>
+              <Col xs="12" md="9" className="profile-description">
+                  <h1>{full_name}</h1>
+                <div>
+                  <p>{field_expertise}</p>
+                  <p className="profile-type">{profile_type}</p>
+                </div>
               </Col>
-              <Col xs="12">
-                {field_expertise}
-              </Col>
-              <Col xs="12">
-                {profile_type}
-              </Col>
-              <Col xs="12">
+            </Row>
+
+            <Col xs="12" style={{marginTop: '2rem'}}>
+              <h5>
                 {biography}
-              </Col>
+              </h5>
+            </Col>
           </Col>
 
           <Col xs="12" md="6" className="right">
-            <Row className="detailsRow">
-              <Col xs="12" className="details border">
-                {this.locationString()}
+            <div className="detailsRow">
+              <div>
+              <Col xs="12" className="details">
+                <span className="details-label">Location</span>
+                <span>{this.locationString()}</span>
               </Col>
-              <Col xs="12" className="details border">
-                Website: {website}
+              <Col xs="12" className="details">
+
+                <span className="details-label">
+                Website
+                </span>
+                {website && <a href={website}>{website}</a>}
               </Col>
-              <Col xs="12" className="details border">
-                Position: {position}
+              <Col xs="12" className="details">
+                <span className="details-label">Position</span>
+                {position}
               </Col>
-              <Col xs="12" className="details border">
-                Affiliation: {affiliation}
+              <Col xs="12" className="details">
+                <span className="details-label">
+                Affiliation
+                </span>
+                <span>{affiliation}</span>
               </Col>
-            </Row>
+              </div>
+              <div className="gradient-line"></div>
+            </div>
           </Col>
+        </Row>
+        <Row className="author-items">
+
         </Row>
       </div>
     );
