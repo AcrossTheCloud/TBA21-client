@@ -75,11 +75,11 @@ class ViewProfile extends React.Component<Props, State> {
               <Col xs="12" md="auto" style={{paddingRight: 0}}>
                 {
                   !!this.props.profile.profile_image ?
-                    <img src={this.props.profile.profile_image} alt="" />
+                    <img className="profile-image" src={this.props.profile.profile_image} alt="" />
                     : <div className="profile-image"></div>
                 }
               </Col>
-              <Col xs="12" md="9" className="profile-description">
+              <Col xs="12" md="auto" className="profile-description">
                   <h1>{full_name}</h1>
                 <div>
                   <p>{field_expertise}</p>
@@ -124,9 +124,9 @@ class ViewProfile extends React.Component<Props, State> {
             </div>
           </Col>
         </Row>
-        <Row className="author-items">
+        {/* <Row className="author-items">
 
-        </Row>
+        </Row> */}
       </div>
     );
   }
