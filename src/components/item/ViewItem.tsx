@@ -207,14 +207,16 @@ class ViewItem extends React.Component<Props, State> {
               </Col>
             </Row>
             <Row>
-              <div style={{display: "flex", alignItems: "center"}}>
-              <h1>{title}</h1>
-              {!!id &&
-                  <h3 style={{marginLeft: "0.5rem"}}>
-                    <Share suffix={`collection/${id}`} />
-                  </h3>
-                }
-              </div>
+              <Col>
+                <div className="flex items-center justify-between">
+                  <h1>{title}</h1>
+                  {!!id &&
+                    <h3 style={{ marginLeft: "1rem" }}>
+                      <Share suffix={`view/${id}`} />
+                    </h3>
+                  }
+                </div>
+              </Col>
             </Row>
 
             <Row>
