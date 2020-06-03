@@ -68,6 +68,9 @@
   .search__control--is-disabled .search__placeholder{
     height:28px;
   }
+  .search__control--is-disabled .search__value-container{
+    padding-top: 2px !important;
+  }
 
   .console {
     .legend {

@@ -6,6 +6,7 @@ jobs:
   build:
     docker:
       - image: circleci/node:lts
+    resource_class: large
 
     steps:
       - checkout

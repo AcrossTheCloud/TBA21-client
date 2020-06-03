@@ -13,13 +13,20 @@ import { Alerts, ErrorMessage } from '../utils/alerts';
 
 interface State extends Alerts {
   files: Files;
-  rejectedFiles: Files;
+  rejectedFiles: Rejections;
 }
 interface Props {
   callback: Function;
 }
 interface Files {
   [id: string]: File;
+}
+interface Rejections {
+  [id: string]: Rejection;
+}
+interface Rejection {
+  errors: any;
+  file: File;
 }
 interface File {
   uuid: string;
@@ -68,7 +75,7 @@ export class FileUpload extends React.Component<Props, State> {
     this._isMounted = false;
   }
 
-  onDrop = async (acceptedFiles: Array<any>, rejectedFiles: any) => {  // tslint:disable-line:no-any
+  onDrop = async (acceptedFiles: Array<any>, fileRejections: any) => {  // tslint:disable-line:no-any
     const files: Files = {};
 
     acceptedFiles.forEach( file => {
@@ -90,7 +97,7 @@ export class FileUpload extends React.Component<Props, State> {
         }
 
         if (file.type.includes('quicktime')) {
-          Object.assign(rejectedFiles, file);
+          Object.assign(fileRejections, file);
           if (!this._isMounted) { return; }
           this.setState({ errorMessage: <>
               We currently do not accept .MOV or QuickTime files, we're working to support this.<br/>
@@ -106,7 +113,7 @@ export class FileUpload extends React.Component<Props, State> {
     if (Object.keys(files).length) {
       const state = {
         files: {...this.state.files, ...files},
-        rejectedFiles: rejectedFiles
+        rejectedFiles: fileRejections
       };
 
       if (!this._isMounted) { return; }
@@ -150,8 +157,8 @@ export class FileUpload extends React.Component<Props, State> {
   }
 
   renderRejectedFiles() {
-    return Object.values(this.state.rejectedFiles).map(file => {
-      return <li key={file.name}> {file.type} file: {file.name} - {file.size} bytes </li>;
+    return Object.values(this.state.rejectedFiles).map(rejection => {
+      return <li key={rejection.file.name}> {rejection.file.type} file: {rejection.file.name} - {rejection.file.size} bytes </li>;
     });
   }
 
