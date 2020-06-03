@@ -66,6 +66,8 @@ interface State {
   loading: boolean;
   modalType?: 'Item' | 'Collection' | 'Profile';
   searchMobileCookie: boolean;
+  focusValue?: number;
+  searched?: boolean;
 }
 
 // @todo should be a util
@@ -136,6 +138,8 @@ class SearchConsole extends React.Component<Props, State> {
       modalOpen: false,
       loading: false,
       noFix: true,
+      focusValue: 0,
+      searched: false,
 
       searchMobileCookie: !!cookies.get(`searchMobileCookie`) && (cookies.get(`searchMobileCookie`) === 'true')
     };
@@ -150,17 +154,6 @@ class SearchConsole extends React.Component<Props, State> {
     const searchConsoleBody = document.getElementById('searchConsole');
     
     if (searchConsoleBody) {
-      window.onscroll = () => {
-        let scrollTop = Math.max(document.body.scrollTop, document.documentElement.scrollTop);
-        if (scrollTop <= searchConsoleBody.getBoundingClientRect().top) {
-        //if (scrollTop <= 53) {
-          this.setState({noFix: true})
-        } else if (scrollTop > searchConsoleBody.getBoundingClientRect().top) {
-        //} else if (scrollTop > 53) {
-          this.setState({noFix: false})
-        }
-      }
-
       searchConsoleBody.addEventListener('scroll',  this.scrollDebounce, true);
       window.onscroll = () => {
         let scrollTop = Math.max(document.body.scrollTop, document.documentElement.scrollTop);
@@ -171,7 +164,7 @@ class SearchConsole extends React.Component<Props, State> {
         } else if (scrollTop > 54) {
           this.setState({noFix: false})
         }
-       }
+      }
     }
   }
 
@@ -323,43 +316,52 @@ class SearchConsole extends React.Component<Props, State> {
   */
   searchDispatch = () => {
     this.animateResults(false);
-    if (this.props.open && this.props.selectedCriteria && this.props.selectedCriteria.length) {
-      this.props.dispatchSearch(this.props.selectedCriteria, this.state.focus_arts, this.state.focus_action, this.state.focus_scitech);
-    }
   }
 
   onSearchChange = (tagsList: any, actionMeta: any) => { // tslint:disable-line: no-any
     if (!this._isMounted) { return; }
-
     if (actionMeta.action === 'clear') {
-      this.setState({searchMenuOpen: false});
+      this.setState({searchMenuOpen: false, searched: false, focus_arts: false, focus_scitech: false, focus_action: false});
       this.props.dispatchSearch([]);
     }
 
     if (actionMeta.action === 'remove-value' || actionMeta.action === 'select-option' || actionMeta.action === 'create-option') {
-      this.setState({searchMenuOpen: false});
-      this.props.dispatchSearch(tagsList ? tagsList : []);
+      if(tagsList) {
+        this.setState({searchMenuOpen: false, searched: true}); 
+        this.props.dispatchSearch(tagsList, this.state.focus_arts, this.state.focus_action, this.state.focus_scitech);
+      } else if(!tagsList){
+        this.setState({searchMenuOpen: false, searched: false, focus_arts: false, focus_scitech: false, focus_action: false});
+        this.props.dispatchSearch([]);
+      }
     }
   }
 
   onTagClick = (tag: APITag) => {
     clearTimeout(this.tagClickedTimeout);
 
-    const tagList = [
-      ...this.props.selectedCriteria,
-      createCriteriaOption(tag.tag_name, 'concept_tag')
-    ];
-
     if (this._isMounted) {
       this.setState({searchMenuOpen: false});
-      this.props.dispatchSearch(tagList);
-    }
+      if (!this.state.searched) {
+        this.setState({searched: true})
+        const tagList = [createCriteriaOption(tag.tag_name, 'concept_tag')];
+        console.log(tagList);
+        this.props.dispatchSearch(tagList, this.state.focus_arts, this.state.focus_action, this.state.focus_scitech);
+      }else {
+        this.setState({searched: true})
+        const tagList = [
+        ...this.props.selectedCriteria,
+        createCriteriaOption(tag.tag_name, 'concept_tag')
+        ];
+        this.props.dispatchSearch(tagList, this.state.focus_arts, this.state.focus_action, this.state.focus_scitech);
+      }  
 
-    this.tagClickedTimeout = setTimeout(this.searchDispatch, 2000);
+      this.tagClickedTimeout = setTimeout(this.searchDispatch, 2000);
+    }
   }
 
   onSearchKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
     if (!this.state.searchMenuOpen && event.key === 'Enter') {
+      this.setState({searched: true});
       this.searchDispatch();
       event.preventDefault();
     }
@@ -393,6 +395,40 @@ class SearchConsole extends React.Component<Props, State> {
 
     this.setState({ modalOpen: true, modalType: metaType });
   }
+
+  handleCheckBoxChange = (e) => {
+    const artsTag = {field: "title", value:" ", label: "Focus: Arts",originalValue: " "};
+    const scitechTag = {field: "title", value:" ",label: "Focus: Sci Tech",originalValue: " "};
+    const actionTag = {field: "title", value:" ",label: "Focus: Action",originalValue: " "};
+    let focusTags = {};
+    setTimeout(async () => {  
+      let focusValue = (this.state.focus_arts ? 1 : 0) + (this.state.focus_action ? 2 : 0) + (this.state.focus_scitech ? 4 : 0);
+      this.setState({focusValue: focusValue});
+      if (this.state.searched){
+        this.props.dispatchSearch(this.props.selectedCriteria, this.state.focus_arts, this.state.focus_action, this.state.focus_scitech);
+      } else if (!this.state.searched) {
+        if (this.state.focusValue === 0) {
+          focusTags = [];
+        } else if (this.state.focusValue === 1) {
+          focusTags = [artsTag];            
+        } else if (this.state.focusValue === 2) {
+          focusTags = [actionTag];
+        } else if (this.state.focusValue === 3) {
+          focusTags =[artsTag, actionTag];
+        } else if (this.state.focusValue === 4) {
+          focusTags =[scitechTag];
+        } else if (this.state.focusValue === 5) {
+          focusTags = [artsTag, scitechTag];
+        } else if (this.state.focusValue === 6) {
+          focusTags = [actionTag, scitechTag];
+        } else if (this.state.focusValue === 7) {
+          focusTags = [artsTag, actionTag, scitechTag];
+        }
+        this.props.dispatchSearch( focusTags, this.state.focus_arts, this.state.focus_action, this.state.focus_scitech);
+      }
+    }, 10)  
+  }
+    
 
   render() {
     const
@@ -495,21 +531,21 @@ class SearchConsole extends React.Component<Props, State> {
               <Col xs sm="auto" className="pr-0">
                 <FormGroup check inline>
                   <Label check>
-                    Arts <Input type="checkbox" name="arts" onChange={e => { if (this._isMounted) { this.setState({ focus_arts: e.target.checked }); } }} />
+                    Arts <Input type="checkbox" onChange={(e) => { if (this._isMounted) { this.setState({ focus_arts: e.target.checked }); this.handleCheckBoxChange(e);} }}  checked={this.state.focus_arts}/>
                   </Label>
                 </FormGroup>
               </Col>
               <Col xs sm="auto" className="px-0">
                 <FormGroup check inline>
                   <Label check>
-                    Sci Tech <Input type="checkbox" name="scitech" onChange={e => { if (this._isMounted) { this.setState({ focus_scitech: e.target.checked }); } }} />
+                    Sci Tech <Input type="checkbox" onChange={e => { if (this._isMounted) { this.setState({ focus_scitech: e.target.checked }); this.handleCheckBoxChange(e);} }} checked={this.state.focus_scitech}/>
                   </Label>
                 </FormGroup>
               </Col>
               <Col xs sm="auto" className="pl-0">
                 <FormGroup check inline>
                   <Label check>
-                    Action <Input type="checkbox" name="action" onChange={e => { if (this._isMounted) { this.setState({ focus_action: e.target.checked }); } }} />
+                    Action <Input type="checkbox" onChange={e => { if (this._isMounted) { this.setState({ focus_action: e.target.checked }); this.handleCheckBoxChange(e);} }} checked={this.state.focus_action}/>
                   </Label>
                 </FormGroup>
               </Col>
