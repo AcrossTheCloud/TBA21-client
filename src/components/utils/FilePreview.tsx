@@ -6,7 +6,7 @@ import { thumbnailsSRCSET } from './s3File';
 
 import textImage from 'images/defaults/Unscharfe_Zeitung.jpg';
 
-export const FilePreview = (props: { file: S3File , isHeader?: boolean}): JSX.Element => {
+export const FilePreview = (props: { file: S3File }): JSX.Element => {
   switch (props.file.type) {
     case FileTypes.Image:
       // let background: string | undefined = undefined;
@@ -14,12 +14,11 @@ export const FilePreview = (props: { file: S3File , isHeader?: boolean}): JSX.El
       //   background = props.file.thumbnails['1140'] || props.file.thumbnails['960'] || props.file.thumbnails['720'] || props.file.thumbnails['540'];
       // }
       return (
-        <Col className={props.isHeader? 'px-0 image' : 'px-0 image text-center'} style={props.isHeader?{maxHeight:"35vh", left: "-5px"}:{}}>
+        <Col className={'px-0 image text-center'} style={{maxHeight:"35vh"}}>
           <img
             srcSet={thumbnailsSRCSET(props.file)}
             src={props.file.url}
             alt=""
-            style={props.isHeader? {width:"auto !important", height:"100%", paddingLeft: "2%"}:{}}
           />
           {/*<div className="background" style={{ background: `url(${!!background ? encodeURI(background) : props.file.url})`, backgroundSize: 'contain' }} />*/}
         </Col>
@@ -34,7 +33,6 @@ export const FilePreview = (props: { file: S3File , isHeader?: boolean}): JSX.El
             url={props.file.playlist || props.file.url}
             vertical-align="top"
             className="player"
-            style={props.isHeader? {paddingLeft: "2%"} : {}}
             config={{ file: { attributes: { poster: poster }} }}
           />
         </Col>
