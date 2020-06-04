@@ -14,7 +14,7 @@ export const FilePreview = (props: { file: S3File }): JSX.Element => {
       //   background = props.file.thumbnails['1140'] || props.file.thumbnails['960'] || props.file.thumbnails['720'] || props.file.thumbnails['540'];
       // }
       return (
-        <Col className={'px-0 image text-center'} style={{maxHeight:"35vh"}}>
+        <Col className={'px-0 image text-center'}>
           <img
             srcSet={thumbnailsSRCSET(props.file)}
             src={props.file.url}
