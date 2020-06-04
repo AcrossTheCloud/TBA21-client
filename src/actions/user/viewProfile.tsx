@@ -2,9 +2,13 @@ import { API } from 'aws-amplify';
 import {
   FETCH_PROFILE,
   FETCH_PROFILE_ERROR,
-  FETCH_PROFILE_ERROR_NO_SUCH_PROFILE
+  FETCH_PROFILE_ERROR_NO_SUCH_PROFILE,
+  FETCH_PROFILE_ITEMS_LOADING,
+  FETCH_PROFILE_ITEMS_SUCCEED,
+  FETCH_PROFILE_ITEMS_ERROR
 } from '../../reducers/user/viewProfile';
 import { LOADINGOVERLAY } from '../loadingOverlay';
+import { contributorGetByPerson } from '../../REST/items';
 /**
  *
  * API call to fetch profile information based on the profileID and dispatch it through to Redux
@@ -51,3 +55,19 @@ export const fetchProfile = (profileId: string) => async (dispatch, getState) =>
     }
   }
 };
+
+export const fetchProfileItems = (queries) => async (dispatch, getState) => {
+  dispatch({type: FETCH_PROFILE_ITEMS_LOADING})
+  try {
+    let res = await contributorGetByPerson(queries)
+    dispatch({
+      type: FETCH_PROFILE_ITEMS_SUCCEED,
+      res,
+    })
+  } catch {
+    dispatch({
+      type: FETCH_PROFILE_ITEMS_ERROR,
+    })
+  }
+
+}

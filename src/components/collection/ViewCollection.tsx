@@ -63,9 +63,8 @@ interface State {
   loading: boolean;
 }
 
-const DataLayout = (props: { data: Item | Collection, itemModalToggle?: Function, collectionModalToggle?: Function, firstItem?: boolean }): JSX.Element => {
+export const DataLayout = (props: { data: Item | Collection, itemModalToggle?: Function, collectionModalToggle?: Function, firstItem?: boolean }): JSX.Element => {
   let response: JSX.Element = <></>;
-
   if (props.data) {
     if (props.data.__typename === 'item') {
       const data = props.data as Item;

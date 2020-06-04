@@ -8,13 +8,17 @@ import { RouteComponentProps, withRouter } from 'react-router';
 import 'styles/components/pages/viewProfile.scss';
 import { Alerts, ErrorMessage } from '../../utils/alerts';
 import { Profile } from '../../../types/Profile';
-import { fetchProfile } from '../../../actions/user/viewProfile';
+import { fetchProfile, fetchProfileItems } from '../../../actions/user/viewProfile';
 import { Col, Row } from 'reactstrap';
 import "../../../styles/components/pages/viewProfile.scss"
+import { DataLayout } from '../../collection/ViewCollection';
+import { Item } from 'types/Item';
 
 interface Props extends RouteComponentProps, Alerts {
   fetchProfile: Function;
+  fetchProfileItems: Function;
   profile: Profile;
+  items: Item[];
 }
 
 class ViewProfile extends React.Component<Props, State> {
@@ -33,6 +37,11 @@ class ViewProfile extends React.Component<Props, State> {
     // If we have an id from the URL pass it through, otherwise use the one from Redux State
     if (this.matchedId) {
       this.props.fetchProfile(this.matchedId);
+      this.props.fetchProfileItems({
+        offset: 0,
+        limit: 15,
+        order: 'none'
+      })
     } else {
       this.setState({ errorMessage: 'No profile with that id.' });
     }
@@ -124,21 +133,30 @@ class ViewProfile extends React.Component<Props, State> {
             </div>
           </Col>
         </Row>
-        {/* <Row className="author-items">
-
-        </Row> */}
+        <Row className="author-items">
+            {this.props.items.map(item => <DataLayout data={item} key={`item_${item.id}`} />)}
+        </Row>
       </div>
     );
   }
 }
 
+// const mapDispatchToProps = () => ({
+//   fetchProfile: fetchProfile,
+//   fetchProfileItems: fetchProfileItems
+// })
+
 // State to props
 const mapStateToProps = (state: { viewProfile: State }) => { // tslint:disable-line: no-any
   return {
     errorMessage: state.viewProfile.errorMessage,
-    profile: state.viewProfile.profile
+    profile: state.viewProfile.profile,
+    items: state.viewProfile.items,
   };
 };
 
 // Connect our redux store State to Props, and pass through the fetchProfile function.
-export default withRouter(connect(mapStateToProps, { fetchProfile })(ViewProfile));
+export default withRouter(connect(mapStateToProps,  {
+  fetchProfile,
+  fetchProfileItems,
+})(ViewProfile));
