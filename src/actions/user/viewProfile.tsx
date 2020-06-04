@@ -8,7 +8,7 @@ import {
   FETCH_PROFILE_ITEMS_ERROR
 } from '../../reducers/user/viewProfile';
 import { LOADINGOVERLAY } from '../loadingOverlay';
-import { contributorGetByPerson } from '../../REST/items';
+import { getItems } from '../../REST/items';
 /**
  *
  * API call to fetch profile information based on the profileID and dispatch it through to Redux
@@ -59,7 +59,7 @@ export const fetchProfile = (profileId: string) => async (dispatch, getState) =>
 export const fetchProfileItems = (queries) => async (dispatch, getState) => {
   dispatch({type: FETCH_PROFILE_ITEMS_LOADING})
   try {
-    let res = await contributorGetByPerson(queries)
+    let res = await getItems(queries)
     dispatch({
       type: FETCH_PROFILE_ITEMS_SUCCEED,
       res,

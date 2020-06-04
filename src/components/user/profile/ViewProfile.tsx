@@ -40,7 +40,7 @@ class ViewProfile extends React.Component<Props, State> {
       this.props.fetchProfileItems({
         offset: 0,
         limit: 15,
-        order: 'none'
+        uuid: '43'
       })
     } else {
       this.setState({ errorMessage: 'No profile with that id.' });
