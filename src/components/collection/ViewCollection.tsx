@@ -420,7 +420,7 @@ class ViewCollection extends React.Component<Props, State> {
                   />
                 ) :
                 (
-                  <FilePreview file={this.state.firstItem.file}/>
+                  <FilePreview file={this.state.firstItem.file} isHeader={true}/>
                 )
               )
                 : <></>

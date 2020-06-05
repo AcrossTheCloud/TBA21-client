@@ -6,7 +6,12 @@ import { thumbnailsSRCSET } from './s3File';
 
 import textImage from 'images/defaults/Unscharfe_Zeitung.jpg';
 
-export const FilePreview = (props: { file: S3File }): JSX.Element => {
+let imageHeaderStyle = {
+  maxHeight: '35vh'
+}
+let emptyStyle = {}
+
+export const FilePreview = (props: { file: S3File, isHeader?: boolean }): JSX.Element => {
   switch (props.file.type) {
     case FileTypes.Image:
       // let background: string | undefined = undefined;
@@ -14,7 +19,7 @@ export const FilePreview = (props: { file: S3File }): JSX.Element => {
       //   background = props.file.thumbnails['1140'] || props.file.thumbnails['960'] || props.file.thumbnails['720'] || props.file.thumbnails['540'];
       // }
       return (
-        <Col className={'px-0 image text-center'}>
+        <Col className={props.isHeader ? "image" : "px-0 image text-center"} style={props.isHeader ? imageHeaderStyle : emptyStyle}>
           <img
             srcSet={thumbnailsSRCSET(props.file)}
             src={props.file.url}
@@ -53,7 +58,7 @@ export const FilePreview = (props: { file: S3File }): JSX.Element => {
 
     case FileTypes.DownloadText:
       return (
-        <Col className="px-0 image text-center">
+        <Col className="px-0 image">
           <a href={props.file.url} target="_blank" rel="noopener noreferrer">
             <img alt="" src={textImage} className="image-fluid"/>
           </a>
