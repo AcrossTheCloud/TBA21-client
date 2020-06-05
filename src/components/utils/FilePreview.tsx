@@ -58,7 +58,7 @@ export const FilePreview = (props: { file: S3File, isHeader?: boolean }): JSX.El
 
     case FileTypes.DownloadText:
       return (
-        <Col className="px-0 image">
+        <Col className="px-0 image text-center">
           <a href={props.file.url} target="_blank" rel="noopener noreferrer">
             <img alt="" src={textImage} className="image-fluid"/>
           </a>
