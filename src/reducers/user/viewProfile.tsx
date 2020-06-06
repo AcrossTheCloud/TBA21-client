@@ -2,6 +2,7 @@ import { Alerts } from '../../components/utils/alerts';
 import { Profile } from '../../types/Profile';
 import { Item } from 'types/Item';
 // import { removeTopology } from '../../components/utils/removeTopology';
+import { Collection } from 'types/Collection';
 
 // Defining our Actions for the reducers.
 export const FETCH_PROFILE = 'FETCH_PROFILE';
@@ -12,15 +13,25 @@ export const FETCH_PROFILE_ITEMS_LOADING = 'PFETCH_PROFILE_ITEMS_LOADING'
 export const FETCH_PROFILE_ITEMS_SUCCEED = 'FETCH_PROFILE_ITEMS_SUCCEED'
 export const FETCH_PROFILE_ITEMS_ERROR = 'FETCH_PROFILE_ITEMS_ERROR'
 
+export const FETCH_PROFILE_COLLECTIONS_LOADING = 'PFETCH_PROFILE_COLLECTIONS_LOADING'
+export const FETCH_PROFILE_COLLECTIONS_SUCCEED = 'FETCH_PROFILE_COLLECTIONS_SUCCEED'
+export const FETCH_PROFILE_COLLECTIONS_ERROR = 'FETCH_PROFILE_COLLECTIONS_ERROR'
+
 export interface State extends Alerts {
   profileId?: string | boolean;
   profile?: Profile;
-  items: Item[],
+  items: Item[];
+  collections: Collection[];
+  isItemsLoading: boolean;
+  isCollectionsLoading: boolean;
 }
 
 const initialState: State = {
   errorMessage: undefined,
   items: [],
+  collections: [],
+  isItemsLoading: false,
+  isCollectionsLoading: false,
 };
 
 /**
@@ -74,6 +85,25 @@ export default (state: State = initialState, action) => {
         items: [],
         errorMessage: "Some error is occurred. Please try again later."
       }
+
+      case FETCH_PROFILE_COLLECTIONS_LOADING:
+        return {
+          ...state,
+          isCollectionsLoading: true,
+        }
+      case FETCH_PROFILE_COLLECTIONS_SUCCEED:
+        return {
+          ...state,
+          isCollectionsLoading: false,
+          collections: action.data
+        }
+      case FETCH_PROFILE_COLLECTIONS_ERROR:
+        return {
+          ...state,
+          isItemsLoading: false,
+          collections: [],
+          errorMessage: "Some error is occurred. Please try again later."
+        }
 
     default:
       return state;

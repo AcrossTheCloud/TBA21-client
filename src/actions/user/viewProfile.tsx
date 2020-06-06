@@ -5,13 +5,16 @@ import {
   FETCH_PROFILE_ERROR_NO_SUCH_PROFILE,
   FETCH_PROFILE_ITEMS_LOADING,
   FETCH_PROFILE_ITEMS_SUCCEED,
-  FETCH_PROFILE_ITEMS_ERROR
+  FETCH_PROFILE_ITEMS_ERROR,
+  FETCH_PROFILE_COLLECTIONS_SUCCEED
 } from '../../reducers/user/viewProfile';
 import { LOADINGOVERLAY } from '../loadingOverlay';
 import { getItems } from '../../REST/items';
 import { removeTopology } from '../../components/utils/removeTopology';
 import { addFilesToData } from 'actions/home';
 import { Item } from 'types/Item';
+import { getCollections } from 'REST/collections';
+import { Collection } from 'types/Collection';
 /**
  *
  * API call to fetch profile information based on the profileID and dispatch it through to Redux
@@ -62,7 +65,6 @@ export const fetchProfile = (profileId: string) => async (dispatch, getState) =>
 export const fetchProfileItems = (queries) => async (dispatch, getState) => {
   dispatch({type: FETCH_PROFILE_ITEMS_LOADING})
   try {
-    // let ff = await
     let res = await getItems(queries)
     let data = removeTopology(res, "item") as Item[]
     data = await addFilesToData(data)
@@ -70,10 +72,20 @@ export const fetchProfileItems = (queries) => async (dispatch, getState) => {
       type: FETCH_PROFILE_ITEMS_SUCCEED,
       data,
     })
+    let ff = await getCollections(queries)
+    let collData = removeTopology(ff, "collection") as Collection[]
+    collData = await addFilesToData(collData)
+    dispatch({
+      type: FETCH_PROFILE_COLLECTIONS_SUCCEED,
+      data: collData,
+    })
   } catch {
     dispatch({
       type: FETCH_PROFILE_ITEMS_ERROR,
     })
   }
+}
+
+export const fetchProfileCollection = queries => async (dispatch, getState) => {
 
 }

@@ -14,13 +14,17 @@ import "../../../styles/components/pages/viewProfile.scss"
 import { DataLayout } from '../../collection/ViewCollection';
 import { Item } from 'types/Item';
 import { toggle as itemModalToggle } from 'actions/modals/itemModal';
+import { toggle as collectionModalToggle } from 'actions/modals/collectionModal';
+import { Collection } from 'types/Collection';
 
 interface Props extends RouteComponentProps, Alerts {
   fetchProfile: Function;
   fetchProfileItems: Function;
   profile: Profile;
   items: Item[];
+  collections: Collection[];
   itemModalToggle: Function;
+  collectionModalToggle: Function;
 }
 
 class ViewProfile extends React.Component<Props, State> {
@@ -44,6 +48,7 @@ class ViewProfile extends React.Component<Props, State> {
         limit: 15,
         uuid: '509a0987-834f-4470-a5df-bff5a646a428'
       })
+
     } else {
       this.setState({ errorMessage: 'No profile with that id.' });
     }
@@ -136,6 +141,13 @@ class ViewProfile extends React.Component<Props, State> {
           </Col>
         </Row>
         <Row className="author-items">
+          {this.props.collections.map(item =>
+            <DataLayout
+              key={`collection_${item.id}`}
+              data={item}
+              collectionModalToggle={() => this.props.collectionModalToggle(true, item)}
+            />
+          )}
           {this.props.items.map(item =>
             <DataLayout
               data={item}
@@ -160,6 +172,7 @@ const mapStateToProps = (state: { viewProfile: State }) => { // tslint:disable-l
     errorMessage: state.viewProfile.errorMessage,
     profile: state.viewProfile.profile,
     items: state.viewProfile.items,
+    collections: state.viewProfile.collections,
   };
 };
 
@@ -168,4 +181,5 @@ export default withRouter(connect(mapStateToProps,  {
   fetchProfile,
   fetchProfileItems,
   itemModalToggle,
+  collectionModalToggle,
 })(ViewProfile));

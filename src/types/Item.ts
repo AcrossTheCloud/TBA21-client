@@ -3,6 +3,7 @@ import { S3File } from './s3File';
 import { Languages } from './Languages';
 import { APITag } from '../components/metadata/Tags';
 import { Collection } from './Collection';
+import { ItemOrCollection } from './shared';
 
 export enum Regions {
   ATLANTIC = 'Atlantic Ocean',
@@ -331,7 +332,7 @@ export enum formats {
   notebook = 'Notebook'
 }
 
-export interface Item {
+export interface Item extends ItemOrCollection {
   __typename: 'item';
 
   file: S3File;

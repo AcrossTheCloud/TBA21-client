@@ -20,6 +20,7 @@ import { search as dispatchSearch, toggle as searchOpenToggle } from './searchCo
 import { toggle as collectionModalToggle } from 'actions/modals/collectionModal';
 import { toggle as itemModalToggle } from 'actions/modals/itemModal';
 import { createCriteriaOption } from 'components/search/SearchConsole';
+import { ItemOrCollection } from '../types/shared';
 
 // Defining our Actions for the reducers
 export const LOGO_STATE_HOMEPAGE = 'LOGO_STATE_HOMEPAGE';
@@ -198,7 +199,7 @@ export const loadHomepage = () => async dispatch => {
  * HEADS all files and inserts a file key value pair into the item/collection.
  * @param data
  */
-export const addFilesToData = async (data) => {
+export const addFilesToData = async function<T extends ItemOrCollection>(data: T[]) {
   if (data && data.length) {
     // Loop through each object in the array and get it's File from CloudFront
     for (let i = 0; i < data.length; i++) {

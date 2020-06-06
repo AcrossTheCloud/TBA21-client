@@ -7,7 +7,6 @@ export const COLLECTION_MODAL_TOGGLE = 'COLLECTION_MODAL_TOGGLE';
 
 // Modal
 export const toggle = (open: boolean, data?: HomepageData | Collection) => dispatch => {
-  console.log('toggle');
   if (open && data && data.id) {
     ReactGA.modalview('/collection/'+data.id);
   }
