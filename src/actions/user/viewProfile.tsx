@@ -64,11 +64,15 @@ export const fetchProfile = (profileId: string) => async (dispatch, getState) =>
 
 export const fetchProfileItems = (queries) => async (dispatch, getState) => {
   dispatch({type: FETCH_PROFILE_ITEMS_LOADING})
+  queries = {
+    ...queries,
+    // uuid: '7e32b7c6-c6d3-4e70-a101-12af2df21a19'
+    uuid: '468d8382-54c0-4107-a622-104d8a1134ae'
+  }
   try {
     let res = await getItems(queries)
     let data = removeTopology(res, "item") as Item[]
     data = await addFilesToData(data)
-    console.log(data)
     dispatch({
       type: FETCH_PROFILE_ITEMS_SUCCEED,
       data,

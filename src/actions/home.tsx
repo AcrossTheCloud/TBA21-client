@@ -215,16 +215,8 @@ export const addFilesToData = async (datas) => {
           )
         )
       )
-      // .map(d => {
-      //   let wrapped = Promise.resolve(getCDNObject(d.s3_key)
-      //   .then(
-      //     val => ({status: 'fulfilled', value: val}),
-      //     err => ({status: 'rejected', reason: err})
-      //   )
-      //   return Promise.all(wrapped)
-      // })
 
-    return results.map((result, i) => {
+    let newDatas = results.map((result, i) => {
       let data = datas[i]
 
       if (result.status === 'rejected') {
@@ -238,8 +230,8 @@ export const addFilesToData = async (datas) => {
         const thumbnailUrl = `${config.other.THUMBNAIL_URL}${s3Key}`;
         let thumbnails = {};
 
-        if (typeof data[i].file_dimensions !== 'undefined') {
-          const dimensions: number[] = data[i].file_dimensions as number[];
+        if (typeof data.file_dimensions !== 'undefined') {
+          const dimensions: number[] = data.file_dimensions as number[];
 
           if (dimensions && dimensions[0]) {
             if (dimensions[0] > 540) {
@@ -271,7 +263,7 @@ export const addFilesToData = async (datas) => {
       }
 
     })
-
+    return newDatas
   } else {
     return [];
   }
