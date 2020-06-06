@@ -9,6 +9,9 @@ import {
 } from '../../reducers/user/viewProfile';
 import { LOADINGOVERLAY } from '../loadingOverlay';
 import { getItems } from '../../REST/items';
+import { removeTopology } from '../../components/utils/removeTopology';
+import { addFilesToData } from 'actions/home';
+import { Item } from 'types/Item';
 /**
  *
  * API call to fetch profile information based on the profileID and dispatch it through to Redux
@@ -59,10 +62,13 @@ export const fetchProfile = (profileId: string) => async (dispatch, getState) =>
 export const fetchProfileItems = (queries) => async (dispatch, getState) => {
   dispatch({type: FETCH_PROFILE_ITEMS_LOADING})
   try {
+    // let ff = await
     let res = await getItems(queries)
+    let data = removeTopology(res, "item") as Item[]
+    data = await addFilesToData(data)
     dispatch({
       type: FETCH_PROFILE_ITEMS_SUCCEED,
-      res,
+      data,
     })
   } catch {
     dispatch({

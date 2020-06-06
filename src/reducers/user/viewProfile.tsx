@@ -1,7 +1,7 @@
 import { Alerts } from '../../components/utils/alerts';
 import { Profile } from '../../types/Profile';
 import { Item } from 'types/Item';
-import { removeTopology } from '../../components/utils/removeTopology';
+// import { removeTopology } from '../../components/utils/removeTopology';
 
 // Defining our Actions for the reducers.
 export const FETCH_PROFILE = 'FETCH_PROFILE';
@@ -65,7 +65,7 @@ export default (state: State = initialState, action) => {
       return {
         ...state,
         isItemsLoading: false,
-        items: removeTopology(action.res, "item") as Item[]
+        items: action.data
       }
     case FETCH_PROFILE_ITEMS_ERROR:
       return {

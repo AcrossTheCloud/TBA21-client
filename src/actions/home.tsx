@@ -72,7 +72,7 @@ export const liveStreamDispatch = (state: boolean) => async dispatch => {
 export const dateFromTimeYearProduced = (time: string | null, year: string | null, end_year: string | null = null): string => {
   const timeProduced = time ? new Date(time).getFullYear().toString() : undefined;
   const yearProduced = year ? (
-    end_year ? 
+    end_year ?
       year + '–' + end_year :
       year
     ) : undefined;
@@ -104,7 +104,7 @@ export const loadHomepage = () => async dispatch => {
   const  queryStringParams = {
       oa_highlight: false
     };
-  
+
   let response: {items: HomepageData[], collections: HomepageData[]} = await API.get('tba21', 'pages/homepage', { queryStringParameters: queryStringParams });
   response.collections = [...await getItemsAndCollectionsForCollection(response.collections as any)] as any;
 
@@ -164,12 +164,12 @@ export const loadHomepage = () => async dispatch => {
         break;
       default:
         colSizes = [4, 4, 4];
-        break;        
+        break;
     }
     const data = highlightsWithFiles[props.index];
     return (
       <Col xs="12" lg={colSizes[props.index]} className="item" onClick={() => { if (data.item_type !== itemType.Audio || (data.file && data.file.type) !== FileTypes.Audio) { dispatch(openModal(data)); }}}>
-        {(data.item_type !== itemType.Audio || (data.file && data.file.type) !== FileTypes.Audio) ? 
+        {(data.item_type !== itemType.Audio || (data.file && data.file.type) !== FileTypes.Audio) ?
           <DetailPreview data={data} isOaHighlight={true} /> :
           <HomePageAudioPreview data={data} isOaHighlight={true} />
         }
@@ -198,7 +198,7 @@ export const loadHomepage = () => async dispatch => {
  * HEADS all files and inserts a file key value pair into the item/collection.
  * @param data
  */
-export const addFilesToData = async (data: HomepageData[]): Promise<HomepageData[]> => {
+export const addFilesToData = async (data) => {
   if (data && data.length) {
     // Loop through each object in the array and get it's File from CloudFront
     for (let i = 0; i < data.length; i++) {

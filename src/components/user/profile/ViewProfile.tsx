@@ -13,12 +13,14 @@ import { Col, Row } from 'reactstrap';
 import "../../../styles/components/pages/viewProfile.scss"
 import { DataLayout } from '../../collection/ViewCollection';
 import { Item } from 'types/Item';
+import { toggle as itemModalToggle } from 'actions/modals/itemModal';
 
 interface Props extends RouteComponentProps, Alerts {
   fetchProfile: Function;
   fetchProfileItems: Function;
   profile: Profile;
   items: Item[];
+  itemModalToggle: Function;
 }
 
 class ViewProfile extends React.Component<Props, State> {
@@ -40,7 +42,7 @@ class ViewProfile extends React.Component<Props, State> {
       this.props.fetchProfileItems({
         offset: 0,
         limit: 15,
-        uuid: '43'
+        uuid: '509a0987-834f-4470-a5df-bff5a646a428'
       })
     } else {
       this.setState({ errorMessage: 'No profile with that id.' });
@@ -134,7 +136,13 @@ class ViewProfile extends React.Component<Props, State> {
           </Col>
         </Row>
         <Row className="author-items">
-            {this.props.items.map(item => <DataLayout data={item} key={`item_${item.id}`} />)}
+          {this.props.items.map(item =>
+            <DataLayout
+              data={item}
+              key={`item_${item.id}`}
+              itemModalToggle={this.props.itemModalToggle}
+            />)
+          }
         </Row>
       </div>
     );
@@ -159,4 +167,5 @@ const mapStateToProps = (state: { viewProfile: State }) => { // tslint:disable-l
 export default withRouter(connect(mapStateToProps,  {
   fetchProfile,
   fetchProfileItems,
+  itemModalToggle,
 })(ViewProfile));
