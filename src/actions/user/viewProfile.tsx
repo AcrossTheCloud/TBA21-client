@@ -68,6 +68,7 @@ export const fetchProfileItems = (queries) => async (dispatch, getState) => {
     let res = await getItems(queries)
     let data = removeTopology(res, "item") as Item[]
     data = await addFilesToData(data)
+    console.log(data)
     dispatch({
       type: FETCH_PROFILE_ITEMS_SUCCEED,
       data,

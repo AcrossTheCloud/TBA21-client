@@ -32,7 +32,7 @@ export interface Collection {
   year_produced?: string | null;
 
   status?: boolean | null;
-  
+
   oa_highlight?: boolean | null;
   oa_original?: boolean | null;
   tba21_material?: boolean | null;

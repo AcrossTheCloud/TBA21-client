@@ -20,7 +20,6 @@ import { search as dispatchSearch, toggle as searchOpenToggle } from './searchCo
 import { toggle as collectionModalToggle } from 'actions/modals/collectionModal';
 import { toggle as itemModalToggle } from 'actions/modals/itemModal';
 import { createCriteriaOption } from 'components/search/SearchConsole';
-import { ItemOrCollection } from '../types/shared';
 
 // Defining our Actions for the reducers
 export const LOGO_STATE_HOMEPAGE = 'LOGO_STATE_HOMEPAGE';
@@ -195,53 +194,84 @@ export const loadHomepage = () => async dispatch => {
   });
 };
 
+interface PromiseSettled {
+  status: string,
+  value: any,
+}
+
 /**
  * HEADS all files and inserts a file key value pair into the item/collection.
  * @param data
  */
-export const addFilesToData = async function<T extends ItemOrCollection>(data: T[]) {
-  if (data && data.length) {
+export const addFilesToData = async (datas) => {
+  if (datas && datas.length) {
     // Loop through each object in the array and get it's File from CloudFront
-    for (let i = 0; i < data.length; i++) {
-      const
-        s3Key = data[i].s3_key,
-        result = await getCDNObject(s3Key);
+    const results: PromiseSettled[] = await Promise.all(
+        datas.map(d =>
+          getCDNObject(d.s3_key)
+            .then(
+            val => ({status: 'fulfilled', value: val}),
+            err => ({status: 'rejected', value: err})
+          )
+        )
+      )
+      // .map(d => {
+      //   let wrapped = Promise.resolve(getCDNObject(d.s3_key)
+      //   .then(
+      //     val => ({status: 'fulfilled', value: val}),
+      //     err => ({status: 'rejected', reason: err})
+      //   )
+      //   return Promise.all(wrapped)
+      // })
 
-      if (result) {
-        const file: S3File = result;
+    return results.map((result, i) => {
+      let data = datas[i]
 
-        if (file.type === FileTypes.Image) {
-          const thumbnailUrl = `${config.other.THUMBNAIL_URL}${s3Key}`;
-          let thumbnails = {};
+      if (result.status === 'rejected') {
+        return data
+      }
 
-          if (typeof data[i].file_dimensions !== 'undefined') {
-            const dimensions: number[] = data[i].file_dimensions as number[];
+      let file: S3File = result.value
+      const s3Key = data.s3_key
 
-            if (dimensions && dimensions[0]) {
-              if (dimensions[0] > 540) {
-                Object.assign(thumbnails, {540: `${thumbnailUrl}.thumbnail540.png`});
-              }
-              if (dimensions[0] > 720) {
-                Object.assign(thumbnails, {720: `${thumbnailUrl}.thumbnail720.png`});
-              }
-              if (dimensions[0] > 960) {
-                Object.assign(thumbnails, {960: `${thumbnailUrl}.thumbnail960.png`});
-              }
-              if (dimensions[0] > 1140) {
-                Object.assign(thumbnails, {1140: `${thumbnailUrl}.thumbnail1140.png`});
-              }
+      if (file.type === FileTypes.Image) {
+        const thumbnailUrl = `${config.other.THUMBNAIL_URL}${s3Key}`;
+        let thumbnails = {};
 
-              if (Object.keys(thumbnails).length > 1) {
-                Object.assign(file, {thumbnails});
-              }
+        if (typeof data[i].file_dimensions !== 'undefined') {
+          const dimensions: number[] = data[i].file_dimensions as number[];
+
+          if (dimensions && dimensions[0]) {
+            if (dimensions[0] > 540) {
+              Object.assign(thumbnails, {540: `${thumbnailUrl}.thumbnail540.png`});
+            }
+            if (dimensions[0] > 720) {
+              Object.assign(thumbnails, {720: `${thumbnailUrl}.thumbnail720.png`});
+            }
+            if (dimensions[0] > 960) {
+              Object.assign(thumbnails, {960: `${thumbnailUrl}.thumbnail960.png`});
+            }
+            if (dimensions[0] > 1140) {
+              Object.assign(thumbnails, {1140: `${thumbnailUrl}.thumbnail1140.png`});
+            }
+
+            if (Object.keys(thumbnails).length > 1) {
+              Object.assign(file, {thumbnails});
             }
           }
         }
-
-        Object.assign(data[i], {file : { ...data[i].file, ...file }});
       }
-    }
-    return data;
+
+      return {
+        ...data,
+        file: {
+          ...data.file,
+          ...file,
+        }
+      }
+
+    })
+
   } else {
     return [];
   }
