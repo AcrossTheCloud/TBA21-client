@@ -4,10 +4,12 @@ import rootReducer from '../reducers/';
 
 const middleware = [thunk];
 
+const composeEnhancers = (process.env.NODE_ENV === "development" && (window && (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) )|| compose;
+
 const store: Store = createStore(
   rootReducer,
   {},
-  compose(
+  composeEnhancers(
     applyMiddleware(...middleware)
   )
 );
