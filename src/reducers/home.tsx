@@ -3,9 +3,8 @@ import { S3File } from '../types/s3File';
 import { Announcement } from '../types/Announcement';
 import { Item, itemType } from '../types/Item';
 import { Collection, collectionTypes } from '../types/Collection';
-import { ItemOrCollection } from '../types/shared';
 
-export interface HomepageData extends ItemOrCollection {
+export interface HomepageData {
   file: S3File;
   id: string;
   title: string;
