@@ -167,13 +167,14 @@ export const loadHomepage = () => async dispatch => {
         break;
     }
     const data = highlightsWithFiles[props.index];
+    const notAudio = data.item_type !== itemType.Audio || (data.file && data.file.type) !== FileTypes.Audio
     return (
-      <Col xs="12" lg={colSizes[props.index]} className="item" onClick={() => { if (data.item_type !== itemType.Audio || (data.file && data.file.type) !== FileTypes.Audio) { dispatch(openModal(data)); }}}>
-        {(data.item_type !== itemType.Audio || (data.file && data.file.type) !== FileTypes.Audio) ?
-          <DetailPreview data={data} isOaHighlight={true} /> :
-          <HomePageAudioPreview data={data} isOaHighlight={true} />
+      <Col xs="12" lg={colSizes[props.index]} className="item" onClick={() => { if (notAudio) { dispatch(openModal(data)); } }}>
+        {notAudio ?
+        <DetailPreview data={data} isOaHighlight={true} /> :
+        <HomePageAudioPreview data={data} isOaHighlight={true} />
         }
-        <HighlightsItemDetails index={props.index}/>
+        <HighlightsItemDetails index={props.index} />
       </Col>
     );
 

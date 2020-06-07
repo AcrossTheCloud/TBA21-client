@@ -281,7 +281,7 @@ class ViewCollection extends React.Component<Props, State> {
   }
 
   async createHistoryEntity(): Promise<Collection> {
-    return {...this.props.collection, __typename: 'collection'};
+    return {...this.props.collection, __typename: 'collection'}
   }
 
   loadData = async () => {
