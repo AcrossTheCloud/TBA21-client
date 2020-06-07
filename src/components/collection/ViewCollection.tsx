@@ -405,8 +405,7 @@ class ViewCollection extends React.Component<Props, State> {
     return (
       <div id="item" className="container-fluid">
         <ErrorMessage message={this.props.errorMessage} />
-
-        <Row>
+        <Row className="file">
           {
             this.state.firstItem ?
               (this.state.firstItem.item_type === 'IFrame' ?
@@ -421,7 +420,7 @@ class ViewCollection extends React.Component<Props, State> {
                   />
                 ) :
                 (
-                  <FilePreview file={this.state.firstItem.file} isHeader={true} />
+                  <FilePreview file={this.state.firstItem.file} isHeader={true}/>
                 )
               )
                 : <></>
