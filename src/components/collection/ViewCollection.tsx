@@ -244,7 +244,6 @@ class ViewCollection extends React.Component<Props, State> {
               return data.__typename === 'collection';
               // tslint:disable-next-line:no-any
             }) as any : [];
-
         this.setState({
           data: this.props.data || [],
           collection: {

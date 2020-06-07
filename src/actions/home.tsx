@@ -94,10 +94,12 @@ export const onTagClick = (event: React.MouseEvent<HTMLButtonElement>, label: st
 
 export const loadHomepage = () => async dispatch => {
   const
-    oaHighlights: {oa_highlight_items: HomepageData[], oa_highlight_collections: HomepageData[]} = await API.get('tba21', 'pages/homepage', { queryStringParameters: {oa_highlight: true}});
-
-  oaHighlights.oa_highlight_collections = [ ...await getItemsAndCollectionsForCollection(oaHighlights.oa_highlight_collections as any)] as any;
-  let highlightsWithFiles = await addFilesToData(oaHighlights.oa_highlight_collections);
+    oaHighlights: {
+      oa_highlight_items: HomepageData[],
+      oa_highlight_collections: HomepageData[]
+    } = await API.get('tba21', 'pages/homepage', { queryStringParameters: {oa_highlight: true}});
+    oaHighlights.oa_highlight_collections = [ ...await getItemsAndCollectionsForCollection(oaHighlights.oa_highlight_collections as any)] as any;
+    let highlightsWithFiles = await addFilesToData(oaHighlights.oa_highlight_collections);
   highlightsWithFiles = highlightsWithFiles.concat(await addFilesToData(oaHighlights.oa_highlight_items));
   highlightsWithFiles = highlightsWithFiles.slice(0,3); // max 3 highlights
 

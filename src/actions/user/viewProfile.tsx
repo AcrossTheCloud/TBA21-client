@@ -14,7 +14,9 @@ import { removeTopology } from '../../components/utils/removeTopology';
 import { addFilesToData } from 'actions/home';
 import { Item } from 'types/Item';
 import { getCollections } from 'REST/collections';
+import { getItemsAndCollectionsForCollection } from 'components/utils/DetailPreview';
 import { Collection } from 'types/Collection';
+import { HomepageData } from '../../reducers/home';
 /**
  *
  * API call to fetch profile information based on the profileID and dispatch it through to Redux
@@ -78,8 +80,15 @@ export const fetchProfileItems = (queries) => async (dispatch, getState) => {
       data,
     })
     let ff = await getCollections(queries)
-    let collData = removeTopology(ff, "collection") as Collection[]
-    collData = await addFilesToData(collData)
+    ff = removeTopology(ff, "collection") as Collection[]
+    ff = [...await getItemsAndCollectionsForCollection(ff)]
+    // handle get the correct collection s3_key
+    ff = ff.map(d => ({
+      ...d,
+      s3_key: d.items.length ? d.items[0].s3_key : null
+    })) as HomepageData[]
+
+    let collData = await addFilesToData(ff)
     dispatch({
       type: FETCH_PROFILE_COLLECTIONS_SUCCEED,
       data: collData,
