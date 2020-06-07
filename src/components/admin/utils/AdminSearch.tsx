@@ -297,7 +297,7 @@ export class AdminSearch extends React.Component<Props, State> {
           {
             this.state.paginationToken ?
               <Button  color="primary" size="lg">
-                Load More &nbsp; />
+                Load More &nbsp; 
               </Button>
               : <></>
           }
