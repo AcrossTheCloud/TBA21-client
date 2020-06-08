@@ -11,12 +11,12 @@ import { Profile } from '../../../types/Profile';
 import { fetchProfile, fetchProfileItemsAndCollections } from '../../../actions/user/viewProfile';
 import { Col, Row, Spinner } from 'reactstrap';
 import "../../../styles/components/pages/viewProfile.scss"
-import { DataLayout } from '../../collection/ViewCollection';
 import { Item } from 'types/Item';
 import { toggle as itemModalToggle } from 'actions/modals/itemModal';
 import { toggle as collectionModalToggle } from 'actions/modals/collectionModal';
 import { Collection } from 'types/Collection';
 import { debounce } from 'lodash';
+import DataLayout from 'components/utils/DataLayout';
 
 interface Props extends RouteComponentProps, Alerts {
   fetchProfile: Function;
