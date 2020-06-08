@@ -21,7 +21,7 @@ import { debounce } from 'lodash';
 interface Props extends RouteComponentProps, Alerts {
   fetchProfile: Function;
   profile: Profile;
-  data: (Item|Collection)[]
+  data: (Item | Collection)[]
   itemModalToggle: Function;
   collectionModalToggle: Function;
   isItemsAndCollectionsLoading: boolean;
@@ -54,6 +54,22 @@ class ViewProfile extends React.Component<Props, State> {
     document.addEventListener('scroll', this.handleInfiniteScroll)
   }
 
+  componentDidUpdate(prevProps) {
+    if (this.props.fetchedAllItemsAndCollections) {
+      document.removeEventListener('scroll', this.handleInfiniteScroll)
+    }
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('scroll', this.handleInfiniteScroll)
+  }
+
+  handleInfiniteScroll = () => {
+    if (window.innerHeight + window.pageYOffset >= document.body.offsetHeight - 200) {
+      this.props.fetchProfileItemsAndCollections()
+    }
+  }
+
   locationString(): string {
     const { city, country } = this.props.profile;
     if (city && city.length && !country) {
@@ -67,22 +83,9 @@ class ViewProfile extends React.Component<Props, State> {
     }
   }
 
-  componentDidUpdate(prevProps) {
-    if (!prevProps.fetchedAllItemsAndCollections && this.props.fetchedAllItemsAndCollections) {
-      document.removeEventListener('scroll', this.handleInfiniteScroll)
-    }
-  }
-
-  handleInfiniteScroll = () => {
-    if (window.innerHeight + window.pageYOffset >= document.body.offsetHeight - 200) {
-      this.props.fetchProfileItemsAndCollections()
-    }
-  }
-
   render() {
-    console.log(this.props.data.map(d => d.__typename))
     if (typeof this.props.profile === 'undefined') {
-      return 'Loading...';
+      return null
     }
     const {
       full_name,
@@ -154,9 +157,9 @@ class ViewProfile extends React.Component<Props, State> {
           </Col>
         </Row>
         <Row className="author-items">
-        <Col xs='12'>
-        <p>Contributed Items And Collections</p>
-        </Col>
+          <Col xs='12'>
+            <p>Contributed Items And Collections</p>
+          </Col>
           {this.props.data.map(item =>
             <DataLayout
               key={item.id}
@@ -165,13 +168,14 @@ class ViewProfile extends React.Component<Props, State> {
               collectionModalToggle={() => this.props.collectionModalToggle(true, item)}
             />
           )}
-          {this.props.isItemsAndCollectionsLoading && <div className="author-loading">
-            <Spinner type="grow" variant="dark" />
+          <div className="author-loading">
+            {this.props.isItemsAndCollectionsLoading &&
+              <Spinner type="grow" variant="dark" />
+            }
           </div>
-          }
           {this.props.fetchedAllItemsAndCollections &&
-          <div className="author-all-fetched">
-            No more items and collections from {this.props.profile.full_name}!
+            <div className="author-all-fetched">
+              No more items and collections from {this.props.profile.full_name}!
           </div>
           }
         </Row>
@@ -201,10 +205,10 @@ export default withRouter(connect(mapStateToProps, {
 
 
 // memoize this if performance becomes a problem
-const generateItemsAdCollectionsGrid = (items: Item[], collections: Collection[]): (Item|Collection)[] => {
+const generateItemsAdCollectionsGrid = (items: Item[], collections: Collection[]): (Item | Collection)[] => {
   let pendingCollections = [...collections]
   let pendingItems = [...items]
-  let result: (Item|Collection)[] = []
+  let result: (Item | Collection)[] = []
   while (pendingItems.length || pendingCollections.length) {
     result = [
       ...result,
