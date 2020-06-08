@@ -19,8 +19,9 @@ async function addFilesToData(datas: any[]): Promise<any[]> {
     try {
       // Loop through each object in the array and get it's File from CloudFront
       const files = await Promise.all(datas.map(d => {
-        let s3Key = d.__typename == "collection"
-          ? d.items.length && d.items[0].s3_key
+        // for collections with item, use the first item image as DataLayout
+        let s3Key = d.__typename == "collection" && d.items.length
+          ? d.items[0].s3_key
           : d.s3_key
         return getCDNObject(s3Key)
       }))
