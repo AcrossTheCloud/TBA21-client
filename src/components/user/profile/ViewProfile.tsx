@@ -199,7 +199,9 @@ export default withRouter(connect(mapStateToProps, {
   fetchProfileItemsAndCollections
 })(ViewProfile));
 
-let generateItemsAdCollectionsGrid = (items: Item[], collections: Collection[]): (Item|Collection)[] => {
+
+// memoize this if performance becomes a problem
+const generateItemsAdCollectionsGrid = (items: Item[], collections: Collection[]): (Item|Collection)[] => {
   let pendingCollections = [...collections]
   let pendingItems = [...items]
   let result: (Item|Collection)[] = []
