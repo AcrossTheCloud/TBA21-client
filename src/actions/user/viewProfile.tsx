@@ -107,7 +107,7 @@ export const fetchProfileItemsAndCollections = () => async (dispatch, getState) 
     collections = removeTopology(collections, "collection")
     collections = await getItemsAndCollectionsForCollection(collections) as Collection[]
 
-    let [itemsWithFile, collectionsWithFile]= await Promise.all([
+    let [itemsWithFile, collectionsWithFile] = await Promise.all([
       addFilesToData(items),
       addFilesToData(collections)
     ])
