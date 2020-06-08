@@ -161,12 +161,12 @@ class ViewProfile extends React.Component<Props, State> {
           <Col xs='12'>
             <p>Contributed Items And Collections</p>
           </Col>
-          {this.props.data.map(item =>
+          {this.props.data.map(d =>
             <DataLayout
-              key={item.id}
-              data={item}
+              key={d.id}
+              data={d}
               itemModalToggle={this.props.itemModalToggle}
-              collectionModalToggle={() => this.props.collectionModalToggle(true, item)}
+              collectionModalToggle={() => this.props.collectionModalToggle(true, d)}
             />
           )}
           <div className="author-loading">

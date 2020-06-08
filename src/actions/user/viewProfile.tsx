@@ -73,17 +73,18 @@ export const fetchProfileItemsAndCollections = () => async (dispatch, getState) 
   }
 
   dispatch({ type: FETCH_PROFILE_ITEMS_AND_COLLECTIONS_LOADING })
-
+  let uuid = state.profile.cognito_uuid
+  let limit = profileItemAndCollectionsFetchLimit
   const itemQueries = {
-    limit: profileItemAndCollectionsFetchLimit,
+    uuid,
+    limit,
     offset: state.items.length,
-    uuid: state.profile.cognito_uuid,
   }
 
   const collectionQueries = {
-    limit: profileItemAndCollectionsFetchLimit,
+    uuid,
+    limit,
     offset: state.collections.length,
-    uuid: state.profile.cognito_uuid,
   }
 
   try {
@@ -104,23 +105,18 @@ export const fetchProfileItemsAndCollections = () => async (dispatch, getState) 
     let [items, collections] = await Promise.all(promises)
 
     items = removeTopology(items, "item") as Item[]
-    collections = removeTopology(collections, "collection")
-    collections = await getItemsAndCollectionsForCollection(collections) as Collection[]
+    collections = removeTopology(collections, "collection") as Collection[]
+    collections = await getItemsAndCollectionsForCollection(collections)
 
     let [itemsWithFile, collectionsWithFile] = await Promise.all([
       addFilesToData(items),
-      addFilesToData(collections)
+      addFilesToData(collections as Collection[])
     ])
-
-    const collectionsWithFileAndS3KeyImage = collectionsWithFile.map(d => ({
-      ...d,
-      s3_key: d.items && d.items.length ? d.items[0].s3_key : null
-    }))
 
     dispatch({
       type: FETCH_PROFILE_ITEMS_AND_COLLECTIONS_SUCCEED,
       items: itemsWithFile,
-      collections: collectionsWithFileAndS3KeyImage
+      collections: collectionsWithFile
     })
   } catch {
     dispatch({

@@ -325,11 +325,11 @@ class ViewCollection extends React.Component<Props, State> {
                 (
 
                   <DataLayout
-                  data={this.state.firstItem}
-                  key={`item_${this.state.firstItem.id}`}
-                  itemModalToggle={this.props.itemModalToggle}
-                  collectionModalToggle={this.collectionModalToggle}
-                  firstItem={true}
+                    data={this.state.firstItem}
+                    key={`item_${this.state.firstItem.id}`}
+                    itemModalToggle={this.props.itemModalToggle}
+                    collectionModalToggle={this.collectionModalToggle}
+                    firstItem={true}
                   />
                 ) :
                 (
