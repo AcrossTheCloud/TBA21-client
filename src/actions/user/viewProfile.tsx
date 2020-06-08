@@ -31,9 +31,12 @@ export const fetchProfile = (profileId: string) => async (dispatch, getState) =>
   // We do this here to stop another API call and you can easily get the prevState in the Action.
   if (prevState.viewItem.profile && profileId === prevState.viewItem.profile.profileId) {
     dispatch({ type: LOADINGOVERLAY, on: false }); // Turn off the loading overlay
-    return prevState.viewItem;
-  } else {
+    dispatch(fetchProfileItems({
+      offset: 0,
+      limit: 15,
+    }))
 
+  } else {
     try {
       const response = await API.get('tba21', 'profiles', {
         queryStringParameters: {
@@ -60,6 +63,11 @@ export const fetchProfile = (profileId: string) => async (dispatch, getState) =>
        });
     } finally {
       dispatch({ type: LOADINGOVERLAY, on: false }); // Turn off the loading overlay
+      dispatch(fetchProfileItems({
+        offset: 0,
+        limit: 15,
+      }))
+
     }
   }
 };
@@ -68,8 +76,8 @@ export const fetchProfileItems = (queries) => async (dispatch, getState) => {
   dispatch({type: FETCH_PROFILE_ITEMS_LOADING})
   queries = {
     ...queries,
-    // uuid: '7e32b7c6-c6d3-4e70-a101-12af2df21a19'
-    uuid: '468d8382-54c0-4107-a622-104d8a1134ae'
+    // uuid: getState().viewProfile.profile.cognito_uuid,
+    uuid: '468d8382-54c0-4107-a622-104d8a1134ae',
   }
   try {
     let res = await getItems(queries)

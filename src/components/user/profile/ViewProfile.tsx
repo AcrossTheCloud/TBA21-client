@@ -43,12 +43,6 @@ class ViewProfile extends React.Component<Props, State> {
     // If we have an id from the URL pass it through, otherwise use the one from Redux State
     if (this.matchedId) {
       this.props.fetchProfile(this.matchedId);
-      this.props.fetchProfileItems({
-        offset: 0,
-        limit: 15,
-        uuid: '509a0987-834f-4470-a5df-bff5a646a428'
-      })
-
     } else {
       this.setState({ errorMessage: 'No profile with that id.' });
     }
