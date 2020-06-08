@@ -21,8 +21,7 @@ import { debounce } from 'lodash';
 interface Props extends RouteComponentProps, Alerts {
   fetchProfile: Function;
   profile: Profile;
-  items: Item[];
-  collections: Collection[];
+  data: (Item|Collection)[]
   itemModalToggle: Function;
   collectionModalToggle: Function;
   isItemsAndCollectionsLoading: boolean;
@@ -81,6 +80,7 @@ class ViewProfile extends React.Component<Props, State> {
   }
 
   render() {
+    console.log(this.props.data.map(d => d.__typename))
     if (typeof this.props.profile === 'undefined') {
       return 'Loading...';
     }
@@ -157,20 +157,14 @@ class ViewProfile extends React.Component<Props, State> {
         <Col xs='12'>
         <p>Contributed Items And Collections</p>
         </Col>
-          {this.props.collections.map(item =>
+          {this.props.data.map(item =>
             <DataLayout
-              key={`collection_${item.id}`}
+              key={item.id}
               data={item}
+              itemModalToggle={this.props.itemModalToggle}
               collectionModalToggle={() => this.props.collectionModalToggle(true, item)}
             />
           )}
-          {this.props.items.map(item =>
-            <DataLayout
-              data={item}
-              key={`item_${item.id}`}
-              itemModalToggle={this.props.itemModalToggle}
-            />)
-          }
           {this.props.isItemsAndCollectionsLoading && <div className="author-loading">
             <Spinner type="grow" variant="dark" />
           </div>
@@ -191,8 +185,7 @@ const mapStateToProps = (state: { viewProfile: State }) => { // tslint:disable-l
   return {
     errorMessage: state.viewProfile.errorMessage,
     profile: state.viewProfile.profile,
-    items: state.viewProfile.items,
-    collections: state.viewProfile.collections,
+    data: generateItemsAdCollectionsGrid(state.viewProfile.items, state.viewProfile.collections),
     isItemsAndCollectionsLoading: state.viewProfile.isItemsAndCollectionsLoading,
     fetchedAllItemsAndCollections: !state.viewProfile.collectionsHasMore && !state.viewProfile.itemsHasMore
   };
@@ -205,3 +198,17 @@ export default withRouter(connect(mapStateToProps, {
   collectionModalToggle,
   fetchProfileItemsAndCollections
 })(ViewProfile));
+
+let generateItemsAdCollectionsGrid = (items: Item[], collections: Collection[]): (Item|Collection)[] => {
+  let pendingCollections = [...collections]
+  let pendingItems = [...items]
+  let result: (Item|Collection)[] = []
+  while (pendingItems.length || pendingCollections.length) {
+    result = [
+      ...result,
+      ...pendingCollections.splice(0, 3),
+      ...pendingItems.splice(0, 3),
+    ]
+  }
+  return result
+}
