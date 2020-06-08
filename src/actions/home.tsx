@@ -1,8 +1,6 @@
 import { API } from 'aws-amplify';
 import { HomepageData } from '../reducers/home';
-import { getCDNObject } from '../components/utils/s3File';
-import config from 'config';
-import { FileTypes, S3File } from '../types/s3File';
+import { FileTypes } from '../types/s3File';
 import { itemType } from '../types/Item';
 import { COLLECTION_MODAL_TOGGLE } from './modals/collectionModal';
 import { ITEM_MODAL_TOGGLE } from './modals/itemModal';
@@ -20,6 +18,7 @@ import { search as dispatchSearch, toggle as searchOpenToggle } from './searchCo
 import { toggle as collectionModalToggle } from 'actions/modals/collectionModal';
 import { toggle as itemModalToggle } from 'actions/modals/itemModal';
 import { createCriteriaOption } from 'components/search/SearchConsole';
+import addFilesToData from 'REST/utils/addFilesToData';
 
 // Defining our Actions for the reducers
 export const LOGO_STATE_HOMEPAGE = 'LOGO_STATE_HOMEPAGE';
@@ -195,81 +194,6 @@ export const loadHomepage = () => async dispatch => {
     announcements,
     loaded_highlights: loadedHighlights
   });
-};
-
-interface PromiseSettled {
-  status: string,
-  value: any,
-}
-
-/**
- * HEADS all files and inserts a file key value pair into the item/collection.
- * @param data
- */
-export const addFilesToData = async (datas) => {
-  if (datas && datas.length) {
-    // Loop through each object in the array and get it's File from CloudFront
-    const results: PromiseSettled[] = await Promise.all(
-        datas.map(d =>
-          getCDNObject(d.s3_key)
-            .then(
-            val => ({status: 'fulfilled', value: val}),
-            err => ({status: 'rejected', value: err})
-          )
-        )
-      )
-
-    let newDatas = results.map((result, i) => {
-      let data = datas[i]
-
-      if (result.status === 'rejected') {
-        return data
-      }
-
-      let file: S3File = result.value
-      const s3Key = data.s3_key
-
-      if (file.type === FileTypes.Image) {
-        const thumbnailUrl = `${config.other.THUMBNAIL_URL}${s3Key}`;
-        let thumbnails = {};
-
-        if (typeof data.file_dimensions !== 'undefined') {
-          const dimensions: number[] = data.file_dimensions as number[];
-
-          if (dimensions && dimensions[0]) {
-            if (dimensions[0] > 540) {
-              Object.assign(thumbnails, {540: `${thumbnailUrl}.thumbnail540.png`});
-            }
-            if (dimensions[0] > 720) {
-              Object.assign(thumbnails, {720: `${thumbnailUrl}.thumbnail720.png`});
-            }
-            if (dimensions[0] > 960) {
-              Object.assign(thumbnails, {960: `${thumbnailUrl}.thumbnail960.png`});
-            }
-            if (dimensions[0] > 1140) {
-              Object.assign(thumbnails, {1140: `${thumbnailUrl}.thumbnail1140.png`});
-            }
-
-            if (Object.keys(thumbnails).length > 1) {
-              Object.assign(file, {thumbnails});
-            }
-          }
-        }
-      }
-
-      return {
-        ...data,
-        file: {
-          ...data.file,
-          ...file,
-        }
-      }
-
-    })
-    return newDatas
-  } else {
-    return [];
-  }
 };
 
 export const loadMore = () => async (dispatch, getState) => {

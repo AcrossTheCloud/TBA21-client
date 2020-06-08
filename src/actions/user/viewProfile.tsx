@@ -11,12 +11,11 @@ import {
 import { LOADINGOVERLAY } from '../loadingOverlay';
 import { getItems } from '../../REST/items';
 import { removeTopology } from '../../components/utils/removeTopology';
-import { addFilesToData } from 'actions/home';
 import { Item } from 'types/Item';
 import { getCollections } from 'REST/collections';
 import { getItemsAndCollectionsForCollection } from 'components/utils/DetailPreview';
 import { Collection } from 'types/Collection';
-import { HomepageData } from '../../reducers/home';
+import addFilesToData from 'REST/utils/addFilesToData';
 /**
  *
  * API call to fetch profile information based on the profileID and dispatch it through to Redux
@@ -74,20 +73,22 @@ export const fetchProfileItemsAndCollections = () => async (dispatch, getState) 
   }
 
   dispatch({ type: FETCH_PROFILE_ITEMS_AND_COLLECTIONS_LOADING })
+
   const itemQueries = {
     limit: profileItemAndCollectionsFetchLimit,
     offset: state.items.length,
     uuid: state.profile.cognito_uuid,
   }
 
-
   const collectionQueries = {
     limit: profileItemAndCollectionsFetchLimit,
     offset: state.collections.length,
     uuid: state.profile.cognito_uuid,
   }
+
   try {
     let promises: Promise<any>[] = []
+
     if (state.itemsHasMore) {
       promises.push(getItems(itemQueries))
     } else {
@@ -103,10 +104,10 @@ export const fetchProfileItemsAndCollections = () => async (dispatch, getState) 
     let [items, collections] = await Promise.all(promises)
 
     items = removeTopology(items, "item") as Item[]
-    collections = removeTopology(collections, "collection") as Collection[]
-    collections = await getItemsAndCollectionsForCollection(collections)
+    collections = removeTopology(collections, "collection")
+    collections = await getItemsAndCollectionsForCollection(collections) as Collection[]
 
-    const [itemsWithFile, collectionsWithFile] = await Promise.all([
+    let [itemsWithFile, collectionsWithFile]= await Promise.all([
       addFilesToData(items),
       addFilesToData(collections)
     ])
@@ -114,7 +115,7 @@ export const fetchProfileItemsAndCollections = () => async (dispatch, getState) 
     const collectionsWithFileAndS3KeyImage = collectionsWithFile.map(d => ({
       ...d,
       s3_key: d.items.length ? d.items[0].s3_key : null
-    })) as HomepageData[]
+    }))
 
     dispatch({
       type: FETCH_PROFILE_ITEMS_AND_COLLECTIONS_SUCCEED,
