@@ -1,7 +1,6 @@
 import { Alerts } from '../../components/utils/alerts';
 import { Profile } from '../../types/Profile';
 import { Item } from 'types/Item';
-// import { removeTopology } from '../../components/utils/removeTopology';
 import { Collection } from 'types/Collection';
 
 // Defining our Actions for the reducers.
