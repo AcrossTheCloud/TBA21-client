@@ -8,23 +8,26 @@ import { RouteComponentProps, withRouter } from 'react-router';
 import 'styles/components/pages/viewProfile.scss';
 import { Alerts, ErrorMessage } from '../../utils/alerts';
 import { Profile } from '../../../types/Profile';
-import { fetchProfile, fetchProfileItems } from '../../../actions/user/viewProfile';
-import { Col, Row } from 'reactstrap';
+import { fetchProfile, fetchProfileItemsAndCollections } from '../../../actions/user/viewProfile';
+import { Col, Row, Spinner } from 'reactstrap';
 import "../../../styles/components/pages/viewProfile.scss"
 import { DataLayout } from '../../collection/ViewCollection';
 import { Item } from 'types/Item';
 import { toggle as itemModalToggle } from 'actions/modals/itemModal';
 import { toggle as collectionModalToggle } from 'actions/modals/collectionModal';
 import { Collection } from 'types/Collection';
+import { debounce } from 'lodash';
 
 interface Props extends RouteComponentProps, Alerts {
   fetchProfile: Function;
-  fetchProfileItems: Function;
   profile: Profile;
   items: Item[];
   collections: Collection[];
   itemModalToggle: Function;
   collectionModalToggle: Function;
+  isItemsAndCollectionsLoading: boolean;
+  fetchProfileItemsAndCollections: Function;
+  fetchedAllItemsAndCollections: boolean;
 }
 
 class ViewProfile extends React.Component<Props, State> {
@@ -37,7 +40,10 @@ class ViewProfile extends React.Component<Props, State> {
     if (props.location && props.location.pathname) {
       this.matchedId = props.location.pathname.replace('/profiles/', '');
     }
+
+    this.handleInfiniteScroll = debounce(this.handleInfiniteScroll, 200)
   }
+
 
   componentDidMount() {
     // If we have an id from the URL pass it through, otherwise use the one from Redux State
@@ -46,6 +52,7 @@ class ViewProfile extends React.Component<Props, State> {
     } else {
       this.setState({ errorMessage: 'No profile with that id.' });
     }
+    document.addEventListener('scroll', this.handleInfiniteScroll)
   }
 
   locationString(): string {
@@ -58,6 +65,18 @@ class ViewProfile extends React.Component<Props, State> {
       return `${city}, ${country}`
     } else {
       return "—"
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    if (!prevProps.fetchedAllItemsAndCollections && this.props.fetchedAllItemsAndCollections) {
+      document.removeEventListener('scroll', this.handleInfiniteScroll)
+    }
+  }
+
+  handleInfiniteScroll = () => {
+    if (window.innerHeight + window.pageYOffset >= document.body.offsetHeight - 200) {
+      this.props.fetchProfileItemsAndCollections()
     }
   }
 
@@ -79,7 +98,7 @@ class ViewProfile extends React.Component<Props, State> {
     return (
       <div id="viewProfile" >
         <ErrorMessage message={this.props.errorMessage} />
-        <Row>
+        <Row className="profile-info-container">
           <Col xs="12" md="6" className="left">
             <Row className="profile-section">
               <Col xs="12" md="auto" style={{ paddingRight: 0 }}>
@@ -135,6 +154,9 @@ class ViewProfile extends React.Component<Props, State> {
           </Col>
         </Row>
         <Row className="author-items">
+        <Col xs='12'>
+        <p>Contributed Items And Collections</p>
+        </Col>
           {this.props.collections.map(item =>
             <DataLayout
               key={`collection_${item.id}`}
@@ -149,16 +171,20 @@ class ViewProfile extends React.Component<Props, State> {
               itemModalToggle={this.props.itemModalToggle}
             />)
           }
+          {this.props.isItemsAndCollectionsLoading && <div className="author-loading">
+            <Spinner type="grow" variant="dark" />
+          </div>
+          }
+          {this.props.fetchedAllItemsAndCollections &&
+          <div className="author-all-fetched">
+            No more items and collections from {this.props.profile.full_name}!
+          </div>
+          }
         </Row>
       </div>
     );
   }
 }
-
-// const mapDispatchToProps = () => ({
-//   fetchProfile: fetchProfile,
-//   fetchProfileItems: fetchProfileItems
-// })
 
 // State to props
 const mapStateToProps = (state: { viewProfile: State }) => { // tslint:disable-line: no-any
@@ -167,13 +193,15 @@ const mapStateToProps = (state: { viewProfile: State }) => { // tslint:disable-l
     profile: state.viewProfile.profile,
     items: state.viewProfile.items,
     collections: state.viewProfile.collections,
+    isItemsAndCollectionsLoading: state.viewProfile.isItemsAndCollectionsLoading,
+    fetchedAllItemsAndCollections: !state.viewProfile.collectionsHasMore && !state.viewProfile.itemsHasMore
   };
 };
 
 // Connect our redux store State to Props, and pass through the fetchProfile function.
-export default withRouter(connect(mapStateToProps,  {
+export default withRouter(connect(mapStateToProps, {
   fetchProfile,
-  fetchProfileItems,
   itemModalToggle,
   collectionModalToggle,
+  fetchProfileItemsAndCollections
 })(ViewProfile));

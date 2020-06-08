@@ -9,29 +9,29 @@ export const FETCH_PROFILE = 'FETCH_PROFILE';
 export const FETCH_PROFILE_ERROR = 'FETCH_PROFILE_ERROR';
 export const FETCH_PROFILE_ERROR_NO_SUCH_PROFILE = 'FETCH_PROFILE_ERROR_NO_SUCH_PROFILE';
 
-export const FETCH_PROFILE_ITEMS_LOADING = 'PFETCH_PROFILE_ITEMS_LOADING'
-export const FETCH_PROFILE_ITEMS_SUCCEED = 'FETCH_PROFILE_ITEMS_SUCCEED'
-export const FETCH_PROFILE_ITEMS_ERROR = 'FETCH_PROFILE_ITEMS_ERROR'
+export const FETCH_PROFILE_ITEMS_AND_COLLECTIONS_LOADING = 'FETCH_PROFILE_ITEMS_AND_COLLECTIONS_LOADING'
+export const FETCH_PROFILE_ITEMS_AND_COLLECTIONS_SUCCEED = 'FETCH_PROFILE_ITEMS_AND_COLLECTIONS_SUCCEED'
+export const FETCH_PROFILE_ITEMS_AND_COLLECTIONS_ERROR = 'FETCH_PROFILE_ITEMS_AND_COLLECTIONS_ERROR'
 
-export const FETCH_PROFILE_COLLECTIONS_LOADING = 'PFETCH_PROFILE_COLLECTIONS_LOADING'
-export const FETCH_PROFILE_COLLECTIONS_SUCCEED = 'FETCH_PROFILE_COLLECTIONS_SUCCEED'
-export const FETCH_PROFILE_COLLECTIONS_ERROR = 'FETCH_PROFILE_COLLECTIONS_ERROR'
+export const profileItemAndCollectionsFetchLimit = 15
 
 export interface State extends Alerts {
   profileId?: string | boolean;
   profile?: Profile;
   items: Item[];
   collections: Collection[];
-  isItemsLoading: boolean;
-  isCollectionsLoading: boolean;
+  itemsHasMore: boolean,
+  collectionsHasMore: boolean,
+  isItemsAndCollectionsLoading: boolean;
 }
 
 const initialState: State = {
   errorMessage: undefined,
   items: [],
   collections: [],
-  isItemsLoading: false,
-  isCollectionsLoading: false,
+  isItemsAndCollectionsLoading: false,
+  itemsHasMore: true,
+  collectionsHasMore: true
 };
 
 /**
@@ -67,43 +67,34 @@ export default (state: State = initialState, action) => {
         errorMessage: `Are you sure you've got the right url? We can't find what you're looking for. Sorry!`,
       };
 
-    case FETCH_PROFILE_ITEMS_LOADING:
+    case FETCH_PROFILE_ITEMS_AND_COLLECTIONS_LOADING:
       return {
         ...state,
-        isItemsLoading: true,
+        isItemsAndCollectionsLoading: true,
       }
-    case FETCH_PROFILE_ITEMS_SUCCEED:
+    case FETCH_PROFILE_ITEMS_AND_COLLECTIONS_SUCCEED:
       return {
         ...state,
-        isItemsLoading: false,
-        items: action.data
+        isItemsAndCollectionsLoading: false,
+        items: [
+          ...state.items,
+          ...action.items
+        ],
+        collections: [
+          ...state.collections,
+          ...action.collections
+        ],
+        itemsHasMore: action.items.length >= profileItemAndCollectionsFetchLimit,
+        collectionsHasMore: action.collections.length >= profileItemAndCollectionsFetchLimit,
       }
-    case FETCH_PROFILE_ITEMS_ERROR:
+    case FETCH_PROFILE_ITEMS_AND_COLLECTIONS_ERROR:
       return {
         ...state,
-        isItemsLoading: false,
-        items: [],
+        isItemsAndCollectionsLoading: false,
+        itemsHasMore: false,
+        collectionsHasMore: false,
         errorMessage: "Some error is occurred. Please try again later."
       }
-
-      case FETCH_PROFILE_COLLECTIONS_LOADING:
-        return {
-          ...state,
-          isCollectionsLoading: true,
-        }
-      case FETCH_PROFILE_COLLECTIONS_SUCCEED:
-        return {
-          ...state,
-          isCollectionsLoading: false,
-          collections: action.data
-        }
-      case FETCH_PROFILE_COLLECTIONS_ERROR:
-        return {
-          ...state,
-          isItemsLoading: false,
-          collections: [],
-          errorMessage: "Some error is occurred. Please try again later."
-        }
 
     default:
       return state;

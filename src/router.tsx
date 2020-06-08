@@ -149,14 +149,7 @@ export const AppRouter = () => {
                   </div>
                 )}
               />
-              <Route
-                path="/profiles/:profileId"
-                render={() => (
-                  <div className="container-fluid main blue">
-                    <ViewProfile />
-                  </div>)
-                }
-              />
+              <Route path="/profiles/:profileId" component={ViewProfile}/>
               <Route exact path="/map" component={MapView} />
 
               <Route exact path="/login" component={Login} />

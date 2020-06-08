@@ -3,10 +3,10 @@ import {
   FETCH_PROFILE,
   FETCH_PROFILE_ERROR,
   FETCH_PROFILE_ERROR_NO_SUCH_PROFILE,
-  FETCH_PROFILE_ITEMS_LOADING,
-  FETCH_PROFILE_ITEMS_SUCCEED,
-  FETCH_PROFILE_ITEMS_ERROR,
-  FETCH_PROFILE_COLLECTIONS_SUCCEED
+  FETCH_PROFILE_ITEMS_AND_COLLECTIONS_LOADING,
+  FETCH_PROFILE_ITEMS_AND_COLLECTIONS_SUCCEED,
+  FETCH_PROFILE_ITEMS_AND_COLLECTIONS_ERROR,
+  profileItemAndCollectionsFetchLimit,
 } from '../../reducers/user/viewProfile';
 import { LOADINGOVERLAY } from '../loadingOverlay';
 import { getItems } from '../../REST/items';
@@ -31,10 +31,7 @@ export const fetchProfile = (profileId: string) => async (dispatch, getState) =>
   // We do this here to stop another API call and you can easily get the prevState in the Action.
   if (prevState.viewItem.profile && profileId === prevState.viewItem.profile.profileId) {
     dispatch({ type: LOADINGOVERLAY, on: false }); // Turn off the loading overlay
-    dispatch(fetchProfileItems({
-      offset: 0,
-      limit: 15,
-    }))
+    dispatch(fetchProfileItemsAndCollections())
 
   } else {
     try {
@@ -63,51 +60,70 @@ export const fetchProfile = (profileId: string) => async (dispatch, getState) =>
        });
     } finally {
       dispatch({ type: LOADINGOVERLAY, on: false }); // Turn off the loading overlay
-      dispatch(fetchProfileItems({
-        offset: 0,
-        limit: 15,
-      }))
+      dispatch(fetchProfileItemsAndCollections())
 
     }
   }
 };
 
-export const fetchProfileItems = (queries) => async (dispatch, getState) => {
-  dispatch({type: FETCH_PROFILE_ITEMS_LOADING})
-  queries = {
-    ...queries,
-    // uuid: getState().viewProfile.profile.cognito_uuid,
-    uuid: '468d8382-54c0-4107-a622-104d8a1134ae',
+export const fetchProfileItemsAndCollections = () => async (dispatch, getState) => {
+  const state = getState().viewProfile
+
+  if ((!state.itemsHasMore && !state.collectionsHasMore) || !state.profile?.cognito_uuid || state.isItemsAndCollectionsLoading) {
+    return
+  }
+
+  dispatch({ type: FETCH_PROFILE_ITEMS_AND_COLLECTIONS_LOADING })
+  const itemQueries = {
+    limit: profileItemAndCollectionsFetchLimit,
+    offset: state.items.length,
+    uuid: state.profile.cognito_uuid,
+  }
+
+
+  const collectionQueries = {
+    limit: profileItemAndCollectionsFetchLimit,
+    offset: state.collections.length,
+    uuid: state.profile.cognito_uuid,
   }
   try {
-    let res = await getItems(queries)
-    let data = removeTopology(res, "item") as Item[]
-    data = await addFilesToData(data)
-    dispatch({
-      type: FETCH_PROFILE_ITEMS_SUCCEED,
-      data,
-    })
-    let ff = await getCollections(queries)
-    ff = removeTopology(ff, "collection") as Collection[]
-    ff = [...await getItemsAndCollectionsForCollection(ff)]
-    // handle get the correct collection s3_key
-    ff = ff.map(d => ({
+    let promises: Promise<any>[] = []
+    if (state.itemsHasMore) {
+      promises.push(getItems(itemQueries))
+    } else {
+      promises.push(Promise.resolve({}))
+    }
+
+    if (state.collectionsHasMore) {
+      promises.push(getCollections(collectionQueries))
+    } else {
+      promises.push(Promise.resolve({}))
+    }
+
+    let [items, collections] = await Promise.all(promises)
+
+    items = removeTopology(items, "item") as Item[]
+    collections = removeTopology(collections, "collection") as Collection[]
+    collections = await getItemsAndCollectionsForCollection(collections)
+
+    const [itemsWithFile, collectionsWithFile] = await Promise.all([
+      addFilesToData(items),
+      addFilesToData(collections)
+    ])
+
+    const collectionsWithFileAndS3KeyImage = collectionsWithFile.map(d => ({
       ...d,
       s3_key: d.items.length ? d.items[0].s3_key : null
     })) as HomepageData[]
 
-    let collData = await addFilesToData(ff)
     dispatch({
-      type: FETCH_PROFILE_COLLECTIONS_SUCCEED,
-      data: collData,
+      type: FETCH_PROFILE_ITEMS_AND_COLLECTIONS_SUCCEED,
+      items: itemsWithFile,
+      collections: collectionsWithFileAndS3KeyImage
     })
   } catch {
     dispatch({
-      type: FETCH_PROFILE_ITEMS_ERROR,
+      type: FETCH_PROFILE_ITEMS_AND_COLLECTIONS_ERROR,
     })
   }
-}
-
-export const fetchProfileCollection = queries => async (dispatch, getState) => {
-
 }
