@@ -1,12 +1,18 @@
 import { getCDNObject } from '../../components/utils/s3File';
 import config from 'config';
 import { FileTypes, S3File } from '../../types/s3File';
+import { Item } from 'types/Item';
+import { HomepageData } from 'reducers/home';
 
 /**
  * HEADS all files and inserts a file key value pair into the item/collection.
  * @param data
  */
-const addFilesToData = async (datas) => {
+
+async function addFilesToData(datas: Item[]): Promise<Item[]>;
+async function addFilesToData(datas: HomepageData[]): Promise<HomepageData[]>;
+
+async function addFilesToData(datas: any[]): Promise<any[]> {
   if (datas && datas.length) {
     try {
       // Loop through each object in the array and get it's File from CloudFront

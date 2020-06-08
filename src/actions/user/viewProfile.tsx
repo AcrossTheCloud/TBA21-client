@@ -114,7 +114,7 @@ export const fetchProfileItemsAndCollections = () => async (dispatch, getState) 
 
     const collectionsWithFileAndS3KeyImage = collectionsWithFile.map(d => ({
       ...d,
-      s3_key: d.items.length ? d.items[0].s3_key : null
+      s3_key: d.items && d.items.length ? d.items[0].s3_key : null
     }))
 
     dispatch({

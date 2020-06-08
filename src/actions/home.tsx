@@ -98,8 +98,10 @@ export const loadHomepage = () => async dispatch => {
       oa_highlight_collections: HomepageData[]
     } = await API.get('tba21', 'pages/homepage', { queryStringParameters: {oa_highlight: true}});
     oaHighlights.oa_highlight_collections = [ ...await getItemsAndCollectionsForCollection(oaHighlights.oa_highlight_collections as any)] as any;
-    let highlightsWithFiles = await addFilesToData(oaHighlights.oa_highlight_collections);
-  highlightsWithFiles = highlightsWithFiles.concat(await addFilesToData(oaHighlights.oa_highlight_items));
+    let highlightsWithFiles = [
+      ...await addFilesToData(oaHighlights.oa_highlight_collections),
+      ...await addFilesToData(oaHighlights.oa_highlight_items)
+    ]
   highlightsWithFiles = highlightsWithFiles.slice(0,3); // max 3 highlights
 
   const  queryStringParams = {
