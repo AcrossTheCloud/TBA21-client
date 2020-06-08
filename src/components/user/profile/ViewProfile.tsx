@@ -58,6 +58,7 @@ class ViewProfile extends React.Component<Props, State> {
     if (this.props.fetchedAllItemsAndCollections) {
       document.removeEventListener('scroll', this.handleInfiniteScroll)
     }
+
   }
 
   componentWillUnmount() {
