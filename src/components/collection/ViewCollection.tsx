@@ -476,7 +476,11 @@ class ViewCollection extends React.Component<Props, State> {
                     // tslint:disable-next-line:no-any
                     (this.state.collection.items as any[])
                         .filter((item: Item) => {
-                          return this.state.firstItem && item.id !== this.state.firstItem.id;
+                          if (this.state.firstItem) {
+                            return item.id !== this.state.firstItem.id
+                          } else {
+                            return true;
+                          }
                         })
                         .map((item: Item, i) => (
                             <DataLayout
