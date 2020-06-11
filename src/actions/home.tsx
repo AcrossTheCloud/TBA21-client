@@ -325,10 +325,14 @@ export const HomePageAudioPreview = (props: { data: HomepageData, openModal?: Fu
     <>
       {item_type === itemType.Audio || (!!file && file.type === FileTypes.Audio) ?
         !!count && count > 0 ?
-          <div onClick={() => typeof props.openModal === 'function' ? props.openModal(props.data) : false}>
-            <AudioPreview noClick data={{title, id, url: file.url, date, creators, item_subtype, isCollection: !!count}}/>
+          <div
+            onClick={() => typeof props.openModal === 'function'
+              ? props.openModal(props.data)
+              : false
+            }>
+            <AudioPreview noClick data={{ title, id, url: file.url, date, creators, item_subtype, isCollection: !!count }} />
           </div> :
-          <AudioPreview data={{title, id, url: file.url, date, creators, item_subtype, isCollection: !!count}}/>
+          <AudioPreview data={{ title, id, url: file.url, date, creators, item_subtype, isCollection: !!count }} />
         : <></>
       }
     </>

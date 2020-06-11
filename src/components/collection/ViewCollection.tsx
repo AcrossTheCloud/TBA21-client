@@ -317,8 +317,7 @@ class ViewCollection extends React.Component<Props, State> {
     return (
       <div id="item" className="container-fluid">
         <ErrorMessage message={this.props.errorMessage} />
-
-        <Row>
+        <Row className="file">
           {
             this.state.firstItem ?
               (this.state.firstItem.item_type === 'IFrame' ?
@@ -333,7 +332,7 @@ class ViewCollection extends React.Component<Props, State> {
                   />
                 ) :
                 (
-                  <FilePreview file={this.state.firstItem.file} isHeader={true} />
+                  <FilePreview file={this.state.firstItem.file} isHeader={true}/>
                 )
               )
                 : <></>
@@ -389,7 +388,11 @@ class ViewCollection extends React.Component<Props, State> {
                     // tslint:disable-next-line:no-any
                     (this.state.collection.items as any[])
                         .filter((item: Item) => {
-                          return this.state.firstItem && item.id !== this.state.firstItem.id;
+                          if (this.state.firstItem) {
+                            return item.id !== this.state.firstItem.id
+                          } else {
+                            return true;
+                          }
                         })
                         .map((item: Item, i) => (
                             <DataLayout
