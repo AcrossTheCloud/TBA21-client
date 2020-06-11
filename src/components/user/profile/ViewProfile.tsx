@@ -86,7 +86,9 @@ class ViewProfile extends React.Component<Props, State> {
 
   render() {
     if (typeof this.props.profile === 'undefined') {
-      return null
+      return <div id="viewProfile">
+        <ErrorMessage message={this.props.errorMessage} />
+      </div>
     }
     const {
       full_name,
