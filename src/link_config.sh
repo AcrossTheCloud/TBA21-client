@@ -25,5 +25,5 @@ elif [ "$ENV" = "staging" ]
 then
   ln -s staging-config.js config.js
 else
-  ln -s dev-config.js config.js
+  echo "Specify either ENV=prod or ENV=staging"
 fi
