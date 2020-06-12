@@ -422,7 +422,7 @@ class ViewCollection extends React.Component<Props, State> {
             }
             {displayed_contributors && displayed_contributors.length &&
               <CollectionDetails
-                label="Contributors"
+                label={`Contributor${filteredDisplayedContributors.length > 1 ? 's' : ''}`}
                 value={
                   <>
                     {filteredDisplayedContributors
