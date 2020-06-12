@@ -11,16 +11,11 @@ import { RouteComponentProps, withRouter } from 'react-router';
 import Share from '../utils/Share';
 import moment from 'moment';
 import 'styles/components/pages/viewItem.scss';
-import { Item, itemType, Regions } from '../../types/Item';
+import { Item, Regions } from '../../types/Item';
 import { Collection } from '../../types/Collection';
-import { DetailPreview } from '../utils/DetailPreview';
 import { FilePreview} from '../utils/FilePreview';
-import { FileTypes } from '../../types/s3File';
-import AudioPreview from '../layout/audio/AudioPreview';
-import { dateFromTimeYearProduced } from '../../actions/home';
 import { debounce, isEqual } from 'lodash';
-import { getCollectionsInCollection, getItemsInCollection } from '../../REST/collections';
-import { removeTopology } from '../utils/removeTopology';
+
 import { createCriteriaOption } from '../search/SearchConsole';
 import { toggle as collectionModalToggle } from '../../actions/modals/collectionModal';
 import { toggle as itemModalToggle } from 'actions/modals/itemModal';
@@ -30,6 +25,7 @@ import { UserHistoryState } from '../../reducers/user-history';
 import HtmlDescription from '../utils/HtmlDescription';
 import _ from 'lodash';
 import generateFocusGradient from '../utils/gradientGenerator';
+import DataLayout from 'components/utils/DataLayout';
 
 type MatchParams = {
   id: string;
@@ -62,89 +58,6 @@ interface State {
   noMoreData: boolean;
   loading: boolean;
 }
-
-const DataLayout = (props: { data: Item | Collection, itemModalToggle?: Function, collectionModalToggle?: Function, firstItem?: boolean }): JSX.Element => {
-  let response: JSX.Element = <></>;
-
-  if (props.data) {
-    if (props.data.__typename === 'item') {
-      const data = props.data as Item;
-
-      if (data.item_type === itemType.Audio || (data.file && data.file.type === FileTypes.Audio)) {
-        const date = dateFromTimeYearProduced(data.time_produced, data.year_produced);
-        response = (
-            <AudioPreview
-                data={{
-                  id: data.id,
-                  url: data.file.url,
-                  title: data.title ? data.title : '',
-                  creators: data.creators ? data.creators : undefined,
-                  item_subtype: data.item_subtype ? data.item_subtype : undefined,
-                  date: date,
-                  isCollection: data.__typename !== 'item'
-                }}
-                noClick={data.__typename !== 'item'}
-            />
-        );
-      } else {
-        response = (
-            <DetailPreview
-              data={data}
-              modalToggle={typeof props.itemModalToggle === 'function' ? props.itemModalToggle : undefined}
-              firstItem={props.firstItem}
-            />
-        );
-      }
-    } else if (props.data.__typename === 'collection') {
-      const data = props.data as Collection;
-
-      if (data.file && data.id) {
-        getCollectionsInCollection({id: data.id, limit: 1000, offset: 0}).then(collectionResponse => {
-          const collections = [...removeTopology(collectionResponse, 'collection')] as Collection[];
-          data.collections = collections.map((collectionItem) => collectionItem.id) as string[];
-        });
-        getItemsInCollection({id: data.id, limit: 1000, offset: 0}).then(itemResponses => {
-          const items = [...removeTopology(itemResponses, 'item')] as Item[];
-          data.items = items.map((itemItem) => itemItem.id) as string[];
-        });
-
-        response = (
-            <DetailPreview
-                modalToggle={() => typeof props.collectionModalToggle === 'function' ? props.collectionModalToggle(data) : undefined}
-                data={{
-                  file: data.file,
-                  id: data.id,
-                  title: data.title ? data.title : '',
-                  s3_key: '',
-                  year_produced: data.year_produced ? data.year_produced : '',
-                  time_produced: data.time_produced ? data.time_produced : '',
-                  creators: data.creators ? data.creators : [],
-                  regions: data.regions ? data.regions : [],
-                  // tslint:disable-next-line:no-any
-                  items: data.items as any || [],
-                  // tslint:disable-next-line:no-any
-                  collections: data.collections as any || [],
-                  // Collection specific
-                  count: data.count ? data.count : 0,
-                  type: data.type ? data.type : undefined,
-                  concept_tags: [],
-                  keyword_tags: []
-                }}
-            />
-        );
-      }
-    }
-  }
-
-  return (
-    <Col
-        md={!!props.data && !!props.data.file && (props.data.file.type === 'Audio' || props.firstItem) ? '12' : '4'}
-        className="pt-4"
-    >
-      {response}
-    </Col>
-  );
-};
 
 class ViewCollection extends React.Component<Props, State> {
   browser: string;
@@ -245,7 +158,6 @@ class ViewCollection extends React.Component<Props, State> {
               return data.__typename === 'collection';
               // tslint:disable-next-line:no-any
             }) as any : [];
-
         this.setState({
           data: this.props.data || [],
           collection: {
@@ -282,7 +194,7 @@ class ViewCollection extends React.Component<Props, State> {
   }
 
   async createHistoryEntity(): Promise<Collection> {
-    return {...this.props.collection, __typename: 'collection'};
+    return {...this.props.collection, __typename: 'collection'}
   }
 
   loadData = async () => {
@@ -412,11 +324,11 @@ class ViewCollection extends React.Component<Props, State> {
                 (
 
                   <DataLayout
-                  data={this.state.firstItem}
-                  key={`item_${this.state.firstItem.id}`}
-                  itemModalToggle={this.props.itemModalToggle}
-                  collectionModalToggle={this.collectionModalToggle}
-                  firstItem={true}
+                    data={this.state.firstItem}
+                    key={`item_${this.state.firstItem.id}`}
+                    itemModalToggle={this.props.itemModalToggle}
+                    collectionModalToggle={this.collectionModalToggle}
+                    firstItem={true}
                   />
                 ) :
                 (

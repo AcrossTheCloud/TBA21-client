@@ -64,7 +64,7 @@ import * as moment from 'moment';
 import 'moment-duration-format';
 import { FileTypes, S3File } from '../../types/s3File';
 import { modalToggle } from '../../actions/pages/privacyPolicy';
-import { getProfileDetails } from '../../actions/user/profile';
+import { getCurrentUserProfile } from '../../actions/user/profile';
 import { Profile } from '../../types/Profile';
 import 'styles/components/metadata/itemEditor.scss';
 import 'styles/components/metadata/editors.scss';
@@ -79,7 +79,7 @@ export interface Props {
 
   // From Redux
   modalToggle: Function;
-  getProfileDetails: Function;
+  getCurrentUserProfile: Function;
   profileDetails: Profile;
 }
 
@@ -271,7 +271,7 @@ class ItemEditorClass extends React.Component<Props, State> {
       });
 
       // Refresh the Profile Details.
-      this.props.getProfileDetails(this.props.profileDetails.cognito_uuid);
+      this.props.getCurrentUserProfile(this.props.profileDetails.cognito_uuid);
     }
 
     this.setState(
@@ -2698,6 +2698,6 @@ const mapStateToProps = (state: { profile: { details: Profile} }) => ({
   profileDetails: state.profile.details,
 });
 
-export default connect(mapStateToProps, { modalToggle, getProfileDetails })(ItemEditorClass);
+export default connect(mapStateToProps, { modalToggle, getCurrentUserProfile })(ItemEditorClass);
 
-export const ItemEditorWithCollapse = connect(mapStateToProps, { modalToggle, getProfileDetails })(withCollapse(ItemEditorClass));
+export const ItemEditorWithCollapse = connect(mapStateToProps, { modalToggle, getCurrentUserProfile })(withCollapse(ItemEditorClass));

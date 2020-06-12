@@ -1,8 +1,6 @@
 import { API } from 'aws-amplify';
 import { HomepageData } from '../reducers/home';
-import { getCDNObject } from '../components/utils/s3File';
-import config from 'config';
-import { FileTypes, S3File } from '../types/s3File';
+import { FileTypes } from '../types/s3File';
 import { itemType } from '../types/Item';
 import { COLLECTION_MODAL_TOGGLE } from './modals/collectionModal';
 import { ITEM_MODAL_TOGGLE } from './modals/itemModal';
@@ -20,6 +18,7 @@ import { search as dispatchSearch, toggle as searchOpenToggle } from './searchCo
 import { toggle as collectionModalToggle } from 'actions/modals/collectionModal';
 import { toggle as itemModalToggle } from 'actions/modals/itemModal';
 import { createCriteriaOption } from 'components/search/SearchConsole';
+import addFilesToData from 'REST/utils/addFilesToData';
 
 // Defining our Actions for the reducers
 export const LOGO_STATE_HOMEPAGE = 'LOGO_STATE_HOMEPAGE';
@@ -94,11 +93,15 @@ export const onTagClick = (event: React.MouseEvent<HTMLButtonElement>, label: st
 
 export const loadHomepage = () => async dispatch => {
   const
-    oaHighlights: {oa_highlight_items: HomepageData[], oa_highlight_collections: HomepageData[]} = await API.get('tba21', 'pages/homepage', { queryStringParameters: {oa_highlight: true}});
-
-  oaHighlights.oa_highlight_collections = [ ...await getItemsAndCollectionsForCollection(oaHighlights.oa_highlight_collections as any)] as any;
-  let highlightsWithFiles = await addFilesToData(oaHighlights.oa_highlight_collections);
-  highlightsWithFiles = highlightsWithFiles.concat(await addFilesToData(oaHighlights.oa_highlight_items));
+    oaHighlights: {
+      oa_highlight_items: HomepageData[],
+      oa_highlight_collections: HomepageData[]
+    } = await API.get('tba21', 'pages/homepage', { queryStringParameters: {oa_highlight: true}});
+    oaHighlights.oa_highlight_collections = [ ...await getItemsAndCollectionsForCollection(oaHighlights.oa_highlight_collections as any)] as any;
+    let highlightsWithFiles = [
+      ...await addFilesToData(oaHighlights.oa_highlight_collections),
+      ...await addFilesToData(oaHighlights.oa_highlight_items)
+    ]
   highlightsWithFiles = highlightsWithFiles.slice(0,3); // max 3 highlights
 
   const  queryStringParams = {
@@ -167,18 +170,12 @@ export const loadHomepage = () => async dispatch => {
         break;
     }
     const data = highlightsWithFiles[props.index];
+    const notAudio = data.item_type !== itemType.Audio || (data.file && data.file.type) !== FileTypes.Audio
     return (
-      <Col
-        xs="12"
-        lg={colSizes[props.index]}
-        className="item"
-        onClick={() => {
-          if (data.item_type !== itemType.Audio || (data.file && data.file.type) !== FileTypes.Audio) { dispatch(openModal(data)); }
-        }}
-      >
-        {(data.item_type !== itemType.Audio || (data.file && data.file.type) !== FileTypes.Audio)
-          ? <DetailPreview data={data} isOaHighlight={true} />
-          : <HomePageAudioPreview data={data} isOaHighlight={true} />
+      <Col xs="12" lg={colSizes[props.index]} className="item" onClick={() => { if (notAudio) { dispatch(openModal(data)); } }}>
+        {notAudio ?
+        <DetailPreview data={data} isOaHighlight={true} /> :
+        <HomePageAudioPreview data={data} isOaHighlight={true} />
         }
         <HighlightsItemDetails index={props.index} />
       </Col>
@@ -199,58 +196,6 @@ export const loadHomepage = () => async dispatch => {
     announcements,
     loaded_highlights: loadedHighlights
   });
-};
-
-/**
- * HEADS all files and inserts a file key value pair into the item/collection.
- * @param data
- */
-export const addFilesToData = async (data: HomepageData[]): Promise<HomepageData[]> => {
-  if (data && data.length) {
-    // Loop through each object in the array and get it's File from CloudFront
-    for (let i = 0; i < data.length; i++) {
-      const
-        s3Key = data[i].s3_key,
-        result = await getCDNObject(s3Key);
-
-      if (result) {
-        const file: S3File = result;
-
-        if (file.type === FileTypes.Image) {
-          const thumbnailUrl = `${config.other.THUMBNAIL_URL}${s3Key}`;
-          let thumbnails = {};
-
-          if (typeof data[i].file_dimensions !== 'undefined') {
-            const dimensions: number[] = data[i].file_dimensions as number[];
-
-            if (dimensions && dimensions[0]) {
-              if (dimensions[0] > 540) {
-                Object.assign(thumbnails, {540: `${thumbnailUrl}.thumbnail540.png`});
-              }
-              if (dimensions[0] > 720) {
-                Object.assign(thumbnails, {720: `${thumbnailUrl}.thumbnail720.png`});
-              }
-              if (dimensions[0] > 960) {
-                Object.assign(thumbnails, {960: `${thumbnailUrl}.thumbnail960.png`});
-              }
-              if (dimensions[0] > 1140) {
-                Object.assign(thumbnails, {1140: `${thumbnailUrl}.thumbnail1140.png`});
-              }
-
-              if (Object.keys(thumbnails).length > 1) {
-                Object.assign(file, {thumbnails});
-              }
-            }
-          }
-        }
-
-        Object.assign(data[i], {file : { ...data[i].file, ...file }});
-      }
-    }
-    return data;
-  } else {
-    return [];
-  }
 };
 
 export const loadMore = () => async (dispatch, getState) => {

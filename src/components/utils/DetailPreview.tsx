@@ -121,6 +121,7 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
     collectionType = data.type;
   }
 
+
   const date = dateFromTimeYearProduced(data.time_produced, data.year_produced, data.end_year_produced);
 
   return (

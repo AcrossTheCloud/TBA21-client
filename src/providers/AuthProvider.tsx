@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Auth } from 'aws-amplify';
 import { connect } from 'react-redux';
-import { getProfileDetails } from 'actions/user/profile';
+import { getCurrentUserProfile } from 'actions/user/profile';
 import { Profile } from '../types/Profile';
 
 import { Authorisation, checkAuth } from '../components/utils/Auth';
@@ -11,7 +11,7 @@ interface State extends Authorisation {
   isLoading: boolean;
 }
 export interface Props extends RouteComponentProps {
-  getProfileDetails: Function;
+  getCurrentUserProfile: Function;
   profileDetails?: Profile;
 }
 
@@ -53,7 +53,7 @@ class AuthProviderClass extends React.Component<Props, State> {
 
         if (!this.props.profileDetails && auth.uuid) {
           // Get the users profile details and hold on to the them for as long as possible.
-          await this.props.getProfileDetails(auth.uuid);
+          await this.props.getCurrentUserProfile(auth.uuid);
         }
 
         if (!this._isMounted) { return; }
@@ -76,7 +76,7 @@ class AuthProviderClass extends React.Component<Props, State> {
         const auth: Authorisation = await checkAuth();
 
         // Get the users profile details and hold on to the them for as long as possible.
-        await this.props.getProfileDetails(auth.uuid);
+        await this.props.getCurrentUserProfile(auth.uuid);
 
         if (!this._isMounted) { return; }
         this.setState({ ...auth });
@@ -143,4 +143,4 @@ const mapStateToProps = (state: { profile: { details: Profile} }) => ({
   profileDetails: state.profile.details,
 });
 
-export const AuthProvider = withRouter(connect(mapStateToProps, { getProfileDetails })(AuthProviderClass));
+export const AuthProvider = withRouter(connect(mapStateToProps, { getCurrentUserProfile })(AuthProviderClass));
