@@ -21,9 +21,6 @@ fi
 if [ "$ENV" = "prod" ] || ([ ! -z "$envFileValue" ] && [ $envFileValue = "prod" ])
 then
   ln -s prod-config.js config.js
-elif [ "$ENV" = "staging" ] 
-then
-  ln -s staging-config.js config.js
 else
-  echo "Specify either ENV=prod or ENV=staging"
+  ln -s staging-config.js config.js
 fi
