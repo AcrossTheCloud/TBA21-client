@@ -28,6 +28,7 @@ import HtmlDescription from '../utils/HtmlDescription';
 import _ from 'lodash';
 import generateFocusGradient from '../utils/gradientGenerator';
 import TBALink from 'components/TBALink';
+import { viewProfileURL } from '../../types/urls';
 
 type MatchParams = {
   id: string;
@@ -245,7 +246,7 @@ class ViewItem extends React.Component<Props, State> {
             {displayed_contributor && displayed_contributor.name &&
               <ItemDetails label="Contributor" value={
                 displayed_contributor.isProfilePublic
-                      ? <TBALink to={`/profiles/${displayed_contributor.id}`}>{displayed_contributor.name}</TBALink>
+                      ? <TBALink to={viewProfileURL(displayed_contributor.id)}>{displayed_contributor.name}</TBALink>
                       : <p>{displayed_contributor.name}</p>
               } />
             }

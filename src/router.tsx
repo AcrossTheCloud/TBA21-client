@@ -55,6 +55,7 @@ import ItemModal from './components/modals/ItemModal';
 import CollectionModal from './components/modals/CollectionModal';
 import LiveStreamModal from './components/modals/LiveStreamModal';
 import About from './components/pages/About';
+import { viewProfileURL } from './types/urls';
 
 const LoggedInRoutes = ({ isAuthenticated, ...rest }) => {
   const isLoggedIn = isAuthenticated;
@@ -149,7 +150,7 @@ export const AppRouter = () => {
                   </div>
                 )}
               />
-              <Route path="/profiles/:profileId" component={ViewProfile}/>
+              <Route path={viewProfileURL(":profileId")} component={ViewProfile}/>
               <Route exact path="/map" component={MapView} />
 
               <Route exact path="/login" component={Login} />

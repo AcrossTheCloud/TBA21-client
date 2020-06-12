@@ -27,6 +27,7 @@ import _ from 'lodash';
 import generateFocusGradient from '../utils/gradientGenerator';
 import DataLayout from 'components/utils/DataLayout';
 import TBALink from 'components/TBALink';
+import { viewProfileURL } from '../../types/urls';
 
 type MatchParams = {
   id: string;
@@ -429,7 +430,7 @@ class ViewCollection extends React.Component<Props, State> {
                       .map((contributor, idx) =>
                         <>
                           {contributor.isProfilePublic
-                            ? <TBALink to={`profiles/${contributor.id}`}> {contributor.name}
+                            ? <TBALink to={viewProfileURL(contributor.id)}> {contributor.name}
                             </TBALink>
                             : <p>{contributor.name}</p>}
                           {idx < (filteredDisplayedContributors.length - 1) && <span>, </span>}
