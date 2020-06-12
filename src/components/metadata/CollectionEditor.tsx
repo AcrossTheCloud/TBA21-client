@@ -1531,7 +1531,10 @@ class CollectionEditorClass extends React.Component<Props, State> {
                       <Label for="contributors">Contributor(s)</Label>
                       { !this.state.userUUID ? <><br/>Loading..</> :
                         <>
-                          <Contributors callback={e => this.validateLength('contributors', e)} defaultValues={this.state.originalCollection.contributors ? this.state.originalCollection.contributors : ( this.state.userUUID && !this.props.editMode ? [this.state.userUUID] : [] )} />
+                          <Contributors
+                            callback={e => this.validateLength('contributors', e)}
+                            defaultValues={this.state.originalCollection.contributors ? this.state.originalCollection.contributors : (this.state.userUUID && !this.props.editMode ? [this.state.userUUID] : [])}
+                          />
                           <FormFeedback style={{ display: !contributors || !contributors.length ? 'block' : 'none' }}>A collection needs a contributor, select yourself or another user.</FormFeedback>
                         </>
                       }
