@@ -18,7 +18,7 @@ import { Collection } from 'types/Collection';
 import { debounce } from 'lodash';
 import DataLayout from 'components/utils/DataLayout';
 import Share from '../../utils/Share';
-import { viewProfileURL } from '../../../types/urls';
+import { viewProfileURL } from '../../../urls';
 
 interface Props extends RouteComponentProps, Alerts {
   fetchProfile: Function;

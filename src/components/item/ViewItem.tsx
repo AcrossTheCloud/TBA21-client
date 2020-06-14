@@ -28,7 +28,7 @@ import HtmlDescription from '../utils/HtmlDescription';
 import _ from 'lodash';
 import generateFocusGradient from '../utils/gradientGenerator';
 import TBALink from 'components/TBALink';
-import { viewProfileURL } from '../../types/urls';
+import { viewProfileURL } from '../../urls';
 
 type MatchParams = {
   id: string;
