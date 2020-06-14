@@ -120,7 +120,7 @@ class ViewProfile extends React.Component<Props, State> {
                 <div className="flex items-center justify-between">
                   <h1>{full_name}</h1>
                   <h3>
-                  {/* strip begguning "/" on viewProfileURL */}
+                  {/* strip beggining "/" on viewProfileURL */}
                   <Share suffix={viewProfileURL(this.props.profile.id).slice(1)}/>
                   </h3>
                 </div>
