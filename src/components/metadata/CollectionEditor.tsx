@@ -966,6 +966,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
             <Input
               type="url"
               id="url"
+              autoComplete="false"
               defaultValue={collection.url ? collection.url : ''}
               invalid={this.state.validate.hasOwnProperty('url') && !this.state.validate.url}
               onChange={e => {
@@ -1591,6 +1592,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
                       <Input
                         type="url"
                         id="url"
+                        autoComplete="false"
                         defaultValue={url ? url : ''}
                         invalid={this.state.validate.hasOwnProperty('url') && !this.state.validate.url}
                         onChange={e => {

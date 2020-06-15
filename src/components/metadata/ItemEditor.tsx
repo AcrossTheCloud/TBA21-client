@@ -2573,6 +2573,7 @@ class ItemEditorClass extends React.Component<Props, State> {
                           <Input
                             type="url"
                             className="url"
+                            autoComplete="false"
                             defaultValue={item.url ? item.url : ''}
                             invalid={this.state.validate.hasOwnProperty('url') && !this.state.validate.url}
                             onChange={e => {
