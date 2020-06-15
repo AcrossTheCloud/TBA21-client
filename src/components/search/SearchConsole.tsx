@@ -37,7 +37,7 @@ import { toggle as itemModalToggle } from 'actions/modals/itemModal';
 
 import 'styles/components/search/searchConsole.scss';
 import 'styles/components/admin/tables/modal.scss';
-import { TBALink } from 'components/TBALink';
+import TBALink from 'components/TBALink';
 import { viewProfileURL } from '../../urls';
 
 interface Props extends SearchConsoleState {
@@ -374,19 +374,9 @@ class SearchConsole extends React.Component<Props, State> {
     this.props.toggle(!this.props.open);
   }
 
-  toggleModal = () => {
-    this.setState(prevState => ({
-      modalOpen: !prevState.modalOpen
-    }));
-  }
-
   openResult = (entity: Item | Collection | Profile) => {
-    let metaType: 'Item' | 'Collection' | 'Profile'  = 'Item';
-    if (entity.hasOwnProperty('full_name')) { // profile
-
-      this.props.fetchProfile(entity.id);
-      metaType = 'Profile';
-    } else if (entity.hasOwnProperty('collection')) {
+    let metaType: 'Item' | 'Collection'  = 'Item';
+    if (entity.hasOwnProperty('collection')) {
       this.props.fetchCollection(entity.id);
       this.props.collectionModalToggle(true, entity);
       metaType = 'Collection';
@@ -553,24 +543,23 @@ class SearchConsole extends React.Component<Props, State> {
                 </FormGroup>
               </Col>
             </Row>
-
             <div className="results">
               {
                 (loadedResults && loadedResults.length) ? loadedResults.map((t, i) => {
                   if (t.hasOwnProperty('full_name')) {
                     const profile = t as Profile;
                     return (
-                      <TBALink to={viewProfileURL('43')}>
+                      <TBALink to={viewProfileURL(t.id || "")}>
                         <Row className="result" key={i}>
-                        {profile.profile_image ?
-                          <Col xs="4">
-                            <img src={profile.profile_image} alt=""/>
+                          <Col xs={'auto'}>
+                            <div style={{ background: "#787878", width: '150px', height: '150px' }}>
+                              <img src={profile.profile_image || ''} alt="" />
+                            </div>
                           </Col>
-                          : ''}
-                        <Col xs={profile.profile_image ? '8' : '12'}>
-                          {profile.full_name}
-                        </Col>
-                      </Row>
+                          <Col xs={true}>
+                            {profile.full_name}
+                          </Col>
+                        </Row>
                       </TBALink>
                     );
                   } else {
