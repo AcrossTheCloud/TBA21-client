@@ -37,7 +37,7 @@
     width: 100%;
     background: linear-gradient(to right, #0076FF 0%, #9013FE 20%, #50E3C2 50%);
     height: 2px;
-  } 
+  }
 }
 .wrapHeight{
   min-height: 35px;
@@ -64,7 +64,7 @@
   display: block;
   overflow: hidden;
   transition: min-height 1.2s cubic-bezier(0.22, 0.61, 0.36, 1), opacity .3s linear .5s;
-  
+
   .search__control--is-disabled .search__placeholder{
     height:28px;
   }
@@ -376,44 +376,6 @@
         }
       }
 
-      .results {
-        position: relative;
-        overflow: hidden;
-        height: 0;
-        /*padding-top: 20px;*/
-        .result {
-          cursor: pointer;
-          position: relative;
-          max-height: 200px;
-          overflow: hidden;
-          border-bottom: 1px solid #fff;
-          padding-bottom: 5px;
-          margin-bottom: 5px;
-          .creators {
-            overflow: hidden;
-            max-width: 95%;
-            span.ellipsis {
-              white-space: nowrap;
-              text-overflow: ellipsis;
-              max-width: 100%;
-              overflow: hidden;
-              display: inline-block;
-            }
-            .title {
-              flex: 1 1 50%;
-            }
-          }
-          .pdf {
-            position: relative;
-            max-width: 200px;
-            canvas {
-              width: 100% !important;
-              height: auto !important;
-            }
-          }
-        }
-      }
-
       .tagList {
         @media screen and (max-width: 768px) {
           width: auto;
@@ -471,6 +433,50 @@
 
         .view .row, .mid {
           height: auto;
+        }
+      }
+    }
+
+    .results {
+      position: relative;
+      overflow: hidden;
+      height: 0;
+      /*padding-top: 20px;*/
+      .result {
+        cursor: pointer;
+        position: relative;
+        max-height: 200px;
+        overflow: hidden;
+        border-bottom: 1px solid #fff;
+        padding-bottom: 5px;
+        margin-bottom: 5px;
+        .creators {
+          overflow: hidden;
+          max-width: 95%;
+          span.ellipsis {
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            max-width: 100%;
+            overflow: hidden;
+            display: inline-block;
+          }
+          .title {
+            flex: 1 1 50%;
+          }
+        }
+        .pdf {
+          position: relative;
+          max-width: 200px;
+          canvas {
+            width: 100% !important;
+            height: auto !important;
+          }
+        }
+
+        .profile-image {
+          width: 150px;
+          height: 150px;
+          background: $item-details-border;
         }
       }
     }

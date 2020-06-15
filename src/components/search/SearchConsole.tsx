@@ -519,7 +519,7 @@ class SearchConsole extends React.Component<Props, State> {
                 }
             </Row>
 
-            <Row className="focus pt-1" style={{ height: isOpen ? 'auto' : 0 }}>
+            <Row className="focus pt-1" style={{ height: isOpen ? 'auto' : 0, opacity: isOpen ? 1 : 0 }}>
               <Col xs="12" sm="auto">Focus: </Col>
               <Col xs sm="auto" className="pr-0">
                 <FormGroup check inline>
@@ -552,7 +552,7 @@ class SearchConsole extends React.Component<Props, State> {
                       <TBALink to={viewProfileURL(t.id || "")}>
                         <Row className="result" key={i}>
                           <Col xs={'auto'}>
-                            <div style={{ background: "#787878", width: '150px', height: '150px' }}>
+                            <div className='profile-image'>
                               <img src={profile.profile_image || ''} alt="" />
                             </div>
                           </Col>

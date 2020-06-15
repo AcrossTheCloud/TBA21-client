@@ -36,7 +36,7 @@ import Contributors from './fields/Contributors';
 import { AuthContext } from '../../providers/AuthProvider';
 
 import { modalToggle } from '../../actions/pages/privacyPolicy';
-import { getProfileDetails } from '../../actions/user/profile';
+import { getCurrentUserProfile } from '../../actions/user/profile';
 import { Profile } from '../../types/Profile';
 
 import 'styles/components/metadata/editors.scss';
@@ -61,7 +61,7 @@ interface Props extends RouteComponentProps {
 
   // From Redux
   modalToggle: Function;
-  getProfileDetails: Function;
+  getCurrentUserProfile: Function;
   profileDetails: Profile;
 }
 
@@ -270,7 +270,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
         }
       });
       // Refresh the Profile Details.
-      this.props.getProfileDetails(this.props.profileDetails.cognito_uuid);
+      this.props.getCurrentUserProfile(this.props.profileDetails.cognito_uuid);
     }
 
     this.setState(
@@ -1531,7 +1531,10 @@ class CollectionEditorClass extends React.Component<Props, State> {
                       <Label for="contributors">Contributor(s)</Label>
                       { !this.state.userUUID ? <><br/>Loading..</> :
                         <>
-                          <Contributors callback={e => this.validateLength('contributors', e)} defaultValues={this.state.originalCollection.contributors ? this.state.originalCollection.contributors : ( this.state.userUUID && !this.props.editMode ? [this.state.userUUID] : [] )} />
+                          <Contributors
+                            callback={e => this.validateLength('contributors', e)}
+                            defaultValues={this.state.originalCollection.contributors ? this.state.originalCollection.contributors : (this.state.userUUID && !this.props.editMode ? [this.state.userUUID] : [])}
+                          />
                           <FormFeedback style={{ display: !contributors || !contributors.length ? 'block' : 'none' }}>A collection needs a contributor, select yourself or another user.</FormFeedback>
                         </>
                       }
@@ -1790,6 +1793,6 @@ const mapStateToProps = (state: { profile: { details: Profile} }) => ({
   profileDetails: state.profile.details,
 });
 
-export const CollectionEditor = withRouter(connect(mapStateToProps, { modalToggle, getProfileDetails })(CollectionEditorClass));
+export const CollectionEditor = withRouter(connect(mapStateToProps, { modalToggle, getCurrentUserProfile })(CollectionEditorClass));
 
-export const CollectionEditorWithCollapse = withRouter(connect(mapStateToProps, { modalToggle, getProfileDetails })(withCollapse(CollectionEditorClass)) as React.ComponentType<any>); // tslint:disable-line no-any
+export const CollectionEditorWithCollapse = withRouter(connect(mapStateToProps, { modalToggle, getCurrentUserProfile })(withCollapse(CollectionEditorClass)) as React.ComponentType<any>); // tslint:disable-line no-any

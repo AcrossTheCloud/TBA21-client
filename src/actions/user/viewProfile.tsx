@@ -2,9 +2,20 @@ import { API } from 'aws-amplify';
 import {
   FETCH_PROFILE,
   FETCH_PROFILE_ERROR,
-  FETCH_PROFILE_ERROR_NO_SUCH_PROFILE
+  FETCH_PROFILE_ERROR_NO_SUCH_PROFILE,
+  FETCH_PROFILE_ITEMS_AND_COLLECTIONS_LOADING,
+  FETCH_PROFILE_ITEMS_AND_COLLECTIONS_SUCCEED,
+  FETCH_PROFILE_ITEMS_AND_COLLECTIONS_ERROR,
+  profileItemAndCollectionsFetchLimit,
 } from '../../reducers/user/viewProfile';
 import { LOADINGOVERLAY } from '../loadingOverlay';
+import { getItems } from '../../REST/items';
+import { removeTopology } from '../../components/utils/removeTopology';
+import { Item } from 'types/Item';
+import { getCollections } from 'REST/collections';
+import { getItemsAndCollectionsForCollection } from 'components/utils/DetailPreview';
+import { Collection } from 'types/Collection';
+import addFilesToData from 'REST/utils/addFilesToData';
 /**
  *
  * API call to fetch profile information based on the profileID and dispatch it through to Redux
@@ -19,9 +30,9 @@ export const fetchProfile = (profileId: string) => async (dispatch, getState) =>
   // We do this here to stop another API call and you can easily get the prevState in the Action.
   if (prevState.viewItem.profile && profileId === prevState.viewItem.profile.profileId) {
     dispatch({ type: LOADINGOVERLAY, on: false }); // Turn off the loading overlay
-    return prevState.viewItem;
-  } else {
+    dispatch(fetchProfileItemsAndCollections())
 
+  } else {
     try {
       const response = await API.get('tba21', 'profiles', {
         queryStringParameters: {
@@ -48,6 +59,68 @@ export const fetchProfile = (profileId: string) => async (dispatch, getState) =>
        });
     } finally {
       dispatch({ type: LOADINGOVERLAY, on: false }); // Turn off the loading overlay
+      dispatch(fetchProfileItemsAndCollections())
+
     }
   }
 };
+
+export const fetchProfileItemsAndCollections = () => async (dispatch, getState) => {
+  const state = getState().viewProfile
+
+  if ((!state.itemsHasMore && !state.collectionsHasMore) || !state.profile?.cognito_uuid || state.isItemsAndCollectionsLoading) {
+    return
+  }
+
+  dispatch({ type: FETCH_PROFILE_ITEMS_AND_COLLECTIONS_LOADING })
+  let uuid = state.profile.cognito_uuid
+  let limit = profileItemAndCollectionsFetchLimit
+  const itemQueries = {
+    uuid,
+    limit,
+    offset: state.items.length,
+  }
+
+  const collectionQueries = {
+    uuid,
+    limit,
+    offset: state.collections.length,
+  }
+
+  try {
+    let promises: Promise<any>[] = []
+
+    if (state.itemsHasMore) {
+      promises.push(getItems(itemQueries))
+    } else {
+      promises.push(Promise.resolve({}))
+    }
+
+    if (state.collectionsHasMore) {
+      promises.push(getCollections(collectionQueries))
+    } else {
+      promises.push(Promise.resolve({}))
+    }
+
+    let [items, collections] = await Promise.all(promises)
+
+    items = removeTopology(items, "item") as Item[]
+    collections = removeTopology(collections, "collection") as Collection[]
+    collections = await getItemsAndCollectionsForCollection(collections)
+
+    let [itemsWithFile, collectionsWithFile] = await Promise.all([
+      addFilesToData(items),
+      addFilesToData(collections as Collection[])
+    ])
+
+    dispatch({
+      type: FETCH_PROFILE_ITEMS_AND_COLLECTIONS_SUCCEED,
+      items: itemsWithFile,
+      collections: collectionsWithFile
+    })
+  } catch {
+    dispatch({
+      type: FETCH_PROFILE_ITEMS_AND_COLLECTIONS_ERROR,
+    })
+  }
+}

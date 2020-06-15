@@ -2,6 +2,7 @@ import { Regions } from './Item';
 import { License } from './License';
 import { APITag } from 'components/metadata/Tags';
 import { S3File } from './s3File';
+import ItemOrCollectionContributor from './ItemOrCollectionContributor';
 
 export enum collectionTypes {
   Series = 'Series',
@@ -32,7 +33,7 @@ export interface Collection {
   year_produced?: string | null;
 
   status?: boolean | null;
-  
+
   oa_highlight?: boolean | null;
   oa_original?: boolean | null;
   tba21_material?: boolean | null;
@@ -49,6 +50,7 @@ export interface Collection {
 
   creators?: string[] | null;
   contributors?: string[] | null;
+  displayed_contributors?: ItemOrCollectionContributor[];
 
   directors?: string[] | null;
   writers?: string | null;

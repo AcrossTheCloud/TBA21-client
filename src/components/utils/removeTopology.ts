@@ -2,6 +2,9 @@ import { Item } from '../../types/Item';
 import { Collection } from '../../types/Collection';
 
 export function removeTopology(data: any, type?: 'item' | 'collection'): Item[] | Collection[] { // tslint:disable-line: no-any
+  if (!data?.objects?.output?.geometries) {
+    return []
+  }
   const geometries = data.objects.output.geometries;
   const response: Item[] | Collection[] = geometries.map( e => e.properties );
 

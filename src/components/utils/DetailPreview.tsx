@@ -20,6 +20,7 @@ import {ReactComponent as CollectionIcon} from '../../images/svgs/collection.svg
 
 import { getCollectionsInCollection, getItemsInCollection } from '../../REST/collections';
 import { removeTopology } from './removeTopology';
+import { ReactComponent as DownloadIcon } from 'images/svgs/download.svg';
 
 export type ItemOrHomePageData = Item | HomepageData;
 
@@ -120,6 +121,7 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
     collectionType = data.type;
   }
 
+
   const date = dateFromTimeYearProduced(data.time_produced, data.year_produced, data.end_year_produced);
 
   return (
@@ -182,6 +184,12 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
           </div>
           :
           date && !props.firstItem ? <div className="date">{date}</div> : <></>
+        }
+        {
+          !collectionType && data.file && data.file.type === FileTypes.Pdf &&
+            <div className="middle">
+              <DownloadIcon />
+            </div>
         }
         {!collectionType && data.file && data.file.type === FileTypes.Video ?
           <div className="middle">

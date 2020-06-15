@@ -18,7 +18,6 @@ import { browser } from './utils/browser';
 import HomepageVideo from './layout/HomepageVideo';
 
 import 'styles/components/home.scss';
-import { clear as clearHistory } from '../actions/user-history';
 import { UserHistoryState } from '../reducers/user-history';
 
 interface Props extends HomePageState {
@@ -33,7 +32,6 @@ interface Props extends HomePageState {
   liveStreamHasOpened: boolean; // from redux
   collectionModalIsOpen: boolean;
   itemModalIsOpen: boolean;
-  clearHistory: Function;
   userHistory: UserHistoryState;
 }
 
@@ -84,11 +82,6 @@ class HomePage extends React.Component<Props, State> {
   }
 
   async componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>): Promise<void> {
-    if (this.props.userHistory && this.props.userHistory.entities && this.props.userHistory.entities.length) {
-      if (!this.props.itemModalIsOpen && !this.props.collectionModalIsOpen) {
-        this.props.clearHistory();
-      }
-    }
 
     if (this.props.loadedCount < 0 && this.props.loadedMore && !this.props.logoLoaded) {
       this.props.logoDispatch(true);
@@ -338,4 +331,4 @@ const mapStateToProps = (state: { home: Props, liveStreamModal: { hasOpened: boo
   loaded_highlights: state.home.loaded_highlights
 });
 
-export default connect(mapStateToProps, { logoDispatch, liveStreamDispatch, loadHomepage, loadMore, openModal, searchOpenToggle, clearHistory })(withCookies(HomePage));
+export default connect(mapStateToProps, { logoDispatch, liveStreamDispatch, loadHomepage, loadMore, openModal, searchOpenToggle })(withCookies(HomePage));

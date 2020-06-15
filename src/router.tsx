@@ -43,7 +43,7 @@ import SearchConsole from './components/search/SearchConsole';
 import { NotFound404Message } from './components/utils/alerts';
 import Announcements from './components/admin/pages/announcements/Announcements';
 import { AnnouncementEditor } from './components/metadata/AnnouncementEditor';
-// import ViewProfile from './components/user/profile/ViewProfile';
+import ViewProfile from './components/user/profile/ViewProfile';
 import ViewCollection from './components/collection/ViewCollection';
 import LoadingOverlay from './components/LoadingOverlay';
 import PrivacyPolicyPopUp from './components/PrivacyPolicyPopUp';
@@ -55,6 +55,7 @@ import ItemModal from './components/modals/ItemModal';
 import CollectionModal from './components/modals/CollectionModal';
 import LiveStreamModal from './components/modals/LiveStreamModal';
 import About from './components/pages/About';
+import { viewProfileURL } from './urls';
 
 const LoggedInRoutes = ({ isAuthenticated, ...rest }) => {
   const isLoggedIn = isAuthenticated;
@@ -105,7 +106,7 @@ export const AppRouter = () => {
             <Route
               path="/"
               render={({location}) => (
-                !location.pathname.startsWith('/embed/') ? 
+                !location.pathname.startsWith('/embed/') ?
                 (<>
                   <Header />
                   <SearchConsole />
@@ -149,15 +150,7 @@ export const AppRouter = () => {
                   </div>
                 )}
               />
-              {/*<Route*/}
-              {/*  path="/profiles/:profileId"*/}
-              {/*  render={() => (*/}
-              {/*    <div className="container-fluid main blue">*/}
-              {/*      <ViewProfile />*/}
-              {/*      <Footer />*/}
-              {/*    </div>)*/}
-              {/*  }*/}
-              {/*/>*/}
+              <Route path={viewProfileURL(":profileId")} component={ViewProfile}/>
               <Route exact path="/map" component={MapView} />
 
               <Route exact path="/login" component={Login} />
