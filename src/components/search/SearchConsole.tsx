@@ -37,6 +37,8 @@ import { toggle as itemModalToggle } from 'actions/modals/itemModal';
 
 import 'styles/components/search/searchConsole.scss';
 import 'styles/components/admin/tables/modal.scss';
+import { TBALink } from 'components/TBALink';
+import { viewProfileURL } from '../../urls';
 
 interface Props extends SearchConsoleState {
   changeView: Function;
@@ -152,7 +154,7 @@ class SearchConsole extends React.Component<Props, State> {
     this._isMounted = true;
     this.props.getConceptTags();
     const searchConsoleBody = document.getElementById('searchConsole');
-    
+
     if (searchConsoleBody) {
       searchConsoleBody.addEventListener('scroll',  this.scrollDebounce, true);
       window.onscroll = () => {
@@ -327,7 +329,7 @@ class SearchConsole extends React.Component<Props, State> {
 
     if (actionMeta.action === 'remove-value' || actionMeta.action === 'select-option' || actionMeta.action === 'create-option') {
       if(tagsList) {
-        this.setState({searchMenuOpen: false, searched: true}); 
+        this.setState({searchMenuOpen: false, searched: true});
         this.props.dispatchSearch(tagsList, this.state.focus_arts, this.state.focus_action, this.state.focus_scitech);
       } else if(!tagsList){
         this.setState({searchMenuOpen: false, searched: false, focus_arts: false, focus_scitech: false, focus_action: false});
@@ -353,7 +355,7 @@ class SearchConsole extends React.Component<Props, State> {
         createCriteriaOption(tag.tag_name, 'concept_tag')
         ];
         this.props.dispatchSearch(tagList, this.state.focus_arts, this.state.focus_action, this.state.focus_scitech);
-      }  
+      }
 
       this.tagClickedTimeout = setTimeout(this.searchDispatch, 2000);
     }
@@ -381,6 +383,7 @@ class SearchConsole extends React.Component<Props, State> {
   openResult = (entity: Item | Collection | Profile) => {
     let metaType: 'Item' | 'Collection' | 'Profile'  = 'Item';
     if (entity.hasOwnProperty('full_name')) { // profile
+
       this.props.fetchProfile(entity.id);
       metaType = 'Profile';
     } else if (entity.hasOwnProperty('collection')) {
@@ -401,7 +404,7 @@ class SearchConsole extends React.Component<Props, State> {
     const scitechTag = {field: "title", value:" ",label: "Focus: Sci Tech",originalValue: " "};
     const actionTag = {field: "title", value:" ",label: "Focus: Action",originalValue: " "};
     let focusTags = {};
-    setTimeout(async () => {  
+    setTimeout(async () => {
       let focusValue = (this.state.focus_arts ? 1 : 0) + (this.state.focus_action ? 2 : 0) + (this.state.focus_scitech ? 4 : 0);
       this.setState({focusValue: focusValue});
       if (this.state.searched){
@@ -410,7 +413,7 @@ class SearchConsole extends React.Component<Props, State> {
         if (this.state.focusValue === 0) {
           focusTags = [];
         } else if (this.state.focusValue === 1) {
-          focusTags = [artsTag];            
+          focusTags = [artsTag];
         } else if (this.state.focusValue === 2) {
           focusTags = [actionTag];
         } else if (this.state.focusValue === 3) {
@@ -426,9 +429,9 @@ class SearchConsole extends React.Component<Props, State> {
         }
         this.props.dispatchSearch( focusTags, this.state.focus_arts, this.state.focus_action, this.state.focus_scitech);
       }
-    }, 10)  
+    }, 10)
   }
-    
+
 
   render() {
     const
@@ -557,7 +560,8 @@ class SearchConsole extends React.Component<Props, State> {
                   if (t.hasOwnProperty('full_name')) {
                     const profile = t as Profile;
                     return (
-                      <Row className="result" key={i} onClick={() => this.openResult(t)}>
+                      <TBALink to={viewProfileURL('43')}>
+                        <Row className="result" key={i}>
                         {profile.profile_image ?
                           <Col xs="4">
                             <img src={profile.profile_image} alt=""/>
@@ -567,6 +571,7 @@ class SearchConsole extends React.Component<Props, State> {
                           {profile.full_name}
                         </Col>
                       </Row>
+                      </TBALink>
                     );
                   } else {
                     const itemOrCollection = t as Item | Collection;
@@ -621,7 +626,7 @@ class SearchConsole extends React.Component<Props, State> {
           </Container>
           <div className="searchPadding"></div>
         </div>
-        
+
       </div>
       </div>
     );
