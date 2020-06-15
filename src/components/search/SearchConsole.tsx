@@ -549,7 +549,7 @@ class SearchConsole extends React.Component<Props, State> {
                   if (t.hasOwnProperty('full_name')) {
                     const profile = t as Profile;
                     return (
-                      <TBALink to={viewProfileURL(t.id || "")}>
+                      <TBALink to={viewProfileURL(profile.id || "")}>
                         <Row className="result" key={i}>
                           <Col xs={'auto'}>
                             <div className='profile-image'>
