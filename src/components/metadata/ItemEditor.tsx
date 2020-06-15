@@ -2411,6 +2411,7 @@ class ItemEditorClass extends React.Component<Props, State> {
                       <div className="input-group input-group-lg">
                       <textarea
                         className="form-control input-lg raw-HTML-editor"
+                        autoComplete="false"
                         value={this.state.rtDescription.toString('html')}
                         onChange={(e) => {
                           this.setState({rtDescription : this.state.rtDescription.setContentFromString(e.target.value, 'html')});
