@@ -129,7 +129,6 @@ export const dispatchLoadMore = (id: string, offset: number = 0) => async dispat
       if (data) {
         dispatch({type: FETCH_COLLECTION_LOAD_MORE, datum: data});
       } else {
-        console.info('dispatchLoadMore', 'FETCH_COLLECTION_NO_MORE_TO_LOAD');
         dispatch({type: FETCH_COLLECTION_NO_MORE_TO_LOAD});
       }
     });

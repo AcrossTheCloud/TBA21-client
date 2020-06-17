@@ -26,6 +26,8 @@ import HtmlDescription from '../utils/HtmlDescription';
 import _ from 'lodash';
 import generateFocusGradient from '../utils/gradientGenerator';
 import DataLayout from 'components/utils/DataLayout';
+import TBALink from 'components/TBALink';
+import { viewProfileURL } from '../../urls';
 
 type MatchParams = {
   id: string;
@@ -194,7 +196,10 @@ class ViewCollection extends React.Component<Props, State> {
   }
 
   async createHistoryEntity(): Promise<Collection> {
-    return {...this.props.collection, __typename: 'collection'}
+    return {
+      ...this.props.collection,
+      __typename: 'collection'
+    }
   }
 
   loadData = async () => {
@@ -281,7 +286,6 @@ class ViewCollection extends React.Component<Props, State> {
     if (typeof this.state.collection === 'undefined') {
       return <ErrorMessage message={this.props.errorMessage} />;
     }
-
     const {
       id,
       creators,
@@ -300,8 +304,14 @@ class ViewCollection extends React.Component<Props, State> {
       exhibited_at,
       url,
       regions,
-      copyright_holder
+      copyright_holder,
+      displayed_contributors
     } = this.state.collection;
+
+    const filteredDisplayedContributors = displayed_contributors
+    ? displayed_contributors
+      .filter(contributor => contributor.name)
+    : []
 
     const CollectionDetails = (props: { label: string, value: string | JSX.Element }): JSX.Element => (
       <Row className="border-bottom subline details">
@@ -410,6 +420,25 @@ class ViewCollection extends React.Component<Props, State> {
           <Col xs="12" md="4" className="right">
             {!!title ?
                 <CollectionDetails label="Title" value={title} /> : <></>
+            }
+            {displayed_contributors && displayed_contributors.length &&
+              <CollectionDetails
+                label={`Contributor${filteredDisplayedContributors.length > 1 ? 's' : ''}`}
+                value={
+                  <>
+                    {filteredDisplayedContributors
+                      .map((contributor, idx) =>
+                        <>
+                          {contributor.isProfilePublic
+                            ? <TBALink to={viewProfileURL(contributor.id)}> {contributor.name}
+                            </TBALink>
+                            : <p>{contributor.name}</p>}
+                          {idx < (filteredDisplayedContributors.length - 1) && <span>, </span>}
+                        </>
+                      )}
+                  </>
+                }
+              />
             }
             {!!creators ?
                 <CollectionDetails label="Creators" value={creators.join(', ')} /> : <></>

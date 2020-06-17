@@ -3,6 +3,7 @@ import { S3File } from './s3File';
 import { Languages } from './Languages';
 import { APITag } from '../components/metadata/Tags';
 import { Collection } from './Collection';
+import ItemOrCollectionContributor from './ItemOrCollectionContributor';
 
 export enum Regions {
   ATLANTIC = 'Atlantic Ocean',
@@ -369,7 +370,8 @@ export interface Item {
   item_subtype: itemAudio | itemImage | itemText | itemVideo | null;
   creators: string[] | null;
 
-  contributor: string | null;
+  contributor?: string | null;
+  displayed_contributor: ItemOrCollectionContributor;
   directors: string[] | null;
 
   writers: string[] | null;

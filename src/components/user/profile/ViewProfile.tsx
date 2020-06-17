@@ -17,6 +17,8 @@ import { toggle as collectionModalToggle } from 'actions/modals/collectionModal'
 import { Collection } from 'types/Collection';
 import { debounce } from 'lodash';
 import DataLayout from 'components/utils/DataLayout';
+import Share from '../../utils/Share';
+import { viewProfileURL } from '../../../urls';
 
 interface Props extends RouteComponentProps, Alerts {
   fetchProfile: Function;
@@ -114,8 +116,14 @@ class ViewProfile extends React.Component<Props, State> {
                     : <div className="profile-image"></div>
                 }
               </Col>
-              <Col xs="12" md="auto" className="profile-description">
-                <h1>{full_name}</h1>
+              <Col xs="12" md={true} className="profile-description">
+                <div className="flex items-center justify-between">
+                  <h1>{full_name}</h1>
+                  <h3>
+                  {/* strip beggining "/" on viewProfileURL */}
+                  <Share suffix={viewProfileURL(this.props.profile.id).slice(1)}/>
+                  </h3>
+                </div>
                 <div>
                   <p>{field_expertise}</p>
                   <p className="profile-type">{profile_type}</p>
