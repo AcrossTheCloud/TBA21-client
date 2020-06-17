@@ -47,7 +47,7 @@ export default (state: State = initialState, action) => {
   switch (action.type) {
     case FETCH_PROFILE:
       return {
-        ...state,
+        ...initialState,
         profile: action.profile,
         profileId: action.profileId,
         errorMessage: undefined

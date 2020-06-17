@@ -36,24 +36,11 @@ class ViewProfile extends React.Component<Props, State> {
 
   constructor(props: any) { // tslint:disable-line: no-any
     super(props);
-
-    // Get our profileId passed through from URL props
-    if (props.location && props.location.pathname) {
-      this.matchedId = props.location.pathname.replace('/profiles/', '');
-    }
-
     this.handleInfiniteScroll = debounce(this.handleInfiniteScroll, 200)
   }
 
-
   componentDidMount() {
-    // If we have an id from the URL pass it through, otherwise use the one from Redux State
-    if (this.matchedId) {
-      this.props.fetchProfile(this.matchedId);
-    } else {
-      this.setState({ errorMessage: 'No profile with that id.' });
-    }
-    document.addEventListener('scroll', this.handleInfiniteScroll)
+    this.initializeProfileData()
   }
 
   componentDidUpdate(prevProps) {
@@ -61,10 +48,24 @@ class ViewProfile extends React.Component<Props, State> {
       document.removeEventListener('scroll', this.handleInfiniteScroll)
     }
 
+    if (prevProps.location.pathname !== this.props.location.pathname) {
+      this.initializeProfileData()
+    }
   }
 
   componentWillUnmount() {
     document.removeEventListener('scroll', this.handleInfiniteScroll)
+  }
+
+  initializeProfileData = () => {
+    // If we have an id from the URL pass it through, otherwise use the one from Redux State
+    const matchedId = this.props.location.pathname.replace('/profiles/', '');
+    if (matchedId) {
+      this.props.fetchProfile(matchedId);
+      document.addEventListener('scroll', this.handleInfiniteScroll)
+    } else {
+      this.setState({ errorMessage: 'No profile with that id.' });
+    }
   }
 
   handleInfiniteScroll = () => {
