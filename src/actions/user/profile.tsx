@@ -115,27 +115,31 @@ export const changePassword = (oldPassword: string, newPassword: string) => asyn
    }
 };
 
-export const getProfileDetails = (uuid: string) => async dispatch => {
+export const getCurrentUserProfile = (profileId) => async dispatch => {
   try {
     dispatch({
-       type: OVERLAY,
-       overlay: true
-     });
-    const results = await API.get('tba21', 'profiles', { queryStringParameters: { uuid } });
+      type: OVERLAY,
+      overlay: true
+    })
+    const result = await API.get('tba21', 'currentUserProfile', {})
 
     let profileImage: string | undefined = undefined;
-    if (results.profile[0].profile_image) {
-      profileImage = await checkProfileImageExists(results.profile[0].profile_image);
-    }
+      if (result.profile.profile_image) {
+        profileImage = await checkProfileImageExists(result.profile.profile_image);
+      }
 
     dispatch({
       type: PROFILE_GET_DETAILS,
-      details: {...results.profile[0], profile_image: profileImage}
-    });
+      details: {...result.profile, profile_image: profileImage}
+    })
   } catch (e) {
-    return;
+    console.log(e.message)
+    dispatch({
+      type: PROFILE_ERROR,
+      message: e.message
+    })
   }
-};
+}
 
 export const checkProfileImageExists = async (imageURL: string): Promise<string | undefined> => {
   if (imageURL) {

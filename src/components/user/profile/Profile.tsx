@@ -19,7 +19,7 @@ import { validateURL } from '../../utils/inputs/url';
 import DeleteAccount from 'components/utils/user/DeleteAccount';
 import ChangePassword from 'components/utils/user/ChangePassword';
 import { AuthContext } from '../../../providers/AuthProvider';
-import { deleteAccount, dispatchError, updateAttributes, changePassword, getProfileDetails, overlayToggle } from 'actions/user/profile';
+import { deleteAccount, dispatchError, updateAttributes, changePassword, getCurrentUserProfile, overlayToggle } from 'actions/user/profile';
 import { Alerts, ErrorMessage, SuccessMessage } from '../../utils/alerts';
 import Select from 'react-select';
 import CreatableSelect from 'react-select/creatable';
@@ -42,7 +42,7 @@ interface Props extends RouteComponentProps, ProfileState {
   dispatchError: Function;
   updateAttributes: Function;
   changePassword: Function;
-  getProfileDetails: Function;
+  getCurrentUserProfile: Function;
   overlayToggle: Function;
 }
 
@@ -94,7 +94,7 @@ class Profile extends React.Component<Props, State> {
   getUserCredentials = async (): Promise<void> => {
     const context: React.ContextType<typeof AuthContext> = this.context;
     if (!this.props.details) {
-      await this.props.getProfileDetails(context.uuid);
+      await this.props.getCurrentUserProfile(context.uuid);
     }
 
     if (this._isMounted) {
@@ -212,7 +212,7 @@ class Profile extends React.Component<Props, State> {
           callback={ async (openState, updated) => {
             if (this._isMounted) {
               if (updated) {
-                await this.props.getProfileDetails(context.uuid);
+                await this.props.getCurrentUserProfile(context.uuid);
               }
               this.setState({ cropperModalOpen: openState });
             }
@@ -417,7 +417,7 @@ const mapDispatchToProps = {
   dispatchError,
   updateAttributes,
   changePassword,
-  getProfileDetails,
+  getCurrentUserProfile,
   overlayToggle
 };
 

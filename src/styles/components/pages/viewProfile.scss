@@ -1,38 +1,118 @@
-@import '../../base/variables';
+@import '../../base/variables.scss';
 
-#profile {
-  color: $soft-gray;
-  min-height: 100vh;
-  background-color: $dark-blue;
+#viewProfile {
+
+  .row {
+    width: 100%;
+    margin: 0;
+  }
+
+  .sticky {
+    position: sticky;
+    top: 20px;
+  }
+
+  .select {
+    color: $dark-gray
+  }
 
   h1 {
     font-size: 40px;
   }
 
+  .profile-info-container {
+    background: $dark-blue;
+  }
+
   .left {
-    img {
-      max-width: 37%;
-      z-index: 1;
+    padding: 0;
+    padding-bottom: 4rem;
+    color: white;
+
+    .profile-section {
+      margin: 0;
+      padding-top: 2rem;
+
+      .profile-image {
+        width: 150px;
+        height: 150px;
+        background: $item-details-border;
+      }
+
+    }
+
+    .profile-description {
+      display: flex;
+      justify-content: space-between;
+      flex-direction: column;
+
+      p {
+        font-size: 14px;
+        margin-bottom: 0;
+      }
+
+      .profile-type {
+        color: $subline-gray;
+      }
     }
   }
 
   .right {
-    padding: 15px 15px 0;
-    max-width: 40%;
-
+    padding: 0;
+    @media screen and (min-width: 768px) {
+      max-width: 40%;
+    }
+    @media screen and (min-width: 768px) {
+      border: .5px solid $item-details-border;
+    }
+    border-bottom: 0;
+    margin-left: auto;
+    font-size: 14px;
     .detailsRow {
-      margin-right: -150px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
       .details {
-        border-color: .5px $subline-gray !important;
+        color: $subline-gray;
+        border-bottom: .5px solid $item-details-border;
         padding: 15px;
-        &:first-child {
-          padding-top: 15px;
+        display: flex;
+        justify-content: space-between;
+
+        .details-label {
+          padding-right: 1rem;
         }
-        &:last-child {
-          padding-bottom: 15px;
-        }
+      }
+
+      .gradient-line {
+        background: linear-gradient(to right, #0076FF 0%, #9013FE 20%, #50E3C2 50%);
+        height: 8px;
       }
     }
 
+  }
+
+  .author-items {
+    min-height: 300px;
+    padding: 2rem 0;
+  }
+
+  .author-loading {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 8rem;
+  }
+
+  .author-all-fetched {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    height: 8rem;
   }
 }

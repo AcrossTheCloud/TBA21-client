@@ -40,7 +40,6 @@ class CollectionModal extends React.Component<Props, State> {
 
   componentDidMount(): void {
     this._isMounted = true;
-
     this.setState({ open: this.props.open });
 
     if (this.props.data && typeof this.props.fetchCollection === 'function') {

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { FaCircle, FaPlay } from 'react-icons/all';
+import { FaCircle, FaPlay, FaFile } from 'react-icons/all';
 import moment from 'moment';
 
 import { FileTypes, S3File } from '../../types/s3File';
@@ -120,6 +120,7 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
     collectionType = data.type;
   }
 
+
   const date = dateFromTimeYearProduced(data.time_produced, data.year_produced, data.end_year_produced);
 
   return (
@@ -182,6 +183,12 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
           </div>
           :
           date && !props.firstItem ? <div className="date">{date}</div> : <></>
+        }
+        {
+          !collectionType && data.file && data.file.type === FileTypes.Pdf &&
+            <div className="middle">
+              <FaFile />
+            </div>
         }
         {!collectionType && data.file && data.file.type === FileTypes.Video ?
           <div className="middle">

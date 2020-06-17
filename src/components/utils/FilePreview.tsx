@@ -5,6 +5,7 @@ import * as React from 'react';
 import { thumbnailsSRCSET } from './s3File';
 
 import textImage from 'images/defaults/Unscharfe_Zeitung.jpg';
+import PdfPreview from './PdfPreview';
 
 let imageHeaderStyle = {
   maxHeight: '35vh'
@@ -44,9 +45,11 @@ export const FilePreview = (props: { file: S3File, isHeader?: boolean }): JSX.El
       );
     case FileTypes.Pdf:
       return (
-        <div className="w-100 pdf">
-          <iframe title={props.file.url} className="w-100 h-100" src={props.file.url} frameBorder={0} />
-        </div>
+        <a href={props.file.url} target="_blank" rel="noopener noreferrer" className="hrefBlock">
+          <div className="relative pdf">
+            <PdfPreview url={props.file.url} onLoad={() => { }} />
+          </div>
+        </a>
       );
 
     case FileTypes.Text:

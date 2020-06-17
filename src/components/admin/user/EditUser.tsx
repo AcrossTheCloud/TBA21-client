@@ -345,7 +345,6 @@ export default class EditUser extends React.Component<{}, State> {
       ).promise();
 
       this.setState({
-        isOpen: false,
         ...initialState // Wipe the state
       });
     } catch (e) {

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import 'styles/components/specialMenu.scss';
 
 import {ReactComponent as CollectionIcon} from '../../images/svgs/collection.svg';
+import { itemURL } from 'urls';
 
 interface Props {
   id?: string;
@@ -55,7 +56,7 @@ export default class SpecialMenu extends Component<Props,{}> {
     if (this.toDisplay()) {
     return (
       <div className="col-12 list" id="specialMenu">
-        {window.location.pathname.match(/collection\/51/) ? 
+        {window.location.pathname.match(/collection\/51/) ?
           (<div className="current" id={`specialmenu${this.props.id}`}>
              <CollectionIcon /> Sensing the Oceans: Anthropogenic Drivers</div>)
           :
@@ -64,20 +65,20 @@ export default class SpecialMenu extends Component<Props,{}> {
             <div className="related">
             <a className="collection_link" href={`/collection/51`} target="_self" rel="51" id="51">
             <CollectionIcon /> Sensing the Oceans: Anthropogenic Drivers</a>
-          </div> 
+          </div>
           )
         }
         <hr />
-        {this.mappings_ids_inOrder.map((id)=> 
-          id === window.location.pathname.split('/')[-1] ? <div className="current" id={`specialmenu${id}`}>{this.mappings[id].title}</div> : 
+        {this.mappings_ids_inOrder.map((id)=>
+          id === window.location.pathname.split('/')[-1] ? <div className="current" id={`specialmenu${id}`}>{this.mappings[id].title}</div> :
           <div className="related">
-            <a className="collection_link" href={`/view/${id}`} target="_self" rel={id} id={id}>
+            <a className="collection_link" href={itemURL(id)} target="_self" rel={id} id={id}>
             {this.mappings[id].title}</a>
-          </div> 
+          </div>
       )}
       </div>)
     } else {
       return (<></>)
     }
-  }   
+  }
 }

@@ -1,6 +1,10 @@
-@import "../../../base/variables.scss";
+@import '../../../base/variables';
 
 #profile {
+  color: white;
+  min-height: 100vh;
+  background-color: $dark-blue;
+
   .sticky {
     position: sticky;
     top: 20px;
@@ -10,4 +14,14 @@
     color: $dark-gray
   }
 
+  h1 {
+    font-size: 40px;
+  }
+
+  .left {
+    img {
+      max-width: 37%;
+      z-index: 1;
+    }
+  }
 }
