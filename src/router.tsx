@@ -55,7 +55,7 @@ import ItemModal from './components/modals/ItemModal';
 import CollectionModal from './components/modals/CollectionModal';
 import LiveStreamModal from './components/modals/LiveStreamModal';
 import About from './components/pages/About';
-import { viewProfileURL } from './urls';
+import { viewProfileURL, itemURL, collectionURL } from './urls';
 
 const LoggedInRoutes = ({ isAuthenticated, ...rest }) => {
   const isLoggedIn = isAuthenticated;
@@ -127,7 +127,7 @@ export const AppRouter = () => {
             <Switch>
               <Route exact path="/" component={Home} />
               <Route
-                path="/view/:id"
+                path={itemURL(':id')}
                 render={() => (
                   <div className="main pb blue">
                     <ViewItem />
@@ -143,7 +143,7 @@ export const AppRouter = () => {
                 )}
               />
               <Route
-                path="/collection/:id"
+                path={collectionURL(':id')}
                 render={() => (
                   <div className="main pb blue">
                     <ViewCollection />
