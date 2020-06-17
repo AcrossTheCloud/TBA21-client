@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { FaCircle, FaPlay } from 'react-icons/all';
+import { FaCircle, FaPlay, FaFile } from 'react-icons/all';
 import moment from 'moment';
 
 import { FileTypes, S3File } from '../../types/s3File';
@@ -20,7 +20,6 @@ import {ReactComponent as CollectionIcon} from '../../images/svgs/collection.svg
 
 import { getCollectionsInCollection, getItemsInCollection } from '../../REST/collections';
 import { removeTopology } from './removeTopology';
-import { ReactComponent as DownloadIcon } from 'images/svgs/download.svg';
 
 export type ItemOrHomePageData = Item | HomepageData;
 
@@ -188,7 +187,7 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
         {
           !collectionType && data.file && data.file.type === FileTypes.Pdf &&
             <div className="middle">
-              <DownloadIcon />
+              <FaFile />
             </div>
         }
         {!collectionType && data.file && data.file.type === FileTypes.Video ?

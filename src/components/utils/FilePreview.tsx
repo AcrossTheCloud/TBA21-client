@@ -6,7 +6,6 @@ import { thumbnailsSRCSET } from './s3File';
 
 import textImage from 'images/defaults/Unscharfe_Zeitung.jpg';
 import PdfPreview from './PdfPreview';
-import { ReactComponent as DownloadIcon } from 'images/svgs/download.svg';
 
 let imageHeaderStyle = {
   maxHeight: '35vh'
@@ -49,10 +48,6 @@ export const FilePreview = (props: { file: S3File, isHeader?: boolean }): JSX.El
         <a href={props.file.url} target="_blank" rel="noopener noreferrer" className="hrefBlock">
           <div className="relative pdf">
             <PdfPreview url={props.file.url} onLoad={() => { }} />
-            <div className="overlay" />
-            <div className="absolute absolute-center">
-              <DownloadIcon />
-            </div>
           </div>
         </a>
       );
