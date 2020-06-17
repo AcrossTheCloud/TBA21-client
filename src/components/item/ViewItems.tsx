@@ -13,6 +13,7 @@ import { getCDNObject } from '../utils/s3File';
 import { FileTypes, S3File } from '../../types/s3File';
 
 import 'styles/components/ViewItems.scss';
+import { itemURL } from 'urls';
 
 interface Props extends Alerts {
   fetchItems: Function;
@@ -60,8 +61,7 @@ const MasonryItem = ( props: { item: Item } ): JSX.Element => {
       {item.file ? <FilePreview id={item.s3_key} file={item.file} /> : <></>}
       <CardBody>
         <Link
-          // to={`/view/${props.items.s3_key.split('/').slice(2).join('/')}`} // remove /private/UUID
-          to={`/view/${item.s3_key}`}
+          to={itemURL(item.s3_key)}
           className="item"
         >
           <CardTitle>{item.title}</CardTitle>

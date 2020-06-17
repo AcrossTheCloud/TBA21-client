@@ -2,11 +2,8 @@ import { API } from 'aws-amplify';
 import { HomepageData } from '../reducers/home';
 import { FileTypes } from '../types/s3File';
 import { itemType } from '../types/Item';
-import { COLLECTION_MODAL_TOGGLE } from './modals/collectionModal';
-import { ITEM_MODAL_TOGGLE } from './modals/itemModal';
 import { LIVESTREAM_MODAL_TOGGLE } from './modals/liveStreamModal';
 import * as React from 'react';
-import ReactGA from 'react-ga';
 import {
   DetailPreview,
   getItemsAndCollectionsForCollection
@@ -284,19 +281,9 @@ const waitForLoad = (loadedCount: number) => dispatch => {
 export const openModal = (data: HomepageData) => dispatch => {
   if (data.hasOwnProperty('count') || data.hasOwnProperty('items') || data.hasOwnProperty('type')) {
     // We have a collection.
-    ReactGA.modalview('/collection/'+data.id);
-    dispatch({
-     type: COLLECTION_MODAL_TOGGLE,
-     open: true,
-     data
-   });
+    dispatch(collectionModalToggle(true, data))
   } else {
-    ReactGA.modalview('/view/'+data.id);
-    dispatch({
-       type: ITEM_MODAL_TOGGLE,
-       open: true,
-       data
-     });
+    dispatch(itemModalToggle(true, data))
   }
 };
 
