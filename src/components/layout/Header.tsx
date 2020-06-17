@@ -273,7 +273,7 @@ class HeaderClass extends React.Component<Props, State> { // tslint:disable-line
           return (
             <div id="navigation">
               <Navbar dark expand="md">
-                <NavbarBrand href="/" className="mr-auto home">
+                <NavbarBrand tag={ReactLink} to={'/'} className="mr-auto home">
                   <svg width="25px" height="23px" viewBox="0 0 295 233" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
                     <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                       <g id="OA_symbol" fill="#7E7E7E" fill-rule="nonzero">
