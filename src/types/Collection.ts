@@ -2,7 +2,6 @@ import { Regions } from './Item';
 import { License } from './License';
 import { APITag } from 'components/metadata/Tags';
 import { S3File } from './s3File';
-import ItemOrCollectionContributor from './ItemOrCollectionContributor';
 
 export enum collectionTypes {
   Series = 'Series',
