@@ -146,8 +146,7 @@ class ViewItem extends React.Component<Props, State> {
       medium,
       item_type,
       directors,
-      collaborators,
-      displayed_contributor
+      collaborators
     } = this.props.item;
 
     if (item_type===itemType.IFrame && url && title) {
@@ -243,13 +242,6 @@ class ViewItem extends React.Component<Props, State> {
           </Col>
           <Col xs="12" md="4" className="right">
             {!!journal ? <ItemDetails label="Publisher" value={journal} /> : <></>}
-            {displayed_contributor && displayed_contributor.name &&
-              <ItemDetails label="Contributor" value={
-                displayed_contributor.isProfilePublic
-                      ? <TBALink to={viewProfileURL(displayed_contributor.id)}>{displayed_contributor.name}</TBALink>
-                      : <p>{displayed_contributor.name}</p>
-              } />
-            }
             {!!time_produced ?
               <ItemDetails label="Date Produced" value={moment(time_produced).format('Do MMMM YYYY')} />
               : year_produced ? <ItemDetails label="Year Produced" value={year_produced} /> : <></>

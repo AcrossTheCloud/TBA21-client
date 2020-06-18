@@ -50,7 +50,6 @@ export interface Collection {
 
   creators?: string[] | null;
   contributors?: string[] | null;
-  displayed_contributors?: ItemOrCollectionContributor[];
 
   directors?: string[] | null;
   writers?: string | null;

@@ -304,14 +304,8 @@ class ViewCollection extends React.Component<Props, State> {
       exhibited_at,
       url,
       regions,
-      copyright_holder,
-      displayed_contributors
+      copyright_holder
     } = this.state.collection;
-
-    const filteredDisplayedContributors = displayed_contributors
-    ? displayed_contributors
-      .filter(contributor => contributor.name)
-    : []
 
     const CollectionDetails = (props: { label: string, value: string | JSX.Element }): JSX.Element => (
       <Row className="border-bottom subline details">
@@ -420,25 +414,6 @@ class ViewCollection extends React.Component<Props, State> {
           <Col xs="12" md="4" className="right">
             {!!title ?
                 <CollectionDetails label="Title" value={title} /> : <></>
-            }
-            {displayed_contributors && displayed_contributors.length &&
-              <CollectionDetails
-                label={`Contributor${filteredDisplayedContributors.length > 1 ? 's' : ''}`}
-                value={
-                  <>
-                    {filteredDisplayedContributors
-                      .map((contributor, idx) =>
-                        <>
-                          {contributor.isProfilePublic
-                            ? <TBALink to={viewProfileURL(contributor.id)}> {contributor.name}
-                            </TBALink>
-                            : <p>{contributor.name}</p>}
-                          {idx < (filteredDisplayedContributors.length - 1) && <span>, </span>}
-                        </>
-                      )}
-                  </>
-                }
-              />
             }
             {!!creators ?
                 <CollectionDetails label="Creators" value={creators.join(', ')} /> : <></>
