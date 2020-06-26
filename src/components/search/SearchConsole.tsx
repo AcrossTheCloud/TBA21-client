@@ -506,18 +506,6 @@ class SearchConsole extends React.Component<Props, State> {
               </div>
             </Row>
 
-            <Row style={{ height: isOpen ? 'auto' : 0 }}>
-                {
-                  isOpen && !!this.props.concept_tags &&
-                    <Col>
-                    <div className="tagList">
-                      {this.props.concept_tags
-                        .filter(a => !find(this.props.selectedCriteria, {'originalValue': a.tag_name}))
-                        .map((t: APITag, i) => <div className="tagWrapper"><Button className="page-link tag" key={i} onClick={() => this.onTagClick(t)}>#{t.tag_name}</Button></div>)}
-                    </div>
-                    </Col>
-                }
-            </Row>
 
             <Row className="focus pt-1" style={{ height: isOpen ? 'auto' : 0, opacity: isOpen ? 1 : 0 }}>
               <Col xs="12" sm="auto">Focus: </Col>
@@ -543,6 +531,20 @@ class SearchConsole extends React.Component<Props, State> {
                 </FormGroup>
               </Col>
             </Row>
+
+            <Row style={{ height: isOpen ? 'auto' : 0 }}>
+                {
+                  isOpen && !!this.props.concept_tags &&
+                    <Col>
+                    <div className="tagList">
+                      {this.props.concept_tags
+                        .filter(a => !find(this.props.selectedCriteria, {'originalValue': a.tag_name}))
+                        .map((t: APITag, i) => <div className="tagWrapper"><Button className="page-link tag" key={i} onClick={() => this.onTagClick(t)}>#{t.tag_name}</Button></div>)}
+                    </div>
+                    </Col>
+                }
+            </Row>
+
             <div className="results">
               {
                 (loadedResults && loadedResults.length) ? loadedResults.map((t, i) => {
