@@ -447,7 +447,7 @@ class ViewCollection extends React.Component<Props, State> {
                       aggregated_concept_tags.map(t => {
                         return (
                             <Button
-                                className="page-link tag d-inline-block"
+                                className="page-link tag d-inline-block text-left"
                                 style={{padding: 0, marginBottom: 10, background: 'none'}}
                                 key={t.tag_name}
                                 onClick={() => this.onTagClick(t.tag_name, 'concept_tag')}
@@ -472,7 +472,7 @@ class ViewCollection extends React.Component<Props, State> {
                       aggregated_keyword_tags.map(t => {
                         return (
                             <Button
-                                className="ml-1 tag d-inline-block"
+                                className="ml-1 tag d-inline-block text-left"
                                 style={{padding: 0, paddingRight: 15, paddingLeft: 0, margin: 0, background: 'none'}}
                                 key={t.tag_name}
                                 onClick={() => this.onTagClick(t.tag_name, 'keyword_tag')}
