@@ -377,6 +377,7 @@
       }
 
       .tagList {
+        padding-bottom: 10px !important;
         @media screen and (max-width: 768px) {
           width: auto;
           height: 45px;
