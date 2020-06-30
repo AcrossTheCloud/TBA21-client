@@ -288,7 +288,18 @@
 
     // Focus checkboxes
     .focus {
+      height: 0;
       font-size: 90%;
+      padding-top: 0px !important;
+      @media screen and (max-width: 768px){
+          font-size: 85%;
+
+      }
+    }
+
+    .focus-open {
+      font-size: 90%;
+      height: auto;
       padding-top: 9px !important;
       @media screen and (max-width: 768px){
           font-size: 85%;

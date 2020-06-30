@@ -431,6 +431,7 @@ class SearchConsole extends React.Component<Props, State> {
       isOpen = open,
       isOpenClass = isOpen ? 'open' : '',
       hoveredClass = hover ? 'hover' : '';
+      console.log("isOpen", isOpen);
 
     return (
       <div>
@@ -507,7 +508,7 @@ class SearchConsole extends React.Component<Props, State> {
             </Row>
 
 
-            <Row className="focus pt-1" style={{ height: isOpen ? 'auto' : 0, opacity: isOpen ? 1 : 0 }}>
+            <Row className={isOpen ? "focus-open pt-1" : "focus pt-1"}>
               <Col xs="12" sm="auto">Focus: </Col>
               <Col xs sm="auto" className="pr-0">
                 <FormGroup check inline>
