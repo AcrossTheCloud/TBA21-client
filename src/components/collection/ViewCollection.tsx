@@ -417,7 +417,7 @@ class ViewCollection extends React.Component<Props, State> {
                 <CollectionDetails label="Creators" value={creators.join(', ')} /> : <></>
             }
             {!!time_produced ?
-              <CollectionDetails label="Date Produced" value={moment(time_produced).format('Do MMMM YYYY')} />
+              <CollectionDetails label="Date Produced" value={moment(time_produced, moment.defaultFormatUtc).format('Do MMMM YYYY')} />
               : year_produced ? <CollectionDetails label="Year Produced" value={year_produced} /> : <></>
             }
             {!!venues && venues.length ?
