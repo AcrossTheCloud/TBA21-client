@@ -169,6 +169,8 @@ class ViewItem extends React.Component<Props, State> {
       return (<></>);
     }
 
+    console.log(time_produced);
+
     return (
       <div id="item" className="container-fluid">
         <ErrorMessage message={this.props.errorMessage} />
@@ -241,8 +243,8 @@ class ViewItem extends React.Component<Props, State> {
           <Col xs="12" md="4" className="right">
             {!!journal ? <ItemDetails label="Publisher" value={journal} /> : <></>}
             {!!time_produced ?
-              <ItemDetails label="Date Produced" value={moment(time_produced).format('Do MMMM YYYY')} />
-              : year_produced ? <ItemDetails label="Year Produced" value={year_produced} /> : <></>
+              <ItemDetails label="Date Produced" value={moment(time_produced, moment.defaultFormatUtc).format('Do MMMM YYYY')} />
+              : year_produced ? <ItemDetails label="Year Produced" value={dateFromTimeYearProduced(time_produced, year_produced, end_year_produced)} /> : <></>
             }
             {!!venues && venues.length ?
               <ItemDetails label={venues.length > 1 ? 'Publication Venue' : 'Publication Venues'} value={`${venues.join(', ')}`} />
