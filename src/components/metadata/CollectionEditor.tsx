@@ -46,7 +46,6 @@ import { adminGetItems, contributorGetByPerson } from '../../REST/items';
 import DraggableMap from '../admin/utils/DraggableMap';
 import { GeoJsonObject } from 'geojson';
 import { RouteComponentProps, withRouter } from 'react-router';
-import { ActionMeta } from 'react-select/src/types';
 import { Items } from './Items';
 import { withCollapse } from './withCollapse';
 import { OptionType } from '../../types/SelectTypes';
