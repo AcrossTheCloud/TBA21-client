@@ -46,7 +46,6 @@ import { adminGetItems, contributorGetByPerson } from '../../REST/items';
 import DraggableMap from '../admin/utils/DraggableMap';
 import { GeoJsonObject } from 'geojson';
 import { RouteComponentProps, withRouter } from 'react-router';
-import { ActionMeta } from 'react-select/src/types';
 import { Items } from './Items';
 import { withCollapse } from './withCollapse';
 import { OptionType } from '../../types/SelectTypes';
@@ -1728,7 +1727,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
                       isClearable
                       loadOptions={v => this.queryMetaDataObjects(v, 'collection')}
                       placeholder="Start typing the collection title then select..."
-                      onChange={(v, m: ActionMeta) => this.addMetaObjects(v, m, 'collection')}
+                      onChange={(v, m) => this.addMetaObjects(v, m, 'collection')}
                       onInputChange={v => { if (this._isMounted) { this.setState({ selectCollectionQuery: v }); } }}
                       inputValue={this.state.selectCollectionQuery}
                       value={[this.state.selectCollectionQuery]}
