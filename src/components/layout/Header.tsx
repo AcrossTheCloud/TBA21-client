@@ -331,7 +331,7 @@ class HeaderClass extends React.Component<Props, State> { // tslint:disable-line
                       :
                     
                       <NavItem>
-                        <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/login">Log-in / Sign-up</NavLink>
+                        <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/login">Login / Sign-up</NavLink>
                       </NavItem>
                       
                     }
