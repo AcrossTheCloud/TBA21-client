@@ -290,6 +290,9 @@ class HeaderClass extends React.Component<Props, State> { // tslint:disable-line
                     <NavItem>
                       <Button size="sm" className="nav-link btn" onClick={() => this.props.aboutModalToggle(true)}>About</Button>
                     </NavItem>
+                    <NavItem>
+                      <a className="nav-link" href="https://community.ocean-archive.org/" target="_blank" rel="noopener noreferrer">Community</a>
+                    </NavItem>
                      <NavItem>
                       <Button size="sm" className="nav-link btn" onClick={() => { this.mailChimpModalToggle() }}>Subscribe</Button>
                     </NavItem>
