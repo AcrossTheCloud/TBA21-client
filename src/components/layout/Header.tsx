@@ -30,7 +30,6 @@ import jsonp from 'jsonp';
 
 import { AuthConsumer } from '../../providers/AuthProvider';
 import 'styles/layout/_navigation.scss';
-import history from '../../history';
 
 interface State extends Alerts {
   isOpen: boolean;
@@ -330,17 +329,11 @@ class HeaderClass extends React.Component<Props, State> { // tslint:disable-line
                         </NavItem>
                       </>
                       :
-                      history.location.pathname.match(/^\/$/i)
-                      ||
-                      history.location.pathname.match(/^\/view/i)
-                      ||
-                      history.location.pathname.match(/^\/collection/i)
-                      ||
-                      history.location.pathname.match(/^\/map$/i) ? <></> : (
-                        <NavItem>
-                          <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/login">Login</NavLink>
-                        </NavItem>
-                      )
+                    
+                      <NavItem>
+                        <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/login">Log-in / Sign-up</NavLink>
+                      </NavItem>
+                      
                     }
                   </Nav>
                 </Collapse>
