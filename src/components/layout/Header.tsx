@@ -30,7 +30,6 @@ import jsonp from 'jsonp';
 
 import { AuthConsumer } from '../../providers/AuthProvider';
 import 'styles/layout/_navigation.scss';
-import history from '../../history';
 
 interface State extends Alerts {
   isOpen: boolean;
@@ -290,6 +289,9 @@ class HeaderClass extends React.Component<Props, State> { // tslint:disable-line
                     <NavItem>
                       <Button size="sm" className="nav-link btn" onClick={() => this.props.aboutModalToggle(true)}>About</Button>
                     </NavItem>
+                    <NavItem>
+                      <a className="nav-link" href="https://community.ocean-archive.org/" target="_blank" rel="noopener noreferrer">Community</a>
+                    </NavItem>
                      <NavItem>
                       <Button size="sm" className="nav-link btn" onClick={() => { this.mailChimpModalToggle() }}>Subscribe</Button>
                     </NavItem>
@@ -327,17 +329,11 @@ class HeaderClass extends React.Component<Props, State> { // tslint:disable-line
                         </NavItem>
                       </>
                       :
-                      history.location.pathname.match(/^\/$/i)
-                      ||
-                      history.location.pathname.match(/^\/view/i)
-                      ||
-                      history.location.pathname.match(/^\/collection/i)
-                      ||
-                      history.location.pathname.match(/^\/map$/i) ? <></> : (
-                        <NavItem>
-                          <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/login">Login</NavLink>
-                        </NavItem>
-                      )
+                    
+                      <NavItem>
+                        <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/login">Login / Sign-up</NavLink>
+                      </NavItem>
+                      
                     }
                   </Nav>
                 </Collapse>
