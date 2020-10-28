@@ -13,22 +13,13 @@ interface Props {
 
 const urls = [
   {
-    "video": "https://video-streaming.ocean-archive.org/loading_video2.mp4",
-    "thumbnail": "https://video-streaming.ocean-archive.org/loading_video2_first_frame.jpg"
-  },
-  {
-    "video": "https://video-streaming.ocean-archive.org/loading_video3.mp4",
-    "thumbnail": "https://video-streaming.ocean-archive.org/loading_video3_first_frame.jpg"
-  },
-  {
-    "thumbnail": "https://video-streaming.ocean-archive.org/loading_image_4.jpg",
-    "video": "https://video-streaming.ocean-archive.org/loading_video4.mp4",
-    "portrait": "https://video-streaming.ocean-archive.org/loading_image_4_portrait.jpg",
+    "video": "https://video-streaming.ocean-archive.org/LandingPage_OU.mp4",
+    "thumbnail": "https://video-streaming.ocean-archive.org/LandingPage_OU_thumb.jpg",
     "nologo": true
   },
   {
-    "thumbnail": "https://video-streaming.ocean-archive.org/loading_image_5.jpg",
-    "portrait": "https://video-streaming.ocean-archive.org/loading_image_5_portrait.jpg",
+    "video": "https://video-streaming.ocean-archive.org/NEW_LandingPage_HR.mp4",
+    "thumbnail": "https://video-streaming.ocean-archive.org/NEW_LandingPage_HR_thumb.jpg",
     "nologo": true
   }
 ];
@@ -48,7 +39,7 @@ export default class HomepageVideo extends Component<Props, State> {
 
     this.state = {
       finallyLoaded: false,
-      elem: sample(urls.slice(2,4))
+      elem: sample(urls)
     };
   }
 
