@@ -14,11 +14,13 @@ interface Props {
 const urls = [
   {
     "video": "https://video-streaming.ocean-archive.org/LandingPage_OU.mp4",
-    "thumbnail": "https://video-streaming.ocean-archive.org/LandingPage_OU_thumb.jpg"
+    "thumbnail": "https://video-streaming.ocean-archive.org/LandingPage_OU_thumb.jpg",
+    "nologo": true
   },
   {
     "video": "https://video-streaming.ocean-archive.org/NEW_LandingPage_HR.mp4",
-    "thumbnail": "https://video-streaming.ocean-archive.org/NEW_LandingPage_HR_thumb.jpg"
+    "thumbnail": "https://video-streaming.ocean-archive.org/NEW_LandingPage_HR_thumb.jpg",
+    "nologo": true
   }
 ];
 
