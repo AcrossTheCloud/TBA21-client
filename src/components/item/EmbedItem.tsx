@@ -83,10 +83,10 @@ class EmbedItem extends React.Component<Props, State> {
         <ErrorMessage message={this.props.errorMessage} />
         <Row>
           <Col md="12">
+            <img src={logo} id="embed_logo" alt="Ocean Archive logo"></img>
             <span id="embed_title">{creators ? creators.join(', ') : <></>} – {title}
             </span>
-            <img src={logo} id="embed_logo" alt="Ocean Archive logo"></img>
-            <a id="open_link" href={'https://ocean-archive.org/view/'+id} target="_blank" rel="noreferrer noopener"><FaShareSquare size={14}/></a>
+            <a id="open_link" href={'https://ocean-archive.org/view/'+id} target="_blank" rel="noreferrer noopener"><FaShareSquare size={22}/></a>
           </Col>
         </Row>
             
