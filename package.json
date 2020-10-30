@@ -22,7 +22,7 @@
     "lodash-es": "^4.17.15",
     "moment": "2.29.1",
     "moment-duration-format": "^2.3.2",
-    "node-sass": "^4.14.1",
+    "node-sass": "npm:sass@^1.28.0",
     "popper.js": "^1.16.1",
     "react": "^16.14.0",
     "react-bootstrap-table-next": "^4.0.3",
