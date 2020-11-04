@@ -250,7 +250,7 @@ class Profile extends React.Component<Props, State> {
                       checked={!!public_profile ? public_profile : false}
                       onChange={e => this.fieldChanged(e.target.checked, 'public_profile')}
                     />
-                    <small>By enabling this you accept that all your information will be viewable by the general public.</small>
+                    <small>Untick this option if you do not wish your profile to be viewable by the general public. Your uploaded content will still be visible to everyone.</small>
                   </InputGroup>
                 </FormGroup>
 

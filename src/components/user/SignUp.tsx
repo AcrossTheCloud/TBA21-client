@@ -200,7 +200,9 @@ export class SignUp extends React.Component<{}, State> {
               <ErrorMessage message={this.state.errorMessage} />
               <WarningMessage message={this.state.warningMessage} />
               {this.state.hasMessage ? <WarningMessage message="Please enter your details as we were unable to retrieve them from Facebook." /> : <></>}
-
+              <div> Note that your profile is public to start with but this can be changed on the 
+                profile page available through the profile menu option after signing up and logging in.
+              </div>
               <Form onSubmit={this.handleSubmit} className="fullscreen-lines">
                 <FormGroup>
                   <Input
