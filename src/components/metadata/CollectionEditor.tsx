@@ -1494,7 +1494,8 @@ class CollectionEditorClass extends React.Component<Props, State> {
                         onChange={e => this.changeCollection('subtitle', e.target.value)}
                       />
                     </FormGroup>
-                    <div>
+                    {this.props.isAdmin? 
+                    <><div>
                       <InputGroup>
                         <CustomInput type="switch" id={`${this.state.collection.id}_oa_highlight`} name="OA_highlight" label="OA Highlight" checked={!!this.state.collection.oa_highlight || false} onChange={e => this.changeCollection('oa_highlight', e.target.checked)} />
                       </InputGroup>
@@ -1504,7 +1505,9 @@ class CollectionEditorClass extends React.Component<Props, State> {
                       <InputGroup>
                         <CustomInput type="switch" id={`${this.state.collection.id}_tba21_material`} name="TBA21_material" label="TBA21 Material" checked={!!this.state.collection.tba21_material || false} onChange={e => this.changeCollection('tba21_material', e.target.checked)} />
                       </InputGroup>
-                    </div>
+                    </div></> : <></>
+                    }
+
                     <FormGroup>
                       <Label for="description">Description</Label>
                       <RichTextEditor
