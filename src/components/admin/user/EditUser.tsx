@@ -261,6 +261,7 @@ export default class EditUser extends React.Component<{}, State> {
               UserPoolId: this.userPoolId
             }
           ).promise();
+          window.open(`mailto:${this.state.userEmail}?subject=Ocean%20Archive%20group%20membership%20change&body=This%20email%20is%20to%20inform%20you%20that%20you%20have%20been%20added%20to%20the%20${groupName}%20group%20on%20the%20ocean%20archive`);
 
         } catch (e) {
           this.setState({
