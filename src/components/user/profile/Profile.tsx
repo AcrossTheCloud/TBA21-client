@@ -253,8 +253,6 @@ class Profile extends React.Component<Props, State> {
                     <small>Untick this option if you do not wish your profile to be viewable by the general public. If you are a contributor, your uploaded content will still be visible to everyone.</small>
                   </InputGroup>
                 </FormGroup>
-
-                <Button>Save</Button>
               </div>
             </Col>
             <Col xs="12" md="8" className="pt-3">
@@ -383,7 +381,16 @@ class Profile extends React.Component<Props, State> {
         </Form>
 
         <ChangePassword changePassword={this.props.changePassword} />
-
+        <Row>
+          <Col>
+            <Button>Save</Button>
+          </Col>
+          <Col>
+            
+              <DeleteAccount deleteAccountAction={this.props.deleteAccount}/>
+            
+          </Col>
+        </Row>
         {context.email ?
           <>
             <h3>Communication Preferences</h3>
@@ -392,9 +399,7 @@ class Profile extends React.Component<Props, State> {
           : <></>
         }
 
-        <div className="pt-5">
-          <DeleteAccount deleteAccountAction={this.props.deleteAccount}/>
-        </div>
+
 
       </Container>
     );
