@@ -3,7 +3,8 @@ import {
   Col,
   Container, Form,
   FormGroup,
-  Input, Row
+  Input, Row,
+  CustomInput
 } from 'reactstrap';
 import { API, Auth } from 'aws-amplify';
 import { ISignUpResult } from 'amazon-cognito-identity-js';
@@ -21,6 +22,7 @@ interface State extends Alerts {
   isLoading: boolean;
   formValid: boolean;
   passwordValid: boolean;
+  public_profile: boolean;
 
   email: string;
   confirmationCode: string;
@@ -45,7 +47,7 @@ export class SignUp extends React.Component<{}, State> {
     this.state = {
       formValid: false,
       passwordValid: false,
-
+      public_profile: true,
       isLoading: false,
       fullName: '',
       email: '',
@@ -108,7 +110,8 @@ export class SignUp extends React.Component<{}, State> {
         body: {
           uuid: newUser.userSub,
           full_name: this.state.fullName,
-          profile_type: 'Individual'
+          profile_type: 'Individual',
+          public_profile: this.state.public_profile
         }
       });
 
@@ -200,9 +203,18 @@ export class SignUp extends React.Component<{}, State> {
               <ErrorMessage message={this.state.errorMessage} />
               <WarningMessage message={this.state.warningMessage} />
               {this.state.hasMessage ? <WarningMessage message="Please enter your details as we were unable to retrieve them from Facebook." /> : <></>}
-
               <Form onSubmit={this.handleSubmit} className="fullscreen-lines">
                 <FormGroup>
+                <CustomInput
+                      type="switch"
+                      id="public"
+                      name="public"
+                      label="Make my profile public."
+                      checked={this.state.public_profile}
+                      onChange={e => this.setState({ public_profile: e.target.value.toLowerCase()==="true" }, () => this.isFormValid())}
+                    />
+                    <small>Untick this option if you do not wish your profile to be viewable by the general public. This option can be changed later after logging in through the Profile menu item.</small>
+
                   <Input
                     autoFocus
                     type="text"

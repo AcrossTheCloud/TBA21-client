@@ -320,6 +320,9 @@ class HeaderClass extends React.Component<Props, State> { // tslint:disable-line
                     {isAuthenticated ?
                       <>
                         <NavItem>
+                          <a className="nav-link" href="mailto:matthew@tba21-academy?cc=acquisitions@ocean-archive.org&subject=Ocean%20Archive%20support%20request&body=Please%20provide%20as%20many%20details%20as%20possible">Help</a>
+                        </NavItem>
+                        <NavItem>
                             <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/Profile">Profile</NavLink>
                         </NavItem>
                         <NavItem>
