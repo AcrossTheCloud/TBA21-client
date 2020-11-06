@@ -236,7 +236,7 @@ class Profile extends React.Component<Props, State> {
                 <div className="profileImage" onClick={() => {if (this._isMounted) { this.setState({ cropperModalOpen: true }); } }}>
                   {profile_image ?
                     <img src={profile_image} alt="" />
-                    : <>Click here to upload a profile image.</>
+                    : <Row className="upload"><Col>Click here to upload a profile image.</Col></Row>
                   }
                 </div>
 
