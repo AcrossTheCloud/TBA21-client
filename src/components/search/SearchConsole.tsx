@@ -346,7 +346,7 @@ class SearchConsole extends React.Component<Props, State> {
       if (!this.state.searched) {
         this.setState({searched: true})
         const tagList = [createCriteriaOption(tag.tag_name, 'concept_tag')];
-        console.log(tagList);
+        //console.log(tagList);
         this.props.dispatchSearch(tagList, this.state.focus_arts, this.state.focus_action, this.state.focus_scitech);
       }else {
         this.setState({searched: true})
@@ -431,7 +431,7 @@ class SearchConsole extends React.Component<Props, State> {
       isOpen = open,
       isOpenClass = isOpen ? 'open' : '',
       hoveredClass = hover ? 'hover' : '';
-      console.log("isOpen", isOpen);
+      //console.log("isOpen", isOpen);
 
     return (
       <div>
