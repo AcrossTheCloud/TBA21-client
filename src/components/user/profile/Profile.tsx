@@ -7,7 +7,7 @@ import {
   Container,
   CustomInput,
   Form, FormFeedback,
-  FormGroup, FormText,
+  FormGroup,
   Input,
   InputGroup,
   Label,
@@ -163,7 +163,7 @@ class Profile extends React.Component<Props, State> {
   fieldChanged = (value: string | string[] | boolean, field: string) => {
     const state = {};
     if (
-      (((typeof value === 'string' || Array.isArray(value)) && value.length) || typeof value === 'boolean'
+      ((typeof value === 'string' && value.length) || Array.isArray(value) || typeof value === 'boolean'
       ) && this._isMounted) {
       Object.assign(state, { [field]: value });
     }
@@ -171,11 +171,29 @@ class Profile extends React.Component<Props, State> {
     this.setState(state);
   }
 
-  onChangeSocialMedia = (newValue: any, actionMeta: any) => { // tslint:disable-line: no-any
+  onChangeSocialMedia = (newValue: any, actionMeta: any) => {
     this.fieldChanged(
-      newValue.length ? newValue.filter(n => validateURL(n.value)).map(e => e.value) : [],
+      (newValue && newValue.length > 0) ? newValue.filter(n => {
+        let value = n.value;
+        if (!(value.startsWith("http://") || value.startsWith("https://"))) {
+          value = "https://"+value;
+        }
+        if (!validateURL(value)) {
+          alert('please enter a valid web address');
+          return false;
+        } else {
+          return true;
+        }
+      }).map(e => {
+        let value=e.value;
+        if (!(value.startsWith("http://") || value.startsWith("https://"))) {
+          value = "https://"+value;
+        }
+        return value;
+      }) : [],
       'social_media'
     );
+    console.log(this.state.social_media);
   }
 
   render() {
@@ -314,10 +332,14 @@ class Profile extends React.Component<Props, State> {
                   id="website"
                   placeholder="Website"
                   onChange={e => {
-                    const value = e.target.value;
+                    let value = e.target.value;
+                    if (!(value.startsWith("http://") || value.startsWith("https://"))) {
+                      value = "https://"+value;
+                    }
+                    console.log(value);
                     let valid = validateURL(value);
                     if (!value || (value && !value.length)) { valid = true; } // set valid to true for no content
-                    if (valid) { this.fieldChanged(e.target.value, 'website'); } // if valid set the data in changedItem
+                    if (valid) { this.fieldChanged(value, 'website'); } // if valid set the data in changedItem
                     if (this._isMounted) {
                       this.setState({ websiteValid: valid });
                     }
@@ -326,7 +348,6 @@ class Profile extends React.Component<Props, State> {
                   defaultValue={website ? website : ''}
                 />
                 <FormFeedback>Not a valid URL</FormFeedback>
-                <FormText>Website URL must start with http:// or https://</FormText>
               </FormGroup>
 
               <FormGroup>
@@ -339,12 +360,11 @@ class Profile extends React.Component<Props, State> {
                   placeholder="Social Media"
                   onChange={this.onChangeSocialMedia}
                   value={
-                    !!social_media && social_media.length ?
-                      social_media.map(s => ({ value: s, label: s })) : null
+                    !!social_media && social_media.length > 0 ?
+                      social_media.map(s => ({ value: s, label: s })) : []
                   }
-                  formatCreateLabel={i => `Add new URL ${i}`}
+                  formatCreateLabel={i => `Add new social media profile URL ${i}`}
                 />
-                <FormText>All URL's must start with http:// or https://</FormText>
               </FormGroup>
 
               <FormGroup>
