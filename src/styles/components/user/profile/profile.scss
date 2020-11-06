@@ -24,4 +24,12 @@
       z-index: 1;
     }
   }
+
+  .upload {
+    background-color: $dark-gray;
+    cursor: pointer;
+    border-style: solid;
+    border-width: 1px;
+    border-color: $mid-gray;
+  }
 }

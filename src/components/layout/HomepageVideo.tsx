@@ -15,11 +15,15 @@ const urls = [
   {
     "video": "https://video-streaming.ocean-archive.org/LandingPage_OU.mp4",
     "thumbnail": "https://video-streaming.ocean-archive.org/LandingPage_OU_thumb.jpg",
+    "portrait_video": "https://video-streaming.ocean-archive.org/LandingMobile_OU_logos.mp4", 
+    "portrait_thumbnail": "https://video-streaming.ocean-archive.org/LandingMobile_OU_logos_thumb.jpg",
     "nologo": true
   },
   {
     "video": "https://video-streaming.ocean-archive.org/NEW_LandingPage_HR.mp4",
     "thumbnail": "https://video-streaming.ocean-archive.org/NEW_LandingPage_HR_thumb.jpg",
+    "portrait_video": "https://video-streaming.ocean-archive.org/LandingMobile_OiT_logos.mp4", 
+    "portrait_thumbnail": "https://video-streaming.ocean-archive.org/LandingMobile_OiT_logos_thumb.jpg",
     "nologo": true
   }
 ];
@@ -109,7 +113,7 @@ export default class HomepageVideo extends Component<Props, State> {
             </Col>
           </Row>
         </Container>
-        {!this.isPortrait() && (this.state.elem as any).video? 
+        {!this.isPortrait() ?
           (<video
             poster={(this.state.elem as any).thumbnail}
             onLoadedData={() => this.onVideoPlay()}
@@ -120,13 +124,19 @@ export default class HomepageVideo extends Component<Props, State> {
             playsInline
           >
             <source src={(this.state.elem as any).video} type="video/mp4"/>
-          </video>) : 
-          (<img 
-            className="img-only"
-            src={this.isPortrait() && (this.state.elem as any).portrait ? (this.state.elem as any).portrait : (this.state.elem as any).thumbnail} 
-            alt="page loading placeholder" 
-            onLoad={() => this.onVideoPlay()}
-          />)
+          </video>) : (
+          (<video
+            poster={(this.state.elem as any).portrait_thumbnail}
+            onLoadedData={() => this.onVideoPlay()}
+            muted
+            autoPlay
+            controls={false}
+            loop={(this.state.elem as any).loop && (this.state.elem as any).loop === 'false' ? false : true}
+            playsInline
+          >
+            <source src={(this.state.elem as any).portrait_video} type="video/mp4"/>
+          </video>)
+          )
         }
       </div>
     );
