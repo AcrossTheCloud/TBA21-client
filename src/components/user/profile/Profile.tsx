@@ -227,7 +227,7 @@ class Profile extends React.Component<Props, State> {
           </div>
           : <></>
         }
-        <Form onSubmit={(e) => { e.preventDefault(); this.submitForm(); }} autoComplete="off">
+        <Form id="user-details" onSubmit={(e) => { e.preventDefault(); this.submitForm(); }} autoComplete="off">
           <Row>
             <Col xs="12" md="4" className="pt-3">
               <div className="sticky">
@@ -253,6 +253,7 @@ class Profile extends React.Component<Props, State> {
                     <small>Untick this option if you do not wish your profile to be viewable by the general public. If you are a contributor, your uploaded content will still be visible to everyone.</small>
                   </InputGroup>
                 </FormGroup>
+                <Button form="user-details">Save</Button>
               </div>
             </Col>
             <Col xs="12" md="8" className="pt-3">
@@ -383,7 +384,7 @@ class Profile extends React.Component<Props, State> {
         <ChangePassword changePassword={this.props.changePassword} />
         <Row>
           <Col>
-            <Button>Save</Button>
+            <Button form="user-details">Save</Button>
           </Col>
           <Col>
             
