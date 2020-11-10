@@ -1494,7 +1494,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
                         onChange={e => this.changeCollection('subtitle', e.target.value)}
                       />
                     </FormGroup>
-                    {this.props.isAdmin? 
+                    {this.context.authorisation.hasOwnProperty('admin') ? 
                     <><div>
                       <InputGroup>
                         <CustomInput type="switch" id={`${this.state.collection.id}_oa_highlight`} name="OA_highlight" label="OA Highlight" checked={!!this.state.collection.oa_highlight || false} onChange={e => this.changeCollection('oa_highlight', e.target.checked)} />
