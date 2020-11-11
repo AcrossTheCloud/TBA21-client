@@ -261,7 +261,9 @@ export default class EditUser extends React.Component<{}, State> {
               UserPoolId: this.userPoolId
             }
           ).promise();
-          window.open(`mailto:${this.state.userEmail}?subject=Ocean%20Archive%20group%20membership%20change&body=Thank%20you%20for%20registering%20to%20the%20Ocean%20Archive%20Your%20Contributor%20status%20has%20now%20been%20approved!`);
+          if (groupName==='contributor') {
+            window.open(`mailto:${this.state.userEmail}?subject=Ocean%20Archive%20group%20membership%20change&body=Thank%20you%20for%20registering%20to%20the%20Ocean%20Archive.%20Your%20Contributor%20status%20has%20been%20approved!%0a%0aCheck%20out%20the%20How%20To:%20Tutorials%20to%20help%20you%20navigate%20and%20start%20uploading.%20https://ocean-archive.org/collection/190`);
+          }
         } catch (e) {
           this.setState({
             errorMessage: `We had trouble adding the group ${groupName} from the user. (${e.message})`,
