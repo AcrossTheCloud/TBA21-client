@@ -258,6 +258,13 @@ class CollectionEditorClass extends React.Component<Props, State> {
     this._isMounted = false;
   }
 
+  setDescriptionString = () => {
+    if (this.state.rtDescription) {
+      this.validateLength('description', this.state.rtDescription.toString('html'));
+      this.changeCollection('description', this.state.rtDescription.toString('html'));
+    }
+  }
+
   putCollection = async () =>  {
     if (!this._isMounted) { return; }
 
@@ -1513,8 +1520,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
                       <RichTextEditor
                         value={this.state.rtDescription}
                         onChange={(value) => {
-                          this.setState({rtDescription : value});
-                          this.changeCollection('description', value.toString('html'));
+                          this.setState({rtDescription : value}, this.setDescriptionString);
                         }}
                       />
                       <div className="input-group input-group-lg">
@@ -1523,8 +1529,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
                         autoComplete="false"
                         value={this.state.rtDescription.toString('html')}
                         onChange={(e) => {
-                          this.setState({rtDescription : this.state.rtDescription.setContentFromString(e.target.value, 'html')});
-                          this.changeCollection('description', e.target.value);
+                          this.setState({rtDescription : this.state.rtDescription.setContentFromString(e.target.value, 'html')}, this.setDescriptionString);
                         }}
                       />
                       </div>
