@@ -70,7 +70,7 @@ export default class Delete extends React.Component<Props, State> {
                     });
                 }
                 if (this.props.path === 'collections') {
-                    await adminDel(this.props.identifier);
+                    await adminDel(!this.props.isContributorPath, this.props.identifier);
                     await this.props.callback()
                 }
                 if (this.props.path === 'announcements') {

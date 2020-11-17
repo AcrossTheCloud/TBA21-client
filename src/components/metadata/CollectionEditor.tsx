@@ -1305,8 +1305,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
           queryStringParameters = (
             inputValue ? { inputQuery: inputValue, limit: 100 } : {}
           ),
-          isAdmin: boolean = this.isAdmin,
-          response = type === 'item' ? (!isAdmin ? await contributorGetByPerson(queryStringParameters) : await adminGetItems(queryStringParameters)) : await adminGet(isAdmin, queryStringParameters),
+          response = type === 'item' ? (!this.isAdmin ? await contributorGetByPerson(queryStringParameters) : await adminGetItems(queryStringParameters)) : await adminGet(this.isAdmin, queryStringParameters),
           data = removeTopology(response);
 
         if (data && data.length) {
@@ -1682,7 +1681,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
                 </Row>
 
               </TabPane>
-              <TabPane tabId="2">
+              <TabPane tabId="2" className="itemsTab">
                 <Row>
                   <h5>Add existing items</h5>
                   <Col xs="12">
