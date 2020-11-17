@@ -32,7 +32,6 @@ import YearSelect from './fields/YearSelect';
 import { validateURL } from '../utils/inputs/url';
 
 import CustomSelect from './fields/CustomSelect';
-import Contributors from './fields/Contributors';
 import { AuthContext } from '../../providers/AuthProvider';
 
 import { modalToggle } from '../../actions/pages/privacyPolicy';
@@ -180,7 +179,10 @@ class CollectionEditorClass extends React.Component<Props, State> {
 
     if (context && (context.uuid && context.uuid.length)) {
       if (!this._isMounted) { return; }
-      this.setState({ userUUID: context.uuid });
+      let collectionWithContributors = this.state.collection;
+      collectionWithContributors.contributors = [context.uuid];
+      this.state.collection.contributors = [context.uuid];
+      this.setState({ userUUID: context.uuid , collection: collectionWithContributors});
     }
 
     this.isAdmin = context.authorisation.hasOwnProperty('admin');
@@ -1384,8 +1386,6 @@ class CollectionEditorClass extends React.Component<Props, State> {
       aggregated_keyword_tags,
       aggregated_concept_tags,
 
-      contributors,
-
       type
 
     } = this.state.collection;
@@ -1529,19 +1529,6 @@ class CollectionEditorClass extends React.Component<Props, State> {
                       />
                       </div>
                       <FormFeedback>This is a required field</FormFeedback>
-                    </FormGroup>
-
-                    <FormGroup>
-                      <Label for="contributors">Contributor(s)</Label>
-                      { !this.state.userUUID ? <><br/>Loading..</> :
-                        <>
-                          <Contributors
-                            callback={e => this.validateLength('contributors', e)}
-                            defaultValues={this.state.originalCollection.contributors ? this.state.originalCollection.contributors : (this.state.userUUID && !this.props.editMode ? [this.state.userUUID] : [])}
-                          />
-                          <FormFeedback style={{ display: !contributors || !contributors.length ? 'block' : 'none' }}>A collection needs a contributor, select yourself or another user.</FormFeedback>
-                        </>
-                      }
                     </FormGroup>
 
                     <FormGroup>
