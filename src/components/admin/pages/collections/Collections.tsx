@@ -148,7 +148,7 @@ class Collections extends React.Component<RouteComponentProps, State> {
           order: order ? order : 'desc'
       };
 
-      const result = await adminGet(this.isContributorPath, queryStringParameters);
+      const result = await adminGet(this.isAdmin, queryStringParameters);
       const collections: Collection[] = removeTopology(result) as Collection[];
 
       return {

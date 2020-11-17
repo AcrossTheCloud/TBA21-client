@@ -24,11 +24,12 @@ export const getCollections = async (queryStringParameters: Object = {}) => {
 /*
  * ADMIN FUNCTIONS
  */
-export const adminGet = async (isContributorPath: boolean = true, queryStringParameters: Object = {}): Promise<TopoJSON> => {
-  const response = await API.get('tba21', `${ isContributorPath ? 'contributor/collections/get' :  'admin/collections/get' }`, { queryStringParameters: queryStringParameters });
+export const adminGet = async (isAdmin: boolean = true, queryStringParameters: Object = {}): Promise<TopoJSON> => {
+  console.log(isAdmin);
+  const response = await API.get('tba21', `${ !isAdmin ? 'contributor/collections/get' :  'admin/collections/get' }`, { queryStringParameters: queryStringParameters });
   return response.data;
 };
 
-export const adminDel = async (id: string) => {
-  return await API.del('tba21', 'admin/collections', { queryStringParameters: { id } });
+export const adminDel = async (isAdmin: boolean, id: string) => {
+  return await API.del('tba21', `${isAdmin? 'admin' : 'contributor'}/collections`, { queryStringParameters: { id } });
 };
