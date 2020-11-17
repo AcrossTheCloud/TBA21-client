@@ -359,7 +359,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
           Object.assign(collectionProperties, { [field[0]]: field[1] });
         });
 
-      const result = await API.put('tba21', `admin/collections/${editMode ? 'update' : 'create'}`, {
+      const result = await API.put('tba21', `${this.isAdmin? 'admin' : 'contributor'}/collections/${editMode ? 'update' : 'create'}`, {
         body: {
           ...collectionProperties
         }
@@ -1298,8 +1298,8 @@ class CollectionEditorClass extends React.Component<Props, State> {
           queryStringParameters = (
             inputValue ? { inputQuery: inputValue, limit: 100 } : {}
           ),
-          isAdmin: boolean = !this.isContributorPath && !this.isAdmin,
-          response = type === 'item' ? (isAdmin ? await contributorGetByPerson(queryStringParameters) : await adminGetItems(queryStringParameters)) : await adminGet(isAdmin, queryStringParameters),
+          isAdmin: boolean = this.isAdmin,
+          response = type === 'item' ? (!isAdmin ? await contributorGetByPerson(queryStringParameters) : await adminGetItems(queryStringParameters)) : await adminGet(isAdmin, queryStringParameters),
           data = removeTopology(response);
 
         if (data && data.length) {
