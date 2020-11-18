@@ -16,7 +16,7 @@ import { API } from 'aws-amplify';
 import Select from 'react-select';
 import AsyncSelect from 'react-select/async';
 import { isEqual, isArray } from 'lodash';
-import RichTextEditor, { EditorValue, createValueFromString, createEmptyValue } from 'react-rte';
+import RichTextEditor, { EditorValue, createValueFromString, createEmptyValue } from '@matthewberryman/react-rte';
 
 import Tags from './Tags';
 import {
@@ -253,8 +253,8 @@ class CollectionEditorClass extends React.Component<Props, State> {
     }
   }
 
-  async componentWillUnmount() {
-    await this.putCollection();
+  componentWillUnmount() {
+    this.putCollection();
     this._isMounted = false;
   }
 
