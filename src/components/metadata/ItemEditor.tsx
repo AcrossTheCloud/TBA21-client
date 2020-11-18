@@ -58,7 +58,7 @@ import { adminGetItem } from '../../REST/items';
 import { removeTopology } from '../utils/removeTopology';
 import DraggableMap from '../admin/utils/DraggableMap';
 import { GeoJsonObject } from 'geojson';
-import RichTextEditor, { EditorValue, createValueFromString, createEmptyValue } from 'react-rte';
+import RichTextEditor, { EditorValue, createValueFromString, createEmptyValue } from '@matthewberryman/react-rte';
 
 import * as moment from 'moment';
 import 'moment-duration-format';
