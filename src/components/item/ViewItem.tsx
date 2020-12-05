@@ -151,6 +151,7 @@ class ViewItem extends React.Component<Props, State> {
       return (
         <div id="item" className="container-fluid">
           <ErrorMessage message={this.props.errorMessage} />
+          {url.match(/freq_waveall/) ? 'Note that the loading button only turns into a play button after all audio files are downloaded. This mixer also requires a fair amount of memory to work.' : ''}
           <iframe title={title} src={url} className={url.match(/freq/) ? "freq_wave-iframe" : "special_item-iframe"}></iframe>
         </div>
       );
