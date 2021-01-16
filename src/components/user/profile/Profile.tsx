@@ -314,7 +314,7 @@ class Profile extends React.Component<Props, State> {
               </FormGroup>
 
               <FormGroup>
-                <Label for="biography">Biography</Label>
+                <Label for="biography">Biography (max 1024 characters)</Label>
                 <Input
                   type="textarea"
                   id="biography"

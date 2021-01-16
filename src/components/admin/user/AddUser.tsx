@@ -498,7 +498,7 @@ export class AddUser extends React.Component<{}, State> {
             </FormGroup>
 
             <FormGroup>
-              <Label for="biography">Biography</Label>
+              <Label for="biography">Biography (max 1024 characters)</Label>
               <Input
                 type="textarea"
                 id="biography"
