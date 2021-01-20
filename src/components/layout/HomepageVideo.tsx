@@ -13,17 +13,17 @@ interface Props {
 
 const urls = [
   {
-    "video": "https://video-streaming.ocean-archive.org/LandingPage_OU.mp4",
-    "thumbnail": "https://video-streaming.ocean-archive.org/LandingPage_OU_thumb.jpg",
-    "portrait_video": "https://video-streaming.ocean-archive.org/LandingMobile_OU_logos.mp4", 
-    "portrait_thumbnail": "https://video-streaming.ocean-archive.org/LandingMobile_OU_logos_thumb.jpg",
+    "video": "https://video-streaming.ocean-archive.org/LP_logo.mp4",
+    "thumbnail": "https://video-streaming.ocean-archive.org/LP_logo_thumb.jpg",
+    "portrait_video": "https://video-streaming.ocean-archive.org/LP_logo_mobile.mp4", 
+    "portrait_thumbnail": "https://video-streaming.ocean-archive.org/LP_logo_mobile_thumb.jpg",
     "nologo": true
   },
   {
-    "video": "https://video-streaming.ocean-archive.org/NEW_LandingPage_HR.mp4",
-    "thumbnail": "https://video-streaming.ocean-archive.org/NEW_LandingPage_HR_thumb.jpg",
-    "portrait_video": "https://video-streaming.ocean-archive.org/LandingMobile_OiT_logos.mp4", 
-    "portrait_thumbnail": "https://video-streaming.ocean-archive.org/LandingMobile_OiT_logos_thumb.jpg",
+    "video": "https://video-streaming.ocean-archive.org/LP_TA.mp4",
+    "thumbnail": "https://video-streaming.ocean-archive.org/LP_TA_thumb.jpg",
+    "portrait_video": "https://video-streaming.ocean-archive.org/LP_TA_mobile.mp4", 
+    "portrait_thumbnail": "https://video-streaming.ocean-archive.org/LP_TA_mobile_thumb.jpg",
     "nologo": true
   }
 ];
