@@ -41,7 +41,7 @@ class PrivacyPolicyPopUp extends React.Component<Props, {isPrivacyPolicyAccepted
 
   onAcceptClick = () => {
     const expiry: Date = new Date(moment().add(3, 'M').format()); // 3 Months from now.
-    this.props.cookies.set(`isPrivacyPolicyAccepted${this.cookieVersionNumber}`, true, { path: '/', expires: expiry });
+    this.props.cookies.set(`isPrivacyPolicyAccepted${this.cookieVersionNumber}`, true, { path: '/', expires: expiry, sameSite: 'none', secure: true });
     if (this._isMounted) {
       this.setState({ isPrivacyPolicyAccepted: true });
     }

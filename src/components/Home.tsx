@@ -141,7 +141,7 @@ class HomePage extends React.Component<Props, State> {
         && (window.innerWidth < 720 || browser() === 'ios')) {
         const expiry: Date = new Date(moment().add(2, 'w').format()); // 3 Months from now.
         this.props.searchOpenToggle(true);
-        this.props.cookies.set(`searchMobileCookie`, true, { path: '/', expires: expiry });
+        this.props.cookies.set(`searchMobileCookie`, true, { path: '/', expires: expiry, sameSite: 'none', secure: true });
         window.removeEventListener('scroll', this.handleScrollMobileSearch, false);
       } else {
         window.removeEventListener('scroll', this.handleScrollMobileSearch, false);
