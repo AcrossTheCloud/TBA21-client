@@ -61,7 +61,8 @@
     "test": "jest --coverage",
     "eject": "react-scripts eject",
     "winstart": "craco start",
-    "winbuild": "craco build"
+    "winbuild": "craco build",
+    "postinstall": "patch-package"
   },
   "devDependencies": {
     "@types/enzyme": "^3.10.8",
@@ -91,6 +92,7 @@
     "enzyme-to-json": "^3.6.1",
     "jest": "^24.9.0",
     "jest-canvas-mock": "^2.3.0",
+    "patch-package": "^6.2.2",
     "ts-jest": "^24.3.0",
     "tslint": "^6.1.2",
     "tslint-react": "^4.2.0",
