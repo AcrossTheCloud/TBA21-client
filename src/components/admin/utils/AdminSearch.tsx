@@ -218,7 +218,7 @@ export class AdminSearch extends React.Component<Props, State> {
           results = removeTopology(response) as Item[];
         }
         if (path === 'collections') {
-          const response = await adminGet(this.props.isContributorPath, queryStringParameters);
+          const response = await adminGet(this.props.isAdmin, queryStringParameters);
           results = removeTopology(response) as Collection[];
         }
         if (path === 'announcements') {
