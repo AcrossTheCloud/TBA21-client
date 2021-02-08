@@ -74,7 +74,9 @@ const DataLayout = (props: { data: Item | Collection, itemModalToggle?: Function
                   count: data.count ? data.count : 0,
                   type: data.type ? data.type : undefined,
                   concept_tags: [],
-                  keyword_tags: []
+                  keyword_tags: [],
+                  oa_highlight_order: data.oa_highlight_order ? data.oa_highlight_order : 0
+
                 }}
             />
         );

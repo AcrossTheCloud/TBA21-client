@@ -471,6 +471,7 @@ export interface Item {
   volume_in_series: string[] | null;
 
   oa_highlight: boolean | null;
+  oa_highlight_order: number | null;
   tba21_material: boolean | null;
 
   oa_original: boolean | null;

@@ -28,6 +28,7 @@ export interface HomepageData {
   // OA Highlight specific
   concept_tags: {id: number, tag_name: string}[];
   keyword_tags: {id: number, tag_name: string}[];
+  oa_highlight_order: number;
 }
 
 export interface HomePageState {

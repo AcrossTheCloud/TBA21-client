@@ -2329,6 +2329,14 @@ class ItemEditorClass extends React.Component<Props, State> {
                           <InputGroup>
                             <CustomInput type="switch" id={`${this.state.originalItem.s3_key}_oa_highlight`} name="OA_highlight" label="OA Highlight" checked={!!this.state.changedItem.oa_highlight || false} onChange={e => this.changeItem('oa_highlight', e.target.checked)} />
                           </InputGroup>
+                          <Label for="oa_highlight_ordering">Ordering (1-3)</Label>
+                          <Input
+                            type="text"
+                            id="oa_highlight_ordering"
+                            pattern="[1-3]"
+                            defaultValue={this.state.originalItem.oa_highlight_order ? this.state.originalItem.oa_highlight_order : ''}
+                            onChange={e => this.changeItem('oa_highlight_order', e.target.value)}
+                          />
                           <InputGroup>
                             <CustomInput type="switch" id={`${this.state.originalItem.s3_key}_oa_original`} name="OA_original" label="OA Original" checked={!!this.state.changedItem.oa_original || false} onChange={e => this.changeItem('oa_original', e.target.checked)} />
                           </InputGroup>

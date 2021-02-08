@@ -1392,6 +1392,8 @@ class CollectionEditorClass extends React.Component<Props, State> {
       aggregated_keyword_tags,
       aggregated_concept_tags,
 
+      oa_highlight_order,
+
       type
 
     } = this.state.collection;
@@ -1505,6 +1507,14 @@ class CollectionEditorClass extends React.Component<Props, State> {
                       <InputGroup>
                         <CustomInput type="switch" id={`${this.state.collection.id}_oa_highlight`} name="OA_highlight" label="OA Highlight" checked={!!this.state.collection.oa_highlight || false} onChange={e => this.changeCollection('oa_highlight', e.target.checked)} />
                       </InputGroup>
+                      <Label for="oa_highlight_ordering">Ordering (1-3)</Label>
+                      <Input
+                        type="text"
+                        id="oa_highlight_ordering"
+                        pattern="[1-3]"
+                        defaultValue={oa_highlight_order ? oa_highlight_order : ''}
+                        onChange={e => this.changeCollection('oa_highlight_order', e.target.value)}
+                      />
                       <InputGroup>
                         <CustomInput type="switch" id={`${this.state.collection.id}_oa_original`} name="OA_original" label="OA Original" checked={!!this.state.collection.oa_original || false} onChange={e => this.changeCollection('oa_original', e.target.checked)} />
                       </InputGroup>

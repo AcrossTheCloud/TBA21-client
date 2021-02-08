@@ -95,6 +95,31 @@ class Collections extends React.Component<RouteComponentProps, State> {
         },
       },
       {
+        dataField: 'oa_highlight',
+        text: 'OA highlight',
+        headerStyle: () => {
+          return style;
+        },
+        style: () => {
+          return style;
+        },
+      },
+      {
+        dataField: 'creators',
+        formatter: (cell: string[]) => {
+          return Array.isArray(cell) ?
+            cell.join(', ')
+            :
+            '';
+        }, headerStyle: () => {
+          return style;
+        },
+        style: () => {
+          return style;
+        },
+        text: 'Creator(s)'
+      },
+      {
         dataField: 'title',
         text: 'Title',
         headerStyle: () => {

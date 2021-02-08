@@ -99,7 +99,13 @@ export const loadHomepage = () => async dispatch => {
       ...await addFilesToData(oaHighlights.oa_highlight_collections),
       ...await addFilesToData(oaHighlights.oa_highlight_items)
     ]
-  highlightsWithFiles = highlightsWithFiles.slice(0,3); // max 3 highlights
+  highlightsWithFiles = highlightsWithFiles.sort((a, b) => 
+  {
+    console.log(a.oa_highlight_order, b.oa_highlight_order);
+    if (a.oa_highlight_order > b.oa_highlight_order) return 1;
+    if (a.oa_highlight_order < b.oa_highlight_order) return -1;
+    return 0;
+  }).slice(0,3); // max 3 highlights
 
   const  queryStringParams = {
       oa_highlight: false

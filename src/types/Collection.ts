@@ -108,6 +108,8 @@ export interface Collection {
   focus_action?: string | null;
   focus_scitech?: string | null;
 
+  oa_highlight_order?: number | null;
+
   city_of_publication?: string | null;
   media_type?: string | null;
 
