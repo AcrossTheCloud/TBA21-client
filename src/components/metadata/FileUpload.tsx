@@ -187,7 +187,7 @@ export class FileUpload extends React.Component<Props, State> {
             {({getRootProps, getInputProps, isDragActive, isDragReject, isDragAccept}) => (
               <div {...getRootProps()} className="dropzone">
                 <input {...getInputProps()} />
-                {!isDragActive && 'Click here or drop a file to upload!'}
+                {!isDragActive && 'Click here or drop a file to upload! Video thumbnail can be manually specified by editing the item >1hr after uploading.'}
                 {isDragReject && 'File type not accepted, sorry!'}
                 {isDragAccept && 'Drop!'}
 
