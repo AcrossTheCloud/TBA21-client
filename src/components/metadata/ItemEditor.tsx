@@ -132,6 +132,12 @@ const defaultRequiredFields = (item: Item) => {
   };
 };
 
+const isThumbnailTimeFieldVisible = (item: Item): boolean => {
+  if (!(item.item_type==='Video')) return false;
+  const date = item.created_at ? item.created_at : '';
+  return ((new Date()).valueOf() - (new Date(date)).valueOf() > 3600000); 
+}
+
 class ItemEditorClass extends React.Component<Props, State> {
   _isMounted;
 
@@ -1302,6 +1308,30 @@ class ItemEditorClass extends React.Component<Props, State> {
   }
 
   // ITEM VIDEO
+  ThumbnailTime = (): JSX.Element => {
+    
+    const item = this.state.changedItem;
+    console.log(item);
+    return (
+      <Row>
+        <Col>
+        <FormGroup>
+          <Label for="thumbnail_time">Specify a new thumbnail time (h:m:s even if some are 0)</Label>
+          <Input
+            type="text"
+            className="thumbnail_time"
+            defaultValue={''}
+            pattern="^\d{1,2}:\d{1,2}:\d{1,2}/"
+            onChange={e => this.validateLength('thumbnail_time', e.target.value)}
+            invalid={this.state.validate.hasOwnProperty('thumbnail_time') && !this.state.validate.thumbnail_time}
+          />
+          <FormFeedback>This is a required field</FormFeedback>
+        </FormGroup>
+        </Col>
+      </Row>
+    );
+  }
+
   Video = (): JSX.Element => {
     const item = this.state.changedItem;
     return (
@@ -2508,6 +2538,7 @@ class ItemEditorClass extends React.Component<Props, State> {
                         {(!!item.file && (item.file.type === FileTypes.Text || item.file.type === FileTypes.Pdf || item.file.type === FileTypes.DownloadText)) && item.item_subtype === itemText.Other ? <this.TextOther /> : <></>}
 
                         {/* Item Video */}
+                        {isThumbnailTimeFieldVisible(item) ? <this.ThumbnailTime /> : <></>}
                         {item.item_subtype === itemVideo.Video ? <this.Video /> : <></>}
                         {item.item_subtype === itemVideo.Movie ? <this.VideoMovieTrailer /> : <></>}
                         {item.item_subtype === itemVideo.Documentary ? <this.VideoDocumentaryArt /> : <></>}

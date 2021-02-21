@@ -435,6 +435,8 @@ export interface Item {
   venues: string[] | null;
   screened_at: string | null;
 
+  thumbnail_time: string | null;
+
   genre: string | null;
   news_outlet: string | null;
 
