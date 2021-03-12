@@ -1,10 +1,12 @@
 import * as React from 'react';
-import { Col, Progress, Row } from 'reactstrap';
+import { Col, Progress, Row, Input, Form, Button } from 'reactstrap';
 import $ from 'jquery';
-import { Auth, Storage } from 'aws-amplify';
+import { Auth, Storage, API } from 'aws-amplify';
 import Dropzone from 'react-dropzone';
 import { v1 as uuid } from 'uuid';
 
+import { getYouTubeThumbnailUrl} from '../utils/FilePreview';
+import { last } from 'lodash-es';
 import { AuthContext } from 'providers/AuthProvider';
 
 import 'styles/components/_dropzone.scss';
@@ -14,6 +16,7 @@ import { Alerts, ErrorMessage } from '../utils/alerts';
 interface State extends Alerts {
   files: Files;
   rejectedFiles: Rejections;
+  videoUrls: string[] | null;
 }
 interface Props {
   callback: Function;
@@ -63,7 +66,8 @@ export class FileUpload extends React.Component<Props, State> {
 
     this.state = {
       files: {},
-      rejectedFiles: {}
+      rejectedFiles: {},
+      videoUrls: null
     };
   }
 
@@ -123,6 +127,34 @@ export class FileUpload extends React.Component<Props, State> {
     }
   }
 
+
+
+  addVideoEmbed = async (): Promise<void> => {
+    const newUrl = last(this.state.videoUrls);
+    const response = await API.put('tba21','contributor/items/create', {body: {url: newUrl}});
+    console.log(response);
+    const file = {
+      uuid: uuid(),
+      name: last(this.state.videoUrls),
+      preview: newUrl.includes('youtu') ? getYouTubeThumbnailUrl(newUrl) : '',
+      size: 0,
+      type: 'VideoEmbed',
+      uploaded: true,
+      s3key: response.s3_key,
+      original: true
+    }
+    const myid = file.uuid;
+
+    if (!this._isMounted) { return; }
+    this.setState({ files: {...this.state.files, ...{[myid]: file}}});
+
+    // Callback a single key
+    console.log(this.state.files);
+    console.log(file.s3key);
+    this.props.callback( file.s3key );
+    
+  }
+
   uploadToS3 = async (files: Files): Promise<void> => {
     Object.values(files).forEach( async (file: File) => {
       const
@@ -146,6 +178,8 @@ export class FileUpload extends React.Component<Props, State> {
         $(`#${file.uuid}`).fadeOut(async () => {
           if (!this._isMounted) { return; }
           this.setState({ files: {...this.state.files, ...files}});
+
+          console.log(this.state.files);
 
           // Callback a single key
           this.props.callback( file.s3key );
@@ -197,6 +231,21 @@ export class FileUpload extends React.Component<Props, State> {
               </div>
             )}
           </Dropzone>
+        </div>
+        <div>
+          <Form
+            onSubmit={(e)=>{e.preventDefault(); this.addVideoEmbed();}}>
+            <Input
+              type="url"
+              className="url"
+              autoComplete="false"
+              onChange={(e) => this.state.videoUrls ? this.setState({videoUrls: this.state.videoUrls!.concat([e.target.value])}) : this.setState({videoUrls: [e.target.value]})}
+            />
+          <Button>
+              Submit
+          </Button>
+          </Form>
+
         </div>
       </>
     );

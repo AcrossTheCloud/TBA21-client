@@ -3,14 +3,22 @@ import { Col } from 'reactstrap';
 import ReactPlayer from 'react-player';
 import * as React from 'react';
 import { thumbnailsSRCSET } from './s3File';
+import { first, last } from 'lodash-es';
 
 import textImage from 'images/defaults/Unscharfe_Zeitung.jpg';
 import PdfPreview from './PdfPreview';
 
 let imageHeaderStyle = {
   maxHeight: '35vh'
+};
+
+let emptyStyle = {};
+
+export const getYouTubeThumbnailUrl = (url: string) => {
+  const videoId=first(last(url.split('v=')).split('?'));
+
+  return `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`;
 }
-let emptyStyle = {}
 
 export const FilePreview = (props: { file: S3File, isHeader?: boolean }): JSX.Element => {
   switch (props.file.type) {
@@ -67,6 +75,15 @@ export const FilePreview = (props: { file: S3File, isHeader?: boolean }): JSX.El
           </a>
         </Col>
       );
+    
+      case FileTypes.VideoEmbed:
+        return (
+          <Col className="px-0 image text-center">
+            <a href={props.file.url} target="_blank" rel="noopener noreferrer">
+              <img alt="" src={getYouTubeThumbnailUrl(props.file.url)} className="image-fluid"/>
+            </a>
+          </Col>
+        );
 
     default:
       return (
