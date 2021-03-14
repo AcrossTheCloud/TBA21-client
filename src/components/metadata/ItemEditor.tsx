@@ -961,7 +961,14 @@ class ItemEditorClass extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="translated_from">Translated From</Label>
-            <Select menuPlacement="auto" className="select translated_from" classNamePrefix="select" options={languages} value={item.language ? languages.find( c => c.value === item.language ) : []} onChange={e => this.changeItem('translated_from', (e as OptionType).value)} isSearchable/>
+            <Select 
+              menuPlacement="auto" 
+              className="select translated_from" 
+              classNamePrefix="select" 
+              options={languages} 
+              value={item.language ? languages.find( c => (c as OptionType).value === item.language ) : null} 
+              onChange={e => this.changeItem('translated_from', (e as OptionType).value)} 
+              isSearchable/>
           </FormGroup>
         </Col>
 
@@ -1165,7 +1172,13 @@ class ItemEditorClass extends React.Component<Props, State> {
         <Col md="6">
           <FormGroup>
             <Label for="translated_from">Translated From</Label>
-            <Select menuPlacement="auto" className="select translated_from" classNamePrefix="select" options={languages} value={item.language ? languages.find( c => c.value === item.language ) : []} onChange={e => this.changeItem('translated_from', (e as OptionType).value)} isSearchable/>
+            <Select 
+              menuPlacement="auto" 
+              className="select translated_from" 
+              classNamePrefix="select" options={languages} 
+              value={item.language ? languages.find( c => c.value === item.language ) : null} 
+              onChange={e => this.changeItem('translated_from', (e as OptionType).value)} 
+              isSearchable/>
           </FormGroup>
         </Col>
 
@@ -2515,7 +2528,11 @@ class ItemEditorClass extends React.Component<Props, State> {
 
                         <FormGroup>
                           <Label for="language">Language</Label>
-                          <Select menuPlacement="auto" className="select language" classNamePrefix="select" options={languages} value={item.language ? languages.find( c => c.value === item.language ) : []} onChange={e => this.changeItem('language', (e as OptionType).value)} isSearchable/>
+                          <Select 
+                            menuPlacement="auto" 
+                            className="select language" 
+                            classNamePrefix="select" options={languages} 
+                            value={item.language ? languages.find( c => c.value === item.language ) : null} onChange={e => this.changeItem('language', (e as OptionType).value)} isSearchable/>
                         </FormGroup>
 
                         <FormGroup>
@@ -2595,7 +2612,7 @@ class ItemEditorClass extends React.Component<Props, State> {
                               menuPlacement="auto"
                               className="license_type"
                               options={licenseType}
-                              value={item.license ? {value: item.license, label: item.license} : {value: 'Ocean Archive', label: 'Ocean Archive (most restrictive)'}}
+                              value={item.license ? {value: item.license as License, label: item.license} : {value: 'Ocean Archive' as License, label: 'Ocean Archive (most restrictive)'}}
                               onChange={e => {
                                 this.changeItem('license', (e as OptionType).value);
                                 if (this._isMounted) {

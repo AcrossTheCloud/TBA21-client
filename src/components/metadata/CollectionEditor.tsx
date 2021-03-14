@@ -1574,7 +1574,7 @@ class CollectionEditorClass extends React.Component<Props, State> {
                           menuPlacement="auto"
                           className="license_type"
                           options={licenseType}
-                          value={collection.license ? {value: collection.license, label: collection.license} : {value: 'Ocean Archive', label: 'Ocean Archive (most restrictive)'}}
+                          value={collection.license ? {value: collection.license as License, label: collection.license} : {value: 'Ocean Archive' as License, label: 'Ocean Archive (most restrictive)'}}
                           onChange={e => {
                             this.changeCollection('license', (e as OptionType).value);
                             if (this._isMounted) {
