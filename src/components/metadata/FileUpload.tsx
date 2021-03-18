@@ -5,7 +5,7 @@ import { Auth, Storage, API } from 'aws-amplify';
 import Dropzone from 'react-dropzone';
 import { v1 as uuid } from 'uuid';
 
-import { getYouTubeThumbnailUrl} from '../utils/FilePreview';
+import { getEmbedVideoThumbnailUrl} from '../utils/FilePreview';
 import { last } from 'lodash-es';
 import { AuthContext } from 'providers/AuthProvider';
 
@@ -136,7 +136,7 @@ export class FileUpload extends React.Component<Props, State> {
     const file = {
       uuid: uuid(),
       name: last(this.state.videoUrls),
-      preview: newUrl.includes('youtu') ? getYouTubeThumbnailUrl(newUrl) : '',
+      preview: await getEmbedVideoThumbnailUrl(newUrl),
       size: 0,
       type: 'VideoEmbed',
       uploaded: true,

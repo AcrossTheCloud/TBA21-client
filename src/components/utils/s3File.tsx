@@ -8,6 +8,9 @@ import { FileTypes, S3File } from 'types/s3File';
 import defaultVideoImage from 'images/defaults/video.jpg';
 import { Item } from '../../types/Item';
 
+import { getEmbedVideoThumbnailUrl } from '../utils/FilePreview';
+
+
 export const fileType = (type: string): FileTypes | null => {
   // https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types
   const downloadTextTypes = [
@@ -46,8 +49,20 @@ export const fileType = (type: string): FileTypes | null => {
  *
  * @param key { string }
  */
-export const getCDNObject = async (key: string): Promise<S3File | false> => {
+export const getItemUrls = async (key: string, itemUrl?: string): Promise<S3File | false> => {
   try {
+    console.log('s3_key', key, 'url', itemUrl);
+    if (itemUrl && (itemUrl.startsWith('https://www.youtu') || itemUrl.startsWith('https://youtu') || itemUrl.startsWith('https://www.vimeo') ||  itemUrl.startsWith('https://vimeo'))) {
+      console.log('executing');
+      const response: S3File = {
+        url: itemUrl,
+        type: FileTypes.VideoEmbed,
+        poster: await getEmbedVideoThumbnailUrl(itemUrl),
+        playlist: itemUrl
+      };
+      console.log(response);
+      return response;
+    }
 
     const
       url = `${config.other.BASE_CONTENT_URL}${key}`,

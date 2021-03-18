@@ -1,4 +1,4 @@
-import { getCDNObject, checkThumbnails } from '../../components/utils/s3File';
+import { getItemUrls, checkThumbnails } from '../../components/utils/s3File';
 import { Item } from '../../types/Item';
 import { FileTypes, S3File } from '../../types/s3File';
 import { LOADINGOVERLAY } from '../loadingOverlay';
@@ -13,7 +13,7 @@ export const FETCH_ITEM_ERROR_NO_SUCH_ITEM = 'FETCH_ITEM_ERROR_NO_SUCH_ITEM';
 export const checkFile = async (item: Item): Promise<S3File | false> => {
   try {
     if (item.file && item.file.url) { return item.file; }
-    const result = await getCDNObject(item.s3_key);
+    const result = await getItemUrls(item.s3_key, item.url ? item.url : undefined);
 
     if (result && result.type === FileTypes.Image) {
       Object.assign(result, checkThumbnails(item, result));

@@ -1,5 +1,5 @@
 import { API } from 'aws-amplify';
-import { getCDNObject } from '../components/utils/s3File';
+import { getItemUrls } from '../components/utils/s3File';
 import { LOADINGOVERLAY } from './loadingOverlay';
 import { ItemOrCollectionOrProfile } from '../reducers/searchConsole';
 import { Item } from '../types/Item';
@@ -119,13 +119,18 @@ const loadMore = async (results: ItemOrCollectionOrProfile[], amountLoaded: numb
           const s3Key = itemOrCollection.s3_key;
           if (Array.isArray(s3Key) && s3Key.length) {
             if (s3Key[0]) {
-              const file: S3File | false = await getCDNObject(s3Key[0]);
+              const file: S3File | false = await getItemUrls(s3Key[0]);
               if (file) {
                 Object.assign(itemOrCollection, {file});
               }
             }
           } else if (typeof s3Key === 'string') {
-            const file: S3File | false = await getCDNObject(s3Key);
+            let file : S3File | false = false;
+            if (itemOrCollection.url) {
+              file = await getItemUrls(s3Key, itemOrCollection.url);
+            } else {
+              file = await getItemUrls(s3Key);
+            }
             if (file) {
               Object.assign(itemOrCollection, {file});
             }

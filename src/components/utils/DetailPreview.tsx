@@ -41,6 +41,7 @@ const getOnLoadHandler = (onloadFunc) => {
 
 export const FileStaticPreview = (props: { file: S3File, onLoad?: Function }): JSX.Element => {
   if (props.file.type === FileTypes.Audio) { return <></>; }
+  console.log(props.file,props.file.type);
   switch (props.file.type) {
     case FileTypes.Image:
       return (
@@ -63,6 +64,18 @@ export const FileStaticPreview = (props: { file: S3File, onLoad?: Function }): J
           />
         </picture>
       );
+
+    case FileTypes.VideoEmbed:
+        console.log('video embed!');
+        return (
+          <picture className="videoPreview">
+          <img
+            onLoad={getOnLoadHandler(props.onLoad)}
+            src={props.file.poster}
+            alt={''}
+          />
+        </picture>
+        );
 
     case FileTypes.Pdf:
       return (
@@ -190,7 +203,7 @@ export const DetailPreview = (props: { data: ItemOrHomePageData, onLoad?: Functi
               <FaFile />
             </div>
         }
-        {!collectionType && data.file && data.file.type === FileTypes.Video ?
+        {!collectionType && data.file && (data.file.type === FileTypes.Video || data.file.type === FileTypes.VideoEmbed) ?
           <div className="middle">
             <FaPlay/>
           </div>
