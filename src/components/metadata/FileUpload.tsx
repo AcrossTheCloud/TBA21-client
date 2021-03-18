@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Col, Progress, Row, Input, Form, Button } from 'reactstrap';
+import { Col, Progress, Row, Input, Form, FormFeedback, Button } from 'reactstrap';
 import $ from 'jquery';
 import { Auth, Storage, API } from 'aws-amplify';
 import Dropzone from 'react-dropzone';
@@ -17,6 +17,7 @@ interface State extends Alerts {
   files: Files;
   rejectedFiles: Rejections;
   videoUrls: string[] | null;
+  videoUrlError: boolean;
 }
 interface Props {
   callback: Function;
@@ -67,7 +68,8 @@ export class FileUpload extends React.Component<Props, State> {
     this.state = {
       files: {},
       rejectedFiles: {},
-      videoUrls: null
+      videoUrls: null,
+      videoUrlError: false
     };
   }
 
@@ -235,11 +237,23 @@ export class FileUpload extends React.Component<Props, State> {
         <div>
           <Form
             onSubmit={(e)=>{e.preventDefault(); this.addVideoEmbed();}}>
+            <FormFeedback valid>You need to enter a valid YouTube or </FormFeedback>
             <Input
               type="url"
               className="url"
+              placeholder="Or add a YouTube or Vimeo video by entering a url starting with https://"
+              valid={this.state.videoUrlError}
               autoComplete="false"
-              onChange={(e) => this.state.videoUrls ? this.setState({videoUrls: this.state.videoUrls!.concat([e.target.value])}) : this.setState({videoUrls: [e.target.value]})}
+              onChange={(e) => { 
+                if (e.target.value.startsWith('https://youtu.be/') || e.target.value.startsWith('https://youtube.com') || e.target.value.startsWith('https://www.youtube.com/' || e.target.value.startsWith('https://vimeo.com') || e.target.value.startsWith('https://www.vimeo.com')) ) {                
+                  this.setState({errorMessage: undefined})
+                  this.state.videoUrls ? this.setState({videoUrls: this.state.videoUrls!.concat([e.target.value])}) : this.setState({videoUrls: [e.target.value]});
+                } else {
+                  this.setState({ errorMessage: <>
+                    Please enter a valid a YouTube or Vimeo video by entering a url starting with https://
+                </>});
+                }
+              }}
             />
           <Button>
               Submit
