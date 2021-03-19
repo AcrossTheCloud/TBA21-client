@@ -18,13 +18,13 @@ let emptyStyle = {};
 
 export const getEmbedVideoThumbnailUrl = async (url: string) => {
 
-  if (url.startsWith('https://www.youtu') || url.startsWith('https://youtube.com')) {
+  if (url.startsWith('https://www.youtube') || url.startsWith('https://youtube.com')) {
     const videoId=first(last(url.split('v=')).split('?'));
     return `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`;
   } else if (url.startsWith('https://youtu.be')) {
     const videoId=first(last(url.split('/')).split('?'));
     return `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`;
-  } else if (url.startsWith('https://youtu.be') || url.startsWith('https://www.vimeo') || url.startsWith('https://vimeo')) {
+  } else if (url.startsWith('https://www.vimeo') || url.startsWith('https://vimeo')) {
     const videoId=first(last(url.split('/')).split('?'));
     const response = await fetch(`https://api.vimeo.com/videos/${videoId}`, {
       method: 'GET', // *GET, POST, PUT, DELETE, etc.
