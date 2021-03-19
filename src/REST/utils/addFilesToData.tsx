@@ -1,4 +1,4 @@
-import { getCDNObject } from '../../components/utils/s3File';
+import { getItemUrls } from '../../components/utils/s3File';
 import config from 'config';
 import { FileTypes, S3File } from '../../types/s3File';
 import { Item } from 'types/Item';
@@ -23,7 +23,7 @@ async function addFilesToData(datas: any[]): Promise<any[]> {
         let s3Key = d.__typename === "collection" && d.items.length
           ? d.items[0].s3_key
           : d.s3_key
-        return getCDNObject(s3Key)
+        return getItemUrls(s3Key, d.url ? d.url : undefined);
       }))
       let newDatas = files.map((f, i) => {
         let data = datas[i];

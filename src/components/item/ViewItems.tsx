@@ -8,7 +8,7 @@ import { Alerts } from '../utils/alerts';
 import { Item } from '../../types/Item';
 import { fetchItems, fetchMoreItems } from '../../actions/items/viewItems';
 import { State } from '../../reducers/items/viewItems';
-import { getCDNObject } from '../utils/s3File';
+import { getItemUrls } from '../utils/s3File';
 
 import { FileTypes, S3File } from '../../types/s3File';
 
@@ -45,7 +45,7 @@ const MasonryItem = ( props: { item: Item } ): JSX.Element => {
 
   React.useEffect(() => {
     const getFile = async (key: string) => {
-      const result = await getCDNObject(props.item.s3_key);
+      const result = await getItemUrls(props.item.s3_key, props.item.url ? props.item.url : undefined);
 
       // const result = await sdkGetObject(props.item.s3_key);
       if (result && mounted.current) {

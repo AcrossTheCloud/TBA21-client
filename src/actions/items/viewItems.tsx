@@ -2,6 +2,9 @@ import { API } from 'aws-amplify';
 import { Item } from '../../types/Item';
 import { getItems } from '../../REST/items';
 import { removeTopology } from '../../components/utils/removeTopology';
+import { FileTypes } from 'types/s3File';
+import { getLicence } from '../../components/utils/embeddedVideoLicence';
+
 
 export const FETCH_ITEMS = 'FETCH_ITEMS';
 export const FETCH_MORE_ITEMS = 'FETCH_MORE_ITEMS';
@@ -24,6 +27,10 @@ export const fetchItems = () => async dispatch => {
 
     responseItems.forEach( async (item: Item) => {
       Object.assign(items, { [item.s3_key]: item });
+      // replace licence with licence coming from YouTube/Vimeo
+      if (item.file.type === FileTypes.VideoEmbed) {
+        item.license = await getLicence(item.url!);
+      }
     });
 
     dispatch({
@@ -56,8 +63,11 @@ export const fetchMoreItems = (offset: number) => async dispatch => {
 
     let items: { [id: string]: Item } = {};
 
-    response.items.forEach( (item: Item) => {
+    response.items.forEach( async (item: Item) => {
       Object.assign(items, { [item.s3_key]: item });
+      if (item.file.type === FileTypes.VideoEmbed) {
+        item.license = await getLicence(item.url!);
+      }
     });
 
     dispatch({
