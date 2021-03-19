@@ -151,8 +151,6 @@ export class FileUpload extends React.Component<Props, State> {
     this.setState({ files: {...this.state.files, ...{[myid]: file}}});
 
     // Callback a single key
-    console.log(this.state.files);
-    console.log(file.s3key);
     this.props.callback( file.s3key );
     
   }

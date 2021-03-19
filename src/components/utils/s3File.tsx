@@ -51,16 +51,13 @@ export const fileType = (type: string): FileTypes | null => {
  */
 export const getItemUrls = async (key: string, itemUrl?: string): Promise<S3File | false> => {
   try {
-    console.log('s3_key', key, 'url', itemUrl);
     if (itemUrl && (itemUrl.startsWith('https://www.youtu') || itemUrl.startsWith('https://youtu') || itemUrl.startsWith('https://www.vimeo') ||  itemUrl.startsWith('https://vimeo'))) {
-      console.log('executing');
       const response: S3File = {
         url: itemUrl,
         type: FileTypes.VideoEmbed,
         poster: await getEmbedVideoThumbnailUrl(itemUrl),
         playlist: itemUrl
       };
-      console.log(response);
       return response;
     }
 

@@ -7,6 +7,7 @@ import { first, last } from 'lodash-es';
 
 import textImage from 'images/defaults/Unscharfe_Zeitung.jpg';
 import PdfPreview from './PdfPreview';
+import config from 'config';
 
 let imageHeaderStyle = {
   maxHeight: '35vh'
@@ -30,7 +31,7 @@ export const getEmbedVideoThumbnailUrl = async (url: string) => {
       mode: 'cors', // no-cors, *cors, same-origin
       credentials: 'same-origin', // include, *same-origin, omit
       headers: {
-        'Authorization': 'Bearer 50391fda60bb61b7c06d6913d165d14c'
+        'Authorization': 'Bearer ' + config.auth.VIMEO_BEARER_TOKEN
         // 'Content-Type': 'application/x-www-form-urlencoded',
       },
     });
@@ -99,7 +100,6 @@ export const FilePreview = (props: { file: S3File, isHeader?: boolean }): JSX.El
       );
     
       case FileTypes.VideoEmbed:
-        console.log('video embed!');
         return (
           <ReactPlayer
             controls

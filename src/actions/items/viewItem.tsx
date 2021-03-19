@@ -4,6 +4,7 @@ import { FileTypes, S3File } from '../../types/s3File';
 import { LOADINGOVERLAY } from '../loadingOverlay';
 import { getItem } from '../../REST/items';
 import { removeTopology } from '../../components/utils/removeTopology';
+import { getLicence } from '../../components/utils/embeddedVideoLicence';
 
 // Defining our Actions for the reducers.
 export const FETCH_ITEM = 'FETCH_ITEM';
@@ -54,6 +55,12 @@ export const fetchItem = (id: string) => async (dispatch, getState) => {
         const file = await checkFile(item);
         if (file) {
           Object.assign(item, {file: file});
+          console.log(item.file);
+          // replace licence with licence coming from YouTube/Vimeo
+          if (item.file.type === FileTypes.VideoEmbed) {
+            item.license = await getLicence(item.url!);
+          }
+
         }
 
         dispatch({

@@ -41,6 +41,16 @@ export class LicenceLink extends React.Component<LicenceLinkProps, {}> {
       case 'CC BY-NC-ND':
         element = (<Details label="License" value={<a href="https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode" target="_blank" rel="noopener noreferrer">CC BY-NC-ND</a>} />);
         break;
+      case 'YouTube':
+        element = (<Details label="License" value={<a href="https://www.youtube.com/static?template=terms" target="_blank" rel="noopener noreferrer">YouTube</a>} />)
+        break;
+      case 'Vimeo':
+        element = (<Details label="License" value={<a href="https://vimeo.com/terms" target="_blank" rel="noopener noreferrer">Vimeo</a>} />)
+        break;
+      case 'CC PD':
+        element = (<Details label="License" value={<a href="https://creativecommons.org/publicdomain/zero/1.0/legalcode" target="_blank" rel="noopener noreferrer">CC 0</a>} />);
+        break;
+
       default:
         element = (<Details label="License" value={<Button style={{padding: "0px"}} size="sm" color="link" onClick={() => this.props.modalToggle('RL_MODAL', true)}>Ocean Archive</Button>} />);
     }

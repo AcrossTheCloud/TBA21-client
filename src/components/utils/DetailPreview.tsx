@@ -66,7 +66,6 @@ export const FileStaticPreview = (props: { file: S3File, onLoad?: Function }): J
       );
 
     case FileTypes.VideoEmbed:
-        console.log('video embed!');
         return (
           <picture className="videoPreview">
           <img

@@ -26,5 +26,10 @@ export default {
     VIDEO_STREAMING_URL: "https://video-streaming.ocean-archive.org/",
     AUDIO_URL: "https://audio.ocean-archive.org/",
     PROFILE_URL: "https://profile-pics.ocean-archive.org/"
+  },
+  auth: {
+    TWITCH_BEARER_TOKEN: "kpuu0yynn6wtpnj48cdhrswmcm6xuz",
+    VIMEO_BEARER_TOKEN: "50391fda60bb61b7c06d6913d165d14c",
+    GOOGLE_API_KEY: "AIzaSyAymCqtyVs1rnNgRw4NVmz1YtzMK5AAdo8"
   }
 };
