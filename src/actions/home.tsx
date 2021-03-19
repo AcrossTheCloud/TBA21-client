@@ -16,6 +16,7 @@ import { toggle as collectionModalToggle } from 'actions/modals/collectionModal'
 import { toggle as itemModalToggle } from 'actions/modals/itemModal';
 import { createCriteriaOption } from 'components/search/SearchConsole';
 import addFilesToData from 'REST/utils/addFilesToData';
+import config from 'config';
 
 // Defining our Actions for the reducers
 export const LOGO_STATE_HOMEPAGE = 'LOGO_STATE_HOMEPAGE';
@@ -42,7 +43,7 @@ export const liveStreamDispatch = (state: boolean) => async dispatch => {
         headers: {
           "Accept":"application/vnd.twitchtv.v5+json",
           "Client-ID":"w2yn7cjtbiqasqb00yfmmcimneu51k",
-          "Authorization":"Bearer g7i2wq6ylif567k2l7x9gbqdgu9igc"
+          "Authorization":"Bearer " + config.auth.TWITCH_BEARER_TOKEN
         }
       });
       let responseJSON = await response.json();

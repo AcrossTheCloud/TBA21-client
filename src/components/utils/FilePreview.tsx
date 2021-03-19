@@ -3,16 +3,47 @@ import { Col } from 'reactstrap';
 import ReactPlayer from 'react-player';
 import * as React from 'react';
 import { thumbnailsSRCSET } from './s3File';
+import { first, last } from 'lodash-es';
 
 import textImage from 'images/defaults/Unscharfe_Zeitung.jpg';
 import PdfPreview from './PdfPreview';
+import config from 'config';
 
 let imageHeaderStyle = {
   maxHeight: '35vh'
+};
+
+let emptyStyle = {};
+
+
+export const getEmbedVideoThumbnailUrl = async (url: string) => {
+
+  if (url.startsWith('https://www.youtube') || url.startsWith('https://youtube.com')) {
+    const videoId=first(last(url.split('v=')).split('?'));
+    return `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`;
+  } else if (url.startsWith('https://youtu.be')) {
+    const videoId=first(last(url.split('/')).split('?'));
+    return `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`;
+  } else if (url.startsWith('https://www.vimeo') || url.startsWith('https://vimeo')) {
+    const videoId=first(last(url.split('/')).split('?'));
+    const response = await fetch(`https://api.vimeo.com/videos/${videoId}`, {
+      method: 'GET', // *GET, POST, PUT, DELETE, etc.
+      mode: 'cors', // no-cors, *cors, same-origin
+      credentials: 'same-origin', // include, *same-origin, omit
+      headers: {
+        'Authorization': 'Bearer ' + config.auth.VIMEO_BEARER_TOKEN
+        // 'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    });
+
+    return last((await response.json()).pictures.sizes).link;
+  }
+
+  return '';
 }
-let emptyStyle = {}
 
 export const FilePreview = (props: { file: S3File, isHeader?: boolean }): JSX.Element => {
+
   switch (props.file.type) {
     case FileTypes.Image:
       // let background: string | undefined = undefined;
@@ -67,6 +98,17 @@ export const FilePreview = (props: { file: S3File, isHeader?: boolean }): JSX.El
           </a>
         </Col>
       );
+    
+      case FileTypes.VideoEmbed:
+        return (
+          <ReactPlayer
+            controls
+            url={props.file.playlist || props.file.url}
+            vertical-align="top"
+            className="player"
+            config={{ file: { attributes: { poster: props.file.poster }} }}
+          />
+        );
 
     default:
       return (

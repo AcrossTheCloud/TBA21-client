@@ -13,7 +13,7 @@ import moment from 'moment';
 import 'styles/components/pages/viewItem.scss';
 import { Item, Regions } from '../../types/Item';
 import { Collection } from '../../types/Collection';
-import { FilePreview} from '../utils/FilePreview';
+import { FilePreview } from '../utils/FilePreview';
 import { debounce, isEqual } from 'lodash';
 
 import { createCriteriaOption } from '../search/SearchConsole';

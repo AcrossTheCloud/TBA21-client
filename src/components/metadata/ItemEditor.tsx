@@ -2606,6 +2606,7 @@ class ItemEditorClass extends React.Component<Props, State> {
                         {item.item_subtype === itemAudio.Performance_Poetry ? <this.AudioPerformancePoetry /> : <></>}
                         {(!!item.file && item.file.type === FileTypes.Audio) && item.item_subtype === itemAudio.Other ? <this.AudioOther /> : <></>}
 
+                        {!!item.file && item.file.type !== FileTypes.VideoEmbed ? 
                         <FormGroup>
                           <Label for="license_type">License</Label>
                           <Select
@@ -2625,7 +2626,8 @@ class ItemEditorClass extends React.Component<Props, State> {
                               }}
                               isSearchable
                           />
-                        </FormGroup>
+                        </FormGroup> : <></>
+                        }
 
                         <FormGroup>
                           <Label for="copyright_holder">Copyright Owner</Label>

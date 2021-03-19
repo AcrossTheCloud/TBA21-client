@@ -1,9 +1,10 @@
-import { getCDNObject, checkThumbnails } from '../../components/utils/s3File';
+import { getItemUrls, checkThumbnails } from '../../components/utils/s3File';
 import { Item } from '../../types/Item';
 import { FileTypes, S3File } from '../../types/s3File';
 import { LOADINGOVERLAY } from '../loadingOverlay';
 import { getItem } from '../../REST/items';
 import { removeTopology } from '../../components/utils/removeTopology';
+import { getLicence } from '../../components/utils/embeddedVideoLicence';
 
 // Defining our Actions for the reducers.
 export const FETCH_ITEM = 'FETCH_ITEM';
@@ -13,7 +14,7 @@ export const FETCH_ITEM_ERROR_NO_SUCH_ITEM = 'FETCH_ITEM_ERROR_NO_SUCH_ITEM';
 export const checkFile = async (item: Item): Promise<S3File | false> => {
   try {
     if (item.file && item.file.url) { return item.file; }
-    const result = await getCDNObject(item.s3_key);
+    const result = await getItemUrls(item.s3_key, item.url ? item.url : undefined);
 
     if (result && result.type === FileTypes.Image) {
       Object.assign(result, checkThumbnails(item, result));
@@ -54,6 +55,12 @@ export const fetchItem = (id: string) => async (dispatch, getState) => {
         const file = await checkFile(item);
         if (file) {
           Object.assign(item, {file: file});
+          console.log(item.file);
+          // replace licence with licence coming from YouTube/Vimeo
+          if (item.file.type === FileTypes.VideoEmbed) {
+            item.license = await getLicence(item.url!);
+          }
+
         }
 
         dispatch({

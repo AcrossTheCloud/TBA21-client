@@ -269,6 +269,7 @@ export enum itemType {
   Image = 'Image',
   PDF = 'PDF',
   DownloadText = 'DownloadText',
+  VideoEmbed = 'VideoEmbed',
   IFrame = 'IFrame'
 }
 

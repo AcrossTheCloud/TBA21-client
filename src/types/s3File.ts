@@ -21,5 +21,6 @@ export enum FileTypes {
   'Audio' = 'Audio',
   'Image' = 'Image',
   'Pdf' = 'Pdf',
+  'VideoEmbed' = 'VideoEmbed',
   'DownloadText' = 'DownloadText'
 }
