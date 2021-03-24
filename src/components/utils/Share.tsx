@@ -1,17 +1,26 @@
-import * as React from 'react';
-import Clipboard from 'react-clipboard.js';
+import * as React from "react";
+import Clipboard from "react-clipboard.js";
 
-import 'styles/utils/share.scss';
-import { FaExternalLinkAlt } from 'react-icons/fa';
+import "styles/utils/share.scss";
+import { FaExternalLinkAlt } from "react-icons/fa";
 
 interface State {
   clicked: boolean;
   error?: string;
 }
 
-interface Props {
-  suffix: string;
-}
+type Props = {
+  color?: "dark-gray" | "gray";
+  iconComponent?: React.ReactElement;
+  text: string;
+} & (
+  | {
+      variant: "prefixedWithHostname";
+    }
+  | {
+      variant: "fullText";
+    }
+);
 
 export default class Share extends React.Component<Props, State> {
   _isMounted;
@@ -21,7 +30,7 @@ export default class Share extends React.Component<Props, State> {
     super(props);
     this._isMounted = false;
     this.state = {
-      clicked: false
+      clicked: false,
     };
   }
 
@@ -37,34 +46,50 @@ export default class Share extends React.Component<Props, State> {
     if (!this.state.clicked && this._isMounted) {
       this.setState({ clicked: true });
     }
-    this.timeout = setTimeout( () => {
+    this.timeout = setTimeout(() => {
       clearTimeout(this.timeout);
       if (this._isMounted) {
         this.setState({ clicked: false, error: undefined });
       }
     }, 3000);
-  }
+  };
 
   error = () => {
     if (this._isMounted) {
-      this.setState({ clicked: false, error: `https://${window.location.hostname}/${this.props.suffix}` });
+      this.setState({
+        clicked: false,
+        error: this.generateClipboardText(),
+      });
+    }
+  };
+
+  generateClipboardText() {
+    switch (this.props.variant) {
+      case "prefixedWithHostname":
+        return `https://${window.location.hostname}${this.props.text}`;
+      case "fullText":
+        return this.props.text;
+      default:
+        console.error("Invalid props on Share component");
+        return "";
     }
   }
 
   render() {
+    let color = this.props.color || "gray";
     return (
-      <div className="share">
+      <div className={`share share--${color}`}>
         <div id="shareButton">
           <Clipboard
-            data-clipboard-text={`https://${window.location.hostname}/${this.props.suffix}`}
+            data-clipboard-text={this.generateClipboardText()}
             onSuccess={this.popover}
             onError={this.error}
           >
-            {
-              this.state.error ?
-                this.state.error :
-                this.state.clicked ? 'Copied!' : <FaExternalLinkAlt />
-            }
+            {this.state.error
+              ? this.state.error
+              : this.state.clicked
+              ? "Copied!"
+              : this.props.iconComponent || <FaExternalLinkAlt />}
           </Clipboard>
         </div>
       </div>
