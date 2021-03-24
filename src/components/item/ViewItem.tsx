@@ -31,7 +31,8 @@ import HtmlDescription from "../utils/HtmlDescription";
 import _ from "lodash";
 import generateFocusGradient from "../utils/gradientGenerator";
 import { FaFileCode } from "react-icons/fa";
-import { iframeEmbedCodeURL } from "urls";
+import { iframeItemEmbedCodeURL } from "urls";
+import { itemURL } from "../../urls";
 
 type MatchParams = {
   id: string;
@@ -253,7 +254,7 @@ class ViewItem extends React.Component<Props, State> {
                       <h3 style={{ marginLeft: "1rem" }}>
                         <Share
                           variant="prefixedWithHostname"
-                          text={`view/${id}`}
+                          text={itemURL(id)}
                         />
                       </h3>
                     )}
@@ -261,7 +262,7 @@ class ViewItem extends React.Component<Props, State> {
                       <Share
                         variant="fullText"
                         iconComponent={<FaFileCode />}
-                        text={iframeEmbedCodeURL(
+                        text={iframeItemEmbedCodeURL(
                           this.props.item.id,
                           this.props.item.title || ""
                         )}

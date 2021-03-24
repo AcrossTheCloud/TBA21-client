@@ -1,10 +1,17 @@
 @import "../base/variables";
 
 .share {
+  color: $mid-gray;
+  &.share--gray {
+    color: $mid-gray;
+  }
+  &.share--dark-gray {
+    color: $dark-gray;
+  }
   button {
     text-align: right;
     cursor: pointer;
-    color: $mid-gray;
+    color: inherit;
     background: none;
     border: none;
     &:focus {

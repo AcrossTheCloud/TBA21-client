@@ -33,6 +33,7 @@ import HtmlDescription from "../utils/HtmlDescription";
 import _ from "lodash";
 import generateFocusGradient from "../utils/gradientGenerator";
 import DataLayout from "components/utils/DataLayout";
+import { collectionURL } from "../../urls";
 
 type MatchParams = {
   id: string;
@@ -427,7 +428,7 @@ class ViewCollection extends React.Component<Props, State> {
                     <h3 style={{ marginLeft: "1rem" }}>
                       <Share
                         variant={"prefixedWithHostname"}
-                        text={`collection/${id}`}
+                        text={collectionURL(id)}
                       />
                     </h3>
                   )}

@@ -9,17 +9,18 @@ interface State {
   error?: string;
 }
 
-type Props =
+type Props = {
+  color?: "dark-gray" | "gray";
+  iconComponent?: React.ReactElement;
+  text: string;
+} & (
   | {
       variant: "prefixedWithHostname";
-      text: string;
-      iconComponent?: React.ReactElement;
     }
   | {
       variant: "fullText";
-      text: string;
-      iconComponent?: React.ReactElement;
-    };
+    }
+);
 
 export default class Share extends React.Component<Props, State> {
   _isMounted;
@@ -63,18 +64,21 @@ export default class Share extends React.Component<Props, State> {
   };
 
   generateClipboardText() {
-    if (this.props.variant == "prefixedWithHostname") {
-      return `https://${window.location.hostname}/${this.props.text}`;
-    } else if (this.props.variant == "fullText") {
-      return this.props.text;
+    switch (this.props.variant) {
+      case "prefixedWithHostname":
+        return `https://${window.location.hostname}${this.props.text}`;
+      case "fullText":
+        return this.props.text;
+      default:
+        console.error("Invalid props on Share component");
+        return "";
     }
-    console.error("Invalid props on Share component");
-    return "";
   }
 
   render() {
+    let color = this.props.color || "gray";
     return (
-      <div className="share">
+      <div className={`share share--${color}`}>
         <div id="shareButton">
           <Clipboard
             data-clipboard-text={this.generateClipboardText()}
