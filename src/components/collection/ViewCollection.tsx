@@ -1,31 +1,38 @@
-import * as React from 'react';
-import { connect } from 'react-redux';
-import { Button, Col, Row } from 'reactstrap';
-import { dispatchLoadMore, fetchCollection, loadMore } from 'actions/collections/viewCollection';
-import { ViewCollectionState } from 'reducers/collections/viewCollection';
-import { ErrorMessage } from '../utils/alerts';
-import SpecialMenu from '../utils/SpecialMenu';
-import { browser } from '../utils/browser';
-import LicenceLink from '../utils/LicenceLink'
-import { RouteComponentProps, withRouter } from 'react-router';
-import Share from '../utils/Share';
-import moment from 'moment';
-import 'styles/components/pages/viewItem.scss';
-import { Item, Regions } from '../../types/Item';
-import { Collection } from '../../types/Collection';
-import { FilePreview } from '../utils/FilePreview';
-import { debounce, isEqual } from 'lodash';
+import * as React from "react";
+import { connect } from "react-redux";
+import { Button, Col, Row } from "reactstrap";
+import {
+  dispatchLoadMore,
+  fetchCollection,
+  loadMore,
+} from "actions/collections/viewCollection";
+import { ViewCollectionState } from "reducers/collections/viewCollection";
+import { ErrorMessage } from "../utils/alerts";
+import SpecialMenu from "../utils/SpecialMenu";
+import { browser } from "../utils/browser";
+import LicenceLink from "../utils/LicenceLink";
+import { RouteComponentProps, withRouter } from "react-router";
+import Share from "../utils/Share";
+import moment from "moment";
+import "styles/components/pages/viewItem.scss";
+import { Item, Regions } from "../../types/Item";
+import { Collection } from "../../types/Collection";
+import { FilePreview } from "../utils/FilePreview";
+import { debounce, isEqual } from "lodash";
 
-import { createCriteriaOption } from '../search/SearchConsole';
-import { toggle as collectionModalToggle } from '../../actions/modals/collectionModal';
-import { toggle as itemModalToggle } from 'actions/modals/itemModal';
-import { pushEntity as pushUserHistoryEntity } from '../../actions/user-history';
-import { search as dispatchSearch, toggle as searchOpenToggle } from '../../actions/searchConsole';
-import { UserHistoryState } from '../../reducers/user-history';
-import HtmlDescription from '../utils/HtmlDescription';
-import _ from 'lodash';
-import generateFocusGradient from '../utils/gradientGenerator';
-import DataLayout from 'components/utils/DataLayout';
+import { createCriteriaOption } from "../search/SearchConsole";
+import { toggle as collectionModalToggle } from "../../actions/modals/collectionModal";
+import { toggle as itemModalToggle } from "actions/modals/itemModal";
+import { pushEntity as pushUserHistoryEntity } from "../../actions/user-history";
+import {
+  search as dispatchSearch,
+  toggle as searchOpenToggle,
+} from "../../actions/searchConsole";
+import { UserHistoryState } from "../../reducers/user-history";
+import HtmlDescription from "../utils/HtmlDescription";
+import _ from "lodash";
+import generateFocusGradient from "../utils/gradientGenerator";
+import DataLayout from "components/utils/DataLayout";
 
 type MatchParams = {
   id: string;
@@ -75,12 +82,15 @@ class ViewCollection extends React.Component<Props, State> {
       offset: 0,
       loading: false,
       noMoreData: false,
-      collectionModalToggled: false
+      collectionModalToggled: false,
     };
 
     const { match } = this.props;
     if (!this.props.noRedux && match && match.params.id) {
-      if (!this.props.collection && typeof this.props.fetchCollection !== 'undefined') {
+      if (
+        !this.props.collection &&
+        typeof this.props.fetchCollection !== "undefined"
+      ) {
         Object.assign(state, { loading: true });
         this.props.fetchCollection(match.params.id);
       }
@@ -90,7 +100,7 @@ class ViewCollection extends React.Component<Props, State> {
 
     this.browser = browser();
 
-    this.scrollDebounce = debounce( async () => await this.handleScroll(), 300);
+    this.scrollDebounce = debounce(async () => await this.handleScroll(), 300);
   }
 
   async componentDidMount(): Promise<void> {
@@ -102,78 +112,105 @@ class ViewCollection extends React.Component<Props, State> {
 
     if (modalBodyID) {
       this.modalBodyDiv = document.getElementById(modalBodyID);
-      this.modalBodyDiv.addEventListener('scroll',  this.scrollDebounce, true);
+      this.modalBodyDiv.addEventListener("scroll", this.scrollDebounce, true);
       await this.loadData();
     } else {
       if (collection && this._isMounted) {
-        this.setState({ collection, dataRowID: `dataRow_${collection.id}_${Date.now()}`} , async () => await this.loadData());
+        this.setState(
+          { collection, dataRowID: `dataRow_${collection.id}_${Date.now()}` },
+          async () => await this.loadData()
+        );
       }
-      window.addEventListener('scroll',  this.scrollDebounce, true);
+      window.addEventListener("scroll", this.scrollDebounce, true);
     }
   }
 
   componentWillUnmount(): void {
     if (this.modalBodyDiv) {
-      this.modalBodyDiv.removeEventListener('scroll', this.scrollDebounce, false);
+      this.modalBodyDiv.removeEventListener(
+        "scroll",
+        this.scrollDebounce,
+        false
+      );
     } else {
-      window.removeEventListener('scroll',  this.scrollDebounce, true);
+      window.removeEventListener("scroll", this.scrollDebounce, true);
     }
 
     this._isMounted = false;
   }
 
-  async componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>): Promise<void> {
-    if (!this._isMounted) { return; }
+  async componentDidUpdate(
+    prevProps: Readonly<Props>,
+    prevState: Readonly<{}>
+  ): Promise<void> {
+    if (!this._isMounted) {
+      return;
+    }
 
     await this.pushCollectionToHistory(prevProps.collection);
 
-    if (this.props.noMoreData !== prevProps.noMoreData && this.props.noMoreData) {
-      this.setState( { noMoreData: true });
+    if (
+      this.props.noMoreData !== prevProps.noMoreData &&
+      this.props.noMoreData
+    ) {
+      this.setState({ noMoreData: true });
     }
 
     if (!this.props.noRedux) {
-      if ((typeof prevProps.collection === 'undefined' && !!this.props.collection) || (!!this.props.collection && !!this.state.collection && this.props.collection.id !== this.state.collection.id)) {
+      if (
+        (typeof prevProps.collection === "undefined" &&
+          !!this.props.collection) ||
+        (!!this.props.collection &&
+          !!this.state.collection &&
+          this.props.collection.id !== this.state.collection.id)
+      ) {
         // We've just loaded our collection via fetchCollection
         this.setState(
-            {
-              noMoreData: false,
-              loading: false,
-              collection: this.props.collection,
-              dataRowID: `dataRow_${this.props.collection.id}_${Date.now()}`
-            },
-            async () => await this.loadData()
+          {
+            noMoreData: false,
+            loading: false,
+            collection: this.props.collection,
+            dataRowID: `dataRow_${this.props.collection.id}_${Date.now()}`,
+          },
+          async () => await this.loadData()
         );
         return;
       }
 
       if (!isEqual(this.props.data, this.state.data)) {
-        const items = this.props.data ? this.props.data
-            .filter((data: Item | Collection) => {
-              return data.__typename === 'item';
+        const items = this.props.data
+          ? (this.props.data.filter((data: Item | Collection) => {
+              return data.__typename === "item";
               // tslint:disable-next-line:no-any
-            }) as any : [];
+            }) as any)
+          : [];
 
-        const collections = this.props.data ? this.props.data
-            .filter((data: Item | Collection) => {
-              return data.__typename === 'collection';
+        const collections = this.props.data
+          ? (this.props.data.filter((data: Item | Collection) => {
+              return data.__typename === "collection";
               // tslint:disable-next-line:no-any
-            }) as any : [];
+            }) as any)
+          : [];
         this.setState({
           data: this.props.data || [],
           collection: {
             ...this.state.collection,
             items: [...items],
-            collections: [...collections]
+            collections: [...collections],
           } as Collection,
-          firstItem: this.props.data ?
-              this.props.data
-                  .filter((data: Item | Collection) => {
-                    return data.__typename === 'item';
-                  })
-                  .filter((data: Item) => {
-                    return (data.item_type === 'Image' || data.item_type === 'Video' || data.item_type === 'IFrame')
-                  })[0] as Item
-              : undefined
+          firstItem: this.props.data
+            ? (this.props.data
+                .filter((data: Item | Collection) => {
+                  return data.__typename === "item";
+                })
+                .filter((data: Item) => {
+                  return (
+                    data.item_type === "Image" ||
+                    data.item_type === "Video" ||
+                    data.item_type === "IFrame"
+                  );
+                })[0] as Item)
+            : undefined,
         });
       }
     }
@@ -182,7 +219,7 @@ class ViewCollection extends React.Component<Props, State> {
   async pushCollectionToHistory(prevCollection?: Collection): Promise<void> {
     if (this.props.collection !== undefined) {
       if (prevCollection !== undefined) {
-        if (!_.isEqual(this.props.collection,prevCollection)) {
+        if (!_.isEqual(this.props.collection, prevCollection)) {
           const userHistoryEntity = await this.createHistoryEntity();
           this.props.pushUserHistoryEntity(userHistoryEntity);
         }
@@ -196,63 +233,88 @@ class ViewCollection extends React.Component<Props, State> {
   async createHistoryEntity(): Promise<Collection> {
     return {
       ...this.props.collection,
-      __typename: 'collection'
-    }
+      __typename: "collection",
+    };
   }
 
   loadData = async () => {
-    if (!this._isMounted || this.state.noMoreData) { return; }
+    if (!this._isMounted || this.state.noMoreData) {
+      return;
+    }
 
     this.setState({ loading: true });
     // If we have an id from the URL pass it through, otherwise use the one from Redux State
     if (this.state.collection && this.state.collection.id) {
       if (this.props.noRedux) {
         try {
-          await loadMore(this.state.collection.id, this.state.offset, (datum) => {
-            if (!this._isMounted) { return; }
-            if (datum) {
-              this.setState({data: [...this.state.data as [], datum], offset: this.state.offset + 100});
-            } else {
-              this.setState({ noMoreData: true });
+          await loadMore(
+            this.state.collection.id,
+            this.state.offset,
+            (datum) => {
+              if (!this._isMounted) {
+                return;
+              }
+              if (datum) {
+                this.setState({
+                  data: [...(this.state.data as []), datum],
+                  offset: this.state.offset + 100,
+                });
+              } else {
+                this.setState({ noMoreData: true });
+              }
             }
-          });
+          );
         } catch (e) {
-          this.setState({ errorMessage: 'Something went wrong loading the data for this collection, sorry!' });
+          this.setState({
+            errorMessage:
+              "Something went wrong loading the data for this collection, sorry!",
+          });
         }
       } else {
-        if (typeof this.props.dispatchLoadMore === 'function') {
-          await this.props.dispatchLoadMore(this.state.collection.id, this.props.offset);
+        if (typeof this.props.dispatchLoadMore === "function") {
+          await this.props.dispatchLoadMore(
+            this.state.collection.id,
+            this.props.offset
+          );
         }
       }
 
       if (this._isMounted) {
-        this.setState({loading: false}, () => {
+        this.setState({ loading: false }, () => {
           if (this.scrollCheck()) {
             this.loadData();
           }
         });
       }
     }
-  }
+  };
 
   collectionModalToggle = (collectionModalData: Collection) => {
-    if (!this._isMounted) { return; }
-    if (typeof this.props.fetchCollection !== 'undefined') {
-      this.props.collectionModalToggle(true, collectionModalData)
+    if (!this._isMounted) {
+      return;
     }
-  }
+    if (typeof this.props.fetchCollection !== "undefined") {
+      this.props.collectionModalToggle(true, collectionModalData);
+    }
+  };
 
   /**
    * returns true for the bottom of the page or false for anywhere above the bottom
    */
   scrollCheck = (): boolean => {
     if (this.modalBodyDiv) {
-      return ( this.modalBodyDiv.scrollTop >= ((this.modalBodyDiv.scrollHeight - this.modalBodyDiv.offsetHeight) / 1.7) );
+      return (
+        this.modalBodyDiv.scrollTop >=
+        (this.modalBodyDiv.scrollHeight - this.modalBodyDiv.offsetHeight) / 1.7
+      );
     } else {
       if (this.state.dataRowID) {
         const dataRowElement = document.getElementById(this.state.dataRowID);
         if (dataRowElement) {
-          return (document.documentElement.scrollTop >= (document.body.offsetHeight - dataRowElement.offsetHeight) / 1.7);
+          return (
+            document.documentElement.scrollTop >=
+            (document.body.offsetHeight - dataRowElement.offsetHeight) / 1.7
+          );
         } else {
           return false;
         }
@@ -260,15 +322,17 @@ class ViewCollection extends React.Component<Props, State> {
         return false;
       }
     }
-  }
+  };
 
   handleScroll = async () => {
-    if (this.state.noMoreData) { return; }
+    if (this.state.noMoreData) {
+      return;
+    }
 
     if (!this.state.loading && this.scrollCheck()) {
       await this.loadData();
     }
-  }
+  };
 
   // @todo should be a util / dispatch
   onTagClick = (label: string, field: string) => {
@@ -278,10 +342,10 @@ class ViewCollection extends React.Component<Props, State> {
       this.props.searchOpenToggle(true);
       this.props.dispatchSearch([createCriteriaOption(label, field)]);
     });
-  }
+  };
 
   render() {
-    if (typeof this.state.collection === 'undefined') {
+    if (typeof this.state.collection === "undefined") {
       return <ErrorMessage message={this.props.errorMessage} />;
     }
     const {
@@ -302,198 +366,272 @@ class ViewCollection extends React.Component<Props, State> {
       exhibited_at,
       url,
       regions,
-      copyright_holder
+      copyright_holder,
     } = this.state.collection;
 
-    const CollectionDetails = (props: { label: string, value: string | JSX.Element }): JSX.Element => (
+    const CollectionDetails = (props: {
+      label: string;
+      value: string | JSX.Element;
+    }): JSX.Element => (
       <Row className="border-bottom subline details">
-        <Col xs="12" md="6">{props.label}</Col>
-        <Col xs="12" md="6">{props.value}</Col>
+        <Col xs="12" md="6">
+          {props.label}
+        </Col>
+        <Col xs="12" md="6">
+          {props.value}
+        </Col>
       </Row>
     );
 
     if (this.props.userHistory && this.props.userHistory.loading) {
-      return (<></>);
+      return <></>;
     }
 
     return (
       <div id="item" className="container-fluid">
         <ErrorMessage message={this.props.errorMessage} />
         <Row className="file">
-          {
-            this.state.firstItem ?
-              (this.state.firstItem.item_type === 'IFrame' ?
-                (
-
-                  <DataLayout
-                    data={this.state.firstItem}
-                    key={`item_${this.state.firstItem.id}`}
-                    itemModalToggle={this.props.itemModalToggle}
-                    collectionModalToggle={this.collectionModalToggle}
-                    firstItem={true}
-                  />
-                ) :
-                (
-                  <FilePreview file={this.state.firstItem.file} isHeader={true}/>
-                )
-              )
-                : <></>
-          }
+          {this.state.firstItem ? (
+            this.state.firstItem.item_type === "IFrame" ? (
+              <DataLayout
+                data={this.state.firstItem}
+                key={`item_${this.state.firstItem.id}`}
+                itemModalToggle={this.props.itemModalToggle}
+                collectionModalToggle={this.collectionModalToggle}
+                firstItem={true}
+              />
+            ) : (
+              <FilePreview file={this.state.firstItem.file} isHeader={true} />
+            )
+          ) : (
+            <></>
+          )}
         </Row>
 
         <Row>
           <Col xs="12" md="8" className="left border-right">
             <Row>
-              <Col xs={{ size: 12, order: 2 }} md={{ size: 8, order: 1 }} className="creators">
-                {creators ? creators.join(', ') : <></>}
+              <Col
+                xs={{ size: 12, order: 2 }}
+                md={{ size: 8, order: 1 }}
+                className="creators"
+              >
+                {creators ? creators.join(", ") : <></>}
               </Col>
             </Row>
             <Row>
               <Col>
                 <div className="flex items-center justify-between">
                   <h1>{title}</h1>
-                  {!!id &&
+                  {!!id && (
                     <h3 style={{ marginLeft: "1rem" }}>
-                      <Share suffix={`collection/${id}`} />
+                      <Share
+                        variant={"prefixedWithHostname"}
+                        text={`collection/${id}`}
+                      />
                     </h3>
-                  }
+                  )}
                 </div>
               </Col>
             </Row>
             <Row>
               <Col className="description">
-                {
-                  description ?
-                    <HtmlDescription description={description} />
-                  : <></>
-                }
+                {description ? (
+                  <HtmlDescription description={description} />
+                ) : (
+                  <></>
+                )}
               </Col>
             </Row>
 
             <Row id={this.state.dataRowID}>
-            {
-                this.state.collection.collections && this.state.collection.collections.length ?
-                    // tslint:disable-next-line:no-any
-                    (this.state.collection.collections as any[])
-                        .map((collection: Collection, i) => (
-                            <DataLayout
-                                data={collection}
-                                key={`collection_${collection.id}`}
-                                itemModalToggle={this.props.itemModalToggle}
-                                collectionModalToggle={this.collectionModalToggle}
-                            />
-                          ))
-                    : <></>
-              }
-              {
-                this.state.collection.items && this.state.collection.items.length ?
-                    // tslint:disable-next-line:no-any
-                    (this.state.collection.items as any[])
-                        .filter((item: Item) => {
-                          if (this.state.firstItem) {
-                            return item.id !== this.state.firstItem.id
-                          } else {
-                            return true;
-                          }
-                        })
-                        .map((item: Item, i) => (
-                            <DataLayout
-                                data={item}
-                                key={`item_${item.id}`}
-                                itemModalToggle={this.props.itemModalToggle}
-                                collectionModalToggle={this.collectionModalToggle}
-                            />
-                          ))
-                    : <></>
-              }
+              {this.state.collection.collections &&
+              this.state.collection.collections.length ? (
+                // tslint:disable-next-line:no-any
+                (this.state.collection
+                  .collections as any[]).map((collection: Collection, i) => (
+                  <DataLayout
+                    data={collection}
+                    key={`collection_${collection.id}`}
+                    itemModalToggle={this.props.itemModalToggle}
+                    collectionModalToggle={this.collectionModalToggle}
+                  />
+                ))
+              ) : (
+                <></>
+              )}
+              {this.state.collection.items &&
+              this.state.collection.items.length ? (
+                // tslint:disable-next-line:no-any
+                (this.state.collection.items as any[])
+                  .filter((item: Item) => {
+                    if (this.state.firstItem) {
+                      return item.id !== this.state.firstItem.id;
+                    } else {
+                      return true;
+                    }
+                  })
+                  .map((item: Item, i) => (
+                    <DataLayout
+                      data={item}
+                      key={`item_${item.id}`}
+                      itemModalToggle={this.props.itemModalToggle}
+                      collectionModalToggle={this.collectionModalToggle}
+                    />
+                  ))
+              ) : (
+                <></>
+              )}
             </Row>
           </Col>
 
           <Col xs="12" md="4" className="right">
-            {!!title ?
-                <CollectionDetails label="Title" value={title} /> : <></>
-            }
-            {!!creators ?
-                <CollectionDetails label="Creators" value={creators.join(', ')} /> : <></>
-            }
-            {!!time_produced ?
-              <CollectionDetails label="Date Produced" value={moment(time_produced, moment.defaultFormatUtc).format('Do MMMM YYYY')} />
-              : year_produced ? <CollectionDetails label="Year Produced" value={year_produced} /> : <></>
-            }
-            {!!venues && venues.length ?
-              <CollectionDetails label="Publication Venue(s)" value={`${venues.join(', ')}`} />
-              : <></>
-            }
-            {!!exhibited_at && exhibited_at.length ?
-              <CollectionDetails label="Exhibited At" value={`${exhibited_at.join(', ')}`} />
-              : <></>
-            }
-            {!!regions && regions.length ?
-              <CollectionDetails label="Region" value={regions.map((region) => (Regions[region])).join(', ')} />
-              :
-              ''
-            }
-            {!!license ? <LicenceLink licence={license} /> : ''}
-            {!!copyright_holder ? <CollectionDetails label="Copyright Owner" value={copyright_holder} /> : ''}
-            {!!url ? <CollectionDetails label="Relation" value={<a href={url} target="_blank" rel="noreferrer noopener">Click here to view</a>} /> : ''}
+            {!!title ? (
+              <CollectionDetails label="Title" value={title} />
+            ) : (
+              <></>
+            )}
+            {!!creators ? (
+              <CollectionDetails label="Creators" value={creators.join(", ")} />
+            ) : (
+              <></>
+            )}
+            {!!time_produced ? (
+              <CollectionDetails
+                label="Date Produced"
+                value={moment(time_produced, moment.defaultFormatUtc).format(
+                  "Do MMMM YYYY"
+                )}
+              />
+            ) : year_produced ? (
+              <CollectionDetails label="Year Produced" value={year_produced} />
+            ) : (
+              <></>
+            )}
+            {!!venues && venues.length ? (
+              <CollectionDetails
+                label="Publication Venue(s)"
+                value={`${venues.join(", ")}`}
+              />
+            ) : (
+              <></>
+            )}
+            {!!exhibited_at && exhibited_at.length ? (
+              <CollectionDetails
+                label="Exhibited At"
+                value={`${exhibited_at.join(", ")}`}
+              />
+            ) : (
+              <></>
+            )}
+            {!!regions && regions.length ? (
+              <CollectionDetails
+                label="Region"
+                value={regions.map((region) => Regions[region]).join(", ")}
+              />
+            ) : (
+              ""
+            )}
+            {!!license ? <LicenceLink licence={license} /> : ""}
+            {!!copyright_holder ? (
+              <CollectionDetails
+                label="Copyright Owner"
+                value={copyright_holder}
+              />
+            ) : (
+              ""
+            )}
+            {!!url ? (
+              <CollectionDetails
+                label="Relation"
+                value={
+                  <a href={url} target="_blank" rel="noreferrer noopener">
+                    Click here to view
+                  </a>
+                }
+              />
+            ) : (
+              ""
+            )}
 
-            {!!aggregated_concept_tags && aggregated_concept_tags.length ?
-              (
-                <Row className="border-bottom subline details">
-                  <Col xs="12" className="mb-2">Concept Tags</Col>
-                  <Col xs="12">
-                    <div className="tagWrapper">
-                    {
-                      aggregated_concept_tags.map(t => {
-                        return (
-                            <Button
-                                className="page-link tag d-inline-block text-left"
-                                style={{padding: 0, marginBottom: 10, background: 'none'}}
-                                key={t.tag_name}
-                                onClick={() => this.onTagClick(t.tag_name, 'concept_tag')}
-                            >
-                              #{t.tag_name}
-                            </Button>
-                        );
-                      })
-                    }
-                    </div>
-                  </Col>
-                </Row>
-              )
-            : ''}
-            {!!aggregated_keyword_tags && aggregated_keyword_tags.length ?
-              (
-                <Row className="subline details">
-                  <Col xs="12" >Keyword Tags</Col>
-                  <Col xs="12">
-                    <div className="tagWrapper">
-                    {
-                      aggregated_keyword_tags.map(t => {
-                        return (
-                            <Button
-                                className="ml-1 tag d-inline-block text-left"
-                                style={{padding: 0, paddingRight: 15, paddingLeft: 0, margin: 0, background: 'none'}}
-                                key={t.tag_name}
-                                onClick={() => this.onTagClick(t.tag_name, 'keyword_tag')}
-                            >
-                              #{t.tag_name}
-                            </Button>
-                        );
-                      })
-                    }
-                    </div>
-                  </Col>
-                </Row>
-              )
-              : ''}
+            {!!aggregated_concept_tags && aggregated_concept_tags.length ? (
+              <Row className="border-bottom subline details">
+                <Col xs="12" className="mb-2">
+                  Concept Tags
+                </Col>
+                <Col xs="12">
+                  <div className="tagWrapper">
+                    {aggregated_concept_tags.map((t) => {
+                      return (
+                        <Button
+                          className="page-link tag d-inline-block text-left"
+                          style={{
+                            padding: 0,
+                            marginBottom: 10,
+                            background: "none",
+                          }}
+                          key={t.tag_name}
+                          onClick={() =>
+                            this.onTagClick(t.tag_name, "concept_tag")
+                          }
+                        >
+                          #{t.tag_name}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </Col>
+              </Row>
+            ) : (
+              ""
+            )}
+            {!!aggregated_keyword_tags && aggregated_keyword_tags.length ? (
+              <Row className="subline details">
+                <Col xs="12">Keyword Tags</Col>
+                <Col xs="12">
+                  <div className="tagWrapper">
+                    {aggregated_keyword_tags.map((t) => {
+                      return (
+                        <Button
+                          className="ml-1 tag d-inline-block text-left"
+                          style={{
+                            padding: 0,
+                            paddingRight: 15,
+                            paddingLeft: 0,
+                            margin: 0,
+                            background: "none",
+                          }}
+                          key={t.tag_name}
+                          onClick={() =>
+                            this.onTagClick(t.tag_name, "keyword_tag")
+                          }
+                        >
+                          #{t.tag_name}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </Col>
+              </Row>
+            ) : (
+              ""
+            )}
             <Row>
               <Col className="px-0">
-                <div style={{ height: '15px', background: generateFocusGradient(focus_arts, focus_scitech, focus_action) }} />
+                <div
+                  style={{
+                    height: "15px",
+                    background: generateFocusGradient(
+                      focus_arts,
+                      focus_scitech,
+                      focus_action
+                    ),
+                  }}
+                />
               </Col>
             </Row>
             <Row>
-              <SpecialMenu id={id}/>
+              <SpecialMenu id={id} />
             </Row>
           </Col>
         </Row>
@@ -503,7 +641,10 @@ class ViewCollection extends React.Component<Props, State> {
 }
 
 // State to props
-const mapStateToProps = (state: { viewCollection: ViewCollectionState, userHistory: UserHistoryState }, props: { modalBodyID?: string, collection?: Collection, noRedux?: boolean}) => {
+const mapStateToProps = (
+  state: { viewCollection: ViewCollectionState; userHistory: UserHistoryState },
+  props: { modalBodyID?: string; collection?: Collection; noRedux?: boolean }
+) => {
   return {
     errorMessage: state.viewCollection.errorMessage,
     collection: props.collection || state.viewCollection.collection,
@@ -511,19 +652,21 @@ const mapStateToProps = (state: { viewCollection: ViewCollectionState, userHisto
     firstItem: state.viewCollection.firstItem,
     offset: state.viewCollection.offset,
     noMoreData: state.viewCollection.noMoreData,
-    noRedux: (props.hasOwnProperty('noRedux') && props.noRedux) || false,
+    noRedux: (props.hasOwnProperty("noRedux") && props.noRedux) || false,
     modalBodyID: props.modalBodyID,
-    userHistory: state.userHistory
+    userHistory: state.userHistory,
   };
 };
 
 // Connect our redux store State to Props, and pass through the fetchCollection function.
-export default withRouter(connect(mapStateToProps, {
-  fetchCollection,
-  dispatchLoadMore,
-  collectionModalToggle,
-  itemModalToggle,
-  pushUserHistoryEntity,
-  searchOpenToggle,
-  dispatchSearch
-})(ViewCollection));
+export default withRouter(
+  connect(mapStateToProps, {
+    fetchCollection,
+    dispatchLoadMore,
+    collectionModalToggle,
+    itemModalToggle,
+    pushUserHistoryEntity,
+    searchOpenToggle,
+    dispatchSearch,
+  })(ViewCollection)
+);

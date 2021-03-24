@@ -1,17 +1,25 @@
-import * as React from 'react';
-import Clipboard from 'react-clipboard.js';
+import * as React from "react";
+import Clipboard from "react-clipboard.js";
 
-import 'styles/utils/share.scss';
-import { FaExternalLinkAlt } from 'react-icons/fa';
+import "styles/utils/share.scss";
+import { FaExternalLinkAlt } from "react-icons/fa";
 
 interface State {
   clicked: boolean;
   error?: string;
 }
 
-interface Props {
-  suffix: string;
-}
+type Props =
+  | {
+      variant: "prefixedWithHostname";
+      text: string;
+      iconComponent?: React.ReactElement;
+    }
+  | {
+      variant: "fullText";
+      text: string;
+      iconComponent?: React.ReactElement;
+    };
 
 export default class Share extends React.Component<Props, State> {
   _isMounted;
@@ -21,7 +29,7 @@ export default class Share extends React.Component<Props, State> {
     super(props);
     this._isMounted = false;
     this.state = {
-      clicked: false
+      clicked: false,
     };
   }
 
@@ -37,18 +45,31 @@ export default class Share extends React.Component<Props, State> {
     if (!this.state.clicked && this._isMounted) {
       this.setState({ clicked: true });
     }
-    this.timeout = setTimeout( () => {
+    this.timeout = setTimeout(() => {
       clearTimeout(this.timeout);
       if (this._isMounted) {
         this.setState({ clicked: false, error: undefined });
       }
     }, 3000);
-  }
+  };
 
   error = () => {
     if (this._isMounted) {
-      this.setState({ clicked: false, error: `https://${window.location.hostname}/${this.props.suffix}` });
+      this.setState({
+        clicked: false,
+        error: this.generateClipboardText(),
+      });
     }
+  };
+
+  generateClipboardText() {
+    if (this.props.variant == "prefixedWithHostname") {
+      return `https://${window.location.hostname}/${this.props.text}`;
+    } else if (this.props.variant == "fullText") {
+      return this.props.text;
+    }
+    console.error("Invalid props on Share component");
+    return "";
   }
 
   render() {
@@ -56,15 +77,15 @@ export default class Share extends React.Component<Props, State> {
       <div className="share">
         <div id="shareButton">
           <Clipboard
-            data-clipboard-text={`https://${window.location.hostname}/${this.props.suffix}`}
+            data-clipboard-text={this.generateClipboardText()}
             onSuccess={this.popover}
             onError={this.error}
           >
-            {
-              this.state.error ?
-                this.state.error :
-                this.state.clicked ? 'Copied!' : <FaExternalLinkAlt />
-            }
+            {this.state.error
+              ? this.state.error
+              : this.state.clicked
+              ? "Copied!"
+              : this.props.iconComponent || <FaExternalLinkAlt />}
           </Clipboard>
         </div>
       </div>
