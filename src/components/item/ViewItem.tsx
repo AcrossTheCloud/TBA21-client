@@ -30,7 +30,7 @@ import { HomepageData } from "../../reducers/home";
 import HtmlDescription from "../utils/HtmlDescription";
 import _ from "lodash";
 import generateFocusGradient from "../utils/gradientGenerator";
-import { FaFileCode } from "react-icons/fa";
+import { FaCode } from "react-icons/fa";
 import { iframeItemEmbedCodeURL } from "urls";
 import { itemURL } from "../../urls";
 
@@ -261,7 +261,7 @@ class ViewItem extends React.Component<Props, State> {
                     <h3>
                       <Share
                         variant="fullText"
-                        iconComponent={<FaFileCode />}
+                        iconComponent={<FaCode />}
                         text={iframeItemEmbedCodeURL(
                           this.props.item.id,
                           this.props.item.title || ""

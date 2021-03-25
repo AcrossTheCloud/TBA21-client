@@ -1,6 +1,6 @@
 import * as React from "react";
 import { connect } from "react-redux";
-import { FaMapMarked, FaFileCode } from "react-icons/fa";
+import { FaMapMarked, FaCode } from "react-icons/fa";
 import {
   Button,
   Col,
@@ -3485,7 +3485,7 @@ class ItemEditorClass extends React.Component<Props, State> {
                       <Share
                         color="dark-gray"
                         variant="fullText"
-                        iconComponent={<FaFileCode />}
+                        iconComponent={<FaCode />}
                         text={iframeItemEmbedCodeURL(
                           this.props.item.id,
                           this.props.item.title || ""
