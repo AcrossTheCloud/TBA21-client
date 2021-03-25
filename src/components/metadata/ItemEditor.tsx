@@ -3481,6 +3481,7 @@ class ItemEditorClass extends React.Component<Props, State> {
                         />
                       </h3>
                     )}
+                    {(this.props.item.item_type !== "VideoEmbed")? (
                     <h3>
                       <Share
                         color="dark-gray"
@@ -3491,7 +3492,8 @@ class ItemEditorClass extends React.Component<Props, State> {
                           this.props.item.title || ""
                         )}
                       />
-                    </h3>
+                    </h3>) : <></>
+                    }
                   </div>
                 )}
               </Nav>

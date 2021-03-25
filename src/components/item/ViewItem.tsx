@@ -258,6 +258,7 @@ class ViewItem extends React.Component<Props, State> {
                         />
                       </h3>
                     )}
+                    {(file && file.type !== FileTypes.VideoEmbed)? (
                     <h3>
                       <Share
                         variant="fullText"
@@ -267,7 +268,8 @@ class ViewItem extends React.Component<Props, State> {
                           this.props.item.title || ""
                         )}
                       />
-                    </h3>
+                    </h3>) : <></>
+                    }
                   </div>
                 </div>
               </Col>
