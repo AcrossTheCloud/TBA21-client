@@ -1,29 +1,32 @@
-import * as React from 'react';
-import { connect } from 'react-redux';
+import * as React from "react";
+import { connect } from "react-redux";
 
-import { State } from 'reducers/user/viewProfile';
+import { State } from "reducers/user/viewProfile";
 
-import { RouteComponentProps, withRouter } from 'react-router';
+import { RouteComponentProps, withRouter } from "react-router";
 
-import 'styles/components/pages/viewProfile.scss';
-import { Alerts, ErrorMessage } from '../../utils/alerts';
-import { Profile } from '../../../types/Profile';
-import { fetchProfile, fetchProfileItemsAndCollections } from '../../../actions/user/viewProfile';
-import { Col, Row, Spinner } from 'reactstrap';
-import "../../../styles/components/pages/viewProfile.scss"
-import { Item } from 'types/Item';
-import { toggle as itemModalToggle } from 'actions/modals/itemModal';
-import { toggle as collectionModalToggle } from 'actions/modals/collectionModal';
-import { Collection } from 'types/Collection';
-import { debounce } from 'lodash';
-import DataLayout from 'components/utils/DataLayout';
-import Share from '../../utils/Share';
-import { viewProfileURL } from '../../../urls';
+import "styles/components/pages/viewProfile.scss";
+import { Alerts, ErrorMessage } from "../../utils/alerts";
+import { Profile } from "../../../types/Profile";
+import {
+  fetchProfile,
+  fetchProfileItemsAndCollections,
+} from "../../../actions/user/viewProfile";
+import { Col, Row, Spinner } from "reactstrap";
+import "../../../styles/components/pages/viewProfile.scss";
+import { Item } from "types/Item";
+import { toggle as itemModalToggle } from "actions/modals/itemModal";
+import { toggle as collectionModalToggle } from "actions/modals/collectionModal";
+import { Collection } from "types/Collection";
+import { debounce } from "lodash";
+import DataLayout from "components/utils/DataLayout";
+import Share from "../../utils/Share";
+import { viewProfileURL } from "../../../urls";
 
 interface Props extends RouteComponentProps, Alerts {
   fetchProfile: Function;
   profile: Profile;
-  data: (Item | Collection)[]
+  data: (Item | Collection)[];
   itemModalToggle: Function;
   collectionModalToggle: Function;
   isItemsAndCollectionsLoading: boolean;
@@ -32,66 +35,72 @@ interface Props extends RouteComponentProps, Alerts {
 }
 
 class ViewProfile extends React.Component<Props, State> {
-  matchedId: string = '';
+  matchedId: string = "";
 
-  constructor(props: any) { // tslint:disable-line: no-any
+  constructor(props: any) {
+    // tslint:disable-line: no-any
     super(props);
-    this.handleInfiniteScroll = debounce(this.handleInfiniteScroll, 200)
+    this.handleInfiniteScroll = debounce(this.handleInfiniteScroll, 200);
   }
 
   componentDidMount() {
-    this.initializeProfileData()
+    this.initializeProfileData();
   }
 
   componentDidUpdate(prevProps) {
     if (this.props.fetchedAllItemsAndCollections) {
-      document.removeEventListener('scroll', this.handleInfiniteScroll)
+      document.removeEventListener("scroll", this.handleInfiniteScroll);
     }
 
     if (prevProps.location.pathname !== this.props.location.pathname) {
-      this.initializeProfileData()
+      this.initializeProfileData();
     }
   }
 
   componentWillUnmount() {
-    document.removeEventListener('scroll', this.handleInfiniteScroll)
+    document.removeEventListener("scroll", this.handleInfiniteScroll);
   }
 
   initializeProfileData = () => {
     // If we have an id from the URL pass it through, otherwise use the one from Redux State
-    const matchedId = this.props.location.pathname.replace('/profiles/', '');
+    const matchedId = this.props.location.pathname.replace("/profiles/", "");
     if (matchedId) {
       this.props.fetchProfile(matchedId);
-      document.addEventListener('scroll', this.handleInfiniteScroll)
+      document.addEventListener("scroll", this.handleInfiniteScroll);
     } else {
-      this.setState({ errorMessage: 'No profile with that id.' });
+      this.setState({ errorMessage: "No profile with that id." });
     }
-  }
+  };
 
   handleInfiniteScroll = () => {
-    if (window.innerHeight + window.pageYOffset >= document.body.offsetHeight - 200) {
-      this.props.fetchProfileItemsAndCollections()
+    if (
+      window.innerHeight + window.pageYOffset >=
+      document.body.offsetHeight - 200
+    ) {
+      this.props.fetchProfileItemsAndCollections();
     }
-  }
+  };
 
   locationString(): string {
     const { city, country } = this.props.profile;
     if (city && city.length && !country) {
-      return city
+      return city;
     } else if (!city && country && country.length) {
-      return country
+      return country;
     } else if (city?.length && country?.length) {
-      return `${city}, ${country}`
+      return `${city}, ${country}`;
     } else {
-      return "—"
+      return "—";
     }
   }
 
   render() {
-    if (typeof this.props.profile === 'undefined') {
-      return <div id="viewProfile">
-        <ErrorMessage message={this.props.errorMessage} />
-      </div>
+    if (typeof this.props.profile === "undefined") {
+      return (
+        <div id="viewProfile">
+          <ErrorMessage message={this.props.errorMessage} />
+        </div>
+      );
     }
     const {
       full_name,
@@ -105,24 +114,31 @@ class ViewProfile extends React.Component<Props, State> {
     } = this.props.profile;
 
     return (
-      <div id="viewProfile" >
+      <div id="viewProfile">
         <ErrorMessage message={this.props.errorMessage} />
         <Row className="profile-info-container">
           <Col xs="12" md="6" className="left">
             <Row className="profile-section">
               <Col xs="12" md="auto" style={{ paddingRight: 0 }}>
-                {
-                  !!this.props.profile.profile_image ?
-                    <img className="profile-image" src={this.props.profile.profile_image} alt="" />
-                    : <div className="profile-image"></div>
-                }
+                {!!this.props.profile.profile_image ? (
+                  <img
+                    className="profile-image"
+                    src={this.props.profile.profile_image}
+                    alt=""
+                  />
+                ) : (
+                  <div className="profile-image"></div>
+                )}
               </Col>
               <Col xs="12" md={true} className="profile-description">
                 <div className="flex items-center justify-between">
                   <h1>{full_name}</h1>
                   <h3>
-                  {/* strip beggining "/" on viewProfileURL */}
-                  <Share suffix={viewProfileURL(this.props.profile.id).slice(1)}/>
+                    {/* strip beggining "/" on viewProfileURL */}
+                    <Share
+                      variant="prefixedWithHostname"
+                      text={viewProfileURL(this.props.profile.id).slice(1)}
+                    />
                   </h3>
                 </div>
                 <div>
@@ -132,10 +148,8 @@ class ViewProfile extends React.Component<Props, State> {
               </Col>
             </Row>
 
-            <Col xs="12" style={{ marginTop: '2rem' }}>
-              <h5>
-                {biography}
-              </h5>
+            <Col xs="12" style={{ marginTop: "2rem" }}>
+              <h5>{biography}</h5>
             </Col>
           </Col>
 
@@ -147,21 +161,18 @@ class ViewProfile extends React.Component<Props, State> {
                   <span>{this.locationString()}</span>
                 </Col>
                 <Col xs="12" className="details">
-
-                  <span className="details-label">
-                    Website
-                </span>
-                  {website ? <a href={website}>{website}</a> : '—'}
+                  <span className="details-label">Website</span>
+                  {website ? <a href={website}>{website}</a> : "—"}
                 </Col>
                 <Col xs="12" className="details">
                   <span className="details-label">Position</span>
-                  {position && position.length ? position : '—'}
+                  {position && position.length ? position : "—"}
                 </Col>
                 <Col xs="12" className="details">
-                  <span className="details-label">
-                    Affiliation
-                </span>
-                  <span>{affiliation && affiliation.length ? affiliation : "—"}</span>
+                  <span className="details-label">Affiliation</span>
+                  <span>
+                    {affiliation && affiliation.length ? affiliation : "—"}
+                  </span>
                 </Col>
               </div>
               <div className="gradient-line"></div>
@@ -169,27 +180,29 @@ class ViewProfile extends React.Component<Props, State> {
           </Col>
         </Row>
         <Row className="author-items">
-          <Col xs='12'>
+          <Col xs="12">
             <p>Contributed Items And Collections</p>
           </Col>
-          {this.props.data.map(d =>
+          {this.props.data.map((d) => (
             <DataLayout
               key={d.id}
               data={d}
               itemModalToggle={this.props.itemModalToggle}
-              collectionModalToggle={() => this.props.collectionModalToggle(true, d)}
+              collectionModalToggle={() =>
+                this.props.collectionModalToggle(true, d)
+              }
             />
-          )}
+          ))}
           <div className="author-loading">
-            {this.props.isItemsAndCollectionsLoading &&
+            {this.props.isItemsAndCollectionsLoading && (
               <Spinner type="grow" variant="dark" />
-            }
+            )}
           </div>
-          {this.props.fetchedAllItemsAndCollections &&
+          {this.props.fetchedAllItemsAndCollections && (
             <div className="author-all-fetched">
               No more items and collections from {this.props.profile.full_name}!
-          </div>
-          }
+            </div>
+          )}
         </Row>
       </div>
     );
@@ -197,36 +210,46 @@ class ViewProfile extends React.Component<Props, State> {
 }
 
 // State to props
-const mapStateToProps = (state: { viewProfile: State }) => { // tslint:disable-line: no-any
+const mapStateToProps = (state: { viewProfile: State }) => {
+  // tslint:disable-line: no-any
   return {
     errorMessage: state.viewProfile.errorMessage,
     profile: state.viewProfile.profile,
-    data: generateItemsAdCollectionsGrid(state.viewProfile.items, state.viewProfile.collections),
-    isItemsAndCollectionsLoading: state.viewProfile.isItemsAndCollectionsLoading,
-    fetchedAllItemsAndCollections: !state.viewProfile.collectionsHasMore && !state.viewProfile.itemsHasMore
+    data: generateItemsAdCollectionsGrid(
+      state.viewProfile.items,
+      state.viewProfile.collections
+    ),
+    isItemsAndCollectionsLoading:
+      state.viewProfile.isItemsAndCollectionsLoading,
+    fetchedAllItemsAndCollections:
+      !state.viewProfile.collectionsHasMore && !state.viewProfile.itemsHasMore,
   };
 };
 
 // Connect our redux store State to Props, and pass through the fetchProfile function.
-export default withRouter(connect(mapStateToProps, {
-  fetchProfile,
-  itemModalToggle,
-  collectionModalToggle,
-  fetchProfileItemsAndCollections
-})(ViewProfile));
-
+export default withRouter(
+  connect(mapStateToProps, {
+    fetchProfile,
+    itemModalToggle,
+    collectionModalToggle,
+    fetchProfileItemsAndCollections,
+  })(ViewProfile)
+);
 
 // memoize this if performance becomes a problem
-const generateItemsAdCollectionsGrid = (items: Item[], collections: Collection[]): (Item | Collection)[] => {
-  let pendingCollections = [...collections]
-  let pendingItems = [...items]
-  let result: (Item | Collection)[] = []
+const generateItemsAdCollectionsGrid = (
+  items: Item[],
+  collections: Collection[]
+): (Item | Collection)[] => {
+  let pendingCollections = [...collections];
+  let pendingItems = [...items];
+  let result: (Item | Collection)[] = [];
   while (pendingItems.length || pendingCollections.length) {
     result = [
       ...result,
       ...pendingCollections.splice(0, 3),
       ...pendingItems.splice(0, 3),
-    ]
+    ];
   }
-  return result
-}
+  return result;
+};
