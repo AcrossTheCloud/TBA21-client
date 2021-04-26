@@ -1,11 +1,11 @@
 version: 2.1
 orbs:
-  codecov: codecov/codecov@1.0.5
+  codecov: codecov/codecov@1.1.4
 
 jobs:
   build:
     docker:
-      - image: circleci/node:14.16.0
+      - image: cimg/node:14.16.1
     resource_class: large
 
     steps:
