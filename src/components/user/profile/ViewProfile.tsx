@@ -134,10 +134,9 @@ class ViewProfile extends React.Component<Props, State> {
                 <div className="flex items-center justify-between">
                   <h1>{full_name}</h1>
                   <h3>
-                    {/* strip beggining "/" on viewProfileURL */}
                     <Share
                       variant="prefixedWithHostname"
-                      text={viewProfileURL(this.props.profile.id).slice(1)}
+                      text={viewProfileURL(this.props.profile.id)}
                     />
                   </h3>
                 </div>
