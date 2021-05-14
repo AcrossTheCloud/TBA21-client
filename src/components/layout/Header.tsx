@@ -287,6 +287,9 @@ class HeaderClass extends React.Component<Props, State> { // tslint:disable-line
                   <Nav className="ml-auto float-right" navbar>
                     
                     <NavItem>
+                      <NavLink exact tag={ReactLink} className="nav-link" activeClassName="active" to="/stories">Stories</NavLink>
+                    </NavItem>
+                    <NavItem>
                       <Button size="sm" className="nav-link btn" onClick={() => this.props.aboutModalToggle(true)}>About</Button>
                     </NavItem>
                     <NavItem>

@@ -56,6 +56,7 @@ import CollectionModal from './components/modals/CollectionModal';
 import LiveStreamModal from './components/modals/LiveStreamModal';
 import About from './components/pages/About';
 import { viewProfileURL, itemURL, collectionURL } from './urls';
+import Stories from 'components/pages/Stories';
 
 const LoggedInRoutes = ({ isAuthenticated, ...rest }) => {
   const isLoggedIn = isAuthenticated;
@@ -154,6 +155,7 @@ export const AppRouter = () => {
               <Route exact path="/map" component={MapView} />
 
               <Route exact path="/login" component={Login} />
+              <Route exact path="/stories" component={Stories} />
               <Route exact path="/signup" component={SignUp} />
               <Route exact path="/resetPassword/" component={ResetPassword} />
 
