@@ -42,7 +42,7 @@ export const getEmbedVideoThumbnailUrl = async (url: string) => {
   return '';
 }
 
-export const FilePreview = (props: { file: S3File, isHeader?: boolean }): JSX.Element => {
+export const FilePreview = (props: { file: S3File, isHeader?: boolean, isSolo?: true }): JSX.Element => {
 
   switch (props.file.type) {
     case FileTypes.Image:
@@ -67,6 +67,8 @@ export const FilePreview = (props: { file: S3File, isHeader?: boolean }): JSX.El
         <Col className="px-0 h-100 video">
           <ReactPlayer
             controls
+            playing={props.isSolo}
+            muted={props.isSolo}
             url={props.file.playlist || props.file.url}
             vertical-align="top"
             className="player"
