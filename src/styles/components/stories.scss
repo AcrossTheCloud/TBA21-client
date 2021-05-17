@@ -1,3 +1,23 @@
 .stories-item__title {
-    color: red;
+font-weight: bold;
+  font-family: sans-serif;
+  display: inline-block;
+  border: 1px solid black;
+  padding: 0.5rem;
+}
+
+.stories-item__author {
+  text-decoration: underline;
+}
+.stories-item {
+  margin-bottom: 6rem;
+  max-width: 40rem;
+}
+
+.stories-item-meta {
+  margin-top: 2rem;
+}
+
+.stories-item-link {
+    text-decoration: underline;
 }
