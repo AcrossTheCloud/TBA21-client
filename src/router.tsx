@@ -38,6 +38,7 @@ import {
 
 } from './components/';
 
+
 import { AuthConsumer, AuthProvider } from './providers/AuthProvider';
 import SearchConsole from './components/search/SearchConsole';
 import { NotFound404Message } from './components/utils/alerts';
@@ -57,6 +58,7 @@ import LiveStreamModal from './components/modals/LiveStreamModal';
 import About from './components/pages/About';
 import { viewProfileURL, itemURL, collectionURL } from './urls';
 import Stories from 'components/pages/Stories';
+import Story from 'components/story/Story';
 
 const LoggedInRoutes = ({ isAuthenticated, ...rest }) => {
   const isLoggedIn = isAuthenticated;
@@ -156,6 +158,7 @@ export const AppRouter = () => {
 
               <Route exact path="/login" component={Login} />
               <Route exact path="/stories" component={Stories} />
+              <Route exact path="/story/:slug" component={Story} />
               <Route exact path="/signup" component={SignUp} />
               <Route exact path="/resetPassword/" component={ResetPassword} />
 

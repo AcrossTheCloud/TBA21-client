@@ -4,9 +4,9 @@ import { useEffect } from "react";
 import { Link } from 'react-router-dom';
 import "styles/components/stories.scss";
 
-const BlogItem = ({ title, author, body, date, tags, categories }) => (
+const BlogItem = ({ slug, title, author, body, date, tags, categories }) => (
   <div className="stories-item">
-    <p className="stories-item__title">{title}</p>
+    <Link to={`/story/${slug}`} className="stories-item__title">{title}</Link>
     <p className="stories-item__author">{author}</p>
     <div
       className="stories-item__body"
@@ -57,6 +57,7 @@ const Stories = () => {
       {stories.map((story) => (
         <BlogItem
           key={story.id}
+          slug={story.slug}
           title={story.title.rendered}
           author={story._embedded.author[0].name}
           body={story.excerpt.rendered}
