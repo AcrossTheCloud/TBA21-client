@@ -57,8 +57,8 @@ import CollectionModal from './components/modals/CollectionModal';
 import LiveStreamModal from './components/modals/LiveStreamModal';
 import About from './components/pages/About';
 import { viewProfileURL, itemURL, collectionURL } from './urls';
-import Stories from 'components/pages/Stories';
 import Story from 'components/story/Story';
+import Stories from 'components/pages/Stories';
 
 const LoggedInRoutes = ({ isAuthenticated, ...rest }) => {
   const isLoggedIn = isAuthenticated;

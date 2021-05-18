@@ -2,6 +2,7 @@ import React from "react";
 import { useEffect } from "react";
 import { useState } from "react";
 import "styles/components/story.scss";
+
 const Story = ({ match }) => {
   const [html, setHtml] = useState(null);
   useEffect(() => {
