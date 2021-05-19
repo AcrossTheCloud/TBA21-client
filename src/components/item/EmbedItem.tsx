@@ -108,7 +108,7 @@ class EmbedItem extends React.Component<Props, State> {
                         />
                       </div>
                     )
-                  : <FilePreview file={file}/>
+                  : <FilePreview file={file} isSolo={true}/>
               }
 
             </Row>
