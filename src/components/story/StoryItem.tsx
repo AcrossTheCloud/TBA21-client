@@ -23,7 +23,7 @@ const StoryItem = ({ slug, title, author, body, date, tags, categories }) => (
               <Link className="stories-item-link" to={`/stories/tag/${tag}`}>
                 {tag}
               </Link>
-              {idx == tags.length - 1 ? null : <span>, </span>}
+              {idx === tags.length - 1 ? null : <span>, </span>}
             </>
           ))}
         </div>
@@ -39,7 +39,7 @@ const StoryItem = ({ slug, title, author, body, date, tags, categories }) => (
               >
                 {category}
               </Link>
-              {idx == categories.length - 1 ? null : <span>, </span>}
+              {idx === categories.length - 1 ? null : <span>, </span>}
             </>
           ))}
         </div>

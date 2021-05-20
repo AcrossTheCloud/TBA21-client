@@ -7,6 +7,14 @@ The serverless API can be found [here](https://github.com/AcrossTheCloud/TBA21-A
 Below you will find some information on how to perform common tasks.<br>
 You can find the most recent version of this guide [here](https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/README.md).
 
+# Licenses
+Refer to [LICENSE](LICENSE) for the main license, bar fonts and libraries used.
+
+For font licenses:
+* [Roboto](https://fonts.google.com/specimen/Roboto#license)
+* [Minion Pro](https://fonts.adobe.com/fonts/minion#licensing-section)
+* [Amare](https://www.cufonfonts.com/font/amare?font=38513#license)
+
 ## Running the project
 After having installed node modules with
 ```shell

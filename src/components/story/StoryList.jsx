@@ -1,7 +1,7 @@
 import React from "react";
 import { useState } from "react";
 import { useEffect } from "react";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom"; // comment back in if needed
 import "styles/components/story.scss";
 import StoryItem from "./StoryItem";
 
