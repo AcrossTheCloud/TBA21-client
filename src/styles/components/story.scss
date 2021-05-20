@@ -43,6 +43,13 @@
     &-link {
       text-decoration: underline;
     }
+
+    &__body {
+      font-family: amare;
+      font-weight: 300;
+      font-size: 19px;
+      line-height: 1.2;
+    }
   
     &__title {
       font-weight: bold;

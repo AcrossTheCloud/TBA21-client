@@ -35,3 +35,9 @@
        url('./roboto-mono/RobotoMono-RegularItalic.ttf') format('truetype');
 }
 
+@font-face {
+  font-family: 'Amare';
+  src: url('./amare/_Amare\ Linnea.otf') format('opentype');
+  src: url('./amare/_Amare_Alta.otf') format('opentype');
+  src: url('./amare/_Amare_Medium.otf') format('opentype');
+}
