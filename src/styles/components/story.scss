@@ -1,3 +1,13 @@
+.searchresult {
+  font-family: Amare Alta, sans-serif;
+  line-height: 120%;
+  letter-spacing: -1%;
+
+  &-headline {
+    font-size: 24px;
+  }
+}
+
 .story {
   max-width: 65rem;
   margin: 0 auto;
