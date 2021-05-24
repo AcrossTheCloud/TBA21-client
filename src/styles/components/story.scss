@@ -1,65 +1,97 @@
 .story {
-    max-width: 65rem;
-    margin: 0 auto;
+  max-width: 65rem;
+  margin: 0 auto;
+  font-family: "Minion Pro", sans-serif;
 }
 
 .stories {
-    // remove menubar buffer
+  // extract to class
+  font-family: Amare Alta, sans-serif;
+  font-size: 17px;
+  color: #142636;
+ // remove menubar buffer
+  background: white;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 91px);
+  overflow-y: hidden;
+  
+  &__wrapper {
     display: flex;
-    flex-direction: column;
-    height: calc(100vh - 91px);
-    overflow-y: hidden;
-    &__wrapper {
-        display: flex;
-        height: 100%;
-    }
-    
-    &__searches {
-        width: 35%;
-        padding: 0 4rem;
-    }
+    height: 100%;
+  }
 
-    &__list {
-        width: 65%;
-        overflow-y: scroll;
-        padding: 0 4rem;
-    }
+  &__searches {
+    width: 35%;
+    padding: 0 4rem;
+  }
 
-    &__header {
-        display: flex;
-        align-items: center;
-        height: 8rem;
-    }
+  &__list {
+    width: 65%;
+    overflow-y: scroll;
+    padding: 0 4rem;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    height: 8rem;
+  }
 }
 
 .stories-item {
-    margin-bottom: 6rem;
-    max-width: 40rem;
-  
-    &-meta {
-      margin-top: 2rem;
-    }
-  
-    &-link {
-      text-decoration: underline;
+  font-family: Amare Medium, sans-serif;
+  font-size: 17px;
+  margin-bottom: 6rem;
+  max-width: 50rem; 
+  &-content {
+    display: flex;
+
+    &__texts {
+      padding-right: 2rem;
     }
 
-    &__body {
-      font-family: amare;
-      font-weight: 300;
-      font-size: 19px;
-      line-height: 1.2;
-    }
+    &__image {
+      width: 10rem;
+      height: 10rem;
+      flex-shrink: 0;
+      border-radius: 100%;
+      overflow: hidden;
   
-    &__title {
-      font-weight: bold;
-      font-family: sans-serif;
-      display: inline-block;
-      border: 1px solid black;
-      padding: 0.5rem;
+      & > img {
+        width: 100%;
+      }
     }
-  
-    &__author {
-      text-decoration: underline;
-    }
+
   }
+
+
+
+  &-meta {
+    margin-top: 2rem;
+    
+  }
+
+  &-link {
+    color: black !important;
+    text-decoration: underline;
+  }
+
+  &__body {
+    font-size: 19px;
+    line-height: 1.2;
+  }
+
+  &__title {
+    font-family: Amare Alta, sans-serif;
+    display: inline-block;
+    border: 1px solid black;
+    padding: 0.15rem 0.5rem;
+    font-size: 24px;
+    color: black !important;
+  }
+
+  &__author {
+    text-decoration: underline; 
+  }
+}

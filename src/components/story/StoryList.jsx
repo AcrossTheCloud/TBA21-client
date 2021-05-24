@@ -13,6 +13,7 @@ const StoryList = () => {
       .then((res) => res.json())
       .then((stories) => setStories(stories));
   });
+
   return (
     <div className='stories__list'>
       <div className="stories__header">

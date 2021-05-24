@@ -1,16 +1,32 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-const StoryItem = ({ slug, title, author, body, date, tags, categories }) => (
+const StoryItem = ({
+  slug,
+  title,
+  author,
+  body,
+  date,
+  tags,
+  categories,
+  imageURL,
+}) => (
   <div className="stories-item">
-    <Link to={`/story/${slug}`} className="stories-item__title">
-      {title}
-    </Link>
-    <p className="stories-item__author">{author}</p>
-    <div
-      className="stories-item__body"
-      dangerouslySetInnerHTML={{ __html: body }}
-    />
+    <div className='stories-item-content'>
+      <div className="stories-item-content__texts">
+        <Link to={`/story/${slug}`} className="stories-item__title">
+          {title}
+        </Link>
+        <p className="stories-item__author">{author}</p>
+        <div
+          className="stories-item__body" 
+          dangerouslySetInnerHTML={{ __html: body }}
+        />
+      </div>
+      <div className="stories-item-content__image">
+        <img src="https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg"></img>
+      </div>
+    </div>
     <div className="stories-item-meta">
       <div>
         <span>Essay</span> ~ <span>{date}</span>
