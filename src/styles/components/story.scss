@@ -2,16 +2,39 @@
   font-family: Amare Alta, sans-serif;
   line-height: 120%;
   letter-spacing: -1%;
-
+  color: #142636 !important;
   &-headline {
     font-size: 24px;
   }
 }
 
 .story {
-  max-width: 65rem;
-  margin: 0 auto;
-  font-family: "Minion Pro", sans-serif;
+  color: #142636;
+  font-family: "Minion Pro", serif;
+  background: white;
+  line-height: 120%;
+  font-size: 22.5px;
+padding: 6rem 2rem;
+  &-content {
+    font-family: "Minion Pro", serif;
+    max-width: 45rem;
+    margin: 0 auto;
+    font-size: 23px;
+    & h1 {
+      font-family: "Minion Pro", serif;
+      margin-bottom: 4rem;
+      font-size: 34px;
+      font-weight: bold;
+    }
+
+    & p {
+      margin-bottom: 1rem;
+    }
+
+    & iframe {
+      padding: 2rem 0;
+    }
+  }
 }
 
 .stories {
@@ -19,13 +42,19 @@
   font-family: Amare Alta, sans-serif;
   font-size: 17px;
   color: #142636;
- // remove menubar buffer
+  // remove menubar buffer
   background: white;
   display: flex;
   flex-direction: column;
   height: calc(100vh - 91px);
   overflow-y: hidden;
-  
+
+  &-headline {
+    font-size: 34px;
+    text-transform: uppercase;
+    letter-spacing: 5px;
+  }
+
   &__wrapper {
     display: flex;
     height: 100%;
@@ -53,7 +82,7 @@
   font-family: Amare Medium, sans-serif;
   font-size: 17px;
   margin-bottom: 6rem;
-  max-width: 50rem; 
+  max-width: 50rem;
   &-content {
     display: flex;
 
@@ -62,24 +91,15 @@
     }
 
     &__image {
-      width: 10rem;
-      height: 10rem;
-      flex-shrink: 0;
-      border-radius: 100%;
-      overflow: hidden;
-  
-      & > img {
-        width: 100%;
-      }
+      // width: 10rem;
+      // height: 10rem;
+      // flex-shrink: 0;
+      // overflow: hidden;
     }
-
   }
-
-
 
   &-meta {
     margin-top: 2rem;
-    
   }
 
   &-link {
@@ -93,15 +113,14 @@
   }
 
   &__title {
-    font-family: Amare Alta, sans-serif;
+    @extend .searchresult;
+    @extend .searchresult-headline;
     display: inline-block;
     border: 1px solid black;
     padding: 0.15rem 0.5rem;
-    font-size: 24px;
-    color: black !important;
   }
 
   &__author {
-    text-decoration: underline; 
+    text-decoration: underline;
   }
 }

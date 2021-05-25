@@ -17,7 +17,7 @@ const StoryList = () => {
   return (
     <div className='stories__list'>
       <div className="stories__header">
-      <h1>Dive into stories</h1>
+      <h1 className='stories-headline'>~ Dive into stories</h1>
       </div>
       {stories.map((story) => (
         <StoryItem
