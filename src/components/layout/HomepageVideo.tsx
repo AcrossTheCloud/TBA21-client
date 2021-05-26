@@ -18,13 +18,6 @@ const urls = [
     "portrait_video": "https://video-streaming.ocean-archive.org/LP_logo_mobile.mp4", 
     "portrait_thumbnail": "https://video-streaming.ocean-archive.org/LP_logo_mobile_thumb.jpg",
     "nologo": true
-  },
-  {
-    "video": "https://video-streaming.ocean-archive.org/LP_TA.mp4",
-    "thumbnail": "https://video-streaming.ocean-archive.org/LP_TA_thumb.jpg",
-    "portrait_video": "https://video-streaming.ocean-archive.org/LP_TA_mobile.mp4", 
-    "portrait_thumbnail": "https://video-streaming.ocean-archive.org/LP_TA_mobile_thumb.jpg",
-    "nologo": true
   }
 ];
 
