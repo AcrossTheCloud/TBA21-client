@@ -23,7 +23,7 @@ const StoryList: React.FC<StoryListProps> = ({
 }) => {
   useEffect(() => {
     fetchStories();
-  }, []);
+  }, [fetchStories]);
   return (
     <div className="stories__list">
       <div className="stories__header">

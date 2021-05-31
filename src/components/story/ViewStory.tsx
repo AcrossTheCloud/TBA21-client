@@ -28,7 +28,7 @@ type ViewStoryWithMatch = ViewStory & {
 const ViewStory: React.FC<ViewStoryWithMatch> = ({ match, title, html, status, fetchStory }) => {
   useEffect(() => {
     fetchStory(match.params.slug);
-  }, [match.params.slug]);
+  }, [fetchStory, match.params.slug]);
   return (
     <div className="story">
       {status === FETCH_STORY_LOADING && <div className='story-spinner-wrapper'>
