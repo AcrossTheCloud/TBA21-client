@@ -24,7 +24,7 @@ const StoryItem = ({
         />
       </div>
       <div className="stories-item-content__image">
-        <Blob src="https://blog.nature.org/science/files/2020/09/JustinBruhn.2_6.1.18.jpg" />
+        <Blob src={imageURL} />
       </div>
 
       {/* <div className="stories-item-content__image">
