@@ -112,6 +112,15 @@ export class FileUpload extends React.Component<Props, State> {
           return;
         }
 
+        if (file.name.toLowerCase().includes('ad-banner')) {
+          Object.assign(fileRejections, file);
+          if (!this._isMounted) { return; }
+          this.setState({ errorMessage: <>
+              We currently do not accept files with filenames that include 'ad-banner' (regardless of case) due to this being blocked by ad blocker software.
+          </>});
+          return;
+        }
+
         Object.assign(files, { [file.name]: fileProps });
       }
     });
