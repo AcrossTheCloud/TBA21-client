@@ -1,39 +1,25 @@
 import React from "react";
-import { useEffect } from "react";
 import "styles/components/story.scss";
 import StoryItem from "./StoryItem";
 import { StoryListState } from "reducers/story/storyList";
 import { connect } from "react-redux";
 import {
-  fetchStories,
-  FETCH_STORIES_LOADING,
   FETCH_STORIES_SUCCESS,
 } from "../../actions/story/storyList";
-import { Spinner } from "reactstrap";
 
-type StoryListProps = {
-  fetchStories: Function;
-} & StoryListState;
+type StoryListProps = StoryListState;
 
 // TODO: fetch author, category, and tag into redux and map it together with selector
 const StoryList: React.FC<StoryListProps> = ({
-  fetchStories,
   stories,
   status,
 }) => {
-  useEffect(() => {
-    fetchStories();
-  }, [fetchStories]);
+  
   return (
     <div className="stories__list">
       <div className="stories__header">
         <h1 className="stories-headline">~ Dive into stories</h1>
       </div>
-      {status === FETCH_STORIES_LOADING && (
-        <div className="story-spinner-wrapper">
-          <Spinner />
-        </div>
-      )}
       {status === FETCH_STORIES_SUCCESS &&
         stories.map((story) => {
           let authors = story._embedded?.author as
@@ -69,5 +55,4 @@ const mapStateToProps = (state: { storyList: StoryListState }) => ({
   ...state.storyList,
 });
 export default connect(mapStateToProps, {
-  fetchStories,
 })(StoryList);
