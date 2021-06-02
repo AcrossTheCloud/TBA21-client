@@ -7,14 +7,13 @@ import {
 } from "../../actions/story/viewStory";
 import { ViewStoryState } from "../../reducers/story/viewStory";
 import { connect } from "react-redux";
-import { fetchStory } from '../../actions/story/viewStory';
-import { Spinner } from 'reactstrap';
+import { fetchStory } from "../../actions/story/viewStory";
+import { Spinner } from "reactstrap";
 
 type ViewStory = {
   status: typeof FETCH_STORY_SUCCESS | typeof FETCH_STORY_LOADING;
   title: string;
   html: string;
-  
 };
 
 type ViewStoryWithMatch = ViewStory & {
@@ -22,26 +21,49 @@ type ViewStoryWithMatch = ViewStory & {
   match: {
     params: { slug: string };
   };
-}
+};
 
+const ViewStoryBreadcrumb = ({ title }) => {
+  return (
+    <div className='story-breadcrumb'> 
+      <span>Ocean Archives</span>
+      <span>{">"}</span>
+      <span>Stories</span>
+      <span>{">"}</span>
+      <span>Is this category?</span>
+      <span>{">"}</span>
+      <span dangerouslySetInnerHTML={{__html: title}} />
+    </div>
+  );
+};
 
-const ViewStory: React.FC<ViewStoryWithMatch> = ({ match, title, html, status, fetchStory }) => {
+const ViewStory: React.FC<ViewStoryWithMatch> = ({
+  match,
+  title,
+  html,
+  status,
+  fetchStory,
+}) => {
   useEffect(() => {
     fetchStory(match.params.slug);
   }, [fetchStory, match.params.slug]);
   return (
     <div className="story">
-      {status === FETCH_STORY_LOADING && <div className='story-spinner-wrapper'>
-        <Spinner />
-        </div>}
-      {status === FETCH_STORY_SUCCESS && (
-        <div className="story-content">
-          {<h1>{title}</h1>}
-          <div
-            className="story-content"
-            dangerouslySetInnerHTML={{ __html: html }}
-          />
+      {status === FETCH_STORY_LOADING && (
+        <div className="story-spinner-wrapper">
+          <Spinner />
         </div>
+      )}
+      {status === FETCH_STORY_SUCCESS && (
+        <>
+          <ViewStoryBreadcrumb title={title} />
+          <div className="story-content">
+          <h1 dangerouslySetInnerHTML={{__html: title}}/>
+            <div
+              dangerouslySetInnerHTML={{ __html: html }}
+            />
+          </div>
+        </>
       )}
     </div>
   );
