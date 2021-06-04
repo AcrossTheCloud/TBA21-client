@@ -1,11 +1,60 @@
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import { StoryListState } from "../../reducers/story/storyList";
+import { connect } from "react-redux";
+import {
+  fetchStories,
+  FETCH_STORIES_SUCCESS,
+} from "../../actions/story/storyList";
+import { SearchStoryParams } from "../../REST/story";
+import { debounce } from "lodash";
 
-const StorySearches = () => {
-  return <div className='stories__searches'>
-      <div className="stories__header"></div>
-      <p>Displaying 73 out of 213 stories</p>
-      <input type='text' placeholder='search stories' />
-  </div>;
+type StorySearchesProps = {
+  query: SearchStoryParams | null;
+  totalStories: number;
+  status: StoryListState["status"];
+  fetchStories: Function;
 };
 
-export default StorySearches;
+const StorySearches: React.FC<StorySearchesProps> = ({
+  totalStories,
+  fetchStories,
+  status,
+}) => {
+  const [title, setTitle] = useState("");
+
+  const debouncedFetchStories = useCallback(debounce((...args) => fetchStories(...args), 250), [])
+  useEffect(() => {
+    // debounce this
+    if (title) {
+      debouncedFetchStories({ title });
+    } else {
+      fetchStories();
+    }
+  }, [title]);
+  return (
+    <div className="stories__searches">
+      <div className="stories__header"></div>
+      <p
+        style={{
+          opacity: status === FETCH_STORIES_SUCCESS ? 1 : 0,
+        }}
+      >{`Displaying ${totalStories} out of unknown stories`}</p>
+      <input
+        type="text"
+        placeholder="search stories"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+      />
+    </div>
+  );
+};
+
+const mapStateToProps = (state: { storyList: StoryListState }) => ({
+  totalStories: state.storyList.stories.length,
+  query: state.storyList.query,
+  status: state.storyList.status,
+});
+
+export default connect(mapStateToProps, {
+  fetchStories,
+})(StorySearches);

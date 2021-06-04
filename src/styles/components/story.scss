@@ -16,6 +16,25 @@
   line-height: 120%;
   font-size: 22.5px;
 
+  
+
+  &--dark-theme {
+    color: white;
+    background: #142636;
+  }
+
+  &--rainbow-theme {
+/* OA gradient */
+// background: linear-gradient(153.16deg, #50E2C1 5.91%, #9039FE 52.99%, #0076FF 104.16%)
+background: linear-gradient(153.16deg, rgba(80, 226, 193, 0.26) 5.91%, rgba(144, 57, 254, 0.26) 52.99%, rgba(0, 118, 255, 0.26) 104.16%);
+mix-blend-mode: normal;
+  }
+
+  & a {
+    color: inherit !important;
+    font-weight: bold;
+  }
+
   &-spinner-wrapper {
     display: flex;
     justify-content: center;
@@ -43,10 +62,22 @@
       border: 0;
       margin: 4rem auto;
     }
-    & h1 {
+    & h1 { 
+      color: inherit;
+      background: none;
       font-family: "Minion Pro", serif;
       margin-bottom: 4rem;
       font-size: 34px;
+      font-weight: bold;
+    }
+
+    & h2 { 
+      color: inherit;
+      background: none;
+      font-family: "Minion Pro", serif;
+      margin-bottom: 1rem;
+      margin-top: 4rem;
+      font-size: 26px;
       font-weight: bold;
     }
 

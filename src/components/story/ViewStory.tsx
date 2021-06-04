@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useEffect } from "react";
 import "styles/components/story.scss";
 import {
@@ -37,6 +37,13 @@ const ViewStoryBreadcrumb = ({ title }) => {
   );
 };
 
+const themes = ['light', 'dark', 'rainbow', 'auto']
+const themeToClassName = {
+  'light': '',
+  'dark': 'story--dark-theme',
+  'rainbow': 'story--rainbow-theme'
+}
+
 const ViewStory: React.FC<ViewStoryWithMatch> = ({
   match,
   title,
@@ -44,11 +51,17 @@ const ViewStory: React.FC<ViewStoryWithMatch> = ({
   status,
   fetchStory,
 }) => {
+  const [theme, setTheme] = useState('light')
   useEffect(() => {
     fetchStory(match.params.slug);
   }, [fetchStory, match.params.slug]);
+
+  const themeClassName = themeToClassName[theme]
   return (
-    <div className="story">
+    <div className={`theme ${themeClassName}`}>
+      <ul>
+        {themes.map(t => <li style={{fontWeight: theme === t ? 'bold': 'normal'}} key={t} onClick={()=> setTheme(t)}>{t}</li>)}
+      </ul>
       {status === FETCH_STORY_LOADING && (
         <div className="story-spinner-wrapper">
           <Spinner />
