@@ -32,7 +32,7 @@ const StorySearches: React.FC<StorySearchesProps> = ({
     } else {
       fetchStories();
     }
-  }, [title]);
+  }, [title, fetchStories, debouncedFetchStories]);
   return (
     <div className="stories__searches">
       <div className="stories__header"></div>

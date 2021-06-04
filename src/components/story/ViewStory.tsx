@@ -78,7 +78,7 @@ const ViewStory: React.FC<ViewStoryWithMatch> = ({
   }, [theme, ts]);
 
   const themeClassName =
-    theme == "auto"
+    theme === "auto"
       ? window.matchMedia &&
         window.matchMedia("(prefers-color-scheme: dark)").matches
         ? themeToClassName["dark"]
