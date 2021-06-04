@@ -33,7 +33,7 @@ const StoryItem = ({
       </div>
       {tags.length > 0 ? (
         <div>
-          Concept tags:{" "}
+          Keyword tags:{" "}
           {tags.map((tag, idx) => (
             <span key={tag}>
               <Link
@@ -50,7 +50,7 @@ const StoryItem = ({
       ) : null}
       {categories.length > 0 ? (
         <div>
-          Concept categories:{" "}
+          Concept tags:{" "}
           {categories.map((category, idx) => (
             <span key={category}>
               <Link
