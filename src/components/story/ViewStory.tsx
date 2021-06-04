@@ -25,24 +25,24 @@ type ViewStoryWithMatch = ViewStory & {
 
 const ViewStoryBreadcrumb = ({ title }) => {
   return (
-    <div className='story-breadcrumb'> 
+    <div className="story-breadcrumb">
       <span>Ocean Archives</span>
       <span>{">"}</span>
       <span>Stories</span>
       <span>{">"}</span>
       <span>Is this category?</span>
       <span>{">"}</span>
-      <span dangerouslySetInnerHTML={{__html: title}} />
+      <span dangerouslySetInnerHTML={{ __html: title }} />
     </div>
   );
 };
 
-const themes = ['light', 'dark', 'rainbow', 'auto']
+const themes = ["light", "dark", "rainbow", "auto"];
 const themeToClassName = {
-  'light': '',
-  'dark': 'story--dark-theme',
-  'rainbow': 'story--rainbow-theme'
-}
+  light: "",
+  dark: "story--dark-theme",
+  rainbow: "story--rainbow-theme",
+};
 
 const ViewStory: React.FC<ViewStoryWithMatch> = ({
   match,
@@ -51,16 +51,58 @@ const ViewStory: React.FC<ViewStoryWithMatch> = ({
   status,
   fetchStory,
 }) => {
-  const [theme, setTheme] = useState('light')
+  const [theme, setTheme] = useState(
+    localStorage.getItem("OCEAN_ARCHIVE__THEME") || "light"
+  );
+  // to trigger theme rerender
+  const [ts, setTs] = useState(new Date())
+
   useEffect(() => {
     fetchStory(match.params.slug);
   }, [fetchStory, match.params.slug]);
 
-  const themeClassName = themeToClassName[theme]
+  useEffect(() => {
+    let media =
+      window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
+
+    function mediaChangeListener() {
+      setTs(new Date())
+    };
+
+    if (media && theme === "auto") {
+      media.addEventListener("change", mediaChangeListener);
+    }
+    return () => {
+      media.removeEventListener("change", mediaChangeListener)
+    }
+  }, [theme, ts]);
+
+  const themeClassName =
+    theme == "auto"
+      ? window.matchMedia &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? themeToClassName["dark"]
+        : themeToClassName["light"]
+      : themeToClassName[theme];
   return (
-    <div className={`theme ${themeClassName}`}>
+    <div className={`story ${themeClassName}`}>
       <ul>
-        {themes.map(t => <li style={{fontWeight: theme === t ? 'bold': 'normal'}} key={t} onClick={()=> setTheme(t)}>{t}</li>)}
+        {themes.map((t) => (
+          <li
+            style={{
+              fontWeight: theme === t ? "bold" : "normal",
+              display: "inline-block",
+              marginRight: "1rem",
+            }}
+            key={t}
+            onClick={() => {
+              setTheme(t);
+              localStorage.setItem("OCEAN_ARCHIVE__THEME", t);
+            }}
+          >
+            {t}
+          </li>
+        ))}
       </ul>
       {status === FETCH_STORY_LOADING && (
         <div className="story-spinner-wrapper">
@@ -71,10 +113,8 @@ const ViewStory: React.FC<ViewStoryWithMatch> = ({
         <>
           <ViewStoryBreadcrumb title={title} />
           <div className="story-content">
-          <h1 dangerouslySetInnerHTML={{__html: title}}/>
-            <div
-              dangerouslySetInnerHTML={{ __html: html }}
-            />
+            <h1 dangerouslySetInnerHTML={{ __html: title }} />
+            <div dangerouslySetInnerHTML={{ __html: html }} />
           </div>
         </>
       )}

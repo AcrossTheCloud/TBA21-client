@@ -10,13 +10,15 @@
 
 .story {
   min-height: calc(100vh - 91px);
-  color: #142636;
+  // height: 100%;
+  
   font-family: "Minion Pro", serif;
   background: white;
+  color: #142636;
   line-height: 120%;
   font-size: 22.5px;
-
   
+
 
   &--dark-theme {
     color: white;
@@ -24,16 +26,22 @@
   }
 
   &--rainbow-theme {
-/* OA gradient */
-// background: linear-gradient(153.16deg, #50E2C1 5.91%, #9039FE 52.99%, #0076FF 104.16%)
-background: linear-gradient(153.16deg, rgba(80, 226, 193, 0.26) 5.91%, rgba(144, 57, 254, 0.26) 52.99%, rgba(0, 118, 255, 0.26) 104.16%);
-mix-blend-mode: normal;
+    /* OA gradient */
+    // background: linear-gradient(153.16deg, #50E2C1 5.91%, #9039FE 52.99%, #0076FF 104.16%)
+    background: linear-gradient(
+      153.16deg,
+      rgba(80, 226, 193, 0.26) 5.91%,
+      rgba(144, 57, 254, 0.26) 52.99%,
+      rgba(0, 118, 255, 0.26) 104.16%
+    );
+    mix-blend-mode: normal;
   }
 
   & a {
     color: inherit !important;
     font-weight: bold;
   }
+  
 
   &-spinner-wrapper {
     display: flex;
@@ -44,6 +52,7 @@ mix-blend-mode: normal;
 
   &-breadcrumb {
     @extend .searchresult;
+    color: inherit !important;
     font-size: 17px;
     padding: 1rem;
     & > span {
@@ -62,7 +71,7 @@ mix-blend-mode: normal;
       border: 0;
       margin: 4rem auto;
     }
-    & h1 { 
+    & h1 {
       color: inherit;
       background: none;
       font-family: "Minion Pro", serif;
@@ -71,7 +80,7 @@ mix-blend-mode: normal;
       font-weight: bold;
     }
 
-    & h2 { 
+    & h2 {
       color: inherit;
       background: none;
       font-family: "Minion Pro", serif;

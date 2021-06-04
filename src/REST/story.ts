@@ -8,7 +8,10 @@ export const getStory = async (slug: string): Promise<WP_REST_API_Post> => {
   return story;
 };
 
-export const getStories = async (params: SearchStoryParams | null): Promise<WP_REST_API_Posts> => {
+export const getStoriesAndTotalStoriesInDatabase = async (params: SearchStoryParams | null): Promise<{
+  stories: WP_REST_API_Posts,
+  totalStoriesInDatabase: number
+}> => {
   let url = `${ROOT_WP_URL}/posts?_embed`
   if (params) {
     if (params.title) {
@@ -16,10 +19,8 @@ export const getStories = async (params: SearchStoryParams | null): Promise<WP_R
     }
   }
   const response = await fetch(url);
-
-
   const stories = await response.json();
-  return stories;
+  return {stories, totalStoriesInDatabase: Number(response.headers.get('x-wp-total')) || 0};
 };
 
 export type SearchStoryParams = {

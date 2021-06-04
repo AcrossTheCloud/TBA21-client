@@ -6,13 +6,15 @@ import {
   } from "../../actions/story/storyList";
   
   export interface StoryListState {
-    status: typeof FETCH_STORIES_LOADING | typeof FETCH_STORIES_SUCCESS,
+    status: typeof FETCH_STORIES_LOADING | typeof FETCH_STORIES_SUCCESS
     stories: WP_REST_API_Posts
+    totalStoriesInDatabase: number
     query: SearchStoryParams | null
   }
   
   const initialState: StoryListState = {
     status: FETCH_STORIES_LOADING,
+    totalStoriesInDatabase: 0,
     stories: [],
     query: null
   };
@@ -33,6 +35,7 @@ import {
           ...state,
           status: FETCH_STORIES_SUCCESS,
           stories: action.payload.stories,
+          totalStoriesInDatabase: action.payload.totalStoriesInDatabase,
         };
   
       default:

@@ -11,12 +11,14 @@ import { debounce } from "lodash";
 type StorySearchesProps = {
   query: SearchStoryParams | null;
   totalStories: number;
+  totalStoriesInDatabase: number;
   status: StoryListState["status"];
   fetchStories: Function;
 };
 
 const StorySearches: React.FC<StorySearchesProps> = ({
   totalStories,
+  totalStoriesInDatabase,
   fetchStories,
   status,
 }) => {
@@ -38,7 +40,7 @@ const StorySearches: React.FC<StorySearchesProps> = ({
         style={{
           opacity: status === FETCH_STORIES_SUCCESS ? 1 : 0,
         }}
-      >{`Displaying ${totalStories} out of unknown stories`}</p>
+      >{`Displaying ${totalStories} out of ${totalStoriesInDatabase} stories`}</p>
       <input
         type="text"
         placeholder="search stories"
@@ -51,6 +53,7 @@ const StorySearches: React.FC<StorySearchesProps> = ({
 
 const mapStateToProps = (state: { storyList: StoryListState }) => ({
   totalStories: state.storyList.stories.length,
+  totalStoriesInDatabase: state.storyList.totalStoriesInDatabase,
   query: state.storyList.query,
   status: state.storyList.status,
 });
