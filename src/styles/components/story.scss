@@ -148,6 +148,12 @@
       & label {
         margin-bottom: 0;
       }
+
+      & .nav-link {
+        margin-left: 8px;
+        padding: 0;
+        color: inherit;
+      }
     }
   }
 

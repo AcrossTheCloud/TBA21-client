@@ -6,7 +6,7 @@ export const FETCH_STORIES_ERROR = "FETCH_STORIES_ERROR";
 export const FETCH_STORIES_SUCCESS = "FETCH_STORIES_SUCCESS";
 
 export const fetchStories =
-  (params: SearchStoryParams | null = null) =>
+  (params: SearchStoryParams) =>
   async (dispatch, getState) => {
     dispatch({ type: FETCH_STORIES_LOADING });
     try {

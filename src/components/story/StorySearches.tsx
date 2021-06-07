@@ -7,6 +7,12 @@ import {
 } from "../../actions/story/storyList";
 import { SearchStoryParams } from "../../REST/story";
 import { debounce } from "lodash";
+import {
+  DropdownItem,
+  DropdownMenu,
+  DropdownToggle,
+  UncontrolledDropdown,
+} from "reactstrap";
 
 type StorySearchesProps = {
   query: SearchStoryParams | null;
@@ -21,22 +27,32 @@ const StorySearches: React.FC<StorySearchesProps> = ({
   totalStoriesInDatabase,
   fetchStories,
   status,
-  query,
 }) => {
   const [title, setTitle] = useState("");
 
+  const [orderBy, setOrderBy] = useState("date");
+  const [orderAuthor, setOrderAuthor] = useState("asc");
+  const [orderTitle, setOrderTitle] = useState("asc");
   const debouncedFetchStories = useCallback(
     debounce((...args) => fetchStories(...args), 250),
     []
   );
   useEffect(() => {
-    // debounce this
-    if (title) {
-      debouncedFetchStories({ ...query, title });
-    } else {
-      fetchStories();
-    }
-  }, [title, fetchStories, debouncedFetchStories]);
+    let order =
+      orderBy === "author"
+        ? orderAuthor
+        : orderBy === "title"
+        ? orderTitle
+        : "desc";
+    debouncedFetchStories({ title, order, orderBy });
+  }, [
+    title,
+    orderAuthor,
+    orderTitle,
+    orderBy,
+    fetchStories,
+    debouncedFetchStories,
+  ]);
   return (
     <div className="stories__searches">
       <div className="stories__header"></div>
@@ -56,22 +72,61 @@ const StorySearches: React.FC<StorySearchesProps> = ({
       <div className="autocomplete">Search by keyword tags</div>
       <div className="autocomplete">Search by type</div>
       <div className="autocomplete">Search by geography</div>
-      <p>View stories by:</p>
-      <div className='radio-wrapper'>
-        <input type="radio" id="male" name="gender" value="male" />
-        <label htmlFor="male">Newest</label>
-      </div>
-      <div className='radio-wrapper'>
-        <input type="radio" id="male" name="gender" value="male" />
-        <label htmlFor="male">Author</label>
-      </div>
-      <div className='radio-wrapper'>
-        <input type="radio" id="male" name="gender" value="male" />
-        <label htmlFor="male">Title</label>
+      <div className="orderby">
+        <p>View stories by:</p>
+        {ORDER_BY.map(({ label, value }) => (
+          <div className="radio-wrapper">
+            <input
+              type="radio"
+              id={value}
+              name="orderby"
+              value={value}
+              checked={value === orderBy}
+              onChange={(e) => setOrderBy(e.target.value)}
+            />
+            <label htmlFor={value}>{label}</label>
+            {value === "author" && (
+              <UncontrolledDropdown>
+                <DropdownToggle nav caret>
+                  {orderAuthor === "asc" ? "A-Z" : "Z-A"}
+                </DropdownToggle>
+                <DropdownMenu>
+                  <DropdownItem onClick={() => setOrderAuthor("asc")}>
+                    Ascending (A-Z)
+                  </DropdownItem>
+                  <DropdownItem onClick={() => setOrderAuthor("desc")}>
+                    Descending (Z-A)
+                  </DropdownItem>
+                </DropdownMenu>
+              </UncontrolledDropdown>
+            )}
+            {value === "title" && (
+              <UncontrolledDropdown>
+                <DropdownToggle nav caret>
+                  {orderTitle === "asc" ? "A-Z" : "Z-A"}
+                </DropdownToggle>
+                <DropdownMenu>
+                  <DropdownItem onClick={() => setOrderTitle("asc")}>
+                    Ascending (A-Z)
+                  </DropdownItem>
+                  <DropdownItem onClick={() => setOrderTitle("desc")}>
+                    Descending (Z-A)
+                  </DropdownItem>
+                </DropdownMenu>
+              </UncontrolledDropdown>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );
 };
+
+const ORDER_BY = [
+  { value: "date", label: "Newest" },
+  { value: "author", label: "Author" },
+  { value: "title", label: "Title" },
+];
 
 const mapStateToProps = (state: { storyList: StoryListState }) => ({
   totalStories: state.storyList.stories.length,
