@@ -11,14 +11,12 @@
 .story {
   min-height: calc(100vh - 91px);
   // height: 100%;
-  
+
   font-family: "Minion Pro", serif;
   background: white;
   color: #142636;
   line-height: 120%;
   font-size: 22.5px;
-  
-
 
   &--dark-theme {
     color: white;
@@ -41,7 +39,6 @@
     color: inherit !important;
     font-weight: bold;
   }
-  
 
   &-spinner-wrapper {
     display: flex;
@@ -132,6 +129,26 @@
   &__searches {
     width: 35%;
     padding: 0 4rem;
+
+    & input[type="text"],
+    .autocomplete {
+      width: 100%;
+      border: 1px solid black;
+      outline: none;
+      padding: 2px 8px;
+      margin-bottom: 8px;
+    }
+
+    & .radio-wrapper {
+      display: flex;
+      align-items: baseline;
+      & input {
+        margin-right: 6px;
+      }
+      & label {
+        margin-bottom: 0;
+      }
+    }
   }
 
   &__list {

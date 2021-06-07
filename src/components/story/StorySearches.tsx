@@ -21,14 +21,18 @@ const StorySearches: React.FC<StorySearchesProps> = ({
   totalStoriesInDatabase,
   fetchStories,
   status,
+  query,
 }) => {
   const [title, setTitle] = useState("");
 
-  const debouncedFetchStories = useCallback(debounce((...args) => fetchStories(...args), 250), [])
+  const debouncedFetchStories = useCallback(
+    debounce((...args) => fetchStories(...args), 250),
+    []
+  );
   useEffect(() => {
     // debounce this
     if (title) {
-      debouncedFetchStories({ title });
+      debouncedFetchStories({ ...query, title });
     } else {
       fetchStories();
     }
@@ -38,15 +42,33 @@ const StorySearches: React.FC<StorySearchesProps> = ({
       <div className="stories__header"></div>
       <p
         style={{
-          opacity: status === FETCH_STORIES_SUCCESS ? 1 : 0,
+          opacity: status === FETCH_STORIES_SUCCESS ? 1 : 0.4,
         }}
       >{`Displaying ${totalStories} out of ${totalStoriesInDatabase} stories`}</p>
       <input
         type="text"
-        placeholder="search stories"
+        placeholder="Search stories"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
       />
+      <div className="autocomplete">Search by author</div>
+      <div className="autocomplete">Search by concept tags</div>
+      <div className="autocomplete">Search by keyword tags</div>
+      <div className="autocomplete">Search by type</div>
+      <div className="autocomplete">Search by geography</div>
+      <p>View stories by:</p>
+      <div className='radio-wrapper'>
+        <input type="radio" id="male" name="gender" value="male" />
+        <label htmlFor="male">Newest</label>
+      </div>
+      <div className='radio-wrapper'>
+        <input type="radio" id="male" name="gender" value="male" />
+        <label htmlFor="male">Author</label>
+      </div>
+      <div className='radio-wrapper'>
+        <input type="radio" id="male" name="gender" value="male" />
+        <label htmlFor="male">Title</label>
+      </div>
     </div>
   );
 };

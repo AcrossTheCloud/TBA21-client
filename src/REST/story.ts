@@ -20,9 +20,13 @@ export const getStoriesAndTotalStoriesInDatabase = async (params: SearchStoryPar
   }
   const response = await fetch(url);
   const stories = await response.json();
+
   return {stories, totalStoriesInDatabase: Number(response.headers.get('x-wp-total')) || 0};
 };
 
+export type SearchStorySortBy = 'newest' | 'author' | 'title'
+
 export type SearchStoryParams = {
   title: string;
+  sortBy: SearchStorySortBy;
 };
