@@ -8,7 +8,7 @@ import {
 import { ViewStoryState } from "../../reducers/story/viewStory";
 import { connect } from "react-redux";
 import { fetchStory } from "../../actions/story/viewStory";
-import { Spinner } from "reactstrap";
+import { Spinner, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
 import useStoryTheme from "hooks/useStoryTheme";
 
 type ViewStory = {
@@ -38,6 +38,7 @@ const ViewStoryBreadcrumb = ({ title }) => {
   );
 };
 
+const ViewStoryHeader = (props) => <div className="story-header" {...props} />;
 
 const ViewStory: React.FC<ViewStoryWithMatch> = ({
   match,
@@ -46,32 +47,14 @@ const ViewStory: React.FC<ViewStoryWithMatch> = ({
   status,
   fetchStory,
 }) => {
-
-  const {theme, setTheme, themes, themeClassName} = useStoryTheme()
+  const { theme, setTheme, themes, themeClassName } = useStoryTheme();
 
   useEffect(() => {
     fetchStory(match.params.slug);
   }, [fetchStory, match.params.slug]);
-  
+
   return (
     <div className={`story ${themeClassName}`}>
-      <ul>
-        {themes.map((t) => (
-          <li
-            style={{
-              fontWeight: theme === t ? "bold" : "normal",
-              display: "inline-block",
-              marginRight: "1rem",
-            }}
-            key={t}
-            onClick={() => {
-              setTheme(t);
-            }}
-          >
-            {t}
-          </li>
-        ))}
-      </ul>
       {status === FETCH_STORY_LOADING && (
         <div className="story-spinner-wrapper">
           <Spinner />
@@ -79,7 +62,31 @@ const ViewStory: React.FC<ViewStoryWithMatch> = ({
       )}
       {status === FETCH_STORY_SUCCESS && (
         <>
-          <ViewStoryBreadcrumb title={title} />
+          <ViewStoryHeader>
+            <ViewStoryBreadcrumb title={title} />
+            <div>
+            <UncontrolledDropdown>
+              <DropdownToggle />
+              <DropdownMenu right={true}>
+              {themes.map((t) => (
+                <DropdownItem
+                  style={{
+                    fontWeight: theme === t ? "bold" : "normal",
+                    display: "inline-block",
+                    marginRight: "1rem",
+                  }}
+                  key={t}
+                  onClick={() => {
+                    setTheme(t);
+                  }}
+                >
+                  {t}
+                </DropdownItem>
+              ))}
+              </DropdownMenu>
+              </UncontrolledDropdown>
+            </div>
+          </ViewStoryHeader>
           <div className="story-content">
             <h1 dangerouslySetInnerHTML={{ __html: title }} />
             <div dangerouslySetInnerHTML={{ __html: html }} />

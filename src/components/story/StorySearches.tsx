@@ -86,7 +86,7 @@ const StorySearches: React.FC<StorySearchesProps> = ({
             />
             <label htmlFor={value}>{label}</label>
             {value === "author" && (
-              <UncontrolledDropdown>
+              <UncontrolledDropdown direction={orderAuthor === 'asc' ? 'down' : 'up'}>
                 <DropdownToggle nav caret>
                   {orderAuthor === "asc" ? "A-Z" : "Z-A"}
                 </DropdownToggle>
@@ -101,7 +101,7 @@ const StorySearches: React.FC<StorySearchesProps> = ({
               </UncontrolledDropdown>
             )}
             {value === "title" && (
-              <UncontrolledDropdown>
+              <UncontrolledDropdown direction={orderTitle === 'asc' ? 'down' : 'up'}>
                 <DropdownToggle nav caret>
                   {orderTitle === "asc" ? "A-Z" : "Z-A"}
                 </DropdownToggle>
