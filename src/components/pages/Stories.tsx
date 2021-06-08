@@ -5,15 +5,12 @@ import "styles/components/story.scss";
 
 const Stories = () => {
   return (
-
     <div className="stories">
-      
       <div className="stories__wrapper">
-          <StorySearches />
-          <StoryList></StoryList>
-        </div>
+        <StorySearches />
+        <StoryList></StoryList>
+      </div>
     </div>
   );
 };
-
 export default Stories;

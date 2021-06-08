@@ -52,7 +52,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 0 2rem;
-    font-family: Amare Alta, 'sans-serif';
+    font-family: Amare Alta, "sans-serif";
     & .btn.btn-secondary {
       padding: 0;
       color: inherit;
@@ -150,9 +150,18 @@
     .autocomplete {
       width: 100%;
       border: 1px solid black;
+      color: inherit;
       outline: none;
       padding: 2px 8px;
       margin-bottom: 8px;
+
+      & a {
+        color: inherit;
+      }
+
+      & .nav-link {
+        padding: 0;
+      }
     }
 
     & .radio-wrapper {

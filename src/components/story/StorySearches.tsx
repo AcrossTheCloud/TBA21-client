@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { StoryListState } from "../../reducers/story/storyList";
 import { connect } from "react-redux";
 import {
+  fetchCategories,
   fetchStories,
   FETCH_STORIES_SUCCESS,
 } from "../../actions/story/storyList";
@@ -20,16 +21,19 @@ type StorySearchesProps = {
   totalStoriesInDatabase: number;
   status: StoryListState["status"];
   fetchStories: Function;
+  fetchCategories: Function;
+  parentToChildCategory: StoryListState["parentToChildCategory"];
 };
 
 const StorySearches: React.FC<StorySearchesProps> = ({
   totalStories,
   totalStoriesInDatabase,
   fetchStories,
+  fetchCategories,
   status,
+  parentToChildCategory,
 }) => {
   const [title, setTitle] = useState("");
-
   const [orderBy, setOrderBy] = useState("date");
   const [orderAuthor, setOrderAuthor] = useState("asc");
   const [orderTitle, setOrderTitle] = useState("asc");
@@ -53,6 +57,11 @@ const StorySearches: React.FC<StorySearchesProps> = ({
     fetchStories,
     debouncedFetchStories,
   ]);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
   return (
     <div className="stories__searches">
       <div className="stories__header"></div>
@@ -68,14 +77,27 @@ const StorySearches: React.FC<StorySearchesProps> = ({
         onChange={(e) => setTitle(e.target.value)}
       />
       <div className="autocomplete">Search by author</div>
-      <div className="autocomplete">Search by concept tags</div>
-      <div className="autocomplete">Search by keyword tags</div>
-      <div className="autocomplete">Search by type</div>
-      <div className="autocomplete">Search by geography</div>
+      {parentToChildCategory.map((parentCategory) => (
+        <div className="autocomplete">
+          <UncontrolledDropdown>
+            <DropdownToggle nav caret>
+              {`Search by ${parentCategory.name}`}
+            </DropdownToggle>
+            <DropdownMenu>
+              {parentCategory.categories.map(category => 
+              <DropdownItem key={category.id}>
+                <div dangerouslySetInnerHTML={{__html: category.name}} />
+                <div style={{opacity: 0.6}}>{category.count} stories</div>
+              </DropdownItem>)
+              }
+            </DropdownMenu>
+          </UncontrolledDropdown>
+        </div>
+      ))}
       <div className="orderby">
         <p>View stories by:</p>
         {ORDER_BY.map(({ label, value }) => (
-          <div className="radio-wrapper">
+          <div className="radio-wrapper" key={value}>
             <input
               type="radio"
               id={value}
@@ -86,7 +108,9 @@ const StorySearches: React.FC<StorySearchesProps> = ({
             />
             <label htmlFor={value}>{label}</label>
             {value === "author" && (
-              <UncontrolledDropdown direction={orderAuthor === 'asc' ? 'down' : 'up'}>
+              <UncontrolledDropdown
+                direction={orderAuthor === "asc" ? "down" : "up"}
+              >
                 <DropdownToggle nav caret>
                   {orderAuthor === "asc" ? "A-Z" : "Z-A"}
                 </DropdownToggle>
@@ -101,7 +125,9 @@ const StorySearches: React.FC<StorySearchesProps> = ({
               </UncontrolledDropdown>
             )}
             {value === "title" && (
-              <UncontrolledDropdown direction={orderTitle === 'asc' ? 'down' : 'up'}>
+              <UncontrolledDropdown
+                direction={orderTitle === "asc" ? "down" : "up"}
+              >
                 <DropdownToggle nav caret>
                   {orderTitle === "asc" ? "A-Z" : "Z-A"}
                 </DropdownToggle>
@@ -133,8 +159,10 @@ const mapStateToProps = (state: { storyList: StoryListState }) => ({
   totalStoriesInDatabase: state.storyList.totalStoriesInDatabase,
   query: state.storyList.query,
   status: state.storyList.status,
+  parentToChildCategory: state.storyList.parentToChildCategory,
 });
 
 export default connect(mapStateToProps, {
   fetchStories,
+  fetchCategories,
 })(StorySearches);
