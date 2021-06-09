@@ -65,7 +65,7 @@ const StorySearches: React.FC<StorySearchesProps> = ({
 
   useEffect(() => {
     fetchCategories();
-  }, []);
+  }, [fetchCategories]);
 
   return (
     <div className="stories__searches">
