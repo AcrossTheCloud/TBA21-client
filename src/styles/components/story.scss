@@ -193,6 +193,24 @@
     align-items: center;
     height: 8rem;
   }
+
+  & .categories-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    & .category-tag {
+      margin-right: 4px;
+      margin-bottom: 4px;
+      padding: 0 0.5rem;
+      border: 1px solid rgba(0, 0, 0, 0.4);
+      & :first-child {
+        margin-right: 0.5rem;
+      }
+
+      & :last-child {
+        cursor: pointer;
+      }
+    }
+  }
 }
 
 .stories-item {

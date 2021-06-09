@@ -27,6 +27,10 @@ export const getStoriesAndTotalStoriesInDatabase = async (
     if (params.order) {
       url += `&order=${params.order}`;
     }
+
+    if (params.categoryIds && params.categoryIds.length > 0) {
+      url += `&categories=${params.categoryIds.join(',')}`
+    }
   }
   const response = await fetch(url);
   const stories = await response.json();
@@ -47,4 +51,5 @@ export type SearchStoryParams = {
   title: string;
   order: "asc" | "desc";
   orderBy: "date" | "author" | "title";
+  categoryIds: string[];
 };

@@ -1,3 +1,4 @@
+import { groupBy, keyBy } from "lodash";
 import { SearchStoryParams } from "REST/story";
 import { WP_REST_API_Posts, WP_REST_API_Term } from "wp-types";
 import { FETCH_CATEGORIES_SUCCESS } from "../../actions/story/storyList";
@@ -14,6 +15,7 @@ export interface StoryListState {
   parentToChildCategory: (WP_REST_API_Term & {
     categories: WP_REST_API_Term[];
   })[];
+  categoryById: { string: WP_REST_API_Term } | {};
 }
 
 const initialState: StoryListState = {
@@ -22,6 +24,7 @@ const initialState: StoryListState = {
   stories: [],
   query: null,
   parentToChildCategory: [],
+  categoryById: {},
 };
 
 export default (
@@ -47,15 +50,21 @@ export default (
       };
 
     case FETCH_CATEGORIES_SUCCESS:
-      let { categoriesByParentId } = action.payload;
+      let { categories } = action.payload;
+      let categoriesByParentId = groupBy(
+        categories,
+        (category) => category.parent
+      );
       let parentCategories = categoriesByParentId[0];
       let parentToChildCategory = parentCategories.map((parentCategory) => ({
         ...parentCategory,
         categories: categoriesByParentId[parentCategory.id] || [],
       }));
+      let categoryById = keyBy(categories, (category) => category.id);
       return {
         ...state,
         parentToChildCategory,
+        categoryById,
       };
 
     default:
