@@ -53,7 +53,8 @@
     "simple-line-icons": "^2.5.5",
     "topojson-client": "^3.1.0",
     "uuid": "^8.3.2",
-    "wavesurfer.js": "^3.3.3"
+    "wavesurfer.js": "^3.3.3",
+    "wp-types": "^2.5.1"
   },
   "scripts": {
     "start": "bash src/link_config.sh && craco start",

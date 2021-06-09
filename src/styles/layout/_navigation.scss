@@ -4,12 +4,10 @@
 #body.fixed {
   margin-bottom: 0;
   #navigation {
-    max-height: 0;
     border-bottom: 0;
     overflow: hidden;
   }
   #searchConsole {
-    max-height: 0;
     border-bottom: 0;
     overflow: hidden;
   }
@@ -19,20 +17,18 @@
   g {
     fill: #7E7E7E;
   }
-
+  
 }
 .home:hover svg g{
-    fill: #EEEEEE;
+  fill: #EEEEEE;
 }
 
 #navigation {
   background: #142636;
   //border-bottom: 1px solid #eee;
-
-  max-height: unset;
-  transition: max-height 5s;
+  
   overflow: unset;
-
+  
   .navbar {
     .navbar-toggler {
       border: none;
@@ -43,6 +39,8 @@
     }
     .nav-item {
       .nav-link {
+        font-family: Amare Alta, sans-serif;
+        text-transform: uppercase;
         @media screen and (max-width: 767px) {
           width: 100%;
           text-align: right;
@@ -54,6 +52,9 @@
           padding-left: 0.6rem;
         }
         font-size: 15px;
+        line-height: 0;
+        // adjust menu height
+        margin-top: 8px;
       }
       .btn {
         padding-top: 0.5rem;

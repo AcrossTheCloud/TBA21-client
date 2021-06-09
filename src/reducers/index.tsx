@@ -16,6 +16,8 @@ import about from 'reducers/pages/about';
 import itemModal from 'reducers/modals/itemModal';
 import collectionModal from 'reducers/modals/collectionModal';
 import liveStreamModal from 'reducers/modals/liveStreamModal';
+import viewStory from './story/viewStory';
+import storyList from './story/storyList';
 
 const reducers: ReducersMapObject = {
   viewItems,
@@ -41,7 +43,9 @@ const reducers: ReducersMapObject = {
   profile,
 
   // Admin
-  manageUsers
+  manageUsers,
+  viewStory,
+  storyList,
 };
 
 export default combineReducers(reducers);
