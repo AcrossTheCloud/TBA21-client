@@ -8,10 +8,9 @@ import {
   FETCH_STORIES_LOADING,
 } from "../../actions/story/storyList";
 import { Spinner } from "reactstrap";
-
+import defaultImage from "images/defaults/Unscharfe_Zeitung.jpg";
 type StoryListProps = StoryListState;
 
-// TODO: fetch author, category, and tag into redux and map it together with selector
 const StoryList: React.FC<StoryListProps> = ({ stories, status }) => {
   return (
     <div className="stories__list">
@@ -48,8 +47,8 @@ const StoryList: React.FC<StoryListProps> = ({ stories, status }) => {
               date={story.date}
               categories={categories}
               tags={tags}
-              imageURL={
-                "https://blog.nature.org/science/files/2020/09/JustinBruhn.2_6.1.18.jpg"
+              imageURL={ story.jetpack_featured_media_url || 
+                defaultImage
               }
             ></StoryItem>
           );

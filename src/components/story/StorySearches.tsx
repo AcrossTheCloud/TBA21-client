@@ -8,6 +8,7 @@ import {
 } from "../../actions/story/storyList";
 import { SearchStoryParams } from "../../REST/story";
 import { debounce } from "lodash";
+import { WP_REST_API_Term } from 'wp-types';
 import {
   DropdownItem,
   DropdownMenu,
@@ -23,6 +24,7 @@ type StorySearchesProps = {
   fetchStories: Function;
   fetchCategories: Function;
   parentToChildCategory: StoryListState["parentToChildCategory"];
+  categoryById: StoryListState['categoryById'];
 };
 
 const StorySearches: React.FC<StorySearchesProps> = ({
@@ -32,11 +34,13 @@ const StorySearches: React.FC<StorySearchesProps> = ({
   fetchCategories,
   status,
   parentToChildCategory,
+  categoryById
 }) => {
   const [title, setTitle] = useState("");
   const [orderBy, setOrderBy] = useState("date");
   const [orderAuthor, setOrderAuthor] = useState("asc");
   const [orderTitle, setOrderTitle] = useState("asc");
+  const [categories, setCategories] = useState<Set<number>>(new Set());
   const debouncedFetchStories = useCallback(
     debounce((...args) => fetchStories(...args), 250),
     []
@@ -48,7 +52,7 @@ const StorySearches: React.FC<StorySearchesProps> = ({
         : orderBy === "title"
         ? orderTitle
         : "desc";
-    debouncedFetchStories({ title, order, orderBy });
+    debouncedFetchStories({ title, order, orderBy, categoryIds: Array.from(categories) });
   }, [
     title,
     orderAuthor,
@@ -56,6 +60,7 @@ const StorySearches: React.FC<StorySearchesProps> = ({
     orderBy,
     fetchStories,
     debouncedFetchStories,
+    categories,
   ]);
 
   useEffect(() => {
@@ -78,22 +83,39 @@ const StorySearches: React.FC<StorySearchesProps> = ({
       />
       <div className="autocomplete">Search by author</div>
       {parentToChildCategory.map((parentCategory) => (
-        <div className="autocomplete">
+        <div className="autocomplete" key={parentCategory.id}>
           <UncontrolledDropdown>
             <DropdownToggle nav caret>
               {`Search by ${parentCategory.name}`}
             </DropdownToggle>
-            <DropdownMenu>
-              {parentCategory.categories.map(category => 
-              <DropdownItem key={category.id}>
-                <div dangerouslySetInnerHTML={{__html: category.name}} />
-                <div style={{opacity: 0.6}}>{category.count} stories</div>
-              </DropdownItem>)
-              }
+            <DropdownMenu style={{maxHeight: '28rem', overflowY: 'scroll'}}>
+              {parentCategory.categories.map((category) => (
+                <DropdownItem key={category.id} onClick={() => {
+                  let newSet = new Set(categories)
+                  newSet.has(category.id) ? newSet.delete(category.id) : newSet.add(category.id)
+                  setCategories(newSet)
+                }}>
+                  <div dangerouslySetInnerHTML={{ __html: category.name }} />
+                  <div style={{ opacity: 0.6 }}>{category.count} stories</div>
+                </DropdownItem>
+              ))}
             </DropdownMenu>
           </UncontrolledDropdown>
         </div>
       ))}
+      <div className="categories-wrapper">
+      {Array.from(categories).map(categoryId => {
+        let category: WP_REST_API_Term = categoryById[categoryId]
+        return <span className='category-tag' key={categoryId}>
+          <span>{category.name}</span>
+          <span onClick={() => {
+            let newSet = new Set(categories)
+            newSet.delete(categoryId)
+            setCategories(newSet)
+          }}>x</span>
+        </span>
+      })}
+      </div>
       <div className="orderby">
         <p>View stories by:</p>
         {ORDER_BY.map(({ label, value }) => (
@@ -155,6 +177,7 @@ const ORDER_BY = [
 ];
 
 const mapStateToProps = (state: { storyList: StoryListState }) => ({
+  categoryById: state.storyList.categoryById,
   totalStories: state.storyList.stories.length,
   totalStoriesInDatabase: state.storyList.totalStoriesInDatabase,
   query: state.storyList.query,

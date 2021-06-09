@@ -1,4 +1,3 @@
-import { groupBy } from "lodash";
 import { getCategories, SearchStoryParams } from "REST/story";
 import { getStoriesAndTotalStoriesInDatabase } from "../../REST/story";
 
@@ -35,12 +34,11 @@ export const fetchCategories = () => async (dispatch) => {
   try {
     // refer to REST/Story for existing fetching limitation.
     let categories = await getCategories();
-    let groupedByParentId = groupBy(categories, (category) => category.parent);
 
     dispatch({
       type: FETCH_CATEGORIES_SUCCESS,
       payload: {
-        categoriesByParentId: groupedByParentId
+        categories
       },
     });
   } catch {
