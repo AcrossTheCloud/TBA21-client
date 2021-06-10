@@ -31,8 +31,6 @@ const ViewStoryBreadcrumb = ({ title }) => {
       <span>{">"}</span>
       <span>Stories</span>
       <span>{">"}</span>
-      <span>Is this category?</span>
-      <span>{">"}</span>
       <span dangerouslySetInnerHTML={{ __html: title }} />
     </div>
   );

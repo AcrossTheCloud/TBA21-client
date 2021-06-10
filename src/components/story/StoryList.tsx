@@ -9,9 +9,12 @@ import {
 } from "../../actions/story/storyList";
 import { Spinner } from "reactstrap";
 import defaultImage from "images/defaults/Unscharfe_Zeitung.jpg";
-type StoryListProps = StoryListState;
+type StoryListProps = StoryListState &  {setSelectedCategoryIds: Function, setSelectedTagIds: Function};
 
-const StoryList: React.FC<StoryListProps> = ({ stories, status }) => {
+export type WP_REST_API_EmbeddedTerm = { id: number, name: string, slug: string }
+export type WP_REST_API_EmbeddedTerms = WP_REST_API_EmbeddedTerm[]
+
+const StoryList: React.FC<StoryListProps> = ({ stories, status, setSelectedCategoryIds, setSelectedTagIds }) => {
   return (
     <div className="stories__list">
       <div className="stories__header">
@@ -34,9 +37,7 @@ const StoryList: React.FC<StoryListProps> = ({ stories, status }) => {
           let authorName = authors?.length ? authors[0].name : "";
           let [categoriesTerm, tagsTerm] = (
             story._embedded ? story._embedded["wp:term"] : [[], []]
-          ) as [{ slug: string }[], { slug: string }[]];
-          let categories = categoriesTerm.map((cat) => cat.slug);
-          let tags = tagsTerm.map((tag) => tag.slug);
+          ) as [WP_REST_API_EmbeddedTerms, WP_REST_API_EmbeddedTerms];
           return (
             <StoryItem
               key={story.id}
@@ -45,11 +46,13 @@ const StoryList: React.FC<StoryListProps> = ({ stories, status }) => {
               author={authorName}
               body={story.excerpt.rendered}
               date={story.date}
-              categories={categories}
-              tags={tags}
-              imageURL={ story.jetpack_featured_media_url || 
+              categories={categoriesTerm}
+              tags={tagsTerm}
+              imageURL={ story.jetpack_featured_media_url as string ||
                 defaultImage
               }
+              setSelectedCategoryIds={setSelectedCategoryIds}
+              setSelectedTagIds={setSelectedTagIds}
             ></StoryItem>
           );
         })}

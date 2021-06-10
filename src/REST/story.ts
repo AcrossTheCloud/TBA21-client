@@ -1,4 +1,4 @@
-import type { WP_REST_API_Categories, WP_REST_API_Post, WP_REST_API_Posts } from "wp-types";
+import type { WP_REST_API_Categories, WP_REST_API_Post, WP_REST_API_Posts, WP_REST_API_Tags, WP_REST_API_Users } from "wp-types";
 
 const ROOT_WP_URL = "https://stories.ocean-archive.org/wp-json/wp/v2";
 
@@ -31,6 +31,14 @@ export const getStoriesAndTotalStoriesInDatabase = async (
     if (params.categoryIds && params.categoryIds.length > 0) {
       url += `&categories=${params.categoryIds.join(',')}`
     }
+
+    if (params.tagIds && params.tagIds.length > 0) {
+      url += `&tags=${params.tagIds.join(',')}`
+    }
+
+    if (params.authorIds && params.authorIds.length > 0) {
+      url += `&author=${params.authorIds.join(',')}`
+    }
   }
   const response = await fetch(url);
   const stories = await response.json();
@@ -47,9 +55,23 @@ export const getCategories = async (): Promise<WP_REST_API_Categories> => {
   return await response.json();
 };
 
+export const getTags = async (): Promise<WP_REST_API_Tags> => {
+  // fetch 100 categories (default to 10). If there are more than 100 categories, we should update this logic to do multiple fetches on redux reducer
+  const response = await fetch(`${ROOT_WP_URL}/tags?per_page=100`);
+  return await response.json();
+};
+
+export const getAuthors = async (): Promise<WP_REST_API_Users> => {
+  // fetch 100 categories (default to 10). If there are more than 100 categories, we should update this logic to do multiple fetches on redux reducer
+  const response = await fetch(`${ROOT_WP_URL}/users?per_page=100`);
+  return await response.json();
+};
+
 export type SearchStoryParams = {
   title: string;
   order: "asc" | "desc";
   orderBy: "date" | "author" | "title";
   categoryIds: string[];
+  tagIds: string[];
+  authorIds: string[];
 };

@@ -1,7 +1,18 @@
 import { groupBy, keyBy } from "lodash";
 import { SearchStoryParams } from "REST/story";
-import { WP_REST_API_Posts, WP_REST_API_Term } from "wp-types";
-import { FETCH_CATEGORIES_SUCCESS } from "../../actions/story/storyList";
+import { FETCH_AUTHORS_SUCCESS } from "../../actions/story/storyList";
+import {
+  WP_REST_API_Tags,
+  WP_REST_API_Posts,
+  WP_REST_API_Tag,
+  WP_REST_API_Term,
+  WP_REST_API_Users,
+  WP_REST_API_User,
+} from "wp-types";
+import {
+  FETCH_CATEGORIES_SUCCESS,
+  FETCH_TAGS_SUCCESS,
+} from "../../actions/story/storyList";
 import {
   FETCH_STORIES_LOADING,
   FETCH_STORIES_SUCCESS,
@@ -16,6 +27,10 @@ export interface StoryListState {
     categories: WP_REST_API_Term[];
   })[];
   categoryById: { string: WP_REST_API_Term } | {};
+  tags: WP_REST_API_Tags;
+  tagById: { string: WP_REST_API_Tag } | {};
+  authors: WP_REST_API_Users;
+  authorById: { string: WP_REST_API_User } | {};
 }
 
 const initialState: StoryListState = {
@@ -25,6 +40,10 @@ const initialState: StoryListState = {
   query: null,
   parentToChildCategory: [],
   categoryById: {},
+  tags: [],
+  tagById: {},
+  authors: [],
+  authorById: {},
 };
 
 export default (
@@ -67,6 +86,21 @@ export default (
         categoryById,
       };
 
+    case FETCH_TAGS_SUCCESS:
+      let { tags } = action.payload;
+      return {
+        ...state,
+        tags,
+        tagById: keyBy(tags, (tag) => tag.id),
+      };
+
+    case FETCH_AUTHORS_SUCCESS:
+      let { authors } = action.payload;
+      return {
+        ...state,
+        authors,
+        authorById: keyBy(authors, (author) => author.id),
+      };
     default:
       return state;
   }
