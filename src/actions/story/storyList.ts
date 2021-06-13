@@ -1,9 +1,14 @@
 import { getCategories, getTags, SearchStoryParams } from "REST/story";
-import { getStoriesAndTotalStoriesInDatabase, getAuthors } from '../../REST/story';
+import {
+  getStoriesAndTotalStoriesInDatabase,
+  getAuthors,
+} from "../../REST/story";
 
 export const FETCH_STORIES_LOADING = "FETCH_STORIES_LOADING";
 export const FETCH_STORIES_ERROR = "FETCH_STORIES_ERROR";
 export const FETCH_STORIES_SUCCESS = "FETCH_STORIES_SUCCESS";
+export const FETCH_STORIES_NEXT_PAGE = "FETCH_STORIES_NEXT_PAGE";
+export const FETCH_STORIES_PER_PAGE = 1;
 
 export const FETCH_CATEGORIES_LOADING = "FETCH_CATEGORIES_LOADING";
 export const FETCH_CATEGORIES_ERROR = "FETCH_CATEGORIES_ERROR";
@@ -20,9 +25,15 @@ export const FETCH_AUTHORS_SUCCESS = "FETCH_AUTHORS_SUCCESS";
 export const fetchStories =
   (params: SearchStoryParams) => async (dispatch, getState) => {
     dispatch({ type: FETCH_STORIES_LOADING });
+    let state = getState()
+    let totalStory = state.storyList.stories.length
     try {
       let { stories, totalStoriesInDatabase } =
-        await getStoriesAndTotalStoriesInDatabase(params);
+        await getStoriesAndTotalStoriesInDatabase({
+          ...params,
+          perPage: FETCH_STORIES_PER_PAGE,
+          page: Math.floor(totalStory / FETCH_STORIES_PER_PAGE) + 1
+        });
       dispatch({
         type: FETCH_STORIES_SUCCESS,
         payload: {
@@ -46,7 +57,7 @@ export const fetchCategories = () => async (dispatch) => {
     dispatch({
       type: FETCH_CATEGORIES_SUCCESS,
       payload: {
-        categories
+        categories,
       },
     });
   } catch {
@@ -65,7 +76,7 @@ export const fetchTags = () => async (dispatch) => {
     dispatch({
       type: FETCH_TAGS_SUCCESS,
       payload: {
-        tags
+        tags,
       },
     });
   } catch {
@@ -84,7 +95,7 @@ export const fetchAuthors = () => async (dispatch) => {
     dispatch({
       type: FETCH_AUTHORS_SUCCESS,
       payload: {
-        authors
+        authors,
       },
     });
   } catch {

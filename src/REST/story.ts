@@ -14,7 +14,7 @@ export const getStoriesAndTotalStoriesInDatabase = async (
   stories: WP_REST_API_Posts;
   totalStoriesInDatabase: number;
 }> => {
-  let url = `${ROOT_WP_URL}/posts?_embed`;
+  let url = `${ROOT_WP_URL}/posts?_embed&per_page=${params.perPage}&page=${params.page}`;
   if (params) {
     if (params.title) {
       url += `&search=${params.title}`;
@@ -73,5 +73,7 @@ export type SearchStoryParams = {
   orderBy: "date" | "author" | "title";
   categoryIds: string[];
   tagIds: string[];
-  authorIds: string[];
+  authorIds: string[]; 
+  perPage: number;
+  page: number;
 };

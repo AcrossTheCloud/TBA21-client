@@ -1,6 +1,6 @@
 import { groupBy, keyBy } from "lodash";
 import { SearchStoryParams } from "REST/story";
-import { FETCH_AUTHORS_SUCCESS } from "../../actions/story/storyList";
+import { FETCH_AUTHORS_SUCCESS, FETCH_STORIES_PER_PAGE } from '../../actions/story/storyList';
 import {
   WP_REST_API_Tags,
   WP_REST_API_Posts,
@@ -18,6 +18,7 @@ import {
   FETCH_STORIES_SUCCESS,
 } from "../../actions/story/storyList";
 
+
 export interface StoryListState {
   status: typeof FETCH_STORIES_LOADING | typeof FETCH_STORIES_SUCCESS;
   stories: WP_REST_API_Posts;
@@ -31,6 +32,7 @@ export interface StoryListState {
   tagById: { string: WP_REST_API_Tag } | {};
   authors: WP_REST_API_Users;
   authorById: { string: WP_REST_API_User } | {};
+  hasMore: boolean;
 }
 
 const initialState: StoryListState = {
@@ -44,6 +46,7 @@ const initialState: StoryListState = {
   tagById: {},
   authors: [],
   authorById: {},
+  hasMore: true,
 };
 
 export default (
@@ -66,6 +69,7 @@ export default (
         status: FETCH_STORIES_SUCCESS,
         stories: action.payload.stories,
         totalStoriesInDatabase: action.payload.totalStoriesInDatabase,
+        hasMore: action.payload.stories.length === FETCH_STORIES_PER_PAGE
       };
 
     case FETCH_CATEGORIES_SUCCESS:

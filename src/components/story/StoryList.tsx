@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "styles/components/story.scss";
 import StoryItem from "./StoryItem";
 import { StoryListState } from "reducers/story/storyList";
@@ -9,12 +9,44 @@ import {
 } from "../../actions/story/storyList";
 import { Spinner } from "reactstrap";
 import defaultImage from "images/defaults/Unscharfe_Zeitung.jpg";
-type StoryListProps = StoryListState &  {setSelectedCategoryIds: Function, setSelectedTagIds: Function};
+import { fetchStories } from "../../actions/story/storyList";
+import { debounce } from "lodash";
+type StoryListProps = StoryListState & {
+  setSelectedCategoryIds: Function;
+  setSelectedTagIds: Function;
+  fetchStories: Function;
+};
 
-export type WP_REST_API_EmbeddedTerm = { id: number, name: string, slug: string }
-export type WP_REST_API_EmbeddedTerms = WP_REST_API_EmbeddedTerm[]
+export type WP_REST_API_EmbeddedTerm = {
+  id: number;
+  name: string;
+  slug: string;
+};
+export type WP_REST_API_EmbeddedTerms = WP_REST_API_EmbeddedTerm[];
 
-const StoryList: React.FC<StoryListProps> = ({ stories, status, setSelectedCategoryIds, setSelectedTagIds }) => {
+const StoryList: React.FC<StoryListProps> = ({
+  stories,
+  status,
+  setSelectedCategoryIds,
+  setSelectedTagIds,
+  hasMore,
+  fetchStories,
+}) => {
+  useEffect(() => {
+    const scrollHandler = () => {
+      if (
+        true
+        // x.scrollTop + x.offsetTop > x.offsetHeight - 100
+      ) {
+        fetchStories();
+      }
+    };
+    const debouncedScrollHandler = debounce(scrollHandler, 200);
+    if (hasMore) {
+      document.addEventListener("scroll", debouncedScrollHandler);
+    }
+    return document.removeEventListener("scroll", debouncedScrollHandler);
+  }, [hasMore]);
   return (
     <div className="stories__list">
       <div className="stories__header">
@@ -48,8 +80,8 @@ const StoryList: React.FC<StoryListProps> = ({ stories, status, setSelectedCateg
               date={story.date}
               categories={categoriesTerm}
               tags={tagsTerm}
-              imageURL={ story.jetpack_featured_media_url as string ||
-                defaultImage
+              imageURL={
+                (story.jetpack_featured_media_url as string) || defaultImage
               }
               setSelectedCategoryIds={setSelectedCategoryIds}
               setSelectedTagIds={setSelectedTagIds}
@@ -63,4 +95,4 @@ const StoryList: React.FC<StoryListProps> = ({ stories, status, setSelectedCateg
 const mapStateToProps = (state: { storyList: StoryListState }) => ({
   ...state.storyList,
 });
-export default connect(mapStateToProps, {})(StoryList);
+export default connect(mapStateToProps, { fetchStories })(StoryList);
