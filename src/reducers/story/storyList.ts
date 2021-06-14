@@ -1,6 +1,10 @@
 import { groupBy, keyBy } from "lodash";
 import { SearchStoryParams } from "REST/story";
-import { FETCH_AUTHORS_SUCCESS, FETCH_STORIES_PER_PAGE } from '../../actions/story/storyList';
+import {
+  FETCH_AUTHORS_SUCCESS,
+  FETCH_STORIES_INCREMENTAL_SUCCESS,
+  FETCH_STORIES_INITIAL_SUCCESS,
+} from "../../actions/story/storyList";
 import {
   WP_REST_API_Tags,
   WP_REST_API_Posts,
@@ -13,14 +17,10 @@ import {
   FETCH_CATEGORIES_SUCCESS,
   FETCH_TAGS_SUCCESS,
 } from "../../actions/story/storyList";
-import {
-  FETCH_STORIES_LOADING,
-  FETCH_STORIES_SUCCESS,
-} from "../../actions/story/storyList";
-
+import { FETCH_STORIES_LOADING, FETCH_STORIES_LOADING_INITIAL, FETCH_STORIES_ERROR } from '../../actions/story/storyList';
 
 export interface StoryListState {
-  status: typeof FETCH_STORIES_LOADING | typeof FETCH_STORIES_SUCCESS;
+  status: typeof FETCH_STORIES_LOADING | typeof FETCH_STORIES_INCREMENTAL_SUCCESS | typeof FETCH_STORIES_INITIAL_SUCCESS | typeof FETCH_STORIES_ERROR;
   stories: WP_REST_API_Posts;
   totalStoriesInDatabase: number;
   query: SearchStoryParams | null;
@@ -57,19 +57,42 @@ export default (
     state = initialState;
   }
   switch (action.type) {
+    case FETCH_STORIES_LOADING_INITIAL:
+      return {
+        ...state,
+        stories: [],
+        status: FETCH_STORIES_LOADING,
+        hasMore: true,
+      }
     case FETCH_STORIES_LOADING:
       return {
         ...state,
         status: FETCH_STORIES_LOADING,
       };
 
-    case FETCH_STORIES_SUCCESS:
+    case FETCH_STORIES_INITIAL_SUCCESS:
       return {
         ...state,
-        status: FETCH_STORIES_SUCCESS,
+        status: FETCH_STORIES_INITIAL_SUCCESS,
         stories: action.payload.stories,
         totalStoriesInDatabase: action.payload.totalStoriesInDatabase,
-        hasMore: action.payload.stories.length === FETCH_STORIES_PER_PAGE
+        hasMore: action.payload.hasMore,
+      };
+
+    case FETCH_STORIES_INCREMENTAL_SUCCESS:
+      return {
+        ...state,
+        status: FETCH_STORIES_INCREMENTAL_SUCCESS,
+        stories: [...state.stories, ...action.payload.stories],
+        totalStoriesInDatabase: action.payload.totalStoriesInDatabase,
+        hasMore: action.payload.hasMore,
+      };
+
+      case FETCH_STORIES_ERROR:
+      return {
+        ...state,
+        hasMore: false,
+        status: FETCH_STORIES_ERROR,
       };
 
     case FETCH_CATEGORIES_SUCCESS:

@@ -13,6 +13,7 @@ export const getStoriesAndTotalStoriesInDatabase = async (
 ): Promise<{
   stories: WP_REST_API_Posts;
   totalStoriesInDatabase: number;
+  hasMore: boolean;
 }> => {
   let url = `${ROOT_WP_URL}/posts?_embed&per_page=${params.perPage}&page=${params.page}`;
   if (params) {
@@ -46,6 +47,7 @@ export const getStoriesAndTotalStoriesInDatabase = async (
   return {
     stories,
     totalStoriesInDatabase: Number(response.headers.get("x-wp-total")) || 0,
+    hasMore: (Number(response.headers.get("x-wp-totalpages")) || 0) > params.page,
   };
 };
 

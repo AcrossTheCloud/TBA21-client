@@ -4,7 +4,7 @@ import StorySearches from "../story/StorySearches";
 import "styles/components/story.scss";
 import { debounce } from "lodash";
 import {
-  fetchStories,
+  fetchStoriesInitial,
   fetchCategories,
   fetchTags,
 } from "../../actions/story/storyList";
@@ -15,10 +15,10 @@ import {
   WP_REST_API_Tags,
   WP_REST_API_Users,
 } from "wp-types";
-import { fetchAuthors } from "../../actions/story/storyList";
+import { fetchAuthors } from '../../actions/story/storyList';
 
 type StoriesProps = {
-  fetchStories: Function;
+  fetchStoriesInitial: Function;
   fetchCategories: Function;
   fetchTags: Function;
   fetchAuthors: Function;
@@ -28,7 +28,7 @@ type StoriesProps = {
 };
 
 const Stories: React.FC<StoriesProps> = ({
-  fetchStories,
+  fetchStoriesInitial,
   fetchCategories,
   fetchAuthors,
   fetchTags,
@@ -75,8 +75,8 @@ const Stories: React.FC<StoriesProps> = ({
     [selectedAuthorIds]
   );
 
-  const debouncedFetchStories = useCallback(
-    debounce((...args) => fetchStories(...args), 250),
+  const debouncedFetchStoriesInitial = useCallback(
+    debounce((...args) => fetchStoriesInitial(...args), 250),
     []
   );
 
@@ -88,7 +88,7 @@ const Stories: React.FC<StoriesProps> = ({
         ? orderTitle
         : "desc";
 
-    debouncedFetchStories({
+    debouncedFetchStoriesInitial({
       title,
       order,
       orderBy,
@@ -101,8 +101,7 @@ const Stories: React.FC<StoriesProps> = ({
     orderAuthor,
     orderTitle,
     orderBy,
-    fetchStories,
-    debouncedFetchStories,
+    debouncedFetchStoriesInitial,
     selectedCategoryIds,
     selectedTagIds,
     selectedAuthorIds,
@@ -178,5 +177,5 @@ export default connect(
     tagById: state.storyList.tagById,
     authorById: state.storyList.authorById,
   }),
-  { fetchStories, fetchCategories, fetchTags, fetchAuthors }
+  { fetchStoriesInitial, fetchCategories, fetchTags, fetchAuthors }
 )(Stories);

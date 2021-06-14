@@ -2,10 +2,10 @@ import React from "react";
 import { StoryListState } from "../../reducers/story/storyList";
 import { connect } from "react-redux";
 import {
-  fetchCategories,
-  fetchStories,
-  FETCH_STORIES_SUCCESS,
+  FETCH_STORIES_INITIAL_SUCCESS,
+  FETCH_STORIES_INCREMENTAL_SUCCESS,
 } from "../../actions/story/storyList";
+import { fetchCategories } from "../../actions/story/storyList";
 import {
   WP_REST_API_Terms,
   WP_REST_API_Tags,
@@ -68,7 +68,11 @@ const StorySearches: React.FC<StorySearchesProps> = ({
       <div className="stories__header"></div>
       <p
         style={{
-          opacity: status === FETCH_STORIES_SUCCESS ? 1 : 0.4,
+          opacity:
+            status === FETCH_STORIES_INITIAL_SUCCESS ||
+            status === FETCH_STORIES_INCREMENTAL_SUCCESS
+              ? 1
+              : 0.4,
         }}
       >{`Displaying ${totalStories} out of ${totalStoriesInDatabase} stories`}</p>
       <input
@@ -252,6 +256,5 @@ const mapStateToProps = (state: { storyList: StoryListState }) => ({
 });
 
 export default connect(mapStateToProps, {
-  fetchStories,
   fetchCategories,
 })(StorySearches);

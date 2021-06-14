@@ -1,20 +1,24 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import "styles/components/story.scss";
 import StoryItem from "./StoryItem";
 import { StoryListState } from "reducers/story/storyList";
 import { connect } from "react-redux";
 import {
-  FETCH_STORIES_SUCCESS,
   FETCH_STORIES_LOADING,
+  FETCH_STORIES_ERROR,
 } from "../../actions/story/storyList";
 import { Spinner } from "reactstrap";
 import defaultImage from "images/defaults/Unscharfe_Zeitung.jpg";
-import { fetchStories } from "../../actions/story/storyList";
+import {
+  fetchStoriesIncremental,
+  FETCH_STORIES_INCREMENTAL_SUCCESS,
+  FETCH_STORIES_INITIAL_SUCCESS,
+} from "../../actions/story/storyList";
 import { debounce } from "lodash";
 type StoryListProps = StoryListState & {
   setSelectedCategoryIds: Function;
   setSelectedTagIds: Function;
-  fetchStories: Function;
+  fetchStoriesIncremental: Function;
 };
 
 export type WP_REST_API_EmbeddedTerm = {
@@ -30,38 +34,36 @@ const StoryList: React.FC<StoryListProps> = ({
   setSelectedCategoryIds,
   setSelectedTagIds,
   hasMore,
-  fetchStories,
+  fetchStoriesIncremental,
 }) => {
+  const scrollStoriesRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    const scrollHandler = () => {
-      if (
-        true
-        // x.scrollTop + x.offsetTop > x.offsetHeight - 100
-      ) {
-        fetchStories();
+    let scrollElement = scrollStoriesRef.current;
+    function scrollHandler() {
+      let bounding = scrollElement?.getBoundingClientRect();
+      if (bounding && bounding.y - window.innerHeight <= 0) {
+        fetchStoriesIncremental();
       }
-    };
-    const debouncedScrollHandler = debounce(scrollHandler, 200);
-    if (hasMore) {
-      document.addEventListener("scroll", debouncedScrollHandler);
     }
-    return document.removeEventListener("scroll", debouncedScrollHandler);
-  }, [hasMore]);
+    const debouncedScrollHandler = debounce(scrollHandler, 200);
+    let storyList = document.querySelector(".stories__list");
+    if (hasMore && storyList) {
+      storyList.addEventListener("scroll", debouncedScrollHandler);
+    }
+    return () =>
+      storyList?.removeEventListener("scroll", debouncedScrollHandler);
+  }, [hasMore, status, fetchStoriesIncremental]);
+
+  let successfullyFetched =
+    status === FETCH_STORIES_INCREMENTAL_SUCCESS ||
+    status === FETCH_STORIES_INITIAL_SUCCESS;
   return (
     <div className="stories__list">
       <div className="stories__header">
         <h1 className="stories-headline">~ Dive into stories</h1>
       </div>
-      {status === FETCH_STORIES_LOADING && (
-        <div className="story-spinner-wrapper">
-          <Spinner />
-        </div>
-      )}
-      {status === FETCH_STORIES_SUCCESS && stories.length === 0 && (
-        <p>No stories found</p>
-      )}
-      {status === FETCH_STORIES_SUCCESS &&
-        stories.length > 0 &&
+      {successfullyFetched && stories.length === 0 && <p>No stories found</p>}
+      {stories.length > 0 &&
         stories.map((story) => {
           let authors = story._embedded?.author as
             | { name: string }[]
@@ -88,6 +90,28 @@ const StoryList: React.FC<StoryListProps> = ({
             ></StoryItem>
           );
         })}
+      {status === FETCH_STORIES_LOADING && (
+        <div className="story-spinner-wrapper">
+          <Spinner />
+        </div>
+      )}
+      {status === FETCH_STORIES_ERROR && (
+        <div className="story-spinner-wrapper">
+          Something went wrong. Refresh the page.
+        </div>
+      )}
+      {hasMore && successfullyFetched && (
+        <div
+          ref={scrollStoriesRef}
+          className="trigger-fetch"
+          style={{ height: "100px" }}
+        ></div>
+      )}
+      {!hasMore && stories.length > 0 && (
+        <div style={{ textAlign: "center", padding: "4rem 0" }}>
+          no more story
+        </div>
+      )}
     </div>
   );
 };
@@ -95,4 +119,4 @@ const StoryList: React.FC<StoryListProps> = ({
 const mapStateToProps = (state: { storyList: StoryListState }) => ({
   ...state.storyList,
 });
-export default connect(mapStateToProps, { fetchStories })(StoryList);
+export default connect(mapStateToProps, { fetchStoriesIncremental })(StoryList);
