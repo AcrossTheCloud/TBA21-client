@@ -72,9 +72,10 @@
     color: inherit !important;
     font-size: 17px;
     padding: 1rem;
-    & > span {
+    & > span, & > a {
       margin-right: 0.75rem;
       text-transform: uppercase;
+      font-weight: normal;
     }
   }
   &-content {
@@ -132,11 +133,9 @@
   background: white;
   display: flex;
   flex-direction: column;
-  // height: calc(100vh - 91px);
   overflow-y: hidden;
 
   &-hero {
-    height: 60vh;
     flex-shrink: 0;
     background: radial-gradient(
       74.17% 94.15% at 25.83% 69.37%,
@@ -146,22 +145,98 @@
       #50e2c1 100%
     );
     mix-blend-mode: normal;
+    display: flex;
+    justify-content: space-between;
+    padding: 6rem 4rem;
+    // buffer for header
+    padding-top: 7rem;
+    position: relative;
+    &-header {
+      position: absolute;
+      top: 2rem;
+      left: 0;
+      display: flex;
+      width: 100%;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    &-illustration {
+      position: absolute;
+      right: 2rem;
+      width: 8rem;
+      top: 21rem;
+    }
+
+    &-item {
+      & img {
+        max-width: 278px;
+        mask-repeat: no-repeat;
+        mask-size: contain;
+      }
+
+      &__image {
+        &--1 {
+          mask: url(/svg/01A.svg);
+        }
+
+        &--2 {
+          mask: url(/svg/02A.svg);
+        }
+
+        &--3 {
+          mask: url(/svg/03A.svg);
+        }
+      }
+
+      font-family: Amare Alta, sans-serif !important;
+      line-height: 120%;
+      letter-spacing: -1%;
+      color: white !important;
+      & h2 {
+        font-size: 22px;
+        text-transform: uppercase;
+        background: inherit;
+        font-family: inherit;
+        margin-bottom: 0;
+      }
+
+      & p {
+        font-family: inherit;
+      }
+    }
   }
 
   &-headline {
     font-size: 34px;
     text-transform: uppercase;
     letter-spacing: 5px;
+    margin-bottom: 4rem;
   }
 
   &__wrapper {
     display: flex;
     height: 100%;
+    margin-top: 7rem;
   }
 
   &__searches {
     width: 35%;
     padding: 0 4rem;
+    margin-top: 5rem;
+
+    &__illustration {
+      min-width: 240px;
+      margin-left: -12rem;
+      margin-top: -2rem;
+    }
+
+    &--sticky {
+      position: fixed;
+      top: 0;
+      left: 0;
+      margin-top: 9rem;
+    }
 
     & input[type="text"],
     .autocomplete {
@@ -203,12 +278,6 @@
     margin-left: auto;
     width: 65%;
     padding: 0 4rem;
-  }
-
-  &__header {
-    display: flex;
-    align-items: center;
-    height: 8rem;
   }
 
   & .categories-wrapper {
@@ -277,10 +346,4 @@
   &__author {
     text-decoration: underline;
   }
-}
-
-.mask {
-  mask: url(/blob/01A.svg);
-  mask-repeat: no-repeat;
-  mask-size: contain;
 }

@@ -23,6 +23,7 @@ import {
   WP_REST_API_Users,
 } from "wp-types";
 import { fetchAuthors } from "../../actions/story/storyList";
+import StoryHero from "components/story/StoryHero";
 
 type StoriesProps = {
   fetchStoriesInitial: Function;
@@ -171,23 +172,9 @@ const Stories: React.FC<StoriesProps> = ({
         }),
     [authorById, selectedAuthorIds]
   );
-
   return (
     <div className="stories">
-      <div className="stories-hero" ref={heroRef}>
-        <img
-          className="mask"
-          src="https://lh3.googleusercontent.com/proxy/ocom7yzDdU3vx8EgqLQgaNR-tF1D-MQvfb3GVSC1TmMjjMKcI4YBPYHtAk0xP2LF0dmC2L0AncXqZls6vT8RcUmYZTHdtG2-ZZQsbTsiU6YzmqG2NbD_Ztr8_Ut3EXReORBll-L0x4s9ZXJulVoIx1tQYtrIIym50ahuIMTn3QGqkFd1Mur3hubOLuDB"
-        />
-        <img
-          className="mask"
-          src="https://lh3.googleusercontent.com/proxy/ocom7yzDdU3vx8EgqLQgaNR-tF1D-MQvfb3GVSC1TmMjjMKcI4YBPYHtAk0xP2LF0dmC2L0AncXqZls6vT8RcUmYZTHdtG2-ZZQsbTsiU6YzmqG2NbD_Ztr8_Ut3EXReORBll-L0x4s9ZXJulVoIx1tQYtrIIym50ahuIMTn3QGqkFd1Mur3hubOLuDB"
-        />
-        <img
-          className="mask"
-          src="https://lh3.googleusercontent.com/proxy/ocom7yzDdU3vx8EgqLQgaNR-tF1D-MQvfb3GVSC1TmMjjMKcI4YBPYHtAk0xP2LF0dmC2L0AncXqZls6vT8RcUmYZTHdtG2-ZZQsbTsiU6YzmqG2NbD_Ztr8_Ut3EXReORBll-L0x4s9ZXJulVoIx1tQYtrIIym50ahuIMTn3QGqkFd1Mur3hubOLuDB"
-        />
-      </div>
+      <StoryHero heroRef={heroRef} />
       <div className="stories__wrapper">
         <StorySearches
           isSticky={isFilterSticky}

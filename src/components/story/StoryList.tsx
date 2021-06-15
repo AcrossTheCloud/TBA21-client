@@ -58,9 +58,7 @@ const StoryList: React.FC<StoryListProps> = ({
     status === FETCH_STORIES_INITIAL_SUCCESS;
   return (
     <div className="stories__list">
-      <div className="stories__header">
-        <h1 className="stories-headline">~ Dive into stories</h1>
-      </div>
+      <h1 className="stories-headline">~ Dive into stories</h1>
       {successfullyFetched && stories.length === 0 && <p>No stories found</p>}
       {(successfullyFetched || status === FETCH_STORIES_LOADING) &&
         stories.length > 0 &&
@@ -91,14 +89,16 @@ const StoryList: React.FC<StoryListProps> = ({
           );
         })}
       {status === FETCH_STORIES_LOADING && (
-        <div className={`story-spinner-wrapper ${stories.length > 0 ? 'story-spinner-wrapper--compact' : ''}`}>
+        <div
+          className={`story-spinner-wrapper ${
+            stories.length > 0 ? "story-spinner-wrapper--compact" : ""
+          }`}
+        >
           <Spinner />
         </div>
       )}
       {status === FETCH_STORIES_ERROR && (
-        <div>
-          Something went wrong. Refresh the page.
-        </div>
+        <div>Something went wrong. Refresh the page.</div>
       )}
       {hasMore && successfullyFetched && (
         <div

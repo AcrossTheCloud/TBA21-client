@@ -10,6 +10,7 @@ import { connect } from "react-redux";
 import { fetchStory } from "../../actions/story/viewStory";
 import { Spinner, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
 import useStoryTheme from "hooks/useStoryTheme";
+import { NavLink } from "react-router-dom";
 
 type ViewStory = {
   status: typeof FETCH_STORY_SUCCESS | typeof FETCH_STORY_LOADING;
@@ -23,13 +24,12 @@ type ViewStoryWithMatch = ViewStory & {
     params: { slug: string };
   };
 };
-
 const ViewStoryBreadcrumb = ({ title }) => {
   return (
     <div className="story-breadcrumb">
       <span>Ocean Archives</span>
       <span>{">"}</span>
-      <span>Stories</span>
+      <NavLink to='/stories'>Stories</NavLink>
       <span>{">"}</span>
       <span dangerouslySetInnerHTML={{ __html: title }} />
     </div>

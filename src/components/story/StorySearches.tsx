@@ -69,11 +69,11 @@ const StorySearches: React.FC<StorySearchesProps> = ({
 }) => {
   return (
     <div
-      className="stories__searches"
+      className={`stories__searches ${
+        isSticky ? "stories__searches--sticky" : ""
+      }`}
       ref={wrapperRef}
-      style={isSticky ? { position: "fixed", top: 0, left: 0 } : {}}
     >
-      <div className="stories__header"></div>
       <p
         style={{
           opacity:
@@ -244,6 +244,7 @@ const StorySearches: React.FC<StorySearchesProps> = ({
           </div>
         ))}
       </div>
+      <img src="/svg/circular-variant-1.svg" alt="" className='stories__searches__illustration' />
     </div>
   );
 };
