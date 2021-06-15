@@ -43,8 +43,12 @@
   &-spinner-wrapper {
     display: flex;
     justify-content: center;
-    padding-top: 25vh;
+    padding: 25rem 0;
     width: 100%;
+
+    &--compact {
+      padding: 2rem 0;
+    }
   }
 
   &-header {
@@ -128,8 +132,21 @@
   background: white;
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 91px);
+  // height: calc(100vh - 91px);
   overflow-y: hidden;
+
+  &-hero {
+    height: 60vh;
+    flex-shrink: 0;
+    background: radial-gradient(
+      74.17% 94.15% at 25.83% 69.37%,
+      #0076ff 0%,
+      #9039fe 51.56%,
+      #7b71ea 64.58%,
+      #50e2c1 100%
+    );
+    mix-blend-mode: normal;
+  }
 
   &-headline {
     font-size: 34px;
@@ -183,8 +200,8 @@
   }
 
   &__list {
+    margin-left: auto;
     width: 65%;
-    overflow-y: scroll;
     padding: 0 4rem;
   }
 
@@ -260,4 +277,10 @@
   &__author {
     text-decoration: underline;
   }
+}
+
+.mask {
+  mask: url(/blob/01A.svg);
+  mask-repeat: no-repeat;
+  mask-size: contain;
 }

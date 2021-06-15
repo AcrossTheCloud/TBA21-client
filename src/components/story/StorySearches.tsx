@@ -1,4 +1,4 @@
-import React from "react";
+import React, { RefObject } from "react";
 import { StoryListState } from "../../reducers/story/storyList";
 import { connect } from "react-redux";
 import {
@@ -39,9 +39,12 @@ type StorySearchesProps = {
   setSelectedAuthorIds: Function;
   authors: WP_REST_API_Users;
   selectedAuthors: WP_REST_API_Users;
+  wrapperRef: RefObject<HTMLDivElement>;
+  isSticky: boolean;
 };
 
 const StorySearches: React.FC<StorySearchesProps> = ({
+  wrapperRef,
   title,
   setTitle,
   selectedCategories,
@@ -62,9 +65,14 @@ const StorySearches: React.FC<StorySearchesProps> = ({
   setSelectedAuthorIds,
   authors,
   selectedAuthors,
+  isSticky,
 }) => {
   return (
-    <div className="stories__searches">
+    <div
+      className="stories__searches"
+      ref={wrapperRef}
+      style={isSticky ? { position: "fixed", top: 0, left: 0 } : {}}
+    >
       <div className="stories__header"></div>
       <p
         style={{

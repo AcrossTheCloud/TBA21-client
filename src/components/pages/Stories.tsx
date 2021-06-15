@@ -1,8 +1,15 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import StoryList from "components/story/StoryList";
 import StorySearches from "../story/StorySearches";
 import "styles/components/story.scss";
-import { debounce } from "lodash";
+import { debounce, throttle } from "lodash";
 import {
   fetchStoriesInitial,
   fetchCategories,
@@ -15,7 +22,7 @@ import {
   WP_REST_API_Tags,
   WP_REST_API_Users,
 } from "wp-types";
-import { fetchAuthors } from '../../actions/story/storyList';
+import { fetchAuthors } from "../../actions/story/storyList";
 
 type StoriesProps = {
   fetchStoriesInitial: Function;
@@ -36,6 +43,28 @@ const Stories: React.FC<StoriesProps> = ({
   tagById,
   authorById,
 }) => {
+  const heroRef = useRef<HTMLDivElement>(null);
+  const filterRef = useRef<HTMLDivElement>(null);
+  const [isFilterSticky, setIsFilterSticky] = useState(false);
+  useLayoutEffect(() => {
+    let elem = heroRef.current;
+    const scrollHandler = () => {
+      // element is shown on window
+      if (filterRef && elem && elem.getBoundingClientRect().bottom <= 0) {
+        setIsFilterSticky(true);
+      } else {
+        setIsFilterSticky(false);
+      }
+    };
+
+    const throttledScrollHandler = throttle(scrollHandler, 100);
+
+    if (elem) {
+      window.addEventListener("scroll", throttledScrollHandler);
+    }
+    return () => window.removeEventListener("scroll", throttledScrollHandler);
+  }, []);
+
   const [title, setTitle] = useState("");
   const [orderBy, setOrderBy] = useState<"author" | "title" | "date">("date");
   const [orderAuthor, setOrderAuthor] = useState<"asc" | "desc">("asc");
@@ -137,7 +166,7 @@ const Stories: React.FC<StoriesProps> = ({
       Array.from(selectedAuthorIds)
         .filter((authorId) => authorById[authorId])
         .map((authorId) => {
-          console.log(authorId)
+          console.log(authorId);
           return authorById[authorId];
         }),
     [authorById, selectedAuthorIds]
@@ -145,8 +174,24 @@ const Stories: React.FC<StoriesProps> = ({
 
   return (
     <div className="stories">
+      <div className="stories-hero" ref={heroRef}>
+        <img
+          className="mask"
+          src="https://lh3.googleusercontent.com/proxy/ocom7yzDdU3vx8EgqLQgaNR-tF1D-MQvfb3GVSC1TmMjjMKcI4YBPYHtAk0xP2LF0dmC2L0AncXqZls6vT8RcUmYZTHdtG2-ZZQsbTsiU6YzmqG2NbD_Ztr8_Ut3EXReORBll-L0x4s9ZXJulVoIx1tQYtrIIym50ahuIMTn3QGqkFd1Mur3hubOLuDB"
+        />
+        <img
+          className="mask"
+          src="https://lh3.googleusercontent.com/proxy/ocom7yzDdU3vx8EgqLQgaNR-tF1D-MQvfb3GVSC1TmMjjMKcI4YBPYHtAk0xP2LF0dmC2L0AncXqZls6vT8RcUmYZTHdtG2-ZZQsbTsiU6YzmqG2NbD_Ztr8_Ut3EXReORBll-L0x4s9ZXJulVoIx1tQYtrIIym50ahuIMTn3QGqkFd1Mur3hubOLuDB"
+        />
+        <img
+          className="mask"
+          src="https://lh3.googleusercontent.com/proxy/ocom7yzDdU3vx8EgqLQgaNR-tF1D-MQvfb3GVSC1TmMjjMKcI4YBPYHtAk0xP2LF0dmC2L0AncXqZls6vT8RcUmYZTHdtG2-ZZQsbTsiU6YzmqG2NbD_Ztr8_Ut3EXReORBll-L0x4s9ZXJulVoIx1tQYtrIIym50ahuIMTn3QGqkFd1Mur3hubOLuDB"
+        />
+      </div>
       <div className="stories__wrapper">
         <StorySearches
+          isSticky={isFilterSticky}
+          wrapperRef={filterRef}
           title={title}
           setTitle={setTitle}
           selectedCategories={selectedCategories}

@@ -39,6 +39,7 @@ const StoryList: React.FC<StoryListProps> = ({
   const scrollStoriesRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     let scrollElement = scrollStoriesRef.current;
+
     function scrollHandler() {
       let bounding = scrollElement?.getBoundingClientRect();
       if (bounding && bounding.y - window.innerHeight <= 0) {
@@ -46,12 +47,10 @@ const StoryList: React.FC<StoryListProps> = ({
       }
     }
     const debouncedScrollHandler = debounce(scrollHandler, 200);
-    let storyList = document.querySelector(".stories__list");
-    if (hasMore && storyList) {
-      storyList.addEventListener("scroll", debouncedScrollHandler);
+    if (hasMore) {
+      window.addEventListener("scroll", debouncedScrollHandler);
     }
-    return () =>
-      storyList?.removeEventListener("scroll", debouncedScrollHandler);
+    return () => window.removeEventListener("scroll", debouncedScrollHandler);
   }, [hasMore, status, fetchStoriesIncremental]);
 
   let successfullyFetched =
@@ -63,7 +62,8 @@ const StoryList: React.FC<StoryListProps> = ({
         <h1 className="stories-headline">~ Dive into stories</h1>
       </div>
       {successfullyFetched && stories.length === 0 && <p>No stories found</p>}
-      {stories.length > 0 &&
+      {(successfullyFetched || status === FETCH_STORIES_LOADING) &&
+        stories.length > 0 &&
         stories.map((story) => {
           let authors = story._embedded?.author as
             | { name: string }[]
@@ -91,12 +91,12 @@ const StoryList: React.FC<StoryListProps> = ({
           );
         })}
       {status === FETCH_STORIES_LOADING && (
-        <div className="story-spinner-wrapper">
+        <div className={`story-spinner-wrapper ${stories.length > 0 ? 'story-spinner-wrapper--compact' : ''}`}>
           <Spinner />
         </div>
       )}
       {status === FETCH_STORIES_ERROR && (
-        <div className="story-spinner-wrapper">
+        <div>
           Something went wrong. Refresh the page.
         </div>
       )}
