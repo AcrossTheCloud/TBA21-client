@@ -4,16 +4,16 @@
   "private": true,
   "dependencies": {
     "@craco/craco": "^5.9.0",
-    "@geoman-io/leaflet-geoman-free": "^2.11.1",
+    "@geoman-io/leaflet-geoman-free": "^2.11.2",
     "@mapbox/togeojson": "^0.16.0",
     "@matthewberryman/react-rte": "^0.16.3",
     "animate.css": "^3.7.2",
     "aws-amplify": "^2.3.0",
     "aws-amplify-react": "^3.1.9",
-    "aws-sdk": "^2.924.0",
+    "aws-sdk": "^2.927.0",
     "bootstrap": "^4.6.0",
     "chroma-js": "^2.1.2",
-    "cropperjs": "^1.5.11",
+    "cropperjs": "^1.5.12",
     "filereader": "^0.10.3",
     "geojson": "^0.5.0",
     "jquery": "^3.6.0",
@@ -54,7 +54,7 @@
     "topojson-client": "^3.1.0",
     "uuid": "^8.3.2",
     "wavesurfer.js": "^3.3.3",
-    "wp-types": "^2.5.1"
+    "wp-types": "^2.7.0"
   },
   "scripts": {
     "start": "bash src/link_config.sh && craco start",
@@ -71,7 +71,7 @@
     "@types/jest": "^23.3.14",
     "@types/jquery": "^3.5.5",
     "@types/jsonp": "^0.2.0",
-    "@types/leaflet": "^1.7.1",
+    "@types/leaflet": "^1.7.2",
     "@types/leaflet.markercluster": "^1.4.4",
     "@types/lodash": "^4.14.170",
     "@types/moment-duration-format": "^2.2.2",
