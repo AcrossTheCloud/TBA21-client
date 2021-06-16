@@ -8,9 +8,16 @@ import {
 import { ViewStoryState } from "../../reducers/story/viewStory";
 import { connect } from "react-redux";
 import { fetchStory } from "../../actions/story/viewStory";
-import { Spinner, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
+import {
+  Spinner,
+  UncontrolledDropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem,
+} from "reactstrap";
 import useStoryTheme from "hooks/useStoryTheme";
 import { NavLink } from "react-router-dom";
+import { storiesURL } from "urls";
 
 type ViewStory = {
   status: typeof FETCH_STORY_SUCCESS | typeof FETCH_STORY_LOADING;
@@ -29,7 +36,7 @@ const ViewStoryBreadcrumb = ({ title }) => {
     <div className="story-breadcrumb">
       <span>Ocean Archives</span>
       <span>{">"}</span>
-      <NavLink to='/stories'>Stories</NavLink>
+      <NavLink to={storiesURL()}>Stories</NavLink>
       <span>{">"}</span>
       <span dangerouslySetInnerHTML={{ __html: title }} />
     </div>
@@ -63,25 +70,25 @@ const ViewStory: React.FC<ViewStoryWithMatch> = ({
           <ViewStoryHeader>
             <ViewStoryBreadcrumb title={title} />
             <div>
-            <UncontrolledDropdown>
-              <DropdownToggle />
-              <DropdownMenu right={true}>
-              {themes.map((t) => (
-                <DropdownItem
-                  style={{
-                    fontWeight: theme === t ? "bold" : "normal",
-                    display: "inline-block",
-                    marginRight: "1rem",
-                  }}
-                  key={t}
-                  onClick={() => {
-                    setTheme(t);
-                  }}
-                >
-                  {t}
-                </DropdownItem>
-              ))}
-              </DropdownMenu>
+              <UncontrolledDropdown>
+                <DropdownToggle />
+                <DropdownMenu right={true}>
+                  {themes.map((t) => (
+                    <DropdownItem
+                      style={{
+                        fontWeight: theme === t ? "bold" : "normal",
+                        display: "inline-block",
+                        marginRight: "1rem",
+                      }}
+                      key={t}
+                      onClick={() => {
+                        setTheme(t);
+                      }}
+                    >
+                      {t}
+                    </DropdownItem>
+                  ))}
+                </DropdownMenu>
               </UncontrolledDropdown>
             </div>
           </ViewStoryHeader>

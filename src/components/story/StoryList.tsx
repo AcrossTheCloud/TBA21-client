@@ -85,7 +85,7 @@ const StoryList: React.FC<StoryListProps> = ({
               }
               setSelectedCategoryIds={setSelectedCategoryIds}
               setSelectedTagIds={setSelectedTagIds}
-            ></StoryItem>
+            />
           );
         })}
       {status === FETCH_STORIES_LOADING && (

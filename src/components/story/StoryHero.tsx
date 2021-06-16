@@ -4,6 +4,7 @@ import { WP_REST_API_Posts } from "wp-types";
 import defaultImage from "images/defaults/Unscharfe_Zeitung.jpg";
 import { NavLink } from "react-router-dom";
 import { Spinner } from "reactstrap";
+import { storyURL } from "urls";
 
 const StoryHero = ({ heroRef }) => {
   const [heroStories, setHeroStories] = useState<WP_REST_API_Posts>([]);
@@ -39,7 +40,7 @@ const StoryHero = ({ heroRef }) => {
           </div>
           <div className="stories-hero-items">
             {heroStories.map((story, idx) => (
-              <NavLink to={`/story/${story.slug}`} key={story.id}>
+              <NavLink to={storyURL(story.slug)} key={story.id}>
                 <div className="stories-hero-item">
                   <img
                     className={`stories-hero-item__image--${idx + 1}`}
