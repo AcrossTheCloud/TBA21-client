@@ -21,6 +21,10 @@ export const getStoriesAndTotalStoriesInDatabase = async (
       url += `&search=${params.title}`;
     }
 
+    if (params.sticky) {
+      url += `&sticky=true`
+    }
+
     if (params.orderBy) {
       url += `&orderby=${params.orderBy}`;
     }
@@ -70,12 +74,13 @@ export const getAuthors = async (): Promise<WP_REST_API_Users> => {
 };
 
 export type SearchStoryParams = {
-  title: string;
-  order: "asc" | "desc";
-  orderBy: "date" | "author" | "title";
-  categoryIds: string[];
-  tagIds: string[];
-  authorIds: string[]; 
-  perPage: number;
+  title?: string;
+  order?: "asc" | "desc";
+  orderBy?: "date" | "author" | "title";
+  categoryIds?: string[];
+  tagIds?: string[];
+  authorIds?: string[]; 
+  perPage?: number;
   page: number;
+  sticky: boolean;
 };
