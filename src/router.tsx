@@ -59,6 +59,7 @@ import About from './components/pages/About';
 import { viewProfileURL, itemURL, collectionURL } from './urls';
 import ViewStory from 'components/story/ViewStory';
 import Stories from 'components/pages/Stories';
+import ScrollToTop from './components/ScrollToTop';
 
 const LoggedInRoutes = ({ isAuthenticated, ...rest }) => {
   const isLoggedIn = isAuthenticated;
@@ -103,6 +104,7 @@ export const AppRouter = () => {
   return (
     <Provider store={store}>
       <Router history={history}>
+        <ScrollToTop />
         <AuthProvider>
           <div id="body">
 

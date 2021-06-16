@@ -1,7 +1,21 @@
-import React from "react";
+import React, { FC } from "react";
 import { Link } from "react-router-dom";
+import { WP_REST_API_EmbeddedTerms } from "./StoryList";
 
-const StoryItem = ({
+type StoryItemProps = {
+  slug: string;
+  title: string;
+  author: string;
+  body: string;
+  date: string;
+  tags: WP_REST_API_EmbeddedTerms;
+  categories: WP_REST_API_EmbeddedTerms;
+  imageURL: string;
+  setSelectedCategoryIds: Function;
+  setSelectedTagIds: Function;
+};
+
+const StoryItem: FC<StoryItemProps> = ({
   slug,
   title,
   author,
@@ -10,12 +24,17 @@ const StoryItem = ({
   tags,
   categories,
   imageURL,
+  setSelectedCategoryIds,
+  setSelectedTagIds,
 }) => (
   <div className="stories-item">
     <Link to={`/story/${slug}`}>
       <div className="stories-item-content">
         <div className="stories-item-content__texts">
-          <div className="stories-item__title" dangerouslySetInnerHTML={{__html: title}}/>
+          <div
+            className="stories-item__title"
+            dangerouslySetInnerHTML={{ __html: title }}
+          />
           <p className="stories-item__author">{author}</p>
           <div
             className="stories-item__body"
@@ -35,14 +54,12 @@ const StoryItem = ({
         <div>
           Keyword tags:{" "}
           {tags.map((tag, idx) => (
-            <span key={tag}>
-              <Link
-                className="stories-item-link"
-                to={`/stories/tag/${tag}`}
-                key={tag}
-              >
-                {tag}
-              </Link>
+            <span
+              key={tag.id}
+              onClick={() => setSelectedTagIds(tag.id)}
+              className="stories-item-link"
+            >
+              {tag.name}
               {idx === tags.length - 1 ? null : <span>, </span>}
             </span>
           ))}
@@ -52,13 +69,14 @@ const StoryItem = ({
         <div>
           Concept tags:{" "}
           {categories.map((category, idx) => (
-            <span key={category}>
-              <Link
-                className="stories-item-link"
-                to={`/stories/tag/${category}`}
-              >
-                {category}
-              </Link>
+            <span
+              key={category.id}
+              onClick={() => {
+                setSelectedCategoryIds(category.id);
+              }}
+              className="stories-item-link"
+            >
+              {category.name}
               {idx === categories.length - 1 ? null : <span>, </span>}
             </span>
           ))}

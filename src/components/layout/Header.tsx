@@ -452,6 +452,18 @@ class HeaderClass extends React.Component<Props, State> {
                         tag={ReactLink}
                         className="nav-link"
                         activeClassName="active"
+                        to="/"
+                      >
+                        Archive
+                      </NavLink>
+                    </NavItem>
+
+                    <NavItem>
+                      <NavLink
+                        exact
+                        tag={ReactLink}
+                        className="nav-link"
+                        activeClassName="active"
                         to="/map"
                       >
                         Map
