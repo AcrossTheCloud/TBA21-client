@@ -11,6 +11,7 @@ export const fetchStory = (slug: string) => async (dispatch, getState) => {
     dispatch({
       type: FETCH_STORY_SUCCESS,
       payload: {
+        id: story.id,
         title: story.title.rendered,
         html: story.content.rendered,
       },

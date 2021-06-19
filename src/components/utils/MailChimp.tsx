@@ -6,7 +6,7 @@ import { getCurrentAuthenticatedUser } from './Auth';
 import { Alerts, TimedErrorMessage } from './alerts';
 import { connect } from 'react-redux';
 import { Profile } from '../../types/Profile';
-import { getCurrentUserProfile } from '../../actions/user/profile';
+import { getCurrentUserProfileById } from '../../actions/user/profile';
 
 interface SubscriberDetails {
   status: string;
@@ -199,4 +199,4 @@ const mapStateToProps = (state: { profile: Props }) => ({
   details: state.profile.details
 });
 
-export default connect(mapStateToProps, { getCurrentUserProfile })(MailChimp);
+export default connect(mapStateToProps, { getCurrentUserProfile: getCurrentUserProfileById })(MailChimp);

@@ -45,6 +45,7 @@ import jsonp from "jsonp";
 
 import { AuthConsumer } from "../../providers/AuthProvider";
 import "styles/layout/_navigation.scss";
+import { storiesURL } from "urls";
 
 interface State extends Alerts {
   isOpen: boolean;
@@ -440,7 +441,7 @@ class HeaderClass extends React.Component<Props, State> {
                         tag={ReactLink}
                         className="nav-link"
                         activeClassName="active"
-                        to="/stories"
+                        to={storiesURL()}
                       >
                         Stories
                       </NavLink>
@@ -469,7 +470,7 @@ class HeaderClass extends React.Component<Props, State> {
                         Map
                       </NavLink>
                     </NavItem>
-                    
+
                     <NavItem>
                       <Button
                         size="sm"
@@ -494,19 +495,20 @@ class HeaderClass extends React.Component<Props, State> {
                           </NavItem>
                         </DropdownItem>
                         <DropdownItem>
-                          <NavItem onClick={() =>
-                            this.props.modalToggle("TC_MODAL", true)
-                          }>
+                          <NavItem
+                            onClick={() =>
+                              this.props.modalToggle("TC_MODAL", true)
+                            }
+                          >
                             Terms
-                            </NavItem>
-                          
+                          </NavItem>
                         </DropdownItem>
-                        <DropdownItem
-                          
-                        >
-                          <NavItem onClick={() =>
-                            this.props.modalToggle("PP_MODAL", true)
-                          }>
+                        <DropdownItem>
+                          <NavItem
+                            onClick={() =>
+                              this.props.modalToggle("PP_MODAL", true)
+                            }
+                          >
                             Privacy
                           </NavItem>
                         </DropdownItem>
@@ -522,8 +524,6 @@ class HeaderClass extends React.Component<Props, State> {
                     ) : (
                       <></>
                     )}
-
-                    
 
                     {isAuthenticated ? (
                       <>

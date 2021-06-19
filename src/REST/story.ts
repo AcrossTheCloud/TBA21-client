@@ -80,7 +80,7 @@ export type SearchStoryParams = {
   categoryIds?: string[];
   tagIds?: string[];
   authorIds?: string[]; 
-  perPage?: number;
+  perPage: number;
   page: number;
   sticky: boolean;
 };

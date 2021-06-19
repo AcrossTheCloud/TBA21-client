@@ -65,6 +65,15 @@
       border-radius: 100%;
       background: green;
     }
+
+    &__right {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      & > * {
+        margin-left: 1rem;
+      }
+    }
   }
 
   &-breadcrumb {
@@ -72,7 +81,8 @@
     color: inherit !important;
     font-size: 17px;
     padding: 1rem;
-    & > span, & > a {
+    & > span,
+    & > a {
       margin-right: 0.75rem;
       text-transform: uppercase;
       font-weight: normal;

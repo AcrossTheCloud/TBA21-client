@@ -6,6 +6,7 @@ import {
 export interface ViewStoryState {
   status: typeof FETCH_STORY_LOADING | typeof FETCH_STORY_SUCCESS,
   story: {
+    id: number;
     title: string;
     html: string;
   };
@@ -14,6 +15,7 @@ export interface ViewStoryState {
 const initialState: ViewStoryState = {
   status: FETCH_STORY_LOADING,
   story: {
+    id: NaN,
     title: "",
     html: "",
   },
@@ -35,6 +37,7 @@ export default (state: ViewStoryState = initialState, action): ViewStoryState =>
         ...state,
         status: FETCH_STORY_SUCCESS,
         story: {
+          id: action.payload.id,
           title: action.payload.title,
           html: action.payload.html,
         },

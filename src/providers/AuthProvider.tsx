@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Auth } from 'aws-amplify';
 import { connect } from 'react-redux';
-import { getCurrentUserProfile } from 'actions/user/profile';
+import { getCurrentUserProfileById } from 'actions/user/profile';
 import { Profile } from '../types/Profile';
 
 import { Authorisation, checkAuth } from '../components/utils/Auth';
@@ -143,4 +143,4 @@ const mapStateToProps = (state: { profile: { details: Profile} }) => ({
   profileDetails: state.profile.details,
 });
 
-export const AuthProvider = withRouter(connect(mapStateToProps, { getCurrentUserProfile })(AuthProviderClass));
+export const AuthProvider = withRouter(connect(mapStateToProps, { getCurrentUserProfile: getCurrentUserProfileById })(AuthProviderClass));

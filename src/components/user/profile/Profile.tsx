@@ -19,7 +19,7 @@ import { validateURL } from '../../utils/inputs/url';
 import DeleteAccount from 'components/utils/user/DeleteAccount';
 import ChangePassword from 'components/utils/user/ChangePassword';
 import { AuthContext } from '../../../providers/AuthProvider';
-import { deleteAccount, dispatchError, updateAttributes, changePassword, getCurrentUserProfile, overlayToggle } from 'actions/user/profile';
+import { deleteAccount, dispatchError, updateAttributes, changePassword, getCurrentUserProfileById, overlayToggle } from 'actions/user/profile';
 import { Alerts, ErrorMessage, SuccessMessage } from '../../utils/alerts';
 import Select from 'react-select';
 import CreatableSelect from 'react-select/creatable';
@@ -443,7 +443,7 @@ const mapDispatchToProps = {
   dispatchError,
   updateAttributes,
   changePassword,
-  getCurrentUserProfile,
+  getCurrentUserProfile: getCurrentUserProfileById,
   overlayToggle
 };
 

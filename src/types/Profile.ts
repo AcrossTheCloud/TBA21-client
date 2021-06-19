@@ -1,10 +1,10 @@
-import { Countries } from './Countries';
+import { Countries } from "./Countries";
 
 enum profileType {
-  Individual = 'Individual',
-  Collective = 'Collective',
-  Institution = 'Institution',
-  Public = 'Public'
+  Individual = "Individual",
+  Collective = "Collective",
+  Institution = "Institution",
+  Public = "Public",
 }
 
 export interface Profile {
@@ -28,4 +28,7 @@ export interface Profile {
   contact_email: string | null;
   profile_type: profileType | null;
   accepted_license: boolean | null;
+  favourites: {
+    stories?: number[];
+  } | null;
 }

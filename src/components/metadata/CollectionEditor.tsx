@@ -57,7 +57,7 @@ import CustomSelect from "./fields/CustomSelect";
 import { AuthContext } from "../../providers/AuthProvider";
 
 import { modalToggle } from "../../actions/pages/privacyPolicy";
-import { getCurrentUserProfile } from "../../actions/user/profile";
+import { getCurrentUserProfileById } from "../../actions/user/profile";
 import { Profile } from "../../types/Profile";
 
 import "styles/components/metadata/editors.scss";
@@ -2711,13 +2711,13 @@ const mapStateToProps = (state: { profile: { details: Profile } }) => ({
 });
 
 export const CollectionEditor = withRouter(
-  connect(mapStateToProps, { modalToggle, getCurrentUserProfile })(
+  connect(mapStateToProps, { modalToggle, getCurrentUserProfile: getCurrentUserProfileById })(
     CollectionEditorClass
   )
 );
 
 export const CollectionEditorWithCollapse = withRouter(
-  connect(mapStateToProps, { modalToggle, getCurrentUserProfile })(
+  connect(mapStateToProps, { modalToggle, getCurrentUserProfile: getCurrentUserProfileById })(
     withCollapse(CollectionEditorClass)
   ) as React.ComponentType<any>
 ); // tslint:disable-line no-any

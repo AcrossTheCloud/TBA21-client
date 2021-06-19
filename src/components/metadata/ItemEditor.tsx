@@ -86,7 +86,7 @@ import * as moment from "moment";
 import "moment-duration-format";
 import { FileTypes, S3File } from "../../types/s3File";
 import { modalToggle } from "../../actions/pages/privacyPolicy";
-import { getCurrentUserProfile } from "../../actions/user/profile";
+import { getCurrentUserProfileById } from "../../actions/user/profile";
 import { Profile } from "../../types/Profile";
 import "styles/components/metadata/itemEditor.scss";
 import "styles/components/metadata/editors.scss";
@@ -4246,11 +4246,11 @@ const mapStateToProps = (state: { profile: { details: Profile } }) => ({
   profileDetails: state.profile.details,
 });
 
-export default connect(mapStateToProps, { modalToggle, getCurrentUserProfile })(
+export default connect(mapStateToProps, { modalToggle, getCurrentUserProfile: getCurrentUserProfileById })(
   ItemEditorClass
 );
 
 export const ItemEditorWithCollapse = connect(mapStateToProps, {
   modalToggle,
-  getCurrentUserProfile,
+  getCurrentUserProfile: getCurrentUserProfileById,
 })(withCollapse(ItemEditorClass));
