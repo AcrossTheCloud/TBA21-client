@@ -10,7 +10,7 @@
     "animate.css": "^3.7.2",
     "aws-amplify": "^2.3.0",
     "aws-amplify-react": "^3.1.9",
-    "aws-sdk": "^2.927.0",
+    "aws-sdk": "^2.931.0",
     "bootstrap": "^4.6.0",
     "chroma-js": "^2.1.2",
     "cropperjs": "^1.5.12",
@@ -23,7 +23,7 @@
     "lodash-es": "^4.17.21",
     "moment": "2.29.1",
     "moment-duration-format": "^2.3.2",
-    "node-sass": "npm:sass@^1.34.1",
+    "node-sass": "npm:sass@^1.35.1",
     "popper.js": "^1.16.1",
     "react": "^16.14.0",
     "react-bootstrap-table-next": "^4.0.3",
@@ -54,7 +54,7 @@
     "topojson-client": "^3.1.0",
     "uuid": "^8.3.2",
     "wavesurfer.js": "^3.3.3",
-    "wp-types": "^2.7.0"
+    "wp-types": "^2.9.0"
   },
   "scripts": {
     "start": "bash src/link_config.sh && craco start",
@@ -71,7 +71,7 @@
     "@types/jest": "^23.3.14",
     "@types/jquery": "^3.5.5",
     "@types/jsonp": "^0.2.0",
-    "@types/leaflet": "^1.7.2",
+    "@types/leaflet": "^1.7.3",
     "@types/leaflet.markercluster": "^1.4.4",
     "@types/lodash": "^4.14.170",
     "@types/moment-duration-format": "^2.2.2",
@@ -97,7 +97,7 @@
     "ts-jest": "^24.3.0",
     "tslint": "^6.1.2",
     "tslint-react": "^4.2.0",
-    "typescript": "^3.9.9"
+    "typescript": "^3.9.10"
   },
   "browserslist": [
     ">0.2%",
