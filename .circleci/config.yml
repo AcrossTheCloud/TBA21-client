@@ -5,8 +5,8 @@ orbs:
 jobs:
   build:
     docker:
-      - image: cimg/node:14.17.0
-    resource_class: large
+      - image: cimg/node:14.17.1
+    resource_class: xlarge
 
     steps:
       - checkout
