@@ -28,7 +28,7 @@ export default {
     PROFILE_URL: "https://profile-pics.ocean-archive.org/"
   },
   auth: {
-    TWITCH_BEARER_TOKEN: "cgyf5u5uf8evi8q7ss7zz9hznmtntu",
+    TWITCH_BEARER_TOKEN: "406gweyftt7fjl20ryf1a15reej8n6",
     VIMEO_BEARER_TOKEN: "50391fda60bb61b7c06d6913d165d14c",
     GOOGLE_API_KEY: "AIzaSyAymCqtyVs1rnNgRw4NVmz1YtzMK5AAdo8"
   }
