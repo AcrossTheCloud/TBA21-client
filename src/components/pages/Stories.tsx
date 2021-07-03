@@ -24,6 +24,10 @@ import {
 } from "wp-types";
 import { fetchAuthors } from "../../actions/story/storyList";
 import StoryHero from "components/story/StoryHero";
+import Popup from "reactjs-popup";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 type StoriesProps = {
   fetchStoriesInitial: Function;
@@ -47,6 +51,7 @@ const Stories: React.FC<StoriesProps> = ({
   const heroRef = useRef<HTMLDivElement>(null);
   const filterRef = useRef<HTMLDivElement>(null);
   const [isFilterSticky, setIsFilterSticky] = useState(false);
+
   useLayoutEffect(() => {
     let elem = heroRef.current;
     const scrollHandler = () => {
@@ -65,6 +70,10 @@ const Stories: React.FC<StoriesProps> = ({
     }
     return () => window.removeEventListener("scroll", throttledScrollHandler);
   }, []);
+
+  const [isOnboardingShown, setIsOnboardingShown] = useState(true);
+
+  useEffect(() => {}, []);
 
   const [title, setTitle] = useState("");
   const [orderBy, setOrderBy] = useState<"author" | "title" | "date">("date");
@@ -172,6 +181,8 @@ const Stories: React.FC<StoriesProps> = ({
         }),
     [authorById, selectedAuthorIds]
   );
+
+  const handleCloseOnboarding = () => setIsOnboardingShown(false);
   return (
     <div className="stories">
       <StoryHero heroRef={heroRef} />
@@ -199,8 +210,72 @@ const Stories: React.FC<StoriesProps> = ({
           setSelectedTagIds={setSelectedTagIds}
         />
       </div>
+      <Popup
+        open={isOnboardingShown}
+        onClose={handleCloseOnboarding}
+        overlayStyle={{ background: "rgba(0,0,0,0.5)" }}
+      >
+        <Slider className={"story-onboarding"} {...settings}>
+          {slideItems.map((slideItem, idx) => (
+            <div key={idx}>
+              <div></div>
+              <div>
+                <h3>{slideItem.title}</h3>
+                <p>
+                  Welcome to ocean archive! a digital organism for wanderer.
+                </p>
+                <p>
+                  Welcome to ocean archive! a digital organism for
+                  wanderer.Welcome to ocean archive! a digital organism for
+                  wanderer. Welcome to ocean archive! a digital organism for
+                  wanderer. Welcome to ocean archive! a digital organism for
+                  wanderer. Welcome to ocean archive! a digital organism for
+                  wanderer.
+                </p>
+                <p>
+                  Welcome to ocean archive! a digital organism for
+                  wanderer.Welcome to ocean archive! a digital organism for
+                  wanderer.Welcome to ocean archive! a digital organism for
+                  wanderer.
+                </p>
+              </div>
+            </div>
+          ))}
+        </Slider>
+      </Popup>
     </div>
   );
+};
+
+const slideItem = {
+  title: "Hello wanderer!",
+  body: (
+    <div>
+      <p>Welcome to ocean archive! a digital organism for wanderer.</p>
+      <p>
+        Welcome to ocean archive! a digital organism for wanderer.Welcome to
+        ocean archive! a digital organism for wanderer. Welcome to ocean
+        archive! a digital organism for wanderer. Welcome to ocean archive! a
+        digital organism for wanderer. Welcome to ocean archive! a digital
+        organism for wanderer.
+      </p>
+      <p>
+        Welcome to ocean archive! a digital organism for wanderer.Welcome to
+        ocean archive! a digital organism for wanderer.Welcome to ocean archive!
+        a digital organism for wanderer.
+      </p>
+      fetchProfile
+    </div>
+  ),
+};
+
+const slideItems = [slideItem, slideItem, slideItem, slideItem, slideItem];
+
+const settings = {
+  dots: true,
+  slidesToShow: 1,
+  slidesToScroll: 1,
+  arrows: false,
 };
 
 export default connect(

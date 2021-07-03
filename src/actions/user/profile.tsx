@@ -196,7 +196,7 @@ export const deleteUserFavourite =
           favourites: {
             ...profileDetails.favourites,
             [type]: (profileDetails.favourites[type] || []).filter(
-              (oldId) => oldId != id
+              (oldId) => oldId !== id
             ),
           },
         },

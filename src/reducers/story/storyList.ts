@@ -10,7 +10,6 @@ import {
   WP_REST_API_Posts,
   WP_REST_API_Tag,
   WP_REST_API_Term,
-  WP_REST_API_Users,
   WP_REST_API_User,
 } from "wp-types";
 import {
@@ -18,6 +17,8 @@ import {
   FETCH_TAGS_SUCCESS,
 } from "../../actions/story/storyList";
 import { FETCH_STORIES_LOADING, FETCH_STORIES_LOADING_INITIAL, FETCH_STORIES_ERROR } from '../../actions/story/storyList';
+
+type EnchancedWPRestAPIUser = WP_REST_API_User & {full_name: string}
 
 export interface StoryListState {
   status: typeof FETCH_STORIES_LOADING | typeof FETCH_STORIES_INCREMENTAL_SUCCESS | typeof FETCH_STORIES_INITIAL_SUCCESS | typeof FETCH_STORIES_ERROR;
@@ -30,8 +31,8 @@ export interface StoryListState {
   categoryById: { string: WP_REST_API_Term } | {};
   tags: WP_REST_API_Tags;
   tagById: { string: WP_REST_API_Tag } | {};
-  authors: WP_REST_API_Users;
-  authorById: { string: WP_REST_API_User } | {};
+  authors: EnchancedWPRestAPIUser[];
+  authorById: { string: EnchancedWPRestAPIUser } | {};
   hasMore: boolean;
 }
 

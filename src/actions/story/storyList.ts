@@ -1,4 +1,5 @@
 import { getCategories, getTags, SearchStoryParams } from "REST/story";
+import { API } from "aws-amplify";
 import {
   getStoriesAndTotalStoriesInDatabase,
   getAuthors,
@@ -35,7 +36,7 @@ export const fetchStoriesIncremental =
   (params: SearchStoryParams) => async (dispatch, getState) => {
     let state = getState();
     if (state.storyList.status === FETCH_STORIES_LOADING) {
-      return
+      return;
     }
     let totalStory = state.storyList.stories.length;
     let page = Math.floor(totalStory / FETCH_STORIES_PER_PAGE) + 1;
@@ -117,11 +118,26 @@ export const fetchAuthors = () => async (dispatch) => {
   try {
     // refer to REST/Story for existing fetching limitation.
     let authors = await getAuthors();
+    // authors from WP endpoint didn't send user full name, so we need to fetch and append if from TBA endpoint
+    let cognitoMetadatas: {
+      email: string;
+      full_name: string;
+      cognito_uuid: string;
+    }[] = await API.post("tba21", "getNamesByEmails", {
+      emails: authors.map((author) => author.name),
+    });
+
+    let authorsWithCognitoData = authors.map((author) => ({
+      ...author,
+      full_name:
+        cognitoMetadatas.find((data) => data.email === author.email)
+          ?.full_name || author.email,
+    }));
 
     dispatch({
       type: FETCH_AUTHORS_SUCCESS,
       payload: {
-        authors,
+        authors: authorsWithCognitoData,
       },
     });
   } catch {

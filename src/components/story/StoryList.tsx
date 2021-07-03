@@ -64,9 +64,9 @@ const StoryList: React.FC<StoryListProps> = ({
         stories.length > 0 &&
         stories.map((story) => {
           let authors = story._embedded?.author as
-            | { name: string }[]
+            | { full_name: string }[]
             | undefined;
-          let authorName = authors?.length ? authors[0].name : "";
+          let authorName = authors?.length ? authors[0].full_name : "";
           let [categoriesTerm, tagsTerm] = (
             story._embedded ? story._embedded["wp:term"] : [[], []]
           ) as [WP_REST_API_EmbeddedTerms, WP_REST_API_EmbeddedTerms];
