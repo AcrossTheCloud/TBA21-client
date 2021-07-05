@@ -35,6 +35,7 @@ const StoryList: React.FC<StoryListProps> = ({
   setSelectedTagIds,
   hasMore,
   fetchStoriesIncremental,
+  authorById,
 }) => {
   const scrollStoriesRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -63,10 +64,7 @@ const StoryList: React.FC<StoryListProps> = ({
       {(successfullyFetched || status === FETCH_STORIES_LOADING) &&
         stories.length > 0 &&
         stories.map((story) => {
-          let authors = story._embedded?.author as
-            | { full_name: string }[]
-            | undefined;
-          let authorName = authors?.length ? authors[0].full_name : "";
+          let authorName = authorById[story.author]?.full_name || "";
           let [categoriesTerm, tagsTerm] = (
             story._embedded ? story._embedded["wp:term"] : [[], []]
           ) as [WP_REST_API_EmbeddedTerms, WP_REST_API_EmbeddedTerms];

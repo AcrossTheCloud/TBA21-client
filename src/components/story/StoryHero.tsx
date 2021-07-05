@@ -5,8 +5,10 @@ import defaultImage from "images/defaults/Unscharfe_Zeitung.jpg";
 import { NavLink } from "react-router-dom";
 import { Spinner } from "reactstrap";
 import { storyURL } from "urls";
+import { connect } from "react-redux";
+import { StoryListState } from "../../reducers/story/storyList";
 
-const StoryHero = ({ heroRef }) => {
+const StoryHero = ({ heroRef, authorById }) => {
   const [heroStories, setHeroStories] = useState<WP_REST_API_Posts>([]);
   const [status, setStatus] =
     useState<"LOADING" | "ERROR" | "FETCHED">("LOADING");
@@ -54,7 +56,7 @@ const StoryHero = ({ heroRef }) => {
                     dangerouslySetInnerHTML={{ __html: story.title.rendered }}
                   ></h2>
                   {/* @ts-ignore */}
-                  <p>{story._embedded.author[0].name}</p>
+                  <p>{authorById[story.author]?.full_name || ""}</p>
                 </div>
               </NavLink>
             ))}
@@ -64,11 +66,12 @@ const StoryHero = ({ heroRef }) => {
             alt=""
             className="stories-hero-illustration"
           />
-          )
         </>
       )}
     </div>
   );
 };
 
-export default StoryHero;
+export default connect((state: { storyList: StoryListState }) => ({
+  authorById: state.storyList.authorById,
+}))(StoryHero);

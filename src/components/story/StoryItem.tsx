@@ -30,20 +30,22 @@ const StoryItem: FC<StoryItemProps> = ({
 }) => (
   <div className="stories-item">
     <Link to={storyURL(slug)}>
-      <div className="stories-item-content">
-        <div className="stories-item-content__texts">
-          <div
-            className="stories-item__title"
-            dangerouslySetInnerHTML={{ __html: title }}
-          />
-          <p className="stories-item__author">{author}</p>
-          <div
-            className="stories-item__body"
-            dangerouslySetInnerHTML={{ __html: body }}
-          />
-        </div>
-        <div className="stories-item-content__image">
-          <Blob src={imageURL} />
+      <div>
+        <div
+          className="stories-item__title"
+          dangerouslySetInnerHTML={{ __html: title }}
+        />
+        <div className="stories-item-content">
+          <div className="stories-item-content__image">
+            <Blob src={imageURL} />
+          </div>
+          <div className="stories-item-content__texts">
+            <p className="stories-item__author">{author}</p>
+            <div
+              className="stories-item__body"
+              dangerouslySetInnerHTML={{ __html: body }}
+            />
+          </div>
         </div>
       </div>
     </Link>
@@ -88,12 +90,11 @@ const StoryItem: FC<StoryItemProps> = ({
 );
 
 const Blob = ({ src }) => {
-  console.log(src);
   return (
     <svg
       preserveAspectRatio="xMinYMin meet"
-      width="183"
-      height="187"
+      width="100%"
+      height="100%"
       viewBox="0 0 183 187"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"

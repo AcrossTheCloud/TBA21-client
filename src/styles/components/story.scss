@@ -39,13 +39,20 @@
     color: inherit !important;
     font-weight: bold;
   }
-
   &-onboarding {
     @extend .searchresult;
     max-width: 50rem;
     padding: 3rem 4rem;
     padding-bottom: 4rem;
     color: white !important;
+
+    &-close {
+      color: white;
+      position: absolute;
+      right: 1.5em;
+      top: 1.5rem;
+      z-index: 1000;
+    }
     & h3 {
       text-transform: uppercase;
     }
@@ -69,25 +76,36 @@
       }
     }
 
-    &__prev-arrow {
+    // overriding react slick classNames
+
+    & .slick-prev,
+    .slick-next {
       position: absolute;
-      left: 2rem;
       bottom: 1rem;
       top: auto;
       text-transform: uppercase;
       cursor: pointer;
       z-index: 1000;
-
+      width: auto;
+      height: auto;
+      font-size: inherit !important;
+      line-height: inherit !important;
+      color: inherit !important;
+      transform: none;
+      &:before {
+        content: "";
+      }
     }
 
-    &__next-arrow {
-      position: absolute;
+    & .slick-disabled {
+      display: none;
+    }
+    & .slick-prev {
+      left: 2rem;
+    }
+
+    & .slick-next {
       right: 2rem;
-      bottom: 1rem;
-      top: auto;
-      text-transform: uppercase;
-      cursor: pointer;
-      z-index: 1000;
     }
 
     & .slick-dots {
@@ -101,21 +119,23 @@
         border-radius: 100%;
         color: transparent;
         width: 12px;
-        height: 12px; 
+        height: 12px;
         border: 1px solid white;
       }
 
-      & li button:before { 
-        display: none;
+      & li button:before {
+        opacity: 0;
+        content: "";
       }
 
-      & li.slick-active button:before {
-        display: block;
+      & li.slick-active {
         width: 12px;
         height: 12px;
         background: white;
         color: transparent;
+        border: 1px solid transparent;
         border-radius: 100%;
+        opacity: 1;
       }
     }
   }
@@ -324,6 +344,10 @@
     padding: 0 4rem;
     margin-top: 5rem;
 
+    @media screen and (max-width: 768px) {
+      display: none;
+    }
+
     &__illustration {
       min-width: 240px;
       margin-left: -12rem;
@@ -377,6 +401,10 @@
     margin-left: auto;
     width: 65%;
     padding: 0 4rem;
+
+    @media screen and (max-width: 768px) {
+      width: 100%;
+    }
   }
 
   & .categories-wrapper {
@@ -404,14 +432,37 @@
   margin-bottom: 6rem;
   max-width: 50rem;
 
+
+  @media screen and (max-width: 768px) {
+    max-width: 100%;
+  }
+
+
   &-content {
     display: flex;
     color: #142636 !important;
+    @media screen and (max-width: 768px) {
+      display: table-cell;
+      vertical-align: bottom;
+    }
+    flex-direction: row-reverse;
     &__texts {
       padding-right: 2rem;
+      @media screen and (max-width: 768px) {
+        // float: left;
+        // clear: both;
+      }
     }
 
     &__image {
+      flex-shrink: 0;
+      max-width: 12rem;
+      @media screen and (max-width: 768px) {
+        max-width: 8rem;
+        float: right;
+        display: block;
+      }
+
       // width: 10rem;
       // height: 10rem;
       // flex-shrink: 0;

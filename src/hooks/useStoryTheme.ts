@@ -1,16 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
-
+import { LOCAL_STORAGE_KEY } from "../constants";
 const themes = ["light", "dark", "rainbow", "auto"];
 const themeToClassName = {
   light: "",
   dark: "story--dark-theme",
   rainbow: "story--rainbow-theme",
 };
-
-const LOCAL_STORAGE_KEY = {
-  THEME: "OCEAN_ARCHIVE__THEME",
-};
-
 const useStoryTheme = () => {
   const [theme, setInternalTheme] = useState(
     localStorage.getItem(LOCAL_STORAGE_KEY.THEME) || "light"

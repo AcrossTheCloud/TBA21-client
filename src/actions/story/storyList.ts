@@ -118,21 +118,28 @@ export const fetchAuthors = () => async (dispatch) => {
   try {
     // refer to REST/Story for existing fetching limitation.
     let authors = await getAuthors();
+
     // authors from WP endpoint didn't send user full name, so we need to fetch and append if from TBA endpoint
     let cognitoMetadatas: {
       email: string;
       full_name: string;
       cognito_uuid: string;
     }[] = await API.post("tba21", "getNamesByEmails", {
-      emails: authors.map((author) => author.name),
+      body: {
+        emails: authors
+          .map((author) => author.name)
+          .filter((author) => author.includes("@")),
+      },
     });
 
+    
     let authorsWithCognitoData = authors.map((author) => ({
       ...author,
       full_name:
-        cognitoMetadatas.find((data) => data.email === author.email)
-          ?.full_name || author.email,
+      cognitoMetadatas.find((data) => data.email === author.email || author.name)
+      ?.full_name ?? author.email,
     }));
+    console.log({cognitoMetadatas, authors, authorsWithCognitoData})
 
     dispatch({
       type: FETCH_AUTHORS_SUCCESS,

@@ -29,6 +29,7 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import defaultImage from "images/defaults/Unscharfe_Zeitung.jpg";
+import { LOCAL_STORAGE_KEY } from "../../constants/index";
 
 type StoriesProps = {
   fetchStoriesInitial: Function;
@@ -72,9 +73,9 @@ const Stories: React.FC<StoriesProps> = ({
     return () => window.removeEventListener("scroll", throttledScrollHandler);
   }, []);
 
-  const [isOnboardingShown, setIsOnboardingShown] = useState(true);
-
-  useEffect(() => {}, []);
+  const [isOnboardingShown, setIsOnboardingShown] = useState(
+    localStorage.getItem(LOCAL_STORAGE_KEY.STORY_ONBOARDING_SHOWN) == "true"
+  );
 
   const [title, setTitle] = useState("");
   const [orderBy, setOrderBy] = useState<"author" | "title" | "date">("date");
@@ -183,7 +184,11 @@ const Stories: React.FC<StoriesProps> = ({
     [authorById, selectedAuthorIds]
   );
 
-  const handleCloseOnboarding = () => setIsOnboardingShown(false);
+  // set to true on production
+  const handleCloseOnboarding = () => {
+    setIsOnboardingShown(true);
+    // localStorage.setItem(LOCAL_STORAGE_KEY.STORY_ONBOARDING_SHOWN, "true");
+  };
   return (
     <div className="stories">
       <StoryHero heroRef={heroRef} />
@@ -212,7 +217,7 @@ const Stories: React.FC<StoriesProps> = ({
         />
       </div>
       <Popup
-        open={isOnboardingShown}
+        open={!isOnboardingShown}
         onClose={handleCloseOnboarding}
         overlayStyle={{ background: "rgba(0,0,0,0.5)" }}
       >
@@ -233,18 +238,42 @@ const Stories: React.FC<StoriesProps> = ({
             </div>
           ))}
         </Slider>
+        <div className="story-onboarding-close" onClick={handleCloseOnboarding}>
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M18 6L6 18"
+              stroke="white"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M6 6L18 18"
+              stroke="white"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </div>
       </Popup>
     </div>
   );
 };
 
 const PrevArrow = (props) => (
-  <div className={"story-onboarding__prev-arrow"} onClick={props.onClick}>
+  <div className={props.className} onClick={props.onClick}>
     Back
   </div>
 );
 const NextArrow = (props) => (
-  <div className={"story-onboarding__next-arrow"} onClick={props.onClick}>
+  <div className={props.className} onClick={props.onClick}>
     Next
   </div>
 );
@@ -268,7 +297,14 @@ const slideItem = {
   ),
 };
 
-const slideItems = [slideItem, slideItem, slideItem, slideItem, slideItem];
+const slideItems = [
+  slideItem,
+  slideItem,
+  slideItem,
+  slideItem,
+  slideItem,
+  slideItem,
+];
 
 const settings = {
   dots: true,
