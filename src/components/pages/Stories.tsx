@@ -74,7 +74,7 @@ const Stories: React.FC<StoriesProps> = ({
   }, []);
 
   const [isOnboardingShown, setIsOnboardingShown] = useState(
-    localStorage.getItem(LOCAL_STORAGE_KEY.STORY_ONBOARDING_SHOWN) == "true"
+    localStorage.getItem(LOCAL_STORAGE_KEY.STORY_ONBOARDING_SHOWN) === "true"
   );
 
   const [title, setTitle] = useState("");
