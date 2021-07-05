@@ -42,8 +42,9 @@
 
   &-onboarding {
     @extend .searchresult;
-    max-width: 40rem;
-    padding: 2rem;
+    max-width: 50rem;
+    padding: 3rem 4rem;
+    padding-bottom: 4rem;
     color: white !important;
     & h3 {
       text-transform: uppercase;
@@ -56,6 +57,67 @@
       #50e2c1 91.03%
     );
     border-radius: 18px;
+
+    &-item {
+      display: flex !important;
+      flex-direction: row;
+      align-items: center;
+
+      &__image {
+        flex-shrink: 0;
+        width: 50%;
+      }
+    }
+
+    &__prev-arrow {
+      position: absolute;
+      left: 2rem;
+      bottom: 1rem;
+      top: auto;
+      text-transform: uppercase;
+      cursor: pointer;
+      z-index: 1000;
+
+    }
+
+    &__next-arrow {
+      position: absolute;
+      right: 2rem;
+      bottom: 1rem;
+      top: auto;
+      text-transform: uppercase;
+      cursor: pointer;
+      z-index: 1000;
+    }
+
+    & .slick-dots {
+      display: flex;
+      justify-content: center;
+      right: 0;
+      bottom: 1.25rem;
+
+      & li {
+        background: transparent;
+        border-radius: 100%;
+        color: transparent;
+        width: 12px;
+        height: 12px; 
+        border: 1px solid white;
+      }
+
+      & li button:before { 
+        display: none;
+      }
+
+      & li.slick-active button:before {
+        display: block;
+        width: 12px;
+        height: 12px;
+        background: white;
+        color: transparent;
+        border-radius: 100%;
+      }
+    }
   }
 
   &-spinner-wrapper {
@@ -206,12 +268,10 @@
     }
 
     &-item {
-      padding: 0 4rem;
       & img {
         width: 278px;
         mask-repeat: no-repeat;
         mask-size: contain;
-        margin-bottom: 2rem;
       }
 
       &__image {

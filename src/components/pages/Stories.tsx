@@ -28,6 +28,7 @@ import Popup from "reactjs-popup";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import defaultImage from "images/defaults/Unscharfe_Zeitung.jpg";
 
 type StoriesProps = {
   fetchStoriesInitial: Function;
@@ -217,27 +218,17 @@ const Stories: React.FC<StoriesProps> = ({
       >
         <Slider className={"story-onboarding"} {...settings}>
           {slideItems.map((slideItem, idx) => (
-            <div key={idx}>
-              <div></div>
+            <div className="story-onboarding-item" key={idx}>
+              <div className="story-onboarding-item__image stories-hero-item">
+                <img
+                  className={"stories-hero-item__image--1"}
+                  src={defaultImage}
+                  alt=""
+                />
+              </div>
               <div>
                 <h3>{slideItem.title}</h3>
-                <p>
-                  Welcome to ocean archive! a digital organism for wanderer.
-                </p>
-                <p>
-                  Welcome to ocean archive! a digital organism for
-                  wanderer.Welcome to ocean archive! a digital organism for
-                  wanderer. Welcome to ocean archive! a digital organism for
-                  wanderer. Welcome to ocean archive! a digital organism for
-                  wanderer. Welcome to ocean archive! a digital organism for
-                  wanderer.
-                </p>
-                <p>
-                  Welcome to ocean archive! a digital organism for
-                  wanderer.Welcome to ocean archive! a digital organism for
-                  wanderer.Welcome to ocean archive! a digital organism for
-                  wanderer.
-                </p>
+                <div>{slideItem.body}</div>
               </div>
             </div>
           ))}
@@ -247,24 +238,32 @@ const Stories: React.FC<StoriesProps> = ({
   );
 };
 
+const PrevArrow = (props) => (
+  <div className={"story-onboarding__prev-arrow"} onClick={props.onClick}>
+    Back
+  </div>
+);
+const NextArrow = (props) => (
+  <div className={"story-onboarding__next-arrow"} onClick={props.onClick}>
+    Next
+  </div>
+);
+
 const slideItem = {
   title: "Hello wanderer!",
   body: (
     <div>
-      <p>Welcome to ocean archive! a digital organism for wanderer.</p>
-      <p>
-        Welcome to ocean archive! a digital organism for wanderer.Welcome to
-        ocean archive! a digital organism for wanderer. Welcome to ocean
-        archive! a digital organism for wanderer. Welcome to ocean archive! a
-        digital organism for wanderer. Welcome to ocean archive! a digital
-        organism for wanderer.
-      </p>
-      <p>
-        Welcome to ocean archive! a digital organism for wanderer.Welcome to
-        ocean archive! a digital organism for wanderer.Welcome to ocean archive!
-        a digital organism for wanderer.
-      </p>
-      fetchProfile
+      <div>
+        <p>Welcome to ocean archive! a digital organism for wanderer.</p>
+        <p>
+          Welcome to ocean archive! a digital organism for wanderer.Welcome to
+        </p>
+        <p>
+          Welcome to ocean archive! a digital organism for wanderer.Welcome to
+          ocean archive! a digital organism for wanderer.Welcome to ocean
+          archive! a digital organism for wanderer.
+        </p>
+      </div>
     </div>
   ),
 };
@@ -275,7 +274,9 @@ const settings = {
   dots: true,
   slidesToShow: 1,
   slidesToScroll: 1,
-  arrows: false,
+  infinite: false,
+  prevArrow: <PrevArrow />,
+  nextArrow: <NextArrow />,
 };
 
 export default connect(
