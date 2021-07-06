@@ -186,7 +186,7 @@ const ViewStory: React.FC<ViewStoryWithMatch> = ({
         // 8px is arbitary buffer for sensitivity
         if (rect.top >= 12) {
           // default to first element heading if it's not scrolled yet
-          if (iter == 0) nearestElement = element;
+          if (iter === 0) nearestElement = element;
           break;
         }
         nearestElement = element;
