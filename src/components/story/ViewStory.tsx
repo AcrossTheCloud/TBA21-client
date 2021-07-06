@@ -66,38 +66,40 @@ const ViewStoryBreadcrumb: React.FC<ViewStoryBreadcrumbProps> = ({
       <span>{">"}</span>
       <NavLink to={storiesURL()}>Stories</NavLink>
       <span>{">"}</span>
-      <span>
-        <UncontrolledDropdown>
-          <DropdownToggle nav caret>
-            <span
-              dangerouslySetInnerHTML={{ __html: activeSection.title }}
-            ></span>
-          </DropdownToggle>
-          <DropdownMenu
-            style={{
-              maxHeight: "28rem",
-              maxWidth: "30rem",
-              overflowY: "scroll",
-            }}
-          >
-            {sections.map((section) => (
-              <a key={section.key} href={`#${section.key}`}>
-                <DropdownItem>
-                  <span dangerouslySetInnerHTML={{ __html: section.title }} />
-                </DropdownItem>
-              </a>
-            ))}
-          </DropdownMenu>
-        </UncontrolledDropdown>
-      </span>
+      <UncontrolledDropdown>
+        <DropdownToggle nav caret>
+          <span
+            dangerouslySetInnerHTML={{ __html: activeSection.title }}
+          ></span>
+        </DropdownToggle>
+        <DropdownMenu
+          style={{
+            maxHeight: "28rem",
+            maxWidth: "30rem",
+            overflowY: "scroll",
+          }}
+        >
+          {sections.map((section) => (
+            <a key={section.key} href={`#${section.key}`}>
+              <DropdownItem>
+                <span
+                  dangerouslySetInnerHTML={{ __html: section.title }}
+                  style={{ marginLeft: `${(section.level - 1) * 1}rem` }}
+                />
+              </DropdownItem>
+            </a>
+          ))}
+        </DropdownMenu>
+      </UncontrolledDropdown>
     </div>
   );
 };
 
-const ViewStoryHeader = (props) => <div className="story-header" {...props} />;
+const ViewStoryHeader = (props) => <div {...props} />;
 
 const HEADER_TAGS = ["H1", "H2", "H3", "H4", "H5", "H6"];
-let MAIN_HEADER_ID = "MAIN_HEADER";
+const MAIN_HEADER_ID = "MAIN_HEADER";
+const SUBHEADING_CLASS = "story-content__subheading";
 const ViewStory: React.FC<ViewStoryWithMatch> = ({
   id,
   match,
@@ -156,6 +158,7 @@ const ViewStory: React.FC<ViewStoryWithMatch> = ({
         let key = [tagName, text].join("_");
         // append ID to each heading tag[]
         $node.attr("id", key);
+        $node.addClass(SUBHEADING_CLASS);
         temporarySections.push({
           key,
           level: parseInt(tagName.split("")[1]),
@@ -174,11 +177,24 @@ const ViewStory: React.FC<ViewStoryWithMatch> = ({
         return;
       }
 
-      let elementIds = $(wrapperRef.current).find("h1");
-      let nearestElement = elementIds.get(0);
-      if (nearestElement) {
+      let elements = $(wrapperRef.current).find(`.${SUBHEADING_CLASS}`);
+      let nearestElement: HTMLElement | null = null;
+      let iter = 0;
+      while (iter < elements.length) {
+        let element = elements[iter];
+        let rect = element.getBoundingClientRect();
+        // 8px is arbitary buffer for sensitivity
+        if (rect.top >= 12) {
+          // default to first element heading if it's not scrolled yet
+          if (iter == 0) nearestElement = element;
+          break;
+        }
+        nearestElement = element;
+        iter++;
+      }
+      if (nearestElement != null) {
         let activeSection = sections.find(
-          (section) => section.title === nearestElement.innerText
+          (section) => section.key === nearestElement?.getAttribute("id")
         );
 
         if (activeSection) {
@@ -186,7 +202,7 @@ const ViewStory: React.FC<ViewStoryWithMatch> = ({
         }
       }
     };
-    const throttledScrollHandler = throttle(scrollHandler, 100);
+    const throttledScrollHandler = throttle(scrollHandler, 250);
     document.addEventListener("scroll", throttledScrollHandler);
     return () => document.removeEventListener("scroll", throttledScrollHandler);
   }, [sections]);
@@ -200,7 +216,11 @@ const ViewStory: React.FC<ViewStoryWithMatch> = ({
       )}
       {status === FETCH_STORY_SUCCESS && (
         <>
-          <ViewStoryHeader>
+          <ViewStoryHeader
+            className={`story-header ${
+              isBreadcrumbSticky ? "story-header--sticky" : ""
+            }`}
+          >
             <ViewStoryBreadcrumb
               isBreadcrumbSticky={isBreadcrumbSticky}
               activeSection={activeSection}
@@ -247,6 +267,7 @@ const ViewStory: React.FC<ViewStoryWithMatch> = ({
           </ViewStoryHeader>
           <div className="story-content" ref={wrapperRef}>
             <h1
+              className={SUBHEADING_CLASS}
               id={MAIN_HEADER_ID}
               dangerouslySetInnerHTML={{ __html: title }}
             />

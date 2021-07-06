@@ -37,8 +37,8 @@
 
   & a {
     color: inherit !important;
-    font-weight: bold;
   }
+
   &-onboarding {
     @extend .searchresult;
     max-width: 50rem;
@@ -156,6 +156,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 0 2rem;
+    width: 100%;
     font-family: Amare Alta, "sans-serif";
     & .btn.btn-secondary {
       padding: 0;
@@ -163,16 +164,21 @@
       width: 16px;
       height: 16px;
       border-radius: 100%;
-      background: green;
     }
 
     &__right {
+      flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: center;
       & > * {
         margin-left: 1rem;
       }
+    }
+
+    &--sticky {
+      position: fixed;
+      top: 0;
     }
   }
 
@@ -182,20 +188,23 @@
     font-size: 17px;
     padding: 1rem;
     display: flex;
-    align-items: baseline;
+    max-width: 100%;
     & > span,
-    & a {
+    & > a,
+    & .dropdown > a {
+      flex-shrink: 0;
+      max-width: 100%;
+      display: inline-block;
       margin-right: 0.75rem;
       text-transform: uppercase;
       font-weight: normal !important;
+      max-width: 40vw;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     & .nav-link {
       padding: 0;
-    }
-    &--sticky {
-      position: fixed;
-      top: 0;
     }
   }
   &-content {
@@ -209,6 +218,12 @@
       border: 0;
       margin: 4rem auto;
     }
+
+    & a {
+      color: inherit !important;
+      font-weight: bold;
+    }
+
     & h1 {
       color: inherit;
       background: none;
