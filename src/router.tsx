@@ -266,7 +266,9 @@ export const AppRouter = () => {
                 !location.pathname.startsWith("/embed/") ? (
                   <>
                     <Header />
-                    <SearchConsole />
+                    {!![storyURL(""), storiesURL()].includes(
+                      location.pathname
+                    ) && <SearchConsole />}
                     <PrivacyPolicyPopUp />
                     <PrivacyPolicy />
                     <TermsAndConditions />

@@ -181,11 +181,21 @@
     color: inherit !important;
     font-size: 17px;
     padding: 1rem;
+    display: flex;
+    align-items: baseline;
     & > span,
-    & > a {
+    & a {
       margin-right: 0.75rem;
       text-transform: uppercase;
-      font-weight: normal;
+      font-weight: normal !important;
+    }
+
+    & .nav-link {
+      padding: 0;
+    }
+    &--sticky {
+      position: fixed;
+      top: 0;
     }
   }
   &-content {
@@ -432,11 +442,9 @@
   margin-bottom: 6rem;
   max-width: 50rem;
 
-
   @media screen and (max-width: 768px) {
     max-width: 100%;
   }
-
 
   &-content {
     display: flex;

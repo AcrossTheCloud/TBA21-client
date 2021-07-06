@@ -197,8 +197,6 @@ class ViewItem extends React.Component<Props, State> {
       return <></>;
     }
 
-    console.log(time_produced);
-
     return (
       <div id="item" className="container-fluid">
         <ErrorMessage message={this.props.errorMessage} />
