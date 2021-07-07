@@ -9,7 +9,6 @@ import { fetchCategories } from "../../actions/story/storyList";
 import {
   WP_REST_API_Terms,
   WP_REST_API_Tags,
-  WP_REST_API_Users,
 } from "wp-types";
 import {
   DropdownItem,
@@ -37,8 +36,8 @@ type StorySearchesProps = {
   parentToChildCategory: StoryListState["parentToChildCategory"];
   tags: WP_REST_API_Terms;
   setSelectedAuthorIds: Function;
-  authors: WP_REST_API_Users;
-  selectedAuthors: WP_REST_API_Users;
+  authors: StoryListState["authors"];
+  selectedAuthors: StoryListState['authors'];
   wrapperRef: RefObject<HTMLDivElement>;
   isSticky: boolean;
 };
@@ -102,7 +101,11 @@ const StorySearches: React.FC<StorySearchesProps> = ({
                   setSelectedAuthorIds(author.id);
                 }}
               >
-                <div dangerouslySetInnerHTML={{ __html: author.name }} />
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: author.full_name,
+                  }}
+                />
               </DropdownItem>
             ))}
           </DropdownMenu>
@@ -154,7 +157,7 @@ const StorySearches: React.FC<StorySearchesProps> = ({
         {selectedAuthors.map((author) => {
           return (
             <span className="category-tag" key={author.id}>
-              <span>{author.name}</span>
+              <span>{author.full_name}</span>
               <span
                 onClick={() => {
                   setSelectedAuthorIds(author.id);
@@ -244,7 +247,11 @@ const StorySearches: React.FC<StorySearchesProps> = ({
           </div>
         ))}
       </div>
-      <img src="/svg/circular-variant-1.svg" alt="" className='stories__searches__illustration' />
+      <img
+        src="/svg/circular-variant-1.svg"
+        alt=""
+        className="stories__searches__illustration"
+      />
     </div>
   );
 };

@@ -71,8 +71,10 @@
       align-items: center;
 
       &__image {
+        @extend .story-blob;
         flex-shrink: 0;
         width: 50%;
+        padding-right: 2rem;
       }
     }
 
@@ -169,7 +171,7 @@
     &__right {
       flex-shrink: 0;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: center;
       & > * {
         margin-left: 1rem;
@@ -213,10 +215,24 @@
     max-width: 45rem;
     margin: 0 auto;
     font-size: 23px;
-    & iframe {
+
+    & iframe, figure {
       display: block;
       border: 0;
       margin: 4rem auto;
+      width: 100%;
+      max-width: 100%;
+      margin-bottom: 4rem;
+
+      & video {
+        width: 100%;
+      }
+
+      & figcaption {
+        font-size: 14px;
+        opacity: 0.6;
+        text-align: right;
+      }
     }
 
     & a {
@@ -259,6 +275,27 @@
   }
 }
 
+.story-blob {
+  & img {
+    mask-repeat: no-repeat;
+    mask-size: contain;
+  }
+
+  &__image {
+    &--1 {
+      mask: url(/svg/01A.svg);
+    }
+
+    &--2 {
+      mask: url(/svg/02A.svg);
+    }
+
+    &--3 {
+      mask: url(/svg/03A.svg);
+    }
+  }
+}
+
 .stories {
   // extract to class
   font-family: Amare Alta, sans-serif;
@@ -272,7 +309,6 @@
 
   &-hero {
     flex-shrink: 0;
-
     background: radial-gradient(
       74.17% 94.15% at 25.83% 69.37%,
       #0076ff 0%,
@@ -289,6 +325,11 @@
     // buffer for header
     padding-top: 7rem;
     position: relative;
+
+    @media screen and (max-width: 768px) {
+      overflow-x: scroll;
+      overflow-y: hidden;
+    }
     &-header {
       position: absolute;
       top: 2rem;
@@ -313,24 +354,9 @@
     }
 
     &-item {
+      margin: 0 1rem;
       & img {
-        width: 278px;
-        mask-repeat: no-repeat;
-        mask-size: contain;
-      }
-
-      &__image {
-        &--1 {
-          mask: url(/svg/01A.svg);
-        }
-
-        &--2 {
-          mask: url(/svg/02A.svg);
-        }
-
-        &--3 {
-          mask: url(/svg/03A.svg);
-        }
+        max-width: 28rem;
       }
 
       font-family: Amare Alta, sans-serif !important;
@@ -356,6 +382,10 @@
     text-transform: uppercase;
     letter-spacing: 5px;
     margin-bottom: 4rem;
+
+    @media screen and (max-width: 768px) {
+      text-align: center;
+    }
   }
 
   &__wrapper {
@@ -505,6 +535,10 @@
   &__body {
     font-size: 19px;
     line-height: 1.2;
+
+    @media screen and (max-width: 768px) {
+      font-size: 16.5px;
+    }
   }
 
   &__title {
@@ -514,9 +548,17 @@
     border: 1px solid black;
     padding: 0.15rem 0.5rem;
     margin-bottom: 0.5rem;
+
+    @media screen and (max-width: 768px) {
+      font-size: 17px;
+    }
   }
 
   &__author {
+    font-size: 19px;
     text-decoration: underline;
+    @media screen and (max-width: 768px) {
+      font-size: 16.5px;
+    }
   }
 }

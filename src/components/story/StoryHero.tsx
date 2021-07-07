@@ -43,9 +43,9 @@ const StoryHero = ({ heroRef, authorById }) => {
           <div className="stories-hero-items">
             {heroStories.map((story, idx) => (
               <NavLink to={storyURL(story.slug)} key={story.id}>
-                <div className="stories-hero-item">
+                <div className="stories-hero-item story-blob">
                   <img
-                    className={`stories-hero-item__image--${idx + 1}`}
+                    className={`story-blob__image--${idx + 1}`}
                     alt=""
                     src={
                       (story.jetpack_featured_media_url as string) ||

@@ -20,7 +20,6 @@ import { StoryListState } from "../../reducers/story/storyList";
 import {
   WP_REST_API_Terms,
   WP_REST_API_Tags,
-  WP_REST_API_Users,
 } from "wp-types";
 import { fetchAuthors } from "../../actions/story/storyList";
 import StoryHero from "components/story/StoryHero";
@@ -173,12 +172,11 @@ const Stories: React.FC<StoriesProps> = ({
     [tagById, selectedTagIds]
   );
 
-  const selectedAuthors: WP_REST_API_Users = useMemo(
+  const selectedAuthors: StoryListState["authors"] = useMemo(
     () =>
       Array.from(selectedAuthorIds)
         .filter((authorId) => authorById[authorId])
         .map((authorId) => {
-          console.log(authorId);
           return authorById[authorId];
         }),
     [authorById, selectedAuthorIds]
@@ -224,9 +222,9 @@ const Stories: React.FC<StoriesProps> = ({
         <Slider className={"story-onboarding"} {...settings}>
           {slideItems.map((slideItem, idx) => (
             <div className="story-onboarding-item" key={idx}>
-              <div className="story-onboarding-item__image stories-hero-item">
+              <div className="story-onboarding-item__image">
                 <img
-                  className={"stories-hero-item__image--1"}
+                  className={"story-blob__image--1"}
                   src={defaultImage}
                   alt=""
                 />
@@ -249,16 +247,16 @@ const Stories: React.FC<StoriesProps> = ({
             <path
               d="M18 6L6 18"
               stroke="white"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             />
             <path
               d="M6 6L18 18"
               stroke="white"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             />
           </svg>
         </div>

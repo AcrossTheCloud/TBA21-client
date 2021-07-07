@@ -136,10 +136,9 @@ export const fetchAuthors = () => async (dispatch) => {
     let authorsWithCognitoData = authors.map((author) => ({
       ...author,
       full_name:
-      cognitoMetadatas.find((data) => data.email === author.email || author.name)
+      cognitoMetadatas.find((data) => data.email === author.name)
       ?.full_name ?? author.email,
     }));
-    console.log({cognitoMetadatas, authors, authorsWithCognitoData})
 
     dispatch({
       type: FETCH_AUTHORS_SUCCESS,
